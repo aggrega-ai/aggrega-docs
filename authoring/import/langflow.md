@@ -393,6 +393,15 @@ user 1000, group 0, the identity Langflow's image runs as, and exits. Langflow
 starts once it has completed: Docker creates the volume owned by root, and
 Langflow could not write its data there otherwise.
 
+## With an AI assistant
+
+An AI assistant [set up with Aggrega's tools](../../ai-assistants/set-up.md)
+can do the same: paste this prompt into it.
+
+<!-- copyable -->
+
+> Write the Aggrega documentation's runnable example `import-langflow` into a new folder with the `scaffold` tool. Its `source` folder is a workspace: name it as the workspace root on each call that follows. Import `basic-prompting.json` there with the `import` tool, for the target `compose`; the import reads the answers it needs from `import-answers.yaml` beside it. Then validate the Release the import drafted, `release.yaml`, with the `validate` tool, build it with the `build` tool, writing the files into `dist/`, and tell me which files the build wrote.
+
 ## Run it
 
 Set the key and the administrator's password in your shell, then start the

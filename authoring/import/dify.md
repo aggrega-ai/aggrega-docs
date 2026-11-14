@@ -362,6 +362,15 @@ names no application under `app.name`; the Job's `podFailurePolicy` fails the Jo
 that attempt, since a retry would be refused the same way; any other failure,
 such as the server not answering within about ten minutes, is retried.
 
+## With an AI assistant
+
+An AI assistant [set up with Aggrega's tools](../../ai-assistants/set-up.md)
+can do the same: paste this prompt into it.
+
+<!-- copyable -->
+
+> Write the Aggrega documentation's runnable example `import-dify` into a new folder with the `scaffold` tool. Its `source` folder is a workspace: name it as the workspace root on each call that follows. Import `support-assistant.yml` there with the `import` tool, for the target `helm`; the import reads the answers it needs from `import-answers.yaml` beside it. Then validate the Release the import drafted, `release.yaml`, with the `validate` tool, build it with the `build` tool, writing the files into `dist/`, and tell me which files the build wrote.
+
 ## Run it
 
 Before applying the manifests, create the Secrets they read. A workload naming

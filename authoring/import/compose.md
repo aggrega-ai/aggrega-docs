@@ -421,6 +421,15 @@ the database's data appears nowhere: the draft lists it in a comment above the
 database's entry, no key of the PostgreSQL Component takes it, and the
 rendered database service mounts no volume.
 
+## With an AI assistant
+
+An AI assistant [set up with Aggrega's tools](../../ai-assistants/set-up.md)
+can do the same: paste this prompt into it.
+
+<!-- copyable -->
+
+> Write the Aggrega documentation's runnable example `import-compose` into a new folder with the `scaffold` tool. Its `source` folder is a workspace: name it as the workspace root on each call that follows. Import `compose.yaml` there with the `import` tool, for the target `compose`; the import reads the answers it needs from `import-answers.yaml` beside it. Then validate the Release the import drafted, `release.yaml`, with the `validate` tool, build it with the `build` tool, writing the files into `dist/`, and tell me which files the build wrote.
+
 ## Run it
 
 `ghcr.io/example/notes-api:2.3.0` stands for your own API's image. It is a

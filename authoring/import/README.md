@@ -254,6 +254,15 @@ reads it to tell your edits from its own. Keep the answers file too: it holds no
 secret, so it can live in version control beside the source, and every later
 import of that source reads it.
 
+## With an AI assistant
+
+An AI assistant [set up with Aggrega's tools](../../ai-assistants/set-up.md)
+can do the same: paste this prompt into it.
+
+<!-- copyable -->
+
+> Import my project into Aggrega with the `import` tool: the source is `compose.yaml` in this folder, and the target is `compose`. If the import says values are still owed, tell me each one and what it is, and wait while I write my answers beside their keys in the answers file it names; then import again. Then validate the Release the import drafted with the `validate` tool, build it with the `build` tool, writing the files into `dist/`, and tell me which files the build wrote.
+
 ## Where the importers come from
 
 Each format is read by an importer plugin. The compiler's core importers, one

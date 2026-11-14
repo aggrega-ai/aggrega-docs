@@ -4,6 +4,8 @@ An AI assistant that can run commands on your machine — a coding agent in your
 
 When it is done, the assistant has two ways to work with Aggrega. The **skill** is a folder holding a `SKILL.md` file that the assistant loads when your request concerns Aggrega: it tells the assistant how the authoring loop runs and to take every answer about a schema or a file from the binary rather than from memory. The **MCP server**, `aggrega mcp`, gives it Aggrega's tools — scaffold, validate, build and the rest — and the reference material they work from. [The Aggrega skill](skill.md) describes the skill and the plugin, [Connect the MCP server](mcp-server.md) the server, and [What your assistant can do with Aggrega](what-it-can-do.md) what it reaches through it.
 
+Once it is set up, [Getting started](../getting-started.md), each walkthrough under [Import](../authoring/import/README.md) and the page of each [runnable example](../language-reference/examples/by-product-and-capability.md#in-teaching-order) that builds with Aggrega give the task they teach as a prompt to paste into it, beside the commands.
+
 ## The prompt
 
 <!-- copyable -->
