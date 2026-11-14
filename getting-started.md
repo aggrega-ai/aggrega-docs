@@ -266,6 +266,8 @@ Palette, draws the Release's components and the connections between them. **Aggr
 panel of the **Aggrega** view in the activity bar; Build writes its files into the folder's `dist/`.
 [Use Aggrega in Visual Studio Code](authoring/editor/README.md) covers the rest.
 
+![The first step of quickstart-ai open in Visual Studio Code: its Aggregate in the editor and, beside it, the Release's topology graph, where chat uses agent and agent uses llm and memory.](images/editor/quickstart-ai/step-1.png)
+
 ## Grow the agent one step at a time
 
 ### Add a cloud model, with the local one as fallback
@@ -289,6 +291,8 @@ step's shows exactly what the step adds:
 ```sh
 diff ../1/aggregate.yaml aggregate.yaml
 ```
+
+![The second step of quickstart-ai in Visual Studio Code: the topology graph now shows the agent using a gateway, which uses the cloud model gpt and the local model llm.](images/editor/quickstart-ai/step-2.png)
 
 #### With an AI assistant
 
@@ -343,6 +347,8 @@ When you are done with the stack, remove it, with the model cache and the conver
 ```sh
 docker compose -p quickstart-ai -f dist/compose/docker-compose.yaml down -v
 ```
+
+![The third step of quickstart-ai in Visual Studio Code: the topology graph now shows the gateway also using the Presidio analyzer and anonymizer.](images/editor/quickstart-ai/step-3.png)
 
 #### With an AI assistant
 
@@ -450,6 +456,8 @@ curl -s -X POST --data 'hello from the quickstart' http://localhost:8080/notes
 curl -s http://localhost:8080/notes/1
 ```
 
+![The first step of quickstart-web open in Visual Studio Code: its Aggregate in the editor and, beside it, the Release's topology graph, where web uses the PostgreSQL database db.](images/editor/quickstart-web/step-1.png)
+
 #### With an AI assistant
 
 An AI assistant [set up with Aggrega's tools](ai-assistants/set-up.md) can do the same: paste this prompt into it.
@@ -486,6 +494,8 @@ When you are done with the stack, remove it, with the database's data:
 docker compose -p quickstart-web -f dist/compose/docker-compose.yaml down -v
 ```
 
+![The second step of quickstart-web in Visual Studio Code: the topology graph now shows web using both db and a Redis cache named cache.](images/editor/quickstart-web/step-2.png)
+
 #### With an AI assistant
 
 An AI assistant [set up with Aggrega's tools](ai-assistants/set-up.md) can do the same: paste this prompt into it.
@@ -507,6 +517,8 @@ never contacts AWS.
 cd ../3
 aggrega build --release release.yaml --auto-pull
 ```
+
+![The third step of quickstart-web in Visual Studio Code: the topology graph shows the same three components, web, db and cache, which this step builds for AWS.](images/editor/quickstart-web/step-3.png)
 
 #### With an AI assistant
 
@@ -530,6 +542,8 @@ aggrega build --release release.yaml --auto-pull
 
 [The example's page](language-reference/examples/quickstart-web/README.md) shows what each step writes and the
 answers from a real run.
+
+![The fourth step of quickstart-web in Visual Studio Code: the topology graph shows web, db and cache, the same components as the step before.](images/editor/quickstart-web/step-4.png)
 
 #### With an AI assistant
 
