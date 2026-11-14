@@ -24805,6 +24805,17 @@
     "status": "machine",
     "text": "a Release não nomeia nenhuma chave, pelo que a instância não é cifrada"
   },
+  "25b18a6a254e07ac": {
+    "at": "2026-11-14T23:59:08.244Z",
+    "job": "session-0017-20261114235908",
+    "revision": {
+      "from": "4a5c96ed49f419b6",
+      "reviewed": false
+    },
+    "srcHash": "25b18a6a254e07ac",
+    "status": "machine",
+    "text": "**Essa linha de comandos começa com as flags globais com que este servidor foi iniciado e que decidem a configuração — `--config` e `--offline`, quando foram dadas — antes do comando e das flags próprias da chamada.** Assim, o comando lê a configuração que todas as outras ferramentas aqui leem: um servidor iniciado com `--offline` executa os seus comandos offline, e um iniciado com `--config` executa-os sobre esse ficheiro global. Uma flag que a chamada envia por si própria vem depois delas e prevalece, pelo que `offline: false` numa chamada acede à rede apenas para essa chamada, e a linha de comandos devolvida mostra ambas. **Quando o servidor foi iniciado com uma raiz de espaço de trabalho — por `--workspace-root` ou por `AGGREGA_WORKSPACE_ROOT` — a linha de comandos começa com essa raiz como `--workspace-root`, antes dessas duas**, para que o comando tome esse diretório como a sua raiz de espaço de trabalho, como faria se escrito com a mesma flag e como todas as ferramentas executadas dentro do servidor a tomam, em vez de encontrar o seu espaço de trabalho a partir do diretório em que o servidor foi iniciado. Uma chamada que envia `workspace_root` nomeia a sua própria, e a linha de comandos contém apenas essa — incluindo um valor vazio, que o comando lê tal como `--workspace-root \"\"` é lido num terminal: encontrar o espaço de trabalho a partir do diretório em que o servidor foi iniciado. Um servidor iniciado sem nenhuma delas não passa nenhuma raiz, pelo que os seus comandos encontram o seu espaço de trabalho a partir desse diretório, segundo a regra que [Em que espaço de trabalho é respondida uma chamada](#which-workspace-a-call-is-answered-in) estabelece para todas as ferramentas — exceto no lançamento do pacote de ambiente de trabalho com a sua definição **Workspace folder** vazia, em que uma chamada que não nomeia nenhum espaço de trabalho próprio não inicia nenhum comando e é respondida com a recusa dessa definição. **O comando é iniciado na raiz do espaço de trabalho que a chamada ou o lançamento nomeia**: o `workspace_root` da própria chamada, lido tal como todas as ferramentas o leem — um absoluto tal como foi enviado, um relativo a partir da raiz em que é respondida uma chamada que não nomeia nenhum — e passado ao comando na sua forma absoluta, ou, caso contrário, a raiz com que o servidor foi iniciado. Assim, um caminho relativo que uma chamada passa como ficheiro a ler — um documento a `validate`, um `--release` ou um `--catalog` — é lido dentro desse espaço de trabalho, como num terminal aberto aí, e uma compilação que o comando executa escreve `dist/` sob essa raiz. Quando nada nomeia uma raiz — nenhuma raiz de lançamento, e nenhum `workspace_root` ou um vazio — o comando é iniciado no diretório em que o servidor foi iniciado e lê um caminho relativo a partir daí; um `workspace_root` que não nomeie nenhuma pasta existente é passado tal como foi lido — um absoluto tal como foi enviado, um relativo na sua forma completa — e o comando recusa-o nas suas próprias palavras. Um comando que um plugin de extensão de comandos regista não recebe nenhuma delas, porque passa todos os argumentos ao plugin sem os ler em vez de analisar uma flag global, num terminal como aqui; é iniciado na mesma pasta que todos os outros comandos."
+  },
   "25b18a86baf96c03": {
     "at": "2026-11-03T21:35:42.901Z",
     "job": "session-0161-20261103213542",
@@ -41511,6 +41522,17 @@
     "srcHash": "4007655eed63d915",
     "status": "machine",
     "text": "O bloco de parser de um plugin `pluginType: parser`: os formatos de origem que transforma numa árvore estruturada canónica. Só está presente em plugins de parser; está ausente em qualquer outro tipo de plugin."
+  },
+  "400ae12d4e85a4dc": {
+    "at": "2026-11-14T23:59:08.244Z",
+    "job": "session-0017-20261114235908",
+    "revision": {
+      "from": "b2743956dd1395cb",
+      "reviewed": false
+    },
+    "srcHash": "400ae12d4e85a4dc",
+    "status": "machine",
+    "text": "**Um lançamento de ambiente de trabalho com a sua definição Workspace folder vazia é servido como recusa da mesma forma.** O pacote de ambiente de trabalho passa sempre ao servidor `AGGREGA_WORKSPACE_ROOT`, com o que quer que **Workspace folder** contenha, e define `AGGREGA_BUNDLE_VERSION` ao lado, enquanto a aplicação inicia o servidor numa pasta à sua escolha — muitas vezes uma pasta do sistema — e não no projeto. Assim, um servidor na entrada e saída padrão iniciado sem `--workspace-root`, cujo ambiente contém `AGGREGA_BUNDLE_VERSION` e um `AGGREGA_WORKSPACE_ROOT` vazio ou ausente, não procura um espaço de trabalho a partir da pasta em que foi iniciado. Escreve a recusa no seu fluxo de erros e arranca mesmo assim, respondendo como responde a uma raiz de lançamento inexistente: todas as chamadas que atuariam num espaço de trabalho e não nomeiam nenhum próprio são respondidas com uma recusa que indica que a aplicação de ambiente de trabalho lançou o servidor com a sua definição **Workspace folder** vazia, pelo que `AGGREGA_WORKSPACE_ROOT` não nomeia nenhuma raiz de espaço de trabalho, que diz para definir **Workspace folder** com a pasta que contém o `.aggrega-config.yaml` do espaço de trabalho, e que indica que uma pasta definida depois de o servidor arrancar só produz efeito quando a extensão é desativada e reativada ou a aplicação é reiniciada, porque a aplicação só passa a definição ao servidor quando o inicia. Uma ferramenta que executa um comando não inicia nenhum para uma chamada dessas. Uma chamada que nomeia um espaço de trabalho próprio por um caminho absoluto é aí respondida, e uma que o nomeia por um caminho relativo é respondida com a mesma recusa, já que não existe nenhum **Workspace folder** a partir do qual o ler; o que não atua em nenhum espaço de trabalho é respondido como em qualquer servidor. O servidor reconhece o lançamento apenas por `AGGREGA_BUNDLE_VERSION`: num pacote que não defina essa variável, uma definição vazia é lida como ausência de raiz, e um lançamento que define a variável à mão e não nomeia nenhuma raiz é recusado como o do pacote. Qualquer outro valor vazio continua a não nomear nenhuma raiz — um `AGGREGA_WORKSPACE_ROOT` vazio num lançamento sem `AGGREGA_BUNDLE_VERSION`, um `--workspace-root` escrito vazio, um listener, `aggrega serve` e todos os outros comandos leem-no como não definido."
   },
   "400dfdbc2b4cda0e": {
     "at": "2026-11-03T21:17:48.202Z",
@@ -61544,6 +61566,17 @@
     "status": "machine",
     "text": "Um template que não é analisável não produz nenhum conjunto de referências. Comunicar cada chave como não lida soterraria o diagnóstico de análise que a avaliação levanta sobre o mesmo template, pelo que, em vez disso, nada é comunicado. Uma entrada `artifacts:` é lida com os delimitadores padrão `{{ }}`, que não são o par que todos os fornecedores declaram para esse campo; lido com o par errado, um corpo destes produz referências que o seu autor nunca escreveu, ou não é analisável, e ambos os resultados só podem silenciar um aviso."
   },
+  "5eae2b09ddce2459": {
+    "at": "2026-11-14T23:59:08.244Z",
+    "job": "session-0017-20261114235908",
+    "revision": {
+      "from": "9d6be90b03b5a9ae",
+      "reviewed": false
+    },
+    "srcHash": "5eae2b09ddce2459",
+    "status": "machine",
+    "text": "As ferramentas que um assistente encontra primeiro estão moldadas para o ciclo de autoria: `list-entities` e `list-releases` para descobrir o que o espaço de trabalho contém, `scaffold` um esqueleto com os campos que o seu tipo exige, com um marcador de posição onde quer que seja devido um valor — ou, quando recebe `example`, escrever um dos exemplos executáveis da documentação num novo diretório, respondendo com a localização desse diretório, os ficheiros escritos e os comandos para o compilar, e, quando recebe `list: true`, listar os exemplos — `get-schema` para o JSON Schema de uma entidade, `validate` um rascunho (nomeia todos os marcadores de posição que o rascunho ainda contém e o que cada um aceita), `describe` uma entidade de catálogo — ou uma entidade lida do seu registo por referência —, `pull` para resolver as dependências de uma Release para a cache local e escrever o seu lockfile, `build` uma Release nos seus artefactos renderizados — em memória por predefinição, sem nenhum artefacto escrito em disco, ou escritos em `dist/` na raiz do espaço de trabalho, onde `aggrega build` os escreve, quando se envia `write` (e as dependências só são resolvidas primeiro se se enviar `auto_pull`) —, `gen-catalog` para gerar entidades Plugin a partir de guests Wasm, e `explain-error` para expandir um diagnóstico do compilador em orientações acionáveis — incluindo, quando o diagnóstico começa com o código curto de uma condição de paragem, essa condição e o percurso guiado publicado da correção de autoria, a mesma expansão que [`aggrega explain`](aggrega-explain.md) dá para o mesmo código num terminal."
+  },
   "5eafb91102579748": {
     "at": "2026-10-22T17:52:18.428Z",
     "job": "session-0049-20261022175218",
@@ -78777,6 +78810,17 @@
     "status": "machine",
     "text": "Campos `metadata.version` em todas as entidades"
   },
+  "78f9f4fe8c751968": {
+    "at": "2026-11-14T23:59:08.244Z",
+    "job": "session-0017-20261114235908",
+    "revision": {
+      "from": "6b3e070bd94ee5cd",
+      "reviewed": false
+    },
+    "srcHash": "78f9f4fe8c751968",
+    "status": "machine",
+    "text": "**Uma chamada nomeia o seu espaço de trabalho com `workspace_root`; caso contrário, é respondida no espaço de trabalho sobre o qual o servidor foi iniciado.** Quando o lançamento nomeou uma raiz, com `--workspace-root` ou `AGGREGA_WORKSPACE_ROOT`, essa raiz é a própria raiz do espaço de trabalho, tal como a flag o é em todos os comandos: nada acima dela é pesquisado em busca de um espaço de trabalho envolvente, pelo que um lançamento nomeia a pasta que contém o `.aggrega-config.yaml` do espaço de trabalho, e uma chamada é aí respondida tanto pelas ferramentas executadas dentro do servidor como pelas ferramentas de comando. Quando o lançamento não nomeou nenhuma, o espaço de trabalho é encontrado a partir do diretório em que o servidor foi iniciado, exatamente como um comando escrito num terminal aí o descobre — a ordem é exposta em [As outras formas de reconhecer a raiz de um projeto](configuration.md#the-other-ways-a-project-root-is-recognised) — exceto no lançamento do pacote de ambiente de trabalho com a sua definição **Workspace folder** vazia, que recusa uma chamada dessas, como se expõe abaixo. **Um `workspace_root` relativo é lido a partir da raiz em que é respondida uma chamada que não nomeia nenhum** — a raiz que o lançamento nomeou ou, quando não nomeou nenhuma, a raiz do espaço de trabalho a que corresponde o diretório em que o servidor foi iniciado — pelo que uma chamada nomeia uma pasta dentro do espaço de trabalho, como `quickstart-ai/1`, sem saber onde o espaço de trabalho se encontra na máquina; um absoluto é usado tal como é dado. Todas as ferramentas o leem assim, incluindo as ferramentas de comando. Quando não há nenhuma raiz a partir da qual ler um relativo — uma raiz de lançamento que não seja uma pasta existente, ou o lançamento de ambiente de trabalho com **Workspace folder** vazio — um relativo é recusado tal como o é uma chamada que não nomeia nenhum. Um `workspace_root` que não nomeie nenhuma pasta existente, ou que nomeie um ficheiro, é recusado antes de a ferramenta fazer qualquer outra coisa, nomeando o argumento e citando o valor — um absoluto tal como foi enviado, um relativo na forma completa em que foi lido — tal como um comando recusa `--workspace-root`."
+  },
   "78fa0cba95026e95": {
     "at": "2026-11-04T09:43:30.291Z",
     "job": "session-0227-20261104094330",
@@ -89123,6 +89167,17 @@
     "srcHash": "8922db367787a84c",
     "status": "machine",
     "text": "**Síntese sem chart (Kubernetes).** O destino Kubernetes executa diretamente a imagem oficial `rabbitmq`. O compilador sintetiza o StatefulSet, o Service ClusterIP e o Service headless a partir do dimensionamento `infra` do componente — nenhum chart externo a obter ou a acompanhar. A tag da imagem é fixada através de `infra.engine_version`, pelo que a renderização não contém nenhuma tag flutuante."
+  },
+  "89233a75316e689c": {
+    "at": "2026-11-14T23:59:08.244Z",
+    "job": "session-0017-20261114235908",
+    "revision": {
+      "from": "20b9e38ebd5db5de",
+      "reviewed": false
+    },
+    "srcHash": "89233a75316e689c",
+    "status": "machine",
+    "text": "**Uma raiz de lançamento que não seja uma pasta existente é servida como recusa na entrada e saída padrão.** Quando `--workspace-root` ou `AGGREGA_WORKSPACE_ROOT` nomeia uma pasta que não existe, ou nomeia um ficheiro, o servidor escreve a recusa no seu fluxo de erros e arranca mesmo assim, para que um cliente que não mostra ao utilizador nada desse fluxo mostre ainda assim o porquê. Responde a `initialize` e às suas listas de ferramentas, recursos e prompts, e todas as chamadas que atuariam nesse espaço de trabalho são respondidas com a recusa: uma chamada de ferramenta como resultado falhado, uma leitura de uma entidade `catalog://` ou de uma página de documentação como erro. A recusa nomeia a flag, ou a variável juntamente com a definição **Workspace folder** da aplicação de ambiente de trabalho que a define — a definição que [Claude Desktop](../../ai-assistants/mcp-server.md#claude-desktop) descreve — e cita o valor exatamente como foi dado; um valor que o cliente enviou sem o preencher é citado tal como chegou, e nada nele é reconhecido. Uma ferramenta que executa um comando não inicia nenhum para uma chamada que não nomeia nenhum espaço de trabalho próprio, já que a pasta em que esse comando seria iniciado não existe, e responde com a mesma recusa. Uma chamada que nomeia um espaço de trabalho próprio por um caminho absoluto é aí respondida; uma que o nomeia por um caminho relativo não tem nenhuma pasta a partir da qual o ler, e é respondida com a mesma recusa. O que não atua em nenhum espaço de trabalho — um esquema, um prompt, a ajuda de um comando — é respondido como em qualquer servidor. Um listener é, em vez disso, recusado no arranque, antes de qualquer associação, com a mesma recusa, para que quem o supervisiona leia a falha onde a procura."
   },
   "8924fed0e114c63a": {
     "at": "2026-11-04T09:43:36.104Z",
@@ -160599,6 +160654,17 @@
     "status": "machine",
     "text": "annotation binding does not resolve against its target Feature (Manifest, annotation binding routes to Feature `\"<feature-uri>\"`, whose declared schema does not resolve: `<resolution failure>`) (a associação de anotação não se resolve em relação à sua Feature de destino (Manifest: a associação de anotação encaminha para uma Feature cujo esquema declarado não se resolve))"
   },
+  "f3a6b6af83ad1110": {
+    "at": "2026-11-14T23:59:08.244Z",
+    "job": "session-0017-20261114235908",
+    "revision": {
+      "from": "70e657d0611afa49",
+      "reviewed": false
+    },
+    "srcHash": "f3a6b6af83ad1110",
+    "status": "machine",
+    "text": "Esta página é a referência do comando. Para que serve uma importação, e guias práticos que levam um projeto da sua origem até um build, encontram-se em [Importação](../../authoring/import/README.md). O ficheiro de respostas a partir do qual são lidos os valores que nenhuma origem pode conter, e as perguntas feitas num terminal, são descritos em [O ficheiro de respostas da importação](../import-answers.md)."
+  },
   "f3a76ffd2e0c3c20": {
     "at": "2026-10-22T17:52:18.428Z",
     "job": "session-0049-20261022175218",
@@ -167133,6 +167199,17 @@
     "srcHash": "fd295ab491bd30de",
     "status": "machine",
     "text": "A linha `warning` diz respeito à parte do ficheiro Compose que transporta o chatflow, uma entrada `configs` de nível superior, que não tem nenhum serviço onde colocar as etiquetas da compilação. A linha `notice` é informativa: a Feature de segredo aceita o seu `origin` dos `values` do Aggregate ou do `infra` da Release, e o aviso indica que uma folha está declarada em ambos. Nenhuma das duas altera o veredicto."
+  },
+  "fd2e41989fec4978": {
+    "at": "2026-11-14T23:59:08.244Z",
+    "job": "session-0017-20261114235908",
+    "revision": {
+      "from": "ad3c4994779bef4c",
+      "reviewed": false
+    },
+    "srcHash": "fd2e41989fec4978",
+    "status": "machine",
+    "text": "[core-importers](plugins/core-importers.md) — os dez importadores do compilador, de Langflow, Flowise e n8n a Compose, MCP e às frameworks de agentes: o que cada um lê e esboça, as suas definições e a sua publicação com cada versão do compilador."
   },
   "fd33f90d5d2dd652": {
     "at": "2026-11-03T14:05:29.072Z",

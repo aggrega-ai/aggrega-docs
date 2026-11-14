@@ -27128,6 +27128,17 @@
     "status": "machine",
     "text": "读取 `.context.uses[].provides.<key>` 获取跨组件的指针字符串。"
   },
+  "25b18a6a254e07ac": {
+    "at": "2026-11-14T23:59:08.244Z",
+    "job": "session-0017-20261114235908",
+    "revision": {
+      "from": "4a5c96ed49f419b6",
+      "reviewed": false
+    },
+    "srcHash": "25b18a6a254e07ac",
+    "status": "machine",
+    "text": "**该命令行以启动此服务器时所用的、决定配置的全局标志开头——`--config` 和 `--offline`（如果你提供了它们）——位于命令及该调用自身的标志之前。** 因此该命令读取的配置与这里其他每个工具读取的相同：以 `--offline` 启动的服务器会离线运行其命令，以 `--config` 启动的服务器则基于该全局文件运行它们。调用自己发送的标志位于其后并优先生效，因此某次调用上的 `offline: false` 仅对该次调用访问网络，返回的命令行会同时显示两者。**如果服务器启动时指定了工作区根目录——通过 `--workspace-root` 或 `AGGREGA_WORKSPACE_ROOT`——命令行会以该根目录作为 `--workspace-root` 开头，位于上述两个标志之前**，因此该命令将该目录作为其工作区根目录，就像在终端中使用同一标志输入时一样，也与服务器内部运行的每个工具的处理方式相同，而不是从服务器启动时所在的目录查找工作区。发送了 `workspace_root` 的调用会指定自己的根目录，命令行只携带这一个——包括空值，命令对空值的解读与在终端中对 `--workspace-root \"\"` 的解读相同：从服务器启动时所在的目录查找工作区。两者都未指定而启动的服务器不传递根目录，因此其命令会从该目录查找工作区，遵循 [调用在哪个工作区中得到响应](#which-workspace-a-call-is-answered-in) 为每个工具规定的规则——但桌面捆绑包在其 **Workspace folder** 设置为空时的启动除外：此时未指定自身工作区的调用不会启动任何命令，并以该设置对应的拒绝作为响应。**命令在调用或启动所指定的工作区根目录中启动**：即调用自身的 `workspace_root`（按每个工具的读取方式读取——绝对路径按发送的原样，相对路径则相对于未指定根目录的调用得到应答的根目录——并以其绝对形式传给命令），否则为服务器启动时指定的根目录。因此，调用作为待读取文件传入的相对路径——交给 `validate` 的文档、`--release` 或 `--catalog`——会在该工作区内读取，就像在该处打开的终端中一样，而命令运行的构建会在该根目录下写入 `dist/`。如果没有任何东西指定根目录——没有启动根目录，且没有 `workspace_root` 或其为空——命令会在服务器启动时所在的目录中启动并从那里读取相对路径；指向不存在文件夹的 `workspace_root` 会按读取时的形式传递——绝对路径按发送的原样，相对路径则为其完整形式——由命令用自己的措辞拒绝。命令扩展插件注册的命令不会接收其中任何一项，因为它会将每个参数原封不动地传给插件，而不解析全局标志，在终端中和这里都是如此；它与其他每个命令在同一文件夹中启动。"
+  },
   "25b18a86baf96c03": {
     "at": "2026-10-22T04:49:50.527667+00:00",
     "job": "msgbatch_01HwjQt2GEKUPBmjkDpPghCQ",
@@ -45291,6 +45302,17 @@
     "srcHash": "4007655eed63d915",
     "status": "machine",
     "text": "`pluginType: parser` 插件的 parser 块：它转换为规范结构化树的源格式。仅出现在 parser 插件上；其他所有插件类型均无此块。"
+  },
+  "400ae12d4e85a4dc": {
+    "at": "2026-11-14T23:59:08.244Z",
+    "job": "session-0017-20261114235908",
+    "revision": {
+      "from": "b2743956dd1395cb",
+      "reviewed": false
+    },
+    "srcHash": "400ae12d4e85a4dc",
+    "status": "machine",
+    "text": "**Workspace folder 设置为空的桌面启动同样以拒绝的形式提供服务。** 桌面捆绑包始终向服务器传递 `AGGREGA_WORKSPACE_ROOT`，其中携带 **Workspace folder** 中的任何内容，并同时设置 `AGGREGA_BUNDLE_VERSION`，而应用程序会在其自行选择的文件夹（通常是系统文件夹）中启动服务器，而不是在你的项目中。因此，一个基于标准输入输出、未使用 `--workspace-root` 启动、环境中带有 `AGGREGA_BUNDLE_VERSION` 且 `AGGREGA_WORKSPACE_ROOT` 为空或不存在的服务器，不会从其启动所在的文件夹查找工作区。它将拒绝信息写入错误流并照常启动，应答方式与启动根目录不存在时相同：每个会在工作区中执行操作且未指定自身工作区的调用，都以一条拒绝作为应答，说明桌面应用程序在 **Workspace folder** 设置为空的情况下启动了服务器，因此 `AGGREGA_WORKSPACE_ROOT` 未指定工作区根目录，并提示你将 **Workspace folder** 设置为包含工作区 `.aggrega-config.yaml` 的文件夹，同时说明在服务器启动后设置的文件夹要在关闭并重新开启该扩展或重启应用程序后才会生效，因为应用程序只在启动服务器时才将该设置传给服务器。对于此类调用，运行命令的工具不会启动任何命令。通过绝对路径指定了自身工作区的调用在该工作区中得到应答，通过相对路径指定的调用则以同样的拒绝作为应答，因为没有可用来读取它的 **Workspace folder**；不在任何工作区中执行的操作则与在任何服务器上一样得到应答。服务器仅通过 `AGGREGA_BUNDLE_VERSION` 识别这种启动：不设置该变量的捆绑包，其空设置被视为没有根目录；手动设置该变量且未指定根目录的启动，会像捆绑包的启动一样被拒绝。其他所有空值仍然表示没有根目录——在未携带 `AGGREGA_BUNDLE_VERSION` 的启动中为空的 `AGGREGA_WORKSPACE_ROOT`、输入为空的 `--workspace-root`、监听器、`aggrega serve` 以及其他所有命令，都将其视为未设置。"
   },
   "400dfdbc2b4cda0e": {
     "at": "2026-10-30T00:43:49.791Z",
@@ -67182,6 +67204,17 @@
     "status": "machine",
     "text": "解析失败的模板不产生任何引用集。将每个键都报告为未读取，会淹没求值过程针对同一模板产生的解析诊断，因此改为不报告任何内容。`artifacts:` 条目使用标准的 `{{ }}` 定界符读取，而这并非每个 provider 为该字段声明的定界符对；用错误的定界符对读取时，这样的主体会产生其作者从未编写的引用，或者无法解析，而这两种结果都只会使警告静默。"
   },
+  "5eae2b09ddce2459": {
+    "at": "2026-11-14T23:59:08.244Z",
+    "job": "session-0017-20261114235908",
+    "revision": {
+      "from": "9d6be90b03b5a9ae",
+      "reviewed": false
+    },
+    "srcHash": "5eae2b09ddce2459",
+    "status": "machine",
+    "text": "助手最先接触的工具是为编写循环设计的：`list-entities` 和 `list-releases` 用于了解工作区包含什么；`scaffold` 生成一个带有其 kind 所需字段的骨架，在每个待填值处放置占位符——或者，发送 `example` 时，将文档中的一个可运行示例写入新目录，并返回该目录的位置、写入的文件和构建它的命令；发送 `list: true` 时，列出这些示例；`get-schema` 获取实体的 JSON Schema；`validate` 校验草稿（它会列出草稿中仍存在的每个占位符及其各自接受的内容）；`describe` 描述一个目录实体——或按引用从其注册表读取的实体；`pull` 将 Release 的依赖解析到本地缓存并写入其锁文件；`build` 将 Release 构建为渲染后的产物——默认在内存中进行，不向磁盘写入任何产物；当你发送 `write` 时，则写入工作区根目录下的 `dist/`，即 `aggrega build` 写入的位置（仅当你发送 `auto_pull` 时才会先解析依赖）；`gen-catalog` 从 Wasm guest 生成 Plugin 实体；`explain-error` 将编译器诊断展开为可操作的指导——包括在诊断以某个中止条件的短代码开头时，给出该条件以及已发布的编写修复演练，与 [`aggrega explain`](aggrega-explain.md) 在终端中针对同一代码给出的展开相同。"
+  },
   "5eafb91102579748": {
     "at": "2026-10-22T01:39:34.791258+00:00",
     "job": "msgbatch_01NzZHjUiYAJW3BfQRFzEVzQ",
@@ -86087,6 +86120,17 @@
     "status": "machine",
     "text": "每个实体上的 `metadata.version` 字段"
   },
+  "78f9f4fe8c751968": {
+    "at": "2026-11-14T23:59:08.244Z",
+    "job": "session-0017-20261114235908",
+    "revision": {
+      "from": "6b3e070bd94ee5cd",
+      "reviewed": false
+    },
+    "srcHash": "78f9f4fe8c751968",
+    "status": "machine",
+    "text": "**调用通过 `workspace_root` 指定其工作区；否则在服务器启动时所基于的工作区中得到应答。** 如果启动时通过 `--workspace-root` 或 `AGGREGA_WORKSPACE_ROOT` 指定了根目录，该根目录本身就是工作区根目录，与该标志在每个命令上的作用相同：不会在其上层搜索外围工作区，因此启动时应指定包含工作区 `.aggrega-config.yaml` 的文件夹，调用随后在那里得到应答，无论是在服务器内部运行的工具还是命令工具都是如此。如果启动时未指定根目录，则从服务器启动所在的目录查找工作区，与在该目录的终端中输入的命令发现工作区的方式完全相同——查找顺序见[识别项目根目录的其他方式](configuration.md#the-other-ways-a-project-root-is-recognised)——但桌面捆绑包在 **Workspace folder** 设置为空时启动的情况除外，此时会拒绝此类调用，详见下文。**相对的 `workspace_root` 相对于未指定根目录的调用得到应答的根目录来读取**——即启动时指定的根目录，若启动时未指定，则为服务器启动所在目录解析出的工作区根目录——因此调用可以指定工作区内的文件夹，例如 `quickstart-ai/1`，而无需知道工作区位于机器上的何处；绝对路径则按给定的原样使用。每个工具都这样读取它，命令工具也不例外。如果没有可用来读取相对路径的根目录——启动根目录不是现有文件夹，或桌面启动时 **Workspace folder** 为空——相对路径会像未指定根目录的调用一样被拒绝。如果 `workspace_root` 指向不存在的文件夹或指向一个文件，工具会在执行任何其他操作之前拒绝它，指明该参数并引用其值——绝对路径按发送时的原样，相对路径按读取时的完整形式——与命令拒绝 `--workspace-root` 的方式相同。"
+  },
   "78fa0cba95026e95": {
     "at": "2026-10-22T08:03:58.541373+00:00",
     "job": "msgbatch_01JG3MCod2kUphSC2Zwegw3H",
@@ -97332,6 +97376,17 @@
     "srcHash": "8922db367787a84c",
     "status": "machine",
     "text": "**无 chart 合成（Kubernetes）。** Kubernetes 目标直接运行官方\n  `rabbitmq` 镜像。编译器根据组件的 `infra`\n  规格合成 StatefulSet、ClusterIP Service 和 Headless Service——无需获取或跟踪外部 chart。镜像标签通过\n  `infra.engine_version` 固定，因此渲染结果不含浮动标签。"
+  },
+  "89233a75316e689c": {
+    "at": "2026-11-14T23:59:08.244Z",
+    "job": "session-0017-20261114235908",
+    "revision": {
+      "from": "20b9e38ebd5db5de",
+      "reviewed": false
+    },
+    "srcHash": "89233a75316e689c",
+    "status": "machine",
+    "text": "**在标准输入输出上，不是现有文件夹的启动根目录会以拒绝的形式提供服务。** 如果 `--workspace-root` 或 `AGGREGA_WORKSPACE_ROOT` 指向不存在的文件夹或指向一个文件，服务器会将拒绝信息写入其错误流，但仍照常启动，这样即使客户端不向用户显示该错误流，也能显示原因。它会应答 `initialize` 及其工具、资源和提示列表，而每个会在该工作区中执行操作的调用都以该拒绝作为应答：工具调用表现为失败的结果，读取 `catalog://` 实体或文档页面表现为错误。拒绝信息会指明该标志，或者指明该变量以及设置它的桌面应用程序 **Workspace folder** 设置——即 [Claude Desktop](../../ai-assistants/mcp-server.md#claude-desktop) 中描述的设置——并完全按给定的原样引用其值；客户端未填写便发送的值按到达时的原样引用，其中的任何内容都不会被识别。对于未指定自身工作区的调用，运行命令的工具不会启动任何命令，因为该命令本应启动所在的文件夹并不存在，并以同样的拒绝作为应答。通过绝对路径指定了自身工作区的调用在该工作区中得到应答；通过相对路径指定的调用没有可用来读取它的文件夹，会以同样的拒绝作为应答。不在任何工作区中执行的操作——schema、提示、命令帮助——则与在任何服务器上一样得到应答。监听器则改为在启动时、在绑定任何内容之前以同样的拒绝被拒绝，这样负责监管它的人可以在查找故障的地方读到该故障。"
   },
   "8924fed0e114c63a": {
     "at": "2026-10-30T04:13:10.969Z",
@@ -175057,6 +175112,17 @@
     "status": "machine",
     "text": "annotation binding does not resolve against its target Feature (Manifest, annotation binding routes to Feature `\"<feature-uri>\"`, whose declared schema does not resolve: `<resolution failure>`)（注解绑定无法针对其目标 Feature 解析（Manifest，注解绑定路由到的 Feature 所声明的 schema 无法解析，并附上解析失败的原因））"
   },
+  "f3a6b6af83ad1110": {
+    "at": "2026-11-14T23:59:08.244Z",
+    "job": "session-0017-20261114235908",
+    "revision": {
+      "from": "70e657d0611afa49",
+      "reviewed": false
+    },
+    "srcHash": "f3a6b6af83ad1110",
+    "status": "machine",
+    "text": "本页是该命令的参考。导入的用途，以及将项目从源描述带到构建的演练，请参阅[导入](../../authoring/import/README.md)。用于读取任何源都无法容纳的值的答案文件，以及在终端中提出的问题，请参阅[导入答案文件](../import-answers.md)。"
+  },
   "f3a76ffd2e0c3c20": {
     "at": "2026-10-22T01:39:34.791258+00:00",
     "job": "msgbatch_01NzZHjUiYAJW3BfQRFzEVzQ",
@@ -182123,6 +182189,17 @@
     "srcHash": "fd295ab491bd30de",
     "status": "machine",
     "text": "`warning` 行涉及 Compose 文件中承载聊天流的部分，即一个顶层 `configs` 条目，它没有可供放置构建标签的服务。`notice` 行仅供参考：机密 Feature 从 Aggregate 的 `values` 或 Release 的 `infra` 接收其 `origin`，该通知报告有一个叶子节点在两处都有声明。两者都不会改变判定结果。"
+  },
+  "fd2e41989fec4978": {
+    "at": "2026-11-14T23:59:08.244Z",
+    "job": "session-0017-20261114235908",
+    "revision": {
+      "from": "ad3c4994779bef4c",
+      "reviewed": false
+    },
+    "srcHash": "fd2e41989fec4978",
+    "status": "machine",
+    "text": "[core-importers](plugins/core-importers.md) — 编译器的十个导入器，从 Langflow、Flowise 和 n8n 到 Compose、MCP 以及各智能体框架：各自读取和起草的内容、它们的设置，以及它们随每个编译器版本的发布。"
   },
   "fd33f90d5d2dd652": {
     "at": "2026-10-22T03:31:15.615761+00:00",

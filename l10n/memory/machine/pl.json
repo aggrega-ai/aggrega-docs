@@ -27128,6 +27128,17 @@
     "status": "machine",
     "text": "Odczytywać `.context.uses[].provides.<key>` dla ciągów wskaźnikowych między komponentami."
   },
+  "25b18a6a254e07ac": {
+    "at": "2026-11-14T23:59:08.244Z",
+    "job": "session-0017-20261114235908",
+    "revision": {
+      "from": "4a5c96ed49f419b6",
+      "reviewed": false
+    },
+    "srcHash": "25b18a6a254e07ac",
+    "status": "machine",
+    "text": "**Ten wiersz polecenia zaczyna się od flag globalnych, z którymi uruchomiono serwer i które decydują o konfiguracji — `--config` i `--offline`, o ile je podano — przed poleceniem i własnymi flagami wywołania.** Dzięki temu polecenie odczytuje tę samą konfigurację, którą odczytuje każde inne narzędzie tutaj: serwer uruchomiony z `--offline` wykonuje swoje polecenia w trybie offline, a serwer uruchomiony z `--config` wykonuje je z tym plikiem globalnym. Flaga wysłana przez samo wywołanie pojawia się po nich i ma pierwszeństwo, więc `offline: false` w jednym wywołaniu sięga do sieci tylko dla tego wywołania, a zwrócony wiersz polecenia pokazuje obie. **Jeśli serwer uruchomiono z katalogiem głównym obszaru roboczego — przez `--workspace-root` lub przez `AGGREGA_WORKSPACE_ROOT` — wiersz polecenia zaczyna się od tego katalogu jako `--workspace-root`, przed tymi dwiema flagami**, więc polecenie traktuje ten katalog jako katalog główny obszaru roboczego, tak jak po wpisaniu z tą samą flagą i tak jak traktuje go każde narzędzie działające wewnątrz serwera, zamiast wyszukiwać obszar roboczy od katalogu, w którym uruchomiono serwer. Wywołanie, które wysyła `workspace_root`, podaje własny katalog, a wiersz polecenia zawiera wyłącznie ten — łącznie z wartością pustą, którą polecenie odczytuje tak, jak w terminalu odczytywane jest `--workspace-root \"\"`: obszar roboczy należy znaleźć od katalogu, w którym uruchomiono serwer. Serwer uruchomiony bez żadnego z nich nie przekazuje katalogu głównego, więc jego polecenia znajdują obszar roboczy od tego katalogu, zgodnie z regułą, którą sekcja [Which workspace a call is answered in](#which-workspace-a-call-is-answered-in) określa dla każdego narzędzia — z wyjątkiem uruchomienia z pakietu desktopowego z pustym ustawieniem **Workspace folder**, przy którym wywołanie niepodające własnego obszaru roboczego nie uruchamia żadnego polecenia i otrzymuje odmowę związaną z tym ustawieniem. **Polecenie startuje w katalogu głównym obszaru roboczego wskazanym przez wywołanie lub uruchomienie**: we własnym `workspace_root` wywołania, odczytanym tak, jak odczytuje go każde narzędzie — bezwzględny w postaci, w jakiej go wysłano, względny od katalogu głównego, w którym odpowiedź otrzymuje wywołanie niepodające żadnego — i przekazanym poleceniu w jego bezwzględnej postaci, a w przeciwnym razie w katalogu głównym, z którym uruchomiono serwer. Dlatego ścieżka względna, którą wywołanie przekazuje jako plik do odczytu — dokument dla `validate`, `--release` lub `--catalog` — jest odczytywana wewnątrz tego obszaru roboczego, jak w terminalu otwartym w tym miejscu, a kompilacja uruchomiona przez polecenie zapisuje `dist/` pod tym katalogiem głównym. Gdy nic nie wskazuje katalogu głównego — brak katalogu z uruchomienia i brak `workspace_root` lub jest on pusty — polecenie startuje w katalogu, w którym uruchomiono serwer, i stamtąd odczytuje ścieżki względne; `workspace_root` wskazujący nieistniejący folder jest przekazywany w postaci, w jakiej go odczytano — bezwzględny tak, jak go wysłano, względny w pełnej postaci — a polecenie odrzuca go własnymi słowami. Polecenie rejestrowane przez plugin rozszerzający polecenia nie otrzymuje żadnej z tych flag, ponieważ przekazuje wszystkie argumenty do pluginu bez ich odczytywania, zamiast parsować flagę globalną, zarówno w terminalu, jak i tutaj; startuje w tym samym folderze co każde inne polecenie."
+  },
   "25b18a86baf96c03": {
     "at": "2026-10-22T23:26:44.024289+00:00",
     "job": "msgbatch_01UxaxMXnjrVdR8dFw28R5cQ",
@@ -45277,6 +45288,17 @@
     "srcHash": "4007655eed63d915",
     "status": "machine",
     "text": "Blok parsera dla pluginu `pluginType: parser`: formaty źródłowe, które przekształca w kanoniczne drzewo strukturalne. Występuje tylko w pluginach parsera; nie występuje w żadnym innym typie pluginu."
+  },
+  "400ae12d4e85a4dc": {
+    "at": "2026-11-14T23:59:08.244Z",
+    "job": "session-0017-20261114235908",
+    "revision": {
+      "from": "b2743956dd1395cb",
+      "reviewed": false
+    },
+    "srcHash": "400ae12d4e85a4dc",
+    "status": "machine",
+    "text": "**Uruchomienie desktopowe z pustym ustawieniem Workspace folder jest obsługiwane jako odmowa w ten sam sposób.** Pakiet desktopowy zawsze przekazuje serwerowi `AGGREGA_WORKSPACE_ROOT` z zawartością pola **Workspace folder** i ustawia obok niej `AGGREGA_BUNDLE_VERSION`, a aplikacja uruchamia serwer w wybranym przez siebie folderze — często folderze systemowym — a nie w projekcie. Dlatego serwer działający przez standardowe wejście i wyjście, uruchomiony bez `--workspace-root`, którego środowisko zawiera `AGGREGA_BUNDLE_VERSION` oraz puste lub nieobecne `AGGREGA_WORKSPACE_ROOT`, nie szuka obszaru roboczego od folderu, w którym go uruchomiono. Zapisuje odmowę do swojego strumienia błędów i mimo to się uruchamia, odpowiadając tak jak w przypadku nieistniejącego katalogu głównego uruchomienia: na każde wywołanie, które działałoby w obszarze roboczym i nie wskazuje własnego, odpowiada odmową informującą, że aplikacja desktopowa uruchomiła serwer z pustym ustawieniem **Workspace folder**, więc `AGGREGA_WORKSPACE_ROOT` nie wskazuje katalogu głównego obszaru roboczego, nakazującą ustawić **Workspace folder** na folder zawierający plik `.aggrega-config.yaml` obszaru roboczego i informującą, że folder ustawiony po uruchomieniu serwera zaczyna obowiązywać po wyłączeniu i ponownym włączeniu rozszerzenia lub po ponownym uruchomieniu aplikacji, ponieważ aplikacja przekazuje to ustawienie serwerowi tylko przy jego uruchamianiu. Narzędzie uruchamiające polecenie nie uruchamia żadnego dla takiego wywołania. Na wywołanie wskazujące własny obszar roboczy ścieżką bezwzględną odpowiedź jest udzielana w nim, a wywołanie wskazujące go ścieżką względną otrzymuje tę samą odmowę, ponieważ nie ma **Workspace folder**, od którego można by ją odczytać; na to, co nie działa w żadnym obszarze roboczym, odpowiedź jest udzielana jak na każdym serwerze. Serwer rozpoznaje takie uruchomienie wyłącznie po `AGGREGA_BUNDLE_VERSION`: w pakiecie, który nie ustawia tej zmiennej, puste ustawienie jest odczytywane jako brak katalogu głównego, a uruchomienie, które ustawia tę zmienną ręcznie i nie wskazuje katalogu głównego, jest odrzucane tak samo jak uruchomienie z pakietu. Każda inna pusta wartość nadal nie wskazuje katalogu głównego — puste `AGGREGA_WORKSPACE_ROOT` przy uruchomieniu bez `AGGREGA_BUNDLE_VERSION`, `--workspace-root` wpisane jako puste, nasłuchujący serwer, `aggrega serve` i każde inne polecenie traktują ją jako nieustawioną."
   },
   "400dfdbc2b4cda0e": {
     "at": "2026-10-30T00:43:49.791Z",
@@ -67179,6 +67201,17 @@
     "status": "machine",
     "text": "Szablon, którego nie da się sparsować, nie daje żadnego zbioru odwołań. Zgłoszenie każdego klucza jako nieodczytanego przykryłoby diagnostykę parsowania, którą obliczenie zgłasza dla tego samego szablonu, więc zamiast tego nic nie jest zgłaszane. Wpis `artifacts:` jest odczytywany ze standardowymi ogranicznikami `{{ }}`, które nie są parą deklarowaną przez każdego dostawcę dla tego pola; odczytana z niewłaściwą parą taka treść daje odwołania, których autor nigdy nie napisał, albo nie daje się sparsować, a oba wyniki mogą jedynie wyciszyć ostrzeżenie."
   },
+  "5eae2b09ddce2459": {
+    "at": "2026-11-14T23:59:08.244Z",
+    "job": "session-0017-20261114235908",
+    "revision": {
+      "from": "9d6be90b03b5a9ae",
+      "reviewed": false
+    },
+    "srcHash": "5eae2b09ddce2459",
+    "status": "machine",
+    "text": "Narzędzia, z którymi asystent styka się najpierw, są dopasowane do pętli tworzenia: `list-entities` i `list-releases`, aby ustalić, co zawiera obszar roboczy; `scaffold` tworzy szkielet z polami wymaganymi przez dany rodzaj i z symbolem zastępczym wszędzie tam, gdzie należy podać wartość — albo, po otrzymaniu `example`, zapisuje jeden z uruchamialnych przykładów z dokumentacji do nowego katalogu, odpowiadając lokalizacją tego katalogu, listą zapisanych plików i poleceniami do jego zbudowania, a po otrzymaniu `list: true` wypisuje przykłady; `get-schema` zwraca JSON Schema encji; `validate` sprawdza szkic (wymienia każdy symbol zastępczy, który szkic nadal zawiera, i to, co każdy przyjmuje); `describe` opisuje encję katalogu — lub encję odczytaną z jej rejestru przez referencję; `pull` rozwiązuje zależności encji Release do lokalnej pamięci podręcznej i zapisuje jej plik blokady; `build` buduje encję Release do wyrenderowanych artefaktów — domyślnie w pamięci, bez zapisywania artefaktów na dysk, lub z zapisem do `dist/` w katalogu głównym obszaru roboczego, gdzie zapisuje je `aggrega build`, gdy wysłano `write` (a zależności są najpierw rozwiązywane tylko wtedy, gdy wysłano `auto_pull`); `gen-catalog` generuje encje Plugin z gości Wasm; a `explain-error` rozwija diagnostykę kompilatora w praktyczne wskazówki — w tym, gdy diagnostyka zaczyna się od krótkiego kodu warunku zatrzymania, ten warunek i opublikowany opis poprawki w tworzeniu, czyli to samo rozwinięcie, które [`aggrega explain`](aggrega-explain.md) podaje dla tego samego kodu w terminalu."
+  },
   "5eafb91102579748": {
     "at": "2026-10-22T08:35:14.585510+00:00",
     "job": "msgbatch_016LnPG7AyJiWWiftb4hFiWD",
@@ -86078,6 +86111,17 @@
     "status": "machine",
     "text": "Pola `metadata.version` w każdej encji"
   },
+  "78f9f4fe8c751968": {
+    "at": "2026-11-14T23:59:08.244Z",
+    "job": "session-0017-20261114235908",
+    "revision": {
+      "from": "6b3e070bd94ee5cd",
+      "reviewed": false
+    },
+    "srcHash": "78f9f4fe8c751968",
+    "status": "machine",
+    "text": "**Wywołanie wskazuje swój obszar roboczy przez `workspace_root`; w przeciwnym razie odpowiedź jest udzielana w obszarze roboczym, nad którym uruchomiono serwer.** Jeśli przy uruchomieniu wskazano katalog główny, przez `--workspace-root` lub `AGGREGA_WORKSPACE_ROOT`, ten katalog jest samym katalogiem głównym obszaru roboczego, tak jak ta flaga działa w każdym poleceniu: nic powyżej niego nie jest przeszukiwane w poszukiwaniu obejmującego obszaru roboczego, więc uruchomienie wskazuje folder zawierający plik `.aggrega-config.yaml` obszaru roboczego, a na wywołanie odpowiadają tam zarówno narzędzia działające wewnątrz serwera, jak i narzędzia poleceń. Jeśli przy uruchomieniu nie wskazano żadnego, obszar roboczy jest wyszukiwany od katalogu, w którym uruchomiono serwer, dokładnie tak, jak wykrywa go polecenie wpisane tam w terminalu — kolejność opisano w sekcji [The other ways a project root is recognised](configuration.md#the-other-ways-a-project-root-is-recognised) — z wyjątkiem uruchomienia z pakietu desktopowego z pustym ustawieniem **Workspace folder**, które zamiast tego odrzuca takie wywołanie, jak opisano poniżej. **Względny `workspace_root` jest odczytywany od katalogu głównego, w którym odpowiedź otrzymuje wywołanie niepodające żadnego** — katalogu wskazanego przy uruchomieniu lub, jeśli nie wskazano żadnego, katalogu głównego obszaru roboczego, do którego prowadzi katalog, w którym uruchomiono serwer — dzięki czemu wywołanie wskazuje folder wewnątrz obszaru roboczego, na przykład `quickstart-ai/1`, nie wiedząc, gdzie obszar roboczy znajduje się na maszynie; bezwzględny jest używany w podanej postaci. Każde narzędzie odczytuje go w ten sposób, łącznie z narzędziami poleceń. Gdy nie ma katalogu głównego, od którego można odczytać względny — katalog główny uruchomienia nie jest istniejącym folderem lub jest to uruchomienie desktopowe z pustym **Workspace folder** — względny jest odrzucany tak samo jak wywołanie niepodające żadnego. Wartość `workspace_root`, która nie wskazuje istniejącego folderu lub wskazuje plik, jest odrzucana, zanim narzędzie zrobi cokolwiek innego, z podaniem nazwy argumentu i przytoczeniem wartości — bezwzględnej w postaci, w jakiej została wysłana, względnej w pełnej postaci, w jakiej została odczytana — tak jak polecenie odrzuca `--workspace-root`."
+  },
   "78fa0cba95026e95": {
     "at": "2026-10-23T00:02:43.446982+00:00",
     "job": "msgbatch_013KkBfZb9E8JzDFk2rQG1By",
@@ -97317,6 +97361,17 @@
     "srcHash": "8922db367787a84c",
     "status": "machine",
     "text": "**Synteza bez chartu (Kubernetes).** Cel Kubernetes bezpośrednio uruchamia oficjalny\n  obraz `rabbitmq`. Kompilator syntetyzuje StatefulSet,\n  ClusterIP Service i Headless Service na podstawie wymiarowania `infra`\n  komponentu — bez zewnętrznego chartu do pozyskania czy śledzenia. Tag obrazu jest przypięty przez\n  `infra.engine_version`, więc wynik renderowania nie zawiera ruchomego tagu."
+  },
+  "89233a75316e689c": {
+    "at": "2026-11-14T23:59:08.244Z",
+    "job": "session-0017-20261114235908",
+    "revision": {
+      "from": "20b9e38ebd5db5de",
+      "reviewed": false
+    },
+    "srcHash": "89233a75316e689c",
+    "status": "machine",
+    "text": "**Katalog główny uruchomienia, który nie jest istniejącym folderem, jest obsługiwany jako odmowa przez standardowe wejście i wyjście.** Jeśli `--workspace-root` lub `AGGREGA_WORKSPACE_ROOT` wskazuje folder, który nie istnieje, lub wskazuje plik, serwer zapisuje odmowę do swojego strumienia błędów i mimo to się uruchamia, dzięki czemu klient, który nie pokazuje użytkownikowi niczego z tego strumienia, i tak pokazuje przyczynę. Serwer odpowiada na `initialize` oraz na żądania list narzędzi, zasobów i promptów, a na każde wywołanie, które działałoby w tym obszarze roboczym, odpowiada odmową: na wywołanie narzędzia — wynikiem zakończonym niepowodzeniem, na odczyt encji `catalog://` lub strony dokumentacji — błędem. Odmowa podaje nazwę flagi albo zmiennej wraz z ustawieniem **Workspace folder** aplikacji desktopowej, które ją ustawia — ustawieniem opisanym w sekcji [Claude Desktop](../../ai-assistants/mcp-server.md#claude-desktop) — i przytacza wartość dokładnie w takiej postaci, w jakiej ją podano; wartość, którą klient wysłał bez jej uzupełnienia, jest przytaczana tak, jak dotarła, i nic w niej nie jest rozpoznawane. Narzędzie uruchamiające polecenie nie uruchamia żadnego dla wywołania, które nie wskazuje własnego obszaru roboczego, ponieważ folderu, w którym polecenie by się uruchomiło, nie ma, i odpowiada tą samą odmową. Na wywołanie wskazujące własny obszar roboczy ścieżką bezwzględną odpowiedź jest udzielana w nim; wywołanie wskazujące go ścieżką względną nie ma folderu, od którego można by ją odczytać, i otrzymuje tę samą odmowę. Na to, co nie działa w żadnym obszarze roboczym — schemat, prompt, pomoc polecenia — odpowiedź jest udzielana jak na każdym serwerze. Nasłuchujący serwer jest natomiast odrzucany przy starcie, zanim cokolwiek zostanie powiązane, z tą samą odmową, dzięki czemu ten, kto go nadzoruje, odczyta błąd tam, gdzie go szuka."
   },
   "8924fed0e114c63a": {
     "at": "2026-10-30T04:13:10.969Z",
@@ -174990,6 +175045,17 @@
     "status": "machine",
     "text": "annotation binding does not resolve against its target Feature (Manifest, annotation binding routes to Feature `\"<feature-uri>\"`, whose declared schema does not resolve: `<resolution failure>`) (powiązanie adnotacji nie rozwiązuje się względem docelowej encji Feature (Manifest, powiązanie adnotacji kieruje do encji Feature, której zadeklarowany schemat się nie rozwiązuje))"
   },
+  "f3a6b6af83ad1110": {
+    "at": "2026-11-14T23:59:08.244Z",
+    "job": "session-0017-20261114235908",
+    "revision": {
+      "from": "70e657d0611afa49",
+      "reviewed": false
+    },
+    "srcHash": "f3a6b6af83ad1110",
+    "status": "machine",
+    "text": "Ta strona to dokumentacja referencyjna polecenia. Do czego służy import oraz przewodniki krok po kroku, które prowadzą projekt od jego źródła do kompilacji, znajdują się w sekcji [Import](../../authoring/import/README.md). Plik odpowiedzi, z którego odczytywane są wartości, jakich żadne źródło nie może zawierać, oraz pytania zadawane w terminalu opisano w sekcji [Plik odpowiedzi importu](../import-answers.md)."
+  },
   "f3a76ffd2e0c3c20": {
     "at": "2026-10-22T08:35:14.585510+00:00",
     "job": "msgbatch_016LnPG7AyJiWWiftb4hFiWD",
@@ -182054,6 +182120,17 @@
     "srcHash": "fd295ab491bd30de",
     "status": "machine",
     "text": "Wiersz `warning` dotyczy części pliku Compose, która niesie chatflow, wpisu `configs` najwyższego poziomu, który nie ma żadnej usługi, na której można by umieścić etykiety kompilacji. Wiersz `notice` ma charakter informacyjny: encja Feature sekretu przyjmuje swój `origin` z `values` encji Aggregate lub z `infra` encji Release, a komunikat zgłasza, że jeden liść jest zadeklarowany w obu miejscach. Żaden z nich nie zmienia werdyktu."
+  },
+  "fd2e41989fec4978": {
+    "at": "2026-11-14T23:59:08.244Z",
+    "job": "session-0017-20261114235908",
+    "revision": {
+      "from": "ad3c4994779bef4c",
+      "reviewed": false
+    },
+    "srcHash": "fd2e41989fec4978",
+    "status": "machine",
+    "text": "[core-importers](plugins/core-importers.md) — dziesięć importerów kompilatora, od Langflow, Flowise i n8n po Compose, MCP i frameworki agentowe: co każdy z nich odczytuje i szkicuje, ich ustawienia oraz ich publikacja z każdym wydaniem kompilatora."
   },
   "fd33f90d5d2dd652": {
     "at": "2026-10-22T23:05:21.167953+00:00",

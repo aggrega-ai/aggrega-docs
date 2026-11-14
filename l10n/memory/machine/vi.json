@@ -27140,6 +27140,17 @@
     "status": "machine",
     "text": "Đọc `.context.uses[].provides.<key>` cho các chuỗi con trỏ liên component."
   },
+  "25b18a6a254e07ac": {
+    "at": "2026-11-14T23:59:08.244Z",
+    "job": "session-0017-20261114235908",
+    "revision": {
+      "from": "4a5c96ed49f419b6",
+      "reviewed": false
+    },
+    "srcHash": "25b18a6a254e07ac",
+    "status": "machine",
+    "text": "**Dòng lệnh đó mở đầu bằng các flag toàn cục quyết định cấu hình mà máy chủ này được khởi động cùng — `--config` và `--offline`, nếu bạn đã đưa chúng — đứng trước lệnh và các flag riêng của lời gọi.** Vì vậy lệnh đọc cùng cấu hình mà mọi công cụ khác ở đây đọc: một máy chủ được khởi động với `--offline` chạy các lệnh của nó ở chế độ ngoại tuyến, và một máy chủ được khởi động với `--config` chạy chúng trên tệp toàn cục đó. Một flag mà lời gọi tự gửi đứng sau chúng và được ưu tiên, nên `offline: false` trên một lời gọi sẽ truy cập mạng chỉ cho lời gọi đó, và dòng lệnh trả về hiển thị cả hai. **Nơi máy chủ được khởi động với một gốc workspace — bằng `--workspace-root`, hoặc bằng `AGGREGA_WORKSPACE_ROOT` — dòng lệnh mở đầu bằng gốc đó dưới dạng `--workspace-root`, đứng trước hai flag kia**, nên lệnh lấy thư mục đó làm gốc workspace, như khi gõ với cùng flag và như mọi công cụ chạy bên trong máy chủ lấy nó, thay vì tìm workspace từ thư mục nơi máy chủ được khởi động. Một lời gọi gửi `workspace_root` tự nêu gốc của riêng nó, và dòng lệnh chỉ mang gốc đó — kể cả một giá trị rỗng, mà lệnh đọc như `--workspace-root \"\"` được đọc tại terminal: tìm workspace từ thư mục nơi máy chủ được khởi động. Một máy chủ được khởi động không có cả hai thì không chuyển gốc nào, nên các lệnh của nó tìm workspace từ thư mục đó, theo quy tắc mà [Lời gọi được trả lời trong workspace nào](#which-workspace-a-call-is-answered-in) đặt ra cho mọi công cụ — ngoại trừ lần khởi chạy của gói desktop với thiết lập **Workspace folder** để trống, khi đó một lời gọi không nêu workspace riêng sẽ không khởi động lệnh nào và được trả lời bằng lời từ chối của thiết lập đó. **Lệnh khởi động trong gốc workspace mà lời gọi hoặc lần khởi chạy nêu ra**: `workspace_root` riêng của lời gọi, được đọc như mọi công cụ đọc nó — đường dẫn tuyệt đối đúng như đã gửi, đường dẫn tương đối tính từ gốc mà một lời gọi không nêu gốc nào được trả lời trong đó — và được chuyển cho lệnh ở dạng tuyệt đối của nó, nếu không thì là gốc mà máy chủ được khởi động cùng. Vì vậy một đường dẫn tương đối mà lời gọi truyền làm tệp cần đọc — một tài liệu cho `validate`, một `--release` hay một `--catalog` — được đọc bên trong workspace đó, như tại một terminal mở ở đó, và một bản build mà lệnh chạy sẽ ghi `dist/` bên dưới gốc đó. Nơi không có gì nêu gốc — không có gốc khởi chạy, và không có `workspace_root` hoặc có nhưng rỗng — lệnh khởi động trong thư mục nơi máy chủ được khởi động và đọc đường dẫn tương đối từ đó; một `workspace_root` nêu một thư mục không tồn tại được chuyển tiếp đúng như khi được đọc — đường dẫn tuyệt đối đúng như đã gửi, đường dẫn tương đối ở dạng đầy đủ — và lệnh từ chối nó bằng lời của chính nó. Một lệnh do plugin mở rộng lệnh đăng ký không được chuyển flag nào trong số đó, vì nó chuyển mọi đối số cho plugin mà không đọc thay vì phân tích flag toàn cục, tại terminal cũng như ở đây; nó khởi động trong cùng thư mục như mọi lệnh khác."
+  },
   "25b18a86baf96c03": {
     "at": "2026-10-22T23:26:44.024289+00:00",
     "job": "msgbatch_01UxaxMXnjrVdR8dFw28R5cQ",
@@ -45295,6 +45306,17 @@
     "srcHash": "4007655eed63d915",
     "status": "machine",
     "text": "Khối parser cho một plugin `pluginType: parser`: các định dạng nguồn mà nó chuyển thành một cây có cấu trúc chuẩn. Chỉ có mặt trên các plugin parser; vắng mặt trên mọi loại plugin khác."
+  },
+  "400ae12d4e85a4dc": {
+    "at": "2026-11-14T23:59:08.244Z",
+    "job": "session-0017-20261114235908",
+    "revision": {
+      "from": "b2743956dd1395cb",
+      "reviewed": false
+    },
+    "srcHash": "400ae12d4e85a4dc",
+    "status": "machine",
+    "text": "**Một lần khởi chạy desktop với thiết lập Workspace folder để trống được phục vụ dưới dạng lời từ chối theo cùng cách.** Gói desktop luôn truyền cho máy chủ `AGGREGA_WORKSPACE_ROOT`, mang bất cứ giá trị nào **Workspace folder** chứa, và đặt `AGGREGA_BUNDLE_VERSION` bên cạnh nó, trong khi ứng dụng khởi động máy chủ trong một thư mục do nó tự chọn — thường là một thư mục hệ thống — chứ không phải trong dự án của bạn. Vì vậy, một máy chủ qua đầu vào và đầu ra chuẩn được khởi động không có `--workspace-root`, mà môi trường của nó mang `AGGREGA_BUNDLE_VERSION` và một `AGGREGA_WORKSPACE_ROOT` trống hoặc vắng mặt, sẽ không tìm workspace từ thư mục mà nó được khởi động trong đó. Nó ghi lời từ chối vào luồng lỗi và vẫn khởi động, trả lời như với một thư mục gốc khởi chạy không tồn tại: mọi lời gọi sẽ hoạt động trong một workspace mà không chỉ định workspace riêng đều được trả lời bằng một lời từ chối nói rằng ứng dụng desktop đã khởi chạy máy chủ với thiết lập **Workspace folder** để trống, nên `AGGREGA_WORKSPACE_ROOT` không chỉ định thư mục gốc workspace nào, yêu cầu bạn đặt **Workspace folder** thành thư mục chứa `.aggrega-config.yaml` của workspace, và cho biết một thư mục được đặt sau khi máy chủ đã khởi động chỉ có hiệu lực khi tiện ích mở rộng được tắt rồi bật lại hoặc ứng dụng được khởi động lại, vì ứng dụng chỉ truyền thiết lập cho máy chủ khi khởi động nó. Một công cụ chạy lệnh sẽ không khởi động lệnh nào cho lời gọi như vậy. Một lời gọi chỉ định workspace riêng bằng đường dẫn tuyệt đối được trả lời ở đó, và một lời gọi chỉ định nó bằng đường dẫn tương đối được trả lời bằng cùng lời từ chối, vì không có **Workspace folder** nào để đọc nó; những gì không hoạt động trong workspace nào được trả lời như trên bất kỳ máy chủ nào. Máy chủ nhận diện lần khởi chạy chỉ bằng `AGGREGA_BUNDLE_VERSION`: một gói không đặt biến như vậy thì thiết lập trống được đọc là không có thư mục gốc, và một lần khởi chạy tự đặt biến đó và không chỉ định thư mục gốc nào sẽ bị từ chối như của gói. Mọi giá trị trống khác vẫn không chỉ định thư mục gốc nào — một `AGGREGA_WORKSPACE_ROOT` trống trong lần khởi chạy không mang `AGGREGA_BUNDLE_VERSION`, một `--workspace-root` gõ trống, một listener, `aggrega serve` và mọi lệnh khác đều đọc nó là chưa đặt."
   },
   "400dfdbc2b4cda0e": {
     "at": "2026-10-30T00:43:49.791Z",
@@ -67205,6 +67227,17 @@
     "status": "machine",
     "text": "Một template không phân tích cú pháp được sẽ không tạo ra tập tham chiếu nào. Báo cáo mọi khóa là không được đọc sẽ chôn vùi chẩn đoán phân tích cú pháp mà quá trình đánh giá đưa ra cho cùng template đó, nên thay vào đó không có gì được báo cáo. Một mục `artifacts:` được đọc với các dấu phân cách chuẩn `{{ }}`, vốn không phải là cặp mà mọi provider khai báo cho trường đó; khi đọc với cặp sai, phần thân như vậy tạo ra những tham chiếu mà tác giả của nó chưa bao giờ viết, hoặc không phân tích cú pháp được, và cả hai kết quả chỉ có thể làm im lặng một cảnh báo."
   },
+  "5eae2b09ddce2459": {
+    "at": "2026-11-14T23:59:08.244Z",
+    "job": "session-0017-20261114235908",
+    "revision": {
+      "from": "9d6be90b03b5a9ae",
+      "reviewed": false
+    },
+    "srcHash": "5eae2b09ddce2459",
+    "status": "machine",
+    "text": "Các công cụ mà trợ lý gặp đầu tiên được thiết kế cho vòng lặp soạn thảo: `list-entities` và `list-releases` để tìm hiểu workspace chứa gì, `scaffold` một khung mang các trường mà loại của nó yêu cầu, với một placeholder ở mọi chỗ cần một giá trị — hoặc, khi được gửi `example`, ghi một trong các ví dụ chạy được của tài liệu vào một thư mục mới, trả lời bằng vị trí của thư mục đó, các tệp đã ghi và các lệnh để build nó, và khi được gửi `list: true`, liệt kê các ví dụ — `get-schema` cho JSON Schema của một thực thể, `validate` một bản nháp (nó nêu mọi placeholder mà bản nháp vẫn còn mang, và mỗi placeholder nhận gì), `describe` một thực thể trong catalog — hoặc một thực thể được đọc từ registry của nó theo tham chiếu — `pull` để phân giải các phụ thuộc của một Release vào bộ nhớ đệm cục bộ và ghi lockfile của nó, `build` một Release thành các artifact đã kết xuất — mặc định trong bộ nhớ, không ghi artifact nào ra đĩa, hoặc ghi vào `dist/` tại gốc workspace, nơi `aggrega build` ghi chúng, khi bạn gửi `write` (và các phụ thuộc chỉ được phân giải trước nếu bạn gửi `auto_pull`), `gen-catalog` để tạo các thực thể Plugin từ các guest Wasm, và `explain-error` để mở rộng một chẩn đoán của trình biên dịch thành hướng dẫn có thể hành động — bao gồm, khi chẩn đoán mở đầu bằng mã ngắn của một điều kiện dừng, điều kiện đó và bản hướng dẫn từng bước đã công bố về cách sửa khi soạn thảo, cũng chính là phần mở rộng mà [`aggrega explain`](aggrega-explain.md) đưa ra cho cùng mã đó tại terminal."
+  },
   "5eafb91102579748": {
     "at": "2026-10-22T08:42:51.391Z",
     "job": "session-0026-20261022084251",
@@ -86104,6 +86137,17 @@
     "status": "machine",
     "text": "Các trường `metadata.version` trên mọi thực thể"
   },
+  "78f9f4fe8c751968": {
+    "at": "2026-11-14T23:59:08.244Z",
+    "job": "session-0017-20261114235908",
+    "revision": {
+      "from": "6b3e070bd94ee5cd",
+      "reviewed": false
+    },
+    "srcHash": "78f9f4fe8c751968",
+    "status": "machine",
+    "text": "**Một lời gọi chỉ định workspace của nó bằng `workspace_root`; nếu không, nó được trả lời trong workspace mà máy chủ được khởi động trên đó.** Khi lần khởi chạy đã chỉ định một thư mục gốc, bằng `--workspace-root` hoặc `AGGREGA_WORKSPACE_ROOT`, thì thư mục gốc đó chính là thư mục gốc của workspace, giống như cờ này trên mọi lệnh: không có gì phía trên nó được tìm kiếm để tìm một workspace bao quanh, vì vậy lần khởi chạy chỉ định thư mục chứa `.aggrega-config.yaml` của workspace, và một lời gọi được trả lời ở đó bởi cả các công cụ chạy bên trong máy chủ lẫn các công cụ lệnh. Khi lần khởi chạy không chỉ định thư mục gốc nào, workspace được tìm từ thư mục mà máy chủ được khởi động trong đó, đúng như cách một lệnh gõ tại terminal ở đó phát hiện nó — thứ tự được trình bày trong [The other ways a project root is recognised](configuration.md#the-other-ways-a-project-root-is-recognised) — ngoại trừ lần khởi chạy của gói desktop với thiết lập **Workspace folder** để trống, vốn từ chối lời gọi như vậy, như được trình bày bên dưới. **Một `workspace_root` tương đối được đọc từ thư mục gốc mà một lời gọi không chỉ định gốc nào được trả lời trong đó** — thư mục gốc mà lần khởi chạy đã chỉ định, hoặc, khi không chỉ định, thư mục gốc workspace mà thư mục nơi máy chủ được khởi động phân giải tới — nên một lời gọi chỉ định một thư mục bên trong workspace, chẳng hạn `quickstart-ai/1`, mà không cần biết workspace nằm ở đâu trên máy; một đường dẫn tuyệt đối được dùng đúng như được cung cấp. Mọi công cụ đều đọc nó như vậy, kể cả các công cụ lệnh. Khi không có thư mục gốc nào để đọc một đường dẫn tương đối — một thư mục gốc khởi chạy không phải là thư mục tồn tại, hoặc lần khởi chạy desktop với **Workspace folder** để trống — một đường dẫn tương đối bị từ chối giống như một lời gọi không chỉ định gốc nào. Một `workspace_root` không chỉ định thư mục nào tồn tại, hoặc chỉ định một tệp, sẽ bị từ chối trước khi công cụ làm bất cứ điều gì khác, với thông báo nêu tên đối số và trích dẫn giá trị — đường dẫn tuyệt đối đúng như khi được gửi, đường dẫn tương đối ở dạng đầy đủ như khi được đọc — giống như một lệnh từ chối `--workspace-root`."
+  },
   "78fa0cba95026e95": {
     "at": "2026-10-23T00:02:43.446982+00:00",
     "job": "msgbatch_013KkBfZb9E8JzDFk2rQG1By",
@@ -97351,6 +97395,17 @@
     "srcHash": "8922db367787a84c",
     "status": "machine",
     "text": "**Tổng hợp không cần chart (Kubernetes).** Đích Kubernetes chạy trực tiếp image\n  `rabbitmq` chính thức. Trình biên dịch tổng hợp StatefulSet,\n  ClusterIP Service và Headless Service từ cấu hình kích thước `infra`\n  của component — không có chart bên ngoài nào phải lấy về hay theo dõi. Tag của image được cố định qua\n  `infra.engine_version`, nên bản render không mang tag trôi nổi nào."
+  },
+  "89233a75316e689c": {
+    "at": "2026-11-14T23:59:08.244Z",
+    "job": "session-0017-20261114235908",
+    "revision": {
+      "from": "20b9e38ebd5db5de",
+      "reviewed": false
+    },
+    "srcHash": "89233a75316e689c",
+    "status": "machine",
+    "text": "**Một thư mục gốc khởi chạy không phải là thư mục tồn tại được phục vụ dưới dạng một lời từ chối qua đầu vào và đầu ra chuẩn.** Khi `--workspace-root` hoặc `AGGREGA_WORKSPACE_ROOT` chỉ định một thư mục không tồn tại, hoặc chỉ định một tệp, máy chủ ghi lời từ chối vào luồng lỗi của nó và vẫn khởi động, để một client không hiển thị gì từ luồng đó cho người dùng vẫn cho thấy lý do. Nó trả lời `initialize` và các danh sách công cụ, tài nguyên và prompt của nó, còn mọi lời gọi sẽ hoạt động trong workspace đó đều được trả lời bằng lời từ chối: một lời gọi công cụ dưới dạng kết quả thất bại, một lần đọc thực thể `catalog://` hoặc một trang tài liệu dưới dạng lỗi. Lời từ chối nêu tên cờ, hoặc biến cùng với thiết lập **Workspace folder** của ứng dụng desktop đặt giá trị cho nó — thiết lập mà [Claude Desktop](../../ai-assistants/mcp-server.md#claude-desktop) mô tả — và trích dẫn giá trị đúng như khi được cung cấp; một giá trị mà client gửi mà không điền vào được trích dẫn đúng như khi đến, và không có gì trong đó được nhận diện. Một công cụ chạy lệnh sẽ không khởi động lệnh nào cho một lời gọi không chỉ định workspace riêng, vì thư mục mà lệnh đó sẽ khởi động trong đó không tồn tại, và trả lời bằng cùng lời từ chối. Một lời gọi chỉ định workspace riêng bằng đường dẫn tuyệt đối được trả lời ở đó; một lời gọi chỉ định nó bằng đường dẫn tương đối không có thư mục nào để đọc nó, và được trả lời bằng cùng lời từ chối. Những gì không hoạt động trong workspace nào — một schema, một prompt, phần trợ giúp của một lệnh — được trả lời như trên bất kỳ máy chủ nào. Thay vào đó, một listener bị từ chối ngay khi khởi động, trước khi bất cứ thứ gì được bind, với cùng lời từ chối, để người giám sát nó đọc được lỗi ở nơi họ tìm lỗi."
   },
   "8924fed0e114c63a": {
     "at": "2026-10-30T04:13:10.969Z",
@@ -175104,6 +175159,17 @@
     "status": "machine",
     "text": "annotation binding does not resolve against its target Feature (Manifest, annotation binding routes to Feature `\"<feature-uri>\"`, whose declared schema does not resolve: `<resolution failure>`) (liên kết annotation không phân giải được với Feature đích của nó; schema đã khai báo của Feature không phân giải được)"
   },
+  "f3a6b6af83ad1110": {
+    "at": "2026-11-14T23:59:08.244Z",
+    "job": "session-0017-20261114235908",
+    "revision": {
+      "from": "70e657d0611afa49",
+      "reviewed": false
+    },
+    "srcHash": "f3a6b6af83ad1110",
+    "status": "machine",
+    "text": "Trang này là tài liệu tham chiếu của lệnh. Mục đích của việc nhập, và các hướng dẫn từng bước đưa một dự án từ nguồn của nó đến một bản build, có trong [Nhập](../../authoring/import/README.md). Tệp câu trả lời, nơi đọc các giá trị mà không nguồn nào có thể chứa, và các câu hỏi được đặt ra tại terminal được mô tả trong [Tệp câu trả lời của lệnh nhập](../import-answers.md)."
+  },
   "f3a76ffd2e0c3c20": {
     "at": "2026-10-22T10:25:30.703Z",
     "job": "session-0030-20261022102530",
@@ -182174,6 +182240,17 @@
     "srcHash": "fd295ab491bd30de",
     "status": "machine",
     "text": "Dòng `warning` nói về phần của tệp Compose mang chatflow, một mục `configs` ở cấp cao nhất, vốn không có dịch vụ nào để đặt các nhãn của bản build lên. Dòng `notice` mang tính tham khảo: Feature bí mật chấp nhận `origin` của nó từ `values` của Aggregate hoặc `infra` của Release, và thông báo cho biết một lá được khai báo ở cả hai nơi. Không dòng nào thay đổi kết luận."
+  },
+  "fd2e41989fec4978": {
+    "at": "2026-11-14T23:59:08.244Z",
+    "job": "session-0017-20261114235908",
+    "revision": {
+      "from": "ad3c4994779bef4c",
+      "reviewed": false
+    },
+    "srcHash": "fd2e41989fec4978",
+    "status": "machine",
+    "text": "[core-importers](plugins/core-importers.md) — mười importer của trình biên dịch, từ Langflow, Flowise và n8n đến Compose, MCP và các framework agent: mỗi importer đọc gì và soạn bản nháp gì, các thiết lập của chúng, và việc chúng được phát hành cùng mỗi bản phát hành của trình biên dịch."
   },
   "fd33f90d5d2dd652": {
     "at": "2026-10-22T23:05:21.167953+00:00",

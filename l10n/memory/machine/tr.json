@@ -27128,6 +27128,17 @@
     "status": "machine",
     "text": "Bileşenler arası işaretçi dizeleri için `.context.uses[].provides.<key>` okuyun."
   },
+  "25b18a6a254e07ac": {
+    "at": "2026-11-14T23:59:08.244Z",
+    "job": "session-0017-20261114235908",
+    "revision": {
+      "from": "4a5c96ed49f419b6",
+      "reviewed": false
+    },
+    "srcHash": "25b18a6a254e07ac",
+    "status": "machine",
+    "text": "**O komut satırı, komuttan ve çağrının kendi bayraklarından önce, bu sunucunun başlatıldığı ve yapılandırmayı belirleyen genel bayraklarla — verdiyseniz `--config` ve `--offline` ile — başlar.** Böylece komut, buradaki diğer her aracın okuduğu yapılandırmayı okur: `--offline` ile başlatılan bir sunucu komutlarını çevrimdışı çalıştırır, `--config` ile başlatılan ise onları o genel dosya üzerinden çalıştırır. Çağrının kendisi için gönderdiği bir bayrak bunlardan sonra gelir ve geçerli olur; dolayısıyla bir çağrıdaki `offline: false` yalnızca o çağrı için ağa erişir ve döndürülen komut satırı her ikisini de gösterir. **Sunucu bir çalışma alanı köküyle — `--workspace-root` ile ya da `AGGREGA_WORKSPACE_ROOT` ile — başlatıldıysa komut satırı, o ikisinden önce, bu kökü `--workspace-root` olarak vererek başlar**; böylece komut, çalışma alanını sunucunun başlatıldığı dizinden bulmak yerine, aynı bayrakla yazıldığında olacağı gibi ve sunucunun içinde çalışan her aracın aldığı gibi o dizini çalışma alanı kökü olarak alır. `workspace_root` gönderen bir çağrı kendi kökünü adlandırır ve komut satırı yalnızca onu taşır — boş bir değer de dahil; komut bunu, bir terminalde `--workspace-root \"\"` nasıl okunuyorsa öyle okur: çalışma alanını sunucunun başlatıldığı dizinden bul. İkisiyle de başlatılmamış bir sunucu kök vermez; dolayısıyla komutları çalışma alanlarını, [Bir çağrının hangi çalışma alanında yanıtlandığı](#which-workspace-a-call-is-answered-in) bölümünün her araç için belirttiği kurala göre o dizinden bulur — masaüstü paketinin **Workspace folder** ayarı boş bırakılarak yapılan başlatması hariç; bu durumda kendi çalışma alanını adlandırmayan bir çağrı hiçbir komut başlatmaz ve o ayarın reddiyle yanıtlanır. **Komut, çağrının ya da başlatmanın adlandırdığı çalışma alanı kökünde başlar**: çağrının kendi `workspace_root` değeri, her aracın okuduğu gibi okunur — mutlak olan gönderildiği gibi, göreli olan ise hiçbir kök belirtmeyen bir çağrının yanıtlandığı kökten — ve komuta mutlak biçimiyle verilir; yoksa sunucunun başlatıldığı kök kullanılır. Böylece bir çağrının okunacak dosya olarak verdiği göreli bir yol — `validate` için bir belge, bir `--release` ya da bir `--catalog` — orada açılmış bir terminalde olduğu gibi o çalışma alanının içinde okunur ve komutun çalıştırdığı bir derleme `dist/` dizinini o kökün altına yazar. Hiçbir şeyin kök adlandırmadığı durumda — başlatma kökü yoksa ve `workspace_root` yoksa ya da boşsa — komut sunucunun başlatıldığı dizinde başlar ve göreli yolu oradan okur; var olmayan bir klasörü adlandıran `workspace_root` okunduğu haliyle — mutlak olan gönderildiği gibi, göreli olan tam biçimiyle — iletilir ve komut onu kendi sözleriyle reddeder. Bir komut uzantısı eklentisinin kaydettiği komuta bunların hiçbiri verilmez; çünkü o komut, bir terminalde de burada olduğu gibi, genel bir bayrağı ayrıştırmak yerine her argümanı okumadan eklentiye iletir; diğer her komutla aynı klasörde başlar."
+  },
   "25b18a86baf96c03": {
     "at": "2026-10-22T23:26:44.024289+00:00",
     "job": "msgbatch_01UxaxMXnjrVdR8dFw28R5cQ",
@@ -45277,6 +45288,17 @@
     "srcHash": "4007655eed63d915",
     "status": "machine",
     "text": "Bir `pluginType: parser` plugin'i için parser bloğu: kanonik yapılandırılmış bir ağaca dönüştürdüğü kaynak biçimleri. Yalnızca parser plugin'lerinde bulunur; diğer tüm plugin türlerinde bulunmaz."
+  },
+  "400ae12d4e85a4dc": {
+    "at": "2026-11-14T23:59:08.244Z",
+    "job": "session-0017-20261114235908",
+    "revision": {
+      "from": "b2743956dd1395cb",
+      "reviewed": false
+    },
+    "srcHash": "400ae12d4e85a4dc",
+    "status": "machine",
+    "text": "**Workspace folder ayarı boş olan bir masaüstü başlatması da aynı şekilde bir ret olarak sunulur.** Masaüstü paketi sunucuya her zaman **Workspace folder** içinde ne varsa onu taşıyan `AGGREGA_WORKSPACE_ROOT` değişkenini verir ve yanında `AGGREGA_BUNDLE_VERSION` değişkenini ayarlar; uygulama ise sunucuyu projenizde değil, kendi seçtiği bir klasörde — çoğunlukla bir sistem klasöründe — başlatır. Bu nedenle `--workspace-root` olmadan başlatılmış, ortamı `AGGREGA_BUNDLE_VERSION` ile boş ya da hiç olmayan bir `AGGREGA_WORKSPACE_ROOT` taşıyan, standart girdi ve çıktı üzerinden çalışan bir sunucu, başlatıldığı klasörden bir çalışma alanı aramaz. Reddi hata akışına yazar ve yine de başlar; var olmayan bir başlatma köküne verdiği gibi yanıt verir: bir çalışma alanında işlem yapacak ve kendi çalışma alanını belirtmeyen her çağrı, masaüstü uygulamasının sunucuyu **Workspace folder** ayarı boşken başlattığını, dolayısıyla `AGGREGA_WORKSPACE_ROOT` değişkeninin hiçbir çalışma alanı kökü belirtmediğini söyleyen, **Workspace folder** ayarını çalışma alanınızın `.aggrega-config.yaml` dosyasını barındıran klasöre ayarlamanızı isteyen ve sunucu başladıktan sonra ayarlanan bir klasörün, uygulama ayarı sunucuya yalnızca onu başlatırken verdiği için, uzantı kapatılıp yeniden açıldığında ya da uygulama yeniden başlatıldığında etkili olacağını belirten bir retle yanıtlanır. Bir komut çalıştıran bir araç, böyle bir çağrı için hiçbir komut başlatmaz. Kendi çalışma alanını mutlak bir yolla belirten bir çağrı orada yanıtlanır; onu göreli bir yolla belirten bir çağrı ise, bu yolun okunacağı bir **Workspace folder** olmadığından aynı retle yanıtlanır; hiçbir çalışma alanında işlem yapmayan şeyler herhangi bir sunucuda olduğu gibi yanıtlanır. Sunucu başlatmayı yalnızca `AGGREGA_BUNDLE_VERSION` ile tanır: böyle bir değişken ayarlamayan bir pakette boş ayar, kök yok olarak okunur; değişkeni elle ayarlayan ve hiçbir kök belirtmeyen bir başlatma ise paketinki gibi reddedilir. Diğer her boş değer yine kök belirtmez — `AGGREGA_BUNDLE_VERSION` taşımayan bir başlatmadaki boş `AGGREGA_WORKSPACE_ROOT`, boş yazılmış bir `--workspace-root`, bir dinleyici, `aggrega serve` ve diğer tüm komutlar bunu ayarlanmamış olarak okur."
   },
   "400dfdbc2b4cda0e": {
     "at": "2026-10-30T00:43:49.791Z",
@@ -67179,6 +67201,17 @@
     "status": "machine",
     "text": "Ayrıştırılamayan bir şablon hiçbir başvuru kümesi üretmez. Her anahtarı okunmamış olarak raporlamak, değerlendirmenin aynı şablon için ürettiği ayrıştırma tanılamasını gölgede bırakırdı; bu nedenle bunun yerine hiçbir şey raporlanmaz. Bir `artifacts:` girdisi standart `{{ }}` sınırlayıcılarıyla okunur; bu, her sağlayıcının o alan için bildirdiği çift değildir; yanlış çiftle okunan böyle bir gövde, yazarının hiç yazmadığı başvurular üretir ya da ayrıştırılamaz ve her iki sonuç da yalnızca bir uyarıyı susturur."
   },
+  "5eae2b09ddce2459": {
+    "at": "2026-11-14T23:59:08.244Z",
+    "job": "session-0017-20261114235908",
+    "revision": {
+      "from": "9d6be90b03b5a9ae",
+      "reviewed": false
+    },
+    "srcHash": "5eae2b09ddce2459",
+    "status": "machine",
+    "text": "Bir asistanın ilk karşılaştığı araçlar yazım döngüsüne göre biçimlendirilmiştir: çalışma alanının neler içerdiğini bulmak için `list-entities` ve `list-releases`; türünün gerektirdiği alanları taşıyan, bir değer gereken her yerde yer tutucu bulunan bir iskelet için `scaffold` (ya da `example` gönderildiğinde belgelerin çalıştırılabilir örneklerinden birini yeni bir dizine yazar ve o dizinin nerede olduğunu, yazılan dosyaları ve onu derlemeye yarayan komutları yanıt olarak verir; `list: true` gönderildiğinde örnekleri listeler); bir varlığın JSON Schema'sı için `get-schema`; bir taslağı doğrulamak için `validate` (taslağın hâlâ taşıdığı her yer tutucuyu ve her birinin ne aldığını adlandırır); bir katalog varlığını ya da kayıt defterinden başvuruyla okunan bir varlığı betimlemek için `describe`; bir Release'in bağımlılıklarını yerel önbelleğe çözümlemek ve kilit dosyasını yazmak için `pull`; bir Release'i oluşturulmuş yapıtlarına derlemek için `build` (varsayılan olarak bellekte, diske hiçbir yapıt yazılmadan; `write` gönderdiğinizde ise `aggrega build`'in yazdığı yer olan çalışma alanı kökündeki `dist/`'e yazılır; bağımlılıklar yalnızca `auto_pull` gönderirseniz önce çözümlenir); Wasm konuklarından Plugin varlıkları üretmek için `gen-catalog`; ve bir derleyici tanılamasını uygulanabilir yönergelere genişletmek için `explain-error`: tanılama bir durdurma koşulunun kısa koduyla başladığında bu, o koşulu ve yazım düzeltmesinin yayımlanmış adım adım anlatımını da içerir; bu, [`aggrega explain`](aggrega-explain.md)'in bir terminalde aynı kod için verdiği genişletmenin aynısıdır."
+  },
   "5eafb91102579748": {
     "at": "2026-10-22T08:35:14.585510+00:00",
     "job": "msgbatch_016LnPG7AyJiWWiftb4hFiWD",
@@ -86078,6 +86111,17 @@
     "status": "machine",
     "text": "Her varlıktaki `metadata.version` alanları"
   },
+  "78f9f4fe8c751968": {
+    "at": "2026-11-14T23:59:08.244Z",
+    "job": "session-0017-20261114235908",
+    "revision": {
+      "from": "6b3e070bd94ee5cd",
+      "reviewed": false
+    },
+    "srcHash": "78f9f4fe8c751968",
+    "status": "machine",
+    "text": "**Bir çağrı, çalışma alanını `workspace_root` ile belirtir; aksi halde sunucunun üzerinde başlatıldığı çalışma alanında yanıtlanır.** Başlatma bir kök belirttiyse (`--workspace-root` veya `AGGREGA_WORKSPACE_ROOT` ile), bu kök, bayrağın her komutta olduğu gibi, çalışma alanı kökünün kendisidir: üstünde kapsayan bir çalışma alanı aranmaz; bu nedenle başlatma, çalışma alanının `.aggrega-config.yaml` dosyasını barındıran klasörü belirtir ve bir çağrı hem sunucu içinde çalışan araçlar hem de komut araçları tarafından orada yanıtlanır. Başlatma hiçbir kök belirtmediyse çalışma alanı, sunucunun başlatıldığı dizinden, orada bir terminalde yazılan bir komutun bulduğu biçimde bulunur — sıra [The other ways a project root is recognised](configuration.md#the-other-ways-a-project-root-is-recognised) altında açıklanır —; ancak masaüstü paketinin **Workspace folder** ayarı boş bırakılmış başlatması bunun dışındadır: bu başlatma, aşağıda açıklandığı gibi, böyle bir çağrıyı reddeder. **Göreli bir `workspace_root`, hiçbir kök belirtmeyen bir çağrının yanıtlandığı kökten okunur** — başlatmanın belirttiği kök ya da hiçbiri belirtilmediyse sunucunun başlatıldığı dizinin çözümlendiği çalışma alanı kökü —; böylece bir çağrı, çalışma alanının makinede nerede durduğunu bilmeden `quickstart-ai/1` gibi çalışma alanı içindeki bir klasörü belirtir; mutlak olan verildiği gibi kullanılır. Komut araçları da dahil her araç onu böyle okur. Göreli olanın okunacağı bir kök yoksa — var olan bir klasör olmayan bir başlatma kökü ya da **Workspace folder** boşken yapılan masaüstü başlatması — göreli olan, hiçbir kök belirtmeyen bir çağrı gibi reddedilir. Var olan bir klasörü belirtmeyen ya da bir dosyayı belirten `workspace_root`, araç başka bir şey yapmadan önce reddedilir; ret, bir komutun `--workspace-root` değerini reddettiği gibi, argümanı adlandırır ve değeri aktarır — mutlak olanı gönderildiği haliyle, göreli olanı okunduğu tam biçimiyle."
+  },
   "78fa0cba95026e95": {
     "at": "2026-10-23T00:02:43.446982+00:00",
     "job": "msgbatch_013KkBfZb9E8JzDFk2rQG1By",
@@ -97321,6 +97365,17 @@
     "srcHash": "8922db367787a84c",
     "status": "machine",
     "text": "**Chart'sız sentez (Kubernetes).** Kubernetes hedefi resmî\n  `rabbitmq` imajını doğrudan çalıştırır. Derleyici StatefulSet'i,\n  ClusterIP Service'i ve Headless Service'i bileşenin `infra`\n  boyutlandırmasından sentezler — temin edilecek ya da izlenecek harici chart yoktur. İmaj etiketi\n  `infra.engine_version` ile sabitlenir, böylece işlenen çıktıda değişken etiket bulunmaz."
+  },
+  "89233a75316e689c": {
+    "at": "2026-11-14T23:59:08.244Z",
+    "job": "session-0017-20261114235908",
+    "revision": {
+      "from": "20b9e38ebd5db5de",
+      "reviewed": false
+    },
+    "srcHash": "89233a75316e689c",
+    "status": "machine",
+    "text": "**Var olan bir klasör olmayan bir başlatma kökü, standart girdi ve çıktı üzerinden bir ret olarak sunulur.** `--workspace-root` veya `AGGREGA_WORKSPACE_ROOT` var olmayan bir klasörü ya da bir dosyayı belirttiğinde sunucu, reddi hata akışına yazar ve yine de başlar; böylece kullanıcısına bu akıştan hiçbir şey göstermeyen bir istemci bile nedenini gösterir. Sunucu `initialize` isteğini ve araç, kaynak ve istem listelerini yanıtlar; o çalışma alanında işlem yapacak her çağrı ise reddle yanıtlanır: bir araç çağrısı başarısız bir sonuç olarak, bir `catalog://` varlığının veya bir belgelendirme sayfasının okunması bir hata olarak. Ret, bayrağı ya da değişkeni, onu ayarlayan masaüstü uygulamasının **Workspace folder** ayarıyla birlikte — [Claude Desktop](../../ai-assistants/mcp-server.md#claude-desktop) bölümünün açıkladığı ayar — adlandırır ve değeri tam olarak verildiği haliyle aktarır; istemcinin doldurmadan gönderdiği bir değer geldiği haliyle aktarılır ve içindeki hiçbir şey tanınmaz. Bir komut çalıştıran bir araç, kendi çalışma alanını belirtmeyen bir çağrı için hiçbir komut başlatmaz, çünkü o komutun başlayacağı klasör yoktur; aynı retle yanıt verir. Kendi çalışma alanını mutlak bir yolla belirten bir çağrı orada yanıtlanır; onu göreli bir yolla belirten bir çağrının bu yolu okuyacağı bir klasör yoktur ve aynı retle yanıtlanır. Hiçbir çalışma alanında işlem yapmayan şeyler — bir şema, bir istem, bir komutun yardımı — herhangi bir sunucuda olduğu gibi yanıtlanır. Bir dinleyici ise bunun yerine, herhangi bir şey bağlanmadan önce, başlangıçta aynı retle reddedilir; böylece onu denetleyen kişi hatayı, hata aradığı yerde okur."
   },
   "8924fed0e114c63a": {
     "at": "2026-10-30T04:13:10.969Z",
@@ -174992,6 +175047,17 @@
     "status": "machine",
     "text": "annotation binding does not resolve against its target Feature (Manifest, annotation binding routes to Feature `\"<feature-uri>\"`, whose declared schema does not resolve: `<resolution failure>`) (ek açıklama bağlaması hedef Feature'a karşı çözümlenmiyor; bağlama, bildirilen şeması çözümlenmeyen bir Feature'a yönlendiriyor)"
   },
+  "f3a6b6af83ad1110": {
+    "at": "2026-11-14T23:59:08.244Z",
+    "job": "session-0017-20261114235908",
+    "revision": {
+      "from": "70e657d0611afa49",
+      "reviewed": false
+    },
+    "srcHash": "f3a6b6af83ad1110",
+    "status": "machine",
+    "text": "Bu sayfa komutun başvuru belgesidir. Bir içe aktarmanın ne işe yaradığı ve bir projeyi kaynağından bir derlemeye götüren adım adım kılavuzlar [İçe aktarma](../../authoring/import/README.md) bölümündedir. Hiçbir kaynağın tutamayacağı değerlerin okunduğu yanıt dosyası ve bir terminalde sorulan sorular [İçe aktarma yanıt dosyası](../import-answers.md) bölümünde açıklanır."
+  },
   "f3a76ffd2e0c3c20": {
     "at": "2026-10-22T08:35:14.585510+00:00",
     "job": "msgbatch_016LnPG7AyJiWWiftb4hFiWD",
@@ -182054,6 +182120,17 @@
     "srcHash": "fd295ab491bd30de",
     "status": "machine",
     "text": "`warning` satırı, Compose dosyasının chatflow'u taşıyan kısmı olan üst düzey bir `configs` girdisiyle ilgilidir; bu girdinin, derlemenin etiketlerini koyacağı bir hizmeti yoktur. `notice` satırı bilgilendirme amaçlıdır: gizli değer Feature'ı `origin` değerini Aggregate'in `values` alanından veya Release'in `infra` alanından kabul eder ve bildirim bir yaprağın her ikisinde de bildirildiğini raporlar. Hiçbiri kararı değiştirmez."
+  },
+  "fd2e41989fec4978": {
+    "at": "2026-11-14T23:59:08.244Z",
+    "job": "session-0017-20261114235908",
+    "revision": {
+      "from": "ad3c4994779bef4c",
+      "reviewed": false
+    },
+    "srcHash": "fd2e41989fec4978",
+    "status": "machine",
+    "text": "[core-importers](plugins/core-importers.md) — Langflow, Flowise ve n8n'den Compose, MCP ve ajan çatılarına kadar derleyicinin on içe aktarıcısı: her birinin ne okuduğu ve ne taslak hazırladığı, ayarları ve her derleyici sürümüyle birlikte yayımlanmaları."
   },
   "fd33f90d5d2dd652": {
     "at": "2026-10-22T23:05:21.167953+00:00",

@@ -27140,6 +27140,17 @@
     "status": "machine",
     "text": "Membaca `.context.uses[].provides.<key>` untuk string penunjuk lintas komponen."
   },
+  "25b18a6a254e07ac": {
+    "at": "2026-11-14T23:59:08.244Z",
+    "job": "session-0017-20261114235908",
+    "revision": {
+      "from": "4a5c96ed49f419b6",
+      "reviewed": false
+    },
+    "srcHash": "25b18a6a254e07ac",
+    "status": "machine",
+    "text": "**Baris perintah tersebut dimulai dengan flag global yang digunakan untuk memulai server ini dan yang menentukan konfigurasi — `--config` dan `--offline`, bila Anda memberikannya — sebelum perintah dan flag milik panggilan itu sendiri.** Jadi perintah tersebut membaca konfigurasi yang dibaca setiap alat lain di sini: server yang dimulai dengan `--offline` menjalankan perintah-perintahnya secara offline, dan server yang dimulai dengan `--config` menjalankannya dengan file global tersebut. Flag yang dikirim panggilan untuk dirinya sendiri datang setelahnya dan menang, sehingga `offline: false` pada sebuah panggilan menjangkau jaringan hanya untuk panggilan itu, dan baris perintah yang dikembalikan menunjukkan keduanya. **Bila server dimulai dengan root workspace — melalui `--workspace-root`, atau melalui `AGGREGA_WORKSPACE_ROOT` — baris perintah dimulai dengan root tersebut sebagai `--workspace-root`, sebelum kedua flag itu**, sehingga perintah mengambil direktori tersebut sebagai root workspace-nya, sebagaimana bila diketik dengan flag yang sama dan sebagaimana setiap alat yang berjalan di dalam server mengambilnya, alih-alih menemukan workspace-nya dari direktori tempat server dimulai. Panggilan yang mengirim `workspace_root` menyebutkan root miliknya sendiri, dan baris perintah hanya membawa root tersebut — termasuk nilai kosong, yang dibaca perintah sebagaimana `--workspace-root \"\"` dibaca di terminal: temukan workspace dari direktori tempat server dimulai. Server yang dimulai tanpa keduanya tidak menyerahkan root, sehingga perintah-perintahnya menemukan workspace dari direktori tersebut, sesuai aturan yang ditetapkan [Di workspace mana sebuah panggilan dijawab](#which-workspace-a-call-is-answered-in) untuk setiap alat — kecuali peluncuran bundle desktop dengan pengaturan **Workspace folder** kosong, yang padanya panggilan yang tidak menyebutkan workspace miliknya sendiri tidak memulai perintah apa pun dan dijawab dengan penolakan dari pengaturan tersebut. **Perintah dimulai di root workspace yang disebutkan oleh panggilan atau peluncuran**: `workspace_root` milik panggilan itu sendiri, yang dibaca sebagaimana setiap alat membacanya — yang absolut sebagaimana dikirim, yang relatif dari root tempat panggilan yang tidak menyebutkan root dijawab — dan diserahkan ke perintah dalam bentuk absolutnya, atau jika tidak, root yang digunakan untuk memulai server. Jadi path relatif yang diteruskan sebuah panggilan sebagai file untuk dibaca — dokumen untuk `validate`, `--release`, atau `--catalog` — dibaca di dalam workspace tersebut, seperti di terminal yang dibuka di sana, dan build yang dijalankan perintah menulis `dist/` di bawah root tersebut. Bila tidak ada yang menyebutkan root — tidak ada root peluncuran, dan tidak ada `workspace_root` atau yang kosong — perintah dimulai di direktori tempat server dimulai dan membaca path relatif dari sana; `workspace_root` yang tidak menyebutkan folder yang ada diserahkan sebagaimana dibaca — yang absolut sebagaimana dikirim, yang relatif dalam bentuk lengkapnya — dan perintah menolaknya dengan kata-katanya sendiri. Perintah yang didaftarkan oleh plugin ekstensi perintah tidak menerima satu pun dari flag tersebut, karena perintah itu meneruskan setiap argumen ke plugin tanpa membacanya alih-alih mem-parse flag global, baik di terminal maupun di sini; perintah itu dimulai di folder yang sama dengan setiap perintah lainnya."
+  },
   "25b18a86baf96c03": {
     "at": "2026-10-23T08:19:00.586906+00:00",
     "job": "msgbatch_01FSCygBneA7ASnptBnc4B4p",
@@ -45295,6 +45306,17 @@
     "srcHash": "4007655eed63d915",
     "status": "machine",
     "text": "Blok parser untuk plugin `pluginType: parser`: format sumber yang diubahnya menjadi pohon terstruktur kanonis. Hanya ada pada plugin parser; tidak ada pada semua jenis plugin lainnya."
+  },
+  "400ae12d4e85a4dc": {
+    "at": "2026-11-14T23:59:08.244Z",
+    "job": "session-0017-20261114235908",
+    "revision": {
+      "from": "b2743956dd1395cb",
+      "reviewed": false
+    },
+    "srcHash": "400ae12d4e85a4dc",
+    "status": "machine",
+    "text": "**Peluncuran desktop dengan pengaturan Workspace folder kosong dilayani sebagai penolakan dengan cara yang sama.** Bundle desktop selalu menyerahkan `AGGREGA_WORKSPACE_ROOT` kepada server, berisi apa pun yang ada di **Workspace folder**, dan mengatur `AGGREGA_BUNDLE_VERSION` di sampingnya, sementara aplikasi memulai server di folder pilihannya sendiri — sering kali folder sistem — alih-alih di proyek Anda. Jadi server pada input dan output standar yang dimulai tanpa `--workspace-root`, yang lingkungannya membawa `AGGREGA_BUNDLE_VERSION` dan `AGGREGA_WORKSPACE_ROOT` yang kosong atau tidak ada, tidak mencari workspace dari folder tempatnya dimulai. Server menulis penolakan ke aliran error-nya dan tetap dimulai, menjawab seperti halnya untuk root peluncuran yang tidak ada: setiap panggilan yang akan bertindak di sebuah workspace dan tidak menyebutkan workspace miliknya sendiri dijawab dengan penolakan yang menyatakan bahwa aplikasi desktop meluncurkan server dengan pengaturan **Workspace folder** kosong, sehingga `AGGREGA_WORKSPACE_ROOT` tidak menyebutkan root workspace, meminta Anda mengatur **Workspace folder** ke folder yang berisi `.aggrega-config.yaml` milik workspace Anda, dan menyatakan bahwa folder yang diatur setelah server dimulai baru berlaku setelah ekstensi dinonaktifkan lalu diaktifkan kembali atau aplikasi dimulai ulang, karena aplikasi menyerahkan pengaturan tersebut kepada server hanya saat memulainya. Alat yang menjalankan perintah tidak memulai perintah apa pun untuk panggilan semacam itu. Panggilan yang menyebutkan workspace miliknya sendiri dengan path absolut dijawab di sana, dan panggilan yang menyebutkannya dengan path relatif dijawab dengan penolakan yang sama, karena tidak ada **Workspace folder** untuk membacanya; apa yang tidak bertindak di workspace mana pun dijawab seperti di server mana pun. Server mengenali peluncuran tersebut hanya dari `AGGREGA_BUNDLE_VERSION`: pada bundle yang tidak mengatur variabel tersebut, pengaturan kosong dibaca sebagai tanpa root, dan peluncuran yang mengatur variabel itu secara manual dan tidak menyebutkan root ditolak seperti peluncuran bundle. Setiap nilai kosong lainnya tetap tidak menyebutkan root — `AGGREGA_WORKSPACE_ROOT` kosong pada peluncuran yang tidak membawa `AGGREGA_BUNDLE_VERSION`, `--workspace-root` yang diketik kosong, listener, `aggrega serve`, dan setiap perintah lainnya masing-masing membacanya sebagai tidak diatur."
   },
   "400dfdbc2b4cda0e": {
     "at": "2026-10-30T00:43:49.791Z",
@@ -67205,6 +67227,17 @@
     "status": "machine",
     "text": "Templat yang gagal di-parse tidak menghasilkan himpunan referensi sama sekali. Melaporkan setiap kunci sebagai tidak dibaca akan menenggelamkan diagnostik parse yang dimunculkan evaluasi atas templat yang sama, sehingga tidak ada yang dilaporkan. Entri `artifacts:` dibaca dengan delimiter standar `{{ }}`, yang bukan pasangan yang dideklarasikan setiap provider untuk field tersebut; jika dibaca dengan pasangan yang salah, badan semacam itu menghasilkan referensi yang tidak pernah ditulis penulisnya, atau tidak dapat di-parse, dan kedua hasil itu hanya pernah membungkam peringatan."
   },
+  "5eae2b09ddce2459": {
+    "at": "2026-11-14T23:59:08.244Z",
+    "job": "session-0017-20261114235908",
+    "revision": {
+      "from": "9d6be90b03b5a9ae",
+      "reviewed": false
+    },
+    "srcHash": "5eae2b09ddce2459",
+    "status": "machine",
+    "text": "Alat-alat yang pertama kali ditemui asisten dirancang untuk siklus penulisan: `list-entities` dan `list-releases` untuk mengetahui isi workspace, `scaffold` untuk kerangka yang membawa kolom-kolom yang diwajibkan jenisnya, dengan placeholder di mana pun sebuah nilai diperlukan — atau, bila dikirimi `example`, untuk menulis salah satu contoh dokumentasi yang dapat dijalankan ke direktori baru, dengan menjawab berupa lokasi direktori tersebut, file yang ditulis, dan perintah untuk membangunnya, dan bila dikirimi `list: true`, untuk mencantumkan contoh-contoh tersebut — `get-schema` untuk JSON Schema sebuah entitas, `validate` untuk memvalidasi draf (alat ini menyebutkan setiap placeholder yang masih dibawa draf, dan apa yang diterima masing-masing), `describe` untuk mendeskripsikan entitas katalog — atau entitas yang dibaca dari registry-nya melalui referensi — `pull` untuk me-resolve dependensi sebuah Release ke dalam cache lokal dan menulis lockfile-nya, `build` untuk membangun Release menjadi artefak yang di-render — di memori secara default, tanpa artefak yang ditulis ke disk, atau ditulis ke `dist/` di root workspace, tempat `aggrega build` menuliskannya, bila Anda mengirim `write` (dan dependensi di-resolve terlebih dahulu hanya bila Anda mengirim `auto_pull`), `gen-catalog` untuk menghasilkan entitas Plugin dari guest Wasm, dan `explain-error` untuk menjabarkan diagnostik kompiler menjadi panduan yang dapat ditindaklanjuti — termasuk, bila diagnostik dimulai dengan kode singkat sebuah kondisi penghentian, kondisi tersebut dan panduan langkah demi langkah yang dipublikasikan untuk perbaikan penulisannya, penjabaran yang sama dengan yang diberikan [`aggrega explain`](aggrega-explain.md) untuk kode yang sama di terminal."
+  },
   "5eafb91102579748": {
     "at": "2026-10-22T08:42:51.391Z",
     "job": "session-0026-20261022084251",
@@ -86104,6 +86137,17 @@
     "status": "machine",
     "text": "Bidang `metadata.version` pada setiap entitas"
   },
+  "78f9f4fe8c751968": {
+    "at": "2026-11-14T23:59:08.244Z",
+    "job": "session-0017-20261114235908",
+    "revision": {
+      "from": "6b3e070bd94ee5cd",
+      "reviewed": false
+    },
+    "srcHash": "78f9f4fe8c751968",
+    "status": "machine",
+    "text": "**Sebuah panggilan menyebutkan workspace-nya dengan `workspace_root`; jika tidak, panggilan dijawab di workspace tempat server dimulai.** Bila peluncuran menyebutkan root, dengan `--workspace-root` atau `AGGREGA_WORKSPACE_ROOT`, root tersebut adalah root workspace itu sendiri, sebagaimana flag tersebut pada setiap perintah: tidak ada yang dicari di atasnya untuk menemukan workspace yang melingkupinya, sehingga peluncuran menyebutkan folder yang berisi `.aggrega-config.yaml` milik workspace, dan panggilan dijawab di sana baik oleh alat-alat yang berjalan di dalam server maupun oleh alat-alat perintah. Bila peluncuran tidak menyebutkan root, workspace ditemukan dari direktori tempat server dimulai, persis seperti perintah yang diketik di terminal di sana menemukannya — urutannya diuraikan di [Cara lain root proyek dikenali](configuration.md#the-other-ways-a-project-root-is-recognised) — kecuali pada peluncuran bundle desktop dengan pengaturan **Workspace folder** kosong, yang justru menolak panggilan semacam itu, sebagaimana diuraikan di bawah. **`workspace_root` relatif dibaca dari root tempat panggilan yang tidak menyebutkan root dijawab** — root yang disebutkan peluncuran, atau, bila peluncuran tidak menyebutkannya, root workspace yang menjadi hasil resolusi direktori tempat server dimulai — sehingga panggilan menyebutkan folder di dalam workspace, seperti `quickstart-ai/1`, tanpa mengetahui di mana workspace berada di mesin; yang absolut digunakan sebagaimana diberikan. Setiap alat membacanya demikian, termasuk alat-alat perintah. Bila tidak ada root untuk membaca yang relatif — root peluncuran yang bukan folder yang ada, atau peluncuran desktop dengan **Workspace folder** kosong — yang relatif ditolak sebagaimana panggilan yang tidak menyebutkan root. `workspace_root` yang tidak menyebutkan folder yang ada, atau yang menyebutkan file, ditolak sebelum alat melakukan hal lain apa pun, dengan menyebutkan argumennya dan mengutip nilainya — yang absolut sebagaimana dikirim, yang relatif dalam bentuk lengkap sebagaimana dibaca — sama seperti perintah menolak `--workspace-root`."
+  },
   "78fa0cba95026e95": {
     "at": "2026-10-23T08:34:04.552030+00:00",
     "job": "msgbatch_01V7s7eyUrCwoDSpkeCSpVQQ",
@@ -97349,6 +97393,17 @@
     "srcHash": "8922db367787a84c",
     "status": "machine",
     "text": "**Sintesis tanpa chart (Kubernetes).** Target Kubernetes menjalankan image resmi\n  `rabbitmq` secara langsung. Compiler menyintesis StatefulSet,\n  ClusterIP Service, dan Headless Service dari ukuran `infra`\n  milik komponen — tanpa chart eksternal yang perlu diambil atau dilacak. Tag image disematkan melalui\n  `infra.engine_version`, sehingga hasil render tidak memuat tag mengambang."
+  },
+  "89233a75316e689c": {
+    "at": "2026-11-14T23:59:08.244Z",
+    "job": "session-0017-20261114235908",
+    "revision": {
+      "from": "20b9e38ebd5db5de",
+      "reviewed": false
+    },
+    "srcHash": "89233a75316e689c",
+    "status": "machine",
+    "text": "**Root peluncuran yang bukan folder yang ada dilayani sebagai penolakan pada input dan output standar.** Bila `--workspace-root` atau `AGGREGA_WORKSPACE_ROOT` menyebutkan folder yang tidak ada, atau menyebutkan file, server menulis penolakan ke aliran error-nya dan tetap dimulai, sehingga klien yang tidak menampilkan apa pun dari aliran tersebut kepada penggunanya tetap menampilkan alasannya. Server menjawab `initialize` serta daftar alat, sumber daya, dan prompt-nya, dan setiap panggilan yang akan bertindak di workspace tersebut dijawab dengan penolakan: panggilan alat sebagai hasil yang gagal, pembacaan entitas `catalog://` atau halaman dokumentasi sebagai error. Penolakan tersebut menyebutkan flag-nya, atau variabelnya bersama pengaturan **Workspace folder** milik aplikasi desktop yang mengaturnya — pengaturan yang dijelaskan [Claude Desktop](../../ai-assistants/mcp-server.md#claude-desktop) — dan mengutip nilainya persis sebagaimana diberikan; nilai yang dikirim klien tanpa diisi dikutip sebagaimana tibanya, dan tidak ada isinya yang ditafsirkan. Alat yang menjalankan perintah tidak memulai perintah apa pun untuk panggilan yang tidak menyebutkan workspace miliknya sendiri, karena folder tempat perintah tersebut akan dimulai tidak ada, dan menjawab dengan penolakan yang sama. Panggilan yang menyebutkan workspace miliknya sendiri dengan path absolut dijawab di sana; panggilan yang menyebutkannya dengan path relatif tidak memiliki folder untuk membacanya, dan dijawab dengan penolakan yang sama. Apa yang tidak bertindak di workspace mana pun — schema, prompt, bantuan sebuah perintah — dijawab seperti di server mana pun. Listener justru ditolak saat dimulai, sebelum apa pun di-bind, dengan penolakan yang sama, sehingga siapa pun yang mengawasinya membaca kegagalan tersebut di tempat mereka mencarinya."
   },
   "8924fed0e114c63a": {
     "at": "2026-10-30T04:13:10.969Z",
@@ -175046,6 +175101,17 @@
     "status": "machine",
     "text": "annotation binding does not resolve against its target Feature (Manifest, annotation binding routes to Feature `\"<feature-uri>\"`, whose declared schema does not resolve: `<resolution failure>`) (binding anotasi tidak dapat di-resolve terhadap Feature targetnya (Manifest, binding anotasi merutekan ke Feature yang skema deklarasinya tidak dapat di-resolve))"
   },
+  "f3a6b6af83ad1110": {
+    "at": "2026-11-14T23:59:08.244Z",
+    "job": "session-0017-20261114235908",
+    "revision": {
+      "from": "70e657d0611afa49",
+      "reviewed": false
+    },
+    "srcHash": "f3a6b6af83ad1110",
+    "status": "machine",
+    "text": "Halaman ini adalah referensi perintah tersebut. Kegunaan impor, serta panduan langkah demi langkah yang membawa sebuah proyek dari sumbernya hingga menjadi build, ada di [Impor](../../authoring/import/README.md). File jawaban tempat nilai-nilai yang tidak dapat dimuat sumber mana pun dibaca, serta pertanyaan yang diajukan di terminal, dijelaskan di [File jawaban impor](../import-answers.md)."
+  },
   "f3a76ffd2e0c3c20": {
     "at": "2026-10-22T10:25:30.703Z",
     "job": "session-0030-20261022102530",
@@ -182110,6 +182176,17 @@
     "srcHash": "fd295ab491bd30de",
     "status": "machine",
     "text": "Baris `warning` berkaitan dengan bagian file Compose yang membawa chatflow, sebuah entri `configs` tingkat atas, yang tidak memiliki layanan untuk menempatkan label build. Baris `notice` bersifat informatif: Feature rahasia menerima `origin` miliknya dari `values` milik Aggregate atau `infra` milik Release, dan pemberitahuan itu melaporkan bahwa satu daun dideklarasikan di keduanya. Tidak satu pun mengubah putusan."
+  },
+  "fd2e41989fec4978": {
+    "at": "2026-11-14T23:59:08.244Z",
+    "job": "session-0017-20261114235908",
+    "revision": {
+      "from": "ad3c4994779bef4c",
+      "reviewed": false
+    },
+    "srcHash": "fd2e41989fec4978",
+    "status": "machine",
+    "text": "[core-importers](plugins/core-importers.md) — sepuluh importer milik kompiler, dari Langflow, Flowise, dan n8n hingga Compose, MCP, dan framework agen: apa yang dibaca dan didrafkan masing-masing, pengaturannya, dan publikasinya bersama setiap rilis kompiler."
   },
   "fd33f90d5d2dd652": {
     "at": "2026-10-23T08:18:59.335953+00:00",

@@ -24437,6 +24437,17 @@
     "status": "machine",
     "text": "das Release nennt keinen Schlüssel, daher ist die Instanz nicht verschlüsselt"
   },
+  "25b18a6a254e07ac": {
+    "at": "2026-11-14T23:59:08.244Z",
+    "job": "session-0017-20261114235908",
+    "revision": {
+      "from": "4a5c96ed49f419b6",
+      "reviewed": false
+    },
+    "srcHash": "25b18a6a254e07ac",
+    "status": "machine",
+    "text": "**Diese Befehlszeile beginnt mit den globalen Flags, mit denen dieser Server gestartet wurde und die über die Konfiguration entscheiden — `--config` und `--offline`, sofern Sie sie angegeben haben —, vor dem Befehl und den eigenen Flags des Aufrufs.** So liest der Befehl die Konfiguration, die jedes andere Tool hier liest: Ein mit `--offline` gestarteter Server führt seine Befehle offline aus, und einer, der mit `--config` gestartet wurde, führt sie über dieser globalen Datei aus. Ein Flag, das der Aufruf für sich selbst sendet, folgt danach und gewinnt, sodass `offline: false` bei einem Aufruf nur für diesen Aufruf das Netzwerk erreicht, und die zurückgegebene Befehlszeile zeigt beides. **Wo der Server mit einem Workspace-Stamm gestartet wurde — durch `--workspace-root` oder durch `AGGREGA_WORKSPACE_ROOT` —, beginnt die Befehlszeile mit diesem Stamm als `--workspace-root`, vor jenen beiden**, sodass der Befehl dieses Verzeichnis als Workspace-Stamm nimmt, wie er es mit demselben Flag eingegeben täte und wie es jedes innerhalb des Servers laufende Tool nimmt, statt seinen Workspace vom Verzeichnis aus zu finden, in dem der Server gestartet wurde. Ein Aufruf, der `workspace_root` sendet, nennt seinen eigenen, und die Befehlszeile trägt nur diesen — einschließlich eines leeren Werts, den der Befehl so liest, wie `--workspace-root \"\"` in einem Terminal gelesen wird: den Workspace vom Verzeichnis aus finden, in dem der Server gestartet wurde. Ein Server, der mit keinem von beiden gestartet wurde, übergibt keinen Stamm, sodass seine Befehle ihren Workspace von diesem Verzeichnis aus finden, nach der Regel, die [In welchem Workspace ein Aufruf beantwortet wird](#which-workspace-a-call-is-answered-in) für jedes Tool festlegt — ausgenommen der Start des Desktop-Bundles mit leerer Einstellung **Workspace folder**, bei dem ein Aufruf, der keinen eigenen Workspace nennt, keinen Befehl startet und mit der Ablehnung dieser Einstellung beantwortet wird. **Der Befehl startet im Workspace-Stamm, den der Aufruf oder der Start nennt**: dem eigenen `workspace_root` des Aufrufs, so gelesen, wie jedes Tool ihn liest — ein absoluter so, wie er gesendet wurde, ein relativer ausgehend von dem Stamm, in dem ein Aufruf ohne eigenen beantwortet wird — und in seiner absoluten Form an den Befehl übergeben, andernfalls dem Stamm, mit dem der Server gestartet wurde. Ein relativer Pfad, den ein Aufruf als zu lesende Datei übergibt — ein Dokument für `validate`, ein `--release` oder ein `--catalog` —, wird also innerhalb dieses Workspaces gelesen, wie in einem dort geöffneten Terminal, und ein Build, den der Befehl ausführt, schreibt `dist/` unterhalb dieses Stamms. Wo nichts einen Stamm nennt — kein Startstamm und kein `workspace_root` oder ein leerer —, startet der Befehl in dem Verzeichnis, in dem der Server gestartet wurde, und liest einen relativen Pfad von dort aus; ein `workspace_root`, der keinen vorhandenen Ordner nennt, wird so weitergegeben, wie er gelesen wurde — ein absoluter so, wie er gesendet wurde, ein relativer in seiner vollständigen Form —, und der Befehl lehnt ihn mit eigenen Worten ab. Ein Befehl, den ein Befehlserweiterungs-Plugin registriert, erhält keines davon, weil er jedes Argument ungelesen an das Plugin weitergibt, statt ein globales Flag zu parsen, im Terminal wie hier; er startet im selben Ordner wie jeder andere Befehl."
+  },
   "25b18a86baf96c03": {
     "at": "2026-11-03T21:35:42.901Z",
     "job": "session-0161-20261103213542",
@@ -40919,6 +40930,17 @@
     "srcHash": "4007655eed63d915",
     "status": "machine",
     "text": "Der Parser-Block für ein Plugin mit `pluginType: parser`: die Quellformate, die es in einen kanonischen strukturierten Baum umwandelt. Nur bei Parser-Plugins vorhanden; fehlt bei jedem anderen Plugin-Typ."
+  },
+  "400ae12d4e85a4dc": {
+    "at": "2026-11-14T23:59:08.244Z",
+    "job": "session-0017-20261114235908",
+    "revision": {
+      "from": "b2743956dd1395cb",
+      "reviewed": false
+    },
+    "srcHash": "400ae12d4e85a4dc",
+    "status": "machine",
+    "text": "**Ein Desktop-Start mit leerer Einstellung Workspace folder wird auf dieselbe Weise als Ablehnung ausgeliefert.** Das Desktop-Bundle übergibt dem Server immer `AGGREGA_WORKSPACE_ROOT` mit dem, was **Workspace folder** enthält, und setzt daneben `AGGREGA_BUNDLE_VERSION`, während die Anwendung den Server in einem Ordner ihrer Wahl startet — oft einem Systemordner — statt in Ihrem Projekt. Ein Server auf Standardeingabe und -ausgabe, der ohne `--workspace-root` gestartet wurde und dessen Umgebung `AGGREGA_BUNDLE_VERSION` und ein leeres oder fehlendes `AGGREGA_WORKSPACE_ROOT` trägt, sucht daher nicht vom Ordner aus nach einem Workspace, in dem er gestartet wurde. Er schreibt die Ablehnung in seinen Fehlerstrom und startet trotzdem und antwortet so wie bei einem Startstamm, der nicht vorhanden ist: Jeder Aufruf, der in einem Workspace wirken würde und keinen eigenen nennt, wird mit einer Ablehnung beantwortet, die besagt, dass die Desktop-Anwendung den Server mit leerer Einstellung **Workspace folder** gestartet hat, sodass `AGGREGA_WORKSPACE_ROOT` keinen Workspace-Stamm nennt, die Sie auffordert, **Workspace folder** auf den Ordner zu setzen, der die `.aggrega-config.yaml` Ihres Workspaces enthält, und die besagt, dass ein nach dem Start des Servers gesetzter Ordner wirksam wird, sobald die Erweiterung aus- und wieder eingeschaltet oder die Anwendung neu gestartet wird, weil die Anwendung die Einstellung dem Server nur übergibt, wenn sie ihn startet. Ein Tool, das einen Befehl ausführt, startet für einen solchen Aufruf keinen. Ein Aufruf, der einen eigenen Workspace mit einem absoluten Pfad nennt, wird dort beantwortet, und einer, der ihn mit einem relativen Pfad nennt, wird mit derselben Ablehnung beantwortet, da es keinen **Workspace folder** gibt, von dem aus er gelesen werden kann; was in keinem Workspace wirkt, wird wie auf jedem Server beantwortet. Der Server erkennt den Start allein an `AGGREGA_BUNDLE_VERSION`: Bei einem Bundle, das keine solche Variable setzt, wird eine leere Einstellung als kein Stamm gelesen, und ein Start, der die Variable von Hand setzt und keinen Stamm nennt, wird wie der des Bundles abgelehnt. Jeder andere leere Wert nennt weiterhin keinen Stamm — ein leeres `AGGREGA_WORKSPACE_ROOT` bei einem Start ohne `AGGREGA_BUNDLE_VERSION`, ein leer eingegebenes `--workspace-root`, ein Listener, `aggrega serve` und jeder andere Befehl lesen ihn jeweils als nicht gesetzt."
   },
   "400dfdbc2b4cda0e": {
     "at": "2026-11-03T21:17:48.202Z",
@@ -60759,6 +60781,17 @@
     "status": "machine",
     "text": "Ein Template, das sich nicht parsen lässt, liefert überhaupt keine Referenzmenge. Jeden Schlüssel als ungelesen zu melden, würde die Parse-Diagnose verschütten, die die Auswertung zum selben Template auslöst, daher wird stattdessen nichts gemeldet. Ein Eintrag `artifacts:` wird mit den Standardbegrenzern `{{ }}` gelesen, die nicht das Paar sind, das jeder Provider für dieses Feld deklariert; mit dem falschen Paar gelesen, liefert ein solcher Körper Referenzen, die sein Autor nie geschrieben hat, oder lässt sich nicht parsen, und beide Ergebnisse können immer nur eine Warnung zum Schweigen bringen."
   },
+  "5eae2b09ddce2459": {
+    "at": "2026-11-14T23:59:08.244Z",
+    "job": "session-0017-20261114235908",
+    "revision": {
+      "from": "9d6be90b03b5a9ae",
+      "reviewed": false
+    },
+    "srcHash": "5eae2b09ddce2459",
+    "status": "machine",
+    "text": "Die Tools, denen ein Assistent zuerst begegnet, sind auf die Authoring-Schleife zugeschnitten: `list-entities` und `list-releases`, um herauszufinden, was der Workspace enthält, `scaffold` für ein Gerüst mit den Feldern, die seine Art verlangt, und einem Platzhalter überall dort, wo ein Wert fällig ist — oder, mit `example`, um eines der ausführbaren Beispiele der Dokumentation in ein neues Verzeichnis zu schreiben, mit dem Ort dieses Verzeichnisses, den geschriebenen Dateien und den Befehlen zum Bauen als Antwort, und mit `list: true`, um die Beispiele aufzulisten — `get-schema` für das JSON Schema einer Entität, `validate` zum Validieren eines Entwurfs (es nennt jeden Platzhalter, den der Entwurf noch trägt, und was jeder annimmt), `describe` zum Beschreiben einer Katalogentität — oder einer per Referenz aus ihrer Registry gelesenen Entität —, `pull`, um die Abhängigkeiten eines Release in den lokalen Cache aufzulösen und seine Lockfile zu schreiben, `build`, um ein Release in seine gerenderten Artefakte zu bauen — standardmäßig im Speicher, ohne dass ein Artefakt auf die Festplatte geschrieben wird, oder nach `dist/` im Workspace-Stamm geschrieben, wo `aggrega build` sie schreibt, wenn Sie `write` senden (und die Abhängigkeiten werden nur dann zuerst aufgelöst, wenn Sie `auto_pull` senden) —, `gen-catalog`, um Plugin-Entitäten aus Wasm-Gästen zu erzeugen, und `explain-error`, um eine Compiler-Diagnose zu umsetzbaren Hinweisen zu erweitern — einschließlich, wo die Diagnose mit dem Kurzcode einer Abbruchbedingung beginnt, dieser Bedingung und der veröffentlichten Schritt-für-Schritt-Anleitung zur Behebung im Authoring, derselben Erweiterung, die [`aggrega explain`](aggrega-explain.md) für denselben Code in einem Terminal liefert."
+  },
   "5eafb91102579748": {
     "at": "2026-10-22T08:42:51.391Z",
     "job": "session-0026-20261022084251",
@@ -77752,6 +77785,17 @@
     "status": "machine",
     "text": "Felder `metadata.version` an jeder Entität"
   },
+  "78f9f4fe8c751968": {
+    "at": "2026-11-14T23:59:08.244Z",
+    "job": "session-0017-20261114235908",
+    "revision": {
+      "from": "6b3e070bd94ee5cd",
+      "reviewed": false
+    },
+    "srcHash": "78f9f4fe8c751968",
+    "status": "machine",
+    "text": "**Ein Aufruf nennt seinen Workspace mit `workspace_root`; andernfalls wird er in dem Workspace beantwortet, über dem der Server gestartet wurde.** Wo der Start einen Stamm genannt hat, mit `--workspace-root` oder `AGGREGA_WORKSPACE_ROOT`, ist dieser Stamm selbst der Workspace-Stamm, so wie das Flag es bei jedem Befehl ist: Oberhalb davon wird nach keinem umschließenden Workspace gesucht, sodass ein Start den Ordner nennt, der die `.aggrega-config.yaml` des Workspaces enthält, und ein Aufruf dort sowohl von den innerhalb des Servers laufenden Tools als auch von den Befehls-Tools beantwortet wird. Wo der Start keinen genannt hat, wird der Workspace vom Verzeichnis aus gefunden, in dem der Server gestartet wurde, genau so, wie ein dort in einem Terminal eingegebener Befehl ihn ermittelt — die Reihenfolge ist unter [Die anderen Arten, wie ein Projektstamm erkannt wird](configuration.md#the-other-ways-a-project-root-is-recognised) dargelegt —, außer beim Start des Desktop-Bundles mit leerer Einstellung **Workspace folder**, der einen solchen Aufruf stattdessen ablehnt, wie unten dargelegt. **Ein relativer `workspace_root` wird ausgehend von dem Stamm gelesen, in dem ein Aufruf ohne eigenen beantwortet wird** — dem Stamm, den der Start genannt hat, oder, wo er keinen genannt hat, dem Workspace-Stamm, zu dem sich das Verzeichnis auflöst, in dem der Server gestartet wurde —, sodass ein Aufruf einen Ordner innerhalb des Workspaces nennt, etwa `quickstart-ai/1`, ohne zu wissen, wo der Workspace auf dem Rechner liegt; ein absoluter wird so verwendet, wie er angegeben ist. Jedes Tool liest ihn so, die Befehls-Tools eingeschlossen. Wo es keinen Stamm gibt, von dem aus ein relativer gelesen werden kann — ein Startstamm, der kein vorhandener Ordner ist, oder der Desktop-Start mit leerem **Workspace folder** —, wird ein relativer so abgelehnt wie ein Aufruf, der keinen nennt. Ein `workspace_root`, der keinen vorhandenen Ordner oder eine Datei nennt, wird abgelehnt, bevor das Tool irgendetwas anderes tut, wobei das Argument genannt und der Wert zitiert wird — ein absoluter so, wie er gesendet wurde, ein relativer in der vollständigen Form, in der er gelesen wurde —, so wie ein Befehl `--workspace-root` ablehnt."
+  },
   "78fa0cba95026e95": {
     "at": "2026-11-04T09:43:30.291Z",
     "job": "session-0227-20261104094330",
@@ -87993,6 +88037,17 @@
     "srcHash": "8922db367787a84c",
     "status": "machine",
     "text": "**Synthese ohne Chart (Kubernetes).** Das Kubernetes-Ziel führt das offizielle Image `rabbitmq` direkt aus. Der Compiler synthetisiert das StatefulSet, den ClusterIP-Service und den Headless-Service aus der Dimensionierung `infra` der Komponente — kein externes Chart, das beschafft oder verfolgt werden muss. Der Image-Tag wird über `infra.engine_version` fixiert, sodass das Rendering keinen gleitenden Tag enthält."
+  },
+  "89233a75316e689c": {
+    "at": "2026-11-14T23:59:08.244Z",
+    "job": "session-0017-20261114235908",
+    "revision": {
+      "from": "20b9e38ebd5db5de",
+      "reviewed": false
+    },
+    "srcHash": "89233a75316e689c",
+    "status": "machine",
+    "text": "**Ein Startstamm, der kein vorhandener Ordner ist, wird auf Standardeingabe und -ausgabe als Ablehnung ausgeliefert.** Wo `--workspace-root` oder `AGGREGA_WORKSPACE_ROOT` einen Ordner nennt, der nicht existiert, oder eine Datei nennt, schreibt der Server die Ablehnung in seinen Fehlerstrom und startet trotzdem, sodass ein Client, der seinem Benutzer nichts von diesem Strom zeigt, dennoch den Grund zeigt. Er beantwortet `initialize` und seine Tool-, Ressourcen- und Prompt-Listen, und jeder Aufruf, der in diesem Workspace wirken würde, wird mit der Ablehnung beantwortet: ein Tool-Aufruf als fehlgeschlagenes Ergebnis, das Lesen einer `catalog://`-Entität oder einer Dokumentationsseite als Fehler. Die Ablehnung nennt das Flag oder die Variable zusammen mit der Einstellung **Workspace folder** der Desktop-Anwendung, die sie setzt — der Einstellung, die [Claude Desktop](../../ai-assistants/mcp-server.md#claude-desktop) beschreibt —, und zitiert den Wert genau so, wie er angegeben wurde; ein Wert, den der Client gesendet hat, ohne ihn auszufüllen, wird so zitiert, wie er angekommen ist, und nichts darin wird interpretiert. Ein Tool, das einen Befehl ausführt, startet für einen Aufruf, der keinen eigenen Workspace nennt, keinen, da der Ordner, in dem dieser Befehl starten würde, nicht vorhanden ist, und antwortet mit derselben Ablehnung. Ein Aufruf, der einen eigenen Workspace mit einem absoluten Pfad nennt, wird dort beantwortet; einer, der ihn mit einem relativen Pfad nennt, hat keinen Ordner, von dem aus er gelesen werden kann, und wird mit derselben Ablehnung beantwortet. Was in keinem Workspace wirkt — ein Schema, ein Prompt, die Hilfe eines Befehls —, wird wie auf jedem Server beantwortet. Ein Listener wird stattdessen beim Start abgelehnt, bevor irgendetwas gebunden wird, mit derselben Ablehnung, sodass jeder, der ihn überwacht, den Fehler dort liest, wo er danach sucht."
   },
   "8924fed0e114c63a": {
     "at": "2026-11-04T09:43:36.104Z",
@@ -158458,6 +158513,17 @@
     "status": "machine",
     "text": "annotation binding does not resolve against its target Feature (Manifest, annotation binding routes to Feature `\"<feature-uri>\"`, whose declared schema does not resolve: `<resolution failure>`) (Annotationsbindung lässt sich nicht gegen ihr Ziel-Feature auflösen (Manifest: Die Annotationsbindung routet an ein Feature, dessen deklariertes Schema sich nicht auflösen lässt))"
   },
+  "f3a6b6af83ad1110": {
+    "at": "2026-11-14T23:59:08.244Z",
+    "job": "session-0017-20261114235908",
+    "revision": {
+      "from": "70e657d0611afa49",
+      "reviewed": false
+    },
+    "srcHash": "f3a6b6af83ad1110",
+    "status": "machine",
+    "text": "Diese Seite ist die Referenz des Befehls. Wozu ein Import dient, und Schritt-für-Schritt-Anleitungen, die ein Projekt von seiner Quelle bis zu einem Build führen, finden Sie unter [Import](../../authoring/import/README.md). Die Antwortdatei, aus der die Werte gelesen werden, die keine Quelle enthalten kann, und die in einem Terminal gestellten Fragen sind unter [Die Antwortdatei des Imports](../import-answers.md) beschrieben."
+  },
   "f3a76ffd2e0c3c20": {
     "at": "2026-10-22T10:25:30.703Z",
     "job": "session-0030-20261022102530",
@@ -164909,6 +164975,17 @@
     "srcHash": "fd295ab491bd30de",
     "status": "machine",
     "text": "Die Zeile `warning` betrifft den Teil der Compose-Datei, der den Chatflow trägt, einen Eintrag `configs` auf oberster Ebene, der keinen Dienst hat, an dem die Labels des Builds angebracht werden könnten. Die Zeile `notice` ist rein informativ: Das Secret-Feature akzeptiert sein `origin` aus den `values` des Aggregate oder der `infra` des Release, und der Hinweis meldet, dass ein Blatt in beiden deklariert ist. Keine der beiden ändert das Urteil."
+  },
+  "fd2e41989fec4978": {
+    "at": "2026-11-14T23:59:08.244Z",
+    "job": "session-0017-20261114235908",
+    "revision": {
+      "from": "ad3c4994779bef4c",
+      "reviewed": false
+    },
+    "srcHash": "fd2e41989fec4978",
+    "status": "machine",
+    "text": "[core-importers](plugins/core-importers.md) — die zehn Importer des Compilers, von Langflow, Flowise und n8n bis zu Compose, MCP und den Agenten-Frameworks: was jeder liest und entwirft, ihre Einstellungen und ihre Veröffentlichung mit jedem Compiler-Release."
   },
   "fd33f90d5d2dd652": {
     "at": "2026-11-03T14:05:29.072Z",
