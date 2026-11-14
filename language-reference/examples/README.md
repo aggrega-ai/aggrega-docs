@@ -85,15 +85,16 @@ They run over the outputs of the workspaces here, and over yours.
 
 Each `import-*` example — listed under the `import` capability in
 [Examples by product and capability](by-product-and-capability.md) — keeps a
-project written in another format as `aggrega import` meets it, in three folders:
-`source/`, the project and the `.aggrega-config.yaml` that makes it a workspace;
-`draft/`, the files the import wrote, unchanged, with what it printed on standard
-output (`stdout.txt`) and standard error (`import.txt`); and `reviewed/`, the same
-files after review, a workspace that builds. Its walkthrough under
+project written in another format as `aggrega import` meets it, in two folders:
+`source/`, the project, the `.aggrega-config.yaml` that makes it a workspace and
+the [answers file](../import-answers.md) the import reads the values no source
+can hold from; and `draft/`, the files the import wrote, unchanged, a workspace
+that builds as written, with what it printed on standard output (`stdout.txt`)
+and standard error (`import.txt`). Its walkthrough under
 [Import](../../authoring/import/README.md) teaches each stage. Its `check.sh` runs
 the shared `scripts/check-import-example.sh` of this repository, which imports again,
 compares what it writes and prints with `draft/` and the walkthrough's quoted blocks
-with the example's files, then validates and builds the drafts and `reviewed/`.
+with the example's files, then validates and builds the drafted Release.
 
 ## The teaching order
 

@@ -195,7 +195,7 @@ Pull complete: <workspace>/release.lock (entities=10, source_artifacts=0, extern
   does, into `release.lock`, so the drafts validate and build at once. Under
   `--offline` the import pulls nothing and names the `aggrega pull` to run.
 
-## What it wrote
+## What it writes
 
 The Aggregate, the Release and the Manifest are named `imported/support`, after
 the one graph `langgraph.json` serves, `support`, since a configuration carries

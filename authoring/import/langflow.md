@@ -145,7 +145,7 @@ Pull complete: <workspace>/release.lock (entities=8, source_artifacts=0, externa
 The answers file names two Secrets this import does not ask for: it leaves
 nothing empty for them, so it applies neither and leaves the file as it is.
 
-## What it wrote
+## What it writes
 
 The Aggregate, the Release and the Manifest are named
 `imported/basic-prompting`, after the flow's own name, `Basic Prompting`,

@@ -87,7 +87,7 @@ In continuous integration, through a pipe, from the assistant's import tool (`ag
 2 values the drafts leave empty are still owed, listed in the answers file <path>/support_agent/import-answers.yaml: write each beside its key there, then run the import again
 ```
 
-Write each answer beside its key, then run `aggrega import <source> --sync` into the same directory. A plain `aggrega import` into a directory that already holds the drafted Aggregate stops, naming `--sync`, and writes nothing. An import into a fresh output directory reads the answers file too: the default one, or the one `--answers` names.
+Write each answer beside its key, then run `aggrega import <source> --sync` into the same directory: it drafts for the target the earlier import was given, writes each answer into the drafts and asks nothing. A plain `aggrega import` into a directory that already holds the drafted Aggregate stops, naming `--sync`, and writes nothing. An import into a fresh output directory reads the answers file too: the default one, or the one `--answers` names.
 
 The assistant's import tool takes the answers file as `answers`, named relative to the workspace root or absolute. A call that still owes values fails with that sentence and carries the import's result, the warnings included, beside it. The editor's import takes the answers file too, and the same sentence closes its diagnostics.
 
@@ -104,8 +104,16 @@ Once nothing is owed and the workspace is not offline, the import pulls the draf
 The same source drafted for different targets can owe different values: the Google ADK Release above, drafted with `--target compose`, owes the image alone, and the same Release drafted with `--target helm` also owes where the agent's Gemini API key comes from. One answers file serves both:
 
 - the import adds the keys its drafts owe and sets the answers it is given;
-- an answer for a key these drafts do not owe is kept in the file and not applied, and an information line on standard error names it;
+- an answer for a key these drafts do not owe is kept in the file and not applied;
 - every other key and comment in the file stays as it is.
+
+The answers file is read only where the drafts owe some value. Where they do, an information line on standard error names each answer kept and not applied — here for the [Flowise import](../authoring/import/flowise.md) drafted with `--target compose`, which owes the owner's email alone, reading an answers file that also names the two Kubernetes Secrets the same import owes with `--target helm`:
+
+```text
+info: the answers file <path>/import-answers.yaml also answers spec.components.flowise.features.owner_password.infra.origin in release.yaml, spec.components.flowise.uses.model.chatopenai-0.features.credential.infra.origin in release.yaml, which these drafts do not leave empty; those answers are kept there and not applied
+```
+
+Where the drafts owe nothing — the [Langflow import](../authoring/import/langflow.md) drafted with `--target compose`, say, which reads every secret from a variable — the answers file is not read, no such line is printed, and the file is left as it is.
 
 ## See also
 

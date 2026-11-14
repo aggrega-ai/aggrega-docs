@@ -188,7 +188,7 @@ Pull complete: <workspace>/release.lock (entities=8, source_artifacts=0, externa
 The answers file names a Secret this import does not ask for: it leaves nothing
 empty for it, so it applies no answer and leaves the file as it is.
 
-## What it wrote
+## What it writes
 
 The Aggregate, the Release and the Manifest are named
 `imported/support-agent`, after the workflow's own name, `Support agent`,

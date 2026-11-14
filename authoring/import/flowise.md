@@ -152,7 +152,7 @@ Pull complete: <workspace>/release.lock (entities=8, source_artifacts=0, externa
   the build prints too, and [Validate and build](#validate-and-build) explains
   it.
 
-## What it wrote
+## What it writes
 
 The Aggregate, the Release and the Manifest are named `imported/support-chat`,
 after the file, `support-chat.json`, since a Flowise export carries no name of

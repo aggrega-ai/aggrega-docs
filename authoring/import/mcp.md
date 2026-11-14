@@ -174,7 +174,7 @@ line.
   does, into `release.lock`, so the drafts validate and build at once. Under
   `--offline` the import pulls nothing and names the `aggrega pull` to run.
 
-## What it wrote
+## What it writes
 
 The Aggregate, the Release and the Manifest are named `imported/mcp`, after the
 file, `.mcp.json`, since a client's configuration carries no name of its own — a

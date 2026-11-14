@@ -203,7 +203,7 @@ Pull complete: <workspace>/release.lock (entities=8, source_artifacts=0, externa
   does, into `release.lock`, so the drafts validate and build at once. Under
   `--offline` the import pulls nothing and names the `aggrega pull` to run.
 
-## What it wrote
+## What it writes
 
 The Aggregate, the Release and the Manifest are named `imported/support-brief`:
 a project's `config/agents.yaml` and `config/tasks.yaml` name no crew — its name

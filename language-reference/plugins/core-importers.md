@@ -349,8 +349,15 @@ By default an import writes:
   instance carries the flow in `values.flow_definition` and names it in its identifier value, `flow_id`
   on Langflow, `chatflow_id` on Flowise and `workflow_id` on n8n. Each part of the flow is an entry of
   its own beside it, wired to the platform under the instance's `uses`.
+- `release.yaml` — a draft Release of the same name, naming that Aggregate, with an entry for the
+  platform and one for each part, carrying the platform's image and attaching every secret the
+  draft needs by reference, as [What the draft leaves for the Release](#what-the-draft-leaves-for-the-release)
+  describes.
 - one file under `components/` for each part it drafts rather than references, written as
   [the node-by-node layout](#node-by-node) writes a drafted node.
+
+Given a target, the import drafts `manifest.yaml` beside them, as [What a target adds](#what-a-target-adds)
+describes.
 
 Every node that is not a part stays inside the flow the platform carries and becomes no Component.
 Its decision records the candidates it was weighed against and chooses nothing, and its rationale
@@ -359,9 +366,9 @@ mapping row names its type and its closest candidate scored only so much, say. T
 edges between nodes; the draft writes none of its own.
 
 Flowise's Multiple Documents QnA chatflow, exported as `Multiple Documents QnA.json` and imported with
-`reuse_mode: auto-apply-above-threshold` over a catalog holding the standard library's Flowise platform
-and its model and retrieval-tool Components, is drafted as this Aggregate, most of the flow left out
-here and marked `...`:
+no setting and no target over a catalog holding the standard library's Flowise platform and its model
+and retrieval-tool Components, is drafted as this Aggregate, most of the flow left out here and marked
+`...`:
 
 ```yaml
 apiVersion: aggrega.ai/v1beta1
@@ -372,14 +379,9 @@ metadata:
   description: Draft Aggregate imported from a source in the flowise format.
 spec:
   components:
-    # Left for the Release, since the source cannot supply it:
-    #   - infra.image, the container image running Flowise
-    #   - infra.owner_email, the email address of the platform's owner account, required while values.flow_definition is set
-    #   - the owner_password slot, that account's password, required while values.flow_definition is set
-    #   - the credential each connection under uses presents to the part it reaches, attached on that connection
     flowise:
       type: core/ai-agent/flowise
-      # For the compose target only, uncomment the lines below, which declare owner_password on flowise: the compose Recipe reads every secret the Release alone attaches under the key value, so the owner's password and a connection's credential would both arrive under it and halt the build; the Release still attaches owner_password, naming this type or none.
+      # For the compose target only, uncomment the lines below, which declare owner_password on flowise: a secret the Release alone attaches arrives under the key value, so each is declared with a key of its own and no two arrive under one; the Release attaches its origin, naming this type or none.
       # features:
       #   owner_password:
       #     type: core/secret-value
@@ -399,6 +401,12 @@ spec:
         model:
           chatopenai-0:
             target: chatopenai-0
+            # For the compose target only, uncomment the lines below, which declare credential on chatopenai-0: a secret the Release alone attaches arrives under the key value, so each is declared with a key of its own and no two arrive under one; the Release attaches its origin, naming this type or none.
+            # features:
+            #   credential:
+            #     type: core/secret-value
+            #     values:
+            #       key: OPENAI_API_KEY
     # swap to core/ai-model/azure-openai (score 0.4000) by setting type: core/ai-model/azure-openai
     chatopenai-0:
       type: core/ai-model/openai
@@ -727,8 +735,9 @@ Apart from the values the setting writes empty, what the draft writes so that th
 parts, and the carriage returns written as line feeds below, the flow is carried as it was exported,
 so a flow with none of these to change is carried byte for byte.
 
-A connection in the draft carries no credential: the Release attaches the one each connection
-presents, as the comment above the platform says.
+A connection in the draft carries no credential value: the drafted Release attaches the one each
+connection presents by reference, as
+[What the draft leaves for the Release](#what-the-draft-leaves-for-the-release) describes.
 
 Every value the setting leaves as written reaches the draft, and the author reviews it, guided by the
 `credential-carried` warnings. No rule about a field reaches the rest of a flow either, so the author
@@ -744,45 +753,112 @@ prompt or a message.
 
 ### What the draft leaves for the Release
 
-A comment above the platform's instance names what the flow cannot supply, which the Release
-supplies:
+The drafted Release carries, on the platform's entry and on each part's, what the flow cannot
+supply:
 
-- the platform's own inputs: on Langflow, `infra.image`, and the `admin_password` slot while
-  `values.require_authentication` stays `true`; on Flowise, `infra.image`, `infra.owner_email` and the
-  `owner_password` slot, the last two required while `values.flow_definition` is set; on n8n,
-  `infra.image`;
-- the address of each MCP server wired to the platform, `infra.endpoint` of its part;
-- where the platform draws a connection, the credential each connection presents to the part it
-  reaches, attached on that connection.
+- **The platform's image**, as `infra.image`: the importer's own choice of image, at the version the
+  catalog's Recipes for the platform are known to run — `langflowai/langflow:1.6.0`,
+  `flowiseai/flowise:3.1.3` and `n8nio/n8n:1.110.1` — under a comment saying so. The import never
+  raises or lowers it to follow the source; where the export states a version of the platform that
+  differs, as a Langflow flow's `last_tested_version` does, the comment names it.
+- **The platform's own secret and each model connection's credential**, attached by reference and
+  never as a value: on Langflow, the `admin_password` slot, read while `values.require_authentication`
+  stays `true`; on Flowise, the `owner_password` slot, required while `values.flow_definition` is set;
+  and, where a part is wired to the platform's `model` socket, the `credential` on that connection.
+  The n8n platform takes no secret of its own. How each is attached depends on the target, as
+  [Secrets, for each target](#secrets-for-each-target) describes.
+- **Each value no source holds**, written as an empty string under a comment saying what it is: on
+  Flowise, `infra.owner_email`, the owner account's email, required while `values.flow_definition` is
+  set; and the address of each MCP server wired to the platform, `infra.endpoint` of its part. Each is
+  a value the import owes, answered as [The import answers file](../import-answers.md) describes.
 
-The draft is written alike for every target. On the compose target, the platform's Recipe reads every
-secret the Release alone attaches under one key, `value`, so the administrator's or the owner's
-password and a connection's credential would both arrive under it and halt the build. Where the
-platform draws a connection, a comment inside its instance shows the lines declaring that password
-with a key of its own, each commented out where it belongs — `owner_password` with the key
-`OWNER_PASSWORD` on Flowise, as in the example above, and `admin_password` with the key
-`LANGFLOW_SUPERUSER_PASSWORD` on Langflow. Uncomment them to build for compose; the Release still
-attaches the slot, naming the same type or none. The n8n platform takes no secret of its own, so its
-draft shows no such lines; its compose Recipe reads the credentials the Release attaches on its
-connections under the same one key, so a Release attaching a credential on two of its connections
-halts the compose build naming both, and an Aggregate naming `values.key` on one of them avoids it.
+The credential a connection to a tool or a vector store presents is not drafted: such a connection's
+credential halts the build where the tool publishes no header to send it in, so a comment above the
+platform's entry names it, for you to attach where the tool takes one.
+
+#### Secrets, for each target
+
+On `--target helm`, each secret is a `core/referenced-secret` whose `origin` is the name of a
+Kubernetes Secret already in the namespace, holding the value under the data key `value`. The name is
+no source's to give, so it is written empty under a comment saying what it holds, and the import owes
+it; the drafted Manifest maps `core/referenced-secret` to `helm/k8s-existing-secret`.
+
+On every other target, and with none, each secret is a `core/secret-value` whose `origin` is a
+reference to a variable — `${LANGFLOW_ADMIN_PASSWORD}`, `${FLOWISE_OWNER_PASSWORD}`, and
+`${OPENAI_API_KEY}` for a model connection's credential — which a target substituting variable
+references, as Docker Compose does when the stack starts, reads from the environment, so no file
+carries the value and nothing is owed for it. The Flowise chatflow above, imported with no target,
+is drafted with this Release:
+
+```yaml
+apiVersion: aggrega.ai/v1beta1
+kind: Release
+metadata:
+  name: imported/multiple-documents-qna
+  # environment is a drafted default, since no source names the environment this Release deploys to; change it to name the one it deploys to.
+  environment: development
+  version: 0.1.0
+  description: Draft Release imported from a source in the flowise format.
+spec:
+  aggregate: imported/multiple-documents-qna
+  # manifest: left empty, since the import was given no target; an import given a target drafts the Manifest and names it here.
+  manifest: ""
+  components:
+    flowise:
+      infra:
+        # The image running core/ai-agent/flowise, at the version this importer drafts, which the catalog's Recipes for it are known to run; the import does not raise or lower it to follow the source.
+        image: "flowiseai/flowise:3.1.3"
+        # Left for the Release, since the source cannot supply it: infra.owner_email, the email address of the platform's owner account, required while values.flow_definition is set
+        owner_email: ""
+      features:
+        owner_password:
+          type: core/secret-value
+          infra:
+            # Attached by reference, never as a value: the owner account's password, required while values.flow_definition is set, read from the variable FLOWISE_OWNER_PASSWORD, which a target substituting variable references, as Docker Compose does when the stack starts, reads from the environment, so no file carries the value.
+            origin: "${FLOWISE_OWNER_PASSWORD}"
+      uses:
+        model:
+          chatopenai-0:
+            features:
+              credential:
+                type: core/secret-value
+                infra:
+                  # Attached by reference, never as a value: the credential flowise presents to chatopenai-0 on its model connection, read from the variable OPENAI_API_KEY, which a target substituting variable references, as Docker Compose does when the stack starts, reads from the environment, so no file carries the value.
+                  origin: "${OPENAI_API_KEY}"
+    chatopenai-0: {}
+```
+
+With no target it owes two values, `spec.manifest` and `infra.owner_email`; with `--target compose`,
+the owner's email alone; with `--target helm`, the owner's email and the names of the two Kubernetes
+Secrets.
+
+On the compose target, a secret the Release alone attaches arrives under one key, `value`, so the
+owner's or the administrator's password and a connection's credential would both arrive under it.
+The Aggregate therefore declares each with a key of its own where the platform draws a connection:
+`owner_password` with the key `OWNER_PASSWORD` on Flowise, `admin_password` with the key
+`LANGFLOW_SUPERUSER_PASSWORD` on Langflow, and the model connection's `credential` with the key
+`OPENAI_API_KEY` on all three platforms, each under a comment saying why. With `--target compose`
+these lines are written live; with no target they are written commented out, as in the example
+above, for you to uncomment if you build for compose; with any other target they are not written.
+The Release attaches each slot's origin, naming the same type or none.
 
 With the [`attach_egress_allowlist` setting](#settings) `true`, the platform's instance also declares
 the standard library's `core/egress-allowlist` Feature under `features`, as `egress-allowlist`, so the
 platform connects only to the components its connections reach, its own pods and the cluster's DNS
 — the outbound counterpart of a [`uses` edge as a declared call](../entities/aggregate.md#a-uses-edge-is-a-call-the-aggregate-declares).
-The draft declares the attachment's type and nothing else, since an Aggregate's attachment carries no
-`infra`, and the comment above the instance names what the Release sets on it, under
-`features.egress-allowlist.infra` of the platform's entry: `control_plane_present: true`, the
-operator's affirmation that the cluster's network plugin enforces network policy, without which the
-build halts; and `admitted_destinations`, an address range for each connection whose target the
-cluster does not run, such as a hosted model, without which the build halts naming that connection.
-The comment also names `aggrega.ai/namespace` for the boundary holding the platform, since the policy
-is placed in its workloads' namespace and the build halts where they are emitted into none. Each wired
-part's decision says the attachment admits its connection, and the import reports the attachment as
-`feature-attached`. Compose has no network policy, so a compose build of such a draft halts naming the
-attachment; where the platform draws a connection, the compose lines above are shown inside the
-instance's `features` block, with no second `features` key.
+The Aggregate declares the attachment's type and nothing else, since an Aggregate's attachment
+carries no `infra`, and the drafted Release writes, under `features.egress-allowlist.infra` of the
+platform's entry, each value it leaves empty under a comment saying what it is:
+`control_plane_present`, the operator's affirmation that the cluster's network plugin enforces network
+policy, without which the build halts; and `admitted_destinations`, an address range for each
+connection whose target the cluster does not run, such as a hosted model, without which the build
+halts naming that connection. A comment above the platform's entry names `aggrega.ai/namespace` for
+the boundary holding the platform, since the policy is placed in its workloads' namespace and the
+build halts where they are emitted into none. Each wired part's decision says the attachment admits
+its connection, and the import reports the attachment as `feature-attached`. Compose has no network
+policy, so a compose build of such a draft halts naming the attachment; where the platform draws a
+connection, the compose lines above are written inside the instance's `features` block, with no
+second `features` key.
 
 ### The model a part serves
 
@@ -845,6 +921,8 @@ With `layout: nodes`, an import drafts every node of the flow as a Component of 
   `<target_namespace>/<category>/<name>`, the name taken from the node's type, at version `0.1.0`, its
   value fields as string fields of a closed `values` object and its credential fields as required
   credential slots whose delivery a Recipe decides.
+- `release.yaml` — a draft Release of the same name, naming that Aggregate, with an entry for each
+  node.
 
 The flow itself is not carried, and no field's value is read.
 
@@ -953,24 +1031,31 @@ Aggregate, carrying for each instance the operational inputs the source states:
   part it leaves out is written in the comment above the entry, beside the address, as
   [Credential values a server holds](#credential-values-a-server-holds) describes;
 - for an OCI package, `infra.image`;
-- for a server's environment, the `server_env` slot, attached as `core/referenced-secret-set` with one
-  entry under `infra.entries` per variable, keyed by the variable's name.
+- for a server's environment, the `server_env` slot, attached by reference for the import's target.
+  On `--target helm` it is a `core/referenced-secret` naming a Kubernetes Secret already in the
+  namespace that holds one data key per variable, each named as the variable it holds; the Secret's
+  name is written empty, under a comment naming the data keys, and the import owes it. On every other
+  target, and with none, it is a `core/referenced-secret-set` with one entry under `infra.entries` per
+  variable, keyed by the variable's name, its value as the source writes it, so a variable reference
+  such as `${GITHUB_TOKEN}` stays one, which a target substituting variable references reads from the
+  environment.
 
-What the source does not state is left out and named in a comment above the entry: a command whose
-launcher neither bridge image carries leaves `infra.stdio_runtime`; an argument a registry description
-leaves for its user is written as an empty item; a variable whose value the source does not write is
-written with its key and no value. The build then halts naming each — an empty item and an entry with
-no value fail the schema of the field holding them, and the realization reading an unset
-`infra.stdio_runtime`, `infra.stdio_command` or `infra.endpoint` stops naming it.
+What the source does not state is written empty, under a comment saying what it is: a command whose
+launcher neither bridge image carries leaves `infra.stdio_runtime` empty, and the import owes it; an
+argument a registry description leaves for its user is written as an empty item, and a variable whose
+value the source does not write as an entry with an empty value, each named in the comment above the
+entry.
 
-The Release's `metadata.environment` and `spec.manifest` are left unset, each named in a comment where
-it belongs: no source names the environment a Release deploys to, and the importer drafts no Manifest
-— unless the import is given a target, as [What a target adds](#what-a-target-adds) describes.
-The Manifest you write maps each server to its realization — `helm/mcp-stdio-bridge` or
-`compose/mcp-stdio-bridge` for a command line, `helm/mcp-remote` or `compose/mcp-remote` for an
-address, `helm/mcp` or `compose/mcp` for an image — and `core/referenced-secret-set` to its own,
-`helm/k8s-secret-set` or `compose/dotenv-secret-set`; a drafted one maps
-neither. The Release schema requires both, so a build stops naming them until they are set.
+Like every drafted Release, it writes `metadata.environment` as `development`, under a comment saying
+it is a drafted default to change, and, with no target, `spec.manifest` as an empty string the import
+owes. Given a target, the importer drafts the Manifest itself, since the catalog realizes
+`core/ai-tool/mcp` through several Recipes and only the importer knows how each server runs: it maps
+each server by its key, under `mappings.components.name`, to the target's realization of how the
+server runs — `mcp-stdio-bridge` for a command line, `mcp-remote` for an address, `mcp` for an image,
+such as `helm/mcp-stdio-bridge` or `compose/mcp-remote` — and the secret type the environment is
+attached as to its realization, `helm/k8s-existing-secret` on helm and `compose/dotenv-secret-set` on
+compose. The import completes that Manifest and names it in the Release, as
+[What a target adds](#what-a-target-adds) describes.
 
 A Claude Code `.mcp.json` listing a server reached over HTTP and one started with `npx`:
 
@@ -1015,20 +1100,20 @@ apiVersion: aggrega.ai/v1beta1
 kind: Release
 metadata:
   name: imported/mcp
-  # environment: left for the operator, since no source names the environment this Release deploys to.
+  # environment is a drafted default, since no source names the environment this Release deploys to; change it to name the one it deploys to.
+  environment: development
   version: 0.1.0
   description: Draft Release imported from a source in the mcp format.
 spec:
   aggregate: imported/mcp
-  # manifest: left for the operator, since the import drafts no Manifest, which names the target the servers are built for.
+  # manifest: left empty, since the import was given no target; an import given a target drafts the Manifest and names it here.
+  manifest: ""
   components:
     # The headers the source sends this server, which no infrastructure key of core/ai-tool/mcp takes, since a remote server's credential is held by each consumer, on its connection to the tool:
     #   - Authorization: "Bearer ${API_KEY}"
     api-server:
       infra:
         endpoint: "https://api.example.com/mcp"
-    # Left for the Release, since the draft does not write it:
-    #   - the value of server_env.GITHUB_PERSONAL_ACCESS_TOKEN, which the source reads from ${GITHUB_TOKEN}
     github:
       infra:
         stdio_command:
@@ -1040,8 +1125,42 @@ spec:
         server_env:
           type: core/referenced-secret-set
           infra:
+            # Attached by reference wherever the source names a variable: the environment github is started with, one entry per variable, each written as the source writes it, so a variable reference stays one, which a target substituting variable references, as Docker Compose does when the stack starts, reads from the environment, and an empty value is one still owed.
             entries:
               - key: "GITHUB_PERSONAL_ACCESS_TOKEN"
+                value: "${GITHUB_TOKEN}"
+```
+
+Imported with `--target helm`, the same configuration's Release attaches the environment as the Secret
+it names, and the Manifest the importer drafts maps each server by its key:
+
+```yaml
+# release.yaml, the github entry's environment
+      features:
+        server_env:
+          type: core/referenced-secret
+          infra:
+            # Left for the Release, since the source cannot supply it: the name of a Kubernetes Secret already in the namespace holding the environment github is started with, one data key per variable, each named as the variable it holds: GITHUB_PERSONAL_ACCESS_TOKEN.
+            origin: ""
+```
+
+```yaml
+# manifest.yaml
+apiVersion: aggrega.ai/v1beta1
+kind: Manifest
+metadata:
+  name: imported/mcp
+  version: 0.1.0
+spec:
+  mappings:
+    components:
+      type: {}
+      name:
+        api-server: helm/mcp-remote
+        github: helm/mcp-stdio-bridge
+    features:
+      type:
+        core/referenced-secret: helm/k8s-existing-secret
 ```
 
 ### Credential values a server holds
@@ -1057,19 +1176,20 @@ the Release and named in a `credential-carried` warning by its server and its pl
 a part of the address by the `url` it is written in and the part's name, as in "url of node
 remote-search is carried with its query as written" — never by its value. With the
 [`empty_credentials` setting](#settings) at `marked` or `all`, each is written empty and reported with
-`credential-emptied`: an item of the command line as an empty item, an address and an environment
-value left out, so the build halts naming each, and a header's value or a part of the address left
-out of the comment, which names the header or the part alone. A client's `infra.stdio_runtime` is read
-off the command as the Release writes it, so a command written empty leaves it out too.
+`credential-emptied`: an item of the command line as an empty item and an environment value as an
+empty value, each named in the comment above the entry; an address as an empty `infra.endpoint`, which
+the import owes; and a header's value or a part of the address left out of the comment, which names
+the header or the part alone. A client's `infra.stdio_runtime` is read off the command as the Release
+writes it, so a command written empty leaves it empty too, and the import owes it. On `--target helm`
+the Release writes no environment value at all: the Secret the `server_env` slot names holds them.
 
 A value that is one variable reference and nothing else — the bare name `${NAME}`, a predefined
 variable such as `${workspaceFolder}` among them, `${env:NAME}` or `${input:id}` — holds no value of
-its own: it is written as the text it is whatever the setting says, the bridge passing it to the
-server unexpanded, and it is named in no warning, as a reference is
+its own: it is written as the text it is whatever the setting says, and it is named in no warning, as
+a reference is
 [in a flow](#credential-values-the-flow-holds). An environment variable whose value is one is written
-with its key and no value, its reference named in the comment above the entry, for the Release to
-supply, and a header or a part of the address whose value is one is listed with the reference it reads
-from. A reference carrying text after an operator — a default, an alternative, a message or an
+as the entry's value, a reference staying one, and a header or a part of the address whose value is
+one is listed with the reference it reads from. A reference carrying text after an operator — a default, an alternative, a message or an
 assignment, such as `${NAME:-value}` or `${NAME-value}`, with or without a colon — holds that text, and
 so does text beside a reference; each is located like any other value.
 
@@ -1208,9 +1328,9 @@ with:
 ```
 
 A service whose image a row maps is decided as the flow importers decide a node: scored against your
-catalog's Components, referenced where `reuse_mode` is `auto-apply-above-threshold` and its best
-candidate is a high-tier match at or above `reuse_threshold`, and drafted as a Component of its own
-otherwise, the drafted Component's file opening with a comment naming the Component it resembles. A
+catalog's Components, referenced where `reuse_mode` is `auto-apply-above-threshold`, the default, and
+its best candidate is a high-tier match at or above `reuse_threshold`, and drafted as a Component of
+its own otherwise, the drafted Component's file opening with a comment naming the Component it resembles. A
 row carries the labels of the Component it names, so where your catalog holds that Component with the
 labels the standard catalog gives it, a service the row maps is a high-tier match for it, scoring
 `0.90`, and `auto-apply-above-threshold` references it at the default `reuse_threshold`. A Component
@@ -1230,11 +1350,10 @@ it naming the service and the file it came from where the key is not the service
 read several directories. Each service a service's `depends_on` names is a connection,
 `uses: <key>: <key>: {target: <key>}`, written under a socket and an alias both named for the target's
 key. A component reads each of its connections by its alias, whatever socket it is wired into, so
-each connection of a service has an alias of its own. An environment value naming another service —
-a word of the value, split at every character a host name is not written with, equal to that
-service's name — that
-`depends_on` does not name draws no connection: the service's decision records it as a hint, naming
-the variable and the service, never the value. Each model is an instance of
+each connection of a service has an alias of its own. A variable of a service's environment can draw
+a connection too, delivering the variable from what the service it reaches publishes, as
+[What a service's environment and image become](#what-a-services-environment-and-image-become)
+describes. Each model is an instance of
 `core/ai-model/docker-model-runner` where the workspace's catalog holds it, whatever `reuse_mode`
 says, and no Component is drafted for it: the instance writes `model` and `runtime_flags` as the
 source states them, and the source's `context_size` as `context_window`, the value the runtime
@@ -1269,21 +1388,23 @@ Beside it, `release.yaml` is a draft Release of the same name, whose `spec.aggre
 Aggregate. For an instance of `core/compute/server` it writes `infra.image`, the image as written, and
 `infra.port`, the port the container listens on in the first entry of `ports`, or of `expose` where
 `ports` holds none. A comment above each service's entry writes what the source states that no key of
-the draft carries — the image of a service matched to another Component, its `ports`, `expose`,
-`volumes` and `environment` — for you to carry where the Component takes it, and names what the draft
-leaves for the Release: the image of a service naming none, as one that builds its own does, and a
-port that is not one number. A build places only the instances a Release names, so each model's
+the draft carries — the image of a service matched to another Component whose tag the draft does not
+translate, its `ports`, `expose`, `volumes`, and each variable of its `environment` the draft does not
+translate — for you to carry where the Component takes it. What the draft leaves for the Release —
+the image of a service naming none, as one that builds its own does, and a port that is not one
+number — is written empty under a comment saying why. A build places only the instances a Release
+names, so each model's
 instance has an empty entry, `<key>: {}`, after the services': an instance of
 `core/ai-model/docker-model-runner`, which takes no input on Compose that lacks a default, and a
 model drafted as a Component of its own alike, so the drafted model is already placed and builds once
 you write the Recipe realizing it. A port the Component does not take, such as one below
 `core/compute/server`'s floor of 1024, is
-written as the source states it, and the build halts naming it. The Release's `metadata.environment`
-and `spec.manifest` are left unset, each named in a comment, as the MCP importer's are, unless the
-import is given a target, as [What a target adds](#what-a-target-adds) describes. The Manifest
-names the Recipe realizing each Component on the target you build for; `core/compute/server` is
-realized on Kubernetes by `helm/server`, and `core/ai-model/docker-model-runner` by
-`compose/docker-model-runner` on Compose and `helm/docker-model-runner` on Kubernetes.
+written as the source states it, and the build halts naming it. The Release writes
+`metadata.environment` and, with no target, an empty `spec.manifest` as the MCP importer's does;
+given a target, the import drafts the Manifest, as [What a target adds](#what-a-target-adds)
+describes, mapping each Component to the Recipe realizing it on that target — `core/compute/server` to
+`compose/server` or `helm/server`, and `core/ai-model/docker-model-runner` to
+`compose/docker-model-runner` or `helm/docker-model-runner`.
 
 A `compose.yaml` running PostgreSQL and an API of its own that depends on it:
 
@@ -1317,7 +1438,10 @@ metadata:
 spec:
   components:
     db:
-      type: imported/datastore/postgres
+      type: core/datastore/postgres
+      # The values of core/datastore/postgres the source sets as POSTGRES_DB, the variables its Compose Recipes set from them.
+      values:
+        database: "shop"
     api:
       type: core/compute/server
       uses:
@@ -1332,19 +1456,19 @@ apiVersion: aggrega.ai/v1beta1
 kind: Release
 metadata:
   name: imported/compose
-  # environment: left for the operator, since no source names the environment this Release deploys to.
+  # environment is a drafted default, since no source names the environment this Release deploys to; change it to name the one it deploys to.
+  environment: development
   version: 0.1.0
   description: Draft Release imported from a source in the compose format.
 spec:
   aggregate: imported/compose
-  # manifest: left for the operator, since the import drafts no Manifest, which names the target the services are built for.
+  # manifest: left empty, since the import was given no target; an import given a target drafts the Manifest and names it here.
+  manifest: ""
   components:
-    # The source states, for the Release to carry where imported/datastore/postgres takes it:
-    #   image: "postgres:16"
-    #   environment:
-    #     POSTGRES_DB: "shop"
     db:
-      infra: {}
+      infra:
+        # The tag of the image the source runs, postgres:16, the engine_version of core/datastore/postgres its Compose Recipes run.
+        engine_version: "16"
     # The source also states, for the Release to carry where core/compute/server takes it:
     #   ports:
     #     - "8080:8080"
@@ -1356,18 +1480,62 @@ spec:
         port: 8080
 ```
 
-and `components/imported-datastore-postgres.yaml`, opening with
-`# resembles core/datastore/postgres (score 0.9000); reference it by setting type: core/datastore/postgres`.
-With `reuse_mode: auto-apply-above-threshold`, `db` is instead `type: core/datastore/postgres` and no
-Component file is drafted for it.
+The import reports `mapped db (postgres) to core/datastore/postgres as a reference, HIGH at 0.9`. The
+project holds no `cache` service, so `CACHE_URL` draws no connection and stays in the comment. With
+`reuse_mode: hints-only`, `db` is instead `type: imported/datastore/postgres`, drafted in
+`components/imported-datastore-postgres.yaml`, which opens with
+`# resembles core/datastore/postgres (score 0.9000); reference it by setting type: core/datastore/postgres`;
+its image and its environment are then written in the comment above its entry, since a drafted
+Component declares none of the values the catalog's Recipes read. Given `--target compose`, the
+Manifest maps `core/datastore/postgres` to `compose/postgres` and `core/compute/server` to
+`compose/server`; given `--target helm`, to `helm/postgres` and `helm/server`.
+
+#### What a service's environment and image become
+
+Where a service is an instance of the catalog Component its image's row names, and the workspace's
+catalog holds that Component, the importer reads its image and its environment as the standard
+catalog's Compose Recipes for that Component read them, from what the image table records of each
+Recipe, and translates them into the drafts:
+
+- **The image's tag** is the infrastructure key the Recipe builds the image reference from, such as
+  `engine_version` — `16` for `postgres:16` — written in the Release under a comment naming the
+  source's image.
+- **A variable the Recipe sets from one of the Component's values** — `POSTGRES_DB`, `POSTGRES_USER`
+  — whose value holds text, is that value of the instance, `database` or `user`, where the catalog's
+  Component declares it, written in the Aggregate under a comment naming the variables.
+- **A variable the Recipe reads a password from**, such as `POSTGRES_PASSWORD`, whose value is one
+  variable reference, is a secret attached on that slot, read from the variable the reference names
+  and declared with the key the Recipe reads it under.
+
+And, for every service, each variable of its environment not read so:
+
+- **A value that is the name of another service of the project**, where that service's row names the
+  `provides` key publishing its host name, draws a connection to that service, whose `inject` block
+  delivers the variable from that key — `CACHE_HOST: cache` is `CACHE_HOST` from the cache's `host`.
+- **A value equal to a value another service sets for its Component** that the Component publishes —
+  `DATABASE_USER: notes` beside a PostgreSQL service setting `POSTGRES_USER: notes` — draws a
+  connection delivering the variable from that `provides` key. Where several services or keys hold the
+  value, the one whose key, or whose own variable, ends as the variable's name ends is read, and,
+  failing that, the one the service's other variables have not already been read from; otherwise the
+  variable is not read.
+- **A value that is one variable reference naming a variable another service's secret is read
+  from** — `DATABASE_PASSWORD: ${POSTGRES_PASSWORD}` — is, on an instance of `core/compute/server`, a
+  secret of its own, attached under the variable's name in lower case and read from the same variable,
+  where the target writes the secret as a value the server takes. `helm/server` refuses a
+  `core/referenced-secret`, so on `--target helm` such a variable stays in the comment.
+
+Every other variable is left in the comment above the service's entry, as the source writes it. The
+[Compose import walkthrough](../../authoring/import/compose.md) shows a project whose API reaches its
+database and its cache this way, built and run as drafted.
 
 ### Credential values a service holds
 
 Compose marks no environment value as a credential, and the importer reads no variable's name for
 what it means, so every environment value that holds something is located as an input its format
-marks as no credential that can carry one. By default each is carried as written into the comment
-above its service's entry in the Release and named in a `credential-carried` warning by its service
-and its variable — `environment.<variable>` — never by its value. With the
+marks as no credential that can carry one. By default each is carried as written into the drafts —
+into the value it is translated into, or the comment above its service's entry in the Release — and
+named in a `credential-carried` warning by its service and its variable — `environment.<variable>` —
+never by its value. With the
 [`empty_credentials` setting](#settings) at `all`, each is written empty and reported with
 `credential-emptied`: the comment names its variable with no value. At `marked` none is written empty,
 since Compose marks none. A value that is one variable reference Compose interpolates and nothing
@@ -1416,7 +1584,9 @@ Nothing else decides what is drafted: the whole application is carried.
 so Dify's own `{{#…#}}` references reach the installation as exported. The installation wires every
 connection of its API server itself — its database, its cache, its vector store, its sandbox, its
 plugin runtime and its egress proxy — so the draft drafts no Component and wires nothing: every node
-stays in the application, and its decision says so. No other draft is written.
+stays in the application, and its decision says so. Beside it, `release.yaml` is a draft Release of
+the same name, which places the installation in a boundary, `platform`, and carries what the
+application cannot supply.
 
 An import sees the Components of the workspace's catalog and none of its Aggregates, so it does not
 check that the catalog holds `core/dify`, and a comment above the entry says so. Where the catalog
@@ -1427,13 +1597,30 @@ The installation's application secret, the key Dify signs its session cookies wi
 model-provider credentials it stores under, is the `secret_key` parameter of `core/dify`, which has no
 default. So the draft declares a `secret_key` parameter of its own — a string, required, at least one
 character long and with no default — and passes it down to every `core/dify` entry it writes, for the
-Release to fulfill under its `parameters`; a build whose Release leaves it unset halts naming it. The
-comment above each entry names it first among what the Release supplies.
+Release to fulfill under its `parameters`; a build whose Release leaves it unset halts naming it.
 
-The application is imported under the installation's owner account, which the Release names: the
-comment above the entry leaves for it `infra.owner_email` on the installation's `api` component and the
-`owner_password` slot on that component, both set in the Release's routing entry for the installation,
-without which the build halts.
+The application is imported under the installation's owner account, which the Release names in its
+routing entry for the installation: `infra.owner_email` on the installation's `api` component, and the
+`owner_password` slot on that component, attached as a `core/referenced-secret`, without which the
+build halts. The owner's email is no source's to give, so it is written empty under a comment saying
+what it is, and the import owes it.
+
+The application secret and the owner's password are secrets, drafted by reference for the import's
+target:
+
+- On `--target helm`, each names a Kubernetes Secret already in the namespace: `secret_key` the
+  Secret's name, which `core/dify` reads under the data key `secret-key`, and `owner_password` a Secret
+  holding the password under the data key `value`. Neither name is any source's to give, so each is
+  written empty under a comment saying what it is, and the import owes both; the drafted Manifest maps
+  `core/referenced-secret` to `helm/k8s-existing-secret`.
+- On every other target, and with none, each is a reference to a variable — `secret_key` as
+  `"${DIFY_SECRET_KEY}"` and the owner's password as `"${DIFY_OWNER_PASSWORD}"`, the names the standard
+  catalog's Dify Recipes for Compose read — which Docker Compose reads from the environment when the
+  stack starts, so nothing is owed for either; on `--target compose` the drafted Manifest maps
+  `core/referenced-secret` to `compose/dotenv-referenced-secret`.
+
+Given a target, the Manifest maps the type of each component the installation composes as well as
+the draft's own, as [What a target adds](#what-a-target-adds) describes.
 
 The authored workflow application this importer's tests import, named `Support Answers`, is drafted,
 with no setting, as:
@@ -1455,10 +1642,6 @@ spec:
       description: "Passed down to core/dify's secret_key parameter, which has no default; that parameter's description in core/dify says what the value is."
   aggregates:
     # An import sees the Components of the workspace's catalog and none of its Aggregates, so it does not check that the catalog holds core/dify.
-    # Left for the Release, since the source cannot supply it:
-    #   - the secret_key parameter declared above, which this entry passes down to core/dify
-    #   - infra.owner_email on the api component of core/dify, the email of the installation's owner account the application is imported under, set under components.api in the Release's routing entry for this entry
-    #   - the owner_password slot on that api component, the owner account's password, attached in the same routing entry with type core/referenced-secret
     dify:
       type: core/dify
       parameters:
@@ -1469,14 +1652,25 @@ spec:
             ...
 ```
 
-and a Release building it fulfills `secret_key` and names the owner in the routing entry placing the
-installation:
+Imported with `--target helm`, its drafted Release fulfills `secret_key` and names the owner in the
+routing entry placing the installation, each value it owes written empty:
 
 ```yaml
+# release.yaml
+apiVersion: aggrega.ai/v1beta1
+kind: Release
+metadata:
+  name: imported/support-answers
+  # environment is a drafted default, since no source names the environment this Release deploys to; change it to name the one it deploys to.
+  environment: development
+  version: 0.1.0
+  description: Draft Release imported from a source in the dify format.
 spec:
   aggregate: imported/support-answers
+  manifest: imported/support-answers
   parameters:
-    secret_key: <the secret, or an existing Secret's name>
+    # Left for the Release, since the source cannot supply it: secret_key, which the drafted Aggregate declares and passes down to core/dify; that parameter's description there says what the value is
+    secret_key: ""
   boundaries:
     platform:
       aggregates:
@@ -1484,13 +1678,20 @@ spec:
           components:
             api:
               infra:
-                owner_email: owner@example.com
+                # Left for the Release, since the source cannot supply it: components.api.infra.owner_email, the email of the installation's owner account the application is imported under, on the api component of core/dify
+                owner_email: ""
               features:
                 owner_password:
                   type: core/referenced-secret
                   infra:
-                    origin: <the password, or an existing Secret's name>
+                    # Left for the Release, since the source cannot supply it: the name of a Kubernetes Secret already in the namespace holding, under the data key value, the owner account's password.
+                    origin: ""
 ```
+
+The import owes the three empty values. Imported with `--target compose`, the same Release writes
+`secret_key: "${DIFY_SECRET_KEY}"` and `origin: "${DIFY_OWNER_PASSWORD}"`, and owes the owner's email
+alone. The [Dify import walkthrough](../../authoring/import/dify.md) builds an application for both
+targets and runs it on Kubernetes.
 
 ### What Dify configures for itself
 
@@ -1625,15 +1826,21 @@ holds carries that Component as a hint: `search_tool` and `SearchTool` both hint
 `core/ai-tool/search`. `core/ai-agent/crewai` declares no socket for a tool, so nothing is wired for
 one.
 
-`release.yaml`, beside it, is a draft Release of the same name naming that Aggregate. It leaves, in a
-comment above each agent's entry, its `infra.image` — the image running the crew's program, which no
-declaration names — and the credential it presents to its model, attached under `credential` on its
-`model` connection; the build halts naming the image until it is set. Each model has an entry too,
-holding no infrastructure, so the Release places it with the agents; above the entry of a model declared
-as an `llm` object, the object's other members are written in a comment, for the Release to carry where
-the model's Component takes them. The Release's `metadata.environment` and
-`spec.manifest` are left unset, each named in a comment, unless the import is given a target, as
-[What a target adds](#what-a-target-adds) describes.
+`release.yaml`, beside it, is a draft Release of the same name naming that Aggregate. It writes each
+agent's `infra.image` — the image running the crew's program, which no declaration names — empty,
+under a comment saying what it is, and the import owes it. It attaches the credential each agent
+presents to its model under `credential` on its `model` connection, by reference and never as a
+value: no declaration names a variable for it, so it is read from the variable the provider's client
+libraries read their API key from — `OPENAI_API_KEY` for OpenAI — as a `${…}` reference on every
+target but helm, and on helm as the name of a Kubernetes Secret, written empty for the import to owe;
+on compose, the agent's `model` connection declares it with that key. Each model has an entry too,
+holding no infrastructure, so the Release places it with the agents. Of a model declared as an `llm`
+object, each other member is written as a value of the model's instance where the catalog's
+Component declares a value of that name, and otherwise in a comment above the model's entry in the
+Release, for you to carry where the Component takes it. Like every drafted Release, it writes
+`metadata.environment` as `development` and, with no target, an empty `spec.manifest` the import owes;
+given a target, the import drafts the Manifest, as [What a target adds](#what-a-target-adds)
+describes.
 
 The classic project this importer's tests import, whose two agents both name `openai/gpt-4o`, is
 drafted, with no setting, as below; imported as its project directory, `market_brief` — the directory
@@ -1670,6 +1877,12 @@ spec:
         model:
           gpt-4o:
             target: gpt-4o
+            # For the compose target only, uncomment the lines below, which declare credential on gpt-4o: a secret the Release alone attaches arrives under the key value, so each is declared with a key of its own and no two arrive under one; the Release attaches its origin, naming this type or none.
+            # features:
+            #   credential:
+            #     type: core/secret-value
+            #     values:
+            #       key: OPENAI_API_KEY
     # The agent brief_writer.
     # Not carried, since core/ai-agent/crewai takes no value for it: max_iter.
     brief-writer:
@@ -1682,30 +1895,35 @@ spec:
         model: "gpt-4o"
 ```
 
-and a Release building it on Kubernetes supplies each agent's image and the credential on its `model`
-connection:
+and its Release, drafted with no target, as below, the second agent's entry left out here and marked
+`...`; the import owes `spec.manifest` and each agent's image:
 
 ```yaml
+# release.yaml
 spec:
   aggregate: imported/market-brief
-  boundaries:
-    main:
-      components:
-        gpt-4o: {}
-        researcher:
-          infra:
-            image: <the image running the crew's program>
-          uses:
-            model:
-              gpt-4o:
-                features:
-                  credential:
-                    type: core/referenced-secret
-                    infra:
-                      origin: <an existing Secret's name>
+  # manifest: left empty, since the import was given no target; an import given a target drafts the Manifest and names it here.
+  manifest: ""
+  components:
+    researcher:
+      infra:
+        # Left for the Release, since the source cannot supply it: infra.image, the container image running the crew's program
+        image: ""
+      uses:
+        model:
+          gpt-4o:
+            features:
+              credential:
+                type: core/secret-value
+                infra:
+                  # Attached by reference, never as a value: the credential researcher presents to gpt-4o on its model connection (the source names no variable for it, so it is read from the one OpenAI's client libraries read the API key from), read from the variable OPENAI_API_KEY, which a target substituting variable references, as Docker Compose does when the stack starts, reads from the environment, so no file carries the value.
+                  origin: "${OPENAI_API_KEY}"
+    brief-writer:
+      ...
+    gpt-4o: {}
 ```
 
-Each agent is then rendered running that image, given the model's endpoint and the model's name as
+Each agent is then rendered running the image you answer, given the model's endpoint and the model's name as
 `OPENAI_BASE_URL` and `MODEL`, the variables CrewAI reads them from.
 
 ### Credential values a declaration holds
@@ -1713,7 +1931,8 @@ Each agent is then rendered running that image, given the model's endpoint and t
 An `llm` written as an object can carry a key — under `api_key`, in an address, in headers. Each of
 its members other than the one naming the model that is not a number or a boolean is a value that can
 carry one, which CrewAI marks as no credential. By default each holding a value is carried as written
-into the comment above its model's entry in the Release and named in a `credential-carried` warning
+— as a value of the model's instance where its Component declares one, and otherwise into the comment
+above its model's entry in the Release — and named in a `credential-carried` warning
 by its agent and its member, such as `llm.api_key`, never by its value. With the
 [`empty_credentials` setting](#settings) at `all`, each is written with no value and reported with
 `credential-emptied`; at `marked` each is carried, since CrewAI marks none. A member's name is not read
@@ -1730,7 +1949,7 @@ The CrewAI importer reads `target_namespace`, `empty_credentials` and `render_mo
 `importer/langgraph` reads the graphs a LangGraph application's configuration, `langgraph.json`,
 declares, and drafts an Aggregate holding one instance of the standard library's LangGraph
 agent, `core/ai-agent/langgraph`, per graph, each wired to the datastore its checkpointer keeps state
-in, and a Release beside it carrying the environment the configuration states. It reads that
+in and to a model, and a Release beside it carrying the environment the configuration states. It reads that
 configuration, and never the graphs' code.
 
 ### What it reads
@@ -1743,8 +1962,8 @@ them:
 
 - `graphs` — each graph's id, its import path and its description;
 - `checkpointer` — its `backend`: `default`, which is PostgreSQL and what LangGraph reads where none is
-  named; `mongo`, which is MongoDB; or `custom`, a checkpointer the application's code defines at
-  `path`;
+  named; `mongo`, a database speaking MongoDB's protocol; or `custom`, a checkpointer the application's
+  code defines at `path`;
 - `store` — the memory store, which names no backend: LangGraph keeps it in the PostgreSQL database its
   server uses;
 - `env` — the environment the application runs with: an object of variable names to values, or the path
@@ -1787,34 +2006,51 @@ not read, and what the draft does not carry. It holds, per graph and keyed by it
 
 - `graph_entrypoint`, the graph's import path, as the configuration writes it;
 - `description`, the graph's description, where the configuration gives one;
-- its `checkpointer_db` connection, wired to the application's datastore.
+- its `checkpointer_db` connection, wired to the application's datastore;
+- its `model` connection, wired to the application's model.
 
 `recursion_limit` is not written, so the Component's default, 25, stands. The configuration names no
-model, so each graph's `model` connection is left for you, as a comment above the graph says; the build
-halts naming the `model` socket until one is wired.
+model, so the draft holds one instance of `core/ai-model/openai`, keyed `model`, which every graph
+calls: the model the agent's OpenAI client is handed. Its `values.model` is written empty, under a
+comment saying the configuration names none, and the import owes it.
 
 The checkpointer's backend is the datastore every graph of the application is wired to: `default`, or a
-checkpointer naming no backend, is an instance of `core/datastore/postgres`, and `mongo` one of
-`core/datastore/mongodb`, keyed by the datastore's name. Where the workspace's catalog holds no
-Component of that name, one is drafted, `<target_namespace>/datastore/<name>`, declaring the `host` and
-the `port` the agent's `checkpointer_db` connection reads, and its decision says so; a Recipe running
-the datastore and publishing them is left for you, as a comment opening it says. A `custom`
-checkpointer, or a backend the importer maps to no datastore, wires nothing, and a comment above each
-graph and the checkpointer's decision say why; the build halts naming the `checkpointer_db` socket until
-one is wired. The store is reported in a decision that chooses nothing.
+checkpointer naming no backend, is an instance of `core/datastore/postgres`, keyed `postgres`. `mongo`
+is FerretDB, which speaks MongoDB's protocol, over PostgreSQL with the DocumentDB extension: an
+instance of `core/datastore/ferretdb`, keyed `ferretdb`, which every graph is wired to, and one of
+`core/datastore/documentdb`, keyed `documentdb`, which FerretDB's `backend` connection reaches, its
+`inject` block delivering what DocumentDB publishes under the names FerretDB reads; one password,
+read from the variable `FERRETDB_PASSWORD`, is attached on DocumentDB, on FerretDB's connection to it
+and on each graph's connection to FerretDB. Where the workspace's catalog holds no Component of the
+PostgreSQL datastore's name, one is drafted, `<target_namespace>/datastore/postgres`, declaring the
+`host` and the `port` the agent's `checkpointer_db` connection reads, and its decision says so; a
+Recipe running the datastore and publishing them is left for you, as a comment opening it says. Where
+it holds no FerretDB or no DocumentDB Component, the `mongo` checkpointer is wired to no datastore. A
+`custom` checkpointer, or a backend the importer maps to no datastore, wires nothing, and a comment
+above each graph and the checkpointer's decision say why; the build halts naming the
+`checkpointer_db` socket until one is wired. The store is reported in a decision that chooses nothing.
+
+The datastore's password is a secret the draft attaches by reference, on the datastore's own
+`password` slot and on each graph's `checkpointer_db` connection, and so is the credential each graph
+presents to the model on its `model` connection: read from `POSTGRES_PASSWORD` (or
+`FERRETDB_PASSWORD`) and `OPENAI_API_KEY`, since the configuration names no variable for either, as a
+`${…}` reference on every target but helm, and on helm as the name of a Kubernetes Secret, written
+empty for the import to owe. On compose, the Aggregate declares each with the key its Recipe reads,
+as [Secrets, for each target](#secrets-for-each-target) describes for a platform.
 
 `release.yaml`, beside it, is a draft Release of the same name naming that Aggregate. Comments above
 the first graph's entry say what each graph's image is — the application's own, its code with
 LangGraph installed, not the server image `langgraph build` builds — the variables it is handed and
-which `inject:` block replaces which of their names. A comment above each graph's entry leaves its
-`infra.image`, the image running the application: on Kubernetes, until it is set, the build halts
-naming the container image; on Docker Compose the image defaults to the catalog's own
-[quickstart agent](../examples/quickstart-ai/README.md), which reads the default variables. The
-datastore has an entry too, holding no infrastructure, so the Release places it with the graphs. A
-comment above the application's first graph states the environment its configuration declares, as
-[The environment a configuration states](#the-environment-a-configuration-states) describes. The
-Release's `metadata.environment` and `spec.manifest` are left unset, each named in a comment, unless
-the import is given a target, as [What a target adds](#what-a-target-adds) describes.
+which `inject:` block replaces which of their names. Each graph's entry writes its `infra.image`, the
+image running the application, empty under a comment saying what it is, and the import owes it; the
+Docker Compose Recipe runs the catalog's own [quickstart agent](../examples/quickstart-ai/README.md),
+which reads the default variables, while it is unset. The datastore and the model have entries too,
+so the Release places them with the graphs. A comment above the application's first graph states the
+environment its configuration declares, as
+[The environment a configuration states](#the-environment-a-configuration-states) describes. Like
+every drafted Release, it writes `metadata.environment` as `development` and, with no target, an empty
+`spec.manifest` the import owes; given a target, the import drafts the Manifest, as
+[What a target adds](#what-a-target-adds) describes.
 
 The Python application this importer's tests import, declaring two graphs, a checkpointer naming no
 backend, a store and an `env` written as an object, is drafted, with no setting, as below; imported as
@@ -1838,7 +2074,6 @@ metadata:
   description: Draft Aggregate imported from a source in the langgraph format.
 spec:
   components:
-    # The model connection is left for the author, since the configuration names no model; the build halts naming the socket until one is wired.
     triage:
       type: core/ai-agent/langgraph
       values:
@@ -1848,20 +2083,37 @@ spec:
         checkpointer_db:
           postgres:
             target: postgres
-    # The model connection is left for the author, ...
+            # For the compose target only, uncomment the lines below, which declare credential on postgres: a secret the Release alone attaches arrives under the key value, so each is declared with a key of its own and no two arrive under one; the Release attaches its origin, naming this type or none.
+            # features:
+            #   credential:
+            #     type: core/secret-value
+            #     values:
+            #       key: POSTGRES_PASSWORD
+        model:
+          model:
+            target: model
+            # For the compose target only, uncomment the lines below, ...
     support:
       type: core/ai-agent/langgraph
       ...
-    # The PostgreSQL database the configuration's checkpointer keeps each graph's state in.
+    # The database the configuration's checkpointer keeps each graph's state in, PostgreSQL.
     postgres:
       type: core/datastore/postgres
+      # For the compose target only, uncomment the lines below, ...
+    # The model every graph calls, which the configuration does not name.
+    model:
+      type: core/ai-model/openai
+      values:
+        # Left for the author, since the configuration names no model: values.model, the name of the model core/ai-model/openai serves.
+        model: ""
 ```
 
 ```yaml
 # release.yaml
 spec:
   aggregate: imported/support-desk
-  # manifest: left for the operator, since the import drafts no Manifest, which names the target the graphs are built for.
+  # manifest: left empty, since the import was given no target; an import given a target drafts the Manifest and names it here.
+  manifest: ""
   components:
     # Each graph's image is the application's own, not the server image langgraph build builds: its code, with LangGraph installed.
     # It is handed, for its code to read, the graph to run as LANGGRAPH_GRAPH_ENTRYPOINT, the model's name as OPENAI_MODEL, the checkpointer store's host and port as LANGGRAPH_CHECKPOINTER_HOST and LANGGRAPH_CHECKPOINTER_PORT, its user and database, where the store publishes them, as LANGGRAPH_CHECKPOINTER_USER and LANGGRAPH_CHECKPOINTER_DATABASE, and a password attached on the checkpointer_db connection as LANGGRAPH_CHECKPOINTER_PASSWORD.
@@ -1871,48 +2123,47 @@ spec:
     #   SUPPORT_QUEUE: "..."
     #   OPENAI_API_KEY: "..."
     #   MAX_TICKETS: "25"
-    # Left for the Release, since no configuration states it:
-    #   - infra.image, the container image running the application
     triage:
-      infra: {}
+      infra:
+        # Left for the Release, since the source cannot supply it: infra.image, the container image running the application
+        image: ""
+      uses:
+        checkpointer_db:
+          postgres:
+            features:
+              credential:
+                type: core/secret-value
+                infra:
+                  # Attached by reference, never as a value: the credential triage presents to postgres on its checkpointer_db connection, the password of postgres (the configuration names no variable for it), read from the variable POSTGRES_PASSWORD, which a target substituting variable references, as Docker Compose does when the stack starts, reads from the environment, so no file carries the value.
+                  origin: "${POSTGRES_PASSWORD}"
+        model:
+          model:
+            features:
+              credential:
+                type: core/secret-value
+                infra:
+                  # Attached by reference, never as a value: the credential triage presents to model on its model connection (the source names no variable for it, so it is read from the one OpenAI's client libraries read the API key from), read from the variable OPENAI_API_KEY, which a target substituting variable references, as Docker Compose does when the stack starts, reads from the environment, so no file carries the value.
+                  origin: "${OPENAI_API_KEY}"
     ...
     postgres:
-      infra: {}
-```
-
-To build it, you add a model to the Aggregate — an instance of a model Component, and each graph's
-`model` connection to it — and a Release building it on Kubernetes supplies each graph's image and the
-credential on its `model` connection, and places the datastore and the model in a boundary:
-
-```yaml
-spec:
-  aggregate: imported/support-desk
-  boundaries:
-    main:
-      components:
-        gpt-4o: {}
-        postgres: {}
-        triage:
+      features:
+        password:
+          type: core/secret-value
           infra:
-            image: <your application's image>
-          uses:
-            model:
-              gpt-4o:
-                features:
-                  credential:
-                    type: core/referenced-secret
-                    infra:
-                      origin: <an existing Secret's name>
+            # Attached by reference, never as a value: the password of postgres (the configuration names no variable for it), read from the variable POSTGRES_PASSWORD, which a target substituting variable references, as Docker Compose does when the stack starts, reads from the environment, so no file carries the value.
+            origin: "${POSTGRES_PASSWORD}"
+    model: {}
 ```
 
-Each graph is then rendered running that image, given its datastore's address as
+The import owes four values: `spec.manifest`, each graph's image and the model's name. Once they are
+answered, each graph is rendered running the image you answer, given its datastore's address as
 `LANGGRAPH_CHECKPOINTER_HOST` and `LANGGRAPH_CHECKPOINTER_PORT`, the user and the database the datastore
 publishes as `LANGGRAPH_CHECKPOINTER_USER` and `LANGGRAPH_CHECKPOINTER_DATABASE` — PostgreSQL publishes
 both, and a datastore publishing neither has neither variable rendered — the model's endpoint and name as
-`OPENAI_BASE_URL` and `OPENAI_MODEL`, the key from the Secret the credential names as `OPENAI_API_KEY`,
+`OPENAI_BASE_URL` and `OPENAI_MODEL`, the key its model credential delivers as `OPENAI_API_KEY`,
 its import path as `LANGGRAPH_GRAPH_ENTRYPOINT` and its step limit as
-`LANGGRAPH_DEFAULT_RECURSION_LIMIT`. A credential attached on a graph's `checkpointer_db` connection
-gives it the datastore's password as `LANGGRAPH_CHECKPOINTER_PASSWORD` too.
+`LANGGRAPH_DEFAULT_RECURSION_LIMIT`. The credential attached on its `checkpointer_db` connection gives
+it the datastore's password as `LANGGRAPH_CHECKPOINTER_PASSWORD` too.
 
 ### The environment a configuration states
 
@@ -2052,16 +2303,21 @@ spec:
         description: "Answers questions with a model another provider serves."
 ```
 
-`release.yaml`, beside it, is a draft Release of the same name naming that Aggregate. It leaves, in a
-comment above each instance's entry, its `infra.image` — the image running the application built on
-ADK, which holds its configurations — and, where its model is wired, the credential it presents to
-that model, attached on its `model` connection; the build halts naming the image until it is set. A
+`release.yaml`, beside it, is a draft Release of the same name naming that Aggregate. Each instance's
+entry writes its `infra.image` — the image running the application built on ADK, which holds its
+configurations — empty, under a comment saying what it is, and the import owes it. Where its model is
+wired, the entry attaches the credential the instance presents to that model under `credential` on
+its `model` connection, by reference and never as a value: no configuration names a variable for it,
+so it is read from `GOOGLE_API_KEY`, the variable Google's Gemini API client libraries read their key
+from, as a `${…}` reference on every target but helm, and on helm as the name of a Kubernetes Secret,
+written empty for the import to owe; on compose, the `model` connection declares it with that key. A
 wired model has an entry too, holding no infrastructure, so the Release places it with the instance.
 The values the tree's configurations hand their tools and their model requests are written in a
 comment above the entry, as
-[Credential values a configuration holds](#credential-values-a-configuration-holds) describes. The
-Release's `metadata.environment` and `spec.manifest` are left unset, each named in a comment, unless
-the import is given a target, as [What a target adds](#what-a-target-adds) describes.
+[Credential values a configuration holds](#credential-values-a-configuration-holds) describes. Like
+every drafted Release, it writes `metadata.environment` as `development` and, with no target, an empty
+`spec.manifest` the import owes; given a target, the import drafts the Manifest, as
+[What a target adds](#what-a-target-adds) describes.
 
 The application this importer's tests import, a root agent naming two sub-agents' configurations and
 one built by code, imported as its directory with the two configurations named under `with.sources`,
@@ -2097,6 +2353,12 @@ spec:
         model:
           gemini-flash-latest:
             target: gemini-flash-latest
+            # For the compose target only, uncomment the lines below, which declare credential on gemini-flash-latest: a secret the Release alone attaches arrives under the key value, so each is declared with a key of its own and no two arrive under one; the Release attaches its origin, naming this type or none.
+            # features:
+            #   credential:
+            #     type: core/secret-value
+            #     values:
+            #       key: GOOGLE_API_KEY
     # The model gemini-flash-latest.
     gemini-flash-latest:
       type: core/ai-model/gemini
@@ -2112,10 +2374,9 @@ two braces in a comment, read back as written once the Aggregate is evaluated.
 # release.yaml
 spec:
   aggregate: imported/tutor-root
+  # manifest: left empty, since the import was given no target; an import given a target drafts the Manifest and names it here.
+  manifest: ""
   components:
-    # Left for the Release, since no configuration states it:
-    #   - infra.image, the container image running the application built on ADK, holding its configurations
-    #   - the credential tutor-root presents to the model it reaches, attached under credential on its connection uses.model.gemini-flash-latest
     # The configurations also hand these values to their tools and their model requests, which the application reads from its own configurations, written here for review:
     #   code_tutor_agent tools.tutor_tools.make_snippet_runner.args.api_key: "..."
     #   code_tutor_agent tools.tutor_tools.make_snippet_runner.args.sandbox: "python3.12"
@@ -2123,35 +2384,22 @@ spec:
     #   math_tutor_agent generate_content_config.http_options.headers: "..."
     #   math_tutor_agent generate_content_config.http_options.timeout: 30000
     tutor-root:
-      infra: {}
-    gemini-flash-latest:
-      infra: {}
+      infra:
+        # Left for the Release, since the source cannot supply it: infra.image, the container image running the application built on ADK, holding its configurations
+        image: ""
+      uses:
+        model:
+          gemini-flash-latest:
+            features:
+              credential:
+                type: core/secret-value
+                infra:
+                  # Attached by reference, never as a value: the credential tutor-root presents to gemini-flash-latest on its model connection (the source names no variable for it, so it is read from the one Google's Gemini API's client libraries read the API key from), read from the variable GOOGLE_API_KEY, which a target substituting variable references, as Docker Compose does when the stack starts, reads from the environment, so no file carries the value.
+                  origin: "${GOOGLE_API_KEY}"
+    gemini-flash-latest: {}
 ```
 
-A Release building it on Kubernetes supplies the instance's image and the credential on its `model`
-connection, and places the model in a boundary:
-
-```yaml
-spec:
-  aggregate: imported/tutor-root
-  boundaries:
-    main:
-      components:
-        gemini-flash-latest: {}
-        tutor-root:
-          infra:
-            image: <the image running the application>
-          uses:
-            model:
-              gemini-flash-latest:
-                features:
-                  credential:
-                    type: core/referenced-secret
-                    infra:
-                      origin: <an existing Secret's name>
-```
-
-The instance is then rendered running that image and given the credential as `GOOGLE_API_KEY`, which
+Once the image is answered, the instance is rendered running it and given the credential as `GOOGLE_API_KEY`, which
 ADK's Gemini client sends to the Gemini API, and the model as a Service reaching the Gemini API's
 address.
 
@@ -2263,19 +2511,24 @@ above the agent's instance names the server, says so, and names the description,
 the `allowedTools` the declarative agent states for it; its `url` is written, whole, in the comment above
 the agent's entry in the Release, and its decision chooses nothing.
 
-`release.yaml`, beside it, is a draft Release of the same name naming that Aggregate. It leaves, in a
-comment above the agent's entry, its `infra.image` — the image running the application built on Agent
-Framework, which holds its declarative agent — and the credential it presents to its model, attached on
-its `model` connection; the build halts naming the image until it is set. The values the declarative
-agent states for its model and its MCP servers — the keys, and each server's `url` — are written in the
-same comment, as
+`release.yaml`, beside it, is a draft Release of the same name naming that Aggregate. The agent's entry
+writes its `infra.image` — the image running the application built on Agent Framework, which holds
+its declarative agent — empty, under a comment saying what it is, and the import owes it. Where its
+model is wired, the entry attaches the credential the agent presents to that model under `credential`
+on its `model` connection, by reference and never as a value: read from the variable the declarative
+agent names for its key, written `=Env.NAME`, and otherwise from `OPENAI_API_KEY`, the variable
+OpenAI's client libraries read their key from; as a `${…}` reference on every target but helm, and on
+helm as the name of a Kubernetes Secret, written empty for the import to owe; on compose, the `model`
+connection declares it with that key. The values the declarative agent states for its model and its
+MCP servers — the keys, and each server's `url` — are written in a comment above the agent's entry, as
 [Credential values a declarative agent holds](#credential-values-a-declarative-agent-holds) describes.
 Each wired model has an entry, so the Release places it with the agent. The endpoint its connection
 states is written as the model's `infra.endpoint`, and one written as a reference is named beside its
 entry, the Component's own address used until it is set; a connection stating no endpoint leaves the
-entry holding no infrastructure, the Component's own address standing. The
-Release's `metadata.environment` and `spec.manifest` are left unset, each named in a comment, unless
-the import is given a target, as [What a target adds](#what-a-target-adds) describes.
+entry holding no infrastructure, the Component's own address standing. Like every drafted Release, it
+writes `metadata.environment` as `development` and, with no target, an empty `spec.manifest` the
+import owes; given a target, the import drafts the Manifest, as [What a target adds](#what-a-target-adds)
+describes.
 
 The declarative agent this importer's tests import, of the OpenAI provider with a key connection, an MCP
 server presenting a key of its own, a function tool and a web search, imported as a file of its own,
@@ -2307,6 +2560,12 @@ spec:
         model:
           gpt-4-1-mini:
             target: gpt-4-1-mini
+            # For the compose target only, uncomment the lines below, which declare credential on gpt-4-1-mini: a secret the Release alone attaches arrives under the key value, so each is declared with a key of its own and no two arrive under one; the Release attaches its origin, naming this type or none.
+            # features:
+            #   credential:
+            #     type: core/secret-value
+            #     values:
+            #       key: OPENAI_API_KEY
     # The model gpt-4.1-mini, which LearnAgent names with the OpenAI provider.
     gpt-4-1-mini:
       type: core/ai-model/openai
@@ -2321,48 +2580,32 @@ each `{{` as ``{{`{{`}}``, so it reads back as written once the Aggregate is eva
 # release.yaml
 spec:
   aggregate: imported/learnagent
-  # manifest: left for the operator, since the import drafts no Manifest, which names the target the agents are built for.
+  # manifest: left empty, since the import was given no target; an import given a target drafts the Manifest and names it here.
+  manifest: ""
   components:
-    # Left for the Release, since the declarative agent does not state it:
-    #   - infra.image, the container image running the application built on Agent Framework, holding its declarative agent
-    #   - the credential learnagent presents to the model it reaches, attached under credential on its connection uses.model.gpt-4-1-mini
     # The declarative agent also states these values for its model and its MCP servers, written here for review:
     #   - model.connection.key: "..."
     #   - tools.microsoft_learn.url: "https://learn.microsoft.com/api/mcp?session=..."
     #   - tools.microsoft_learn.connection.key: "..."
     learnagent:
-      infra: {}
+      infra:
+        # Left for the Release, since the source cannot supply it: infra.image, the container image running the application built on Agent Framework, holding its declarative agent
+        image: ""
+      uses:
+        model:
+          gpt-4-1-mini:
+            features:
+              credential:
+                type: core/secret-value
+                infra:
+                  # Attached by reference, never as a value: the credential learnagent presents to gpt-4-1-mini on its model connection (the source names no variable for it, so it is read from the one OpenAI's client libraries read the API key from), read from the variable OPENAI_API_KEY, which a target substituting variable references, as Docker Compose does when the stack starts, reads from the environment, so no file carries the value.
+                  origin: "${OPENAI_API_KEY}"
     gpt-4-1-mini:
       infra:
         endpoint: "https://llm-gateway.example.com/v1"
 ```
 
-A Release building it on Kubernetes keeps those entries, supplies the agent's image and a credential on
-its model connection, and places them in a boundary:
-
-```yaml
-spec:
-  aggregate: imported/learnagent
-  boundaries:
-    main:
-      components:
-        learnagent:
-          infra:
-            image: <the image running the application>
-          uses:
-            model:
-              gpt-4-1-mini:
-                features:
-                  credential:
-                    type: core/referenced-secret
-                    infra:
-                      origin: <an existing Secret's name>
-        gpt-4-1-mini:
-          infra:
-            endpoint: "https://llm-gateway.example.com/v1"
-```
-
-The agent is then rendered running that image and given the model's endpoint as `OPENAI_BASE_URL`, its
+Once the image is answered, the agent is rendered running it and given the model's endpoint as `OPENAI_BASE_URL`, its
 id as `OPENAI_MODEL` and its credential as `OPENAI_API_KEY`, and the model is rendered as a Service
 reaching its host. No variable carries the MCP server's address: the model's provider, not the
 application, reaches it.
@@ -2394,17 +2637,31 @@ The Agent Framework importer reads `target_namespace`, `empty_credentials` and `
 
 ## What a target adds
 
-An importer drafts no Manifest. An import given a target — `--target` on `aggrega import`, or `target`
-on the assistant's import tool and the session's `aggrega/import` method, naming a provider capability
-such as `compose` or `helm` — has the import itself draft one beside whatever the importer drafted,
-whichever importer ran: `manifest.yaml`, beside the drafted Release and named and versioned as it is —
-or, where the importer drafted no Release, beside the drafted Aggregate and named and versioned as that is —
-mapping each component type the drafted Aggregate declares to the one Recipe of that capability the
-workspace's catalog offers for it. Where the drafted Release names no Manifest, its `spec.manifest` is
-set to that one in place of the comment the importer wrote, and nothing else in the Release changes. A
-type with no such Recipe, or with Recipes of more than one name — the MCP importer's servers, say, where
-the catalog offers both `compose/mcp-stdio-bridge` and `compose/mcp-remote` for `core/ai-tool/mcp` — is
-left unmapped, and a build of the drafts stops naming each instance of it until you map it.
+An import given a target — `--target` on `aggrega import`, or `target` on the assistant's import tool
+and the session's `aggrega/import` method, naming a provider capability such as `compose` or `helm` —
+is handed that target, so the importer drafts for it: each secret in the form that target reads, and
+the lines only that target needs, written live, while lines only another target needs are left out.
+The import then drafts the Manifest beside whatever the importer drafted, whichever importer ran:
+`manifest.yaml`, beside the drafted Release and named and versioned as it is — or, where the importer
+drafted no Release, beside the drafted Aggregate and named and versioned as that is.
+
+For each component type and each feature type the drafts need — on the drafted Aggregate's
+components, their connections and its subsystems, on the catalog Aggregates it composes, such as
+`core/dify`, and on the drafted Release's attachments — the Manifest maps the type to the Recipe, or
+for a feature type the feature recipe, of that capability the workspace's catalog offers for it: the
+one there is, several versions of one counting as one; or, where there are several of different names,
+the one named after the type itself, such as `helm/postgres` for `core/datastore/postgres`. A type
+with none, or with several of which none is so named, is left unmapped, a warning names it and why,
+and a build of the drafts stops naming each instance or attachment of it until you map it.
+
+Where only the importer knows which of several Recipes applies, it drafts the Manifest itself — the
+MCP importer maps each server by its key to the realization of how the server runs, and an importer
+attaching a secret by name maps `core/referenced-secret` to `helm/k8s-existing-secret` — and the
+import completes it: each mapping the importer wrote that the catalog offers for that type and
+capability is kept, any other is dropped with a warning, and the types it leaves are mapped as above.
+
+The drafted Release's `spec.manifest`, written empty with no target, is set to the Manifest's name, the
+comment above it is dropped, and nothing else in the Release changes.
 [aggrega import](../cli/aggrega-import.md) describes it in full.
 
 ## Settings
@@ -2420,13 +2677,13 @@ plugins:
       with:
         settings:
           target_namespace: payments
-          reuse_mode: auto-apply-above-threshold
+          reuse_mode: hints-only
 ```
 
 | Setting | Default | What it does |
 | --- | --- | --- |
 | `target_namespace` | `imported` | The namespace drafted entities are named under: `<target_namespace>/<category>/<name>` for a Component, and `<target_namespace>/<name>` for the Aggregate and the Release, `<name>` the source's own name, else its directory's name, or its file's name without the extension, else `flow`, written in lowercase with each run of other characters than ASCII letters and digits as one hyphen, as [How a draft is named](#how-a-draft-is-named) describes. |
-| `reuse_mode` | `hints-only` | `hints-only` drafts every node the draft gives a Component of its own and references no catalog Component, recording a strong match as a hint. `auto-apply-above-threshold` references the best-matching catalog Component for such a node whose match is in the high tier and scores at or above `reuse_threshold`, and drafts every other. Any other value reads as `hints-only`. |
+| `reuse_mode` | `auto-apply-above-threshold` | `auto-apply-above-threshold` references the best-matching catalog Component for a node the draft gives a Component of its own whose match is in the high tier and scores at or above `reuse_threshold`, and drafts every other. `hints-only` drafts every such node and references no catalog Component, recording a strong match as a hint. Any other value reads as `hints-only`. |
 | `reuse_threshold` | `0.85` | The score at or above which `auto-apply-above-threshold` references a Component. Read in that mode only; `0` reads as the default. |
 | `emit_hints` | `true` | Whether a drafted Component's file opens with a comment naming the catalog Component it resembles, for a high- or medium-tier match. The draft Aggregate carries the same comment above that node's entry, and above a referenced entry one naming the next-best candidate it could be swapped for, or saying that none scored above zero. `false` leaves the comments out. |
 | `render_mode` | `human` | `human` writes the drafts described above. `llm` writes no drafts, and writes instead the whole decision record — every node, the candidates weighed and the choice made — as one document, `import-decisions.json`, for another tool to read. Any other value reads as `human`. |
@@ -2477,10 +2734,13 @@ with its `code` as well.
 | `dsl-version-newer` | `warn` | A Dify application is written in a version of the DSL newer than the one the Dify version `core/ai-agent/dify` runs by default writes. |
 
 An import given a target reports, after the importer's diagnostics, what drafting the Manifest found:
-a `warn` naming each component type the Manifest leaves unmapped and why, and an `info` where the
-drafted Release already names a Manifest or no drafted Release references it. Those are the import's
-own rather than an importer's, and carry no code; [What a target adds](#what-a-target-adds) describes
-them.
+a `warn` naming each component or feature type the Manifest leaves unmapped and why, and an `info`
+where the drafted Release already names a Manifest or no drafted Release references it. Those are the
+import's own rather than an importer's, and carry no code; [What a target adds](#what-a-target-adds)
+describes them. Every import then reports, as its own too, a `warn` for each value the drafts still
+owe, naming the drafted file, the key path and its description, and, under `--offline`, where it
+drafted a Release and owes nothing, an `info` naming the `aggrega pull` to run next, as
+[The import answers file](../import-answers.md) describes.
 
 ## Published with each compiler release
 

@@ -179,7 +179,7 @@ Pull complete: <workspace>/release.lock (entities=10, source_artifacts=0, extern
   does, into `release.lock`, so the drafts validate and build at once. Under
   `--offline` the import pulls nothing and names the `aggrega pull` to run.
 
-## What it wrote
+## What it writes
 
 The Aggregate, the Release and the Manifest are named `imported/notes`, after the
 Compose project's `name:` — a Compose file with no `name:` is named after its

@@ -312,6 +312,7 @@ export default defineConfig({
             "language-reference/10-status",
             "language-reference/path-template-variables",
             "language-reference/version-resolution",
+            ...present("language-reference/import-answers"),
             ...present("language-reference/compatibility"),
             {
               label: "Entities",

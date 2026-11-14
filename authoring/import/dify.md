@@ -147,7 +147,7 @@ Pull complete: <workspace>/release.lock (entities=25, source_artifacts=0, extern
   `aggrega pull` does, and wrote `release.lock`; the build below needs nothing
   more.
 
-## What it wrote
+## What it writes
 
 The Aggregate, the Release and the Manifest are named
 `imported/support-assistant`, after the application's name, `Support
