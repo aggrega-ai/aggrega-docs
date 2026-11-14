@@ -37,7 +37,8 @@ The standard library splits credential Features by what the realization does wit
   entry — that its realization creates or that already exists, and publishes that resource's `name` and `key`, which a
   consumer reads as `.features.<slot>.provides.name` and `.features.<slot>.provides.key`.
 - **`core/referenced-secret-set`** materializes one such resource holding a set of data keys the author supplies, and
-  publishes its locator alone, for a consumer whose target already fixes the key names it reads.
+  publishes its locator alone, for a consumer whose target already fixes the key names it reads. Docker Compose has no
+  such resource, so there its realization delivers the keys as values instead, as described below.
   [MariaDB (Bitnami chart) — one multi-key credential Secret](mariadb-bitnami-credential-set/README.md) uses it.
 - **`core/generated-secret`** produces nothing: the target engine generates and manages the credential itself, as a
   managed database does with its administrator password. The operator attaches it in the Release, because whether the
@@ -117,6 +118,12 @@ fills from your shell or a `.env` file when the stack starts. On Kubernetes, `he
 the inject pipe, and `helm/k8s-secret-from-value` also writes it into a Secret and publishes its locator, for a
 consumer that reads the credential by reference. Neither Kubernetes realization accepts a Compose variable reference,
 which nothing there would fill.
+
+`core/referenced-secret-set` is realized on Docker Compose by `compose/dotenv-secret-set`, which delivers each entry into
+the inject pipe as a variable named for its key, written into the service's environment exactly as authored, so an entry
+whose value is `${GITHUB_TOKEN}` lands as that reference. It creates no resource, so the locator it publishes is empty:
+a consumer on Compose reads the entries from its inject pipe rather than referencing a Secret by name, as
+`compose/mcp` and `compose/mcp-stdio-bridge` from 1.1.0 do for a Model Context Protocol server's `server_env`.
 
 A FeatureRecipe name shipped for more than one target, such as `provided-secret`, is named with its target in the
 Manifest, `compose/provided-secret:1.0.0`, since the bare name matches both.

@@ -322,7 +322,7 @@ with the `embeddings` component (`core/ai-model/openai-embedding`, its
 `values.model` set to `text-embedding-3-small`) and the
 `cache` component (`core/datastore/redis`) declared beside the models, each
 placed in the Release, and the Manifest mapping both and
-`core/referenced-secret-set` to its realization, `helm/k8s-secret-set`, which
+`core/referenced-secret-set` to its Kubernetes realization, `helm/k8s-secret-set`, which
 writes the keys straight into a rendered Secret and so suits a development
 target only. The routes file then declares each caller and checks its key on
 every route, and the chat route carries the cache:
