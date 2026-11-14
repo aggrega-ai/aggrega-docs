@@ -14,6 +14,9 @@ validates and builds what the import wrote.
 
 ## Scaffold the example
 
+You can run this import with the commands on this page, or
+[have your AI assistant run it for you](#with-an-ai-assistant).
+
 Write the example into a new folder named after it:
 
 ```bash

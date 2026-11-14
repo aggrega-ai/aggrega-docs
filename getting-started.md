@@ -164,6 +164,8 @@ Next:
 
 ## Run quickstart-ai in one command
 
+You can run quickstart-ai's first step with one command, or [have your AI assistant write and build it for you](#with-an-ai-assistant).
+
 On Linux or macOS:
 
 ```sh
@@ -268,6 +270,8 @@ panel of the **Aggrega** view in the activity bar; Build writes its files into t
 
 ### Add a cloud model, with the local one as fallback
 
+You can run this step with the commands below, or [have your AI assistant build it for you](#with-an-ai-assistant-1).
+
 The Aggregate adds a LiteLLM gateway in front of two models, a hosted OpenAI model and the local one, with a fallback
 chain from the first to the second, and the agent now asks the gateway. It runs without an API key: the cloud model
 cannot answer without one, and the gateway answers from the local model instead. Export `OPENAI_API_KEY` in your
@@ -295,6 +299,8 @@ An AI assistant [set up with Aggrega's tools](ai-assistants/set-up.md) can do th
 > If this folder holds no `quickstart-ai` folder yet, write the Aggrega documentation's runnable example `quickstart-ai` into one with the `scaffold` tool. Its folder `quickstart-ai/2` is a workspace of its own: name it as the workspace root when you build. Build the Release `release.yaml` there with the `build` tool, resolving its dependencies first and writing the files into `dist/`, then tell me which files the build wrote.
 
 ### Add guardrails: Presidio PII masking + prompt-injection blocking
+
+You can run this step with the commands below, or [have your AI assistant build it for you](#with-an-ai-assistant-2).
 
 The Aggregate adds Microsoft Presidio, which masks names, email addresses and phone numbers in the copies of each
 call the gateway writes to its logs, and a list of patterns the gateway refuses a request on before it reaches a
@@ -348,6 +354,8 @@ An AI assistant [set up with Aggrega's tools](ai-assistants/set-up.md) can do th
 
 ### Same app, on Kubernetes
 
+You can build this step with the commands below, or [have your AI assistant build it for you](#with-an-ai-assistant-3).
+
 The same components but the chat page, built for Kubernetes: the build writes the manifests under `dist/helm/` and
 stops, without contacting a cluster. On Kubernetes the gateway reads the OpenAI key from a Secret that already exists
 in its namespace, which [the example's page](language-reference/examples/quickstart-ai/README.md) shows how to create
@@ -367,6 +375,8 @@ An AI assistant [set up with Aggrega's tools](ai-assistants/set-up.md) can do th
 > If this folder holds no `quickstart-ai` folder yet, write the Aggrega documentation's runnable example `quickstart-ai` into one with the `scaffold` tool. Its folder `quickstart-ai/4` is a workspace of its own: name it as the workspace root when you build. Build the Release `release.yaml` there with the `build` tool, resolving its dependencies first and writing the files into `dist/`, then tell me which files the build wrote.
 
 ## The second track: a web app with PostgreSQL
+
+You can run this track's first step with one command, or [have your AI assistant write and build it for you](#with-an-ai-assistant-4).
 
 The second example grows a small web app that keeps notes in PostgreSQL: it starts with its database on your machine,
 gains a Redis cache, moves to AWS with the database on Amazon RDS, and gets its backups. Run its commands from the
@@ -450,6 +460,8 @@ An AI assistant [set up with Aggrega's tools](ai-assistants/set-up.md) can do th
 
 ### Add a cache
 
+You can run this step with the commands below, or [have your AI assistant build it for you](#with-an-ai-assistant-5).
+
 The Aggregate adds a Redis cache, and the app reads a note from the cache once it has read it from the database.
 Keep the same password exported: the database keeps the one it was created with.
 
@@ -484,6 +496,8 @@ An AI assistant [set up with Aggrega's tools](ai-assistants/set-up.md) can do th
 
 ### Same database, managed on AWS
 
+You can build this step with the commands below, or [have your AI assistant build it for you](#with-an-ai-assistant-6).
+
 The same three components, built as Terraform for AWS: the app on Amazon ECS, the database on Amazon RDS and the
 cache on Amazon ElastiCache. The Release names resources you already run in your account, written as placeholders to
 replace before you plan. The build writes the files under `dist/terraform/` and stops: it never runs Terraform and
@@ -503,6 +517,8 @@ An AI assistant [set up with Aggrega's tools](ai-assistants/set-up.md) can do th
 > If this folder holds no `quickstart-web` folder yet, write the Aggrega documentation's runnable example `quickstart-web` into one with the `scaffold` tool. Its folder `quickstart-web/3` is a workspace of its own: name it as the workspace root when you build. Build the Release `release.yaml` there with the `build` tool, resolving its dependencies first and writing the files into `dist/`, then tell me which files the build wrote.
 
 ### Add backups
+
+You can build this step with the commands below, or [have your AI assistant build it for you](#with-an-ai-assistant-7).
 
 The Release attaches a backup to the database, and the build writes it as the instance's own retention and backup
 window.
@@ -531,6 +547,8 @@ run each from the folder you started in.
 
 ### Terraform
 
+You can build this starter with the commands below, or [have your AI assistant write and build it for you](#with-an-ai-assistant-8).
+
 ```sh
 aggrega scaffold --example terraform-rds
 ```
@@ -556,6 +574,8 @@ An AI assistant [set up with Aggrega's tools](ai-assistants/set-up.md) can do th
 > Write the Aggrega documentation's runnable example `terraform-rds` into a new folder with the `scaffold` tool. That folder is a workspace: name it as the workspace root on each call that follows. Build its Release `release.yaml` with the `build` tool, resolving its dependencies first and writing the files into `dist/`, then tell me which files the build wrote.
 
 ### AWS CloudFormation
+
+You can build this starter with the commands below, or [have your AI assistant write and build it for you](#with-an-ai-assistant-9).
 
 ```sh
 aggrega scaffold --example cloudformation-rds-stack

@@ -113,6 +113,9 @@ value it drafted came from.
 
 ## How an import runs
 
+You can run an import with the commands below, or
+[have your AI assistant run it for you](#with-an-ai-assistant).
+
 1. **Start from a workspace.** An import writes its drafts beneath the root of
    the workspace it runs in — the folder holding an `.aggrega-config.yaml` with a
    `workspace` key — or beneath the directory `--output-dir` names. It never

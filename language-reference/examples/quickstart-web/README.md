@@ -45,6 +45,9 @@ Output blocks on this page are copied from a real run, per
 
 ## Run it in one command
 
+You can run the first step with one command, or
+[have your AI assistant write and build it for you](#with-an-ai-assistant).
+
 Choose a password for the database and export it first. On Linux or macOS:
 
 ```sh

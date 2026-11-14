@@ -34,6 +34,9 @@ checked out beside this repository, or its directory named in
 
 ## Scaffold the example
 
+You can run this example's import with the commands below, or
+[have your AI assistant run it for you](#with-an-ai-assistant).
+
 Write the example into a new folder named after it:
 
 ```sh
