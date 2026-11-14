@@ -7532,6 +7532,17 @@
     "status": "machine",
     "text": "Thông báo được phát ra, nêu vị trí bên trong schema, từ khoá không thể phân giải, và điều mà bước phân giải đã báo:"
   },
+  "0a364df6feb0faa9": {
+    "at": "2026-11-14T23:58:27.949Z",
+    "job": "session-0024-20261114235827",
+    "revision": {
+      "from": "ba8af07e176f9ac9",
+      "reviewed": false
+    },
+    "srcHash": "0a364df6feb0faa9",
+    "status": "machine",
+    "text": "Như mọi Release được soạn nháp, nó ghi `metadata.environment` là `development`, dưới một chú thích cho biết đây là giá trị mặc định của bản nháp cần thay đổi, và, khi không có target, ghi `spec.manifest` là một chuỗi rỗng mà lần nhập còn nợ. Khi được cung cấp một target, importer tự soạn nháp Manifest, vì catalog hiện thực `core/ai-tool/mcp` qua nhiều Recipes và chỉ importer biết mỗi máy chủ chạy thế nào: nó ánh xạ mỗi máy chủ theo khóa của nó, dưới `mappings.components.name`, tới realization của target tương ứng với cách máy chủ chạy — `mcp-stdio-bridge` cho một dòng lệnh, `mcp-remote` cho một địa chỉ, `mcp` cho một image, chẳng hạn `helm/mcp-stdio-bridge` hoặc `compose/mcp-remote` — và ánh xạ kiểu secret mà môi trường được gắn dưới dạng đó tới realization của nó, `helm/k8s-existing-secret` trên helm và `compose/dotenv-secret-set` trên compose. Lần nhập hoàn thiện Manifest đó và nêu nó trong Release, như [Những gì một target thêm vào](#what-a-target-adds) mô tả."
+  },
   "0a3d60632ecc2a4b": {
     "at": "2026-10-22T11:13:32.031992+00:00",
     "job": "msgbatch_01DH3Lu1cujibr3yj6LABYJQ",
@@ -8693,6 +8704,13 @@
     "srcHash": "0bd010a97a0be54e",
     "status": "machine",
     "text": "Chạy policy trong CI, trên đầu ra của bản build"
+  },
+  "0bd0161e342f8b6b": {
+    "at": "2026-11-14T23:58:27.949Z",
+    "job": "session-0024-20261114235827",
+    "srcHash": "0bd0161e342f8b6b",
+    "status": "machine",
+    "text": "Secret, cho từng target"
   },
   "0bd30b15d2db394d": {
     "at": "2026-11-01T15:15:25.467Z",
@@ -15915,6 +15933,13 @@
     "status": "machine",
     "text": "`aggrega_parse_source` — callback tiêu thụ producer: guest nêu một định dạng cú pháp và chuyển giao các byte nguồn, còn host phân giải một trình phân tích cho định dạng đó, chạy nó và trả về cây chuẩn tắc mà nó tạo ra. Đây là cách một consumer lấy đầu ra của một producer qua host thay vì tự gọi một guest producer, và host giới hạn nó ở một cấp duy nhất — một producer được gọi theo cách này mà lại gọi nó lần nữa sẽ bị từ chối — nên một consumer gọi nó một lần cho mỗi nguồn và có thể tiêu thụ nhiều nguồn lần lượt."
   },
+  "161054a6a43bad5e": {
+    "at": "2026-11-14T23:58:27.949Z",
+    "job": "session-0024-20261114235827",
+    "srcHash": "161054a6a43bad5e",
+    "status": "machine",
+    "text": "Trên mọi target khác, và khi không có target, mỗi secret là một `core/secret-value` có `origin` là một tham chiếu tới một biến — `${LANGFLOW_ADMIN_PASSWORD}`, `${FLOWISE_OWNER_PASSWORD}`, và `${OPENAI_API_KEY}` cho thông tin xác thực của một kết nối mô hình — mà một target thay thế tham chiếu biến, như Docker Compose làm khi stack khởi động, đọc từ môi trường, nên không tệp nào chứa giá trị và không có gì phải nợ cho nó. Chatflow Flowise ở trên, khi được nhập mà không có target, được soạn nháp với Release này:"
+  },
   "161252fdb5c9bb91": {
     "at": "2026-10-22T23:53:36.766860+00:00",
     "job": "msgbatch_01Wu8raobvwEgmrA6bGpzuKQ",
@@ -17989,6 +18014,13 @@
     "srcHash": "191f8ad4d20b3b7e",
     "status": "machine",
     "text": "**GPU lớn hơn hoặc hai GPU.** Mỗi thành phần NemoGuard nhận `infra.gpu.count`, và `infra.gpu.runtime_class` khi cụm chọn runtime GPU của nó theo lớp."
+  },
+  "1921f5d525128019": {
+    "at": "2026-11-14T23:58:27.949Z",
+    "job": "session-0024-20261114235827",
+    "srcHash": "1921f5d525128019",
+    "status": "machine",
+    "text": "Khi không có target, lần nhập nợ hai giá trị, `spec.manifest` và `infra.owner_email`; với `--target compose`, chỉ email của chủ sở hữu; với `--target helm`, email của chủ sở hữu và tên của hai Kubernetes Secret."
   },
   "1926e870d9c14666": {
     "at": "2026-10-22T11:59:38.351715+00:00",
@@ -20351,6 +20383,17 @@
     "srcHash": "1c756ca28142fa87",
     "status": "machine",
     "text": "`sprig.FuncMap()` cung cấp toàn bộ tập hàm trợ giúp của Sprig — khoảng 200 hàm thuộc các nhóm dưới đây. Trang này phác họa các nhóm cùng những hàm trợ giúp thông dụng trong mỗi nhóm; tài liệu tham khảo chính thức cho từng hàm là tài liệu Sprig gốc."
+  },
+  "1c786ae843470715": {
+    "at": "2026-11-14T23:58:27.949Z",
+    "job": "session-0024-20261114235827",
+    "revision": {
+      "from": "7f28d691c40c4a2e",
+      "reviewed": false
+    },
+    "srcHash": "1c786ae843470715",
+    "status": "machine",
+    "text": "Những gì nguồn không nêu được ghi rỗng, dưới một chú thích cho biết đó là gì: một lệnh có trình khởi chạy mà không image cầu nối nào mang sẽ để `infra.stdio_runtime` rỗng, và lần nhập còn nợ nó; một đối số mà mô tả registry để lại cho người dùng được ghi thành một mục rỗng, và một biến có giá trị mà nguồn không viết được ghi thành một mục có giá trị rỗng, mỗi cái được nêu trong chú thích phía trên mục."
   },
   "1c79f8c210523d57": {
     "at": "2026-10-23T00:02:44.489841+00:00",
@@ -40993,6 +41036,17 @@
     "status": "machine",
     "text": "Workspace này giữ địa chỉ thành hai phần. Công cụ, `core/ai-tool/mcp`,\ngiữ địa chỉ mà không có phần mang khóa. Kết nối của agent\nđến công cụ giữ toàn bộ địa chỉ dưới dạng một secret, và Release chỉ ra nơi nó\nđược lưu. Ví dụ này xây dựng cho Kubernetes và cho Docker Compose, và trên cả hai, không tệp\nđược render nào mang khóa."
   },
+  "39fdc817e8cead72": {
+    "at": "2026-11-14T23:58:27.949Z",
+    "job": "session-0024-20261114235827",
+    "revision": {
+      "from": "7e447ba3eeba7c70",
+      "reviewed": false
+    },
+    "srcHash": "39fdc817e8cead72",
+    "status": "machine",
+    "text": "Khi [thiết lập `attach_egress_allowlist`](#settings) là `true`, instance của nền tảng còn khai báo Feature `core/egress-allowlist` của thư viện chuẩn dưới `features`, với tên `egress-allowlist`, để nền tảng chỉ kết nối tới các thành phần mà các kết nối của nó tới, các pod của chính nó và DNS của cluster — phần tương ứng chiều ra của một [cạnh `uses` như một lời gọi được khai báo](../entities/aggregate.md#a-uses-edge-is-a-call-the-aggregate-declares). Aggregate chỉ khai báo kiểu của phần gắn kèm và không gì khác, vì phần gắn kèm của một Aggregate không mang `infra`, và Release được soạn nháp không ghi gì trong số đó: chú thích phía trên mục nền tảng nêu, dưới `features.egress-allowlist.infra`, `control_plane_present`, mà người vận hành đặt thành `true` để khẳng định rằng network plugin của cluster thực thi network policy, thiếu điều đó thì bản build dừng lại; `admitted_destinations`, một danh sách chứa, cho mỗi kết nối có đích mà cluster không chạy, chẳng hạn một mô hình được lưu trữ bên ngoài, một mục nêu đích và một dải địa chỉ, thiếu nó thì bản build dừng lại và nêu tên kết nối đó; và `aggrega.ai/namespace` cho ranh giới chứa nền tảng, vì policy được đặt trong namespace của các khối lượng công việc của nó và bản build dừng lại nếu chúng không được xuất vào namespace nào. Không khóa nào được ghi rỗng, nên không khóa nào thuộc các giá trị mà lần nhập còn nợ. Quyết định của mỗi phần được nối cho biết phần gắn kèm cho phép kết nối của nó, và việc nhập báo cáo phần gắn kèm là `feature-attached`. Compose không có network policy, nên một bản build compose của bản nháp như vậy dừng lại và nêu tên phần gắn kèm; nơi nền tảng tạo một kết nối, các dòng compose ở trên được ghi bên trong khối `features` của instance, không có khóa `features` thứ hai."
+  },
   "3a076c89251ba5d0": {
     "at": "2026-10-22T10:44:41.513626+00:00",
     "job": "msgbatch_01SU94FsDLwMBbtBG2UdzNK5",
@@ -44384,6 +44438,13 @@
     "srcHash": "3ec744284b0ac2b9",
     "status": "machine",
     "text": "Tên của thực thể catalog đích đã chọn."
+  },
+  "3ec7aa18a1c89df5": {
+    "at": "2026-11-14T23:58:27.949Z",
+    "job": "session-0024-20261114235827",
+    "srcHash": "3ec7aa18a1c89df5",
+    "status": "machine",
+    "text": "`release.yaml` — một Release nháp cùng tên, nêu Aggregate đó, với một mục cho mỗi node."
   },
   "3ecc0bd23c1bea47": {
     "at": "2026-10-22T10:27:55.857345+00:00",
@@ -50061,6 +50122,17 @@
     "srcHash": "46cdda2e63cafe29",
     "status": "machine",
     "text": "**Cách khắc phục:** bỏ host và mọi thứ đứng trước tên thư viện, chỉ để lại `<Library>#/schemas/<Entry>`. Khi cần một mức phiên bản tối thiểu, hãy viết nó sau tên thư viện dưới dạng `:<version>`. Cùng quy tắc này áp dụng cho các trường `$import:` trên một Recipe và một FeatureRecipe, vốn được báo cáo riêng dưới “A library `$import:` addresses its library by registry location (Một thư viện tham chiếu thư viện của nó theo vị trí registry)” ở bên dưới."
+  },
+  "46ce02e6cc43472e": {
+    "at": "2026-11-14T23:58:27.949Z",
+    "job": "session-0024-20261114235827",
+    "revision": {
+      "from": "8da82587fd05e52f",
+      "reviewed": false
+    },
+    "srcHash": "46ce02e6cc43472e",
+    "status": "machine",
+    "text": "Một service có image được một hàng ánh xạ được quyết định như cách các importer flow quyết định một node: được chấm điểm so với các Components trong catalog của bạn, được tham chiếu khi `reuse_mode` là `auto-apply-above-threshold`, giá trị mặc định, và ứng viên tốt nhất là một kết quả khớp bậc cao bằng hoặc trên `reuse_threshold`, và được soạn thành một Component riêng nếu không, tệp của Component được soạn mở đầu bằng một chú thích nêu tên Component mà nó giống. Một hàng mang các label của Component mà nó nêu, nên khi catalog của bạn có Component đó với các label mà catalog chuẩn gán cho nó, một service được hàng đó ánh xạ là một kết quả khớp bậc cao cho nó, đạt điểm `0.90`, và `auto-apply-above-threshold` tham chiếu nó ở `reuse_threshold` mặc định. Một Component mà catalog của bạn đã thay đổi label sẽ có điểm thấp hơn, tỷ lệ với phần traits của hàng mà nó không còn mang, và chỉ được tham chiếu khi nó còn ở bậc cao; category được tính một lần, trong tín hiệu riêng của nó, không tính lại như một trait. Các service soạn cùng một Component dùng chung một tệp của nó. Một service có image không được hàng nào ánh xạ, có image không nêu repository nào mà importer đọc được, hoặc tự build image của nó, là một instance của `core/compute/server`, bất kể catalog của bạn chứa gì. Quyết định của mỗi service được báo cáo như quyết định của mỗi node."
   },
   "46ce39bc33192813": {
     "at": "2026-10-29T20:59:36.662Z",
@@ -66850,6 +66922,17 @@
     "srcHash": "5e5de1426304839f",
     "status": "machine",
     "text": "**Kết nối tới một mô hình không kiểm tra khóa.** Bỏ thông tin xác thực khỏi\n  kết nối. Khi đích được gắn nhãn `managed`, hãy nêu điều đó trên kết nối\n  bằng `unauthenticated: true` trong `values` của nó."
+  },
+  "5e5dfb6b5558b1e6": {
+    "at": "2026-11-14T23:58:27.949Z",
+    "job": "session-0024-20261114235827",
+    "revision": {
+      "from": "79795c299cfe6394",
+      "reviewed": false
+    },
+    "srcHash": "5e5dfb6b5558b1e6",
+    "status": "machine",
+    "text": "cho môi trường của một máy chủ, slot `server_env`, được gắn bằng tham chiếu theo target của lần nhập. Trên `--target helm`, đó là một `core/referenced-secret` nêu một Kubernetes Secret đã có sẵn trong namespace, giữ một khóa dữ liệu cho mỗi biến, mỗi khóa được đặt tên theo biến mà nó giữ; tên của Secret được ghi rỗng, dưới một chú thích nêu các khóa dữ liệu, và thuộc các giá trị mà lần nhập còn nợ. Trên mọi target khác, và khi không có target, đó là một `core/referenced-secret-set` với một mục dưới `infra.entries` cho mỗi biến, có khóa là tên biến và giá trị như nguồn viết, nên một tham chiếu biến như `${GITHUB_TOKEN}` vẫn là một tham chiếu, mà một target thay thế tham chiếu biến đọc từ môi trường."
   },
   "5e6251f25f992906": {
     "at": "2026-10-22T23:44:18.033086+00:00",
@@ -87656,6 +87739,13 @@
     "status": "machine",
     "text": "**Không có cách nào đặt tên cho một giá trị trung gian.** Một biểu thức con dùng hai lần thì\n  được viết hai lần, hoặc được gán bằng cách map một danh sách một phần tử: `[value].map(name, …)[0]`\n  đánh giá thân của nó một lần với `name` được gán cho `value`."
   },
+  "7b2c8080c5945c1f": {
+    "at": "2026-11-14T23:58:27.949Z",
+    "job": "session-0024-20261114235827",
+    "srcHash": "7b2c8080c5945c1f",
+    "status": "machine",
+    "text": "không cho máy chủ nào, trên bất kỳ target nào, `infra.published_port`: bản nháp không bao giờ công bố một máy chủ trên host;"
+  },
   "7b2dd61a570db1c7": {
     "at": "2026-10-22T10:27:55.857345+00:00",
     "job": "msgbatch_01St5AJWD4JFUsFvC38dR1rN",
@@ -90235,6 +90325,17 @@
     "srcHash": "7f02fafbb418f5eb",
     "status": "machine",
     "text": "**Kyverno (CLI):** Hỗ trợ sẵn việc đánh giá các manifest JSON/YAML tĩnh, cho phép các nhóm viết chính sách bằng YAML gốc thay vì phải học Rego."
+  },
+  "7f059ad9a76d0902": {
+    "at": "2026-11-14T23:58:27.949Z",
+    "job": "session-0024-20261114235827",
+    "revision": {
+      "from": "93bce7f0615a7f25",
+      "reviewed": false
+    },
+    "srcHash": "7f059ad9a76d0902",
+    "status": "machine",
+    "text": "Mỗi giá trị trong cấu hình của một máy chủ mà Release ghi — giá trị của mỗi header, mỗi mục trong dòng lệnh của nó, địa chỉ của nó, mỗi phần của địa chỉ mà `infra.endpoint` bỏ ra và mỗi giá trị môi trường — đều có thể mang một khóa, và không client nào đánh dấu một giá trị là thông tin xác thực, nên quá trình nhập định vị mỗi giá trị như một thành viên trong cấu hình của một máy chủ MCP; một input của registry được đánh dấu `isSecret` được định vị như một giá trị mà định dạng của nó đánh dấu là thông tin xác thực. Một input của registry — một biến môi trường hoặc một header của một remote — được đọc là `value` của nó, hoặc `default` của nó khi nó không ghi giá trị nào. Theo mặc định, mỗi giá trị được mang nguyên văn vào Release và được nêu trong một cảnh báo `credential-carried` theo máy chủ và vị trí của nó — `headers.<header>`, `infra.stdio_command.<position>`, `infra.endpoint` hoặc `server_env.<variable>`, và một phần của địa chỉ theo `url` chứa nó cùng tên của phần đó, như trong “url of node remote-search is carried with its query as written (url của node remote-search được mang theo cùng query của nó như đã viết)” — không bao giờ theo giá trị của nó. Với [thiết lập `empty_credentials`](#settings) ở `marked` hoặc `all`, mỗi giá trị được ghi rỗng và được báo cáo bằng `credential-emptied`: một mục của dòng lệnh thành một mục rỗng và một giá trị môi trường thành một giá trị rỗng, mỗi cái được nêu trong chú thích phía trên mục; một địa chỉ thành một `infra.endpoint` rỗng, mà lần nhập còn nợ; và giá trị của một header hoặc một phần của địa chỉ bị bỏ khỏi chú thích, chú thích chỉ nêu tên header hoặc phần đó. `infra.stdio_runtime` của một client được đọc từ lệnh như Release ghi nó, nên một lệnh được ghi rỗng cũng để nó rỗng, và lần nhập còn nợ nó. Trên `--target helm`, Release hoàn toàn không ghi giá trị môi trường nào: Secret mà slot `server_env` nêu giữ chúng."
   },
   "7f102fbbb6dbd917": {
     "at": "2026-10-23T00:02:44.489841+00:00",
@@ -99045,6 +99146,13 @@
     "srcHash": "8b955ad8551bd2ba",
     "status": "machine",
     "text": "importer `\"<identity>\"` is attached by `<key>[<position>]` in `<file>` (uri `\"<uri>\"`) and again by `<key>[<position>]` in `<file>` (uri `\"<uri>\"`); keep exactly one plugins.importer entry per importer, its uri naming the version you want: importer is attached by more than one plugins.importer entry (importer \"`<identity>`\" được gắn bởi `<key>`[`<position>`] trong `<file>` (uri \"`<uri>`\") và lại được gắn bởi `<key>`[`<position>`] trong `<file>` (uri \"`<uri>`\"); hãy giữ đúng một mục plugins.importer cho mỗi importer, với uri chỉ định phiên bản bạn muốn: importer được gắn bởi nhiều hơn một mục plugins.importer)"
+  },
+  "8b969e3cf963d826": {
+    "at": "2026-11-14T23:58:27.949Z",
+    "job": "session-0024-20261114235827",
+    "srcHash": "8b969e3cf963d826",
+    "status": "machine",
+    "text": "Khi được nhập với `--target helm`, Release của cùng cấu hình gắn môi trường dưới dạng Secret mà nó nêu, và Manifest mà importer soạn nháp ánh xạ mỗi máy chủ theo khóa của nó:"
   },
   "8b971dd2a9131bd2": {
     "at": "2026-10-29T22:29:47.440Z",
@@ -114684,6 +114792,13 @@
     "srcHash": "a17c2f3f9f710c3d",
     "status": "machine",
     "text": "Recipe `web-service` ở đây dùng Chế độ 3:"
+  },
+  "a1854a46c50e6872": {
+    "at": "2026-11-14T23:58:27.949Z",
+    "job": "session-0024-20261114235827",
+    "srcHash": "a1854a46c50e6872",
+    "status": "machine",
+    "text": "Trên `--target helm`, mỗi secret là một `core/referenced-secret` có `origin` là tên của một Kubernetes Secret đã có sẵn trong namespace, giữ giá trị dưới khóa dữ liệu `value`. Không nguồn nào cung cấp được tên đó, nên nó được ghi rỗng dưới một chú thích cho biết nó giữ gì, và thuộc các giá trị mà lần nhập còn nợ; Manifest được soạn nháp ánh xạ `core/referenced-secret` tới `helm/k8s-existing-secret`."
   },
   "a185ab51a8d75994": {
     "at": "2026-10-22T03:54:29.551Z",
@@ -145595,6 +145710,17 @@
     "status": "machine",
     "text": "**Một mục chỉ định một tài nguyên bằng `Type` và logical ID của nó.** `kind` của mục là `Type` của tài nguyên, chẳng hạn `AWS::S3::Bucket`, và `name` của nó là logical ID của tài nguyên, tức khóa của nó dưới `Resources`; cả hai được so sánh đúng như được viết, và cả hai đều phải khớp, nên một mục có `Type` đúng nhưng logical ID sai sẽ không loại bỏ gì. Một template không có namespace, nên một mục mang `namespace` sẽ dừng bản build khi component được render, kèm tên của mục; mọi mục đều được kiểm tra trước khi bất cứ thứ gì bị loại bỏ."
   },
+  "cb84d44b3adf8a84": {
+    "at": "2026-11-14T23:58:27.949Z",
+    "job": "session-0024-20261114235827",
+    "revision": {
+      "from": "82ee73b15acade89",
+      "reviewed": false
+    },
+    "srcHash": "cb84d44b3adf8a84",
+    "status": "machine",
+    "text": "Trên target compose, một secret mà chỉ Release gắn sẽ đến dưới một khóa duy nhất, `value`, nên mật khẩu của chủ sở hữu hoặc của quản trị viên và thông tin xác thực của một kết nối đều sẽ đến dưới khóa đó. Vì vậy Aggregate khai báo mỗi cái với một khóa riêng ở nơi nền tảng tạo một kết nối: `owner_password` với khóa `OWNER_PASSWORD` trên Flowise, `admin_password` với khóa `LANGFLOW_SUPERUSER_PASSWORD` trên Langflow, và `credential` của kết nối mô hình với khóa `OPENAI_API_KEY` trên cả ba nền tảng, mỗi cái dưới một chú thích giải thích lý do. Với `--target compose`, các dòng này được ghi ở trạng thái hoạt động; khi không có target, chúng được ghi ở dạng comment, như trong ví dụ ở trên, để bạn bỏ comment nếu build cho compose; với bất kỳ target nào khác, chúng không được ghi. Release gắn origin của mỗi slot, nêu cùng một kiểu hoặc không nêu kiểu nào."
+  },
   "cb8799e2e3199d34": {
     "at": "2026-10-22T23:16:12.871393+00:00",
     "job": "msgbatch_0174PpiP5RVuAuV4kmwwcJsK",
@@ -155211,6 +155337,17 @@
     "srcHash": "d8f78ce61daf9b69",
     "status": "machine",
     "text": "Namespace chứa đơn vị cần loại bỏ, khi mục chỉ nên khớp với một đơn vị trong namespace đó — dành cho một provider có đầu ra có namespace, như các tài liệu được kết xuất của một chart. Khi vắng mặt, hoặc kết xuất thành chuỗi rỗng, mục khớp với một đơn vị có loại và tên của nó bất kể namespace. Một tệp compose và một template CloudFormation không có namespace, và provider của chúng từ chối một mục có nêu namespace. Là một template."
+  },
+  "d8fa64f6f2707cdc": {
+    "at": "2026-11-14T23:58:27.949Z",
+    "job": "session-0024-20261114235827",
+    "revision": {
+      "from": "363343608f9985c8",
+      "reviewed": false
+    },
+    "srcHash": "d8fa64f6f2707cdc",
+    "status": "machine",
+    "text": "Một giá trị chỉ là một tham chiếu biến và không gì khác — tên trần `${NAME}`, kể cả một biến định sẵn như `${workspaceFolder}`, `${env:NAME}` hoặc `${input:id}` — không nắm giữ giá trị riêng nào: nó được ghi đúng như văn bản của nó bất kể thiết lập nói gì, và nó không được nêu trong cảnh báo nào, giống như một tham chiếu [trong một flow](#credential-values-the-flow-holds). Một biến môi trường có giá trị là một tham chiếu như vậy được ghi thành giá trị của mục, tham chiếu vẫn là tham chiếu, còn một header hoặc một phần của địa chỉ có giá trị là một tham chiếu như vậy được liệt kê cùng tham chiếu mà nó đọc từ đó. Một tham chiếu mang văn bản sau một toán tử — một giá trị mặc định, một giá trị thay thế, một thông báo hoặc một phép gán, như `${NAME:-value}` hoặc `${NAME-value}`, có hoặc không có dấu hai chấm — nắm giữ văn bản đó, và văn bản nằm cạnh một tham chiếu cũng vậy; mỗi cái được định vị như mọi giá trị khác."
   },
   "d8fc36517813b682": {
     "at": "2026-10-22T13:38:02.118076+00:00",

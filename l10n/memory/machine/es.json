@@ -6825,6 +6825,17 @@
     "status": "machine",
     "text": "Mensaje emitido, que nombra la posición dentro del esquema, la palabra clave que no se pudo resolver y lo que notificó la resolución:"
   },
+  "0a364df6feb0faa9": {
+    "at": "2026-11-14T23:58:27.949Z",
+    "job": "session-0024-20261114235827",
+    "revision": {
+      "from": "ba8af07e176f9ac9",
+      "reviewed": false
+    },
+    "srcHash": "0a364df6feb0faa9",
+    "status": "machine",
+    "text": "Como toda Release generada como borrador, escribe `metadata.environment` como `development`, bajo un comentario que dice que es un valor predeterminado del borrador que hay que cambiar, y, sin destino, `spec.manifest` como una cadena vacía que la importación debe. Dado un destino, el importador genera el propio Manifest como borrador, ya que el catálogo realiza `core/ai-tool/mcp` mediante varias Recipes y solo el importador sabe cómo se ejecuta cada servidor: mapea cada servidor por su clave, bajo `mappings.components.name`, a la realización del destino para la forma en que se ejecuta el servidor — `mcp-stdio-bridge` para una línea de comandos, `mcp-remote` para una dirección, `mcp` para una imagen, como `helm/mcp-stdio-bridge` o `compose/mcp-remote` — y el tipo de secreto como el que se vincula el entorno a su realización, `helm/k8s-existing-secret` en helm y `compose/dotenv-secret-set` en compose. La importación completa ese Manifest y lo nombra en la Release, como describe [Qué añade un destino](#what-a-target-adds)."
+  },
   "0a3d60632ecc2a4b": {
     "at": "2026-10-30T20:32:14.370Z",
     "job": "session-0017-20261030203214",
@@ -7885,6 +7896,13 @@
     "srcHash": "0bd010a97a0be54e",
     "status": "machine",
     "text": "Ejecutar políticas en CI, sobre la salida de la compilación"
+  },
+  "0bd0161e342f8b6b": {
+    "at": "2026-11-14T23:58:27.949Z",
+    "job": "session-0024-20261114235827",
+    "srcHash": "0bd0161e342f8b6b",
+    "status": "machine",
+    "text": "Secretos, para cada destino"
   },
   "0bd30b15d2db394d": {
     "at": "2026-11-02T18:47:09.888Z",
@@ -14351,6 +14369,13 @@
     "status": "machine",
     "text": "`aggrega_parse_source` — el callback de consumo de productores: el guest nombra un formato sintáctico y entrega los bytes de la fuente, y el host resuelve un analizador para ese formato, lo ejecuta y devuelve el árbol canónico que produjo. Es la forma en que un consumidor obtiene la salida de un productor a través del host en lugar de invocar él mismo un guest productor, y el host lo limita a un solo nivel — un productor alcanzado de esta forma que vuelve a llamarlo es rechazado — así que un consumidor lo llama una vez por fuente y puede consumir muchas fuentes en secuencia."
   },
+  "161054a6a43bad5e": {
+    "at": "2026-11-14T23:58:27.949Z",
+    "job": "session-0024-20261114235827",
+    "srcHash": "161054a6a43bad5e",
+    "status": "machine",
+    "text": "En cualquier otro destino, y sin destino, cada secreto es un `core/secret-value` cuyo `origin` es una referencia a una variable — `${LANGFLOW_ADMIN_PASSWORD}`, `${FLOWISE_OWNER_PASSWORD}` y `${OPENAI_API_KEY}` para la credencial de una conexión a un modelo — que un destino que sustituye referencias a variables, como hace Docker Compose al iniciarse la pila, lee del entorno, así que ningún archivo contiene el valor y no se debe nada por él. El chatflow de Flowise de más arriba, importado sin destino, se genera como borrador con esta Release:"
+  },
   "161252fdb5c9bb91": {
     "at": "2026-11-04T05:50:39.710Z",
     "job": "session-0205-20261104055039",
@@ -16190,6 +16215,13 @@
     "srcHash": "191f8ad4d20b3b7e",
     "status": "machine",
     "text": "**GPU más grandes, o dos.** Cada componente NemoGuard acepta `infra.gpu.count`, e `infra.gpu.runtime_class` donde el clúster selecciona su runtime de GPU por clase."
+  },
+  "1921f5d525128019": {
+    "at": "2026-11-14T23:58:27.949Z",
+    "job": "session-0024-20261114235827",
+    "srcHash": "1921f5d525128019",
+    "status": "machine",
+    "text": "Sin destino debe dos valores, `spec.manifest` e `infra.owner_email`; con `--target compose`, solo el correo electrónico del propietario; con `--target helm`, el correo electrónico del propietario y los nombres de los dos Secrets de Kubernetes."
   },
   "1926e870d9c14666": {
     "at": "2026-11-02T23:50:32.426Z",
@@ -18339,6 +18371,17 @@
     "srcHash": "1c7400c34e46eb0a",
     "status": "machine",
     "text": "El pilar `values`"
+  },
+  "1c786ae843470715": {
+    "at": "2026-11-14T23:58:27.949Z",
+    "job": "session-0024-20261114235827",
+    "revision": {
+      "from": "7f28d691c40c4a2e",
+      "reviewed": false
+    },
+    "srcHash": "1c786ae843470715",
+    "status": "machine",
+    "text": "Lo que el origen no indica se escribe vacío, bajo un comentario que dice qué es: un comando cuyo lanzador no está en ninguna de las dos imágenes puente deja `infra.stdio_runtime` vacío, y queda entre los valores que la importación debe; un argumento que una descripción del registro deja a su usuario se escribe como un elemento vacío, y una variable cuyo valor no escribe el origen, como una entrada con un valor vacío, cada uno nombrado en el comentario encima de la entrada."
   },
   "1c79f8c210523d57": {
     "at": "2026-11-04T10:33:35.877Z",
@@ -36962,6 +37005,17 @@
     "status": "machine",
     "text": "Este espacio de trabajo guarda la dirección en dos partes. La herramienta, `core/ai-tool/mcp`, guarda la dirección sin la parte que lleva la clave. La conexión del agente con la herramienta guarda la dirección completa como un secreto, y la Release nombra dónde se encuentra. Se compila para Kubernetes y para Docker Compose, y en ambos ningún archivo renderizado lleva la clave."
   },
+  "39fdc817e8cead72": {
+    "at": "2026-11-14T23:58:27.949Z",
+    "job": "session-0024-20261114235827",
+    "revision": {
+      "from": "7e447ba3eeba7c70",
+      "reviewed": false
+    },
+    "srcHash": "39fdc817e8cead72",
+    "status": "machine",
+    "text": "Con el [ajuste `attach_egress_allowlist`](#settings) en `true`, la instancia de la plataforma declara además la Feature `core/egress-allowlist` de la biblioteca estándar bajo `features`, como `egress-allowlist`, de modo que la plataforma se conecta solo a los componentes a los que llegan sus conexiones, a sus propios pods y al DNS del clúster — la contrapartida de salida de una [arista `uses` como llamada declarada](../entities/aggregate.md#a-uses-edge-is-a-call-the-aggregate-declares). El Aggregate declara el tipo de la vinculación y nada más, ya que la vinculación de un Aggregate no lleva ningún `infra`, y la Release generada como borrador no escribe nada de ello: el comentario sobre la entrada de la plataforma nombra, bajo `features.egress-allowlist.infra`, `control_plane_present`, que el operador establece en `true` para afirmar que el plugin de red del clúster aplica la política de red, sin lo cual la compilación se detiene; `admitted_destinations`, una lista que contiene, para cada conexión cuyo destino no ejecuta el clúster, como un modelo alojado, una entrada que nombra el destino y un rango de direcciones, sin la cual la compilación se detiene nombrando esa conexión; y `aggrega.ai/namespace` para el límite que contiene la plataforma, ya que la política se coloca en el namespace de sus cargas de trabajo y la compilación se detiene donde estas no se emiten en ninguno. Ninguna de estas claves se escribe vacía, así que ninguna está entre los valores que la importación debe. La decisión de cada parte conectada dice que la vinculación admite su conexión, y la importación informa de la vinculación como `feature-attached`. Compose no tiene política de red, así que una compilación de compose de un borrador así se detiene nombrando la vinculación; donde la plataforma admite una conexión, las líneas de compose de más arriba se escriben dentro del bloque `features` de la instancia, sin una segunda clave `features`."
+  },
   "3a076c89251ba5d0": {
     "at": "2026-10-22T21:56:12.149Z",
     "job": "session-0050-20261022215612",
@@ -40088,6 +40142,13 @@
     "srcHash": "3ec744284b0ac2b9",
     "status": "machine",
     "text": "El nombre de la entidad de destino del catálogo elegida."
+  },
+  "3ec7aa18a1c89df5": {
+    "at": "2026-11-14T23:58:27.949Z",
+    "job": "session-0024-20261114235827",
+    "srcHash": "3ec7aa18a1c89df5",
+    "status": "machine",
+    "text": "`release.yaml` — una Release en borrador con el mismo nombre, que nombra ese Aggregate, con una entrada para cada nodo."
   },
   "3ecc0bd23c1bea47": {
     "at": "2026-10-22T11:34:20.013Z",
@@ -45219,6 +45280,17 @@
     "srcHash": "46cdda2e63cafe29",
     "status": "machine",
     "text": "**Cómo corregirlo:** elimina el host y todo lo que precede al nombre de la biblioteca, dejando `<Library>#/schemas/<Entry>`. Donde se quiera una versión mínima, escríbela después del nombre de la biblioteca como `:<version>`. La misma regla rige los campos `$import:` de una Recipe y de una FeatureRecipe, que se informan por separado en «A library `$import:` addresses its library by registry location (Una importación de biblioteca direcciona su biblioteca por su ubicación en un registro)» más abajo."
+  },
+  "46ce02e6cc43472e": {
+    "at": "2026-11-14T23:58:27.949Z",
+    "job": "session-0024-20261114235827",
+    "revision": {
+      "from": "8da82587fd05e52f",
+      "reviewed": false
+    },
+    "srcHash": "46ce02e6cc43472e",
+    "status": "machine",
+    "text": "Un servicio cuya imagen mapea una fila se decide como los importadores de flujos deciden un nodo: se puntúa frente a los Components de tu catálogo, se referencia donde `reuse_mode` es `auto-apply-above-threshold`, el valor predeterminado, y su mejor candidato es una coincidencia de nivel alto igual o superior a `reuse_threshold`, y en caso contrario se genera como borrador como un Component propio, y el archivo del Component generado como borrador empieza con un comentario que nombra el Component al que se parece. Una fila lleva las etiquetas del Component que nombra, así que donde tu catálogo contiene ese Component con las etiquetas que le da el catálogo estándar, un servicio que la fila mapea es una coincidencia de nivel alto para él, con una puntuación de `0.90`, y `auto-apply-above-threshold` lo referencia con el `reuse_threshold` predeterminado. Un Component cuyas etiquetas ha cambiado tu catálogo obtiene una puntuación menor, en proporción a la parte de los rasgos de la fila que ya no lleva, y solo se referencia mientras permanece en el nivel alto; la categoría se puntúa una sola vez, en su propia señal, y no de nuevo como rasgo. Los servicios que generan como borrador un mismo Component comparten su único archivo. Un servicio cuya imagen no mapea ninguna fila, cuya imagen no nombra ningún repositorio que lea el importador, o que construye su imagen, es una instancia de `core/compute/server`, contenga lo que contenga tu catálogo. Se informa de la decisión de cada servicio como de la de cada nodo."
   },
   "46ce39bc33192813": {
     "at": "2026-10-30T06:36:56.027Z",
@@ -60428,6 +60500,17 @@
     "srcHash": "5e5de1426304839f",
     "status": "machine",
     "text": "**Llega a un modelo que no comprueba ninguna clave.** Deja la credencial fuera de la conexión. Donde el destino esté etiquetado `managed`, indícalo en la conexión con `unauthenticated: true` en sus `values`."
+  },
+  "5e5dfb6b5558b1e6": {
+    "at": "2026-11-14T23:58:27.949Z",
+    "job": "session-0024-20261114235827",
+    "revision": {
+      "from": "79795c299cfe6394",
+      "reviewed": false
+    },
+    "srcHash": "5e5dfb6b5558b1e6",
+    "status": "machine",
+    "text": "para el entorno de un servidor, la ranura `server_env`, vinculada por referencia según el destino de la importación. En `--target helm` es un `core/referenced-secret` que nombra un Secret de Kubernetes que ya está en el namespace y que contiene una clave de datos por variable, cada una con el nombre de la variable que contiene; el nombre del Secret se escribe vacío, bajo un comentario que nombra las claves de datos, y queda entre los valores que la importación debe. En cualquier otro destino, y sin destino, es un `core/referenced-secret-set` con una entrada bajo `infra.entries` por variable, cuya clave es el nombre de la variable y cuyo valor es el que escribe el origen, así que una referencia a una variable como `${GITHUB_TOKEN}` sigue siendo una referencia, que un destino que sustituye referencias a variables lee del entorno."
   },
   "5e6251f25f992906": {
     "at": "2026-11-04T03:09:22.872Z",
@@ -79147,6 +79230,13 @@
     "status": "machine",
     "text": "**No hay forma de nombrar un valor intermedio.** Una subexpresión usada dos veces se escribe dos veces, o se liga aplicando map a una lista de un solo elemento: `[value].map(name, …)[0]` evalúa su cuerpo una vez con `name` ligado a `value`."
   },
+  "7b2c8080c5945c1f": {
+    "at": "2026-11-14T23:58:27.949Z",
+    "job": "session-0024-20261114235827",
+    "srcHash": "7b2c8080c5945c1f",
+    "status": "machine",
+    "text": "para ningún servidor, en ningún destino, `infra.published_port`: el borrador nunca publica un servidor en el host;"
+  },
   "7b2dd61a570db1c7": {
     "at": "2026-10-22T11:13:35.211Z",
     "job": "session-0032-20261022111335",
@@ -81448,6 +81538,17 @@
     "srcHash": "7f02fafbb418f5eb",
     "status": "machine",
     "text": "**Kyverno (CLI):** admite de forma nativa la evaluación de manifiestos JSON/YAML estáticos, lo que permite a los equipos escribir policies en YAML nativo en lugar de aprender Rego."
+  },
+  "7f059ad9a76d0902": {
+    "at": "2026-11-14T23:58:27.949Z",
+    "job": "session-0024-20261114235827",
+    "revision": {
+      "from": "93bce7f0615a7f25",
+      "reviewed": false
+    },
+    "srcHash": "7f059ad9a76d0902",
+    "status": "machine",
+    "text": "Cada valor de la configuración de un servidor que escribe la Release — el valor de cada encabezado, cada elemento de su línea de comandos, su dirección, cada parte de la dirección que omite `infra.endpoint` y cada valor de entorno — puede llevar una clave, y ningún cliente marca ninguno como credencial, así que la importación localiza cada uno como miembro de la configuración de un servidor MCP; una entrada del registro marcada con `isSecret` se localiza como un valor que su formato marca como credencial. Una entrada del registro — una variable de entorno o el encabezado de un remoto — se lee como su `value`, o su `default` donde no escribe ninguno. De forma predeterminada, cada uno se traslada tal como está escrito a la Release y se nombra en una advertencia `credential-carried` por su servidor y su lugar — `headers.<header>`, `infra.stdio_command.<position>`, `infra.endpoint` o `server_env.<variable>`, y una parte de la dirección por la `url` en la que está escrita y el nombre de la parte, como en «url of node remote-search is carried with its query as written (la url del nodo remote-search se traslada con su consulta tal como está escrita)» — nunca por su valor. Con el [ajuste `empty_credentials`](#settings) en `marked` o `all`, cada uno se escribe vacío y se informa de él con `credential-emptied`: un elemento de la línea de comandos como un elemento vacío y un valor de entorno como un valor vacío, cada uno nombrado en el comentario encima de la entrada; una dirección como un `infra.endpoint` vacío, que la importación debe; y el valor de un encabezado o una parte de la dirección omitidos del comentario, que nombra solo el encabezado o la parte. El `infra.stdio_runtime` de un cliente se lee del comando tal como lo escribe la Release, así que un comando escrito vacío también lo deja vacío, y la importación lo debe. En `--target helm` la Release no escribe ningún valor de entorno: los contiene el Secret que nombra la ranura `server_env`."
   },
   "7f102fbbb6dbd917": {
     "at": "2026-11-04T10:33:35.877Z",
@@ -89529,6 +89630,13 @@
     "srcHash": "8b955ad8551bd2ba",
     "status": "machine",
     "text": "importer `\"<identity>\"` is attached by `<key>[<position>]` in `<file>` (uri `\"<uri>\"`) and again by `<key>[<position>]` in `<file>` (uri `\"<uri>\"`); keep exactly one plugins.importer entry per importer, its uri naming the version you want: importer is attached by more than one plugins.importer entry (el importador está vinculado por una entrada en un archivo y de nuevo por una entrada en un archivo; mantén exactamente una entrada plugins.importer por importador, con su uri nombrando la versión que quieres: el importador está vinculado por más de una entrada plugins.importer)"
+  },
+  "8b969e3cf963d826": {
+    "at": "2026-11-14T23:58:27.949Z",
+    "job": "session-0024-20261114235827",
+    "srcHash": "8b969e3cf963d826",
+    "status": "machine",
+    "text": "Importada con `--target helm`, la Release de la misma configuración vincula el entorno como el Secret que nombra, y el Manifest que el importador genera como borrador mapea cada servidor por su clave:"
   },
   "8b971dd2a9131bd2": {
     "at": "2026-11-03T03:00:33.649Z",
@@ -103635,6 +103743,13 @@
     "srcHash": "a17c2f3f9f710c3d",
     "status": "machine",
     "text": "Aquí la Recipe `web-service` usa el modo 3:"
+  },
+  "a1854a46c50e6872": {
+    "at": "2026-11-14T23:58:27.949Z",
+    "job": "session-0024-20261114235827",
+    "srcHash": "a1854a46c50e6872",
+    "status": "machine",
+    "text": "En `--target helm`, cada secreto es un `core/referenced-secret` cuyo `origin` es el nombre de un Secret de Kubernetes que ya está en el namespace y que contiene el valor bajo la clave de datos `value`. Ese nombre no le corresponde darlo a ningún origen, así que se escribe vacío bajo un comentario que dice qué contiene, y queda entre los valores que la importación debe; el Manifest generado como borrador mapea `core/referenced-secret` a `helm/k8s-existing-secret`."
   },
   "a185ab51a8d75994": {
     "at": "2026-10-22T03:54:29.551Z",
@@ -131593,6 +131708,17 @@
     "status": "machine",
     "text": "**Una entrada nombra un recurso por su `Type` y su ID lógico.** El `kind` de la entrada es el `Type` del recurso, como `AWS::S3::Bucket`, y su `name` es el ID lógico del recurso, su clave bajo `Resources`; ambos se comparan exactamente como están escritos, y ambos tienen que coincidir, así que una entrada cuyo `Type` es correcto y cuyo ID lógico no lo es no deja nada fuera. Una plantilla no tiene espacios de nombres, así que una entrada que lleva un `namespace` detiene la compilación cuando se renderiza el componente, nombrando la entrada; cada entrada se comprueba antes de dejar nada fuera."
   },
+  "cb84d44b3adf8a84": {
+    "at": "2026-11-14T23:58:27.949Z",
+    "job": "session-0024-20261114235827",
+    "revision": {
+      "from": "82ee73b15acade89",
+      "reviewed": false
+    },
+    "srcHash": "cb84d44b3adf8a84",
+    "status": "machine",
+    "text": "En el destino compose, un secreto que vincula la Release por sí sola llega bajo una única clave, `value`, así que la contraseña del propietario o del administrador y la credencial de una conexión llegarían ambas bajo ella. Por eso el Aggregate declara cada una con una clave propia donde la plataforma admite una conexión: `owner_password` con la clave `OWNER_PASSWORD` en Flowise, `admin_password` con la clave `LANGFLOW_SUPERUSER_PASSWORD` en Langflow, y la `credential` de la conexión al modelo con la clave `OPENAI_API_KEY` en las tres plataformas, cada una bajo un comentario que explica por qué. Con `--target compose` estas líneas se escriben activas; sin destino se escriben comentadas, como en el ejemplo de más arriba, para que les quites el comentario si compilas para compose; con cualquier otro destino no se escriben. La Release vincula el origen de cada ranura, nombrando el mismo tipo o ninguno."
+  },
   "cb8db606ed9bdcf3": {
     "at": "2026-10-22T13:22:28.626Z",
     "job": "session-0038-20261022132228",
@@ -140385,6 +140511,17 @@
     "srcHash": "d8f78ce61daf9b69",
     "status": "machine",
     "text": "El namespace en el que está la unidad que se excluye, cuando la entrada debe coincidir solo con una unidad de ese namespace — para un proveedor cuya salida tiene namespaces, como ocurre con los documentos renderizados de un chart. Si está ausente, o si se renderiza como la cadena vacía, la entrada coincide con una unidad de su tipo y nombre sea cual sea su namespace. Un archivo compose y una plantilla de CloudFormation no tienen namespaces, y sus proveedores rechazan una entrada que nombre uno. Una plantilla."
+  },
+  "d8fa64f6f2707cdc": {
+    "at": "2026-11-14T23:58:27.949Z",
+    "job": "session-0024-20261114235827",
+    "revision": {
+      "from": "363343608f9985c8",
+      "reviewed": false
+    },
+    "srcHash": "d8fa64f6f2707cdc",
+    "status": "machine",
+    "text": "Un valor que es una referencia a una variable y nada más — el nombre a secas `${NAME}`, entre ellos una variable predefinida como `${workspaceFolder}`, `${env:NAME}` o `${input:id}` — no contiene ningún valor propio: se escribe como el texto que es, diga lo que diga el ajuste, y no se nombra en ninguna advertencia, como ocurre con una referencia [en un flujo](#credential-values-the-flow-holds). Una variable de entorno cuyo valor es una de ellas se escribe como el valor de la entrada, y la referencia sigue siendo una referencia, y un encabezado o una parte de la dirección cuyo valor es una de ellas se enumera con la referencia de la que lee. Una referencia que lleva texto después de un operador — un valor predeterminado, una alternativa, un mensaje o una asignación, como `${NAME:-value}` o `${NAME-value}`, con o sin dos puntos — contiene ese texto, y lo mismo ocurre con el texto junto a una referencia; cada uno se localiza como cualquier otro valor."
   },
   "d8fc36517813b682": {
     "at": "2026-11-03T05:31:59.590Z",

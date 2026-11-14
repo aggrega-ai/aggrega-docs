@@ -7532,6 +7532,17 @@
     "status": "machine",
     "text": "输出的消息列出 schema 内的位置、无法解析的关键字，以及解析报告的内容："
   },
+  "0a364df6feb0faa9": {
+    "at": "2026-11-14T23:58:27.949Z",
+    "job": "session-0024-20261114235827",
+    "revision": {
+      "from": "ba8af07e176f9ac9",
+      "reviewed": false
+    },
+    "srcHash": "0a364df6feb0faa9",
+    "status": "machine",
+    "text": "与每个起草的 Release 一样，它将 `metadata.environment` 写为 `development`，上方有一条注释说明这是一个待修改的起草默认值；不指定目标时，它将 `spec.manifest` 写为空字符串，属于导入待补的值。指定目标时，导入器会自己起草 Manifest，因为目录通过多个 Recipes 实现 `core/ai-tool/mcp`，而只有导入器知道每个服务器如何运行：它按键在 `mappings.components.name` 下将每个服务器映射到目标上对应该服务器运行方式的实现——命令行对应 `mcp-stdio-bridge`，地址对应 `mcp-remote`，镜像对应 `mcp`，例如 `helm/mcp-stdio-bridge` 或 `compose/mcp-remote`——并将环境所附加的 secret 类型映射到其实现，在 helm 上为 `helm/k8s-existing-secret`，在 compose 上为 `compose/dotenv-secret-set`。导入会补全该 Manifest 并在 Release 中指定它，如[目标带来的内容](#what-a-target-adds)所述。"
+  },
   "0a3d60632ecc2a4b": {
     "at": "2026-10-22T02:36:32.846651+00:00",
     "job": "msgbatch_01FfT6U4CN67izAFuMsFbtGF",
@@ -8687,6 +8698,13 @@
     "srcHash": "0bd010a97a0be54e",
     "status": "machine",
     "text": "在 CI 中针对构建输出运行策略"
+  },
+  "0bd0161e342f8b6b": {
+    "at": "2026-11-14T23:58:27.949Z",
+    "job": "session-0024-20261114235827",
+    "srcHash": "0bd0161e342f8b6b",
+    "status": "machine",
+    "text": "各目标的 secret"
   },
   "0bd30b15d2db394d": {
     "at": "2026-11-01T15:15:25.467Z",
@@ -15909,6 +15927,13 @@
     "status": "machine",
     "text": "`aggrega_parse_source`：生产者消费回调：客体指定一种语法格式并交出源字节，宿主为该格式解析出一个解析器、运行它，并返回其生成的规范树。消费者借此通过宿主获取生产者的输出，而不必自己调用生产者客体；宿主将其限制为单层，以这种方式到达的生产者若再次调用它会被拒绝，因此消费者对每个源调用一次，并可依次消费多个源。"
   },
+  "161054a6a43bad5e": {
+    "at": "2026-11-14T23:58:27.949Z",
+    "job": "session-0024-20261114235827",
+    "srcHash": "161054a6a43bad5e",
+    "status": "machine",
+    "text": "在其他所有目标上，以及不指定目标时，每个 secret 都是一个 `core/secret-value`，其 `origin` 是对某个变量的引用——`${LANGFLOW_ADMIN_PASSWORD}`、`${FLOWISE_OWNER_PASSWORD}`，以及用于模型连接凭据的 `${OPENAI_API_KEY}`——由替换变量引用的目标从环境中读取，就像 Docker Compose 在启动栈时所做的那样，因此没有任何文件携带该值，也没有为它待补的值。上面的 Flowise chatflow 在不指定目标导入时，会起草为以下 Release："
+  },
   "161252fdb5c9bb91": {
     "at": "2026-10-22T05:14:14.914265+00:00",
     "job": "msgbatch_01SJr5F7Uh6g5vmdkzNw4vuV",
@@ -17983,6 +18008,13 @@
     "srcHash": "191f8ad4d20b3b7e",
     "status": "machine",
     "text": "**更大的 GPU 或两块 GPU。** 每个 NemoGuard 组件都接受 `infra.gpu.count`，在集群按类选择其 GPU 运行时的情况下，还接受 `infra.gpu.runtime_class`。"
+  },
+  "1921f5d525128019": {
+    "at": "2026-11-14T23:58:27.949Z",
+    "job": "session-0024-20261114235827",
+    "srcHash": "1921f5d525128019",
+    "status": "machine",
+    "text": "不指定目标时，导入待补两个值：`spec.manifest` 和 `infra.owner_email`；使用 `--target compose` 时，只待补所有者的电子邮件；使用 `--target helm` 时，待补所有者的电子邮件以及两个 Kubernetes Secret 的名称。"
   },
   "1926e870d9c14666": {
     "at": "2026-10-22T02:42:41.008096+00:00",
@@ -20339,6 +20371,17 @@
     "srcHash": "1c756ca28142fa87",
     "status": "machine",
     "text": "`sprig.FuncMap()` 公开完整的 Sprig 辅助函数集——按下列类别共约 200 个函数。本页概述各个类别及其中的常用辅助函数；逐个函数的权威参考是上游 Sprig 文档。"
+  },
+  "1c786ae843470715": {
+    "at": "2026-11-14T23:58:27.949Z",
+    "job": "session-0024-20261114235827",
+    "revision": {
+      "from": "7f28d691c40c4a2e",
+      "reviewed": false
+    },
+    "srcHash": "1c786ae843470715",
+    "status": "machine",
+    "text": "源中未声明的内容写为空，上方有一条说明其为何物的注释：若命令的启动器不由任何一个桥接镜像提供，则 `infra.stdio_runtime` 留空，并属于导入待补的值；注册表描述留给用户填写的参数写作空项，源中未写值的变量写作值为空的条目，每一项都在条目上方的注释中列出。"
   },
   "1c79f8c210523d57": {
     "at": "2026-10-22T08:15:42.630087+00:00",
@@ -40982,6 +41025,17 @@
     "status": "machine",
     "text": "此工作区将地址分为两部分保存。工具 `core/ai-tool/mcp` 保存不含密钥部分的地址。智能体到该工具的连接将完整地址作为密钥保存，并由 Release 指明其存放位置。它可以为 Kubernetes 和 Docker Compose 构建，并且在两者上，任何渲染出的文件都不包含该密钥。"
   },
+  "39fdc817e8cead72": {
+    "at": "2026-11-14T23:58:27.949Z",
+    "job": "session-0024-20261114235827",
+    "revision": {
+      "from": "7e447ba3eeba7c70",
+      "reviewed": false
+    },
+    "srcHash": "39fdc817e8cead72",
+    "status": "machine",
+    "text": "当 [`attach_egress_allowlist` 设置](#settings)为 `true` 时，平台实例还会在 `features` 下以 `egress-allowlist` 的名称声明标准库的 `core/egress-allowlist` Feature，使平台只连接到其连接所到达的组件、它自己的 pod 和集群的 DNS——这是[作为声明调用的 `uses` 边](../entities/aggregate.md#a-uses-edge-is-a-call-the-aggregate-declares)在出站方向上的对应物。Aggregate 只声明该附加项的类型，因为 Aggregate 的附加项不携带 `infra`，而起草的 Release 也不写出其中任何内容：平台条目上方的注释在 `features.egress-allowlist.infra` 下列出 `control_plane_present`，运维人员将其设为 `true` 以确认集群的网络插件会执行网络策略，缺少该确认构建会中止；`admitted_destinations`，这是一个列表，为目标不在集群中运行的每个连接（例如托管模型）包含一个指出目标和地址范围的条目，缺少它构建会中止并指出该连接；以及为容纳平台的边界指出的 `aggrega.ai/namespace`，因为策略放置在其工作负载所在的命名空间中，而当它们未被输出到任何命名空间时构建会中止。这些键都不会写为空，因此都不属于导入待补的值。每个已连接部件的决策都说明该附加项允许其连接，导入以 `feature-attached` 报告该附加项。Compose 没有网络策略，因此对这种草稿进行 compose 构建会中止并指出该附加项；在平台建立连接的地方，上述 compose 行写在实例的 `features` 块内，不会出现第二个 `features` 键。"
+  },
   "3a076c89251ba5d0": {
     "at": "2026-10-22T02:13:05.447791+00:00",
     "job": "msgbatch_01EP4VHoVp3GUUNothAVw7Eq",
@@ -44380,6 +44434,13 @@
     "srcHash": "3ec744284b0ac2b9",
     "status": "machine",
     "text": "所选目标目录实体的名称。"
+  },
+  "3ec7aa18a1c89df5": {
+    "at": "2026-11-14T23:58:27.949Z",
+    "job": "session-0024-20261114235827",
+    "srcHash": "3ec7aa18a1c89df5",
+    "status": "machine",
+    "text": "`release.yaml`——同名的 Release 草稿，指定该 Aggregate，每个节点各有一个条目。"
   },
   "3ecc0bd23c1bea47": {
     "at": "2026-10-22T01:50:22.319444+00:00",
@@ -50051,6 +50112,17 @@
     "srcHash": "46cdda2e63cafe29",
     "status": "machine",
     "text": "**修复方法：**删除主机以及库名之前的所有内容，只保留 `<Library>#/schemas/<Entry>`。如需版本下限，在库名之后写作 `:<version>`。同一规则也适用于 Recipe 和 FeatureRecipe 上的 `$import:` 字段，这些字段在下文“A library `$import:` addresses its library by registry location（库导入按注册表位置寻址其库）”下单独报告。"
+  },
+  "46ce02e6cc43472e": {
+    "at": "2026-11-14T23:58:27.949Z",
+    "job": "session-0024-20261114235827",
+    "revision": {
+      "from": "8da82587fd05e52f",
+      "reviewed": false
+    },
+    "srcHash": "46ce02e6cc43472e",
+    "status": "machine",
+    "text": "镜像被某行映射的服务，其决策方式与流程导入器对节点的决策相同：与你目录中的 Components 评分比较，当 `reuse_mode` 为 `auto-apply-above-threshold`（默认值）且其最佳候选是达到或高于 `reuse_threshold` 的高层级匹配时被引用，否则起草为独立的 Component，起草的 Component 文件开头有一条注释，指出它相似的 Component。一行携带其所指定 Component 的标签，因此当你的目录包含该 Component 且其标签与标准目录赋予的相同时，该行映射的服务是它的高层级匹配，得分 `0.90`，`auto-apply-above-threshold` 在默认 `reuse_threshold` 下引用它。你的目录修改过标签的 Component 得分较低，降低幅度与它不再携带的该行特征所占比例成正比，并且只有在仍处于高层级时才会被引用；类别只在其自身信号中衡量一次，不会再作为特征计算。起草同一个 Component 的多个服务共享其同一个文件。镜像未被任何行映射、镜像未指定导入器可读取的仓库，或自行构建镜像的服务，无论你的目录包含什么，都是 `core/compute/server` 的实例。每个服务的决策按每个节点的决策方式报告。"
   },
   "46ce39bc33192813": {
     "at": "2026-10-29T20:59:36.662Z",
@@ -66827,6 +66899,17 @@
     "srcHash": "5e5de1426304839f",
     "status": "machine",
     "text": "**访问不检查密钥的模型。** 不在连接上设置凭据。若目标标记为 `managed`，则在连接的 `values` 中\n  用 `unauthenticated: true` 加以说明。"
+  },
+  "5e5dfb6b5558b1e6": {
+    "at": "2026-11-14T23:58:27.949Z",
+    "job": "session-0024-20261114235827",
+    "revision": {
+      "from": "79795c299cfe6394",
+      "reviewed": false
+    },
+    "srcHash": "5e5dfb6b5558b1e6",
+    "status": "machine",
+    "text": "对于服务器的环境，写出 `server_env` 槽位，按导入的目标以引用方式附加。在 `--target helm` 上，它是一个 `core/referenced-secret`，指定命名空间中已有的某个 Kubernetes Secret，该 Secret 为每个变量保存一个数据键，每个键都以其保存的变量命名；Secret 的名称写为空，上方有一条列出这些数据键的注释，并且属于导入待补的值。在其他所有目标上，以及不指定目标时，它是一个 `core/referenced-secret-set`，每个变量在 `infra.entries` 下各有一个条目，以变量名为键，其值按源中所写，因此像 `${GITHUB_TOKEN}` 这样的变量引用仍然是引用，由替换变量引用的目标从环境中读取。"
   },
   "5e6251f25f992906": {
     "at": "2026-10-22T05:07:43.448651+00:00",
@@ -87641,6 +87724,13 @@
     "status": "machine",
     "text": "**无法为中间值命名。** 使用两次的子表达式要写两次，或通过对单元素列表做映射来绑定：`[value].map(name, …)[0]` 会在 `name` 绑定到 `value` 的情况下对其主体求值一次。"
   },
+  "7b2c8080c5945c1f": {
+    "at": "2026-11-14T23:58:27.949Z",
+    "job": "session-0024-20261114235827",
+    "srcHash": "7b2c8080c5945c1f",
+    "status": "machine",
+    "text": "在任何目标上，都不为任何服务器写出 `infra.published_port`：草稿从不在主机上发布服务器；"
+  },
   "7b2dd61a570db1c7": {
     "at": "2026-10-22T01:50:22.319444+00:00",
     "job": "msgbatch_01VwQyd4vfmNKqBKVTg2vP5W",
@@ -90220,6 +90310,17 @@
     "srcHash": "7f02fafbb418f5eb",
     "status": "machine",
     "text": "**Kyverno（CLI）：**原生支持评估静态 JSON/YAML 清单，使团队可以用原生 YAML 编写策略，而无需学习 Rego。"
+  },
+  "7f059ad9a76d0902": {
+    "at": "2026-11-14T23:58:27.949Z",
+    "job": "session-0024-20261114235827",
+    "revision": {
+      "from": "93bce7f0615a7f25",
+      "reviewed": false
+    },
+    "srcHash": "7f059ad9a76d0902",
+    "status": "machine",
+    "text": "Release 写入的服务器配置中的每个值——每个 header 的值、其命令行的每一项、其地址、`infra.endpoint` 省去的地址的每个部分以及每个环境变量值——都可能携带密钥，而没有任何客户端将其标记为凭据，因此导入会把每个值定位为 MCP 服务器配置的成员；标记为 `isSecret` 的注册表输入则被定位为其格式标记为凭据的值。注册表输入——环境变量或远程端点的 header——读取为其 `value`，若未写出则读取为其 `default`。默认情况下，每个值按原样携带到 Release 中，并在 `credential-carried` 警告中按其服务器和位置命名——`headers.<header>`、`infra.stdio_command.<position>`、`infra.endpoint` 或 `server_env.<variable>`，地址的某个部分则按其所在的 `url` 和该部分的名称命名，例如“url of node remote-search is carried with its query as written（节点 remote-search 的 url 连同其查询按原样携带）”——从不按其值命名。当 [`empty_credentials` 设置](#settings)为 `marked` 或 `all` 时，每个值都写为空并以 `credential-emptied` 报告：命令行的一项写为空项，环境变量值写为空值，每一项都在条目上方的注释中列出；地址写为空的 `infra.endpoint`，属于导入待补的值；header 的值或地址的某个部分从注释中省去，注释只指出该 header 或该部分。客户端的 `infra.stdio_runtime` 是从 Release 所写的命令中读出的，因此写为空的命令也会使其为空，并属于导入待补的值。在 `--target helm` 上，Release 完全不写环境变量值：它们保存在 `server_env` 槽位所指定的 Secret 中。"
   },
   "7f102fbbb6dbd917": {
     "at": "2026-10-22T08:15:42.630087+00:00",
@@ -99026,6 +99127,13 @@
     "srcHash": "8b955ad8551bd2ba",
     "status": "machine",
     "text": "importer `\"<identity>\"` is attached by `<key>[<position>]` in `<file>` (uri `\"<uri>\"`) and again by `<key>[<position>]` in `<file>` (uri `\"<uri>\"`); keep exactly one plugins.importer entry per importer, its uri naming the version you want: importer is attached by more than one plugins.importer entry（该导入器由一个文件中的某个条目附加，又由另一个条目再次附加；每个导入器只保留一个 plugins.importer 条目，并让其 uri 指明你需要的版本：导入器被多个 plugins.importer 条目附加）"
+  },
+  "8b969e3cf963d826": {
+    "at": "2026-11-14T23:58:27.949Z",
+    "job": "session-0024-20261114235827",
+    "srcHash": "8b969e3cf963d826",
+    "status": "machine",
+    "text": "使用 `--target helm` 导入时，同一配置的 Release 将环境作为其指定的 Secret 附加，导入器起草的 Manifest 按键映射每个服务器："
   },
   "8b971dd2a9131bd2": {
     "at": "2026-10-29T22:29:47.440Z",
@@ -114669,6 +114777,13 @@
     "srcHash": "a17c2f3f9f710c3d",
     "status": "machine",
     "text": "这里的 `web-service` Recipe 使用模式 3："
+  },
+  "a1854a46c50e6872": {
+    "at": "2026-11-14T23:58:27.949Z",
+    "job": "session-0024-20261114235827",
+    "srcHash": "a1854a46c50e6872",
+    "status": "machine",
+    "text": "在 `--target helm` 上，每个 secret 都是一个 `core/referenced-secret`，其 `origin` 是命名空间中已有的某个 Kubernetes Secret 的名称，该 Secret 以数据键 `value` 保存值。这个名称不由任何源提供，因此它被写为空，上方有一条注释说明它保存什么，并且属于导入待补的值；起草的 Manifest 将 `core/referenced-secret` 映射到 `helm/k8s-existing-secret`。"
   },
   "a185ab51a8d75994": {
     "at": "2026-10-22T01:28:14.340357+00:00",
@@ -145582,6 +145697,17 @@
     "status": "machine",
     "text": "**一个条目通过资源的 `Type` 和逻辑 ID 指定一个资源。** 条目的 `kind` 是资源的 `Type`，例如 `AWS::S3::Bucket`，其 `name` 是资源的逻辑 ID，即该资源在 `Resources` 下的键；两者都按原样精确比较，且必须同时匹配，因此 `Type` 正确而逻辑 ID 不正确的条目不会省略任何内容。模板没有命名空间，因此带有 `namespace` 的条目会在该 component 渲染时终止构建，并指出该条目；在省略任何内容之前，所有条目都会先经过检查。"
   },
+  "cb84d44b3adf8a84": {
+    "at": "2026-11-14T23:58:27.949Z",
+    "job": "session-0024-20261114235827",
+    "revision": {
+      "from": "82ee73b15acade89",
+      "reviewed": false
+    },
+    "srcHash": "cb84d44b3adf8a84",
+    "status": "machine",
+    "text": "在 compose 目标上，仅由 Release 附加的 secret 以同一个键 `value` 到达，因此所有者或管理员的密码与连接的凭据都会以该键到达。所以在平台建立连接的地方，Aggregate 会为每一项声明独立的键：在 Flowise 上是键为 `OWNER_PASSWORD` 的 `owner_password`，在 Langflow 上是键为 `LANGFLOW_SUPERUSER_PASSWORD` 的 `admin_password`，在三个平台上都有键为 `OPENAI_API_KEY` 的模型连接 `credential`，每一项上方都有说明原因的注释。使用 `--target compose` 时，这些行以生效状态写出；不指定目标时，它们以注释掉的状态写出，如上例所示，若你为 compose 构建，可取消注释；使用其他任何目标时，不写出这些行。Release 附加每个槽位的来源，指定相同的类型或不指定类型。"
+  },
   "cb8799e2e3199d34": {
     "at": "2026-10-22T03:53:00.119047+00:00",
     "job": "msgbatch_013WHPBfgnxTj5isCEqnpB8T",
@@ -155196,6 +155322,17 @@
     "srcHash": "d8f78ce61daf9b69",
     "status": "machine",
     "text": "要省略的单元所在的 namespace，用于该条目只应匹配该 namespace 中的单元的情况——适用于输出带有 namespace 的 provider，例如 chart 渲染出的文档。若不设置，或渲染为空字符串，该条目匹配具有其 kind 和名称的单元，无论其 namespace 为何。compose 文件和 CloudFormation 模板没有 namespace，它们的 provider 会拒绝指定了 namespace 的条目。这是一个模板。"
+  },
+  "d8fa64f6f2707cdc": {
+    "at": "2026-11-14T23:58:27.949Z",
+    "job": "session-0024-20261114235827",
+    "revision": {
+      "from": "363343608f9985c8",
+      "reviewed": false
+    },
+    "srcHash": "d8fa64f6f2707cdc",
+    "status": "machine",
+    "text": "仅由一个变量引用构成的值——裸名称 `${NAME}`（包括 `${workspaceFolder}` 等预定义变量）、`${env:NAME}` 或 `${input:id}`——本身不持有值：无论设置如何，它都按原文写出，并且不在任何警告中被指出，与[流中](#credential-values-the-flow-holds)的引用一样。值为此类引用的环境变量会作为条目的值写出，引用仍然是引用；值为此类引用的 header 或地址部分则与其读取的引用一同列出。在运算符之后带有文本的引用——默认值、替代值、消息或赋值，例如 `${NAME:-value}` 或 `${NAME-value}`，无论有无冒号——持有该文本，引用旁边的文本也是如此；它们都像其他值一样被定位。"
   },
   "d8fc36517813b682": {
     "at": "2026-10-22T03:00:38.891470+00:00",

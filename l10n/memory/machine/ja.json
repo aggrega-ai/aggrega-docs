@@ -7532,6 +7532,17 @@
     "status": "machine",
     "text": "出力されるメッセージです。スキーマ内の位置、解決できなかったキーワード、解決処理が報告した内容を示します："
   },
+  "0a364df6feb0faa9": {
+    "at": "2026-11-14T23:58:27.949Z",
+    "job": "session-0024-20261114235827",
+    "revision": {
+      "from": "ba8af07e176f9ac9",
+      "reviewed": false
+    },
+    "srcHash": "0a364df6feb0faa9",
+    "status": "machine",
+    "text": "ドラフトされるすべての Release と同様に、`metadata.environment` を `development` として、変更すべきドラフトのデフォルト値であることを述べるコメントの下に書き込みます。ターゲットなしの場合は、`spec.manifest` をインポートが補うべき空の文字列として書き込みます。ターゲットが与えられると、インポーターは Manifest 自体をドラフトします。カタログは `core/ai-tool/mcp` を複数の Recipes で実現しており、各サーバーがどのように実行されるかを知っているのはインポーターだけだからです。インポーターは各サーバーをキーによって `mappings.components.name` の下で、そのサーバーの実行方法に対応するターゲットの realization にマッピングします。コマンドラインには `mcp-stdio-bridge`、アドレスには `mcp-remote`、イメージには `mcp` で、たとえば `helm/mcp-stdio-bridge` や `compose/mcp-remote` です。また、環境がアタッチされるシークレットの型をその realization にマッピングします。helm では `helm/k8s-existing-secret`、compose では `compose/dotenv-secret-set` です。[ターゲットが追加するもの](#what-a-target-adds)が説明するとおり、インポートはその Manifest を完成させ、Release でそれを指定します。"
+  },
   "0a3d60632ecc2a4b": {
     "at": "2026-10-22T02:36:32.846651+00:00",
     "job": "msgbatch_01FfT6U4CN67izAFuMsFbtGF",
@@ -8687,6 +8698,13 @@
     "srcHash": "0bd010a97a0be54e",
     "status": "machine",
     "text": "CI でビルド出力に対してポリシーを実行する"
+  },
+  "0bd0161e342f8b6b": {
+    "at": "2026-11-14T23:58:27.949Z",
+    "job": "session-0024-20261114235827",
+    "srcHash": "0bd0161e342f8b6b",
+    "status": "machine",
+    "text": "ターゲットごとのシークレット"
   },
   "0bd30b15d2db394d": {
     "at": "2026-11-01T15:15:25.467Z",
@@ -15909,6 +15927,13 @@
     "status": "machine",
     "text": "`aggrega_parse_source` — プロデューサー消費コールバック。ゲストが構文フォーマットを指定してソースバイトを渡すと、ホストはそのフォーマットのパーサーを解決して実行し、生成された正規ツリーを返します。これは、コンシューマーがプロデューサーのゲストを自ら呼び出すのではなく、ホストを通じてプロデューサーの出力を得る方法です。ホストはこれを 1 段階に制限しており、この方法で到達したプロデューサーが再度呼び出すと拒否されます。そのため、コンシューマーはソースごとに 1 回呼び出し、複数のソースを順に消費できます。"
   },
+  "161054a6a43bad5e": {
+    "at": "2026-11-14T23:58:27.949Z",
+    "job": "session-0024-20261114235827",
+    "srcHash": "161054a6a43bad5e",
+    "status": "machine",
+    "text": "その他のすべてのターゲット、およびターゲットなしの場合、各シークレットは `core/secret-value` であり、その `origin` は変数への参照です（`${LANGFLOW_ADMIN_PASSWORD}`、`${FLOWISE_OWNER_PASSWORD}`、モデル接続の資格情報には `${OPENAI_API_KEY}`）。変数参照を置換するターゲットは、Docker Compose がスタックの起動時に行うように、これを環境から読み取ります。そのため、値を含むファイルはなく、そのために補うべき値もありません。上の Flowise の chatflow をターゲットなしでインポートすると、次の Release でドラフトされます。"
+  },
   "161252fdb5c9bb91": {
     "at": "2026-10-22T05:14:14.914265+00:00",
     "job": "msgbatch_01SJr5F7Uh6g5vmdkzNw4vuV",
@@ -17983,6 +18008,13 @@
     "srcHash": "191f8ad4d20b3b7e",
     "status": "machine",
     "text": "**より大きな GPU、または 2 基の GPU。** 各 NemoGuard コンポーネントは `infra.gpu.count` を受け取り、クラスターがクラスによって GPU ランタイムを選択する場合は `infra.gpu.runtime_class` も受け取ります。"
+  },
+  "1921f5d525128019": {
+    "at": "2026-11-14T23:58:27.949Z",
+    "job": "session-0024-20261114235827",
+    "srcHash": "1921f5d525128019",
+    "status": "machine",
+    "text": "ターゲットなしでは、インポートは `spec.manifest` と `infra.owner_email` の 2 つの値を補う必要があります。`--target compose` ではオーナーのメールアドレスのみ、`--target helm` ではオーナーのメールアドレスと 2 つの Kubernetes Secret の名前です。"
   },
   "1926e870d9c14666": {
     "at": "2026-10-22T02:42:41.008096+00:00",
@@ -20339,6 +20371,17 @@
     "srcHash": "1c756ca28142fa87",
     "status": "machine",
     "text": "`sprig.FuncMap()` は Sprig のヘルパー全体を公開します。以下のカテゴリにわたり、およそ 200 個の関数があります。このページでは各カテゴリとその代表的なヘルパーを概説します。関数ごとの正式なリファレンスは、アップストリームの Sprig ドキュメントです。"
+  },
+  "1c786ae843470715": {
+    "at": "2026-11-14T23:58:27.949Z",
+    "job": "session-0024-20261114235827",
+    "revision": {
+      "from": "7f28d691c40c4a2e",
+      "reviewed": false
+    },
+    "srcHash": "1c786ae843470715",
+    "status": "machine",
+    "text": "ソースが示さないものは、それが何であるかを述べるコメントの下に空で書き込まれます。どちらのブリッジイメージも持たないランチャーのコマンドは `infra.stdio_runtime` を空のままにし、インポートが補うべき値になります。レジストリ記述がユーザーに委ねる引数は空の項目として、ソースが値を記述しない変数は値が空のエントリとして書き込まれ、それぞれエントリの上のコメントで名前が示されます。"
   },
   "1c79f8c210523d57": {
     "at": "2026-10-22T08:15:42.630087+00:00",
@@ -40982,6 +41025,17 @@
     "status": "machine",
     "text": "このワークスペースでは、アドレスを 2 つの部分に分けて保持します。ツール `core/ai-tool/mcp` は、キーを含む部分を除いたアドレスを保持します。エージェントからツールへの接続は、アドレス全体をシークレットとして保持し、その保管場所を Release が指定します。Kubernetes 向けにも Docker Compose 向けにもビルドでき、どちらでもレンダリングされたファイルにキーは含まれません。"
   },
+  "39fdc817e8cead72": {
+    "at": "2026-11-14T23:58:27.949Z",
+    "job": "session-0024-20261114235827",
+    "revision": {
+      "from": "7e447ba3eeba7c70",
+      "reviewed": false
+    },
+    "srcHash": "39fdc817e8cead72",
+    "status": "machine",
+    "text": "[`attach_egress_allowlist` 設定](#settings)が `true` の場合、プラットフォームのインスタンスは標準ライブラリの `core/egress-allowlist` Feature も `features` の下に `egress-allowlist` として宣言します。これにより、プラットフォームは接続が到達するコンポーネント、自身のポッド、クラスタの DNS にのみ接続します。これは [宣言された呼び出しとしての `uses` エッジ](../entities/aggregate.md#a-uses-edge-is-a-call-the-aggregate-declares)の送信側の対応物です。Aggregate のアタッチメントは `infra` を持たないため、Aggregate はアタッチメントの型だけを宣言し、ドラフトされた Release もそのどれも書き込みません。プラットフォームのエントリの上のコメントは、`features.egress-allowlist.infra` の下に次のものを示します。`control_plane_present` は、クラスタのネットワークプラグインがネットワークポリシーを強制することを確認するためにオペレーターが `true` に設定するもので、これがないとビルドは停止します。`admitted_destinations` は、ホスト型モデルなど、クラスタが実行しないターゲットを持つ各接続について、ターゲットとアドレス範囲を示すエントリを保持するリストで、これがないとビルドはその接続を示して停止します。そして、プラットフォームを含む境界の `aggrega.ai/namespace` です。ポリシーはワークロードの名前空間に配置され、ワークロードがどの名前空間にも出力されない場合にビルドが停止するためです。どのキーも空で書き込まれないため、いずれもインポートが補うべき値には含まれません。配線された各パートの判定は、アタッチメントがその接続を許可することを示し、インポートはアタッチメントを `feature-attached` として報告します。Compose にはネットワークポリシーがないため、このようなドラフトの compose ビルドはアタッチメントを示して停止します。プラットフォームが接続を張る場合、上記の compose の行はインスタンスの `features` ブロック内に書き込まれ、2 つ目の `features` キーは置かれません。"
+  },
   "3a076c89251ba5d0": {
     "at": "2026-10-22T02:13:05.447791+00:00",
     "job": "msgbatch_01EP4VHoVp3GUUNothAVw7Eq",
@@ -44380,6 +44434,13 @@
     "srcHash": "3ec744284b0ac2b9",
     "status": "machine",
     "text": "選択された対象カタログエンティティの名前です。"
+  },
+  "3ec7aa18a1c89df5": {
+    "at": "2026-11-14T23:58:27.949Z",
+    "job": "session-0024-20261114235827",
+    "srcHash": "3ec7aa18a1c89df5",
+    "status": "machine",
+    "text": "`release.yaml` — 同じ名前の Release のドラフトで、その Aggregate を指定し、ノードごとにエントリを持ちます。"
   },
   "3ecc0bd23c1bea47": {
     "at": "2026-10-22T01:50:22.319444+00:00",
@@ -50051,6 +50112,17 @@
     "srcHash": "46cdda2e63cafe29",
     "status": "machine",
     "text": "**修正方法:** ホストとライブラリ名より前の部分をすべて削除し、`<Library>#/schemas/<Entry>` の形にします。バージョンの下限が必要な場合は、ライブラリ名の後に `:<version>` として記述します。同じ規則は Recipe と FeatureRecipe の `$import:` フィールドにも適用され、こちらは後述の「A library `$import:` addresses its library by registry location（ライブラリのインポートがレジストリの場所でライブラリを指定している）」として別途報告されます。"
+  },
+  "46ce02e6cc43472e": {
+    "at": "2026-11-14T23:58:27.949Z",
+    "job": "session-0024-20261114235827",
+    "revision": {
+      "from": "8da82587fd05e52f",
+      "reviewed": false
+    },
+    "srcHash": "46ce02e6cc43472e",
+    "status": "machine",
+    "text": "行がイメージをマッピングするサービスは、フローインポーターがノードを判定するのと同じように判定されます。カタログの Components に対してスコア付けされ、`reuse_mode` がデフォルトの `auto-apply-above-threshold` で、最良の候補が `reuse_threshold` 以上の上位ティアの一致である場合は参照され、それ以外の場合は独自の Component として下書きされ、下書きされた Component のファイルは、類似する Component を示すコメントで始まります。行はそれが示す Component のラベルを保持するため、カタログがその Component を標準カタログが与えるラベルのまま保持している場合、その行がマッピングするサービスはそれに対する上位ティアの一致となり、スコアは `0.90` で、`auto-apply-above-threshold` はデフォルトの `reuse_threshold` でそれを参照します。カタログがラベルを変更した Component は、行のトレイトのうちもう保持していない割合に応じてスコアが下がり、上位ティアにとどまる間だけ参照されます。カテゴリは独自のシグナルで一度だけ評価され、トレイトとして再度評価されることはありません。一つの Component を下書きするサービスは、その一つのファイルを共有します。行がイメージをマッピングしないサービス、イメージがインポーターの読み取るリポジトリを示さないサービス、またはイメージをビルドするサービスは、カタログが何を保持していても `core/compute/server` のインスタンスとなります。各サービスの判定は、各ノードの判定と同じように報告されます。"
   },
   "46ce39bc33192813": {
     "at": "2026-10-29T20:59:36.662Z",
@@ -66833,6 +66905,17 @@
     "srcHash": "5e5de1426304839f",
     "status": "machine",
     "text": "**キーを検査しないモデルに到達する。** 接続から資格情報を\n  省きます。ターゲットに `managed` のラベルが付いている場合は、接続の `values` に\n  `unauthenticated: true` を指定して、そのことを示します。"
+  },
+  "5e5dfb6b5558b1e6": {
+    "at": "2026-11-14T23:58:27.949Z",
+    "job": "session-0024-20261114235827",
+    "revision": {
+      "from": "79795c299cfe6394",
+      "reviewed": false
+    },
+    "srcHash": "5e5dfb6b5558b1e6",
+    "status": "machine",
+    "text": "サーバーの環境には、インポートのターゲットに応じて参照でアタッチされる `server_env` スロット。`--target helm` では、名前空間にすでに存在する Kubernetes Secret を指定する `core/referenced-secret` で、その Secret は変数ごとに 1 つのデータキーを保持し、各キーは保持する変数の名前を持ちます。Secret の名前はデータキーを示すコメントの下に空で書き込まれ、インポートが補うべき値になります。その他のすべてのターゲット、およびターゲットなしの場合は `core/referenced-secret-set` で、変数ごとに `infra.entries` の下に 1 つのエントリを持ち、キーは変数の名前、値はソースが記述したとおりです。そのため `${GITHUB_TOKEN}` のような変数参照は参照のまま残り、変数参照を置換するターゲットがそれを環境から読み取ります。"
   },
   "5e6251f25f992906": {
     "at": "2026-10-22T05:07:43.448651+00:00",
@@ -87645,6 +87728,13 @@
     "status": "machine",
     "text": "**中間値に名前を付ける方法はありません。** 2 回使う部分式は 2 回書くか、1 要素のリストをマップして束縛します。`[value].map(name, …)[0]` は、`name` を `value` に束縛して本体を一度評価します。"
   },
+  "7b2c8080c5945c1f": {
+    "at": "2026-11-14T23:58:27.949Z",
+    "job": "session-0024-20261114235827",
+    "srcHash": "7b2c8080c5945c1f",
+    "status": "machine",
+    "text": "どのターゲットでも、どのサーバーにも `infra.published_port` は書き込まれません。ドラフトはサーバーをホスト上に公開することはありません。"
+  },
   "7b2dd61a570db1c7": {
     "at": "2026-10-22T01:50:22.319444+00:00",
     "job": "msgbatch_01VwQyd4vfmNKqBKVTg2vP5W",
@@ -90224,6 +90314,17 @@
     "srcHash": "7f02fafbb418f5eb",
     "status": "machine",
     "text": "**Kyverno（CLI）:** 静的な JSON/YAML マニフェストの評価をネイティブにサポートし、チームは Rego を習得せずにネイティブな YAML でポリシーを記述できます。"
+  },
+  "7f059ad9a76d0902": {
+    "at": "2026-11-14T23:58:27.949Z",
+    "job": "session-0024-20261114235827",
+    "revision": {
+      "from": "93bce7f0615a7f25",
+      "reviewed": false
+    },
+    "srcHash": "7f059ad9a76d0902",
+    "status": "machine",
+    "text": "Release が書き込むサーバー設定の各値（各ヘッダーの値、コマンドラインの各項目、アドレス、`infra.endpoint` が除外するアドレスの各部分、各環境変数の値）はキーを含む可能性があり、どのクライアントもそれを認証情報としてマークしないため、インポートはそれぞれを MCP サーバーの設定のメンバーとして特定します。`isSecret` とマークされたレジストリ入力は、そのフォーマットが認証情報としてマークする値として特定されます。レジストリ入力（環境変数またはリモートのヘッダー）は、その `value` として、値が書かれていない場合はその `default` として読み取られます。デフォルトでは、それぞれは書かれたとおりに Release に引き継がれ、`credential-carried` 警告の中で、そのサーバーと場所（`headers.<header>`、`infra.stdio_command.<position>`、`infra.endpoint` または `server_env.<variable>`、アドレスの一部の場合はそれが書かれている `url` とその部分の名前。たとえば「url of node remote-search is carried with its query as written（ノード remote-search の url はそのクエリが書かれたとおりに引き継がれます）」）によって示され、値によって示されることはありません。[`empty_credentials` 設定](#settings)が `marked` または `all` の場合、それぞれは空で書き込まれ、`credential-emptied` で報告されます。コマンドラインの項目は空の項目として、環境変数の値は空の値として書き込まれ、それぞれエントリの上のコメントで名前が示されます。アドレスは空の `infra.endpoint` として書き込まれ、インポートが補うべき値になります。ヘッダーの値やアドレスの一部はコメントから除外され、コメントはヘッダーまたはその部分の名前のみを示します。クライアントの `infra.stdio_runtime` は Release が書き込むコマンドから読み取られるため、空で書き込まれたコマンドではこれも空になり、インポートが補うべき値になります。`--target helm` では、Release は環境変数の値をまったく書き込みません。それらは `server_env` スロットが指定する Secret が保持します。"
   },
   "7f102fbbb6dbd917": {
     "at": "2026-10-22T08:15:42.630087+00:00",
@@ -99034,6 +99135,13 @@
     "srcHash": "8b955ad8551bd2ba",
     "status": "machine",
     "text": "importer `\"<identity>\"` is attached by `<key>[<position>]` in `<file>` (uri `\"<uri>\"`) and again by `<key>[<position>]` in `<file>` (uri `\"<uri>\"`); keep exactly one plugins.importer entry per importer, its uri naming the version you want: importer is attached by more than one plugins.importer entry（importer が、あるファイル内のエントリによってアタッチされ、さらに別のエントリによって再度アタッチされています。importer ごとに plugins.importer エントリをちょうど 1 つだけ残し、その uri で必要なバージョンを指定してください: importer が複数の plugins.importer エントリによってアタッチされています）"
+  },
+  "8b969e3cf963d826": {
+    "at": "2026-11-14T23:58:27.949Z",
+    "job": "session-0024-20261114235827",
+    "srcHash": "8b969e3cf963d826",
+    "status": "machine",
+    "text": "`--target helm` でインポートすると、同じ設定の Release は環境を、それが指定する Secret としてアタッチし、インポーターがドラフトする Manifest は各サーバーをキーによってマッピングします。"
   },
   "8b971dd2a9131bd2": {
     "at": "2026-10-29T22:29:47.440Z",
@@ -114677,6 +114785,13 @@
     "srcHash": "a17c2f3f9f710c3d",
     "status": "machine",
     "text": "ここでの `web-service` Recipe はモード 3 を使用します。"
+  },
+  "a1854a46c50e6872": {
+    "at": "2026-11-14T23:58:27.949Z",
+    "job": "session-0024-20261114235827",
+    "srcHash": "a1854a46c50e6872",
+    "status": "machine",
+    "text": "`--target helm` では、各シークレットは `core/referenced-secret` であり、その `origin` は名前空間にすでに存在する Kubernetes Secret の名前で、その Secret はデータキー `value` の下に値を保持します。この名前はどのソースからも得られないため、何を保持するかを述べるコメントの下に空で書き込まれ、インポートが補うべき値になります。ドラフトされた Manifest は `core/referenced-secret` を `helm/k8s-existing-secret` にマッピングします。"
   },
   "a185ab51a8d75994": {
     "at": "2026-10-22T01:28:14.340357+00:00",
@@ -145590,6 +145705,17 @@
     "status": "machine",
     "text": "**エントリは、1 つのリソースをその `Type` と論理 ID で指定します。** エントリの `kind` はリソースの `Type`(`AWS::S3::Bucket` など)であり、`name` はリソースの論理 ID、つまり `Resources` の下のキーです。どちらも記述どおりに厳密に比較され、両方が一致する必要があります。そのため、`Type` が正しくても論理 ID が一致しないエントリは何も除外しません。テンプレートには名前空間がないため、`namespace` を持つエントリは、コンポーネントのレンダリング時にそのエントリを示してビルドを停止します。何かが除外される前に、すべてのエントリが検査されます。"
   },
+  "cb84d44b3adf8a84": {
+    "at": "2026-11-14T23:58:27.949Z",
+    "job": "session-0024-20261114235827",
+    "revision": {
+      "from": "82ee73b15acade89",
+      "reviewed": false
+    },
+    "srcHash": "cb84d44b3adf8a84",
+    "status": "machine",
+    "text": "compose ターゲットでは、Release だけがアタッチするシークレットは 1 つのキー `value` で届くため、オーナーまたは管理者のパスワードと接続の資格情報がどちらもそのキーで届いてしまいます。そのため、プラットフォームが接続を張る場合、Aggregate はそれぞれを独自のキーで宣言します。Flowise ではキー `OWNER_PASSWORD` を持つ `owner_password`、Langflow ではキー `LANGFLOW_SUPERUSER_PASSWORD` を持つ `admin_password`、3 つのプラットフォームすべてでキー `OPENAI_API_KEY` を持つモデル接続の `credential` で、それぞれ理由を述べるコメントの下に置かれます。`--target compose` ではこれらの行は有効な状態で書き込まれます。ターゲットなしでは、上の例のようにコメントアウトされた状態で書き込まれ、compose 向けにビルドする場合にコメントを外します。その他のターゲットでは書き込まれません。Release は各スロットの origin をアタッチし、同じ型を指定するか、何も指定しません。"
+  },
   "cb8799e2e3199d34": {
     "at": "2026-10-22T03:53:00.119047+00:00",
     "job": "msgbatch_013WHPBfgnxTj5isCEqnpB8T",
@@ -155204,6 +155330,17 @@
     "srcHash": "d8f78ce61daf9b69",
     "status": "machine",
     "text": "除外するユニットが属する namespace です。エントリーがその namespace 内のユニットだけにマッチすべき場合に指定します。chart のレンダリング済みドキュメントのように、出力が namespace を持つ provider 向けです。省略された場合、または空文字列にレンダリングされた場合、エントリーは namespace にかかわらず、その種類と名前を持つユニットにマッチします。compose ファイルと CloudFormation テンプレートには namespace がなく、それらの provider は namespace を指定したエントリーを拒否します。テンプレートです。"
+  },
+  "d8fa64f6f2707cdc": {
+    "at": "2026-11-14T23:58:27.949Z",
+    "job": "session-0024-20261114235827",
+    "revision": {
+      "from": "363343608f9985c8",
+      "reviewed": false
+    },
+    "srcHash": "d8fa64f6f2707cdc",
+    "status": "machine",
+    "text": "1 つの変数参照だけからなる値（裸の名前 `${NAME}`、`${workspaceFolder}` などの定義済み変数を含む、`${env:NAME}` または `${input:id}`）は、それ自体の値を保持しません。設定が何であってもそのままのテキストとして書き込まれ、[フロー内](#credential-values-the-flow-holds)の参照と同様に、どの警告にも示されません。値がそのような参照である環境変数は、エントリの値として書き込まれ、参照は参照のまま残ります。値がそのような参照であるヘッダーやアドレスの一部は、読み取り元の参照とともに一覧に示されます。演算子の後にテキストを持つ参照（デフォルト、代替、メッセージ、または代入。たとえばコロンの有無にかかわらず `${NAME:-value}` や `${NAME-value}`）はそのテキストを保持し、参照の横にあるテキストも同様です。それぞれは他の値と同様に特定されます。"
   },
   "d8fc36517813b682": {
     "at": "2026-10-22T03:00:38.891470+00:00",
