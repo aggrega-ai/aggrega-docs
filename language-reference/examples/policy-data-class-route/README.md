@@ -125,7 +125,7 @@ can do the same: paste this prompt into it.
 
 <!-- copyable -->
 
-> Write the Aggrega documentation's runnable example `policy-data-class-route` into a new folder with the `scaffold` tool. That folder is a workspace: name it as the workspace root on each call that follows. Build its Releases `release-masked.yaml`, `release-unmasked.yaml` and `release-masking-off-route.yaml` one at a time in that order with the `cli-build` tool, which runs `aggrega build` and takes its `--config` flag, passing `--auto-pull` and `--config governance-rego.yaml` each time. Tell me which files the first build wrote; the other two are meant to be refused, so read me each refusal.
+> Use the Aggrega tools only, and create no folder yourself. If the Workspace folder holds no `policy-data-class-route` folder yet, call the `scaffold` tool once with `example` set to `policy-data-class-route` and no `dir`: it writes the example into a new `policy-data-class-route` folder. Then call the `cli-build` tool, which runs `aggrega build` and takes its `--config` flag, once for each Release, in this order — `release-masked.yaml`, `release-unmasked.yaml` and `release-masking-off-route.yaml` — each time with `workspace_root` set to `policy-data-class-route`, `release` set to that file, `auto_pull` set to true and `config` set to `governance-rego.yaml`. The second and the third are meant to be refused, so read me each refusal. Tell me which files the first build wrote; they are under `policy-data-class-route/dist/`.
 
 ## The halt
 

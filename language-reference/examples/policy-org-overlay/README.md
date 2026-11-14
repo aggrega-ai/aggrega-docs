@@ -253,7 +253,7 @@ can do the same: paste this prompt into it.
 
 <!-- copyable -->
 
-> Write the Aggrega documentation's runnable example `policy-org-overlay` into a new folder with the `scaffold` tool. That folder is a workspace: name it as the workspace root on each call that follows. Build its Release `release.yaml` with the `build` tool, resolving its dependencies first and writing the files into `dist/`, and tell me which files the build wrote and what the policy reported. Then build it again with the `cli-build` tool, which runs `aggrega build` and takes its `--config` flag, passing `--auto-pull` and `--config org/config.yaml`, and tell me what the policy reported this time.
+> Use the Aggrega tools only, and create no folder yourself. If the Workspace folder holds no `policy-org-overlay` folder yet, call the `scaffold` tool once with `example` set to `policy-org-overlay` and no `dir`: it writes the example into a new `policy-org-overlay` folder. Then call the `build` tool with `workspace_root` set to `policy-org-overlay`, `release` set to `release.yaml`, `auto_pull` set to true and `write` set to true, and tell me what the policy reported. Then call the `cli-build` tool, which runs `aggrega build` and takes its `--config` flag, with `workspace_root` set to `policy-org-overlay`, `release` set to `release.yaml`, `auto_pull` set to true and `config` set to `org/config.yaml`, and tell me what the policy reported this time. Tell me which files each build wrote; they are under `policy-org-overlay/dist/`.
 
 ## Checking every build
 

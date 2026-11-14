@@ -100,7 +100,7 @@ can do the same: paste this prompt into it.
 
 <!-- copyable -->
 
-> Write the Aggrega documentation's runnable example `postgres-three-realizations` into a new folder with the `scaffold` tool. That folder is a workspace: name it as the workspace root on each call that follows. Build its Releases `release-selfhosted.yaml`, `release-managed.yaml`, `release-managed-dns.yaml` and `release-external.yaml` with the `build` tool, one at a time in that order, resolving each one's dependencies first and writing the files into `dist/`, and tell me which files each build wrote.
+> Use the Aggrega tools only, and create no folder yourself. If the Workspace folder holds no `postgres-three-realizations` folder yet, call the `scaffold` tool once with `example` set to `postgres-three-realizations` and no `dir`: it writes the example into a new `postgres-three-realizations` folder. Then call the `build` tool once for each Release, in this order — `release-selfhosted.yaml`, `release-managed.yaml`, `release-managed-dns.yaml` and `release-external.yaml` — each time with `workspace_root` set to `postgres-three-realizations`, `release` set to that file, `auto_pull` set to true and `write` set to true. Tell me which files each build wrote; they are under `postgres-three-realizations/dist/`.
 
 ## What each one renders
 

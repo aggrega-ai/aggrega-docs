@@ -407,7 +407,7 @@ can do the same: paste this prompt into it.
 
 <!-- copyable -->
 
-> Write the Aggrega documentation's runnable example `policy-render-verdict` into a new folder with the `scaffold` tool. That folder is a workspace: name it as the workspace root on each call that follows. Build its Releases `release-terraform.yaml` and `release-terraform-unencrypted.yaml` one at a time in that order with the `cli-build` tool, which runs `aggrega build` and takes its `--config` flag, passing `--auto-pull` and `--config governance-rego.yaml` each time. Tell me which files the first build wrote; the second is meant to be refused, so read me the refusal.
+> Use the Aggrega tools only, and create no folder yourself. If the Workspace folder holds no `policy-render-verdict` folder yet, call the `scaffold` tool once with `example` set to `policy-render-verdict` and no `dir`: it writes the example into a new `policy-render-verdict` folder. Then call the `cli-build` tool, which runs `aggrega build` and takes its `--config` flag, once for each Release, in this order — `release-terraform.yaml` and `release-terraform-unencrypted.yaml` — each time with `workspace_root` set to `policy-render-verdict`, `release` set to that file, `auto_pull` set to true and `config` set to `governance-rego.yaml`. The second is meant to be refused, so read me the refusal. Tell me which files the first build wrote; they are under `policy-render-verdict/dist/`.
 
 ## Checking every build
 

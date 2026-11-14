@@ -388,7 +388,7 @@ can do the same: paste this prompt into it.
 
 <!-- copyable -->
 
-> Write the Aggrega documentation's runnable example `policy-annotation-transform` into a new folder with the `scaffold` tool. That folder is a workspace: name it as the workspace root on each call that follows. Build its Release `release.yaml` with the `cli-build` tool, which runs `aggrega build` and takes its `--config` flag, passing `--auto-pull` and `--config governance-rego.yaml`; then build it again the same way with `--config governance-cel.yaml`. Last, build its Release `release-by-hand.yaml` with the `build` tool, resolving its dependencies first and writing the files into `dist/`, and tell me which files each build wrote.
+> Use the Aggrega tools only, and create no folder yourself. If the Workspace folder holds no `policy-annotation-transform` folder yet, call the `scaffold` tool once with `example` set to `policy-annotation-transform` and no `dir`: it writes the example into a new `policy-annotation-transform` folder. Then call the `cli-build` tool, which runs `aggrega build` and takes its `--config` flag, with `workspace_root` set to `policy-annotation-transform`, `release` set to `release.yaml`, `auto_pull` set to true and `config` set to `governance-rego.yaml`; then call it again the same way with `config` set to `governance-cel.yaml`. Last, call the `build` tool with `workspace_root` set to `policy-annotation-transform`, `release` set to `release-by-hand.yaml`, `auto_pull` set to true and `write` set to true. Tell me which files each build wrote; they are under `policy-annotation-transform/dist/`.
 
 ## Checking every build
 

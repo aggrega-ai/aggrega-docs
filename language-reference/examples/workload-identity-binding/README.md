@@ -55,7 +55,7 @@ can do the same: paste this prompt into it.
 
 <!-- copyable -->
 
-> Write the Aggrega documentation's runnable example `workload-identity-binding` into a new folder with the `scaffold` tool. That folder is a workspace: name it as the workspace root on each call that follows. Build its Release `release.yaml` with the `build` tool, resolving its dependencies first and writing the files into `dist/`, then tell me which files the build wrote.
+> Use the Aggrega tools only, and create no folder yourself. If the Workspace folder holds no `workload-identity-binding` folder yet, call the `scaffold` tool once with `example` set to `workload-identity-binding` and no `dir`: it writes the example into a new `workload-identity-binding` folder. Then call the `build` tool with `workspace_root` set to `workload-identity-binding`, `release` set to `release.yaml`, `auto_pull` set to true and `write` set to true. Tell me which files the build wrote; they are under `workload-identity-binding/dist/`.
 
 ## The Component declares the need; the Release fills it
 

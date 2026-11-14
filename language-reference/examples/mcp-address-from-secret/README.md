@@ -100,7 +100,7 @@ can do the same: paste this prompt into it.
 
 <!-- copyable -->
 
-> Write the Aggrega documentation's runnable example `mcp-address-from-secret` into a new folder with the `scaffold` tool. That folder is a workspace: name it as the workspace root on each call that follows. Build its Releases `release-helm.yaml` and `release-compose.yaml` with the `build` tool, one at a time in that order, resolving each one's dependencies first and writing the files into `dist/`, and tell me which files each build wrote.
+> Use the Aggrega tools only, and create no folder yourself. If the Workspace folder holds no `mcp-address-from-secret` folder yet, call the `scaffold` tool once with `example` set to `mcp-address-from-secret` and no `dir`: it writes the example into a new `mcp-address-from-secret` folder. Then call the `build` tool once for each Release, in this order — `release-helm.yaml` and `release-compose.yaml` — each time with `workspace_root` set to `mcp-address-from-secret`, `release` set to that file, `auto_pull` set to true and `write` set to true. Tell me which files each build wrote; they are under `mcp-address-from-secret/dist/`.
 
 ## The tool holds the address without its key
 

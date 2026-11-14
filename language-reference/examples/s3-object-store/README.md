@@ -134,7 +134,7 @@ can do the same: paste this prompt into it.
 
 <!-- copyable -->
 
-> Write the Aggrega documentation's runnable example `s3-object-store` into a new folder with the `scaffold` tool. That folder is a workspace: name it as the workspace root on each call that follows. Build its Releases `release-compose-auth.yaml` and `release-helm-synth-auth.yaml` with the `build` tool, one at a time in that order, resolving each one's dependencies first and writing the files into `dist/`, and tell me which files each build wrote. Then build `release-helm-synth.yaml` the same way: it is meant to be refused, so read me the refusal.
+> Use the Aggrega tools only, and create no folder yourself. If the Workspace folder holds no `s3-object-store` folder yet, call the `scaffold` tool once with `example` set to `s3-object-store` and no `dir`: it writes the example into a new `s3-object-store` folder. Then call the `build` tool once for each Release, in this order — `release-compose-auth.yaml` and `release-helm-synth-auth.yaml` — each time with `workspace_root` set to `s3-object-store`, `release` set to that file, `auto_pull` set to true and `write` set to true. Then call the `build` tool the same way with `release` set to `release-helm-synth.yaml`: it is meant to be refused, so read me the refusal. Tell me which files the first two builds wrote; they are under `s3-object-store/dist/`.
 
 ## Credential delivery note
 

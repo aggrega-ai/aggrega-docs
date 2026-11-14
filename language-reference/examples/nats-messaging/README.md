@@ -104,7 +104,7 @@ can do the same: paste this prompt into it.
 
 <!-- copyable -->
 
-> Write the Aggrega documentation's runnable example `nats-messaging` into a new folder with the `scaffold` tool. That folder is a workspace: name it as the workspace root on each call that follows. Build its Releases `release-compose.yaml`, `release-helm-synth.yaml`, `release-compose-auth.yaml` and `release-helm-synth-auth.yaml` with the `build` tool, one at a time in that order, resolving each one's dependencies first and writing the files into `dist/`, and tell me which files each build wrote.
+> Use the Aggrega tools only, and create no folder yourself. If the Workspace folder holds no `nats-messaging` folder yet, call the `scaffold` tool once with `example` set to `nats-messaging` and no `dir`: it writes the example into a new `nats-messaging` folder. Then call the `build` tool once for each Release, in this order — `release-compose.yaml`, `release-helm-synth.yaml`, `release-compose-auth.yaml` and `release-helm-synth-auth.yaml` — each time with `workspace_root` set to `nats-messaging`, `release` set to that file, `auto_pull` set to true and `write` set to true. Tell me which files each build wrote; they are under `nats-messaging/dist/`.
 
 ## Credential delivery note
 
