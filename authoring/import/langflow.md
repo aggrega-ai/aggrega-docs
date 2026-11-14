@@ -242,6 +242,8 @@ spec:
       infra:
         # The image running core/ai-agent/langflow, at the version this importer drafts, which the catalog's Recipes for it are known to run; the import does not raise or lower it to follow the source. The source states version "1.5.0" of the platform.
         image: "langflowai/langflow:1.6.0"
+        # Published on this machine's loopback address, 127.0.0.1: reachable from this machine only, by any process running on it. Delete this line to keep the service internal.
+        published_port: 7860
       features:
         admin_password:
           type: core/secret-value
@@ -266,6 +268,10 @@ spec:
   Langflow run. The flow was last tested on Langflow 1.5.0, as the comment
   says; the import keeps the version the Recipes run rather than following the
   flow's.
+- **`published_port`** is 7860, the port Langflow serves on, so the editor
+  answers at `http://127.0.0.1:7860` on your machine. As its comment says, any
+  process on this machine can reach it there and nothing else can; delete the
+  line to keep Langflow on the stack's network alone.
 - **The two secrets** are variable references, `${LANGFLOW_ADMIN_PASSWORD}` and
   `${OPENAI_API_KEY}`, which Docker Compose fills from your shell when the stack
   starts, so no file carries either value.
@@ -341,6 +347,8 @@ services:
       OPENAI_BASE_URL: https://api.openai.com/v1
       OPENAI_API_KEY: ${OPENAI_API_KEY}
       LANGFLOW_LOAD_FLOWS_PATH: /app/flows
+    ports:
+      - 127.0.0.1:7860:7860
     [… omitted: the labels the build writes on every service, naming the Aggregate, the component, the environment and the compiler's version]
     volumes:
       - type: volume

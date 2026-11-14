@@ -266,6 +266,8 @@ spec:
       infra:
         # The image running core/ai-agent/n8n, at the version this importer drafts, which the catalog's Recipes for it are known to run; the import does not raise or lower it to follow the source.
         image: "n8nio/n8n:1.110.1"
+        # Published on this machine's loopback address, 127.0.0.1: reachable from this machine only, by any process running on it. Delete this line to keep the service internal.
+        published_port: 5678
       uses:
         model:
           openai-chat-model:
@@ -281,6 +283,12 @@ spec:
 - **`environment`** is `development`, a default the comment above it says to
   change to the environment the Release deploys to.
 - **The image** is n8n 1.110.1, the version the catalog's Recipes for n8n run.
+- **`published_port`** is 5678, the port n8n serves on, so the editor answers
+  at `http://127.0.0.1:5678` on your machine. As its comment says, any process
+  on this machine can reach it there and nothing else can; delete the line to
+  keep n8n on the stack's network alone. A `published_port` other than 5678
+  needs `infra.external_base_url: http://127.0.0.1:<published_port>` beside it,
+  or n8n reports its editor and webhook addresses on `localhost:5678`.
 - **The key** is a variable reference, `${OPENAI_API_KEY}`, which Docker
   Compose fills from your shell when the stack starts. The standard library's
   OpenAI model is a hosted service, and a connection to it must carry a
@@ -353,6 +361,8 @@ services:
       OPENAI_BASE_URL: https://api.openai.com/v1
       OPENAI_API_KEY: ${OPENAI_API_KEY}
       N8N_BLOCK_ENV_ACCESS_IN_NODE: "true"
+    ports:
+      - 127.0.0.1:5678:5678
     [… omitted: the labels the build writes on every service, naming the Aggregate, the component, the environment and the compiler's version]
     volumes:
       - type: volume

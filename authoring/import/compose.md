@@ -281,6 +281,8 @@ spec:
       infra:
         image: "ghcr.io/example/notes-api:2.3.0"
         port: 8080
+        # Published on this machine's loopback address, 127.0.0.1: reachable from this machine only, by any process running on it. Delete this line to keep the service internal.
+        published_port: 8080
       features:
         database_password:
           type: core/secret-value
@@ -309,8 +311,13 @@ spec:
 The environment, `development`, is a default the import writes because no
 Compose file names one; change it where the Release deploys elsewhere. The
 image tags become the engine versions the standard-library Components take.
-What no key takes stays a comment above its entry: the published port, which
-the server's `port` already carries, and the database's named volume.
+The API's `port` is the port its container listens on, and `published_port`
+the host port its `ports` entry publishes, both 8080 as the Compose file
+states them; as its comment says, any process on this machine reaches the API
+at `http://127.0.0.1:8080` and nothing else can, and deleting the line keeps it
+on the stack's network alone.
+What no key takes stays a comment above its entry: the source's `ports` entry,
+which `port` and `published_port` already carry, and the database's named volume.
 
 `manifest.yaml` — the Compose Recipe of each component type, and the
 realization that writes a password's variable reference into the Compose file

@@ -230,7 +230,8 @@ comment above the instance names it, and the connection is left for you, as
 [What an agent tree becomes](../../language-reference/plugins/core-importers.md#what-an-agent-tree-becomes)
 describes.
 
-`release.yaml` — the environment, the image, and where the key comes from:
+`release.yaml` — the environment, the image, the published port, and where the
+key comes from:
 
 <!-- quotes: draft/release.yaml -->
 ```yaml
@@ -250,6 +251,8 @@ spec:
       infra:
         # Left for the Release, since the source cannot supply it: infra.image, the container image running the application built on ADK, holding its configurations
         image: "ghcr.io/example/support-agent:1.0.0"
+        # Published on this machine's loopback address, 127.0.0.1: reachable from this machine only, by any process running on it. Delete this line to keep the service internal.
+        published_port: 8000
       uses:
         model:
           gemini-2-5-flash:
@@ -265,6 +268,10 @@ spec:
 The environment, `development`, is a default the import writes because no
 configuration names one; change it where the Release deploys elsewhere. The
 image is the answer the import read from `support_agent/import-answers.yaml`.
+`published_port` is 8000, the port the application listens on, so it answers at
+`http://127.0.0.1:8000` on your machine; as its comment says, any process on
+this machine can reach it there and nothing else can, and deleting the line
+keeps the application on the stack's network alone.
 The configuration names no variable for the key, so the connection reads it
 from `${GOOGLE_API_KEY}`, the variable the Gemini API's client libraries read,
 as a variable reference and never a value.
@@ -329,6 +336,8 @@ services:
     environment:
       PORT: "8000"
       GOOGLE_API_KEY: ${GOOGLE_API_KEY}
+    ports:
+      - 127.0.0.1:8000:8000
     [… omitted: the labels the build writes on every service, naming the Aggregate, the component, the environment and the compiler's version]
     networks:
       - compose

@@ -251,6 +251,8 @@ spec:
         image: "flowiseai/flowise:3.1.3"
         # Left for the Release, since the source cannot supply it: infra.owner_email, the email address of the platform's owner account, required while values.flow_definition is set
         owner_email: "owner@example.com"
+        # Published on this machine's loopback address, 127.0.0.1: reachable from this machine only, by any process running on it. Delete this line to keep the service internal.
+        published_port: 3000
       features:
         owner_password:
           type: core/secret-value
@@ -273,6 +275,10 @@ spec:
   change to the environment the Release deploys to.
 - **The image** is Flowise 3.1.3, the version the catalog's Recipes for Flowise
   run.
+- **`published_port`** is 3000, the port Flowise serves on, so it answers at
+  `http://127.0.0.1:3000` on your machine. As its comment says, any process on
+  this machine can reach it there and nothing else can; delete the line to keep
+  Flowise on the stack's network alone.
 - **`owner_email`** is the answer from the answers file. The comment above it
   says why the import could not draft it.
 - **The two secrets** are variable references, `${FLOWISE_OWNER_PASSWORD}` and
@@ -344,6 +350,8 @@ reports that one leaf is declared in both. Neither changes the verdict.
       SECRETKEY_PATH: /home/node/.flowise
       OPENAI_BASE_URL: https://api.openai.com/v1
       OPENAI_API_KEY: ${OPENAI_API_KEY}
+    ports:
+      - 127.0.0.1:3000:3000
     [… omitted: the labels the build writes on every service, naming the Aggregate, the component, the environment and the compiler's version]
     volumes:
       - type: volume

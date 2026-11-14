@@ -582,20 +582,32 @@ info: the answers file <workspace>/import-answers.yaml also answers spec.boundar
 ```
 
 The drafted Release reads the application secret from `DIFY_SECRET_KEY` and
-the owner's password from `DIFY_OWNER_PASSWORD`:
+the owner's password from `DIFY_OWNER_PASSWORD`, and publishes the API on port
+5001 and the front end, `console`, on 3001 of the loopback address:
 
 ```yaml
   parameters:
     # Passed by reference, never as a value: secret_key, which the drafted Aggregate declares and passes down to core/dify; that parameter's description there says what the value is; it is read from the variable DIFY_SECRET_KEY, which a target substituting variable references, as Docker Compose does when the stack starts, reads from the environment, so no file carries the value.
     secret_key: "${DIFY_SECRET_KEY}"
   [… omitted: the boundary, and the owner's email, answered as above]
+                # Published on this machine's loopback address, 127.0.0.1: reachable from this machine only, by any process running on it. Delete this line to keep the service internal.
+                published_port: 5001
               features:
                 owner_password:
                   type: core/referenced-secret
                   infra:
                     # Attached by reference, never as a value: the owner account's password, read from the variable DIFY_OWNER_PASSWORD, which a target substituting variable references, as Docker Compose does when the stack starts, reads from the environment, so no file carries the value.
                     origin: "${DIFY_OWNER_PASSWORD}"
+            console:
+              infra:
+                # Published on this machine's loopback address, 127.0.0.1: reachable from this machine only, by any process running on it. Delete this line to keep the service internal.
+                published_port: 3001
 ```
+
+Each port is reachable from your machine only, as its comment says, and
+deleting a line keeps that service on the stack's network alone. The front end
+listens on 3000 inside its container and is published on 3001, so it runs
+beside another example publishing 3000.
 
 The Manifest maps each component to its Compose Recipe and
 `core/referenced-secret` to `compose/dotenv-referenced-secret`, which writes

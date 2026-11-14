@@ -761,6 +761,12 @@ supply:
   `flowiseai/flowise:3.1.3` and `n8nio/n8n:1.110.1` — under a comment saying so. The import never
   raises or lowers it to follow the source; where the export states a version of the platform that
   differs, as a Langflow flow's `last_tested_version` does, the comment names it.
+- **The port the platform is published on**, as `infra.published_port`, with `--target compose`
+  alone: 7860 for Langflow, 3000 for Flowise and 5678 for n8n, the ports each serves on, which its
+  Compose Recipe publishes on the host's loopback address, 127.0.0.1. The comment above it says the
+  port is reachable from this machine only, by any process running on it, and that deleting the line
+  keeps the service internal. A second flow of one import takes the next port no earlier one takes.
+  With any other target, or none, it is not written.
 - **The platform's own secret and each model connection's credential**, attached by reference and
   never as a value: on Langflow, the `admin_password` slot, read while `values.require_authentication`
   stays `true`; on Flowise, the `owner_password` slot, required while `values.flow_definition` is set;
@@ -1031,6 +1037,7 @@ Aggregate, carrying for each instance the operational inputs the source states:
   part it leaves out is written in the comment above the entry, beside the address, as
   [Credential values a server holds](#credential-values-a-server-holds) describes;
 - for an OCI package, `infra.image`;
+- for no server, on any target, `infra.published_port`: the draft never publishes a server on the host;
 - for a server's environment, the `server_env` slot, attached by reference for the import's target.
   On `--target helm` it is a `core/referenced-secret` naming a Kubernetes Secret already in the
   namespace that holds one data key per variable, each named as the variable it holds; the Secret's
@@ -1387,7 +1394,11 @@ comment.
 Beside it, `release.yaml` is a draft Release of the same name, whose `spec.aggregate` names the
 Aggregate. For an instance of `core/compute/server` it writes `infra.image`, the image as written, and
 `infra.port`, the port the container listens on in the first entry of `ports`, or of `expose` where
-`ports` holds none. A comment above each service's entry writes what the source states that no key of
+`ports` holds none. With `--target compose` it also writes `infra.published_port`, the host port that
+same `ports` entry publishes, as the source states it, under the comment saying it is reachable from
+this machine only, by any process running on it, and that deleting the line keeps the service
+internal; a host port below 1024, which `published_port` does not take, is not written, and a comment
+above the entry names it. A comment above each service's entry writes what the source states that no key of
 the draft carries — the image of a service matched to another Component whose tag the draft does not
 translate, its `ports`, `expose`, `volumes`, and each variable of its `environment` the draft does not
 translate — for you to carry where the Component takes it. What the draft leaves for the Release —
@@ -1690,7 +1701,9 @@ spec:
 
 The import owes the three empty values. Imported with `--target compose`, the same Release writes
 `secret_key: "${DIFY_SECRET_KEY}"` and `origin: "${DIFY_OWNER_PASSWORD}"`, and owes the owner's email
-alone. The [Dify import walkthrough](../../authoring/import/dify.md) builds an application for both
+alone; it also writes `infra.published_port` on the `api` component, 5001, and on the front end, the
+`console` component, 3001, each under the comment saying it is reachable from this machine only, by
+any process running on it, and that deleting the line keeps the service internal. The [Dify import walkthrough](../../authoring/import/dify.md) builds an application for both
 targets and runs it on Kubernetes.
 
 ### What Dify configures for itself
@@ -2305,7 +2318,11 @@ spec:
 
 `release.yaml`, beside it, is a draft Release of the same name naming that Aggregate. Each instance's
 entry writes its `infra.image` — the image running the application built on ADK, which holds its
-configurations — empty, under a comment saying what it is, and the import owes it. Where its model is
+configurations — empty, under a comment saying what it is, and the import owes it. With
+`--target compose` the entry also writes `infra.published_port`, 8000, the port the application
+listens on, which its Compose Recipe publishes on the host's loopback address, 127.0.0.1, under the
+comment saying it is reachable from this machine only, by any process running on it, and that deleting
+the line keeps the service internal; a second tree takes the next free port. Where its model is
 wired, the entry attaches the credential the instance presents to that model under `credential` on
 its `model` connection, by reference and never as a value: no configuration names a variable for it,
 so it is read from `GOOGLE_API_KEY`, the variable Google's Gemini API client libraries read their key
@@ -2641,6 +2658,9 @@ An import given a target — `--target` on `aggrega import`, or `target` on the 
 and the session's `aggrega/import` method, naming a provider capability such as `compose` or `helm` —
 is handed that target, so the importer drafts for it: each secret in the form that target reads, and
 the lines only that target needs, written live, while lines only another target needs are left out.
+On `compose` those lines include `infra.published_port` wherever the importer publishes a service on
+the host's loopback address, as each importer's section says; a port the importer chooses never takes
+a number another port of the Release takes.
 The import then drafts the Manifest beside whatever the importer drafted, whichever importer ran:
 `manifest.yaml`, beside the drafted Release and named and versioned as it is — or, where the importer
 drafted no Release, beside the drafted Aggregate and named and versioned as that is.
