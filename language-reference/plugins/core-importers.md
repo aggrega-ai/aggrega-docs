@@ -732,8 +732,8 @@ end of this section says.
   located.
 
 Apart from the values the setting writes empty, what the draft writes so that the flow reaches its
-parts, and the carriage returns written as line feeds below, the flow is carried as it was exported,
-so a flow with none of these to change is carried byte for byte.
+parts, a Langflow edge's handles, written as Langflow's editor writes them, and the carriage returns
+written as line feeds below, the flow is carried as exported: with none of these, byte for byte.
 
 A connection in the draft carries no credential value: the drafted Release attaches the one each
 connection presents by reference, as
@@ -2724,6 +2724,7 @@ with its `code` as well.
 | `credential-carried` | `warn` | A credential value is carried as written in the flow the draft carries, or in the Release the MCP, Compose, CrewAI, LangGraph, Google ADK or Agent Framework importer drafts, named by its node — or its server, service, agent or configuration — and its field, never by its value, with the `empty_credentials` value that writes it empty. |
 | `credential-emptied` | `warn` | A credential value is written empty in the flow the draft carries, or in the Release the MCP, Compose, CrewAI, LangGraph, Google ADK or Agent Framework importer drafts, where `empty_credentials` asks for it, named by its node — or its server, service, agent or configuration — and its field. |
 | `carriage-returns-rewritten` | `warn` | The flow's carriage returns are written as line feeds, with how many. |
+| `definition-respelled` | `warn` | Values of the flow are written in the spelling the platform's own tools read them in, the same values, with which and why: a Langflow flow's edge handles, written as Langflow's editor writes them. A value the draft writes so that the flow reaches a part, or one that can carry a credential, is never respelled — it stays the wiring's, or `empty_credentials`'s — and the warning counts each value not respelled. |
 | `definition-not-carried` | `warn` | The flow is not carried in `values.flow_definition`, or the Dify importer's application in `parameters.app_definition`, with why. |
 | `part-reads-connection` | `warn` | How the flow reaches a wired part through its connection, or how a connection reaches a node the draft wires to no socket as it is written. |
 | `part-address-in-flow` | `warn` | The flow reaches a wired part other than through its connection, with how. |

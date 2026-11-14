@@ -28,7 +28,7 @@ carried unchanged from the Langflow repository
 `504c02fc47e76087b82b0e7cbe4186e9cdd916d4`, the file
 `src/lfx/tests/data/starter_projects_1_6_0/Basic Prompting.json`), under the
 licence reproduced beside it in `LICENSE.langflow`. The drafts carry the same
-flow.
+flow, its edges' handles written as Langflow's editor writes them.
 
 In a checkout of the documentation repository, `check.sh` runs the import
 again, compares what it writes and prints with `draft/`, compares the blocks

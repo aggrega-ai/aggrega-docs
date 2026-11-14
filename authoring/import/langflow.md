@@ -31,8 +31,8 @@ cd import-langflow
 ## The flow
 
 Basic Prompting chains four nodes: a Chat Input, a Prompt, a Language Model
-that calls OpenAI's `gpt-4.1`, and a Chat Output. Exported from Langflow's
-editor, it is one JSON file, `basic-prompting.json`, of about 54 KB, which
+that calls OpenAI's `gpt-4.1`, and a Chat Output. As Langflow ships it, it is
+one JSON file, `basic-prompting.json`, of about 54 KB, which
 carries the source code of each component as well as the flow. Its
 Language Model node reads its key from the global variable `OPENAI_API_KEY`,
 which Langflow reads from its environment where no variable of that name is
@@ -114,6 +114,7 @@ On standard error, with `<workspace>` standing for the folder you ran it in:
 ```text
 [… omitted: a warning that the importer runs unverified, printed where its module is read from beside its Plugin entity in a catalog folder rather than fetched]
 read as the langflow format, with drafted paths relative to <workspace>
+warn: the flow is carried in values.flow_definition with the handles of all 3 of its edges written as Langflow's editor writes them — the same handles, their keys in order with no space between them — since the editor compares an edge's handles with the ones it writes for the nodes the edge joins, character for character, when it opens the flow, and drops every edge whose handles differ
 warn: node LanguageModelComponent-kBOja reaches languagemodelcomponent-kboja through the model connection languagemodelcomponent-kboja of core/ai-agent/langflow: its field api_key names the variable OPENAI_API_KEY, which the platform delivers for this connection and Langflow reads as a global variable; no field of it gives its API's address, so the OpenAI client it runs takes OPENAI_BASE_URL, the address the platform delivers for this connection, from the environment
 made no choice for ChatInput-SzjnT (ChatInput)
 made no choice for Prompt-tOH5D (Prompt)
@@ -130,7 +131,13 @@ Pull complete: <workspace>/release.lock (entities=8, source_artifacts=0, externa
   whole flow on the platform that runs Langflow, and gives a component of its
   own only to a node a socket of that platform takes — a model, a tool, a
   vector store — where the node is recognised as one.
-- **The `warn` line** says how the flow reaches that model. The node reads its
+- **The first `warn` line** says the flow is carried with each edge's handles
+  written as Langflow's editor writes them. Langflow keeps its starter projects
+  with a space after every colon and comma of an edge's handles; its editor,
+  opening a flow, drops every edge whose handles are not written exactly as it
+  writes them, then saves the flow without it. Written so, the flow opens with
+  its three connections, and runs with them.
+- **The `warn` line naming the node** says how the flow reaches that model. The node reads its
   key from the variable `OPENAI_API_KEY`, and its address from
   `OPENAI_BASE_URL`, and the platform delivers both for the model connection, so
   the flow needs no edit.
@@ -155,8 +162,9 @@ unless you set another
 ([Settings](../../language-reference/plugins/core-importers.md#settings)).
 
 `aggregate.yaml` — one instance of the standard library's Langflow platform,
-`core/ai-agent/langflow`, carrying the flow as it was exported, more than a
-thousand lines of it left out here, and the model it reaches:
+`core/ai-agent/langflow`, carrying the flow as it was exported but for its
+edges' handles, written as Langflow's editor writes them, more than a thousand
+lines of it left out here, and the model it reaches:
 
 <!-- quotes: draft/aggregate.yaml -->
 ```yaml
@@ -182,7 +190,7 @@ spec:
           {
             "data": {
               "edges": [
-          [… omitted: the rest of the flow, as exported]
+          [… omitted: the rest of the flow]
           }
       uses:
         model:
@@ -365,7 +373,7 @@ services:
 ```
 
 The flow reaches Langflow as `/app/flows/flow.json`, from a `configs` entry
-holding the flow as exported, and Langflow loads it from `LANGFLOW_LOAD_FLOWS_PATH`
+holding the flow the Aggregate carries, and Langflow loads it from `LANGFLOW_LOAD_FLOWS_PATH`
 at each start. The key and the password are variable references, filled from
 your shell when the stack starts. The service publishes no port on your
 machine: the rendered file gives it none.
