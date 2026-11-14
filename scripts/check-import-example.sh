@@ -22,8 +22,9 @@
 #      with the arguments given after `--`;
 #   2. compares every file the import wrote with draft/, byte for byte: a file
 #      written and not in draft/, a file in draft/ not written, and a file whose
-#      bytes differ each fail the check — on the fetch route below, the files
-#      the binary writes into the workspace's artifact cache left out;
+#      bytes differ each fail the check — the lockfile beside each drafted
+#      Release left out (see "The lockfile" below), and on the fetch route
+#      below, the files the binary writes into the workspace's artifact cache;
 #   3. compares what the import printed on standard output with draft/stdout.txt,
 #      and on standard error with draft/import.txt — the temporary directory's
 #      path written as <workspace>, and the one line saying where the importer
@@ -106,7 +107,8 @@
 # On the catalog-folder route the import reads that folder ahead of the standard
 # catalog, which is read as it is, its own importer entities included.
 #
-# What each route adds to a run, and the only thing steps 2 and 3 leave out:
+# What each route adds to a run, and the only thing steps 2 and 3 leave out
+# besides the lockfile below:
 #
 #   - The fetch route. Every check imports into a fresh copy of source/, so the
 #     binary fetches its importer on every run: it prints, first on standard
@@ -117,8 +119,23 @@
 #     sets it). Both are left out. Any other line the fetch prints, a
 #     signature-check notice included, is compared like the rest.
 #   - The catalog-folder route. The binary writes no cache entry and prints the
-#     unverified-importer warning, which is left out; every written file is
-#     compared.
+#     unverified-importer warning, which is left out; every other written file
+#     is compared.
+#
+# The lockfile. An import that is not offline ends by pulling what its drafted
+# Release depends on, and the pull writes that Release's lockfile beside it —
+# release.yaml's is release.lock. The lockfile is the pull's output, not a
+# draft: it records the time it was written and the compiler's version, so no
+# two runs write the same bytes, and the repository ignores *.lock, so a fresh
+# checkout's draft/ never holds one. For each Release the import wrote, the
+# file at that Release's path with .yaml or .yml replaced by .lock (.lock
+# appended to any other name) is left out on both sides — of the files the
+# import wrote and of the files draft/ holds — and --update does not write it.
+# Step 5 validates and builds in a copy holding it, as the import left it. Any
+# other file named *.lock the import writes is compared like the rest. Where a
+# lockfile sits is the binary's rule, restated here; should the binary place
+# it elsewhere, that file is compared like the rest and the check fails on it
+# as a file written and not in draft/, rather than passing over it.
 #
 # draft/ therefore holds what the import itself drafts and prints, on either
 # route, and --update writes it so.
@@ -251,11 +268,31 @@ fi
 
 ( cd "$WS" && find . -type f | sort ) | comm -13 "$WORK/source-files" - > "$WORK/written-all"
 if [ -n "$CACHE_REL" ]; then
-  awk -v c="$CACHE_REL/" 'index($0, c) != 1' "$WORK/written-all" > "$WORK/written"
+  awk -v c="$CACHE_REL/" 'index($0, c) != 1' "$WORK/written-all" > "$WORK/written-drafts"
   printf 'check-import: left out %d files the binary wrote into the artifact cache %s on fetching its importer\n' \
-    "$(( $(wc -l < "$WORK/written-all") - $(wc -l < "$WORK/written") ))" "${CACHE_REL#./}"
+    "$(( $(wc -l < "$WORK/written-all") - $(wc -l < "$WORK/written-drafts") ))" "${CACHE_REL#./}"
 else
-  cp "$WORK/written-all" "$WORK/written"
+  cp "$WORK/written-all" "$WORK/written-drafts"
+fi
+
+# Which files of a workspace are Releases is the build helper's to say
+# (`build-release.sh --list-releases`), from the list it builds from; the
+# comparison and steps 5 and 6 ask it rather than spell the rule a second time.
+"$HELPER" --list-releases "$WS" > "$WORK/workspace-releases" || die "build-release.sh could not list the Releases of the import's workspace"
+# Only the Releases the import WROTE are drafts: the helper's listing is
+# intersected with the files the import wrote, so a Release the source already
+# held is never taken for one.
+awk 'NR == FNR { written[$0]; next } ("./" $0) in written' "$WORK/written-drafts" "$WORK/workspace-releases" > "$WORK/drafted-releases"
+
+# The lockfile the import's pull writes beside each drafted Release — the
+# Release's path with a .yaml or .yml extension replaced by .lock, any other
+# name with .lock appended — is left out of the written set and of draft/'s.
+awk '{ n = $0; if (n ~ /\.ya?ml$/) sub(/\.ya?ml$/, "", n); print "./" n ".lock" }' "$WORK/drafted-releases" | sort -u > "$WORK/release-locks"
+awk 'NR == FNR { lock[$0]; next } !($0 in lock)' "$WORK/release-locks" "$WORK/written-drafts" > "$WORK/written"
+locks_left_out=$(( $(wc -l < "$WORK/written-drafts") - $(wc -l < "$WORK/written") ))
+if [ "$locks_left_out" -gt 0 ]; then
+  printf 'check-import: left out %d lockfile(s) the pull wrote beside the drafted Release(s): %s\n' \
+    "$locks_left_out" "$(awk 'NR == FNR { lock[$0]; next } ($0 in lock) { printf "%s%s", sep, substr($0, 3); sep = ", " }' "$WORK/release-locks" "$WORK/written-drafts")"
 fi
 
 if [ "$UPDATE" -eq 1 ]; then
@@ -270,7 +307,8 @@ if [ "$UPDATE" -eq 1 ]; then
 fi
 
 rc=0
-( cd "$EXAMPLE/draft" && find . -type f ! -path ./import.txt ! -path ./stdout.txt | sort ) > "$WORK/expected"
+( cd "$EXAMPLE/draft" && find . -type f ! -path ./import.txt ! -path ./stdout.txt | sort ) \
+  | awk 'NR == FNR { lock[$0]; next } !($0 in lock)' "$WORK/release-locks" - > "$WORK/expected"
 if ! cmp -s "$WORK/expected" "$WORK/written"; then
   printf 'check-import: the import wrote a different set of files than draft/ holds:\n'
   diff "$WORK/expected" "$WORK/written" | sed -n 's/^</  only in draft\/:/p; s/^>/  only written:/p'
@@ -410,16 +448,8 @@ validate_and_build() {
   fi
 }
 
-# Which files of a workspace are Releases is the build helper's to say
-# (`build-release.sh --list-releases`), from the list it builds from; steps 5
-# and 6 ask it rather than spell the rule a second time.
-"$HELPER" --list-releases "$WS" > "$WORK/workspace-releases" || die "build-release.sh could not list the Releases of the import's workspace"
-
 # --- step 5: what the import wrote validates and builds ------------------------------
-# Only the Releases the import WROTE are drafts: the helper's listing is
-# intersected with the files the import wrote, so a Release the source already
-# held is never taken for one.
-awk 'NR == FNR { written[$0]; next } ("./" $0) in written' "$WORK/written" "$WORK/workspace-releases" > "$WORK/drafted-releases"
+# The drafted Releases are the ones listed ahead of the comparison above.
 drafted=0
 while IFS= read -r name; do
   drafted=$((drafted + 1))
