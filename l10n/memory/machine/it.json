@@ -1580,6 +1580,17 @@
     "status": "machine",
     "text": "Il contratto stesso viene verificato per primo, quando viene letto: sono i controlli sui limiti di lunghezza e sui pattern descritti sopra in «Vocabolario degli slot di parametro». Il compilatore esegue poi tre sotto-passaggi durante l’elaborazione dei parametri:"
   },
+  "026baee05ce7dee0": {
+    "at": "2026-11-14T23:16:59.035Z",
+    "job": "session-0002-20261114231659",
+    "revision": {
+      "from": "7871278fe6924a4c",
+      "reviewed": false
+    },
+    "srcHash": "026baee05ce7dee0",
+    "status": "machine",
+    "text": "**Aggrega: Get started** — riporta la [pagina di benvenuto](welcome-page.md) dopo che l’hai disattivata, e la apre. Riattiva `aggrega.getStarted.show`, così disattivare la pagina è una scelta che puoi annullare e non una porta che si chiude alle tue spalle. Spuntare la casella in fondo alla pagina riattiva la stessa impostazione e non apre nulla: la pagina è quella su cui ti trovi, quindi la casella mantiene il focus della tastiera e Spazio la spunta e la deseleziona a turno. L’icona a forma di casa nella barra del titolo del pannello Commands è un’altra cosa: apre la pagina e non cambia alcuna impostazione, così un’occhiata alla pagina non è mai anche una decisione sull’avvio."
+  },
   "026f5e05fea1fea4": {
     "at": "2026-11-03T21:51:52.383Z",
     "job": "session-0163-20261103215152",
@@ -14087,6 +14098,13 @@
     "status": "machine",
     "text": "Gli ingegneri di Platform Ops scrivono i template di traduzione e hanno bisogno di tutta la potenza dei template infrastrutturali standard, senza un linguaggio di template proprietario. I template di Aggrega sono Go `text/template`:"
   },
+  "15d62d1a6c69f14e": {
+    "at": "2026-11-14T23:16:59.035Z",
+    "job": "session-0002-20261114231659",
+    "srcHash": "15d62d1a6c69f14e",
+    "status": "machine",
+    "text": "Tutti e quattro riportano quanti risultati hanno prodotto, anche quando la risposta è nessuno, così un’esecuzione pulita si distingue da un comando che non è stato eseguito; tutti e quattro mostrano l’avanzamento con un pulsante Cancel mentre lavorano."
+  },
   "15da120d38f99bae": {
     "at": "2026-11-03T21:35:44.738Z",
     "job": "session-0162-20261103213544",
@@ -19820,6 +19838,13 @@
     "srcHash": "1f01244e5f900980",
     "status": "machine",
     "text": "L’importazione fa riferimento ai Components del catalogo per l’agente LangGraph e per PostgreSQL, e `--target` abbozza un Manifest a partire dalle Recipes del catalogo, quindi clona il repository `aggrega-hub`, la cui cartella `aggrega-catalog` è il catalogo della libreria standard, e indica quella cartella tramite il suo percorso assoluto. Clonalo qui, in `import-langgraph`, accanto a `source` anziché al suo interno, così che il catalogo resti fuori dal progetto che viene importato e dallo spazio di lavoro in cui scrive l’importazione; poi entra in `source`:"
+  },
+  "1f031155b882cba7": {
+    "at": "2026-11-14T23:16:59.035Z",
+    "job": "session-0002-20261114231659",
+    "srcHash": "1f031155b882cba7",
+    "status": "machine",
+    "text": "Lint controlla le convenzioni di pubblicazione e colloca ogni risultato nel pannello Problems, così facendo clic su uno si apre l’entità a cui si riferisce. Ognuno è etichettato con il codice breve che `aggrega lint` stampa per la regola che lo ha prodotto, e l’etichetta apre la pagina che spiega quel codice; una regola che non ha un codice breve è etichettata invece con il proprio nome. Un risultato localizzato in un file ma non in una riga si trova in cima a quel file invece che in una posizione indovinata, e ogni risultato viene scritto anche nel canale di output Aggrega, sotto il documento a cui si riferisce, come la riga che `aggrega lint` stampa per esso: la sua gravità, il codice breve della regola, l’identità della regola stessa e la formulazione della regola stessa, invariata. Dove la tua configurazione assegna alle sue Releases directory di catalogo proprie sotto `workspace.releases`, Lint controlla il catalogo una volta per ogni Release, sulle directory che quella Release legge — le Releases che leggono le stesse directory vengono controllate insieme — e riporta ogni controllo separatamente: il canale di output lo apre con la riga con cui lo apre `aggrega lint`, indicando le sue Releases e le directory lette, ed elenca sotto i suoi risultati; la notifica conclusiva indica cosa ha trovato ogni controllo e su quante entità, per le sue Releases; e ogni voce di Problems termina indicando le Releases il cui controllo l’ha trovata, così un risultato in una directory letta da due controlli è elencato una volta per ciascuno."
   },
   "1f0339710b042110": {
     "at": "2026-11-03T08:01:06.602Z",
@@ -30229,6 +30254,13 @@
     "srcHash": "2f57aa4186b5ec80",
     "status": "machine",
     "text": "**Per chiedere cosa può agganciarsi a una connessione tracciata da un nodo, aggiungi `connection` accanto a `graph_node` e `release`** — il suo `socket` e il suo `alias`, come li ha scritti l’autore. Una connessione porta agganci che riempiono gli slot che il suo socket dichiara sul Component consumatore, quindi la risposta porta allora anche `slots`: ogni slot che il socket dichiara, con i suoi `selector`, `required`, `inject`, `sensitive` e `description` esattamente come li dichiara il Component, e i `candidates` che possono riempirlo. Sono le Features la cui applicabilità è soddisfatta dalle etichette del nodo **e** le cui etichette sono ammesse dal selettore dello slot — le due regole a cui un build sottopone un tale aggancio — quindi i candidati di uno slot sono sempre tra quelli del nodo stesso. Dove non può essere riempito nulla, `slots` è vuoto e `noSlotReason` dice perché: `feature-created-connection` (la connessione l’ha tracciata una Feature, e a una tale connessione non viene agganciato nulla), `ad-hoc-socket` (il socket non è dichiarato dal Component) o `no-slot-declared` (il socket non ne dichiara alcuno). Non leggere un `slots` vuoto come «non è stato abbinato nulla»; è proprio ciò che il motivo serve a escludere, ed è assente ovunque esista uno slot. `candidates` accanto a essi mantiene il suo significato — ciò che può agganciarsi al nodo stesso — e `document`, se ne invii uno, qui non cambia nulla. `connection` accanto a `node` o `labels`, o senza nominare alcun socket o alias, viene rifiutato, e lo stesso vale per una connessione che il nodo non traccia. Sono le stesse risposte che dà il language server, alle stesse condizioni."
+  },
+  "2f59199522af13cc": {
+    "at": "2026-11-14T23:16:59.035Z",
+    "job": "session-0002-20261114231659",
+    "srcHash": "2f59199522af13cc",
+    "status": "machine",
+    "text": "Nel pannello Commands il pulsante Build ha accanto una freccia, chiamata **Build options**, che apre le opzioni valide per la build successiva — **Auto pull** risolve le dipendenze della Release selezionata nel lockfile prima del rendering, ed è disattivata a meno che non la attivi tu, che è il default della riga di comando per la stessa scelta. Finché Build non può essere eseguito la freccia resta dov’è, in grigio, e puntandoci sopra si legge il motivo per cui Build non può essere eseguito; non apre nulla finché Build non può essere eseguito. Ogni opzione ha accanto una casella — vuota quando è disattivata, spuntata quando è attiva — così puoi leggerne lo stato senza premere nulla, e la frase che dice cosa fa attivarla compare mentre punti la riga o dopo che l’hai raggiunta con i tasti freccia. Cambiare un’opzione non esegue nulla e lascia aperto l’elenco, così puoi cambiarne un’altra; premere Build — o di nuovo la freccia — chiude l’elenco. Le opzioni durano per la sessione e non vengono scritte da nessuna parte, quindi chiudere la finestra le scarta, e appartengono solo a Build: preview build riporta ciò che una build scriverebbe senza scriverne nulla, e la risoluzione delle dipendenze scrive il lockfile, quindi non accetta alcuna opzione."
   },
   "2f5a53de4388f5cf": {
     "at": "2026-11-04T06:11:40.115Z",
@@ -57135,6 +57167,17 @@
     "status": "machine",
     "text": "Esegue il build sulla directory di catalogo elencata sotto `catalog_dirs` in `.aggrega-config.yaml`, il `catalog/` locale proprio dell’esempio, che porta la Recipe con sorgente `mariadb-bitnami`. Il Component, le funzionalità e le ricette rimanenti si risolvono da `hub.aggrega.ai`, il registry predefinito che lo stesso file dichiara, quindi nessuno dei due comandi ha bisogno di un flag `--catalog`. Il pull recupera il chart Bitnami che la Recipe con sorgente nomina e lo fissa, insieme a ogni entità, in `release.lock`; il build legge quel lockfile:"
   },
+  "59d5bcead9385404": {
+    "at": "2026-11-14T23:16:59.035Z",
+    "job": "session-0002-20261114231659",
+    "revision": {
+      "from": "f4e969475fe1b13f",
+      "reviewed": false
+    },
+    "srcHash": "59d5bcead9385404",
+    "status": "machine",
+    "text": "**Aggrega: Select Release…** — sceglie la Release su cui lavora l’editor. Ha effetto subito, ricontrolla i file aperti rispetto a essa e fa rileggere al pannello Catalog il proprio elenco; nulla si riavvia. Raggiungibile anche facendo clic sull’indicatore della Release nella barra di stato. Vedi [Selezione di una Release](releases.md#selecting-a-release)."
+  },
   "59dc8b08dc556403": {
     "at": "2026-10-22T14:15:44.761Z",
     "job": "session-0041-20261022141544",
@@ -58101,6 +58144,13 @@
     "srcHash": "5b72f0cead85f223",
     "status": "machine",
     "text": "Come il pannello Commands disegna i suoi gruppi — `buttons` mette ogni operazione in un unico flusso di pulsanti che va a capo, senza nulla disegnato tra un gruppo e il successivo, `sections` rende ogni gruppo una sezione che apri sotto il proprio titolo. Stessi gruppi, stesse operazioni, stesso ordine in entrambi i casi."
+  },
+  "5b74a244e4125849": {
+    "at": "2026-11-14T23:16:59.035Z",
+    "job": "session-0002-20261114231659",
+    "srcHash": "5b74a244e4125849",
+    "status": "machine",
+    "text": "Una build con Auto pull scrive, prima di questi, ciò che ha fatto la sua risoluzione delle dipendenze: una riga per ogni riferimento che ha fissato, con la versione a cui si è risolto, il suo tipo dove il compilatore ne nomina uno e, dove il compilatore lo riporta, da dove questa esecuzione ha preso il riferimento, con la parola che `aggrega pull --detail` stampa per esso — `fetched-fresh`, `cache-reuse`, `local`, `in-binary` o `external` — e poi il riepilogo che `aggrega pull` stampa in un terminale, `Pull complete:` seguito dal lockfile scritto, indicato a partire dalla radice del workspace, e dai conteggi di ciò che la risoluzione ha registrato."
   },
   "5b74f2800e476c88": {
     "at": "2026-11-02T19:28:46.630Z",
@@ -66466,6 +66516,17 @@
     "srcHash": "68ec9ba878b0c912",
     "status": "machine",
     "text": "`policy.rego`, associata sul grafo di build:"
+  },
+  "68ef8c1442d2e9f3": {
+    "at": "2026-11-14T23:16:59.035Z",
+    "job": "session-0002-20261114231659",
+    "revision": {
+      "from": "1543a539f3f0cb35",
+      "reviewed": false
+    },
+    "srcHash": "68ef8c1442d2e9f3",
+    "status": "machine",
+    "text": "I comandi"
   },
   "68f8ce83335b9ed6": {
     "at": "2026-11-04T10:56:32.711Z",
@@ -78266,6 +78327,13 @@
     "status": "machine",
     "text": "Corrispondenza delle versioni"
   },
+  "7b2fc97ae3291790": {
+    "at": "2026-11-14T23:16:59.035Z",
+    "job": "session-0002-20261114231659",
+    "srcHash": "7b2fc97ae3291790",
+    "status": "machine",
+    "text": "![Il riquadro comandi filtrato sui comandi di Aggrega.](../../images/editor/manual/command-palette.png)"
+  },
   "7b3359b18191d239": {
     "at": "2026-10-30T09:01:39.651Z",
     "job": "session-0076-20261030090139",
@@ -88505,6 +88573,13 @@
     "status": "machine",
     "text": "[`entities/recipe.md`](../entities/recipe.md) — superficie di authoring della Recipe e i tre tipi di input."
   },
+  "8b93d81fcbd4628d": {
+    "at": "2026-11-14T23:16:59.035Z",
+    "job": "session-0002-20261114231659",
+    "srcHash": "8b93d81fcbd4628d",
+    "status": "machine",
+    "text": "**Aggrega: Validate active file / Build / Preview build / Lint** — esegue l’operazione corrispondente del compilatore tramite il language server. Build, preview build e pull agiscono sulla Release selezionata invece di chiederla ogni volta. Build compila la Release selezionata con tutti i controlli attivi e scrive gli artefatti che produce in una directory `dist/` nella tua cartella di progetto, così arrivano accanto al lavoro che hai scelto di aprire — oppure, se non è scelta alcuna cartella di progetto o quella scelta non è all’interno del tuo workspace Aggrega, nella directory `dist/` alla radice del workspace Aggrega — e la riga conclusiva della build e la sua notifica indicano la directory in cui ha scritto. `aggrega build` eseguito in un terminale scrive nella directory `dist/` alla radice del workspace Aggrega da qualunque punto venga eseguito, quindi con una cartella di progetto sotto quella radice l’editor e il terminale scrivono in due directory diverse; preview build esegue la stessa compilazione e riporta ciò che avrebbe scritto, lasciando intatta la directory di output."
+  },
   "8b955ad8551bd2ba": {
     "at": "2026-11-03T02:39:28.596Z",
     "job": "session-0040-20261103023928",
@@ -97280,6 +97355,13 @@
     "status": "machine",
     "text": "**Come risolvere:** dove l’entità è tua, esegui `aggrega pin` su di essa e fai il commit dell’`entity.lock` che scrive, poi esegui di nuovo il pull o il push — oppure esegui il push con `--pin-sources`, che esegue il passo prima che il bundle venga costruito. Dove è di qualcun altro — un catalogo che consumi da una directory propria — chi la pubblica non l’ha ancora fissata; imposta `pin_sources_at_pull: true` nella configurazione del tuo workspace in modo che ogni pull registri i fissaggi da sé, oppure passa `--pin-sources` a un singolo pull. [`aggrega pin`](../cli/aggrega-pin.md) descrive il passo per intero."
   },
+  "9962a87723ed33cc": {
+    "at": "2026-11-14T23:16:59.035Z",
+    "job": "session-0002-20261114231659",
+    "srcHash": "9962a87723ed33cc",
+    "status": "machine",
+    "text": "Entrambi mettono nel pannello Problems i risultati che hanno una posizione nel documento, etichettati con il livello che li ha sollevati — tra questi un rifiuto che il compilatore solleva durante il rendering, registrato sul documento che nomina, come la Recipe di cui ha rifiutato il Workload, con il suo codice breve che apre la pagina che lo spiega, mentre la build o l’anteprima termina con le parole del compilatore stesso nel canale di output e in una notifica — e scrivono gli avvisi che non indicano alcuna posizione — un pin ritirato, un genitore irrisolvibile — nel canale di output Aggrega insieme all’elenco degli artefatti. Chiudere un file toglie dal pannello Problems i suoi risultati e lascia ciò che una build, un’anteprima o un grafo vi hanno trovato: questi riguardano la Release e non il file che avevi aperto, quindi restano finché il compilatore non smette di segnalarli. Una Build, una Preview o un grafo che il compilatore rifiuta perché una dipendenza non si risolve mette anche quel rifiuto nel pannello Problems — sul documento che il compilatore nomina, o sulla Release se non ne nomina alcuno — e il rifiuto resta durante l’apertura e la chiusura di quel file, finché la successiva Build, Preview o grafo di quella Release non riceve risposta senza di esso."
+  },
   "9966bf6472ae67aa": {
     "at": "2026-11-04T00:44:10.257Z",
     "job": "session-0181-20261104004410",
@@ -105805,6 +105887,17 @@
     "srcHash": "a67b8a2e03972591",
     "status": "machine",
     "text": "`.context` è il contesto di esecuzione assemblato dal compilatore per un singolo nodo — i dati di identità, di topologia e della pipe di consegna che il renderer fa passare attraverso ogni punto di template. I suoi campi:"
+  },
+  "a67d4bfe8e693d25": {
+    "at": "2026-11-14T23:16:59.035Z",
+    "job": "session-0002-20261114231659",
+    "revision": {
+      "from": "a51ecc6ff0d252e7",
+      "reviewed": false
+    },
+    "srcHash": "a67d4bfe8e693d25",
+    "status": "machine",
+    "text": "**Aggrega: Stop opening the welcome page on startup** — impedisce che la [pagina di benvenuto](welcome-page.md) si apra all’avvio, disattivando `aggrega.getStarted.show` nelle tue impostazioni. Questo le impedisce di arrivare senza essere richiesta invece di metterla fuori portata: **Aggrega: Get started** la riporta. Togliere la spunta dalla casella in fondo alla pagina esegue questo stesso comando, così la decisione può essere presa dal punto in cui si sta leggendo la pagina oltre che dalla palette."
   },
   "a680b99a6f38ca64": {
     "at": "2026-11-04T12:39:28.645Z",
@@ -121217,6 +121310,17 @@
     "status": "machine",
     "text": "**Un valore dichiarato sensibile non compare nel messaggio.** Dove l’asserzione legge un tale valore e chiama `fail` con la sua frase scritta per intero come un’unica stringa tra virgolette — `fail \"…\"`, senza nulla convogliato in essa e senza nulla di composto — il messaggio riporta quella frase così come è scritta, qualunque cosa contenga il valore, perché la frase non cita nulla di ciò che l’asserzione ha letto. Dove il suo messaggio cita il valore, il messaggio riporta `<redacted>` al posto del valore. Dove il messaggio è composto in qualsiasi altro modo e ciò che l’asserzione ha fatto dipendeva da ciò che il valore contiene, il messaggio dopo l’espressione non riuscita viene sostituito da `failure text withheld: this template reads a value declared sensitive, and the failure depends on what that value holds`; l’arresto e il suo codice restano invariati. Che cosa conta come dichiarato, e quali rifiuti restano fuori da tutto questo, è descritto in [`vocabulary/compact-form-authoring.md`](../vocabulary/compact-form-authoring.md#what-a-refusal-says-about-a-declared-value) «Cosa dice un rifiuto su un valore dichiarato»."
   },
+  "bdbbd692a39073f5": {
+    "at": "2026-11-14T23:16:59.035Z",
+    "job": "session-0002-20261114231659",
+    "revision": {
+      "from": "80d773f02926fe54",
+      "reviewed": false
+    },
+    "srcHash": "bdbbd692a39073f5",
+    "status": "machine",
+    "text": "**Aggrega: Select Compiler Version** — sceglie la versione del compilatore `aggrega` eseguita da questa macchina, tra le versioni con cui questa estensione funziona, dopo un avviso che confermi; la nuova versione sostituisce la precedente solo dopo che il language server si è avviato con essa. Vedi [Ottenere il compilatore](install.md#getting-the-compiler)."
+  },
   "bdbbe96cb67b0c97": {
     "at": "2026-11-14T10:23:56.163Z",
     "job": "session-0017-20261114102356",
@@ -127201,6 +127305,13 @@
     "srcHash": "c7486d68eff51128",
     "status": "machine",
     "text": "e per un errore di caricamento, dove l’arresto si legge come la sola frase, posizionato sul percorso del modulo, con il motivo proprio del caricatore sotto di esso:"
+  },
+  "c7489410312c6f79": {
+    "at": "2026-11-14T23:16:59.035Z",
+    "job": "session-0002-20261114231659",
+    "srcHash": "c7489410312c6f79",
+    "status": "machine",
+    "text": "**Aggrega: Import into Aggrega** — vedi [Importare in Aggrega](import.md)."
   },
   "c74bdb3683e46538": {
     "at": "2026-11-03T15:26:13.355Z",

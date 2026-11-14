@@ -1785,6 +1785,17 @@
     "status": "machine",
     "text": "**有三个请求不接受 `workspaceRoot`，原因都是其对象不是工作区。**\n`aggrega/getSchema` 和 `aggrega/scaffoldEntity` 依据编译进正在运行的二进制文件中的 schema 作答，因此工作区对二者都没有任何贡献——正因如此，二者都能在一个无人准备过的目录中作答。`aggrega/initialize` 是第三个，它是你声明工作区的地方，而不是对工作区执行操作的地方。"
   },
+  "026baee05ce7dee0": {
+    "at": "2026-11-14T23:16:59.035Z",
+    "job": "session-0002-20261114231659",
+    "revision": {
+      "from": "7871278fe6924a4c",
+      "reviewed": false
+    },
+    "srcHash": "026baee05ce7dee0",
+    "status": "machine",
+    "text": "**Aggrega: Get started** — 在你关闭[欢迎页面](welcome-page.md)后将其恢复并打开。它会重新开启 `aggrega.getStarted.show`，因此关闭该页面是一个可以撤销的选择，而不是一扇在身后锁上的门。勾选页面底部的复选框会重新开启同一项设置但不打开任何内容：你所在的就是该页面，因此复选框保留键盘焦点，按 Space 可依次勾选和取消勾选。Commands 面板标题栏中的房子图标则是另一回事：它打开页面但不更改任何设置，因此看一眼页面永远不会同时成为关于启动的决定。"
+  },
   "026f5e05fea1fea4": {
     "at": "2026-10-22T04:49:50.527667+00:00",
     "job": "msgbatch_01HwjQt2GEKUPBmjkDpPghCQ",
@@ -15606,6 +15617,13 @@
     "status": "machine",
     "text": "平台运维工程师编写转换模板，需要标准基础设施模板的全部能力，而无需使用专有的模板语言。Aggrega 的模板是 Go `text/template`："
   },
+  "15d62d1a6c69f14e": {
+    "at": "2026-11-14T23:16:59.035Z",
+    "job": "session-0002-20261114231659",
+    "srcHash": "15d62d1a6c69f14e",
+    "status": "machine",
+    "text": "这四个命令都会报告它们产生了多少个发现，包括答案为零时，因此可以将一次干净的运行与未运行的命令区分开来；这四个命令在工作时都会显示带有 Cancel 按钮的进度。"
+  },
   "15da120d38f99bae": {
     "at": "2026-10-22T04:49:50.527667+00:00",
     "job": "msgbatch_01HwjQt2GEKUPBmjkDpPghCQ",
@@ -22016,6 +22034,13 @@
     "srcHash": "1f01244e5f900980",
     "status": "machine",
     "text": "导入会引用目录中的 LangGraph 代理和 PostgreSQL Components，而 `--target` 会根据目录的 Recipes 起草一个 Manifest，因此请克隆 `aggrega-hub` 仓库，其 `aggrega-catalog` 文件夹即为标准库目录，并通过绝对路径指定该文件夹。请将它克隆到这里，即 `import-langgraph` 中，与 `source` 并列而不是放在其内部，这样目录既不在被导入的项目中，也不在导入写入的工作区中；然后进入 `source`："
+  },
+  "1f031155b882cba7": {
+    "at": "2026-11-14T23:16:59.035Z",
+    "job": "session-0002-20261114231659",
+    "srcHash": "1f031155b882cba7",
+    "status": "machine",
+    "text": "Lint 检查发布约定，并将每个发现放入 Problems 面板，因此点击其中一个即可打开它所涉及的实体。每个发现都以 `aggrega lint` 为产生它的规则打印的短代码标记，该标记会打开解释该代码的页面；没有短代码的规则则以其自身名称标记。定位到某个文件但未定位到某一行的发现位于该文件顶部，而不是放在猜测的位置；每个发现也会写入 Aggrega 输出通道，位于它所涉及的文档下方，形式为 `aggrega lint` 为其打印的那一行：其严重性、规则的短代码、规则自身的标识以及规则自身的措辞，保持不变。当你的配置在 `workspace.releases` 下为其 Releases 赋予各自专属的编目目录时，Lint 会为每个 Release 检查一次编目，范围是该 Release 读取的目录——读取相同目录的 Releases 会一起检查——并分别报告每次检查：输出通道以 `aggrega lint` 开始该检查时所用的那一行开头，指明其 Releases 和所读取的目录，并在下方列出其发现；结束通知针对其自身的 Releases 说明每次检查发现了什么、涉及多少个实体；每个 Problems 条目最后都会指明是哪些 Releases 的检查发现了它，因此在两次检查都读取的目录中的发现会为每次检查各列出一次。"
   },
   "1f0339710b042110": {
     "at": "2026-10-22T03:06:36.769432+00:00",
@@ -33477,6 +33502,13 @@
     "srcHash": "2f57aa4186b5ec80",
     "status": "machine",
     "text": "**要询问节点所画出的某条连接可以挂接什么，请在 `graph_node` 和 `release` 旁添加 `connection`**——即作者所写的其 `socket` 和 `alias`。一条连接携带的挂接会填充其 socket 在消费方 Component 上声明的槽位，因此答案还会带上 `slots`：该 socket 声明的每个槽位，包括与 Component 声明完全一致的 `selector`、`required`、`inject`、`sensitive` 和 `description`，以及可以填充它的 `candidates`。这些是其适用性被节点标签满足，**并且**其自身标签被该槽位选择器接受的 Features——这是构建对此类挂接所要求的两条规则——因此一个槽位的候选项始终在该节点自身的候选项之内。在没有任何可填充之处时，`slots` 为空，`noSlotReason` 说明原因：`feature-created-connection`（连接由某个 Feature 画出，而此类连接上不挂接任何东西）、`ad-hoc-socket`（该 socket 不是 Component 声明的）或 `no-slot-declared`（该 socket 未声明任何槽位）。不要把空的 `slots` 理解为“没有匹配项”；该原因正是为了排除这种理解，而只要存在槽位，它就不会出现。旁边的 `candidates` 保持其含义——可以挂接到节点本身的内容——而如果你发送了 `document`，在这里不会改变任何东西。`connection` 与 `node` 或 `labels` 一起使用，或未指定 socket 或 alias，都会被拒绝；节点没有画出的连接同样会被拒绝。这些答案与语言服务器给出的相同，条件也相同。"
+  },
+  "2f59199522af13cc": {
+    "at": "2026-11-14T23:16:59.035Z",
+    "job": "session-0002-20261114231659",
+    "srcHash": "2f59199522af13cc",
+    "status": "machine",
+    "text": "在 Commands 面板上，Build 按钮旁边有一个名为 **Build options** 的箭头，用于打开适用于下一次构建的选项——**Auto pull** 会在渲染之前将所选 Release 的依赖解析到锁文件中；除非你将其开启，否则它处于关闭状态，这也是命令行本身对同一选择的默认值。当 Build 无法运行时，该箭头保持原位并显示为灰色，指向它会显示 Build 无法运行的原因；在 Build 可以运行之前，它不会打开任何内容。每个选项旁边都有一个复选框——关闭时为空，开启时为勾选——因此无需按下任何内容即可读出其状态；当你指向该行或已用方向键到达该行时，会显示说明开启它有何作用的句子。切换一个选项不会运行任何内容，并保持列表打开，以便你切换另一个；按下 Build——或再次按下箭头——会收起列表。选项在会话期间有效，不会写入任何地方，因此关闭窗口会丢弃它们，而且它们只属于 Build：preview build 报告构建会写入什么，但不写入任何内容，而解析依赖会写入锁文件，因此它不接受任何选项。"
   },
   "2f5a53de4388f5cf": {
     "at": "2026-10-22T05:14:14.914265+00:00",
@@ -63170,6 +63202,17 @@
     "status": "machine",
     "text": "它基于 `.aggrega-config.yaml` 中 `catalog_dirs` 下列出的目录进行构建，即本示例自己的本地 `catalog/`，其中携带 `mariadb-bitnami` sourced Recipe。Component、feature 以及其余 recipe 从 `hub.aggrega.ai` 解析，即同一文件声明的默认注册表，因此两条命令都不需要 `--catalog` 标志。pull 会获取 sourced Recipe 所指定的 Bitnami chart，并将其与每个实体一起固定在 `release.lock` 中；构建会读取该锁文件："
   },
+  "59d5bcead9385404": {
+    "at": "2026-11-14T23:16:59.035Z",
+    "job": "session-0002-20261114231659",
+    "revision": {
+      "from": "f4e969475fe1b13f",
+      "reviewed": false
+    },
+    "srcHash": "59d5bcead9385404",
+    "status": "machine",
+    "text": "**Aggrega: Select Release…** — 选择编辑器所处理的 Release。立即生效，针对它重新检查已打开的文件，并让 Catalog 面板重新读取其列表；不会重启任何内容。也可以通过点击状态栏中的 Release 指示器访问。参见[选择 Release](releases.md#selecting-a-release)。"
+  },
   "59dc8b08dc556403": {
     "at": "2026-10-22T02:02:14.297198+00:00",
     "job": "msgbatch_016CHyieYQChUE1r8UVGktgV",
@@ -64254,6 +64297,13 @@
     "srcHash": "5b72f0cead85f223",
     "status": "machine",
     "text": "Commands 面板如何绘制其分组 — `buttons` 将所有操作放入一个自动换行的按钮流中，组与组之间不绘制任何内容；`sections` 将每个分组作为一个在其标题下展开的区块。两种方式下分组相同、操作相同、顺序相同。"
+  },
+  "5b74a244e4125849": {
+    "at": "2026-11-14T23:16:59.035Z",
+    "job": "session-0002-20261114231659",
+    "srcHash": "5b74a244e4125849",
+    "status": "machine",
+    "text": "带有 Auto pull 的构建会在这些内容之前写出其依赖解析所做的事情：为它固定的每个引用写一行，包括解析到的版本、编译器指明时的类型，以及在编译器报告时，本次运行从何处获取该引用，使用 `aggrega pull --detail` 为其打印的词——`fetched-fresh`、`cache-reuse`、`local`、`in-binary` 或 `external`——然后是 `aggrega pull` 在终端中打印的摘要，即 `Pull complete:`，后跟以工作区根目录为起点命名的已写入锁文件，以及解析所记录内容的计数。"
   },
   "5b74f2800e476c88": {
     "at": "2026-11-01T15:52:41.165Z",
@@ -73702,6 +73752,17 @@
     "srcHash": "68ec9ba878b0c912",
     "status": "machine",
     "text": "`policy.rego`，挂接在构建图之上："
+  },
+  "68ef8c1442d2e9f3": {
+    "at": "2026-11-14T23:16:59.035Z",
+    "job": "session-0002-20261114231659",
+    "revision": {
+      "from": "1543a539f3f0cb35",
+      "reviewed": false
+    },
+    "srcHash": "68ef8c1442d2e9f3",
+    "status": "machine",
+    "text": "命令"
   },
   "68f0436da22bb10b": {
     "at": "2026-10-22T05:07:43.448651+00:00",
@@ -86740,6 +86801,13 @@
     "status": "machine",
     "text": "版本匹配"
   },
+  "7b2fc97ae3291790": {
+    "at": "2026-11-14T23:16:59.035Z",
+    "job": "session-0002-20261114231659",
+    "srcHash": "7b2fc97ae3291790",
+    "status": "machine",
+    "text": "![筛选为 Aggrega 命令的命令面板。](../../images/editor/manual/command-palette.png)"
+  },
   "7b3359b18191d239": {
     "at": "2026-10-22T02:24:43.656154+00:00",
     "job": "msgbatch_01LPuEFeUVjFEgXoDzuak74j",
@@ -97988,6 +98056,13 @@
     "status": "machine",
     "text": "[`entities/recipe.md`](../entities/recipe.md) — Recipe 的编写接口以及三种输入类型。"
   },
+  "8b93d81fcbd4628d": {
+    "at": "2026-11-14T23:16:59.035Z",
+    "job": "session-0002-20261114231659",
+    "srcHash": "8b93d81fcbd4628d",
+    "status": "machine",
+    "text": "**Aggrega: Validate active file / Build / Preview build / Lint** — 通过语言服务器运行相应的编译器操作。Build、preview build 和 pull 作用于所选的 Release，而不是每次都询问。Build 在开启所有检查的情况下编译所选的 Release，并将其渲染出的产物写入你的项目文件夹中的 `dist/` 目录，使它们出现在你选择打开的工作旁边——或者，当未选择项目文件夹或所选文件夹不在你的 Aggrega 工作区内时，写入 Aggrega 工作区根目录下的 `dist/` 目录——构建的结束行及其通知会指明它所写入的目录。在终端中运行的 `aggrega build` 无论在何处运行，都会写入 Aggrega 工作区根目录下的 `dist/` 目录，因此当项目文件夹位于该根目录之下时，编辑器和终端会写入两个不同的目录；preview build 运行相同的编译并报告它本会写入的内容，不触动输出目录。"
+  },
   "8b955ad8551bd2ba": {
     "at": "2026-10-22T03:00:38.891470+00:00",
     "job": "msgbatch_018TuANWNnugzXZUxyABeHjT",
@@ -107733,6 +107808,13 @@
     "status": "machine",
     "text": "**修复方法：**如果实体是你的，请对其运行 `aggrega pin` 并提交它写入的 `entity.lock`，然后重新 pull 或 push；或者使用 `--pin-sources` 执行 push，它会在构建 bundle 之前执行该步骤。如果实体属于他人（你从其自身目录使用的目录），说明其发布者尚未固定它；请在工作区配置中设置 `pin_sources_at_pull: true`，让每次 pull 自行记录固定值，或者为单次 pull 传入 `--pin-sources`。[`aggrega pin`](../cli/aggrega-pin.md) 完整介绍了该步骤。"
   },
+  "9962a87723ed33cc": {
+    "at": "2026-11-14T23:16:59.035Z",
+    "job": "session-0002-20261114231659",
+    "srcHash": "9962a87723ed33cc",
+    "status": "machine",
+    "text": "两者都会将带有文档位置的发现放入 Problems 面板，并以引发它们的层加以标记——其中包括编译器在渲染时引发的拒绝，它被归档到其所指明的文档上，例如其 Workload 被拒绝的 Recipe，其短代码会打开解释它的页面，而构建或预览则以编译器自己的原话在输出通道和通知中结束——并将不指明位置的提示——被撤回的固定版本、无法解析的父级——连同产物列表一起写入 Aggrega 输出通道。关闭文件会将其自身的发现移出 Problems 面板，而保留构建、预览或图在其中发现的内容：这些内容关乎 Release，而不是你打开的那个文件，因此会一直保留，直到编译器不再报告它们。编译器因某个依赖无法解析而拒绝的 Build、Preview 或图，也会将该拒绝放入 Problems 面板——放在编译器指明的文档上，或在它未指明任何文档时放在 Release 上——并且该拒绝在该文件的打开和关闭过程中始终保留，直到该 Release 的下一次 Build、Preview 或图在没有它的情况下得到响应。"
+  },
   "99655736764e7a72": {
     "at": "2026-10-22T03:00:38.891470+00:00",
     "job": "msgbatch_018TuANWNnugzXZUxyABeHjT",
@@ -117224,6 +117306,17 @@
     "srcHash": "a67b8a2e03972591",
     "status": "machine",
     "text": "`.context` 是编译器为单个节点组装的执行上下文——渲染器在每个模板位置传递的身份、拓扑和交付管道数据。其字段如下："
+  },
+  "a67d4bfe8e693d25": {
+    "at": "2026-11-14T23:16:59.035Z",
+    "job": "session-0002-20261114231659",
+    "revision": {
+      "from": "a51ecc6ff0d252e7",
+      "reviewed": false
+    },
+    "srcHash": "a67d4bfe8e693d25",
+    "status": "machine",
+    "text": "**Aggrega: Stop opening the welcome page on startup** — 通过在你自己的设置中关闭 `aggrega.getStarted.show`，阻止[欢迎页面](welcome-page.md)在启动时打开。这只会阻止它不请自来，而不是让它无法访问：**Aggrega: Get started** 会将其恢复。取消勾选页面底部的复选框会运行同一命令，因此既可以在命令面板中做出这一决定，也可以在正在阅读的页面上做出。"
   },
   "a680b99a6f38ca64": {
     "at": "2026-10-22T08:23:20.000561+00:00",
@@ -134065,6 +134158,17 @@
     "status": "machine",
     "text": "**声明为敏感的值不会出现在消息中。**当断言读取此类值，并以完整写成单个带引号字符串的语句调用 `fail` 时（即 `fail \"…\"`，既没有通过管道传入任何内容，也没有进行任何拼接），无论该值的内容是什么，消息都会原样包含该语句，因为该语句没有引用断言读取的任何内容。当其消息引用了该值时，消息会在该值的位置显示 `<redacted>`。当消息以其他任何方式拼接而成，且断言的行为取决于该值的内容时，失败表达式之后的消息会被替换为 `failure text withheld: this template reads a value declared sensitive, and the failure depends on what that value holds`；停止及其代码保持不变。哪些算作已声明，以及哪些拒绝不在此范围内，参见 [`vocabulary/compact-form-authoring.md`](../vocabulary/compact-form-authoring.md#what-a-refusal-says-about-a-declared-value) 中的“What a refusal says about a declared value”。"
   },
+  "bdbbd692a39073f5": {
+    "at": "2026-11-14T23:16:59.035Z",
+    "job": "session-0002-20261114231659",
+    "revision": {
+      "from": "80d773f02926fe54",
+      "reviewed": false
+    },
+    "srcHash": "bdbbd692a39073f5",
+    "status": "machine",
+    "text": "**Aggrega: Select Compiler Version** — 在你确认一条警告后，从本扩展支持的版本中选择本机运行的 `aggrega` 编译器版本；只有当语言服务器在新版本上启动后，新版本才会替换先前的版本。参见[获取编译器](install.md#getting-the-compiler)。"
+  },
   "bdbbe96cb67b0c97": {
     "at": "2026-11-14T10:23:56.163Z",
     "job": "session-0017-20261114102356",
@@ -140800,6 +140904,13 @@
     "srcHash": "c7486d68eff51128",
     "status": "machine",
     "text": "针对加载失败，该中止仅显示这一句，定位在模块的路径上，加载器自己的原因附在其下："
+  },
+  "c7489410312c6f79": {
+    "at": "2026-11-14T23:16:59.035Z",
+    "job": "session-0002-20261114231659",
+    "srcHash": "c7489410312c6f79",
+    "status": "machine",
+    "text": "**Aggrega: Import into Aggrega** — 参见[导入到 Aggrega](import.md)。"
   },
   "c74bdb3683e46538": {
     "at": "2026-10-22T03:53:00.119047+00:00",
