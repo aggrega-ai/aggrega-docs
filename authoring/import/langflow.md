@@ -408,12 +408,17 @@ docker compose -p basic-prompting -f dist/compose/docker-compose.yaml up -d --wa
 [How an import runs](README.md#how-an-import-runs) explains. `--wait` returns
 once `langflow--data-owner` has completed and Langflow reports healthy.
 
-With no `published_port` in the Release, the requests run inside Langflow's own
-container, which carries `curl`. Sign in as the administrator:
+## Test it
+
+Open <http://127.0.0.1:7860>, the address `published_port` publishes, and sign
+in as `admin` with the password you set: Basic Prompting is in the editor with
+its three connections.
+
+Langflow runs a flow through its API for an API key only, which an
+administrator creates once signed in. Sign in:
 
 ```bash
-docker compose -p basic-prompting -f dist/compose/docker-compose.yaml exec langflow \
-  curl -sS -X POST http://localhost:7860/api/v1/login \
+curl -sS -X POST http://127.0.0.1:7860/api/v1/login \
   -d username=admin --data-urlencode "password=$LANGFLOW_ADMIN_PASSWORD"
 ```
 
@@ -421,35 +426,34 @@ docker compose -p basic-prompting -f dist/compose/docker-compose.yaml exec langf
 {"access_token":"[… omitted: the access token]","refresh_token":"[… omitted: the refresh token]","token_type":"bearer"}
 ```
 
-create an API key with the access token:
+create a key with the access token:
 
 ```bash
-docker compose -p basic-prompting -f dist/compose/docker-compose.yaml exec langflow \
-  curl -sS -X POST http://localhost:7860/api/v1/api_key/ \
-  -H 'Authorization: Bearer <access_token>' -H 'Content-Type: application/json' -d '{"name": "run-it"}'
+curl -sS -X POST http://127.0.0.1:7860/api/v1/api_key/ \
+  -H 'Authorization: Bearer <access_token>' -H 'Content-Type: application/json' -d '{"name": "test-it"}'
 ```
 
 ```text
-{"name":"run-it",[… omitted: when it was last used, how often, whether it is active, and its identifier],"api_key":"[… omitted: the key]",[… omitted: the owner's identifier]}
+{"name":"test-it","last_used_at":null,"total_uses":0,"is_active":true,"id":"[… omitted: the key's identifier]","api_key":"[… omitted: the key]","user_id":"[… omitted: the owner's identifier]"}
 ```
 
 and run the flow with the key:
 
 ```bash
-docker compose -p basic-prompting -f dist/compose/docker-compose.yaml exec langflow \
-  curl -sS -X POST 'http://localhost:7860/api/v1/run/0dbee653-41ae-4e51-af2e-55757fb24be3?stream=false' \
+curl -sS -X POST 'http://127.0.0.1:7860/api/v1/run/0dbee653-41ae-4e51-af2e-55757fb24be3?stream=false' \
   -H 'x-api-key: <api_key>' -H 'Content-Type: application/json' \
   -d '{"input_value": "In one short sentence: what is Docker Compose?", "input_type": "chat", "output_type": "chat"}'
 ```
 
+The run used a placeholder for the OpenAI key, so the answer is OpenAI's
+refusal of the key, which shows the flow ran as far as its call to the model:
+
 ```text
-{"session_id":"0dbee653-41ae-4e51-af2e-55757fb24be3","outputs":[{"inputs":{"input_value":"In one short sentence: what is Docker Compose?"},"outputs":[{"results":{"message":{"text_key":"text","data":{"timestamp":[… omitted: when the message was sent],"sender":"Machine","sender_name":"AI","session_id":"0dbee653-41ae-4e51-af2e-55757fb24be3","text":"Docker Compose is a tool for managing multiple Docker containers in a single file, allowing developers to define and run applications independently.",[… omitted: the rest of the message and the run's metadata]
+{"detail":"{\"message\":\"Error running graph: Error building Component Language Model: \\n\\nError code: 401 - {'error': {'message': 'Incorrect API key provided: sk-place*****************-key. You can find your API key at https://platform.openai.com/account/api-keys.', 'type': 'invalid_request_error', 'code': 'invalid_api_key', 'param': None}, 'status': 401}\",[… omitted: three empty fields, and a suggestion to update three of the flow's components]}"}
 ```
 
-The answer is at `outputs[0].outputs[0].results.message.text`. It came from a
-small local model in place of OpenAI, set up as the run step of
-[How an import runs](README.md#how-an-import-runs) describes, with the model
-copied under the name the flow asks for, `gpt-4.1`.
+With your key, the reply carries the model's answer at
+`outputs[0].outputs[0].results.message.text`.
 
 Stop the stack with the command below. `-v` also removes Langflow's data volume,
 and with it the administrator's account, the API key and the flow's run history:

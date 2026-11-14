@@ -67,3 +67,26 @@ aggrega build --release release.yaml
 
 Creating the Secrets the build's manifests read, and running them, are in the
 walkthrough linked above.
+
+## Test it
+
+Imported with `--target compose` and started as the walkthrough's
+[On Docker Compose](../../../authoring/import/dify.md#on-docker-compose) shows,
+the installation answers on this machine: the API at `http://127.0.0.1:5001`
+and the console at <http://127.0.0.1:3001/signin>. The application answers a
+message sent with its own key, which
+[the walkthrough](../../../authoring/import/dify.md#test-it) creates after
+signing in and setting the OpenAI provider's key:
+
+```sh
+curl -sS http://127.0.0.1:5001/v1/chat-messages \
+  -H 'Authorization: Bearer <app key>' -H 'Content-Type: application/json' \
+  -d '{"inputs": {}, "query": "In one short sentence: what does a support plan cover?", "response_mode": "blocking", "user": "test-it"}'
+```
+
+The run's provider key was a placeholder, which Dify refused with OpenAI's
+`Incorrect API key provided` when it was set, so the message got:
+
+```text
+{"code":"provider_not_initialize","message":"Model gpt-4o-mini credentials is not initialized.","status":400}
+```

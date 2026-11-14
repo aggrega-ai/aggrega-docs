@@ -400,46 +400,55 @@ only.
 
 ## Run it
 
-Set the key and the owner's password in your shell, start the stack, and
-follow the seed's log until it ends:
+Set the key and the owner's password in your shell, start Flowise, then run
+the seed:
 
 ```bash
 export OPENAI_API_KEY='your OpenAI key'
 export FLOWISE_OWNER_PASSWORD='a password of your own'
-docker compose -p support-chat -f dist/compose/docker-compose.yaml up -d
-docker compose -p support-chat -f dist/compose/docker-compose.yaml logs -f flowise-flow-seed
+docker compose -p support-chat -f dist/compose/docker-compose.yaml up -d --wait flowise
+docker compose -p support-chat -f dist/compose/docker-compose.yaml up flowise-flow-seed
 ```
 
 `-p` names the project, as the run step of
-[How an import runs](README.md#how-an-import-runs) explains. `up -d` returns
-once Flowise reports healthy and the seed has started; the seed's log ends when
-it exits:
+[How an import runs](README.md#how-an-import-runs) explains. `--wait` returns
+once Flowise reports healthy; it names `flowise` alone because it counts any
+container that has exited as a failure, and the seed exits by design. The
+second command runs the seed, prints its log and returns when it exits:
 
 ```text
 flowise-flow-seed-1  | registered the owner account owner@example.com
 flowise-flow-seed-1  | imported chatflow 40d9f5c5-5187-54c1-a9f5-a8dac92f88bb as "40d9f5c5-5187-54c1-a9f5-a8dac92f88bb"
+flowise-flow-seed-1 exited with code 0
 ```
 
-Leave `--wait` off: it counts the seed's exit as a failure, and `up -d --wait`
-exits 1 with `container support-chat-flowise-flow-seed-1 exited (0)` on a
-stack that is running as it should.
+Where another program on your machine already listens on 127.0.0.1:3000, the
+first command stops with
+`failed to bind host port 127.0.0.1:3000/tcp: address already in use`: set
+`published_port` to a free port and build again. The run below did, with
+3002, and used that port in place of 3000.
 
-With no `published_port` in the Release, send the question from inside
-Flowise's own container, which carries `curl`, to the chatflow's prediction
-endpoint:
+## Test it
+
+Open <http://127.0.0.1:3000>, the address `published_port` publishes, and sign
+in with the owner's email and password: the seed's chatflow is in Flowise.
+
+A chatflow that sets no API key of its own answers its prediction endpoint
+without one. Ask it a question:
 
 ```bash
-docker compose -p support-chat -f dist/compose/docker-compose.yaml exec flowise \
-  curl -sS -X POST http://localhost:3000/api/v1/prediction/40d9f5c5-5187-54c1-a9f5-a8dac92f88bb \
+curl -sS -X POST http://127.0.0.1:3000/api/v1/prediction/40d9f5c5-5187-54c1-a9f5-a8dac92f88bb \
   -H 'Content-Type: application/json' -d '{"question": "In one short sentence: what is Docker Compose?"}'
 ```
 
+The run used a placeholder for the OpenAI key, so the answer is OpenAI's
+refusal of it, which shows the chatflow ran as far as its call to the model:
+
 ```text
-{"text":"Docker Compose is a tool for defining and running multiple Docker containers in a single file.","question":"In one short sentence: what is Docker Compose?",[… omitted: the identifiers Flowise generates for the chat, the message and the session, and two more fields]}
+{"statusCode":500,"success":false,"message":"401 Unauthorized – check your API key and ensure it has access to the requested model.","stack":{}}
 ```
 
-This answer came from a small local model in place of OpenAI, set up as the
-run step of [How an import runs](README.md#how-an-import-runs) describes.
+With your key, the reply carries the answer at `text`.
 
 Stop the stack with the command below. `-v` also removes Flowise's data
 volume, and with it the owner account and the chatflow the seed wrote:

@@ -201,14 +201,13 @@ value it drafted came from.
    `docker compose -p <name> -f dist/compose/docker-compose.yaml exec <service> …`,
    or from a container you
    start on that network with `docker run --network <name>_compose …`. A
-   walkthrough's "Run it" section, where it has one, shows the commands for its
-   own build.
+   walkthrough's "Run it" and "Test it" sections show the commands for its own
+   build.
 
-   The Flowise, Langflow and n8n runs answered without an OpenAI key:
-   each pointed its `core/ai-model/openai` model at a small model served by
-   Ollama in the same project, with three changes to the drafted files, a build
-   with `--auto-pull`, which pulls what the added component needs, and one
-   command once the stack ran:
+   A run answers without an OpenAI key once its `core/ai-model/openai` model
+   points at a small model served by Ollama in the same project, with three
+   changes to the drafted files, a build with `--auto-pull`, which pulls what
+   the added component needs, and one command once the stack runs:
 
    - in the Aggregate, one more component, wired to nothing: `local-model`, of
      type `core/ai-model/ollama`, with `model: qwen2.5:0.5b` in its `values`;
@@ -217,15 +216,14 @@ value it drafted came from.
      its `infra`, set to that server's OpenAI-compatible address,
      `http://local-model:11434/v1`;
    - once the stack runs, the pulled model copied under the model name the
-     build's OpenAI model names, `<model>`: `gpt-4o-mini` in the Flowise and
-     n8n runs and `gpt-4.1` in the Langflow run:
+     build's OpenAI model names, `<model>`, such as `gpt-4o-mini` or `gpt-4.1`:
      `docker compose -p <name> -f dist/compose/docker-compose.yaml exec local-model ollama cp qwen2.5:0.5b <model>`.
 
    `OPENAI_API_KEY` may then hold any non-empty value of your own: the local
    server checks none. An n8n workflow reads the model's address and key from
    the credential its model node selects, not from the address `endpoint`
-   delivers, so the n8n run also gave that credential the server's address, as
-   a `url` beside `apiKey` in its `data`. The Ollama server
+   delivers, so give that credential the server's address too, as a `url`
+   beside `apiKey` in its `data`. The Ollama server
    `core/ai-model/ollama` runs by default serves OpenAI's Responses API as well
    as Chat Completions, so an Agent Framework declarative agent that names
    `apiType: Responses` reaches it as written.

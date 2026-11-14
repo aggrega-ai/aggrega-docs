@@ -366,11 +366,12 @@ needs no code of yours. A `Dockerfile` at the project's root, beside
 FROM python:3.12-slim
 RUN pip install --no-cache-dir google-adk==2.13.0
 COPY support_agent/ /app/agents/support_agent/
-CMD ["sh", "-c", "exec adk api_server --host 0.0.0.0 --port \"$PORT\" /app/agents"]
+CMD ["sh", "-c", "exec adk api_server --host 0.0.0.0 --port \"$PORT\" --auto_create_session /app/agents"]
 ```
 
 `adk api_server` serves the agent directories in the folder it names, and the
-command passes `PORT` to it. Build the image, write its name in place of
+command passes `PORT` to it. `--auto_create_session` opens a session the first
+time a request to `/run` names it, so one request reaches the agent. Build the image, write its name in place of
 `ghcr.io/example/support-agent:1.0.0` in `support_agent/import-answers.yaml`,
 and import again with `--sync`, which writes the new answer into the drafts and
 pulls again; then build:
@@ -389,45 +390,33 @@ docker compose -p support-agent -f dist/compose/docker-compose.yaml up -d --wait
 ```
 
 `-p` names the project, as the run step of
-[How an import runs](README.md#how-an-import-runs) explains. With no
-`published_port` in the Release, send requests from a container on the stack's
-network, `support-agent_compose`. `--wait` returns once the container runs, since the
-build gives the service no health check, and the server answers a moment
-later, so repeat a request it refuses. Then it lists the application:
+[How an import runs](README.md#how-an-import-runs) explains. `--wait` returns
+once the container runs, since the build gives the service no health check,
+and the server answers a moment later, so repeat a request it refuses.
+
+## Test it
+
+Send the agent a message at <http://127.0.0.1:8000>, the address
+`published_port` publishes. The request names a user and a session, and `/run`
+opens the session on its first message:
 
 ```bash
-docker run --rm --network support-agent_compose curlimages/curl:8.11.1 -sS \
-  http://support-agent:8000/list-apps
-```
-
-```text
-["support_agent"]
-```
-
-and opens a session for a user:
-
-```bash
-docker run --rm --network support-agent_compose curlimages/curl:8.11.1 -sS -X POST \
-  http://support-agent:8000/apps/support_agent/users/u1/sessions/s1 \
-  -H 'Content-Type: application/json' -d '{}'
-```
-
-```text
-{"id":"s1","appName":"support_agent","userId":"u1","state":{},"events":[],"lastUpdateTime":[… omitted: the time the session was created]}
-```
-
-A message to the agent goes to `/run`, in that session:
-
-```bash
-docker run --rm --network support-agent_compose curlimages/curl:8.11.1 -sS -X POST \
-  http://support-agent:8000/run -H 'Content-Type: application/json' \
+curl -sS -X POST http://127.0.0.1:8000/run -H 'Content-Type: application/json' \
   -d '{"app_name": "support_agent", "user_id": "u1", "session_id": "s1", "new_message": {"role": "user", "parts": [{"text": "Where is my order 1234? Answer in one short sentence."}]}}'
 ```
 
 The reply, Gemini's, comes back as a list of the events the turn added to the
-session. A model call Gemini refuses, with a wrong key say, returns HTTP 500,
-and the reason is in the service's log:
-`docker compose -p support-agent -f dist/compose/docker-compose.yaml logs support-agent`.
+session. The run used a placeholder for the key, so Gemini refused it: the
+request answered HTTP 500, `Internal Server Error`, and the service's log,
+`docker compose -p support-agent -f dist/compose/docker-compose.yaml logs support-agent`,
+names the reason:
+
+```text
+google.genai.errors.ClientError: 400 INVALID_ARGUMENT. {'error': {'code': 400, 'message': 'API key not valid. Please pass a valid API key.', 'status': 'INVALID_ARGUMENT', [… omitted: the error's details]}}
+```
+
+`curl -sS http://127.0.0.1:8000/list-apps` answers `["support_agent"]`, the
+agents the server holds.
 
 Stop the stack with:
 

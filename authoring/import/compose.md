@@ -457,7 +457,10 @@ docker compose -p notes -f dist/compose/docker-compose.yaml up -d --wait
 once the database and the cache pass the health checks the build gives them
 and the API's container is running: the build gives the API no health check.
 
-Ask the API at the address the rendered service above publishes:
+## Test it
+
+Ask the API at <http://127.0.0.1:8080>, the address `published_port`
+publishes:
 
 ```bash
 curl -sS http://127.0.0.1:8080/notes

@@ -409,9 +409,9 @@ only.
 
 n8n reads both credentials the workflow selects from its own store, by their
 identifiers: the OpenAI key under `Rb7nW2xQ9kT4mZ1c`, and the chat's user and
-password under `Vx3mQ8rLb2Nk7Tz5`. With no `published_port` in the Release,
-store them with n8n's own command line rather than its editor. Write them into
-`credentials.json`, with your own values:
+password under `Vx3mQ8rLb2Nk7Tz5`. n8n's own command line stores them, under
+those identifiers, from a file. Write them into `credentials.json`, with your
+own values:
 
 ```json
 [
@@ -461,45 +461,37 @@ docker compose -p support-agent -f dist/compose/docker-compose.yaml restart n8n
 Once `docker compose -p support-agent -f dist/compose/docker-compose.yaml ps n8n`
 shows n8n `(healthy)` again,
 `docker compose -p support-agent -f dist/compose/docker-compose.yaml logs n8n`
-reads `Activated workflow "Support agent" (ID: sQ4vT8nKp2LmX7bR)`. Send a chat
-message from a container on the stack's network, `support-agent_compose`.
-Without the user and password, the trigger refuses it:
+reads `Activated workflow "Support agent" (ID: sQ4vT8nKp2LmX7bR)`.
+
+## Test it
+
+Open <http://127.0.0.1:5678>, the address `published_port` publishes: n8n's
+editor asks for an owner account on its first visit, then shows Support agent.
+
+The chat trigger takes a message only with the user and password stored
+above; without them it answers `HTTP/1.1 401 Unauthorized` and
+`Authorization is required!`, and with a wrong password `HTTP/1.1 403 Forbidden`.
+With the two in `CHAT_USER` and `CHAT_PASSWORD`, curl reads them from its
+standard input, so they appear on no command line:
 
 ```bash
-docker run --rm --network support-agent_compose curlimages/curl:8.11.1 -sS -i -X POST \
-  http://n8n:5678/webhook/a3c9e1f2-4b5d-4e6f-8a7b-9c0d1e2f3a04/chat -H 'Content-Type: application/json' \
+printf 'user = "%s:%s"\n' "$CHAT_USER" "$CHAT_PASSWORD" | curl --config - -sS -i -X POST \
+  http://127.0.0.1:5678/webhook/a3c9e1f2-4b5d-4e6f-8a7b-9c0d1e2f3a04/chat -H 'Content-Type: application/json' \
   -d '{"action": "sendMessage", "sessionId": "s1", "chatInput": "In one short sentence: what does a support plan cover?"}'
 ```
 
 ```text
-HTTP/1.1 401 Unauthorized
-www-authenticate: Basic realm="Webhook"
-[… omitted: the date, connection, keep-alive and transfer-encoding headers]
-
-Authorization is required!
-```
-
-A wrong password gets `HTTP/1.1 403 Forbidden` and `Authorization data is wrong!`.
-With the user and password in `CHAT_USER` and `CHAT_PASSWORD`, curl reads them
-from its standard input, so they appear on no command line:
-
-```bash
-printf 'user = "%s:%s"\n' "$CHAT_USER" "$CHAT_PASSWORD" | docker run --rm -i --network support-agent_compose \
-  curlimages/curl:8.11.1 --config - -sS -i -X POST \
-  http://n8n:5678/webhook/a3c9e1f2-4b5d-4e6f-8a7b-9c0d1e2f3a04/chat -H 'Content-Type: application/json' \
-  -d '{"action": "sendMessage", "sessionId": "s1", "chatInput": "In one short sentence: what does a support plan cover?"}'
-```
-
-```text
-HTTP/1.1 200 OK
+HTTP/1.1 500 Internal Server Error
 [… omitted: the response's other headers]
 
-{"output":"It covers both onboarding and ongoing help from technical experts."}
+{"message":"Error in workflow"}
 ```
 
-This answer came from a small local model in place of OpenAI, set up as the
-run step of [How an import runs](README.md#how-an-import-runs) describes, the
-OpenAI credential's `url` included.
+The run stored a placeholder for the OpenAI key, so the workflow stopped at
+its call to the model. n8n keeps the execution, which the editor lists under
+the workflow's executions, with OpenAI's refusal:
+`Incorrect API key provided: sk-place*****************-key.` With your key,
+the reply is `HTTP/1.1 200 OK` and the agent's answer, as `{"output": "…"}`.
 
 Stop the stack with the command below. `-v` also removes n8n's data volume, and
 with it the stored credentials and the activation:

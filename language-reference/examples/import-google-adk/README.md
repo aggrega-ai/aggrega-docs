@@ -70,3 +70,21 @@ aggrega build --release release.yaml
 
 The image the example names stands for one you build from your project;
 building it and running the stack are in the walkthrough linked above.
+
+## Test it
+
+With the stack running as the walkthrough runs it, on the image its
+`Dockerfile` builds, send the agent a message at the port the Release
+publishes:
+
+```sh
+curl -sS -X POST http://127.0.0.1:8000/run -H 'Content-Type: application/json' \
+  -d '{"app_name": "support_agent", "user_id": "u1", "session_id": "s1", "new_message": {"role": "user", "parts": [{"text": "Where is my order 1234? Answer in one short sentence."}]}}'
+```
+
+The run's Gemini key was a placeholder, so the request answered HTTP 500,
+`Internal Server Error`, and the service's log names Gemini's refusal:
+
+```text
+google.genai.errors.ClientError: 400 INVALID_ARGUMENT. {'error': {'code': 400, 'message': 'API key not valid. Please pass a valid API key.', 'status': 'INVALID_ARGUMENT', [… omitted: the error's details]}}
+```

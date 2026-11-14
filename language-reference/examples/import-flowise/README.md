@@ -66,3 +66,22 @@ aggrega build --release release.yaml
 ```
 
 Running what the build writes is in the walkthrough linked above.
+
+## Test it
+
+With Flowise running and the chatflow seeded as the walkthrough runs them,
+open <http://127.0.0.1:3000> and sign in as the owner, and ask the chatflow a
+question through its prediction endpoint:
+
+```sh
+curl -sS -X POST http://127.0.0.1:3000/api/v1/prediction/40d9f5c5-5187-54c1-a9f5-a8dac92f88bb \
+  -H 'Content-Type: application/json' -d '{"question": "In one short sentence: what is Docker Compose?"}'
+```
+
+```text
+{"statusCode":500,"success":false,"message":"401 Unauthorized – check your API key and ensure it has access to the requested model.","stack":{}}
+```
+
+The run's OpenAI key was a placeholder, so the answer is OpenAI's refusal of
+it: the chatflow ran as far as its call to the model. The run published
+Flowise on 3002, since 3000 was taken on its machine, as the walkthrough says.

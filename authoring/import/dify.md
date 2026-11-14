@@ -559,6 +559,47 @@ Kubernetes keeps the volume claims a StatefulSet made when the StatefulSet is
 deleted, so the third command removes them, and with them the database, the
 installed plugin and the vector store.
 
+## Test it
+
+On Docker Compose, started as [On Docker Compose](#on-docker-compose) shows,
+the Release publishes the API at `http://127.0.0.1:5001` and the console at
+`http://127.0.0.1:3001`. Open <http://127.0.0.1:3001/signin>, the console's
+sign-in page; `/` redirects there. Signing in from that page does not work as
+drafted: the page sends its requests to the API at `http://127.0.0.1:5001`,
+and Dify's API answers a browser only for pages served from
+`http://127.0.0.1:3000`, the console address it assumes, so the browser
+refuses each reply.
+
+The application answers through the API, with no browser involved. The
+requests of [Run it](#run-it) that sign in, install the OpenAI provider, set
+its key and create the application's key reach `http://127.0.0.1:5001` as they
+stand, with no port forward; the application's identifier is in the log of the
+step that imports it,
+`docker compose -p support-assistant -f ../dist/boundaries/platform/compose/docker-compose.yaml logs dify-zdapi-app-import`.
+Then send the application a message with its key:
+
+```bash
+curl -sS http://127.0.0.1:5001/v1/chat-messages \
+  -H 'Authorization: Bearer <app key>' -H 'Content-Type: application/json' \
+  -d '{"inputs": {}, "query": "In one short sentence: what does a support plan cover?", "response_mode": "blocking", "user": "test-it"}'
+```
+
+The run set a placeholder as the provider's key, and Dify refused it with
+OpenAI's answer when it checked it:
+
+```text
+{"code":"invalid_param","message":"Error code: 401 - {'error': {'message': 'Incorrect API key provided: sk-place*****************-key. You can find your API key at https:\/\/platform.openai.com\/account\/api-keys.', 'type': 'invalid_request_error', 'code': 'invalid_api_key', 'param': None}, 'status': 401}","status":400}
+```
+
+so the message got Dify's answer that the model has no key:
+
+```text
+{"code":"provider_not_initialize","message":"Model gpt-4o-mini credentials is not initialized.","status":400}
+```
+
+With a key the provider accepts, the reply carries the answer at `answer`, as
+in [Run it](#run-it).
+
 ## On Docker Compose
 
 The same application imports for Docker Compose with the `compose` target,
@@ -645,3 +686,23 @@ Release writing `db_password: "${DIFY_DB_PASSWORD}"` builds a Compose file
 carrying `DB_PASSWORD: ${DIFY_DB_PASSWORD}` and
 `POSTGRES_PASSWORD: ${DIFY_DB_PASSWORD}`, filled from the environment like the
 two above.
+
+Start the stack from `compose`, with the owner's password one Dify takes, as
+[Run it](#run-it) describes:
+
+```bash
+export DIFY_SECRET_KEY='a long random value of your own'
+export DIFY_OWNER_PASSWORD='a password of your own'
+docker compose -p support-assistant -f ../dist/boundaries/platform/compose/docker-compose.yaml up -d --wait
+```
+
+`--wait` returned in about a minute in the run, once every server reported
+healthy. The step that imports the application runs beside them and exits once
+it has; its log then reads:
+
+```text
+first-time setup done: owner account owner@example.com
+imported 'Support assistant' as application 7fae73f4-826b-4918-a623-a3383aa0da8c
+```
+
+[Test it](#test-it) reaches the installation at the two published ports.

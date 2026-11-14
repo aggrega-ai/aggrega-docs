@@ -65,3 +65,27 @@ aggrega build --release release.yaml
 ```
 
 Running what the build writes is in the walkthrough linked above.
+
+## Test it
+
+With the stack running as the walkthrough runs it — the credentials stored and
+the workflow active — open <http://127.0.0.1:5678> for n8n's editor, and send
+the chat trigger a message with the user and password it stores, read from
+`CHAT_USER` and `CHAT_PASSWORD` on curl's standard input:
+
+```sh
+printf 'user = "%s:%s"\n' "$CHAT_USER" "$CHAT_PASSWORD" | curl --config - -sS -i -X POST \
+  http://127.0.0.1:5678/webhook/a3c9e1f2-4b5d-4e6f-8a7b-9c0d1e2f3a04/chat -H 'Content-Type: application/json' \
+  -d '{"action": "sendMessage", "sessionId": "s1", "chatInput": "In one short sentence: what does a support plan cover?"}'
+```
+
+```text
+HTTP/1.1 500 Internal Server Error
+[… omitted: the response's other headers]
+
+{"message":"Error in workflow"}
+```
+
+The run stored a placeholder for the OpenAI key, so the workflow stopped at
+its call to the model, and its execution in the editor reads OpenAI's
+refusal: `Incorrect API key provided: sk-place*****************-key.`

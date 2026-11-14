@@ -70,3 +70,24 @@ aggrega build --release release.yaml
 ```
 
 Running what the build writes is in the walkthrough linked above.
+
+## Test it
+
+With the stack running as the walkthrough runs it, open
+<http://127.0.0.1:7860> and sign in as `admin`: Basic Prompting is in the
+editor. The API runs the flow for an API key, which
+[the walkthrough](../../../authoring/import/langflow.md#test-it) creates after
+signing in; with it:
+
+```sh
+curl -sS -X POST 'http://127.0.0.1:7860/api/v1/run/0dbee653-41ae-4e51-af2e-55757fb24be3?stream=false' \
+  -H 'x-api-key: <api_key>' -H 'Content-Type: application/json' \
+  -d '{"input_value": "In one short sentence: what is Docker Compose?", "input_type": "chat", "output_type": "chat"}'
+```
+
+```text
+{"detail":"{\"message\":\"Error running graph: Error building Component Language Model: \\n\\nError code: 401 - {'error': {'message': 'Incorrect API key provided: sk-place*****************-key. You can find your API key at https://platform.openai.com/account/api-keys.', 'type': 'invalid_request_error', 'code': 'invalid_api_key', 'param': None}, 'status': 401}\",[… omitted: three empty fields, and a suggestion to update three of the flow's components]}"}
+```
+
+The run's OpenAI key was a placeholder, so the answer is OpenAI's refusal of
+it: the flow ran as far as its call to the model.

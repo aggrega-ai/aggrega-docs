@@ -64,3 +64,28 @@ aggrega build --release release.yaml
 
 The build writes `dist/compose/docker-compose.yaml`; running it is in the
 walkthrough linked above.
+
+## Test it
+
+With the stack running as the walkthrough runs it, with an image answering
+HTTP on port 8080 named for the API, ask the API at the port the Release
+publishes:
+
+```sh
+curl -sS http://127.0.0.1:8080/notes
+```
+
+The walkthrough's stand-in answers with a description of the request it
+received:
+
+```text
+{
+  "path": "/notes",
+  "headers": {
+    "host": "127.0.0.1:8080",
+    [… omitted: the user agent and the media types the client sent]
+  },
+  "method": "GET",
+  [… omitted: the rest of the request as the stand-in received it, the client's address and the container's host name]
+}
+```
