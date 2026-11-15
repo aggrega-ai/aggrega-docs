@@ -9435,6 +9435,13 @@
     "status": "machine",
     "text": "HTTP リクエストノードの `headers` と `params`（それぞれ全体）。Dify はこれらを認証情報としてマークしませんが、認証情報を含むことがあります。"
   },
+  "0cd6d5e62f8b7b1c": {
+    "at": "2026-11-15T00:01:44.436Z",
+    "job": "session-0026-20261115000144",
+    "srcHash": "0cd6d5e62f8b7b1c",
+    "status": "machine",
+    "text": "データストアのパスワードは、ドラフトが参照として付与するシークレットで、データストア自身の `password` スロットと各グラフの `checkpointer_db` 接続に付与されます。各グラフが `model` 接続でモデルに提示する資格情報も同様です。設定はどちらについても変数を指定しないため、それぞれ `POSTGRES_PASSWORD`（または `FERRETDB_PASSWORD`）と `OPENAI_API_KEY` から読み取られ、helm 以外のすべてのターゲットでは `${…}` 参照として、helm では Kubernetes の Secret の名前として書かれ、後者は空で書かれてインポートが未提供の値として報告します。compose では、プラットフォームについて[ターゲットごとのシークレット](#secrets-for-each-target)で説明するとおり、Aggregate がそれぞれをその Recipe が読み取るキーで宣言します。"
+  },
   "0cdc12418b7c3618": {
     "at": "2026-10-22T03:53:00.119047+00:00",
     "job": "msgbatch_013WHPBfgnxTj5isCEqnpB8T",
@@ -9943,6 +9950,17 @@
     "srcHash": "0da22ac80aa101a5",
     "status": "machine",
     "text": "Release がバインドしルーティングするもの: その Release がデプロイする Aggregate と Manifest(または extends のベース)、環境固有のパラメーターの充足、そしてそのコンポーネントのルーティング先となる境界です。"
+  },
+  "0da5744722fdb96f": {
+    "at": "2026-11-15T00:01:44.436Z",
+    "job": "session-0026-20261115000144",
+    "revision": {
+      "from": "4e5a5ada6b7fa1da",
+      "reviewed": false
+    },
+    "srcHash": "0da5744722fdb96f",
+    "status": "machine",
+    "text": "その隣の `release.yaml` は、その Aggregate を指定する同名のドラフト Release です。各エージェントの `infra.image`（どの宣言も指定しない、クルーのプログラムを実行するイメージ）を、それが何であるかを示すコメントの下に空で書き、インポートはそれを未提供の値として報告します。各エージェントがモデルに提示する資格情報は、`model` 接続の `credential` の下に、値としてではなく参照として付与します。どの宣言もその変数を指定しないため、プロバイダーのクライアントライブラリが API キーを読み取る変数（OpenAI の場合は `OPENAI_API_KEY`）から読み取られます。helm 以外のすべてのターゲットでは `${…}` 参照として、helm では Kubernetes の Secret の名前として書かれ、後者は空で書かれてインポートが未提供の値として報告します。compose では、エージェントの `model` 接続がそのキーでそれを宣言します。各モデルにもインフラを保持しないエントリがあり、それによって Release はモデルをエージェントと一緒に配置します。`llm` オブジェクトとして宣言されたモデルについては、その他の各メンバーは、カタログの Component がその名前の値を宣言している場合はモデルのインスタンスの値として書かれ、そうでない場合は Release のモデルのエントリの上のコメントに書かれ、Component がそれを受け取る場所に利用者が引き継げるようになっています。下書きされるすべての Release と同様に、`metadata.environment` を `development` として書き、ターゲットがない場合はインポートが未提供の値として報告する空の `spec.manifest` を書きます。ターゲットが与えられた場合は、[ターゲットが追加するもの](#what-a-target-adds)で説明するとおり、インポートが Manifest を下書きします。"
   },
   "0da67adbb33e64eb": {
     "at": "2026-10-22T03:12:40.354254+00:00",
@@ -19613,6 +19631,17 @@
     "status": "machine",
     "text": "解決（エンベロープの後）"
   },
+  "1b3adafd43ff012c": {
+    "at": "2026-11-15T00:01:44.436Z",
+    "job": "session-0026-20261115000144",
+    "revision": {
+      "from": "fc7853cb004b809d",
+      "reviewed": false
+    },
+    "srcHash": "1b3adafd43ff012c",
+    "status": "machine",
+    "text": "その横の `release.yaml` は、同じ名前でその Aggregate を指定するドラフト Release です。最初のグラフのエントリの上のコメントは、各グラフのイメージが何であるか（アプリケーション自身のもの、つまり LangGraph がインストールされたそのコードであり、`langgraph build` がビルドするサーバーイメージではありません）、それに渡される変数、そしてどの `inject:` ブロックがどの変数名を置き換えるかを示します。各グラフのエントリは、その `infra.image`、つまりアプリケーションを実行するイメージを、それが何であるかを示すコメントの下に空で書き、インポートはそれを未提供の値として報告します。それが未設定の間、Docker Compose の Recipe はカタログ自身の[クイックスタートエージェント](../examples/quickstart-ai/README.md)を実行し、これはデフォルトの変数を読み取ります。データストアとモデルにもエントリがあるため、Release はそれらをグラフと一緒に配置します。アプリケーションの最初のグラフの上のコメントは、[設定が記述する環境](#the-environment-a-configuration-states)で説明するとおり、設定が宣言する環境を記述します。下書きされるすべての Release と同様に、`metadata.environment` を `development` として書き、ターゲットがない場合はインポートが未提供の値として報告する空の `spec.manifest` を書きます。ターゲットが与えられた場合は、[ターゲットが追加するもの](#what-a-target-adds)で説明するとおり、インポートが Manifest を下書きします。"
+  },
   "1b3fbdfc1015b6b0": {
     "at": "2026-10-22T05:14:14.914265+00:00",
     "job": "msgbatch_01SJr5F7Uh6g5vmdkzNw4vuV",
@@ -21637,6 +21666,17 @@
     "status": "machine",
     "text": "ソースルートからのファイルの相対パスです（例: Chart.yaml や templates/deployment.yaml）。"
   },
+  "1e2765438198e23b": {
+    "at": "2026-11-15T00:01:44.436Z",
+    "job": "session-0026-20261115000144",
+    "revision": {
+      "from": "e1cf545956fb2bb5",
+      "reviewed": false
+    },
+    "srcHash": "1e2765438198e23b",
+    "status": "machine",
+    "text": "`importer/langgraph` は、LangGraph アプリケーションの設定 `langgraph.json` が宣言するグラフを読み取り、標準ライブラリの LangGraph エージェント `core/ai-agent/langgraph` のインスタンスをグラフごとに 1 つ保持する Aggregate をドラフトします。各インスタンスは、そのチェックポインターが状態を保持するデータストアと、モデルに接続されます。あわせて、設定が記述する環境を持つ Release をその横にドラフトします。読み取るのはその設定であり、グラフのコードは決して読み取りません。"
+  },
   "1e2f40539bc5944d": {
     "at": "2026-10-22T02:42:41.008096+00:00",
     "job": "msgbatch_01EVa3HgqoCo1GqPpjD6nota",
@@ -23412,6 +23452,17 @@
     "srcHash": "2068b81b75d4b2b1",
     "status": "machine",
     "text": "到達範囲"
+  },
+  "206c2e360eab2a70": {
+    "at": "2026-11-15T00:01:44.436Z",
+    "job": "session-0026-20261115000144",
+    "revision": {
+      "from": "a262ec2c66fcffa6",
+      "reviewed": false
+    },
+    "srcHash": "206c2e360eab2a70",
+    "status": "machine",
+    "text": "アプリケーションは、インストールのオーナーアカウントのもとでインポートされます。このアカウントは、Release がインストールに対するルーティングエントリで指定します。インストールの `api` コンポーネントの `infra.owner_email` と、同じコンポーネントの `owner_password` スロット（`core/referenced-secret` として付与）であり、これらがないとビルドは停止します。オーナーのメールアドレスはどのソースからも提供できないため、それが何であるかを示すコメントの下に空で書かれ、インポートはそれを未提供の値として報告します。"
   },
   "206d713ad48a95b0": {
     "at": "2026-10-22T01:39:34.791258+00:00",
@@ -26139,6 +26190,13 @@
     "srcHash": "242a5618ff6fb2b5",
     "status": "machine",
     "text": "将来の Class B への昇格"
+  },
+  "242a7d9a80d027e9": {
+    "at": "2026-11-15T00:01:44.436Z",
+    "job": "session-0026-20261115000144",
+    "srcHash": "242a7d9a80d027e9",
+    "status": "machine",
+    "text": "そして、ターゲットなしで下書きされたその Release は以下のとおりです。2 番目のエージェントのエントリはここでは省略し `...` で示しています。インポートは `spec.manifest` と各エージェントのイメージを未提供の値として報告します。"
   },
   "242d41fb4c39f6ed": {
     "at": "2026-10-22T03:31:15.615761+00:00",
@@ -31069,6 +31127,13 @@
     "status": "machine",
     "text": "allow_nonstandard_names=false を強制します"
   },
+  "2b15ecc5961b2d04": {
+    "at": "2026-11-15T00:01:44.436Z",
+    "job": "session-0026-20261115000144",
+    "srcHash": "2b15ecc5961b2d04",
+    "status": "machine",
+    "text": "インポートは 3 つの空の値を未提供の値として報告します。`--target compose` でインポートすると、同じ Release は `secret_key: \"${DIFY_SECRET_KEY}\"` と `origin: \"${DIFY_OWNER_PASSWORD}\"` を書き、オーナーのメールアドレスだけを未提供の値として報告します。また、`api` コンポーネントに `infra.published_port` として 5001 を、フロントエンドである `console` コンポーネントに 3001 を書きます。それぞれ、このマシン上で動作する任意のプロセスからのみ到達可能であること、そしてその行を削除するとサービスが内部に留まることを示すコメントの下に書かれます。[Dify インポートのウォークスルー](../../authoring/import/dify.md)では、両方のターゲット向けにアプリケーションをビルドし、Kubernetes 上で実行します。"
+  },
   "2b1ac1684629294d": {
     "at": "2026-10-22T03:00:38.891470+00:00",
     "job": "msgbatch_018TuANWNnugzXZUxyABeHjT",
@@ -31500,6 +31565,17 @@
     "srcHash": "2ba32285ec2a70e3",
     "status": "machine",
     "text": "サイド間の合成"
+  },
+  "2ba4a958dfe6546c": {
+    "at": "2026-11-15T00:01:44.436Z",
+    "job": "session-0026-20261115000144",
+    "revision": {
+      "from": "2cdd286001d3a649",
+      "reviewed": false
+    },
+    "srcHash": "2ba4a958dfe6546c",
+    "status": "machine",
+    "text": "オブジェクトとして書かれた `llm` はキーを保持できます — `api_key` の下、アドレス内、ヘッダー内などです。モデルを指定するメンバー以外で、数値でもブール値でもない各メンバーは資格情報を保持しうる値であり、CrewAI はそれを資格情報としてマークしません。デフォルトでは、値を持つものはそれぞれ書かれたとおり引き継がれ（Component が値を宣言している場合はモデルのインスタンスの値として、そうでない場合は Release のモデルのエントリの上のコメントに）、`credential-carried` 警告でそのエージェントとメンバー（`llm.api_key` など）によって名前が示され、値で示されることはありません。[`empty_credentials` 設定](#settings)が `all` の場合、それぞれ値なしで書かれ、`credential-emptied` で報告されます。`marked` の場合は、CrewAI が何もマークしないため、それぞれ引き継がれます。メンバー名がその意味のために読まれることはありません。宣言が保持し、ドラフトが引き継がないその他のメンバー — ツールの設定、クルーの `inputs` — は、名前が示されるだけで、値は示されません。"
   },
   "2ba764ac8852a665": {
     "at": "2026-10-22T08:03:58.541373+00:00",
@@ -32790,6 +32866,17 @@
     "srcHash": "2daa9d4d70157099",
     "status": "machine",
     "text": "ここから読み取れることが 3 つあります。"
+  },
+  "2dab648dcff2c383": {
+    "at": "2026-11-15T00:01:44.436Z",
+    "job": "session-0026-20261115000144",
+    "revision": {
+      "from": "42266ea633a2e9ab",
+      "reviewed": false
+    },
+    "srcHash": "2dab648dcff2c383",
+    "status": "machine",
+    "text": "`checkpointer` — その `backend`。`default` は PostgreSQL で、何も指定されていない場合に LangGraph が読み取るものです。`mongo` は MongoDB のプロトコルを話すデータベースです。`custom` は、アプリケーションのコードが `path` で定義するチェックポインターです。"
   },
   "2db0fd4aef4e67ed": {
     "at": "2026-10-29T23:55:51.039Z",
@@ -34441,6 +34528,17 @@
     "srcHash": "2fe9f8f1b49b87eb",
     "status": "machine",
     "text": "インポーターがその選択をした理由で、インポーター自身の言葉によるものです。何も書かれなかった場合は省略されます。"
+  },
+  "2ff08d6b4dd1fac6": {
+    "at": "2026-11-15T00:01:44.436Z",
+    "job": "session-0026-20261115000144",
+    "revision": {
+      "from": "fbc5669753922d04",
+      "reviewed": false
+    },
+    "srcHash": "2ff08d6b4dd1fac6",
+    "status": "machine",
+    "text": "その他のすべてのターゲットでは、またターゲットがない場合も、それぞれが変数への参照になります。`secret_key` は `\"${DIFY_SECRET_KEY}\"`、オーナーのパスワードは `\"${DIFY_OWNER_PASSWORD}\"` で、これらは標準カタログの Compose 向け Dify Recipes が読み取る名前です。Docker Compose はスタックの起動時にこれらを環境から読み取るため、どちらについても提供すべき値はありません。`--target compose` では、下書きされた Manifest は `core/referenced-secret` を `compose/dotenv-referenced-secret` にマッピングします。"
   },
   "2ff1865c4fae66cb": {
     "at": "2026-10-22T08:15:42.630087+00:00",
@@ -62149,6 +62247,13 @@
     "status": "machine",
     "text": "`.locals` — locals プリアンブルで解決され、ソース解決時に公開される Recipe 専用の状態。Workload のすべてのテンプレート評価箇所で利用できます。"
   },
+  "5711cc85c2b56c05": {
+    "at": "2026-11-15T00:01:44.436Z",
+    "job": "session-0026-20261115000144",
+    "srcHash": "5711cc85c2b56c05",
+    "status": "machine",
+    "text": "アプリケーションシークレットとオーナーのパスワードはシークレットであり、インポートのターゲットに応じて参照として下書きされます。"
+  },
   "57146cef90f2d61f": {
     "at": "2026-10-22T01:50:22.319444+00:00",
     "job": "msgbatch_01VwQyd4vfmNKqBKVTg2vP5W",
@@ -66225,6 +66330,17 @@
     "status": "machine",
     "text": "plugin artifact not found on this machine (Plugin entity `\"<reference>\"` is authored in a catalog directory, expected `<file>` in `<directory>`). Place the built .wasm beside the entity under that name, or publish the plugin and reference the published Plugin entity instead of the one in the catalog directory（プラグインの成果物がこのマシン上に見つかりません（この Plugin エンティティはカタログディレクトリで作成されており、指定のディレクトリに指定のファイルが想定されています）。ビルドした .wasm をその名前でエンティティの横に置くか、プラグインを公開し、カタログディレクトリ内のものではなく公開された Plugin エンティティを参照してください）"
   },
+  "5cdbf020fe0df712": {
+    "at": "2026-11-15T00:01:44.436Z",
+    "job": "session-0026-20261115000144",
+    "revision": {
+      "from": "bd760194dbe447e6",
+      "reviewed": false
+    },
+    "srcHash": "5cdbf020fe0df712",
+    "status": "machine",
+    "text": "アプリケーションのデータストアに接続された `checkpointer_db` 接続。"
+  },
   "5cdc639e5cbb0357": {
     "at": "2026-10-22T03:24:54.319294+00:00",
     "job": "msgbatch_01Quwt1bUbFp43kX3BAncRfN",
@@ -67618,6 +67734,17 @@
     "srcHash": "5eaaa972ddeaadc8",
     "status": "machine",
     "text": "パースに失敗したテンプレートは参照セットをまったく生成しません。すべてのキーを未読と報告すると、同じテンプレートに対して評価が出すパース診断が埋もれてしまうため、代わりに何も報告しません。`artifacts:` エントリは標準の `{{ }}` 区切り文字で読まれますが、これはすべての provider がそのフィールドに宣言する組とは限りません。誤った組で読むと、そのような本体は作成者が書いていない参照を生じるか、パースできないかのどちらかであり、どちらの結果も警告を黙らせる方向にしか働きません。"
+  },
+  "5eabd2fdfe07434b": {
+    "at": "2026-11-15T00:01:44.436Z",
+    "job": "session-0026-20261115000144",
+    "revision": {
+      "from": "10ff7f5833cd7e70",
+      "reviewed": false
+    },
+    "srcHash": "5eabd2fdfe07434b",
+    "status": "machine",
+    "text": "各エージェントは、回答したイメージを実行するようにレンダリングされ、モデルのエンドポイントとモデル名が、CrewAI が読み取る変数である `OPENAI_BASE_URL` と `MODEL` として渡されます。"
   },
   "5eae2b09ddce2459": {
     "at": "2026-11-14T23:59:08.244Z",
@@ -91883,6 +92010,17 @@
     "status": "machine",
     "text": "2 行はそれぞれ異なることを述べているため、別々に読んでください。"
   },
+  "806add86fb2af3e9": {
+    "at": "2026-11-15T00:01:44.436Z",
+    "job": "session-0026-20261115000144",
+    "revision": {
+      "from": "2a670a00849aa6da",
+      "reviewed": false
+    },
+    "srcHash": "806add86fb2af3e9",
+    "status": "machine",
+    "text": "アプリケーションのモデルに接続された `model` 接続。"
+  },
   "806bdd17e8434e0c": {
     "at": "2026-10-22T04:31:59.273856+00:00",
     "job": "msgbatch_01V4iinZ1EB2Yt7N23KCFLbG",
@@ -103350,6 +103488,17 @@
     "status": "machine",
     "text": "CrewAI プロジェクトが宣言するエージェントとタスク。`config/agents.yaml` と `config/tasks.yaml`（YAML）、または `crew.jsonc` と `agents/<name>.jsonc`、あるいはその厳格な JSON 表記である `crew.json` と `agents/<name>.json`（コメント付き JSON）"
   },
+  "90ada5774353f564": {
+    "at": "2026-11-15T00:01:44.436Z",
+    "job": "session-0026-20261115000144",
+    "revision": {
+      "from": "d1196ad8aa26151e",
+      "reviewed": false
+    },
+    "srcHash": "90ada5774353f564",
+    "status": "machine",
+    "text": "インストールのアプリケーションシークレット、つまり Dify がセッション Cookie の署名に使い、保存するモデルプロバイダーの認証情報の暗号化に使うキーは、`core/dify` の `secret_key` パラメーターで、デフォルト値はありません。そのためドラフトは独自の `secret_key` パラメーター（文字列、必須、1 文字以上、デフォルト値なし）を宣言し、書き出すすべての `core/dify` エントリにそれを渡して、Release がその `parameters` で満たせるようにします。Release がこれを未設定のままにしたビルドは、その名前を示して停止します。"
+  },
   "90af2ce0e0845274": {
     "at": "2026-10-29T23:52:11.486Z",
     "job": "session-0036-20261029235211",
@@ -108998,6 +109147,17 @@
     "srcHash": "9876cb7a20e053ad",
     "status": "machine",
     "text": "コンパイラは、エンティティ名、アサーションのソース位置、失敗メッセージとともに、Loud Guardrails のエラー形式でメッセージを提示します。この診断は、開発者が根本原因を特定して修正できる程度に具体的です。"
+  },
+  "987a77f968a2ac31": {
+    "at": "2026-11-15T00:01:44.436Z",
+    "job": "session-0026-20261115000144",
+    "revision": {
+      "from": "9941776d9b787ae7",
+      "reviewed": false
+    },
+    "srcHash": "987a77f968a2ac31",
+    "status": "machine",
+    "text": "インポートは 4 つの値を未提供の値として報告します。`spec.manifest`、各グラフのイメージ、そしてモデルの名前です。これらに回答すると、各グラフは回答したイメージを実行し、データストアのアドレスを `LANGGRAPH_CHECKPOINTER_HOST` と `LANGGRAPH_CHECKPOINTER_PORT` として、データストアが公開するユーザーとデータベースを `LANGGRAPH_CHECKPOINTER_USER` と `LANGGRAPH_CHECKPOINTER_DATABASE` として（PostgreSQL は両方を公開し、どちらも公開しないデータストアではどちらの変数もレンダリングされません）、モデルのエンドポイントと名前を `OPENAI_BASE_URL` と `OPENAI_MODEL` として、モデルの認証情報が渡すキーを `OPENAI_API_KEY` として、インポートパスを `LANGGRAPH_GRAPH_ENTRYPOINT` として、ステップ上限を `LANGGRAPH_DEFAULT_RECURSION_LIMIT` として受け取るようにレンダリングされます。`checkpointer_db` 接続に付けられた認証情報は、データストアのパスワードも `LANGGRAPH_CHECKPOINTER_PASSWORD` として渡します。"
   },
   "987df12f65d594a0": {
     "at": "2026-10-30T02:04:27.098Z",
@@ -115032,6 +115192,13 @@
     "srcHash": "a0fcf281909f4669",
     "status": "machine",
     "text": "`provides:` エントリは、別のコンポーネントが依存関係の接続を通じて読み取る値を生成するテンプレートです。この状態は、評価できなかったエントリが報告するものです。パースできないテンプレート、このサーフェスが登録していない関数の呼び出し、レンダーコンテキストが提供しなかったものを経由してたどる参照、またはマップが保持していないキーの `index` 読み取りです。"
+  },
+  "a0ff294705bffc32": {
+    "at": "2026-11-15T00:01:44.436Z",
+    "job": "session-0026-20261115000144",
+    "srcHash": "a0ff294705bffc32",
+    "status": "machine",
+    "text": "`--target helm` では、それぞれが名前空間にすでに存在する Kubernetes の Secret を指定します。`secret_key` は Secret の名前で、`core/dify` はそれをデータキー `secret-key` で読み取ります。`owner_password` はデータキー `value` にパスワードを保持する Secret です。どちらの名前もどのソースからも提供できないため、それぞれが何であるかを示すコメントの下に空で書かれ、インポートは両方を未提供の値として報告します。下書きされた Manifest は `core/referenced-secret` を `helm/k8s-existing-secret` にマッピングします。"
   },
   "a103746d81290cb2": {
     "at": "2026-10-22T02:48:40.419851+00:00",
@@ -130731,6 +130898,17 @@
     "srcHash": "b5cb8f2d962fe85a",
     "status": "machine",
     "text": "各エンティティ種別には、それぞれ自然な「契約」ビューがあります。`inspect` はその契約を表示します。Component が公開するスキーマ、Manifest が宣言するマッピング、Aggregate が構築するトポロジー、Release が解決するノードごとの Feature アタッチメントです。チュートリアルや概念的な説明は別の場所にあります。`inspect` は「このエンティティは実際に何に解決されるのか」に答えます。"
+  },
+  "b5cf783f0fd7ea93": {
+    "at": "2026-11-15T00:01:44.436Z",
+    "job": "session-0026-20261115000144",
+    "revision": {
+      "from": "1e86063eb9220142",
+      "reviewed": false
+    },
+    "srcHash": "b5cf783f0fd7ea93",
+    "status": "machine",
+    "text": "`--target helm` でインポートすると、下書きされた Release は `secret_key` を満たし、インストールを配置するルーティングエントリでオーナーを指定します。未提供の値はそれぞれ空で書かれます。"
   },
   "b5d0c7a988b9ab7f": {
     "at": "2026-10-22T04:31:59.273856+00:00",
@@ -151204,6 +151382,13 @@
     "status": "machine",
     "text": "`aggrega import` は、別の形式で書かれたプロジェクト（Langflow からエクスポートしたフロー、MCP クライアントの設定、Compose ファイル、および以下に挙げるその他の形式）を読み取り、そこから Aggrega のドラフトファイル、つまり Aggregate と、ほとんどの形式では Release を書き出します。これらはレビュー、編集、ビルドするためのものです。何もデプロイせず、クラスターやクラウドアカウントにも接続しません。ドラフトはワークスペース内の通常のファイルであり、その後どう扱うかは自由です。"
   },
+  "d17b19debd28ed51": {
+    "at": "2026-11-15T00:01:44.436Z",
+    "job": "session-0026-20261115000144",
+    "srcHash": "d17b19debd28ed51",
+    "status": "machine",
+    "text": "ターゲットが与えられると、Manifest は、[ターゲットが追加するもの](#what-a-target-adds)で説明するとおり、インストールが構成する各コンポーネントの型と、下書き自身の型をマッピングします。"
+  },
   "d17c2b46c34e0bbc": {
     "at": "2026-10-29T18:53:24.886Z",
     "job": "session-0014-20261029185324",
@@ -151359,6 +151544,17 @@
     "srcHash": "d1adc8203c0616da",
     "status": "machine",
     "text": "side effect declares a kind the plugin contract does not define; a conforming side effect declares emit_file or emit_crd (node `\"<node>\"`, side effect `<index>`, kind `\"<value>\"`)（副作用がプラグイン契約で定義されていない種類を宣言しています。準拠する副作用は emit_file または emit_crd を宣言します）"
+  },
+  "d1b8d439bcf77f09": {
+    "at": "2026-11-15T00:01:44.436Z",
+    "job": "session-0026-20261115000144",
+    "revision": {
+      "from": "abb08b05acbf1a4a",
+      "reviewed": false
+    },
+    "srcHash": "d1b8d439bcf77f09",
+    "status": "machine",
+    "text": "`recursion_limit` は書かれないため、Component のデフォルト値 25 が適用されます。設定はモデルを指定しないため、ドラフトは `model` をキーとする `core/ai-model/openai` のインスタンスを 1 つ保持し、すべてのグラフがそれを呼び出します。これはエージェントの OpenAI クライアントに渡されるモデルです。その `values.model` は、設定がモデルを指定していないことを示すコメントの下に空で書かれ、インポートはそれを未提供の値として報告します。"
   },
   "d1c19534f5836ff6": {
     "at": "2026-10-22T08:15:42.630087+00:00",
@@ -157389,6 +157585,17 @@
     "srcHash": "da919120dea0bef8",
     "status": "machine",
     "text": "`policy`"
+  },
+  "da953e9d176e0228": {
+    "at": "2026-11-15T00:01:44.436Z",
+    "job": "session-0026-20261115000144",
+    "revision": {
+      "from": "151d41186f9e91c7",
+      "reviewed": false
+    },
+    "srcHash": "da953e9d176e0228",
+    "status": "machine",
+    "text": "`aggregate.yaml` は、[ドラフトの命名方法](#how-a-draft-is-named)で説明するとおりアプリケーションにちなんで名付けられた下書き Aggregate で、`dify` をキーとする `core/dify` のエントリを 1 つ構成します。その `app_definition` パラメーターは、アプリケーションを記述どおりに格納します。これはフローについて[フローが下書きにどう書き込まれるか](#how-the-flow-is-written-into-the-draft)で説明するとおりであり、Dify 独自の `{{#…#}}` 参照はエクスポートされたとおりにインストールに届きます。インストールは API サーバーのすべての接続（データベース、キャッシュ、ベクトルストア、サンドボックス、プラグインランタイム、エグレスプロキシ）を自ら配線するため、下書きは Component を下書きせず、何も配線しません。すべてのノードはアプリケーション内に残り、その決定にそのことが記録されます。その横の `release.yaml` は同じ名前の下書き Release で、インストールを境界 `platform` に配置し、アプリケーションが提供できないものを格納します。"
   },
   "da99e32472f86fa6": {
     "at": "2026-10-22T08:23:20.000561+00:00",
@@ -176937,6 +177144,17 @@
     "srcHash": "f49ed005822e23a8",
     "status": "machine",
     "text": "同じ境界内の他の Recipes の出力。"
+  },
+  "f4a42856c608f18e": {
+    "at": "2026-11-15T00:01:44.436Z",
+    "job": "session-0026-20261115000144",
+    "revision": {
+      "from": "ffcc674cdfd17e52",
+      "reviewed": false
+    },
+    "srcHash": "f4a42856c608f18e",
+    "status": "machine",
+    "text": "チェックポインターのバックエンドは、アプリケーションのすべてのグラフが接続されるデータストアです。`default`、またはバックエンドを指定しないチェックポインターは、`postgres` をキーとする `core/datastore/postgres` のインスタンスになります。`mongo` は FerretDB で、MongoDB のプロトコルを話し、DocumentDB 拡張を備えた PostgreSQL 上で動作します。すなわち、すべてのグラフが接続される `ferretdb` をキーとする `core/datastore/ferretdb` のインスタンスと、FerretDB の `backend` 接続が到達する `documentdb` をキーとする `core/datastore/documentdb` のインスタンスであり、その `inject` ブロックは DocumentDB が公開するものを FerretDB が読み取る名前で渡します。変数 `FERRETDB_PASSWORD` から読み取られる 1 つのパスワードが、DocumentDB、FerretDB からそれへの接続、および各グラフから FerretDB への接続に付与されます。ワークスペースのカタログに PostgreSQL データストアの名前の Component がない場合は、エージェントの `checkpointer_db` 接続が読み取る `host` と `port` を宣言する `<target_namespace>/datastore/postgres` がドラフトされ、そのデシジョンにその旨が記されます。データストアを実行してそれらを公開する Recipe は、冒頭のコメントが示すとおり利用者に委ねられます。カタログに FerretDB または DocumentDB の Component がない場合、`mongo` チェックポインターはどのデータストアにも接続されません。`custom` チェックポインター、またはインポーターがどのデータストアにも対応付けないバックエンドは何も接続せず、各グラフの上のコメントとチェックポインターのデシジョンがその理由を示します。接続されるまで、ビルドは `checkpointer_db` ソケットを示して停止します。ストアは、何も選択しないデシジョンで報告されます。"
   },
   "f4a845a579490369": {
     "at": "2026-10-29T21:34:59.076Z",

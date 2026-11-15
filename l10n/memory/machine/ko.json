@@ -9435,6 +9435,13 @@
     "status": "machine",
     "text": "HTTP 요청 노드의 `headers`와 `params` 각각 전체로, Dify가 자격 증명으로 표시하지 않지만 자격 증명을 담을 수 있습니다."
   },
+  "0cd6d5e62f8b7b1c": {
+    "at": "2026-11-15T00:01:44.436Z",
+    "job": "session-0026-20261115000144",
+    "srcHash": "0cd6d5e62f8b7b1c",
+    "status": "machine",
+    "text": "데이터 저장소의 비밀번호는 초안이 참조로 첨부하는 시크릿으로, 데이터 저장소 자체의 `password` 슬롯과 각 그래프의 `checkpointer_db` 연결에 첨부되며, 각 그래프가 `model` 연결에서 모델에 제시하는 자격 증명도 마찬가지입니다. 구성이 둘 다 변수를 지정하지 않으므로 각각 `POSTGRES_PASSWORD`(또는 `FERRETDB_PASSWORD`)와 `OPENAI_API_KEY`에서 읽으며, helm을 제외한 모든 대상에서는 `${…}` 참조로, helm에서는 Kubernetes Secret의 이름으로 작성되고, 후자는 비어 있는 채로 작성되어 임포트가 제공해야 할 값으로 보고합니다. compose에서는 [대상별 시크릿](#secrets-for-each-target)이 플랫폼에 대해 설명하는 대로 Aggregate가 각각을 해당 Recipe가 읽는 키로 선언합니다."
+  },
   "0cdc12418b7c3618": {
     "at": "2026-10-22T03:53:00.119047+00:00",
     "job": "msgbatch_013WHPBfgnxTj5isCEqnpB8T",
@@ -9943,6 +9950,17 @@
     "srcHash": "0da22ac80aa101a5",
     "status": "machine",
     "text": "Release가 바인딩하고 라우팅하는 대상: Release가 배포하는 Aggregate와 Manifest(또는 extends 기반), 환경별 파라미터 충족, 그리고 그 컴포넌트가 라우팅되어 들어가는 경계입니다."
+  },
+  "0da5744722fdb96f": {
+    "at": "2026-11-15T00:01:44.436Z",
+    "job": "session-0026-20261115000144",
+    "revision": {
+      "from": "4e5a5ada6b7fa1da",
+      "reviewed": false
+    },
+    "srcHash": "0da5744722fdb96f",
+    "status": "machine",
+    "text": "그 옆의 `release.yaml`은 같은 이름으로 해당 Aggregate를 지정하는 초안 Release입니다. 각 에이전트의 `infra.image`(어떤 선언도 지정하지 않는, 크루의 프로그램을 실행하는 이미지)를 그것이 무엇인지 설명하는 주석 아래에 비어 있는 채로 작성하며, 임포트는 이를 제공해야 할 값으로 보고합니다. 각 에이전트가 모델에 제시하는 자격 증명은 `model` 연결의 `credential` 아래에 값이 아닌 참조로 첨부합니다. 어떤 선언도 이를 위한 변수를 지정하지 않으므로, 공급자의 클라이언트 라이브러리가 API 키를 읽는 변수(OpenAI의 경우 `OPENAI_API_KEY`)에서 읽으며, helm을 제외한 모든 대상에서는 `${…}` 참조로, helm에서는 Kubernetes Secret의 이름으로 작성되고, 후자는 비어 있는 채로 작성되어 임포트가 제공해야 할 값으로 보고합니다. compose에서는 에이전트의 `model` 연결이 그 키로 이를 선언합니다. 각 모델에도 인프라를 담지 않는 항목이 있어 Release가 모델을 에이전트와 함께 배치합니다. `llm` 객체로 선언된 모델의 경우, 다른 각 멤버는 카탈로그의 Component가 그 이름의 값을 선언하면 모델 인스턴스의 값으로 작성되고, 그렇지 않으면 Release에서 모델 항목 위의 주석에 작성되어 Component가 이를 받는 곳으로 사용자가 옮길 수 있게 합니다. 초안으로 작성되는 모든 Release와 마찬가지로 `metadata.environment`를 `development`로 작성하고, 대상이 없으면 임포트가 제공해야 할 값으로 보고하는 빈 `spec.manifest`를 작성합니다. 대상이 주어지면 [대상이 추가하는 것](#what-a-target-adds)에서 설명하는 대로 임포트가 Manifest를 초안으로 작성합니다."
   },
   "0da67adbb33e64eb": {
     "at": "2026-10-22T03:12:40.354254+00:00",
@@ -19619,6 +19637,17 @@
     "status": "machine",
     "text": "해석 (엔벨로프 이후)"
   },
+  "1b3adafd43ff012c": {
+    "at": "2026-11-15T00:01:44.436Z",
+    "job": "session-0026-20261115000144",
+    "revision": {
+      "from": "fc7853cb004b809d",
+      "reviewed": false
+    },
+    "srcHash": "1b3adafd43ff012c",
+    "status": "machine",
+    "text": "그 옆의 `release.yaml`은 같은 이름으로 그 Aggregate를 지정하는 초안 Release입니다. 첫 번째 그래프 항목 위의 주석은 각 그래프의 이미지가 무엇인지 — 애플리케이션 자체의 이미지, 즉 LangGraph가 설치된 애플리케이션 코드이며 `langgraph build`가 빌드하는 서버 이미지가 아님 —, 그 이미지에 전달되는 변수, 그리고 어떤 `inject:` 블록이 그 변수 이름 중 어느 것을 대체하는지를 설명합니다. 각 그래프 항목은 그 `infra.image`, 즉 애플리케이션을 실행하는 이미지를 그것이 무엇인지 설명하는 주석 아래에 비어 있는 채로 작성하며, 임포트는 이를 제공해야 할 값으로 보고합니다. 이것이 설정되지 않은 동안 Docker Compose Recipe는 카탈로그 자체의 [퀵스타트 에이전트](../examples/quickstart-ai/README.md)를 실행하며, 이 에이전트는 기본 변수를 읽습니다. 데이터 저장소와 모델에도 항목이 있으므로 Release는 이를 그래프들과 함께 배치합니다. 애플리케이션의 첫 번째 그래프 위의 주석은 [구성이 명시하는 환경](#the-environment-a-configuration-states)에서 설명하듯 구성이 선언하는 환경을 명시합니다. 초안으로 작성되는 모든 Release와 마찬가지로 `metadata.environment`를 `development`로 작성하고, 대상이 없으면 임포트가 제공해야 할 값으로 보고하는 빈 `spec.manifest`를 작성합니다. 대상이 주어지면 [대상이 추가하는 것](#what-a-target-adds)에서 설명하는 대로 임포트가 Manifest를 초안으로 작성합니다."
+  },
   "1b3fbdfc1015b6b0": {
     "at": "2026-10-22T05:14:14.914265+00:00",
     "job": "msgbatch_01SJr5F7Uh6g5vmdkzNw4vuV",
@@ -21643,6 +21672,17 @@
     "status": "machine",
     "text": "소스 루트에 대한 파일의 상대 경로입니다(예: Chart.yaml 또는 templates/deployment.yaml)."
   },
+  "1e2765438198e23b": {
+    "at": "2026-11-15T00:01:44.436Z",
+    "job": "session-0026-20261115000144",
+    "revision": {
+      "from": "e1cf545956fb2bb5",
+      "reviewed": false
+    },
+    "srcHash": "1e2765438198e23b",
+    "status": "machine",
+    "text": "`importer/langgraph`는 LangGraph 애플리케이션의 구성 파일인 `langgraph.json`이 선언하는 그래프를 읽고, 그래프마다 표준 라이브러리의 LangGraph 에이전트인 `core/ai-agent/langgraph` 인스턴스를 하나씩 담은 Aggregate를 초안으로 작성합니다. 각 인스턴스는 체크포인터가 상태를 보관하는 데이터 저장소와 모델에 연결되며, 구성이 명시하는 환경을 담은 Release가 그 옆에 함께 작성됩니다. 임포터는 그 구성을 읽으며, 그래프의 코드는 결코 읽지 않습니다."
+  },
   "1e2f40539bc5944d": {
     "at": "2026-10-22T02:42:41.008096+00:00",
     "job": "msgbatch_01EVa3HgqoCo1GqPpjD6nota",
@@ -23418,6 +23458,17 @@
     "srcHash": "2068b81b75d4b2b1",
     "status": "machine",
     "text": "도달 범위"
+  },
+  "206c2e360eab2a70": {
+    "at": "2026-11-15T00:01:44.436Z",
+    "job": "session-0026-20261115000144",
+    "revision": {
+      "from": "a262ec2c66fcffa6",
+      "reviewed": false
+    },
+    "srcHash": "206c2e360eab2a70",
+    "status": "machine",
+    "text": "애플리케이션은 설치의 소유자 계정으로 가져오며, 이 계정은 Release가 설치에 대한 라우팅 항목에서 지정합니다. 설치의 `api` 컴포넌트의 `infra.owner_email`과, 같은 컴포넌트의 `owner_password` 슬롯(`core/referenced-secret`로 첨부)이며, 이것들이 없으면 빌드가 중단됩니다. 소유자의 이메일은 어떤 소스도 제공할 수 없으므로, 그것이 무엇인지 설명하는 주석 아래에 비어 있는 채로 작성되며, 임포트는 이를 제공해야 할 값으로 보고합니다."
   },
   "206d713ad48a95b0": {
     "at": "2026-10-22T01:39:34.791258+00:00",
@@ -26145,6 +26196,13 @@
     "srcHash": "242a5618ff6fb2b5",
     "status": "machine",
     "text": "향후 Class B로의 승격"
+  },
+  "242a7d9a80d027e9": {
+    "at": "2026-11-15T00:01:44.436Z",
+    "job": "session-0026-20261115000144",
+    "srcHash": "242a7d9a80d027e9",
+    "status": "machine",
+    "text": "그리고 대상 없이 초안으로 작성된 그 Release는 아래와 같으며, 두 번째 에이전트의 항목은 여기서 생략하고 `...`로 표시했습니다. 임포트는 `spec.manifest`와 각 에이전트의 이미지를 제공해야 할 값으로 보고합니다."
   },
   "242d41fb4c39f6ed": {
     "at": "2026-10-22T03:31:15.615761+00:00",
@@ -31075,6 +31133,13 @@
     "status": "machine",
     "text": "allow_nonstandard_names=false를 강제합니다"
   },
+  "2b15ecc5961b2d04": {
+    "at": "2026-11-15T00:01:44.436Z",
+    "job": "session-0026-20261115000144",
+    "srcHash": "2b15ecc5961b2d04",
+    "status": "machine",
+    "text": "임포트는 비어 있는 세 값을 제공해야 할 값으로 보고합니다. `--target compose`로 가져오면, 같은 Release는 `secret_key: \"${DIFY_SECRET_KEY}\"`와 `origin: \"${DIFY_OWNER_PASSWORD}\"`를 작성하고, 소유자의 이메일만 제공해야 할 값으로 보고합니다. 또한 `api` 컴포넌트에 `infra.published_port`로 5001을, 프런트엔드인 `console` 컴포넌트에 3001을 작성하며, 각각은 이 머신에서 실행되는 모든 프로세스가 이 머신에서만 접근할 수 있고, 해당 줄을 삭제하면 서비스가 내부에 유지된다고 설명하는 주석 아래에 있습니다. [Dify 임포트 연습](../../authoring/import/dify.md)은 두 대상 모두에 대해 애플리케이션을 빌드하고 Kubernetes에서 실행합니다."
+  },
   "2b1ac1684629294d": {
     "at": "2026-10-22T03:00:38.891470+00:00",
     "job": "msgbatch_018TuANWNnugzXZUxyABeHjT",
@@ -31506,6 +31571,17 @@
     "srcHash": "2ba32285ec2a70e3",
     "status": "machine",
     "text": "측면 간 합성"
+  },
+  "2ba4a958dfe6546c": {
+    "at": "2026-11-15T00:01:44.436Z",
+    "job": "session-0026-20261115000144",
+    "revision": {
+      "from": "2cdd286001d3a649",
+      "reviewed": false
+    },
+    "srcHash": "2ba4a958dfe6546c",
+    "status": "machine",
+    "text": "객체로 작성된 `llm`은 `api_key` 아래, 주소, 헤더 등에 키를 담을 수 있습니다. 모델을 지정하는 멤버를 제외한, 숫자나 불리언이 아닌 각 멤버는 키를 담을 수 있는 값이며, CrewAI는 이를 자격 증명으로 표시하지 않습니다. 기본적으로 값을 가진 각 멤버는 작성된 그대로 옮겨지며(Component가 값을 선언하는 경우 모델 인스턴스의 값으로, 그렇지 않으면 Release에서 모델 항목 위의 주석으로), `credential-carried` 경고에 값이 아니라 에이전트와 `llm.api_key` 같은 멤버로 기재됩니다. [`empty_credentials` 설정](#settings)이 `all`이면 각각 값 없이 작성되고 `credential-emptied`로 보고되며, `marked`이면 CrewAI가 아무것도 표시하지 않으므로 각각 옮겨집니다. 멤버의 이름은 그 의미로 해석되지 않습니다. 초안이 옮기지 않는, 선언이 담는 그 밖의 모든 멤버 — 도구의 구성, 크루의 `inputs` — 는 이름만 기재되고 값은 기재되지 않습니다."
   },
   "2ba764ac8852a665": {
     "at": "2026-10-22T08:03:58.541373+00:00",
@@ -32796,6 +32872,17 @@
     "srcHash": "2daa9d4d70157099",
     "status": "machine",
     "text": "여기서 세 가지를 읽어 낼 수 있습니다."
+  },
+  "2dab648dcff2c383": {
+    "at": "2026-11-15T00:01:44.436Z",
+    "job": "session-0026-20261115000144",
+    "revision": {
+      "from": "42266ea633a2e9ab",
+      "reviewed": false
+    },
+    "srcHash": "2dab648dcff2c383",
+    "status": "machine",
+    "text": "`checkpointer` — 그 `backend`: PostgreSQL이며 아무것도 지정되지 않았을 때 LangGraph가 읽는 값인 `default`, MongoDB의 프로토콜을 사용하는 데이터베이스인 `mongo`, 또는 애플리케이션 코드가 `path`에 정의하는 체크포인터인 `custom`;"
   },
   "2db0fd4aef4e67ed": {
     "at": "2026-10-29T23:55:51.039Z",
@@ -34447,6 +34534,17 @@
     "srcHash": "2fe9f8f1b49b87eb",
     "status": "machine",
     "text": "임포터가 그렇게 선택한 이유를 임포터 자신의 말로 적은 것입니다. 적은 것이 없으면 생략됩니다."
+  },
+  "2ff08d6b4dd1fac6": {
+    "at": "2026-11-15T00:01:44.436Z",
+    "job": "session-0026-20261115000144",
+    "revision": {
+      "from": "fbc5669753922d04",
+      "reviewed": false
+    },
+    "srcHash": "2ff08d6b4dd1fac6",
+    "status": "machine",
+    "text": "그 밖의 모든 대상에서, 그리고 대상이 없을 때에도, 각각은 변수에 대한 참조입니다. `secret_key`는 `\"${DIFY_SECRET_KEY}\"`로, 소유자의 비밀번호는 `\"${DIFY_OWNER_PASSWORD}\"`로 작성되며, 이는 표준 카탈로그의 Compose용 Dify Recipes가 읽는 이름입니다. Docker Compose는 스택이 시작될 때 이를 환경에서 읽으므로 둘 다 제공해야 할 값이 없습니다. `--target compose`에서는 초안으로 작성된 Manifest가 `core/referenced-secret`를 `compose/dotenv-referenced-secret`에 매핑합니다."
   },
   "2ff1865c4fae66cb": {
     "at": "2026-10-22T08:15:42.630087+00:00",
@@ -62161,6 +62259,13 @@
     "status": "machine",
     "text": "`.locals` — locals 프리앰블에서 해석되고 소스 해석 시점에 게시되는 Recipe 전용 상태입니다. 모든 Workload 템플릿 평가 위치에서 사용할 수 있습니다."
   },
+  "5711cc85c2b56c05": {
+    "at": "2026-11-15T00:01:44.436Z",
+    "job": "session-0026-20261115000144",
+    "srcHash": "5711cc85c2b56c05",
+    "status": "machine",
+    "text": "애플리케이션 시크릿과 소유자의 비밀번호는 시크릿이며, 임포트의 대상에 맞게 참조로 초안이 작성됩니다."
+  },
   "57146cef90f2d61f": {
     "at": "2026-10-22T01:50:22.319444+00:00",
     "job": "msgbatch_01VwQyd4vfmNKqBKVTg2vP5W",
@@ -66237,6 +66342,17 @@
     "status": "machine",
     "text": "plugin artifact not found on this machine (Plugin entity `\"<reference>\"` is authored in a catalog directory, expected `<file>` in `<directory>`). Place the built .wasm beside the entity under that name, or publish the plugin and reference the published Plugin entity instead of the one in the catalog directory (이 머신에서 플러그인 아티팩트를 찾을 수 없음(Plugin 엔터티가 카탈로그 디렉터리에서 작성되었으며, 해당 디렉터리에 해당 파일이 있어야 함). 빌드한 .wasm을 그 이름으로 엔터티 옆에 두거나, 플러그인을 게시하고 카탈로그 디렉터리의 엔터티 대신 게시된 Plugin 엔터티를 참조하십시오)"
   },
+  "5cdbf020fe0df712": {
+    "at": "2026-11-15T00:01:44.436Z",
+    "job": "session-0026-20261115000144",
+    "revision": {
+      "from": "bd760194dbe447e6",
+      "reviewed": false
+    },
+    "srcHash": "5cdbf020fe0df712",
+    "status": "machine",
+    "text": "애플리케이션의 데이터 저장소에 연결된 `checkpointer_db` 연결;"
+  },
   "5cdc639e5cbb0357": {
     "at": "2026-10-22T03:24:54.319294+00:00",
     "job": "msgbatch_01Quwt1bUbFp43kX3BAncRfN",
@@ -67630,6 +67746,17 @@
     "srcHash": "5eaaa972ddeaadc8",
     "status": "machine",
     "text": "파싱에 실패한 템플릿은 참조 집합을 전혀 내놓지 않습니다. 모든 키를 읽히지 않았다고 보고하면 같은 템플릿에 대해 평가가 내는 파싱 진단이 묻히므로, 대신 아무것도 보고하지 않습니다. `artifacts:` 항목은 표준 `{{ }}` 구분자로 읽는데, 이는 모든 공급자가 그 필드에 선언하는 쌍이 아닙니다. 잘못된 쌍으로 읽으면 그런 본문은 작성자가 쓴 적 없는 참조를 내놓거나 파싱되지 않으며, 두 결과 모두 경고를 침묵시킬 뿐입니다."
+  },
+  "5eabd2fdfe07434b": {
+    "at": "2026-11-15T00:01:44.436Z",
+    "job": "session-0026-20261115000144",
+    "revision": {
+      "from": "10ff7f5833cd7e70",
+      "reviewed": false
+    },
+    "srcHash": "5eabd2fdfe07434b",
+    "status": "machine",
+    "text": "그러면 각 에이전트는 답변한 이미지를 실행하도록 렌더링되며, 모델의 엔드포인트와 모델 이름을 CrewAI가 읽는 변수인 `OPENAI_BASE_URL`과 `MODEL`로 받습니다."
   },
   "5eae2b09ddce2459": {
     "at": "2026-11-14T23:59:08.244Z",
@@ -91897,6 +92024,17 @@
     "status": "machine",
     "text": "두 줄은 서로 다른 내용을 말하므로 따로 읽어야 합니다."
   },
+  "806add86fb2af3e9": {
+    "at": "2026-11-15T00:01:44.436Z",
+    "job": "session-0026-20261115000144",
+    "revision": {
+      "from": "2a670a00849aa6da",
+      "reviewed": false
+    },
+    "srcHash": "806add86fb2af3e9",
+    "status": "machine",
+    "text": "애플리케이션의 모델에 연결된 `model` 연결."
+  },
   "806bdd17e8434e0c": {
     "at": "2026-10-22T04:31:59.273856+00:00",
     "job": "msgbatch_01V4iinZ1EB2Yt7N23KCFLbG",
@@ -103360,6 +103498,17 @@
     "status": "machine",
     "text": "CrewAI 프로젝트가 선언하는 에이전트와 태스크: YAML 형식의 `config/agents.yaml` 및 `config/tasks.yaml`, 또는 주석이 포함된 JSON 형식의 `crew.jsonc` 및 `agents/<name>.jsonc`, 혹은 그 엄격한 JSON 표기인 `crew.json` 및 `agents/<name>.json`"
   },
+  "90ada5774353f564": {
+    "at": "2026-11-15T00:01:44.436Z",
+    "job": "session-0026-20261115000144",
+    "revision": {
+      "from": "d1196ad8aa26151e",
+      "reviewed": false
+    },
+    "srcHash": "90ada5774353f564",
+    "status": "machine",
+    "text": "설치의 애플리케이션 시크릿, 즉 Dify가 세션 쿠키에 서명하고 저장하는 모델 공급자 자격 증명을 암호화하는 데 쓰는 키는 `core/dify`의 `secret_key` 매개변수이며, 기본값이 없습니다. 따라서 초안은 자체 `secret_key` 매개변수(문자열, 필수, 최소 한 글자, 기본값 없음)를 선언하고, 작성하는 모든 `core/dify` 항목에 이를 전달하여 Release가 자신의 `parameters` 아래에서 채우도록 합니다. Release가 이를 설정하지 않은 빌드는 그 이름을 지정하며 중단됩니다."
+  },
   "90af2ce0e0845274": {
     "at": "2026-10-29T23:52:11.486Z",
     "job": "session-0036-20261029235211",
@@ -109008,6 +109157,17 @@
     "srcHash": "9876cb7a20e053ad",
     "status": "machine",
     "text": "컴파일러는 이 메시지를 엔티티 이름, assertion 소스 위치, 실패 메시지와 함께 Loud Guardrails 오류 형식으로 표시합니다. 이 진단은 개발자가 근본 원인을 파악하고 수정할 수 있을 만큼 구체적입니다."
+  },
+  "987a77f968a2ac31": {
+    "at": "2026-11-15T00:01:44.436Z",
+    "job": "session-0026-20261115000144",
+    "revision": {
+      "from": "9941776d9b787ae7",
+      "reviewed": false
+    },
+    "srcHash": "987a77f968a2ac31",
+    "status": "machine",
+    "text": "임포트는 네 가지 값을 제공해야 할 값으로 보고합니다. `spec.manifest`, 각 그래프의 이미지, 그리고 모델의 이름입니다. 이에 답변하면 각 그래프는 답변한 이미지를 실행하도록 렌더링되며, 데이터 저장소의 주소를 `LANGGRAPH_CHECKPOINTER_HOST`와 `LANGGRAPH_CHECKPOINTER_PORT`로, 데이터 저장소가 게시하는 사용자와 데이터베이스를 `LANGGRAPH_CHECKPOINTER_USER`와 `LANGGRAPH_CHECKPOINTER_DATABASE`로(PostgreSQL은 둘 다 게시하며, 둘 다 게시하지 않는 데이터 저장소에서는 두 변수 모두 렌더링되지 않습니다), 모델의 엔드포인트와 이름을 `OPENAI_BASE_URL`과 `OPENAI_MODEL`로, 모델 자격 증명이 전달하는 키를 `OPENAI_API_KEY`로, 임포트 경로를 `LANGGRAPH_GRAPH_ENTRYPOINT`로, 단계 한도를 `LANGGRAPH_DEFAULT_RECURSION_LIMIT`로 전달받습니다. `checkpointer_db` 연결에 첨부된 자격 증명은 데이터 저장소의 비밀번호도 `LANGGRAPH_CHECKPOINTER_PASSWORD`로 전달합니다."
   },
   "987df12f65d594a0": {
     "at": "2026-10-30T02:04:27.098Z",
@@ -115042,6 +115202,13 @@
     "srcHash": "a0fcf281909f4669",
     "status": "machine",
     "text": "`provides:` 항목은 다른 컴포넌트가 의존성 연결을 통해 읽는 값을 생성하는 템플릿입니다. 이 조건은 평가할 수 없는 항목이 보고하는 것입니다. 구문 분석되지 않는 템플릿, 이 인터페이스가 등록하지 않는 함수 호출, 렌더 컨텍스트가 제공하지 않은 것을 거쳐 내려가는 참조, 또는 맵에 없는 키에 대한 `index` 읽기가 해당됩니다."
+  },
+  "a0ff294705bffc32": {
+    "at": "2026-11-15T00:01:44.436Z",
+    "job": "session-0026-20261115000144",
+    "srcHash": "a0ff294705bffc32",
+    "status": "machine",
+    "text": "`--target helm`에서는 각각이 네임스페이스에 이미 있는 Kubernetes Secret을 지정합니다. `secret_key`는 Secret의 이름으로, `core/dify`는 이를 데이터 키 `secret-key` 아래에서 읽으며, `owner_password`는 데이터 키 `value` 아래에 비밀번호를 담은 Secret입니다. 두 이름 모두 어떤 소스도 제공할 수 없으므로, 각각 그것이 무엇인지 설명하는 주석 아래에 비어 있는 채로 작성되며, 임포트는 둘 다 제공해야 할 값으로 보고합니다. 초안으로 작성된 Manifest는 `core/referenced-secret`를 `helm/k8s-existing-secret`에 매핑합니다."
   },
   "a103746d81290cb2": {
     "at": "2026-10-22T02:48:40.419851+00:00",
@@ -130735,6 +130902,17 @@
     "srcHash": "b5cb8f2d962fe85a",
     "status": "machine",
     "text": "각 엔터티 종류에는 자연스러운 “계약” 뷰가 있습니다. `inspect`는 그 계약을 보여 줍니다. Component가 게시하는 스키마, Manifest가 선언하는 매핑, Aggregate가 구성하는 토폴로지, Release가 해석한 노드별 Feature 연결이 그것입니다. 튜토리얼과 개념 자료는 다른 곳에 있으며, `inspect`는 “이 엔터티는 실제로 무엇으로 해석되는가?”라는 질문에 답합니다."
+  },
+  "b5cf783f0fd7ea93": {
+    "at": "2026-11-15T00:01:44.436Z",
+    "job": "session-0026-20261115000144",
+    "revision": {
+      "from": "1e86063eb9220142",
+      "reviewed": false
+    },
+    "srcHash": "b5cf783f0fd7ea93",
+    "status": "machine",
+    "text": "`--target helm`으로 가져오면, 초안으로 작성된 Release는 `secret_key`를 채우고 설치를 배치하는 라우팅 항목에서 소유자를 지정하며, 제공해야 할 각 값은 비어 있는 채로 작성됩니다."
   },
   "b5d0c7a988b9ab7f": {
     "at": "2026-10-22T04:31:59.273856+00:00",
@@ -151196,6 +151374,13 @@
     "status": "machine",
     "text": "`aggrega import`는 다른 형식으로 작성된 프로젝트 — Langflow에서 내보낸 플로, MCP 클라이언트의 구성, Compose 파일, 그리고 아래에 나열된 다른 형식 — 를 읽고, 이로부터 Aggrega 초안 파일을 작성합니다. 즉 Aggregate 하나와, 대부분의 형식에서는 Release 하나를 작성하며, 이를 검토하고 편집하고 빌드하면 됩니다. 아무것도 배포하지 않으며 어떤 클러스터나 클라우드 계정에도 접근하지 않습니다. 초안은 작업 공간에 있는 일반 파일이며, 이후에 어떻게 할지는 사용자가 결정합니다."
   },
+  "d17b19debd28ed51": {
+    "at": "2026-11-15T00:01:44.436Z",
+    "job": "session-0026-20261115000144",
+    "srcHash": "d17b19debd28ed51",
+    "status": "machine",
+    "text": "대상이 주어지면 Manifest는 [대상이 추가하는 것](#what-a-target-adds)에서 설명하는 대로 설치가 구성하는 각 컴포넌트의 타입과 초안 자체의 타입을 매핑합니다."
+  },
   "d17c2b46c34e0bbc": {
     "at": "2026-10-29T18:53:24.886Z",
     "job": "session-0014-20261029185324",
@@ -151351,6 +151536,17 @@
     "srcHash": "d1adc8203c0616da",
     "status": "machine",
     "text": "side effect declares a kind the plugin contract does not define; a conforming side effect declares emit_file or emit_crd (node `\"<node>\"`, side effect `<index>`, kind `\"<value>\"`) (부수 효과가 플러그인 계약에 정의되지 않은 종류를 선언합니다. 규격을 따르는 부수 효과는 emit_file 또는 emit_crd를 선언합니다)"
+  },
+  "d1b8d439bcf77f09": {
+    "at": "2026-11-15T00:01:44.436Z",
+    "job": "session-0026-20261115000144",
+    "revision": {
+      "from": "abb08b05acbf1a4a",
+      "reviewed": false
+    },
+    "srcHash": "d1b8d439bcf77f09",
+    "status": "machine",
+    "text": "`recursion_limit`은 작성되지 않으므로 Component의 기본값인 25가 유지됩니다. 구성은 모델을 지정하지 않으므로, 초안은 `model`을 키로 하는 `core/ai-model/openai` 인스턴스 하나를 담으며, 모든 그래프가 이를 호출합니다. 이는 에이전트의 OpenAI 클라이언트에 전달되는 모델입니다. 그 `values.model`은 구성이 모델을 지정하지 않는다고 설명하는 주석 아래에 비어 있는 채로 작성되며, 임포트는 이를 제공해야 할 값으로 보고합니다."
   },
   "d1c19534f5836ff6": {
     "at": "2026-10-22T08:15:42.630087+00:00",
@@ -157383,6 +157579,17 @@
     "srcHash": "da919120dea0bef8",
     "status": "machine",
     "text": "`policy`"
+  },
+  "da953e9d176e0228": {
+    "at": "2026-11-15T00:01:44.436Z",
+    "job": "session-0026-20261115000144",
+    "revision": {
+      "from": "151d41186f9e91c7",
+      "reviewed": false
+    },
+    "srcHash": "da953e9d176e0228",
+    "status": "machine",
+    "text": "`aggregate.yaml`은 [초안의 이름을 정하는 방식](#how-a-draft-is-named)에서 설명하는 대로 애플리케이션의 이름을 딴 Aggregate 초안으로, `dify`를 키로 하는 `core/dify` 항목 하나를 구성하며, 그 `app_definition` 매개변수는 애플리케이션을 작성된 그대로 담습니다. 이는 [흐름이 초안에 기록되는 방식](#how-the-flow-is-written-into-the-draft)이 흐름에 대해 설명하는 방식과 같으므로, Dify 고유의 `{{#…#}}` 참조는 내보낸 그대로 설치에 전달됩니다. 설치는 API 서버의 모든 연결(데이터베이스, 캐시, 벡터 저장소, 샌드박스, 플러그인 런타임, 이그레스 프록시)을 스스로 연결하므로, 초안은 Component를 작성하지 않고 아무것도 연결하지 않습니다. 모든 노드는 애플리케이션 안에 남으며, 해당 결정이 이를 기록합니다. 그 옆의 `release.yaml`은 같은 이름의 Release 초안으로, 설치를 경계 `platform`에 배치하고 애플리케이션이 제공할 수 없는 것을 담습니다."
   },
   "da99e32472f86fa6": {
     "at": "2026-10-22T08:23:20.000561+00:00",
@@ -176945,6 +177152,17 @@
     "srcHash": "f49ed005822e23a8",
     "status": "machine",
     "text": "같은 경계에 있는 다른 Recipes의 출력."
+  },
+  "f4a42856c608f18e": {
+    "at": "2026-11-15T00:01:44.436Z",
+    "job": "session-0026-20261115000144",
+    "revision": {
+      "from": "ffcc674cdfd17e52",
+      "reviewed": false
+    },
+    "srcHash": "f4a42856c608f18e",
+    "status": "machine",
+    "text": "체크포인터의 백엔드는 애플리케이션의 모든 그래프가 연결되는 데이터 저장소입니다. `default` 또는 백엔드를 지정하지 않는 체크포인터는 `postgres`를 키로 하는 `core/datastore/postgres`의 인스턴스입니다. `mongo`는 MongoDB의 프로토콜을 사용하는 FerretDB로, DocumentDB 확장이 있는 PostgreSQL 위에서 동작합니다. 즉 모든 그래프가 연결되는 `ferretdb`를 키로 하는 `core/datastore/ferretdb`의 인스턴스와, FerretDB의 `backend` 연결이 도달하는 `documentdb`를 키로 하는 `core/datastore/documentdb`의 인스턴스이며, 그 `inject` 블록은 DocumentDB가 게시하는 것을 FerretDB가 읽는 이름으로 전달합니다. 변수 `FERRETDB_PASSWORD`에서 읽는 비밀번호 하나가 DocumentDB, FerretDB에서 DocumentDB로의 연결, 그리고 각 그래프에서 FerretDB로의 연결에 첨부됩니다. 작업 공간의 카탈로그에 PostgreSQL 데이터 저장소 이름의 Component가 없으면 `<target_namespace>/datastore/postgres`이 초안으로 작성되어, 에이전트의 `checkpointer_db` 연결이 읽는 `host`와 `port`를 선언하며, 그 결정에 그렇게 명시됩니다. 데이터 저장소를 실행하고 이를 게시하는 Recipe는 그 첫머리의 주석이 안내하듯 사용자에게 맡겨집니다. 카탈로그에 FerretDB 또는 DocumentDB Component가 없으면 `mongo` 체크포인터는 어떤 데이터 저장소에도 연결되지 않습니다. `custom` 체크포인터 또는 임포터가 어떤 데이터 저장소에도 대응시키지 않는 백엔드는 아무것도 연결하지 않으며, 각 그래프 위의 주석과 체크포인터의 결정이 그 이유를 설명합니다. 하나가 연결될 때까지 빌드는 `checkpointer_db` 소켓을 명시하며 중단됩니다. 저장소는 아무것도 선택하지 않는 결정으로 보고됩니다."
   },
   "f4a845a579490369": {
     "at": "2026-10-29T21:34:59.076Z",

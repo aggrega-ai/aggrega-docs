@@ -9441,6 +9441,13 @@
     "status": "machine",
     "text": "`headers` và `params` của một nút yêu cầu HTTP, mà Dify đánh dấu là không phải thông tin xác thực và có thể mang\n  một thông tin xác thực, mỗi cái ở dạng toàn bộ."
   },
+  "0cd6d5e62f8b7b1c": {
+    "at": "2026-11-15T00:01:44.436Z",
+    "job": "session-0026-20261115000144",
+    "srcHash": "0cd6d5e62f8b7b1c",
+    "status": "machine",
+    "text": "Mật khẩu của kho dữ liệu là một bí mật mà bản nháp gắn bằng tham chiếu, trên slot `password` của chính kho dữ liệu và trên kết nối `checkpointer_db` của mỗi graph, và thông tin xác thực mà mỗi graph xuất trình cho model trên kết nối `model` của nó cũng vậy: được đọc từ `POSTGRES_PASSWORD` (hoặc `FERRETDB_PASSWORD`) và `OPENAI_API_KEY`, vì cấu hình không nêu biến nào cho cả hai, dưới dạng tham chiếu `${…}` trên mọi target trừ helm, và trên helm dưới dạng tên của một Kubernetes Secret, được ghi trống để lần nhập ghi nhận là giá trị còn thiếu. Trên compose, Aggregate khai báo mỗi cái với khóa mà Recipe của nó đọc, như [Bí mật, cho từng target](#secrets-for-each-target) mô tả cho một nền tảng."
+  },
   "0cdc12418b7c3618": {
     "at": "2026-10-22T23:05:22.318919+00:00",
     "job": "msgbatch_017aSFcXdUmEns3evvWzhxye",
@@ -9949,6 +9956,17 @@
     "srcHash": "0da22ac80aa101a5",
     "status": "machine",
     "text": "Những gì Release liên kết và định tuyến: Aggregate và Manifest mà nó triển khai (hoặc một base extends), việc đáp ứng tham số theo từng môi trường, và các boundary mà các component của nó được định tuyến vào."
+  },
+  "0da5744722fdb96f": {
+    "at": "2026-11-15T00:01:44.436Z",
+    "job": "session-0026-20261115000144",
+    "revision": {
+      "from": "4e5a5ada6b7fa1da",
+      "reviewed": false
+    },
+    "srcHash": "0da5744722fdb96f",
+    "status": "machine",
+    "text": "`release.yaml`, bên cạnh nó, là một Release nháp cùng tên chỉ định Aggregate đó. Nó ghi trống `infra.image` của mỗi agent — image chạy chương trình của crew, mà không khai báo nào nêu tên — dưới một chú thích cho biết nó là gì, và lần nhập ghi nhận nó là giá trị còn thiếu. Nó gắn thông tin xác thực mà mỗi agent xuất trình cho model của mình dưới `credential` trên kết nối `model` của agent, bằng tham chiếu và không bao giờ dưới dạng giá trị: không khai báo nào nêu tên một biến cho nó, nên nó được đọc từ biến mà các thư viện client của nhà cung cấp đọc khóa API của chúng — `OPENAI_API_KEY` đối với OpenAI — dưới dạng tham chiếu `${…}` trên mọi target trừ helm, và trên helm dưới dạng tên của một Kubernetes Secret, được ghi trống để lần nhập ghi nhận là giá trị còn thiếu; trên compose, kết nối `model` của agent khai báo nó với khóa đó. Mỗi model cũng có một mục, không chứa hạ tầng nào, nên Release đặt nó cùng với các agent. Với một model được khai báo dưới dạng một đối tượng `llm`, mỗi thành phần khác được ghi thành một giá trị của instance của model khi Component của catalog khai báo một giá trị mang tên đó, và nếu không thì trong một chú thích phía trên mục của model trong Release, để bạn mang nó tới nơi Component nhận nó. Như mọi Release được soạn thảo, nó ghi `metadata.environment` là `development` và, khi không có target, một `spec.manifest` trống mà lần nhập ghi nhận là giá trị còn thiếu; khi có target, lần nhập soạn thảo Manifest, như [Một target bổ sung những gì](#what-a-target-adds) mô tả."
   },
   "0da67adbb33e64eb": {
     "at": "2026-10-22T22:51:15.481474+00:00",
@@ -19625,6 +19643,17 @@
     "status": "machine",
     "text": "Phân giải (sau envelope)"
   },
+  "1b3adafd43ff012c": {
+    "at": "2026-11-15T00:01:44.436Z",
+    "job": "session-0026-20261115000144",
+    "revision": {
+      "from": "fc7853cb004b809d",
+      "reviewed": false
+    },
+    "srcHash": "1b3adafd43ff012c",
+    "status": "machine",
+    "text": "`release.yaml`, bên cạnh nó, là một Release nháp cùng tên, nêu Aggregate đó. Các chú thích phía trên mục của graph đầu tiên cho biết image của mỗi graph là gì — image riêng của ứng dụng, tức mã của nó có cài LangGraph, chứ không phải image server mà `langgraph build` build — các biến được truyền cho nó và khối `inject:` nào thay thế tên nào trong số đó. Mục của mỗi graph ghi trống `infra.image` của nó, image chạy ứng dụng, dưới một chú thích cho biết nó là gì, và lần nhập ghi nhận nó là giá trị còn thiếu; trong khi nó chưa được đặt, Recipe Docker Compose chạy [agent quickstart](../examples/quickstart-ai/README.md) riêng của catalog, vốn đọc các biến mặc định. Kho dữ liệu và model cũng có các mục, nên Release đặt chúng cùng với các graph. Một chú thích phía trên graph đầu tiên của ứng dụng nêu môi trường mà cấu hình của nó khai báo, như [Môi trường mà một cấu hình nêu ra](#the-environment-a-configuration-states) mô tả. Như mọi Release được soạn thảo, nó ghi `metadata.environment` là `development` và, khi không có target, một `spec.manifest` trống mà lần nhập ghi nhận là giá trị còn thiếu; khi có target, lần nhập soạn thảo Manifest, như [Một target bổ sung những gì](#what-a-target-adds) mô tả."
+  },
   "1b3fbdfc1015b6b0": {
     "at": "2026-10-22T23:53:38.624924+00:00",
     "job": "msgbatch_011k5XEXAWyemaJqwBb86oM4",
@@ -21649,6 +21678,17 @@
     "status": "machine",
     "text": "Đường dẫn của tệp tương đối với thư mục gốc nguồn (ví dụ Chart.yaml hoặc templates/deployment.yaml)."
   },
+  "1e2765438198e23b": {
+    "at": "2026-11-15T00:01:44.436Z",
+    "job": "session-0026-20261115000144",
+    "revision": {
+      "from": "e1cf545956fb2bb5",
+      "reviewed": false
+    },
+    "srcHash": "1e2765438198e23b",
+    "status": "machine",
+    "text": "`importer/langgraph` đọc các graph mà cấu hình của một ứng dụng LangGraph, `langgraph.json`, khai báo, và soạn thảo một Aggregate chứa một instance của agent LangGraph trong thư viện chuẩn, `core/ai-agent/langgraph`, cho mỗi graph, mỗi instance được nối với kho dữ liệu mà checkpointer của nó lưu trạng thái và với một model, cùng một Release bên cạnh mang môi trường mà cấu hình nêu ra. Importer đọc cấu hình đó, và không bao giờ đọc mã của các graph."
+  },
   "1e2f40539bc5944d": {
     "at": "2026-10-22T11:59:38.351715+00:00",
     "job": "msgbatch_01JciMUysQvZRBY7XtfGAzJm",
@@ -23424,6 +23464,17 @@
     "srcHash": "2068b81b75d4b2b1",
     "status": "machine",
     "text": "Phạm vi"
+  },
+  "206c2e360eab2a70": {
+    "at": "2026-11-15T00:01:44.436Z",
+    "job": "session-0026-20261115000144",
+    "revision": {
+      "from": "a262ec2c66fcffa6",
+      "reviewed": false
+    },
+    "srcHash": "206c2e360eab2a70",
+    "status": "machine",
+    "text": "Ứng dụng được nhập dưới tài khoản chủ sở hữu của bản cài đặt, mà Release nêu tên trong mục định tuyến của nó cho bản cài đặt: `infra.owner_email` trên component `api` của bản cài đặt, và slot `owner_password` trên component đó, được gắn dưới dạng `core/referenced-secret`; thiếu chúng, bản dựng sẽ dừng. Email của chủ sở hữu không phải thứ mà nguồn nào có thể cung cấp, nên nó được ghi trống dưới một chú thích cho biết nó là gì, và lần nhập ghi nhận nó là giá trị còn thiếu."
   },
   "206d713ad48a95b0": {
     "at": "2026-10-22T09:26:43.915Z",
@@ -26151,6 +26202,13 @@
     "srcHash": "242a5618ff6fb2b5",
     "status": "machine",
     "text": "Các nâng cấp lên Class B trong tương lai"
+  },
+  "242a7d9a80d027e9": {
+    "at": "2026-11-15T00:01:44.436Z",
+    "job": "session-0026-20261115000144",
+    "srcHash": "242a7d9a80d027e9",
+    "status": "machine",
+    "text": "và Release của nó, được soạn thảo không có target, như bên dưới, với mục của agent thứ hai được lược bỏ ở đây và đánh dấu `...`; lần nhập ghi nhận `spec.manifest` và image của mỗi agent là giá trị còn thiếu:"
   },
   "242d41fb4c39f6ed": {
     "at": "2026-10-22T23:05:21.167953+00:00",
@@ -31087,6 +31145,13 @@
     "status": "machine",
     "text": "Buộc allow_nonstandard_names=false"
   },
+  "2b15ecc5961b2d04": {
+    "at": "2026-11-15T00:01:44.436Z",
+    "job": "session-0026-20261115000144",
+    "srcHash": "2b15ecc5961b2d04",
+    "status": "machine",
+    "text": "Lần nhập ghi nhận ba giá trị trống là giá trị còn thiếu. Khi nhập với `--target compose`, cùng Release đó ghi `secret_key: \"${DIFY_SECRET_KEY}\"` và `origin: \"${DIFY_OWNER_PASSWORD}\"`, và chỉ ghi nhận email của chủ sở hữu là giá trị còn thiếu; nó cũng ghi `infra.published_port` trên component `api`, 5001, và trên front end, tức component `console`, 3001, mỗi cái dưới chú thích cho biết dịch vụ chỉ có thể truy cập từ máy này, bởi bất kỳ tiến trình nào chạy trên máy, và việc xóa dòng đó giữ dịch vụ ở dạng nội bộ. [Hướng dẫn từng bước nhập Dify](../../authoring/import/dify.md) build một ứng dụng cho cả hai target và chạy nó trên Kubernetes."
+  },
   "2b1ac1684629294d": {
     "at": "2026-10-22T13:26:34.362950+00:00",
     "job": "msgbatch_01Q5gtSmr46XeuJqbi2oFY3W",
@@ -31511,6 +31576,17 @@
     "srcHash": "2ba32285ec2a70e3",
     "status": "machine",
     "text": "Kết hợp xuyên phía"
+  },
+  "2ba4a958dfe6546c": {
+    "at": "2026-11-15T00:01:44.436Z",
+    "job": "session-0026-20261115000144",
+    "revision": {
+      "from": "2cdd286001d3a649",
+      "reviewed": false
+    },
+    "srcHash": "2ba4a958dfe6546c",
+    "status": "machine",
+    "text": "Một `llm` được viết dưới dạng đối tượng có thể mang một khóa — dưới `api_key`, trong một địa chỉ, trong các header. Mỗi thành phần của nó ngoài thành phần nêu tên model mà không phải số hay boolean là một giá trị có thể mang khóa, mà CrewAI không đánh dấu là thông tin xác thực. Theo mặc định, mỗi thành phần chứa giá trị được mang nguyên văn — dưới dạng một giá trị của instance của model khi Component của nó khai báo một giá trị như vậy, và nếu không thì vào chú thích phía trên mục của model nó trong Release — và được nêu tên trong một cảnh báo `credential-carried` theo agent và thành phần của nó, chẳng hạn `llm.api_key`, không bao giờ theo giá trị. Với [thiết lập `empty_credentials`](#settings) ở `all`, mỗi thành phần được viết không có giá trị và được báo cáo bằng `credential-emptied`; ở `marked`, mỗi thành phần được mang đi, vì CrewAI không đánh dấu thành phần nào. Tên của một thành phần không được đọc theo ý nghĩa của nó. Mọi thành phần khác mà một khai báo chứa nhưng bản nháp không mang — cấu hình của một tool, `inputs` của một crew — đều được nêu tên, không bao giờ kèm giá trị."
   },
   "2ba764ac8852a665": {
     "at": "2026-10-23T00:02:41.868223+00:00",
@@ -32801,6 +32877,17 @@
     "srcHash": "2daa9d4d70157099",
     "status": "machine",
     "text": "Có ba điều đáng đọc ra từ đó."
+  },
+  "2dab648dcff2c383": {
+    "at": "2026-11-15T00:01:44.436Z",
+    "job": "session-0026-20261115000144",
+    "revision": {
+      "from": "42266ea633a2e9ab",
+      "reviewed": false
+    },
+    "srcHash": "2dab648dcff2c383",
+    "status": "machine",
+    "text": "`checkpointer` — `backend` của nó: `default`, tức PostgreSQL và là giá trị LangGraph dùng khi không nêu backend nào; `mongo`, một cơ sở dữ liệu dùng giao thức của MongoDB; hoặc `custom`, một checkpointer do mã ứng dụng định nghĩa tại `path`;"
   },
   "2db0fd4aef4e67ed": {
     "at": "2026-10-29T23:55:51.039Z",
@@ -34452,6 +34539,17 @@
     "srcHash": "2fe9f8f1b49b87eb",
     "status": "machine",
     "text": "Lý do importer đưa ra lựa chọn, theo lời của chính nó. Vắng mặt khi nó không viết gì."
+  },
+  "2ff08d6b4dd1fac6": {
+    "at": "2026-11-15T00:01:44.436Z",
+    "job": "session-0026-20261115000144",
+    "revision": {
+      "from": "fbc5669753922d04",
+      "reviewed": false
+    },
+    "srcHash": "2ff08d6b4dd1fac6",
+    "status": "machine",
+    "text": "Trên mọi target khác, và khi không có target, mỗi cái là một tham chiếu tới một biến — `secret_key` dưới dạng `\"${DIFY_SECRET_KEY}\"` và mật khẩu của chủ sở hữu dưới dạng `\"${DIFY_OWNER_PASSWORD}\"`, những tên mà các Recipes Dify cho Compose của catalog chuẩn đọc — mà Docker Compose đọc từ môi trường khi stack khởi động, nên không còn gì thiếu cho cả hai; với `--target compose`, Manifest được soạn thảo ánh xạ `core/referenced-secret` tới `compose/dotenv-referenced-secret`."
   },
   "2ff1865c4fae66cb": {
     "at": "2026-10-23T00:17:59.759325+00:00",
@@ -62155,6 +62253,13 @@
     "status": "machine",
     "text": "`.locals` — trạng thái riêng của Recipe, được phân giải trong phần mở đầu locals và công bố khi phân giải nguồn; có sẵn tại mọi vị trí đánh giá template của Workload."
   },
+  "5711cc85c2b56c05": {
+    "at": "2026-11-15T00:01:44.436Z",
+    "job": "session-0026-20261115000144",
+    "srcHash": "5711cc85c2b56c05",
+    "status": "machine",
+    "text": "Bí mật ứng dụng và mật khẩu của chủ sở hữu là các bí mật, được soạn thảo bằng tham chiếu theo target của lần nhập:"
+  },
   "57146cef90f2d61f": {
     "at": "2026-10-22T10:27:55.857345+00:00",
     "job": "msgbatch_01St5AJWD4JFUsFvC38dR1rN",
@@ -66242,6 +66347,17 @@
     "status": "machine",
     "text": "plugin artifact not found on this machine (Plugin entity `\"<reference>\"` is authored in a catalog directory, expected `<file>` in `<directory>`). Place the built .wasm beside the entity under that name, or publish the plugin and reference the published Plugin entity instead of the one in the catalog directory (không tìm thấy artifact của plugin trên máy này (thực thể Plugin \"`<reference>`\" được soạn trong một thư mục catalog, cần có `<file>` trong `<directory>`). Hãy đặt tệp .wasm đã build cạnh thực thể với tên đó, hoặc xuất bản plugin và tham chiếu thực thể Plugin đã xuất bản thay cho thực thể trong thư mục catalog)"
   },
+  "5cdbf020fe0df712": {
+    "at": "2026-11-15T00:01:44.436Z",
+    "job": "session-0026-20261115000144",
+    "revision": {
+      "from": "bd760194dbe447e6",
+      "reviewed": false
+    },
+    "srcHash": "5cdbf020fe0df712",
+    "status": "machine",
+    "text": "kết nối `checkpointer_db` của nó, được nối với kho dữ liệu của ứng dụng;"
+  },
   "5cdc639e5cbb0357": {
     "at": "2026-10-22T22:51:16.626703+00:00",
     "job": "msgbatch_01MQtbUH7yWbTrGncQ2UzRnu",
@@ -67635,6 +67751,17 @@
     "srcHash": "5eaaa972ddeaadc8",
     "status": "machine",
     "text": "Một template không phân tích cú pháp được sẽ không tạo ra tập tham chiếu nào. Báo cáo mọi khóa là không được đọc sẽ chôn vùi chẩn đoán phân tích cú pháp mà quá trình đánh giá đưa ra cho cùng template đó, nên thay vào đó không có gì được báo cáo. Một mục `artifacts:` được đọc với các dấu phân cách chuẩn `{{ }}`, vốn không phải là cặp mà mọi provider khai báo cho trường đó; khi đọc với cặp sai, phần thân như vậy tạo ra những tham chiếu mà tác giả của nó chưa bao giờ viết, hoặc không phân tích cú pháp được, và cả hai kết quả chỉ có thể làm im lặng một cảnh báo."
+  },
+  "5eabd2fdfe07434b": {
+    "at": "2026-11-15T00:01:44.436Z",
+    "job": "session-0026-20261115000144",
+    "revision": {
+      "from": "10ff7f5833cd7e70",
+      "reviewed": false
+    },
+    "srcHash": "5eabd2fdfe07434b",
+    "status": "machine",
+    "text": "Khi đó mỗi agent được render chạy image mà bạn trả lời, nhận endpoint và tên của model dưới dạng `OPENAI_BASE_URL` và `MODEL`, các biến mà CrewAI đọc chúng từ đó."
   },
   "5eae2b09ddce2459": {
     "at": "2026-11-14T23:59:08.244Z",
@@ -91894,6 +92021,17 @@
     "status": "machine",
     "text": "Hãy đọc riêng từng dòng, vì chúng nói những điều khác nhau."
   },
+  "806add86fb2af3e9": {
+    "at": "2026-11-15T00:01:44.436Z",
+    "job": "session-0026-20261115000144",
+    "revision": {
+      "from": "2a670a00849aa6da",
+      "reviewed": false
+    },
+    "srcHash": "806add86fb2af3e9",
+    "status": "machine",
+    "text": "kết nối `model` của nó, được nối tới model của ứng dụng."
+  },
   "806bdd17e8434e0c": {
     "at": "2026-10-22T23:16:15.323655+00:00",
     "job": "msgbatch_01WVATwUq8stCTbJGJnupwwy",
@@ -103361,6 +103499,17 @@
     "status": "machine",
     "text": "các agent và task mà một dự án CrewAI khai báo — `config/agents.yaml` và `config/tasks.yaml`, dưới dạng YAML, hoặc `crew.jsonc` và `agents/<name>.jsonc`, hoặc các cách viết JSON chặt chẽ của chúng là `crew.json` và `agents/<name>.json`, dưới dạng JSON có chú thích"
   },
+  "90ada5774353f564": {
+    "at": "2026-11-15T00:01:44.436Z",
+    "job": "session-0026-20261115000144",
+    "revision": {
+      "from": "d1196ad8aa26151e",
+      "reviewed": false
+    },
+    "srcHash": "90ada5774353f564",
+    "status": "machine",
+    "text": "Bí mật ứng dụng của bản cài đặt, tức khóa mà Dify dùng để ký cookie phiên và để mã hóa thông tin xác thực của nhà cung cấp mô hình mà nó lưu trữ, là tham số `secret_key` của `core/dify`, vốn không có giá trị mặc định. Vì vậy bản nháp khai báo một tham số `secret_key` của riêng nó — một chuỗi, bắt buộc, dài ít nhất một ký tự và không có giá trị mặc định — và truyền nó xuống mọi mục `core/dify` mà nó ghi, để Release đáp ứng dưới `parameters` của mình; một bản build mà Release để trống tham số này sẽ dừng và nêu tên nó."
+  },
   "90af2ce0e0845274": {
     "at": "2026-10-29T23:52:11.486Z",
     "job": "session-0036-20261029235211",
@@ -109005,6 +109154,17 @@
     "srcHash": "9876cb7a20e053ad",
     "status": "machine",
     "text": "Trình biên dịch hiển thị thông điệp theo định dạng lỗi Loud Guardrails, kèm tên thực thể, vị trí nguồn của assertion và thông điệp thất bại. Chẩn đoán này đủ cụ thể để nhà phát triển xác định và sửa nguyên nhân gốc."
+  },
+  "987a77f968a2ac31": {
+    "at": "2026-11-15T00:01:44.436Z",
+    "job": "session-0026-20261115000144",
+    "revision": {
+      "from": "9941776d9b787ae7",
+      "reviewed": false
+    },
+    "srcHash": "987a77f968a2ac31",
+    "status": "machine",
+    "text": "Lần nhập ghi nhận bốn giá trị còn thiếu: `spec.manifest`, image của mỗi graph và tên của model. Khi chúng đã được trả lời, mỗi graph được render để chạy image mà bạn trả lời, nhận địa chỉ kho dữ liệu của nó dưới dạng `LANGGRAPH_CHECKPOINTER_HOST` và `LANGGRAPH_CHECKPOINTER_PORT`, người dùng và cơ sở dữ liệu mà kho dữ liệu công bố dưới dạng `LANGGRAPH_CHECKPOINTER_USER` và `LANGGRAPH_CHECKPOINTER_DATABASE` — PostgreSQL công bố cả hai, còn với một kho dữ liệu không công bố cái nào thì không biến nào trong hai biến được render — endpoint cùng tên của model dưới dạng `OPENAI_BASE_URL` và `OPENAI_MODEL`, khóa mà thông tin xác thực model của nó chuyển giao dưới dạng `OPENAI_API_KEY`, đường dẫn import của nó dưới dạng `LANGGRAPH_GRAPH_ENTRYPOINT` và giới hạn số bước của nó dưới dạng `LANGGRAPH_DEFAULT_RECURSION_LIMIT`. Thông tin xác thực gắn trên kết nối `checkpointer_db` của nó cũng cung cấp cho nó mật khẩu của kho dữ liệu dưới dạng `LANGGRAPH_CHECKPOINTER_PASSWORD`."
   },
   "987df12f65d594a0": {
     "at": "2026-10-30T02:04:27.098Z",
@@ -115039,6 +115199,13 @@
     "srcHash": "a0fcf281909f4669",
     "status": "machine",
     "text": "Một mục `provides:` là một template tạo ra giá trị mà một component khác đọc qua một kết nối phụ thuộc. Điều kiện này là những gì một mục không thể đánh giá báo cáo: một template không phân tích cú pháp được, một hàm mà nó gọi nhưng giao diện này không đăng ký, một tham chiếu đi xuống qua thứ mà ngữ cảnh render không cung cấp, hoặc một lần đọc `index` với một khóa mà map không chứa."
+  },
+  "a0ff294705bffc32": {
+    "at": "2026-11-15T00:01:44.436Z",
+    "job": "session-0026-20261115000144",
+    "srcHash": "a0ff294705bffc32",
+    "status": "machine",
+    "text": "Với `--target helm`, mỗi cái nêu tên một Kubernetes Secret đã có trong namespace: `secret_key` là tên của Secret, mà `core/dify` đọc dưới khóa dữ liệu `secret-key`, và `owner_password` là một Secret chứa mật khẩu dưới khóa dữ liệu `value`. Không tên nào trong hai tên này là thứ mà nguồn nào có thể cung cấp, nên mỗi cái được ghi trống dưới một chú thích cho biết nó là gì, và lần nhập ghi nhận cả hai là giá trị còn thiếu; Manifest được soạn thảo ánh xạ `core/referenced-secret` tới `helm/k8s-existing-secret`."
   },
   "a103746d81290cb2": {
     "at": "2026-10-22T12:28:13.070114+00:00",
@@ -130730,6 +130897,17 @@
     "srcHash": "b5cb8f2d962fe85a",
     "status": "machine",
     "text": "Mỗi loại thực thể có một khung nhìn “hợp đồng” tự nhiên. `inspect` hiển thị hợp đồng đó — schema mà một Component công bố, các ánh xạ mà một Manifest khai báo, topology mà một Aggregate xây dựng, các phần gắn Feature theo từng nút mà một Release phân giải thành. Tài liệu hướng dẫn và khái niệm nằm ở nơi khác; `inspect` trả lời câu hỏi “thực thể này thực sự được phân giải thành gì?”"
+  },
+  "b5cf783f0fd7ea93": {
+    "at": "2026-11-15T00:01:44.436Z",
+    "job": "session-0026-20261115000144",
+    "revision": {
+      "from": "1e86063eb9220142",
+      "reviewed": false
+    },
+    "srcHash": "b5cf783f0fd7ea93",
+    "status": "machine",
+    "text": "Khi nhập với `--target helm`, Release được soạn thảo của nó đáp ứng `secret_key` và nêu tên chủ sở hữu trong mục định tuyến đặt bản cài đặt, với mỗi giá trị còn thiếu được ghi trống:"
   },
   "b5d0c7a988b9ab7f": {
     "at": "2026-10-22T23:16:15.323655+00:00",
@@ -151209,6 +151387,13 @@
     "status": "machine",
     "text": "`aggrega import` đọc một dự án được viết ở định dạng khác — một luồng xuất từ Langflow, cấu hình của một máy khách MCP, một tệp Compose và các định dạng khác được liệt kê bên dưới — rồi ghi ra các tệp Aggrega bản nháp từ đó: một Aggregate, và với hầu hết các định dạng là một Release, để bạn xem xét, chỉnh sửa và dựng. Lệnh này không triển khai gì cả và không truy cập bất kỳ cụm hay tài khoản đám mây nào. Các bản nháp là những tệp thông thường trong không gian làm việc của bạn, và việc xử lý chúng tiếp theo ra sao là tùy bạn."
   },
+  "d17b19debd28ed51": {
+    "at": "2026-11-15T00:01:44.436Z",
+    "job": "session-0026-20261115000144",
+    "srcHash": "d17b19debd28ed51",
+    "status": "machine",
+    "text": "Khi có target, Manifest ánh xạ kiểu của mỗi component mà bản cài đặt kết hợp cũng như kiểu của chính bản nháp, như [Một target bổ sung những gì](#what-a-target-adds) mô tả."
+  },
   "d17c2b46c34e0bbc": {
     "at": "2026-10-29T18:53:24.886Z",
     "job": "session-0014-20261029185324",
@@ -151364,6 +151549,17 @@
     "srcHash": "d1adc8203c0616da",
     "status": "machine",
     "text": "side effect declares a kind the plugin contract does not define; a conforming side effect declares emit_file or emit_crd (node `\"<node>\"`, side effect `<index>`, kind `\"<value>\"`) (side effect khai báo một loại mà hợp đồng plugin không định nghĩa; một side effect tuân thủ khai báo emit_file hoặc emit_crd)"
+  },
+  "d1b8d439bcf77f09": {
+    "at": "2026-11-15T00:01:44.436Z",
+    "job": "session-0026-20261115000144",
+    "revision": {
+      "from": "abb08b05acbf1a4a",
+      "reviewed": false
+    },
+    "srcHash": "d1b8d439bcf77f09",
+    "status": "machine",
+    "text": "`recursion_limit` không được ghi, nên giá trị mặc định của Component, 25, được giữ nguyên. Cấu hình không nêu model nào, nên bản nháp chứa một instance của `core/ai-model/openai`, có khóa `model`, mà mọi graph gọi tới: model được giao cho client OpenAI của agent. `values.model` của nó được ghi trống, dưới một chú thích cho biết cấu hình không nêu model nào, và lần nhập ghi nhận nó là giá trị còn thiếu."
   },
   "d1c19534f5836ff6": {
     "at": "2026-10-23T00:02:44.489841+00:00",
@@ -157402,6 +157598,17 @@
     "srcHash": "da919120dea0bef8",
     "status": "machine",
     "text": "`policy`"
+  },
+  "da953e9d176e0228": {
+    "at": "2026-11-15T00:01:44.436Z",
+    "job": "session-0026-20261115000144",
+    "revision": {
+      "from": "151d41186f9e91c7",
+      "reviewed": false
+    },
+    "srcHash": "da953e9d176e0228",
+    "status": "machine",
+    "text": "`aggregate.yaml` là một Aggregate nháp được đặt tên theo ứng dụng, như [Cách đặt tên bản nháp](#how-a-draft-is-named) mô tả, kết hợp một mục của `core/dify`, có khóa `dify`, mà tham số `app_definition` của nó mang ứng dụng như đã viết — như [Cách luồng được ghi vào bản nháp](#how-the-flow-is-written-into-the-draft) mô tả cho một luồng, nên các tham chiếu `{{#…#}}` riêng của Dify đến bản cài đặt đúng như khi được xuất. Bản cài đặt tự nối mọi kết nối của máy chủ API của nó — cơ sở dữ liệu, bộ nhớ đệm, kho vector, sandbox, môi trường chạy plugin và proxy đầu ra của nó — nên bản nháp không soạn thảo Component nào và không nối gì cả: mọi nút vẫn nằm trong ứng dụng, và quyết định của nó nói như vậy. Bên cạnh nó, `release.yaml` là một Release nháp cùng tên, đặt bản cài đặt vào một ranh giới, `platform`, và mang những gì ứng dụng không thể cung cấp."
   },
   "da99e32472f86fa6": {
     "at": "2026-10-23T00:18:02.017487+00:00",
@@ -176978,6 +177185,17 @@
     "srcHash": "f49ed005822e23a8",
     "status": "machine",
     "text": "Đầu ra của các Recipes khác trong cùng boundary."
+  },
+  "f4a42856c608f18e": {
+    "at": "2026-11-15T00:01:44.436Z",
+    "job": "session-0026-20261115000144",
+    "revision": {
+      "from": "ffcc674cdfd17e52",
+      "reviewed": false
+    },
+    "srcHash": "f4a42856c608f18e",
+    "status": "machine",
+    "text": "Backend của checkpointer là kho dữ liệu mà mọi graph của ứng dụng được nối tới: `default`, hoặc một checkpointer không nêu backend nào, là một instance của `core/datastore/postgres`, có khóa `postgres`. `mongo` là FerretDB, vốn dùng giao thức của MongoDB, chạy trên PostgreSQL với tiện ích mở rộng DocumentDB: một instance của `core/datastore/ferretdb`, có khóa `ferretdb`, mà mọi graph được nối tới, và một instance của `core/datastore/documentdb`, có khóa `documentdb`, mà kết nối `backend` của FerretDB đi tới, với khối `inject` của nó chuyển những gì DocumentDB công bố dưới các tên mà FerretDB đọc; một mật khẩu duy nhất, đọc từ biến `FERRETDB_PASSWORD`, được gắn trên DocumentDB, trên kết nối của FerretDB tới nó và trên kết nối của mỗi graph tới FerretDB. Khi catalog của workspace không có Component nào mang tên của kho dữ liệu PostgreSQL, một Component được soạn thảo, `<target_namespace>/datastore/postgres`, khai báo `host` và `port` mà kết nối `checkpointer_db` của agent đọc, và quyết định của nó nói rõ điều này; một Recipe chạy kho dữ liệu và công bố chúng được để lại cho bạn, như một chú thích ở đầu nó cho biết. Khi catalog không có Component FerretDB hoặc không có Component DocumentDB, checkpointer `mongo` không được nối tới kho dữ liệu nào. Một checkpointer `custom`, hoặc một backend mà importer không ánh xạ tới kho dữ liệu nào, không nối gì cả, và một chú thích phía trên mỗi graph cùng quyết định của checkpointer giải thích lý do; quá trình build dừng lại và nêu tên socket `checkpointer_db` cho đến khi một kho dữ liệu được nối vào. Store được báo cáo trong một quyết định không chọn gì."
   },
   "f4a845a579490369": {
     "at": "2026-10-29T21:34:59.076Z",

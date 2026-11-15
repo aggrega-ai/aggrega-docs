@@ -8611,6 +8611,13 @@
     "status": "machine",
     "text": "gli `headers` e i `params` di un nodo di richiesta HTTP, che Dify non contrassegna come credenziale e che possono contenerne una, ciascuno per intero."
   },
+  "0cd6d5e62f8b7b1c": {
+    "at": "2026-11-15T00:01:44.436Z",
+    "job": "session-0026-20261115000144",
+    "srcHash": "0cd6d5e62f8b7b1c",
+    "status": "machine",
+    "text": "La password del datastore è un segreto che la bozza associa per riferimento, sullo slot `password` del datastore stesso e sulla connessione `checkpointer_db` di ciascun grafo, e lo stesso vale per la credenziale che ciascun grafo presenta al modello sulla sua connessione `model`: lette da `POSTGRES_PASSWORD` (o `FERRETDB_PASSWORD`) e da `OPENAI_API_KEY`, poiché la configurazione non nomina alcuna variabile per nessuna delle due, come riferimento `${…}` su ogni target tranne helm, e su helm come nome di un Secret Kubernetes, scritto vuoto perché l’importazione lo riporti come dovuto. Su compose, l’Aggregate dichiara ciascuna con la chiave che la sua Recipe legge, come descrive [Segreti, per ciascun target](#secrets-for-each-target) per una piattaforma."
+  },
   "0cdc12418b7c3618": {
     "at": "2026-11-03T14:46:30.297Z",
     "job": "session-0119-20261103144630",
@@ -9060,6 +9067,17 @@
     "srcHash": "0da22ac80aa101a5",
     "status": "machine",
     "text": "Ciò che la Release lega e instrada: l’Aggregate e il Manifest che distribuisce (oppure una base extends), l’adempimento dei parametri specifico dell’ambiente e i confini verso cui vengono instradati i suoi componenti."
+  },
+  "0da5744722fdb96f": {
+    "at": "2026-11-15T00:01:44.436Z",
+    "job": "session-0026-20261115000144",
+    "revision": {
+      "from": "4e5a5ada6b7fa1da",
+      "reviewed": false
+    },
+    "srcHash": "0da5744722fdb96f",
+    "status": "machine",
+    "text": "`release.yaml`, accanto a esso, è una Release in bozza con lo stesso nome che nomina quell’Aggregate. Scrive vuoto l’`infra.image` di ciascun agente — l’immagine che esegue il programma della crew, che nessuna dichiarazione nomina — sotto un commento che dice che cos’è, e l’importazione lo riporta come dovuto. Associa la credenziale che ciascun agente presenta al proprio modello sotto `credential` sulla sua connessione `model`, per riferimento e mai come valore: nessuna dichiarazione nomina una variabile per essa, quindi viene letta dalla variabile da cui le librerie client del fornitore leggono la propria chiave API — `OPENAI_API_KEY` per OpenAI — come riferimento `${…}` su ogni target tranne helm, e su helm come nome di un Secret Kubernetes, scritto vuoto perché l’importazione lo riporti come dovuto; su compose, la connessione `model` dell’agente la dichiara con quella chiave. Anche ciascun modello ha una voce, che non contiene alcuna infrastruttura, così la Release lo colloca insieme agli agenti. Di un modello dichiarato come oggetto `llm`, ogni altro membro viene scritto come valore dell’istanza del modello dove il Component del catalogo dichiara un valore con quel nome, e altrimenti in un commento sopra la voce del modello nella Release, perché tu lo porti dove il Component lo accetta. Come ogni Release generata in bozza, scrive `metadata.environment` come `development` e, senza target, uno `spec.manifest` vuoto che l’importazione riporta come dovuto; dato un target, l’importazione genera in bozza il Manifest, come descrive [Che cosa aggiunge un target](#what-a-target-adds)."
   },
   "0da67adbb33e64eb": {
     "at": "2026-11-03T10:00:41.851Z",
@@ -17693,6 +17711,17 @@
     "status": "machine",
     "text": "Risoluzione (dopo l’involucro)"
   },
+  "1b3adafd43ff012c": {
+    "at": "2026-11-15T00:01:44.436Z",
+    "job": "session-0026-20261115000144",
+    "revision": {
+      "from": "fc7853cb004b809d",
+      "reviewed": false
+    },
+    "srcHash": "1b3adafd43ff012c",
+    "status": "machine",
+    "text": "`release.yaml`, accanto a esso, è una Release in bozza con lo stesso nome che nomina quell’Aggregate. Commenti sopra la voce del primo grafo dicono qual è l’immagine di ciascun grafo — quella propria dell’applicazione, il suo codice con LangGraph installato, non l’immagine del server di cui `langgraph build` esegue la build —, le variabili che riceve e quale blocco `inject:` sostituisce quale dei loro nomi. La voce di ciascun grafo scrive vuoto il suo `infra.image`, l’immagine che esegue l’applicazione, sotto un commento che dice che cos’è, e l’importazione lo riporta come dovuto; finché non è impostato, la Recipe Docker Compose esegue l’[agente quickstart](../examples/quickstart-ai/README.md) del catalogo stesso, che legge le variabili predefinite. Anche il datastore e il modello hanno delle voci, così la Release li colloca insieme ai grafi. Un commento sopra il primo grafo dell’applicazione indica l’ambiente che la sua configurazione dichiara, come descrive [L’ambiente che una configurazione indica](#the-environment-a-configuration-states). Come ogni Release generata in bozza, scrive `metadata.environment` come `development` e, senza target, uno `spec.manifest` vuoto che l’importazione riporta come dovuto; dato un target, l’importazione genera in bozza il Manifest, come descrive [Che cosa aggiunge un target](#what-a-target-adds)."
+  },
   "1b3fbdfc1015b6b0": {
     "at": "2026-11-04T06:30:15.892Z",
     "job": "session-0209-20261104063015",
@@ -19524,6 +19553,17 @@
     "status": "machine",
     "text": "Il percorso del file relativo alla radice del sorgente (per esempio Chart.yaml o templates/deployment.yaml)."
   },
+  "1e2765438198e23b": {
+    "at": "2026-11-15T00:01:44.436Z",
+    "job": "session-0026-20261115000144",
+    "revision": {
+      "from": "e1cf545956fb2bb5",
+      "reviewed": false
+    },
+    "srcHash": "1e2765438198e23b",
+    "status": "machine",
+    "text": "`importer/langgraph` legge i grafi che la configurazione di un’applicazione LangGraph, `langgraph.json`, dichiara, e genera in bozza un Aggregate che contiene un’istanza dell’agente LangGraph della libreria standard, `core/ai-agent/langgraph`, per grafo, ciascuna collegata al datastore in cui il suo checkpointer conserva lo stato e a un modello, e una Release accanto a esso che porta l’ambiente che la configurazione indica. Legge quella configurazione, e mai il codice dei grafi."
+  },
   "1e2f40539bc5944d": {
     "at": "2026-11-02T23:50:32.426Z",
     "job": "session-0022-20261102235032",
@@ -21129,6 +21169,17 @@
     "srcHash": "2068b81b75d4b2b1",
     "status": "machine",
     "text": "Portata"
+  },
+  "206c2e360eab2a70": {
+    "at": "2026-11-15T00:01:44.436Z",
+    "job": "session-0026-20261115000144",
+    "revision": {
+      "from": "a262ec2c66fcffa6",
+      "reviewed": false
+    },
+    "srcHash": "206c2e360eab2a70",
+    "status": "machine",
+    "text": "L’applicazione viene importata con l’account del proprietario dell’installazione, che la Release nomina nella propria voce di instradamento per l’installazione: `infra.owner_email` sul componente `api` dell’installazione e lo slot `owner_password` su quel componente, associato come `core/referenced-secret`, senza i quali la build si arresta. L’email del proprietario non è qualcosa che una sorgente possa fornire, quindi viene scritta vuota sotto un commento che dice che cos’è, e l’importazione la riporta come dovuta."
   },
   "206d713ad48a95b0": {
     "at": "2026-10-22T09:26:43.915Z",
@@ -23578,6 +23629,13 @@
     "srcHash": "24256bcfacbbcdaa",
     "status": "machine",
     "text": "Chiave di consegna di inject (`env.<KEY>`, `file.<path>`, `arg.<flag>`)"
+  },
+  "242a7d9a80d027e9": {
+    "at": "2026-11-15T00:01:44.436Z",
+    "job": "session-0026-20261115000144",
+    "srcHash": "242a7d9a80d027e9",
+    "status": "machine",
+    "text": "e la sua Release, generata in bozza senza target, come segue, con la voce del secondo agente omessa qui e indicata con `...`; l’importazione riporta come dovuti `spec.manifest` e l’immagine di ciascun agente:"
   },
   "242f7e1f14daba47": {
     "at": "2026-11-12T14:14:11.287Z",
@@ -28051,6 +28109,13 @@
     "status": "machine",
     "text": "Forza allow_nonstandard_names=false"
   },
+  "2b15ecc5961b2d04": {
+    "at": "2026-11-15T00:01:44.436Z",
+    "job": "session-0026-20261115000144",
+    "srcHash": "2b15ecc5961b2d04",
+    "status": "machine",
+    "text": "L’importazione riporta come dovuti i tre valori vuoti. Importata con `--target compose`, la stessa Release scrive `secret_key: \"${DIFY_SECRET_KEY}\"` e `origin: \"${DIFY_OWNER_PASSWORD}\"`, e riporta come dovuta solo l’email del proprietario; scrive anche `infra.published_port` sul componente `api`, 5001, e sul front end, il componente `console`, 3001, ciascuno sotto il commento che dice che è raggiungibile solo da questa macchina, da qualsiasi processo in esecuzione su di essa, e che eliminare la riga mantiene il servizio interno. La [procedura guidata di importazione di Dify](../../authoring/import/dify.md) esegue la build di un’applicazione per entrambi i target e la esegue su Kubernetes."
+  },
   "2b1ac1684629294d": {
     "at": "2026-11-03T04:59:02.960Z",
     "job": "session-0054-20261103045902",
@@ -28447,6 +28512,17 @@
     "srcHash": "2ba32285ec2a70e3",
     "status": "machine",
     "text": "Composizione tra lati"
+  },
+  "2ba4a958dfe6546c": {
+    "at": "2026-11-15T00:01:44.436Z",
+    "job": "session-0026-20261115000144",
+    "revision": {
+      "from": "2cdd286001d3a649",
+      "reviewed": false
+    },
+    "srcHash": "2ba4a958dfe6546c",
+    "status": "machine",
+    "text": "Un `llm` scritto come oggetto può contenere una chiave — sotto `api_key`, in un indirizzo, negli header. Ciascuno dei suoi membri diverso da quello che nomina il modello che non è un numero o un booleano è un valore che può contenerne una, che CrewAI non contrassegna come credenziale. Per impostazione predefinita ciascuno che contiene un valore viene portato com’è scritto — come valore dell’istanza del modello dove il suo Component ne dichiara uno, e altrimenti nel commento sopra la voce del suo modello nella Release — e nominato in un avviso `credential-carried` tramite il suo agente e il suo membro, come `llm.api_key`, mai tramite il suo valore. Con l’[impostazione `empty_credentials`](#settings) a `all`, ciascuno viene scritto senza valore e riportato con `credential-emptied`; a `marked` ciascuno viene portato, poiché CrewAI non ne contrassegna alcuno. Il nome di un membro non viene letto per ciò che significa. Ogni altro membro che una dichiarazione contiene e che la bozza non porta — la configurazione di uno strumento, gli `inputs` di una crew — viene nominato, mai con il suo valore."
   },
   "2ba764ac8852a665": {
     "at": "2026-11-04T08:39:29.762Z",
@@ -29622,6 +29698,17 @@
     "srcHash": "2daa9d4d70157099",
     "status": "machine",
     "text": "Tre cose meritano di essere lette da qui."
+  },
+  "2dab648dcff2c383": {
+    "at": "2026-11-15T00:01:44.436Z",
+    "job": "session-0026-20261115000144",
+    "revision": {
+      "from": "42266ea633a2e9ab",
+      "reviewed": false
+    },
+    "srcHash": "2dab648dcff2c383",
+    "status": "machine",
+    "text": "`checkpointer` — il suo `backend`: `default`, che è PostgreSQL e ciò che LangGraph legge dove non ne viene nominato alcuno; `mongo`, un database che parla il protocollo di MongoDB; oppure `custom`, un checkpointer che il codice dell’applicazione definisce in `path`;"
   },
   "2db0fd4aef4e67ed": {
     "at": "2026-11-03T14:05:25.158Z",
@@ -31156,6 +31243,17 @@
     "srcHash": "2fe9f8f1b49b87eb",
     "status": "machine",
     "text": "Perché l’importatore ha fatto la scelta, con parole sue. Assente dove non ne ha scritte."
+  },
+  "2ff08d6b4dd1fac6": {
+    "at": "2026-11-15T00:01:44.436Z",
+    "job": "session-0026-20261115000144",
+    "revision": {
+      "from": "fbc5669753922d04",
+      "reviewed": false
+    },
+    "srcHash": "2ff08d6b4dd1fac6",
+    "status": "machine",
+    "text": "Su ogni altro target, e senza target, ciascuno è un riferimento a una variabile — `secret_key` come `\"${DIFY_SECRET_KEY}\"` e la password del proprietario come `\"${DIFY_OWNER_PASSWORD}\"`, i nomi che leggono le Recipes Dify per Compose del catalogo standard — che Docker Compose legge dall’ambiente all’avvio dello stack, quindi per nessuno dei due resta qualcosa di dovuto; con `--target compose` il Manifest generato in bozza mappa `core/referenced-secret` su `compose/dotenv-referenced-secret`."
   },
   "2ff1865c4fae66cb": {
     "at": "2026-11-04T11:35:36.862Z",
@@ -56313,6 +56411,13 @@
     "status": "machine",
     "text": "`.locals` — stato privato della Recipe risolto nel preambolo dei locals e pubblicato alla risoluzione delle sorgenti; disponibile in ogni punto di valutazione dei template del Workload."
   },
+  "5711cc85c2b56c05": {
+    "at": "2026-11-15T00:01:44.436Z",
+    "job": "session-0026-20261115000144",
+    "srcHash": "5711cc85c2b56c05",
+    "status": "machine",
+    "text": "Il segreto applicativo e la password del proprietario sono segreti, generati in bozza per riferimento per il target dell’importazione:"
+  },
   "57146cef90f2d61f": {
     "at": "2026-10-22T11:34:20.013Z",
     "job": "session-0033-20261022113420",
@@ -59976,6 +60081,17 @@
     "status": "machine",
     "text": "plugin artifact not found on this machine (Plugin entity `\"<reference>\"` is authored in a catalog directory, expected `<file>` in `<directory>`). Place the built .wasm beside the entity under that name, or publish the plugin and reference the published Plugin entity instead of the one in the catalog directory (artifact del plugin non trovato su questa macchina: l’entità Plugin è scritta in una directory di catalogo e il file indicato era atteso nella directory indicata. Colloca il .wasm compilato accanto all’entità con quel nome, oppure pubblica il plugin e fai riferimento all’entità Plugin pubblicata invece che a quella nella directory di catalogo)"
   },
+  "5cdbf020fe0df712": {
+    "at": "2026-11-15T00:01:44.436Z",
+    "job": "session-0026-20261115000144",
+    "revision": {
+      "from": "bd760194dbe447e6",
+      "reviewed": false
+    },
+    "srcHash": "5cdbf020fe0df712",
+    "status": "machine",
+    "text": "la sua connessione `checkpointer_db`, collegata al datastore dell’applicazione;"
+  },
   "5cdc639e5cbb0357": {
     "at": "2026-11-03T11:51:13.440Z",
     "job": "session-0100-20261103115113",
@@ -61195,6 +61311,17 @@
     "srcHash": "5eaaa972ddeaadc8",
     "status": "machine",
     "text": "Un template che non supera l’analisi sintattica non produce alcun insieme di riferimenti. Segnalare ogni chiave come non letta seppellirebbe la diagnostica di analisi che la valutazione solleva sullo stesso template, quindi invece non viene segnalato nulla. Una voce `artifacts:` viene letta con i delimitatori standard `{{ }}`, che non sono la coppia che ogni provider dichiara per quel campo; letto con la coppia sbagliata, un corpo del genere produce riferimenti che il suo autore non ha mai scritto, oppure non supera l’analisi, ed entrambi gli esiti possono solo mettere a tacere un avvertimento."
+  },
+  "5eabd2fdfe07434b": {
+    "at": "2026-11-15T00:01:44.436Z",
+    "job": "session-0026-20261115000144",
+    "revision": {
+      "from": "10ff7f5833cd7e70",
+      "reviewed": false
+    },
+    "srcHash": "5eabd2fdfe07434b",
+    "status": "machine",
+    "text": "Ciascun agente viene quindi renderizzato in esecuzione sull’immagine che indichi nella risposta, ricevendo l’endpoint del modello e il nome del modello come `OPENAI_BASE_URL` e `MODEL`, le variabili da cui CrewAI li legge."
   },
   "5eae2b09ddce2459": {
     "at": "2026-11-14T23:59:08.244Z",
@@ -83010,6 +83137,17 @@
     "status": "machine",
     "text": "Leggi separatamente le due righe, perché dicono cose diverse."
   },
+  "806add86fb2af3e9": {
+    "at": "2026-11-15T00:01:44.436Z",
+    "job": "session-0026-20261115000144",
+    "revision": {
+      "from": "2a670a00849aa6da",
+      "reviewed": false
+    },
+    "srcHash": "806add86fb2af3e9",
+    "status": "machine",
+    "text": "la sua connessione `model`, collegata al modello dell’applicazione."
+  },
   "806bdd17e8434e0c": {
     "at": "2026-11-03T18:10:58.903Z",
     "job": "session-0138-20261103181058",
@@ -93578,6 +93716,17 @@
     "status": "machine",
     "text": "gli agenti e i task che un progetto CrewAI dichiara — `config/agents.yaml` e `config/tasks.yaml`, in YAML, oppure `crew.jsonc` e `agents/<name>.jsonc`, o le loro varianti in JSON rigoroso `crew.json` e `agents/<name>.json`, in JSON con commenti"
   },
+  "90ada5774353f564": {
+    "at": "2026-11-15T00:01:44.436Z",
+    "job": "session-0026-20261115000144",
+    "revision": {
+      "from": "d1196ad8aa26151e",
+      "reviewed": false
+    },
+    "srcHash": "90ada5774353f564",
+    "status": "machine",
+    "text": "Il segreto applicativo dell’installazione, la chiave con cui Dify firma i propri cookie di sessione e con cui cifra le credenziali dei fornitori di modelli che memorizza, è il parametro `secret_key` di `core/dify`, che non ha un valore predefinito. Per questo la bozza dichiara un proprio parametro `secret_key` — una stringa, obbligatoria, lunga almeno un carattere e senza valore predefinito — e lo trasmette a ogni voce `core/dify` che scrive, perché la Release lo soddisfi sotto i propri `parameters`; un build la cui Release lo lascia non impostato si arresta nominandolo."
+  },
   "90af2ce0e0845274": {
     "at": "2026-11-03T16:27:44.181Z",
     "job": "session-0129-20261103162744",
@@ -98597,6 +98746,17 @@
     "srcHash": "9876cb7a20e053ad",
     "status": "machine",
     "text": "Il compilatore presenta il messaggio nel formato di errore Loud Guardrails con il nome dell’entità, la posizione nel sorgente dell’asserzione e il messaggio di fallimento. La diagnostica è abbastanza specifica da permettere allo sviluppatore di individuare e correggere la causa principale."
+  },
+  "987a77f968a2ac31": {
+    "at": "2026-11-15T00:01:44.436Z",
+    "job": "session-0026-20261115000144",
+    "revision": {
+      "from": "9941776d9b787ae7",
+      "reviewed": false
+    },
+    "srcHash": "987a77f968a2ac31",
+    "status": "machine",
+    "text": "L’importazione riporta come dovuti quattro valori: `spec.manifest`, l’immagine di ciascun grafo e il nome del modello. Una volta indicati, ciascun grafo viene renderizzato in esecuzione sull’immagine che indichi nella risposta, ricevendo l’indirizzo del suo datastore come `LANGGRAPH_CHECKPOINTER_HOST` e `LANGGRAPH_CHECKPOINTER_PORT`, l’utente e il database che il datastore pubblica come `LANGGRAPH_CHECKPOINTER_USER` e `LANGGRAPH_CHECKPOINTER_DATABASE` — PostgreSQL li pubblica entrambi, e per un datastore che non ne pubblica nessuno non viene renderizzata nessuna delle due variabili —, l’endpoint e il nome del modello come `OPENAI_BASE_URL` e `OPENAI_MODEL`, la chiave che la sua credenziale del modello consegna come `OPENAI_API_KEY`, il suo percorso di importazione come `LANGGRAPH_GRAPH_ENTRYPOINT` e il suo limite di passi come `LANGGRAPH_DEFAULT_RECURSION_LIMIT`. La credenziale associata alla sua connessione `checkpointer_db` gli fornisce anche la password del datastore come `LANGGRAPH_CHECKPOINTER_PASSWORD`."
   },
   "987df12f65d594a0": {
     "at": "2026-11-04T07:09:47.104Z",
@@ -104052,6 +104212,13 @@
     "srcHash": "a0fcf281909f4669",
     "status": "machine",
     "text": "Una voce `provides:` è un template che produce il valore che un altro componente legge attraverso una connessione di dipendenza. Questa condizione è ciò che segnala una voce che non è stato possibile valutare: un template non analizzabile, una funzione che chiama e che questa superficie non registra, un riferimento che scende attraverso qualcosa che il contesto di rendering non ha fornito, oppure una lettura con `index` di una chiave che la mappa non contiene."
+  },
+  "a0ff294705bffc32": {
+    "at": "2026-11-15T00:01:44.436Z",
+    "job": "session-0026-20261115000144",
+    "srcHash": "a0ff294705bffc32",
+    "status": "machine",
+    "text": "Con `--target helm`, ciascuno nomina un Secret Kubernetes già presente nel namespace: `secret_key` il nome del Secret, che `core/dify` legge sotto la chiave di dati `secret-key`, e `owner_password` un Secret che contiene la password sotto la chiave di dati `value`. Nessuno dei due nomi è qualcosa che una sorgente possa fornire, quindi ciascuno viene scritto vuoto sotto un commento che dice che cos’è, e l’importazione li riporta entrambi come dovuti; il Manifest generato in bozza mappa `core/referenced-secret` su `helm/k8s-existing-secret`."
   },
   "a103746d81290cb2": {
     "at": "2026-11-03T01:23:31.413Z",
@@ -118289,6 +118456,17 @@
     "srcHash": "b5cb8f2d962fe85a",
     "status": "machine",
     "text": "Ogni tipo di entità ha una vista naturale di «contratto». `inspect` mostra quel contratto — lo schema che un Component pubblica, le mappature che un Manifest dichiara, la topologia che un Aggregate costruisce, gli allegati di Feature per nodo in cui si risolve una Release. Il materiale didattico e concettuale si trova altrove; `inspect` risponde a «in cosa si risolve effettivamente questa entità?»"
+  },
+  "b5cf783f0fd7ea93": {
+    "at": "2026-11-15T00:01:44.436Z",
+    "job": "session-0026-20261115000144",
+    "revision": {
+      "from": "1e86063eb9220142",
+      "reviewed": false
+    },
+    "srcHash": "b5cf783f0fd7ea93",
+    "status": "machine",
+    "text": "Importata con `--target helm`, la sua Release generata in bozza soddisfa `secret_key` e nomina il proprietario nella voce di instradamento che colloca l’installazione, con ogni valore dovuto scritto vuoto:"
   },
   "b5d0c7a988b9ab7f": {
     "at": "2026-11-03T18:29:45.694Z",
@@ -136889,6 +137067,13 @@
     "status": "machine",
     "text": "`aggrega import` legge un progetto scritto in un altro formato — un flusso esportato da Langflow, la configurazione di un client MCP, un file Compose e gli altri formati elencati più avanti — e ne ricava bozze di file Aggrega: un Aggregate e, per la maggior parte dei formati, una Release, che potrai rivedere, modificare e compilare. Non distribuisce nulla e non raggiunge alcun cluster né account cloud. Le bozze sono semplici file nel tuo workspace, e cosa farne dopo spetta a te."
   },
+  "d17b19debd28ed51": {
+    "at": "2026-11-15T00:01:44.436Z",
+    "job": "session-0026-20261115000144",
+    "srcHash": "d17b19debd28ed51",
+    "status": "machine",
+    "text": "Dato un target, il Manifest mappa il tipo di ogni componente che l’installazione compone, oltre a quello della bozza stessa, come descrive [Che cosa aggiunge un target](#what-a-target-adds)."
+  },
   "d17c2b46c34e0bbc": {
     "at": "2026-10-30T05:36:18.193Z",
     "job": "session-0065-20261030053618",
@@ -137015,6 +137200,17 @@
     "srcHash": "d1adc8203c0616da",
     "status": "machine",
     "text": "side effect declares a kind the plugin contract does not define; a conforming side effect declares emit_file or emit_crd (node `\"<node>\"`, side effect `<index>`, kind `\"<value>\"`) (l’effetto collaterale dichiara un tipo che il contratto dei plugin non definisce; un effetto collaterale conforme dichiara emit_file o emit_crd (con il nodo, l’indice dell’effetto collaterale e il tipo indicati))"
+  },
+  "d1b8d439bcf77f09": {
+    "at": "2026-11-15T00:01:44.436Z",
+    "job": "session-0026-20261115000144",
+    "revision": {
+      "from": "abb08b05acbf1a4a",
+      "reviewed": false
+    },
+    "srcHash": "d1b8d439bcf77f09",
+    "status": "machine",
+    "text": "`recursion_limit` non viene scritto, quindi resta valido il valore predefinito del Component, 25. La configurazione non nomina alcun modello, quindi la bozza contiene un’istanza di `core/ai-model/openai`, con chiave `model`, che ogni grafo chiama: il modello che viene fornito al client OpenAI dell’agente. Il suo `values.model` viene scritto vuoto, sotto un commento che dice che la configurazione non ne nomina alcuno, e l’importazione lo riporta come dovuto."
   },
   "d1c19534f5836ff6": {
     "at": "2026-11-04T10:56:34.629Z",
@@ -142491,6 +142687,17 @@
     "srcHash": "da919120dea0bef8",
     "status": "machine",
     "text": "`policy`"
+  },
+  "da953e9d176e0228": {
+    "at": "2026-11-15T00:01:44.436Z",
+    "job": "session-0026-20261115000144",
+    "revision": {
+      "from": "151d41186f9e91c7",
+      "reviewed": false
+    },
+    "srcHash": "da953e9d176e0228",
+    "status": "machine",
+    "text": "`aggregate.yaml` è un Aggregate in bozza che prende il nome dall’applicazione, come descrive [Come viene chiamata una bozza](#how-a-draft-is-named), e che compone una voce di `core/dify`, con chiave `dify`, il cui parametro `app_definition` porta l’applicazione com’è scritta — come descrive [Come il flusso viene scritto nella bozza](#how-the-flow-is-written-into-the-draft) per un flusso, così i riferimenti `{{#…#}}` propri di Dify raggiungono l’installazione così come sono stati esportati. L’installazione collega da sé ogni connessione del suo server API — il suo database, la sua cache, il suo vector store, la sua sandbox, il suo runtime dei plugin e il suo proxy di uscita — quindi la bozza non genera in bozza alcun Component e non collega nulla: ogni nodo resta nell’applicazione, e la sua decisione lo dice. Accanto a esso, `release.yaml` è una Release in bozza con lo stesso nome, che colloca l’installazione in un confine, `platform`, e porta ciò che l’applicazione non può fornire."
   },
   "da99e32472f86fa6": {
     "at": "2026-11-04T13:23:49.292Z",
@@ -160296,6 +160503,17 @@
     "srcHash": "f49ed005822e23a8",
     "status": "machine",
     "text": "Output di altre Recipes nello stesso boundary."
+  },
+  "f4a42856c608f18e": {
+    "at": "2026-11-15T00:01:44.436Z",
+    "job": "session-0026-20261115000144",
+    "revision": {
+      "from": "ffcc674cdfd17e52",
+      "reviewed": false
+    },
+    "srcHash": "f4a42856c608f18e",
+    "status": "machine",
+    "text": "Il backend del checkpointer è il datastore a cui è collegato ogni grafo dell’applicazione: `default`, o un checkpointer che non nomina alcun backend, è un’istanza di `core/datastore/postgres`, con chiave `postgres`. `mongo` è FerretDB, che parla il protocollo di MongoDB, su PostgreSQL con l’estensione DocumentDB: un’istanza di `core/datastore/ferretdb`, con chiave `ferretdb`, a cui è collegato ogni grafo, e una di `core/datastore/documentdb`, con chiave `documentdb`, che la connessione `backend` di FerretDB raggiunge, con il suo blocco `inject` che consegna ciò che DocumentDB pubblica sotto i nomi che FerretDB legge; un’unica password, letta dalla variabile `FERRETDB_PASSWORD`, è associata a DocumentDB, alla connessione di FerretDB verso di esso e alla connessione di ciascun grafo verso FerretDB. Dove il catalogo del workspace non contiene alcun Component con il nome del datastore PostgreSQL, ne viene generato uno in bozza, `<target_namespace>/datastore/postgres`, che dichiara l’`host` e la `port` che la connessione `checkpointer_db` dell’agente legge, e la sua decisione lo dice; una Recipe che esegua il datastore e li pubblichi viene lasciata a te, come dice un commento che lo apre. Dove non contiene alcun Component FerretDB o alcun Component DocumentDB, il checkpointer `mongo` non viene collegato ad alcun datastore. Un checkpointer `custom`, o un backend che l’importatore non mappa su alcun datastore, non collega nulla, e un commento sopra ciascun grafo e la decisione del checkpointer dicono perché; la build si arresta nominando il socket `checkpointer_db` finché non ne viene collegato uno. L’archivio di memoria viene riportato in una decisione che non sceglie nulla."
   },
   "f4a845a579490369": {
     "at": "2026-10-30T07:09:12.317Z",

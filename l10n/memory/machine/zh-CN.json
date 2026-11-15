@@ -9435,6 +9435,13 @@
     "status": "machine",
     "text": "HTTP 请求节点的 `headers` 和 `params`，Dify 未将其标记为凭据，但它们可能携带凭据，各自整体定位。"
   },
+  "0cd6d5e62f8b7b1c": {
+    "at": "2026-11-15T00:01:44.436Z",
+    "job": "session-0026-20261115000144",
+    "srcHash": "0cd6d5e62f8b7b1c",
+    "status": "machine",
+    "text": "数据存储的密码是草稿以引用方式附加的 secret，附加在数据存储自身的 `password` 槽位和每个图的 `checkpointer_db` 连接上；每个图在其 `model` 连接上向模型出示的凭据也是如此：由于配置没有为两者指定变量，它们分别从 `POSTGRES_PASSWORD`（或 `FERRETDB_PASSWORD`）和 `OPENAI_API_KEY` 读取，在除 helm 之外的所有目标上以 `${…}` 引用的形式，在 helm 上则作为一个 Kubernetes Secret 的名称，写为空值，由导入列为待提供的值。在 compose 上，Aggregate 以其 Recipe 读取的键声明每一项，如[各目标的 secret](#secrets-for-each-target)针对平台所述。"
+  },
   "0cdc12418b7c3618": {
     "at": "2026-10-22T03:53:00.119047+00:00",
     "job": "msgbatch_013WHPBfgnxTj5isCEqnpB8T",
@@ -9943,6 +9950,17 @@
     "srcHash": "0da22ac80aa101a5",
     "status": "machine",
     "text": "该 Release 所绑定和路由的内容：它所部署的 Aggregate 和 Manifest（或一个 extends 基础），特定于环境的参数填充，以及其组件被路由进入的边界。"
+  },
+  "0da5744722fdb96f": {
+    "at": "2026-11-15T00:01:44.436Z",
+    "job": "session-0026-20261115000144",
+    "revision": {
+      "from": "4e5a5ada6b7fa1da",
+      "reviewed": false
+    },
+    "srcHash": "0da5744722fdb96f",
+    "status": "machine",
+    "text": "旁边的 `release.yaml` 是一个同名的 Release 草稿，指向该 Aggregate。它将每个 agent 的 `infra.image`——运行 crew 程序的镜像，任何声明都未指定——写为空值，上方有一条注释说明它是什么，导入会将其列为待提供的值。它将每个 agent 向其模型出示的凭据附加在其 `model` 连接的 `credential` 下，以引用方式而非值的方式：没有任何声明为其指定变量，因此它从提供方的客户端库读取 API 密钥所用的变量中读取——对于 OpenAI 为 `OPENAI_API_KEY`——在除 helm 之外的所有目标上以 `${…}` 引用的形式，在 helm 上则作为一个 Kubernetes Secret 的名称，写为空值，由导入列为待提供的值；在 compose 上，agent 的 `model` 连接以该键声明它。每个模型也有一个条目，其中不含任何基础设施，因此 Release 将模型与各 agent 一起放置。对于以 `llm` 对象声明的模型，其其他每个成员在目录的 Component 声明了同名值时写为模型实例的值，否则写在 Release 中该模型条目上方的注释里，供你在该 Component 接受它的位置携带。与每个起草的 Release 一样，它将 `metadata.environment` 写为 `development`，并在没有目标时写入一个由导入列为待提供的空 `spec.manifest`；给定目标时，导入会起草 Manifest，如[目标会添加什么](#what-a-target-adds)所述。"
   },
   "0da67adbb33e64eb": {
     "at": "2026-10-22T03:12:40.354254+00:00",
@@ -19613,6 +19631,17 @@
     "status": "machine",
     "text": "解析（外壳之后）"
   },
+  "1b3adafd43ff012c": {
+    "at": "2026-11-15T00:01:44.436Z",
+    "job": "session-0026-20261115000144",
+    "revision": {
+      "from": "fc7853cb004b809d",
+      "reviewed": false
+    },
+    "srcHash": "1b3adafd43ff012c",
+    "status": "machine",
+    "text": "旁边的 `release.yaml` 是一个同名的 Release 草稿，指向该 Aggregate。第一个图条目上方的注释说明每个图的镜像是什么（应用自己的镜像，即安装了 LangGraph 的应用代码，而不是 `langgraph build` 构建的服务器镜像）、它接收哪些变量，以及哪个 `inject:` 块替换其中哪个变量名。每个图的条目将其 `infra.image`（即运行该应用的镜像）写为空值，上方有一条注释说明它是什么，导入会将其列为待提供的值；在未设置期间，Docker Compose Recipe 运行目录自带的[快速入门智能体](../examples/quickstart-ai/README.md)，它读取默认变量。数据存储和模型也有条目，因此 Release 会将它们与各个图放置在一起。应用第一个图上方的注释给出其配置所声明的环境，如[配置所声明的环境](#the-environment-a-configuration-states)所述。与每个起草的 Release 一样，它将 `metadata.environment` 写为 `development`，并在没有目标时写入一个由导入列为待提供的空 `spec.manifest`；给定目标时，导入会起草 Manifest，如[目标会添加什么](#what-a-target-adds)所述。"
+  },
   "1b3fbdfc1015b6b0": {
     "at": "2026-10-22T05:14:14.914265+00:00",
     "job": "msgbatch_01SJr5F7Uh6g5vmdkzNw4vuV",
@@ -21637,6 +21666,17 @@
     "status": "machine",
     "text": "文件相对于源根目录的路径（例如 Chart.yaml 或 templates/deployment.yaml）。"
   },
+  "1e2765438198e23b": {
+    "at": "2026-11-15T00:01:44.436Z",
+    "job": "session-0026-20261115000144",
+    "revision": {
+      "from": "e1cf545956fb2bb5",
+      "reviewed": false
+    },
+    "srcHash": "1e2765438198e23b",
+    "status": "machine",
+    "text": "`importer/langgraph` 读取 LangGraph 应用的配置 `langgraph.json` 所声明的图，并起草一个 Aggregate：其中每个图对应一个标准库 LangGraph 智能体 `core/ai-agent/langgraph` 的实例，各自连接到其 checkpointer 保存状态所用的数据存储以及一个模型；同时在旁边起草一个 Release，承载该配置所声明的环境。它读取该配置，从不读取图的代码。"
+  },
   "1e2f40539bc5944d": {
     "at": "2026-10-22T02:42:41.008096+00:00",
     "job": "msgbatch_01EVa3HgqoCo1GqPpjD6nota",
@@ -23412,6 +23452,17 @@
     "srcHash": "2068b81b75d4b2b1",
     "status": "machine",
     "text": "可达范围"
+  },
+  "206c2e360eab2a70": {
+    "at": "2026-11-15T00:01:44.436Z",
+    "job": "session-0026-20261115000144",
+    "revision": {
+      "from": "a262ec2c66fcffa6",
+      "reviewed": false
+    },
+    "srcHash": "206c2e360eab2a70",
+    "status": "machine",
+    "text": "应用以安装的所有者账户导入，该账户由 Release 在其针对该安装的路由条目中指定：安装的 `api` 组件上的 `infra.owner_email`，以及该组件上的 `owner_password` 槽位，后者以 `core/referenced-secret` 的形式附加，缺少它们构建会停止。所有者的电子邮件不是任何来源能够提供的，因此它被写为空值，上方有一条注释说明它是什么，导入会将其列为待提供的值。"
   },
   "206d713ad48a95b0": {
     "at": "2026-10-22T01:39:34.791258+00:00",
@@ -26139,6 +26190,13 @@
     "srcHash": "242a5618ff6fb2b5",
     "status": "machine",
     "text": "未来的 Class B 升级"
+  },
+  "242a7d9a80d027e9": {
+    "at": "2026-11-15T00:01:44.436Z",
+    "job": "session-0026-20261115000144",
+    "srcHash": "242a7d9a80d027e9",
+    "status": "machine",
+    "text": "以及其 Release，在没有目标的情况下起草如下，这里省略了第二个 agent 的条目并以 `...` 标记；导入会将 `spec.manifest` 和每个 agent 的镜像列为待提供的值："
   },
   "242d41fb4c39f6ed": {
     "at": "2026-10-22T03:31:15.615761+00:00",
@@ -31069,6 +31127,13 @@
     "status": "machine",
     "text": "强制 allow_nonstandard_names=false"
   },
+  "2b15ecc5961b2d04": {
+    "at": "2026-11-15T00:01:44.436Z",
+    "job": "session-0026-20261115000144",
+    "srcHash": "2b15ecc5961b2d04",
+    "status": "machine",
+    "text": "导入会将这三个空值列为待提供的值。使用 `--target compose` 导入时，同一个 Release 会写入 `secret_key: \"${DIFY_SECRET_KEY}\"` 和 `origin: \"${DIFY_OWNER_PASSWORD}\"`，只将所有者的电子邮件列为待提供的值；它还会在 `api` 组件上写入 `infra.published_port` 为 5001，在前端即 `console` 组件上写入 3001，每一项上方都有注释说明该服务只能从本机访问，本机上运行的任何进程都可以访问，并且删除该行会使服务保持为内部服务。[Dify 导入演练](../../authoring/import/dify.md)为两种目标构建一个应用，并在 Kubernetes 上运行它。"
+  },
   "2b1ac1684629294d": {
     "at": "2026-10-22T03:00:38.891470+00:00",
     "job": "msgbatch_018TuANWNnugzXZUxyABeHjT",
@@ -31500,6 +31565,17 @@
     "srcHash": "2ba32285ec2a70e3",
     "status": "machine",
     "text": "跨侧组合"
+  },
+  "2ba4a958dfe6546c": {
+    "at": "2026-11-15T00:01:44.436Z",
+    "job": "session-0026-20261115000144",
+    "revision": {
+      "from": "2cdd286001d3a649",
+      "reviewed": false
+    },
+    "srcHash": "2ba4a958dfe6546c",
+    "status": "machine",
+    "text": "以对象形式书写的 `llm` 可以携带密钥——在 `api_key` 下、在地址中、在 header 中。除指定模型的成员外，其每个不是数字或布尔值的成员都是可能携带密钥的值，CrewAI 不将其标记为凭据。默认情况下，每个持有值的成员都按原样携带——在其 Component 声明了相应值时作为模型实例的值，否则携带到 Release 中其模型条目上方的注释里——并在 `credential-carried` 警告中按其 agent 和成员（例如 `llm.api_key`）指出，从不按其值指出。当 [`empty_credentials` 设置](#settings) 为 `all` 时，每一项都写为无值，并以 `credential-emptied` 报告；为 `marked` 时每一项都会携带，因为 CrewAI 未标记任何一项。成员的名称不会按其含义解读。声明中草稿未携带的其他所有成员——工具的配置、crew 的 `inputs`——只注明名称，从不给出值。"
   },
   "2ba764ac8852a665": {
     "at": "2026-10-22T08:03:58.541373+00:00",
@@ -32790,6 +32866,17 @@
     "srcHash": "2daa9d4d70157099",
     "status": "machine",
     "text": "从中可以读出三点。"
+  },
+  "2dab648dcff2c383": {
+    "at": "2026-11-15T00:01:44.436Z",
+    "job": "session-0026-20261115000144",
+    "revision": {
+      "from": "42266ea633a2e9ab",
+      "reviewed": false
+    },
+    "srcHash": "2dab648dcff2c383",
+    "status": "machine",
+    "text": "`checkpointer`：其 `backend`，可以是 `default`，即 PostgreSQL，也是未指定时 LangGraph 采用的值；`mongo`，即使用 MongoDB 协议的数据库；或 `custom`，即应用代码在 `path` 处定义的 checkpointer；"
   },
   "2db0fd4aef4e67ed": {
     "at": "2026-10-29T23:55:51.039Z",
@@ -34441,6 +34528,17 @@
     "srcHash": "2fe9f8f1b49b87eb",
     "status": "machine",
     "text": "导入器做出该选择的原因，以其自己的措辞表述。未写原因时缺省。"
+  },
+  "2ff08d6b4dd1fac6": {
+    "at": "2026-11-15T00:01:44.436Z",
+    "job": "session-0026-20261115000144",
+    "revision": {
+      "from": "fbc5669753922d04",
+      "reviewed": false
+    },
+    "srcHash": "2ff08d6b4dd1fac6",
+    "status": "machine",
+    "text": "在其他所有目标上，以及没有目标时，每一项都是对一个变量的引用——`secret_key` 写为 `\"${DIFY_SECRET_KEY}\"`，所有者的密码写为 `\"${DIFY_OWNER_PASSWORD}\"`，即标准目录中面向 Compose 的 Dify Recipes 所读取的名称——Docker Compose 会在栈启动时从环境中读取它们，因此两者都无需另行提供；在 `--target compose` 下，起草的 Manifest 将 `core/referenced-secret` 映射到 `compose/dotenv-referenced-secret`。"
   },
   "2ff1865c4fae66cb": {
     "at": "2026-10-22T08:15:42.630087+00:00",
@@ -62143,6 +62241,13 @@
     "status": "machine",
     "text": "`.locals` — Recipe 私有状态，在 locals 前导部分解析并在源解析时发布；在每个 Workload 模板求值位置均可用。"
   },
+  "5711cc85c2b56c05": {
+    "at": "2026-11-15T00:01:44.436Z",
+    "job": "session-0026-20261115000144",
+    "srcHash": "5711cc85c2b56c05",
+    "status": "machine",
+    "text": "应用密钥和所有者的密码都是 secret，会按导入的目标以引用方式起草："
+  },
   "57146cef90f2d61f": {
     "at": "2026-10-22T01:50:22.319444+00:00",
     "job": "msgbatch_01VwQyd4vfmNKqBKVTg2vP5W",
@@ -66219,6 +66324,17 @@
     "status": "machine",
     "text": "plugin artifact not found on this machine (Plugin entity `\"<reference>\"` is authored in a catalog directory, expected `<file>` in `<directory>`). Place the built .wasm beside the entity under that name, or publish the plugin and reference the published Plugin entity instead of the one in the catalog directory（本机上未找到插件制品（该 Plugin 实体编写在目录目录中，预期在所示目录中找到所示文件）。请将构建好的 .wasm 以该名称放在实体旁边，或发布该插件并引用已发布的 Plugin 实体，而不是目录目录中的那个）"
   },
+  "5cdbf020fe0df712": {
+    "at": "2026-11-15T00:01:44.436Z",
+    "job": "session-0026-20261115000144",
+    "revision": {
+      "from": "bd760194dbe447e6",
+      "reviewed": false
+    },
+    "srcHash": "5cdbf020fe0df712",
+    "status": "machine",
+    "text": "其 `checkpointer_db` 连接，连接到应用的数据存储；"
+  },
   "5cdc639e5cbb0357": {
     "at": "2026-10-22T03:24:54.319294+00:00",
     "job": "msgbatch_01Quwt1bUbFp43kX3BAncRfN",
@@ -67612,6 +67728,17 @@
     "srcHash": "5eaaa972ddeaadc8",
     "status": "machine",
     "text": "解析失败的模板不产生任何引用集。将每个键都报告为未读取，会淹没求值过程针对同一模板产生的解析诊断，因此改为不报告任何内容。`artifacts:` 条目使用标准的 `{{ }}` 定界符读取，而这并非每个 provider 为该字段声明的定界符对；用错误的定界符对读取时，这样的主体会产生其作者从未编写的引用，或者无法解析，而这两种结果都只会使警告静默。"
+  },
+  "5eabd2fdfe07434b": {
+    "at": "2026-11-15T00:01:44.436Z",
+    "job": "session-0026-20261115000144",
+    "revision": {
+      "from": "10ff7f5833cd7e70",
+      "reviewed": false
+    },
+    "srcHash": "5eabd2fdfe07434b",
+    "status": "machine",
+    "text": "随后，每个 agent 渲染为运行你所回答的镜像，并以 `OPENAI_BASE_URL` 和 `MODEL` 获得模型的端点和模型名称，CrewAI 从这两个变量中读取它们。"
   },
   "5eae2b09ddce2459": {
     "at": "2026-11-14T23:59:08.244Z",
@@ -91879,6 +92006,17 @@
     "status": "machine",
     "text": "请分别阅读这两行，因为它们说的是不同的事情。"
   },
+  "806add86fb2af3e9": {
+    "at": "2026-11-15T00:01:44.436Z",
+    "job": "session-0026-20261115000144",
+    "revision": {
+      "from": "2a670a00849aa6da",
+      "reviewed": false
+    },
+    "srcHash": "806add86fb2af3e9",
+    "status": "machine",
+    "text": "其 `model` 连接，连接到应用的模型。"
+  },
   "806bdd17e8434e0c": {
     "at": "2026-10-22T04:31:59.273856+00:00",
     "job": "msgbatch_01V4iinZ1EB2Yt7N23KCFLbG",
@@ -103342,6 +103480,17 @@
     "status": "machine",
     "text": "CrewAI 项目声明的 agent 和 task——`config/agents.yaml` 和 `config/tasks.yaml`，格式为 YAML；或 `crew.jsonc` 和 `agents/<name>.jsonc`，或其严格 JSON 写法 `crew.json` 和 `agents/<name>.json`，格式为带注释的 JSON"
   },
+  "90ada5774353f564": {
+    "at": "2026-11-15T00:01:44.436Z",
+    "job": "session-0026-20261115000144",
+    "revision": {
+      "from": "d1196ad8aa26151e",
+      "reviewed": false
+    },
+    "srcHash": "90ada5774353f564",
+    "status": "machine",
+    "text": "安装的应用密钥是 Dify 用来签名会话 cookie、并用来加密其所存储的模型提供方凭据的密钥，即 `core/dify` 的 `secret_key` 参数，它没有默认值。因此，草稿会声明一个自己的 `secret_key` 参数——字符串类型、必填、长度至少为一个字符且没有默认值——并将其传递给它写入的每个 `core/dify` 条目，由 Release 在其 `parameters` 下提供；如果 Release 未设置它，构建会停止并指出它的名称。"
+  },
   "90af2ce0e0845274": {
     "at": "2026-10-29T23:52:11.486Z",
     "job": "session-0036-20261029235211",
@@ -108990,6 +109139,17 @@
     "srcHash": "9876cb7a20e053ad",
     "status": "machine",
     "text": "编译器以 Loud Guardrails 错误格式呈现该消息，其中包含实体名称、断言的源位置以及失败消息。该诊断足够具体，开发者可以据此定位并修复根本原因。"
+  },
+  "987a77f968a2ac31": {
+    "at": "2026-11-15T00:01:44.436Z",
+    "job": "session-0026-20261115000144",
+    "revision": {
+      "from": "9941776d9b787ae7",
+      "reviewed": false
+    },
+    "srcHash": "987a77f968a2ac31",
+    "status": "machine",
+    "text": "导入会将四个值列为待提供的值：`spec.manifest`、每个图的镜像和模型的名称。回答这些值之后，每个图被渲染为运行你所回答的镜像，并以 `LANGGRAPH_CHECKPOINTER_HOST` 和 `LANGGRAPH_CHECKPOINTER_PORT` 获得其数据存储的地址，以 `LANGGRAPH_CHECKPOINTER_USER` 和 `LANGGRAPH_CHECKPOINTER_DATABASE` 获得数据存储所发布的用户和数据库（PostgreSQL 两者都会发布；如果数据存储两者都不发布，则这两个变量都不会被渲染），以 `OPENAI_BASE_URL` 和 `OPENAI_MODEL` 获得模型的端点和名称，以 `OPENAI_API_KEY` 获得其模型凭据交付的密钥，以 `LANGGRAPH_GRAPH_ENTRYPOINT` 获得其导入路径，以 `LANGGRAPH_DEFAULT_RECURSION_LIMIT` 获得其步数上限。附加在其 `checkpointer_db` 连接上的凭据还会以 `LANGGRAPH_CHECKPOINTER_PASSWORD` 向其提供数据存储的密码。"
   },
   "987df12f65d594a0": {
     "at": "2026-10-30T02:04:27.098Z",
@@ -115024,6 +115184,13 @@
     "srcHash": "a0fcf281909f4669",
     "status": "machine",
     "text": "`provides:` 条目是一个模板，生成另一个组件通过依赖连接读取的值。无法求值的条目会报告此情况：模板无法解析、调用了此入口未注册的函数、引用经过了渲染上下文未提供的内容，或者 `index` 读取了映射中不存在的键。"
+  },
+  "a0ff294705bffc32": {
+    "at": "2026-11-15T00:01:44.436Z",
+    "job": "session-0026-20261115000144",
+    "srcHash": "a0ff294705bffc32",
+    "status": "machine",
+    "text": "在 `--target helm` 下，每一项都指定一个已存在于命名空间中的 Kubernetes Secret：`secret_key` 指定该 Secret 的名称，`core/dify` 在数据键 `secret-key` 下读取它；`owner_password` 指定一个在数据键 `value` 下保存密码的 Secret。这两个名称都不是任何来源能够提供的，因此每一项都被写为空值，上方有一条注释说明它是什么，导入会将两者都列为待提供的值；起草的 Manifest 将 `core/referenced-secret` 映射到 `helm/k8s-existing-secret`。"
   },
   "a103746d81290cb2": {
     "at": "2026-10-22T02:48:40.419851+00:00",
@@ -130723,6 +130890,17 @@
     "srcHash": "b5cb8f2d962fe85a",
     "status": "machine",
     "text": "每种实体类型都有一个自然的“契约”视图。`inspect` 展示的就是这个契约：Component 发布的 schema、Manifest 声明的映射、Aggregate 构建的拓扑、Release 解析得到的各节点 Feature 附加项。教程和概念性内容位于其他位置；`inspect` 回答的是“这个实体实际解析成什么？”"
+  },
+  "b5cf783f0fd7ea93": {
+    "at": "2026-11-15T00:01:44.436Z",
+    "job": "session-0026-20261115000144",
+    "revision": {
+      "from": "1e86063eb9220142",
+      "reviewed": false
+    },
+    "srcHash": "b5cf783f0fd7ea93",
+    "status": "machine",
+    "text": "使用 `--target helm` 导入时，其起草的 Release 会提供 `secret_key`，并在放置安装的路由条目中指定所有者，其中每个待提供的值都写为空值："
   },
   "b5d0c7a988b9ab7f": {
     "at": "2026-10-22T04:31:59.273856+00:00",
@@ -151196,6 +151374,13 @@
     "status": "machine",
     "text": "`aggrega import` 读取以另一种格式编写的项目——从 Langflow 导出的流程、MCP 客户端的配置、Compose 文件，以及下面列出的其他格式——并据此写出 Aggrega 草稿文件：一个 Aggregate，对大多数格式而言还有一个 Release，供你审阅、编辑和构建。它不部署任何东西，也不连接任何集群或云账户。草稿是你工作区中的普通文件，接下来如何处理它们由你决定。"
   },
+  "d17b19debd28ed51": {
+    "at": "2026-11-15T00:01:44.436Z",
+    "job": "session-0026-20261115000144",
+    "srcHash": "d17b19debd28ed51",
+    "status": "machine",
+    "text": "给定目标时，Manifest 会映射安装所组合的每个组件的类型以及草稿自身的类型，如[目标会添加什么](#what-a-target-adds)所述。"
+  },
   "d17c2b46c34e0bbc": {
     "at": "2026-10-29T18:53:24.886Z",
     "job": "session-0014-20261029185324",
@@ -151351,6 +151536,17 @@
     "srcHash": "d1adc8203c0616da",
     "status": "machine",
     "text": "side effect declares a kind the plugin contract does not define; a conforming side effect declares emit_file or emit_crd (node `\"<node>\"`, side effect `<index>`, kind `\"<value>\"`)（副作用声明了插件契约未定义的种类；符合规范的副作用声明 emit_file 或 emit_crd）"
+  },
+  "d1b8d439bcf77f09": {
+    "at": "2026-11-15T00:01:44.436Z",
+    "job": "session-0026-20261115000144",
+    "revision": {
+      "from": "abb08b05acbf1a4a",
+      "reviewed": false
+    },
+    "srcHash": "d1b8d439bcf77f09",
+    "status": "machine",
+    "text": "不写入 `recursion_limit`，因此沿用该 Component 的默认值 25。配置没有指定模型，因此草稿包含一个键为 `model` 的 `core/ai-model/openai` 实例，每个图都会调用它：即交给 agent 的 OpenAI 客户端的模型。其 `values.model` 写为空值，上方有一条注释说明配置未指定任何模型，导入会将其列为待提供的值。"
   },
   "d1c19534f5836ff6": {
     "at": "2026-10-22T08:15:42.630087+00:00",
@@ -157381,6 +157577,17 @@
     "srcHash": "da919120dea0bef8",
     "status": "machine",
     "text": "`policy`"
+  },
+  "da953e9d176e0228": {
+    "at": "2026-11-15T00:01:44.436Z",
+    "job": "session-0026-20261115000144",
+    "revision": {
+      "from": "151d41186f9e91c7",
+      "reviewed": false
+    },
+    "srcHash": "da953e9d176e0228",
+    "status": "machine",
+    "text": "`aggregate.yaml` 是一个草稿 Aggregate，按[草稿如何命名](#how-a-draft-is-named)所述以应用命名，组合一个键为 `dify` 的 `core/dify` 条目，其 `app_definition` 参数按原样承载应用，方式与[流如何写入草稿](#how-the-flow-is-written-into-the-draft)对流的描述相同，因此 Dify 自身的 `{{#…#}}` 引用按导出时的样子到达安装。安装自行连接其 API 服务器的所有连接：数据库、缓存、向量存储、沙箱、插件运行时和出站代理。因此草稿不起草任何 Component，也不连接任何内容：每个节点都保留在应用中，其决策也如此说明。在它旁边，`release.yaml` 是一个同名的草稿 Release，它将安装放置在一个边界 `platform` 中，并承载应用无法提供的内容。"
   },
   "da99e32472f86fa6": {
     "at": "2026-10-22T08:23:20.000561+00:00",
@@ -176931,6 +177138,17 @@
     "srcHash": "f49ed005822e23a8",
     "status": "machine",
     "text": "同一边界中其他 Recipes 的输出。"
+  },
+  "f4a42856c608f18e": {
+    "at": "2026-11-15T00:01:44.436Z",
+    "job": "session-0026-20261115000144",
+    "revision": {
+      "from": "ffcc674cdfd17e52",
+      "reviewed": false
+    },
+    "srcHash": "f4a42856c608f18e",
+    "status": "machine",
+    "text": "checkpointer 的后端就是应用的每个图所连接的数据存储：`default` 或未指定后端的 checkpointer 对应 `core/datastore/postgres` 的一个实例，键为 `postgres`。`mongo` 是 FerretDB，它使用 MongoDB 的协议，运行在带有 DocumentDB 扩展的 PostgreSQL 之上：即一个键为 `ferretdb` 的 `core/datastore/ferretdb` 实例，每个图都连接到它；以及一个键为 `documentdb` 的 `core/datastore/documentdb` 实例，FerretDB 的 `backend` 连接到达它，其 `inject` 块以 FerretDB 读取的名称交付 DocumentDB 所发布的内容；一个从变量 `FERRETDB_PASSWORD` 读取的密码，附加在 DocumentDB、FerretDB 到它的连接以及每个图到 FerretDB 的连接上。如果工作区的目录中没有以 PostgreSQL 数据存储命名的 Component，则会起草一个 `<target_namespace>/datastore/postgres`，声明智能体的 `checkpointer_db` 连接所读取的 `host` 和 `port`，其决策会说明这一点；运行该数据存储并发布这些值的 Recipe 留给你编写，其开头的注释会说明这一点。如果目录中没有 FerretDB 或 DocumentDB 的 Component，`mongo` checkpointer 不会连接到任何数据存储。`custom` checkpointer，或导入器无法映射到任何数据存储的后端，不会连接任何内容，每个图上方的注释和 checkpointer 的决策会说明原因；在连接之前，构建会停止并指出 `checkpointer_db` 插槽。store 会在一个不做任何选择的决策中报告。"
   },
   "f4a845a579490369": {
     "at": "2026-10-29T21:34:59.076Z",
