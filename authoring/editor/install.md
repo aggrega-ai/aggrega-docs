@@ -23,6 +23,8 @@ From a terminal, pass the identifier to Visual Studio Code's command-line progra
 code --install-extension aggrega-ai.aggrega
 ```
 
+The extension shows its own text — its commands, settings, views and messages — in the display language Visual Studio Code runs in, where it is translated into that language, and in English otherwise; a display language you change with **Configure Display Language** reaches it once the editor restarts. What the compiler reports, its diagnostics and an import's questions among it, reaches you as the compiler words it, as at a terminal.
+
 ## Getting the compiler
 
 **The extension runs the compiler `aggrega.server.binaryPath` names, and finds one before it offers to
