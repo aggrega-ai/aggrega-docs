@@ -23,7 +23,7 @@ What a release may change in the commands, the flags and the assistant tools —
 - [`aggrega serve`](cli/aggrega-serve.md) — a long-running compiler-as-service daemon (JSON-RPC over stdin/stdout) for IDE integration.
 - [`aggrega version`](cli/aggrega-version.md) — print the CLI version; `-o json` emits a machine-readable object.
 - [`aggrega get-schema`](cli/aggrega-get-schema.md) — print the canonical JSON Schema for an entity or contract kind; `--list` names every kind. The authoritative shape to author a file against.
-- [`aggrega draft`](cli/aggrega-scaffold.md) — print a starter document for an entity kind, derived from that kind's schema: the required fields, with the fixed ones filled in and a placeholder everywhere a value is needed. Drafting writes no file; redirect it where you want it. With `--example` it writes one of the documentation's runnable examples into a new directory instead, and `--example --list` names them. `aggrega scaffold` still works as an alias: it prints a notice on standard error and is removed in 0.10.0, and the assistant tool `scaffold` is likewise an alias of `draft` removed in 0.10.0.
+- [`aggrega draft`](cli/aggrega-draft.md) — print a starter document for an entity kind, derived from that kind's schema: the required fields, with the fixed ones filled in and a placeholder everywhere a value is needed. Drafting writes no file; redirect it where you want it. With `--example` it writes one of the documentation's runnable examples into a new directory instead, and `--example --list` names them. `aggrega draft` still works as an alias: it prints a notice on standard error and is removed in 0.10.0, and the assistant tool `scaffold` is likewise an alias of `draft` removed in 0.10.0.
 - [`aggrega mcp`](cli/aggrega-mcp.md) — run a Model Context Protocol server, over standard input and output or over HTTP, so an MCP-capable client becomes an Aggrega-aware authoring assistant. See [Authoring Aggrega files](../authoring/getting-started.md).
 - [`aggrega skills`](cli/aggrega-skills.md) — install the skill that teaches an AI assistant to install and use Aggrega into that assistant's skill folder, for one project or, with `--global`, for every project of yours.
 - [`aggrega cache`](cli/aggrega-cache.md) — inspect and maintain the on-disk caches: list what they hold, reclaim artifact-cache entries no lockfile references, trim the compiled-module cache to a size cap, or wipe every cache.
@@ -49,6 +49,7 @@ What a release may change in the commands, the flags and the assistant tools —
 | `aggrega cache` | Inspect and maintain the on-disk caches |
 | `aggrega config` | Inspect and manage the workspace configuration |
 | `aggrega deprecate` | Attach a signed deprecation marker to an already-published artifact |
+| `aggrega draft` | Draft a starter document for an entity kind, or write a runnable example into a new directory |
 | `aggrega edit-document` | Apply one bounded structured edit to a document, preserving every byte it does not touch |
 | `aggrega explain` | Explain the halting condition a code names |
 | `aggrega get-schema` | Print the JSON Schema for an entity or contract kind |
@@ -64,7 +65,6 @@ What a release may change in the commands, the flags and the assistant tools —
 | `aggrega push` | Bundle and publish a catalog entity to an OCI registry |
 | `aggrega push-artifact` | Publish a standalone data artifact (such as a documentation bundle) to an OCI registry |
 | `aggrega registry` | Manage registries and their signature trust policy |
-| `aggrega scaffold` | Draft a starter document for an entity kind, or write a runnable example into a new directory |
 | `aggrega search` | Search the local index of configured registries |
 | `aggrega serve` | Run as a long-running compiler-as-service over JSON-RPC 2.0 on stdin/stdout |
 | `aggrega sign` | Sign one or more already-published artifacts and attach their signatures |
@@ -88,7 +88,7 @@ Where positionals are meaningful, each command's own reference page documents wh
 The commands that show their steps this way, besides the command of every installed CLI plugin:
 
 <!-- BEGIN GENERATED: waiting-commands -->
-`aggrega config init`, `aggrega deprecate`, `aggrega explain`, `aggrega import`, `aggrega inspect`, `aggrega lint`, `aggrega plugin add`, `aggrega plugin gen-catalog`, `aggrega plugin run-local`, `aggrega plugin sync`, `aggrega push`, `aggrega push-artifact`, `aggrega registry add`, `aggrega scaffold`, `aggrega sign`, `aggrega validate`
+`aggrega config init`, `aggrega deprecate`, `aggrega draft`, `aggrega explain`, `aggrega import`, `aggrega inspect`, `aggrega lint`, `aggrega plugin add`, `aggrega plugin gen-catalog`, `aggrega plugin run-local`, `aggrega plugin sync`, `aggrega push`, `aggrega push-artifact`, `aggrega registry add`, `aggrega sign`, `aggrega validate`
 <!-- END GENERATED: waiting-commands -->
 
 **No request waits on a server without end.** A request waits at most 30 seconds for the server to begin its answer once the request has been sent in full, and at most 30 seconds for the next part of an answer already arriving. A server that keeps a request waiting longer is refused under [`E0376`](errors/fatal-halts.md#a-server-did-not-answer-in-time), naming the server and the wait. Only waiting is bounded: a download or an upload that keeps moving takes as long as it takes. A Helm chart a Recipe's `source:` fetches over HTTPS is held to the first of the two waits only, and its expiry is reported in the network library's own words rather than under `E0376`. A request a command already asks again when it times out — a read during `aggrega registry update`, a write during a publication — is asked again before the refusal is reported.

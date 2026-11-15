@@ -156,7 +156,7 @@ A directory the workspace configuration lists that is not a directory — nothin
 
 ### Placeholders still owed
 
-A value the kind requires that the file leaves as an empty string is a placeholder, and validate reports it before anything else. A document drafted by [`aggrega scaffold`](./aggrega-scaffold.md) carries one wherever its kind needs a value only you can supply, so this is where you learn which remain. Here is a drafted FeatureRecipe with only its version filled in:
+A value the kind requires that the file leaves as an empty string is a placeholder, and validate reports it before anything else. A document drafted by [`aggrega draft`](./aggrega-draft.md) carries one wherever its kind needs a value only you can supply, so this is where you learn which remain. Here is a drafted FeatureRecipe with only its version filled in:
 
 ```
 Entity: my-feature-recipe.yaml
@@ -170,7 +170,7 @@ Every placeholder in the file is named at once, in document order, with its line
 
 Which values count is read from the schema as well. A value counts when the kind requires it at the top of the document, or inside an object the kind also requires, and the file sets it to the empty string. A key the file leaves out altogether is reported by the schema check as a missing property. An optional field left empty is not a placeholder, and neither is a field required only inside a list or a map you chose to write. Where the schema itself lists the empty string among the values a field accepts, an empty one is a value rather than a placeholder.
 
-**A value is owed even where the schema would take it empty.** The schema admits an empty string for a Recipe's or FeatureRecipe's `capability` and `implements`, but an empty one names no provider and no type, so validate reports both as placeholders like any other. Where the schema check refuses the same file as well — an empty version, a type label with no value — the report carries that check's code, `E0215`, as the example on [`aggrega scaffold`](./aggrega-scaffold.md) shows; where the schema check accepts it, as above, the report carries no code. A finding in the same file that is not about an empty value is still reported, in the schema check's own words, ahead of the list.
+**A value is owed even where the schema would take it empty.** The schema admits an empty string for a Recipe's or FeatureRecipe's `capability` and `implements`, but an empty one names no provider and no type, so validate reports both as placeholders like any other. Where the schema check refuses the same file as well — an empty version, a type label with no value — the report carries that check's code, `E0215`, as the example on [`aggrega draft`](./aggrega-draft.md) shows; where the schema check accepts it, as above, the report carries no code. A finding in the same file that is not about an empty value is still reported, in the schema check's own words, ahead of the list.
 
 This reading belongs to single-entity validation, with or without `--release` beside the entity path. A whole-catalog run meeting the same document reports what the schema check reports, so a FeatureRecipe with an empty `implements` inside a catalog directory passes it; the Release scope and [`aggrega build`](./aggrega-build.md) do not apply the reading either.
 

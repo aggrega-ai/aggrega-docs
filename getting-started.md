@@ -209,7 +209,7 @@ aggrega draft --example quickstart-ai
 `aggrega draft --example` reads the example from the documentation published for your version of `aggrega` and
 writes its files into a new folder named after it: the four steps, in the folders `1/` to `4/`, each a complete
 workspace that builds as it stands. It then prints the commands to run next, which change into that folder and build
-and start the first step: the ones below. [`aggrega draft`](language-reference/cli/aggrega-scaffold.md) describes
+and start the first step: the ones below. [`aggrega draft`](language-reference/cli/aggrega-draft.md) describes
 the command, and `aggrega draft --example --list` lists every example there is.
 
 ## Build it and run it

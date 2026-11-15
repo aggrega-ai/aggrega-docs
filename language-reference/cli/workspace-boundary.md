@@ -146,8 +146,8 @@ leads, and leaves the place the link points to exactly as it was:
   rather than letting them run on a configuration made from whatever remained:
   [`E0321`](../errors/fatal-halts.md#a-file-the-operation-reads-leads-through-a-link-out-of-the-directory-it-must-stay-inside).
   The `aggrega` commands that never read it — `version`, `help`, `completion`, `explain`, `get-schema`,
-  `scaffold` drafting a starter document, `skills list`, `plugin run-local`, `plugin sync`, `auth token`
-  and `logout` — run as usual, with a warning naming the link. `scaffold --example` reads it, for the
+  `draft` drafting a starter document, `skills list`, `plugin run-local`, `plugin sync`, `auth token`
+  and `logout` — run as usual, with a warning naming the link. `draft --example` reads it, for the
   default registry and the signature policy, and stops there as every other reader does. The language server, and an assistant's server speaking over
   its own streams, still start over such a workspace, so that what it holds can be listed: the Release
   and entity listings answer, read with no catalog directory and nothing else configured, and name the

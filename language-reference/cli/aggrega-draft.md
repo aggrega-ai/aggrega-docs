@@ -1,12 +1,12 @@
-# aggrega scaffold
+# aggrega draft
 
 Draft a starter document for an entity kind, or write a runnable example into a new directory
 
-<!-- BEGIN GENERATED: cli-scaffold -->
+<!-- BEGIN GENERATED: cli-draft -->
 **Synopsis**
 
 ```
-aggrega scaffold <kind> [name] | --example <name> [dir] | --example --list [flags]
+aggrega draft <kind> [name] | --example <name> [dir] | --example --list [flags]
 ```
 
 **Description**
@@ -24,25 +24,25 @@ The optional name seeds metadata.name for a kind whose schema requires one. Ever
 
 Nothing is written to disk. The document goes to standard output, so a redirect decides where it lands:
 
-  aggrega scaffold component my-service > my-service.yaml
+  aggrega draft component my-service > my-service.yaml
 
-The same starter document is served to an assistant by the scaffold tool that aggrega mcp exposes, which returns these bytes alongside a machine-readable payload; this command is the terminal route to the same drafting.
+The same starter document is served to an assistant by the draft tool that aggrega mcp exposes, which returns these bytes alongside a machine-readable payload; this command is the terminal route to the same drafting.
 
 Writing a runnable example
 
 With --example, the argument is the name of one of the runnable examples the documentation publishes, and the command writes that example's files into a new directory — the second argument, or a directory named after the example in the current directory when there is none — then prints the commands the example's own page gives for building it:
 
-  aggrega scaffold --example redis-cache
+  aggrega draft --example redis-cache
 
 The directory must not exist yet, or must be empty; a directory holding anything is refused and left as it is. With --list, the command prints every example there is, each with its level and the first sentence of its page, and writes nothing:
 
-  aggrega scaffold --example --list
+  aggrega draft --example --list
 
 The examples are read from the documentation bundle published for this version of aggrega on the default registry — or, where none is published for it, the newest one published for an earlier version. It is kept in the cache every project on this machine shares, so a second example needs no second download. It is fetched through the same network settings as every other registry read, and verified against this workspace's signature policy before it is kept or read; a bundle that does not verify is refused, never used. Offline, an example is written only from a copy already cached on this machine.
 
 An example's files are written only as files and directories inside the directory named: a bundle carrying an entry that would land outside it, or a link, is refused whole and nothing is written.
 
-The scaffold tool that aggrega mcp exposes, and the editor's language server that aggrega serve runs, write and list the examples on the same terms, with the directory named relative to the workspace root, and answer with the files written and these same commands.
+The draft tool that aggrega mcp exposes, and the editor's language server that aggrega serve runs, write and list the examples on the same terms, with the directory named relative to the workspace root, and answer with the files written and these same commands.
 ```
 
 **Flags**
@@ -51,18 +51,18 @@ The scaffold tool that aggrega mcp exposes, and the editor's language server tha
 | --- | --- | --- |
 | `--example` | `false` | write the runnable example the argument names into a new directory, read from the signed documentation bundle |
 | `--list` | `false` | with --example, print every runnable example the documentation publishes, and write nothing |
-<!-- END GENERATED: cli-scaffold -->
+<!-- END GENERATED: cli-draft -->
 
 ## What it does
 
-The command has two forms. `aggrega scaffold <kind>` drafts a starter document from a kind's schema and prints it, which is what this section and the next three describe. `aggrega scaffold --example <name>` writes one of the documentation's runnable examples into a new directory instead — see [Starting from a runnable example](#starting-from-a-runnable-example).
+The command has two forms. `aggrega draft <kind>` drafts a starter document from a kind's schema and prints it, which is what this section and the next three describe. `aggrega draft --example <name>` writes one of the documentation's runnable examples into a new directory instead — see [Starting from a runnable example](#starting-from-a-runnable-example).
 
-`aggrega scaffold <kind>` prints a starter document for one entity kind to standard output. The document carries exactly the fields that kind's schema requires: `apiVersion` and `kind` are filled in, because the schema fixes them, and every other required value is left as a placeholder for you to replace.
+`aggrega draft <kind>` prints a starter document for one entity kind to standard output. The document carries exactly the fields that kind's schema requires: `apiVersion` and `kind` are filled in, because the schema fixes them, and every other required value is left as a placeholder for you to replace.
 
 The optional `[name]` seeds `metadata.name` for a kind whose schema requires one:
 
 ```bash
-aggrega scaffold component my-service
+aggrega draft component my-service
 ```
 
 ```yaml
@@ -85,7 +85,7 @@ The kind is the lowercase-hyphenated schema token — `component`, `aggregate`, 
 **Drafting writes no file.** The document goes to standard output, so a redirect decides where it lands and nothing on disk is replaced without you asking for it:
 
 ```bash
-aggrega scaffold component my-service > my-service.yaml
+aggrega draft component my-service > my-service.yaml
 ```
 
 **It is not a finished entity, and that is what a placeholder means.** An empty required value is not a value, so running [`aggrega validate`](aggrega-validate.md) over the document exactly as it came out refuses it and names every placeholder still owed at once, each with what it takes — above, the version and the component type:
@@ -105,16 +105,16 @@ What each value takes is read from the kind's own schema: the values it accepts 
 
 ## The same document from an assistant or an editor
 
-The starter document is the same bytes whichever surface asks for it. An AI assistant connected through [`aggrega mcp`](aggrega-mcp.md) reaches it as the `scaffold` tool, which returns the document as text alongside a machine-readable payload. An editor driving [`aggrega serve`](aggrega-serve.md) reaches it at `aggrega/scaffoldEntity`. The document is derived from the schema once, so the one you draft at a terminal and the one an assistant drafts for you are byte for byte identical.
+The starter document is the same bytes whichever surface asks for it. An AI assistant connected through [`aggrega mcp`](aggrega-mcp.md) reaches it as the `draft` tool, which returns the document as text alongside a machine-readable payload. An editor driving [`aggrega serve`](aggrega-serve.md) reaches it at `aggrega/scaffoldEntity`. The document is derived from the schema once, so the one you draft at a terminal and the one an assistant drafts for you are byte for byte identical.
 
-Writing and listing runnable examples is on the same surfaces, with the command's own words as the field names. Send the `scaffold` tool, or `aggrega/scaffoldEntity`, `example` instead of `kind` to write one, `dir` to name the new directory relative to the workspace root — a directory named after the example there when you send none — and `list: true` alone to be answered with every example. The example is read from the same bundle, verified against the same policy, and written by the same extraction, so the files and the commands next are the same as at a terminal, and so are the refusals: a directory that holds anything, an entry leading out of the directory or a link, a bundle your policy does not accept, an offline workspace with nothing cached. The answer is structured: for a list, `examples`, each with its `name`, `level` and `summary`; for a write, `example`, `dir`, `files` — the files written, relative to `dir` — `next`, the commands the example's page gives, and `version`, the documentation version the example was read from. The `scaffold` tool's answer to a write also carries `output_dir`, where the directory is — in full over standard input and output, so an assistant that named it relative to a workspace it cannot see reads where the example went, and relative to the workspace root over HTTP. The `scaffold` tool's text is the account this command prints, closed by a line naming that location where it differs from `dir`. Fields of two forms sent together — `kind` with `example`, say — are refused in the same words on both, before anything is read. An editor names the workspace in the request's `workspaceRoot` for the example form, and `dir` must be a relative path that stays inside it and does not lead out of it through a link; over HTTP the tool holds `dir` to the workspace it serves too, and over standard input and output it takes `dir` as named, as it takes every path. The capability index reports the `scaffold` tool as writing, because of that form, and `cli-scaffold`, which runs this command in a separate process, as writing too.
+Writing and listing runnable examples is on the same surfaces, with the command's own words as the field names. Send the `draft` tool, or `aggrega/scaffoldEntity`, `example` instead of `kind` to write one, `dir` to name the new directory relative to the workspace root — a directory named after the example there when you send none — and `list: true` alone to be answered with every example. The example is read from the same bundle, verified against the same policy, and written by the same extraction, so the files and the commands next are the same as at a terminal, and so are the refusals: a directory that holds anything, an entry leading out of the directory or a link, a bundle your policy does not accept, an offline workspace with nothing cached. The answer is structured: for a list, `examples`, each with its `name`, `level` and `summary`; for a write, `example`, `dir`, `files` — the files written, relative to `dir` — `next`, the commands the example's page gives, and `version`, the documentation version the example was read from. The `draft` tool's answer to a write also carries `output_dir`, where the directory is — in full over standard input and output, so an assistant that named it relative to a workspace it cannot see reads where the example went, and relative to the workspace root over HTTP. The `draft` tool's text is the account this command prints, closed by a line naming that location where it differs from `dir`. Fields of two forms sent together — `kind` with `example`, say — are refused in the same words on both, before anything is read. An editor names the workspace in the request's `workspaceRoot` for the example form, and `dir` must be a relative path that stays inside it and does not lead out of it through a link; over HTTP the tool holds `dir` to the workspace it serves too, and over standard input and output it takes `dir` as named, as it takes every path. The capability index reports the `draft` tool as writing, because of that form, and `cli-draft`, which runs this command in a separate process, as writing too.
 
 ## Starting from a runnable example
 
 The documentation carries runnable examples — each a directory holding an Aggregate, its Releases and whatever else it builds from, with a page saying how to build it. `--example` writes one of them into a new directory, so you can start from a working project rather than from a blank one:
 
 ```bash
-aggrega scaffold --example redis-cache
+aggrega draft --example redis-cache
 ```
 
 ```
@@ -137,7 +137,7 @@ Its page, redis-cache/README.md, explains what it shows.
 **Which examples there are.** `--list` prints every example, once each, in the order the documentation teaches them — its name, the level its page declares, and the first sentence of its page — and writes nothing:
 
 ```bash
-aggrega scaffold --example --list
+aggrega draft --example --list
 ```
 
 ```
@@ -179,27 +179,27 @@ Where none is published for your version and the newest earlier one is in a form
 Draft an unnamed Release and read it on the terminal:
 
 ```bash
-aggrega scaffold release
+aggrega draft release
 ```
 
 Draft a Recipe straight into a file:
 
 ```bash
-aggrega scaffold recipe postgres-helm > postgres-helm.yaml
+aggrega draft recipe postgres-helm > postgres-helm.yaml
 ```
 
 Check what you still owe before filling anything in:
 
 ```bash
-aggrega scaffold component my-service > my-service.yaml
+aggrega draft component my-service > my-service.yaml
 aggrega validate my-service.yaml
 ```
 
 See which runnable examples there are, then write one into a directory of your choosing:
 
 ```bash
-aggrega scaffold --example --list
-aggrega scaffold --example redis-cache my-cache
+aggrega draft --example --list
+aggrega draft --example redis-cache my-cache
 ```
 
 For the authoring loop this command starts — draft the shape, fill the placeholders, validate — see [Authoring Aggrega files](../../authoring/getting-started.md).

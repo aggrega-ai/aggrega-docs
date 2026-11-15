@@ -17,7 +17,7 @@ Install the skill that teaches an AI assistant to install and use Aggrega.
 A skill is a folder holding a SKILL.md file in the open Agent Skills format,
 which many assistants read from a skill folder of their own. The Aggrega skill
 tells an assistant how to install Aggrega, how to connect it to the aggrega MCP
-server, how to start a workspace, and how to run the authoring loop — scaffold,
+server, how to start a workspace, and how to run the authoring loop — draft,
 validate, build. It carries no copy of any schema: it sends the assistant to
 this binary for every structural question and to the published documentation
 for every conceptual one.

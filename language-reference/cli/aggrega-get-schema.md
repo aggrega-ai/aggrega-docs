@@ -58,4 +58,4 @@ Fetch a schema and inspect a single field with a JSON tool:
 aggrega get-schema recipe | jq '.properties.spec'
 ```
 
-For the authoring loop that this command feeds — learn the shape, scaffold, fill, validate — see [Authoring Aggrega files](../../authoring/getting-started.md).
+For the authoring loop that this command feeds — learn the shape, draft, fill, validate — see [Authoring Aggrega files](../../authoring/getting-started.md).
