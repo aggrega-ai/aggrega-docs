@@ -15635,6 +15635,13 @@
     "status": "machine",
     "text": "Che cosa fa ciascuna severità"
   },
+  "17a9b84ccee634d2": {
+    "at": "2026-11-15T13:38:01.783Z",
+    "job": "session-0003-20261115133801",
+    "srcHash": "17a9b84ccee634d2",
+    "status": "machine",
+    "text": "Percorso del binario `aggrega`. Un nome semplice viene cercato in `PATH`; un percorso che inizia con `~/` (`~\\` su Windows) o `${userHome}` viene letto dalla tua cartella home sull’host su cui viene eseguita l’estensione; qualsiasi altro percorso viene usato così come è scritto."
+  },
   "17aa5154be177219": {
     "at": "2026-11-04T01:29:35.126Z",
     "job": "session-0186-20261104012935",
@@ -21258,6 +21265,17 @@
     "srcHash": "20516c854f6b6c99",
     "status": "machine",
     "text": "**Il problema:** lo stato dichiarativo è perfetto per il provisioning Day-1, ma gli sviluppatori devono eseguire azioni imperative: *«Esegui subito un backup del DB.»* Una pipeline GitOps strettamente dichiarativa non ha alcun meccanismo nativo per riattivare uno script statico."
+  },
+  "2052a59174f21a2e": {
+    "at": "2026-11-15T13:37:56.712Z",
+    "job": "session-0002-20261115133756",
+    "revision": {
+      "from": "26a05b2c23c51fd9",
+      "reviewed": false
+    },
+    "srcHash": "2052a59174f21a2e",
+    "status": "machine",
+    "text": "**Un avvio che fallisce dice cosa non va nel percorso del compilatore.** Dove `aggrega.server.binaryPath` non nomina nulla, la notifica mostra **Aggrega language server failed to start: the compiler at ⟨path⟩ was not found.** (Avvio del language server di Aggrega non riuscito: il compilatore in ⟨path⟩ non è stato trovato.); dove nomina un file che non può essere eseguito, mostra **… ⟨path⟩ is not an executable file.** (… ⟨path⟩ non è un file eseguibile.) ⟨path⟩ è il file che l’estensione ha tentato di avviare: un’impostazione che inizia con `~/` o `${userHome}` viene mostrata risolta a partire dalla tua cartella home, così come è stata cercata. Entrambe proseguono dicendo di impostare `aggrega.server.binaryPath` sul binario aggrega, e portano **Open binary path setting**, che apre la schermata delle impostazioni su quella sola impostazione, e **Show output**. Dove il percorso non nomina nulla, la notifica porta anche **Download the compiler** e **Choose another file** prima di quei due, perché in quel caso non c’è alcun compilatore da sostituire: il primo ne scarica uno come descritto in [Ottenere il compilatore](install.md#getting-the-compiler), e il secondo chiede un file di compilatore che hai e vi punta l’impostazione. Un file che c’è e non può essere eseguito è uno che hai messo tu, quindi quella notifica non offre alcun download. Qualsiasi altro fallimento dell’avvio fornisce il motivo che gli è stato dato, dopo la stessa apertura, e poi nomina il compilatore che è stato eseguito e l’impostazione che lo nomina. Il canale di output Aggrega riporta lo stesso resoconto."
   },
   "20583123a298a125": {
     "at": "2026-11-02T19:40:32.531Z",
@@ -52749,6 +52767,17 @@
     "srcHash": "50f113645082e12b",
     "status": "machine",
     "text": "Ciascuna è indicizzata dal percorso puntato della foglia all’interno del suo pilastro, e ogni voce registra l’`origin` di quella foglia — la stessa distinzione `explicit` / `annotation`, applicata una foglia alla volta. Una foglia apportata da un’annotazione porta inoltre la superficie di authoring su cui è stata dichiarata, la chiave di annotazione che l’ha apportata e la posizione nel sorgente di quella dichiarazione. Dove una foglia esplicita ha sovrascritto una foglia apportata da un’annotazione, la voce porta anche il contributo soppresso che ha sostituito, così una policy può vedere che cosa è stato sovrascritto e non solo che cosa ha prevalso."
+  },
+  "50f194865a90ea82": {
+    "at": "2026-11-15T13:37:51.444Z",
+    "job": "session-0001-20261115133751",
+    "revision": {
+      "from": "b68d39e096e367b4",
+      "reviewed": false
+    },
+    "srcHash": "50f194865a90ea82",
+    "status": "machine",
+    "text": "**L’estensione esegue il compilatore indicato da `aggrega.server.binaryPath`, e ne cerca uno prima di offrirsi di procurarne uno.** Un percorso nell’impostazione che inizia con `~/` — `~\\` su Windows — o con `${userHome}` viene letto a partire dalla tua cartella home sulla macchina in cui si trova il tuo workspace, quindi su Linux e macOS `~/.local/bin/aggrega` indica il file che gli script di installazione mettono lì; qualsiasi altro percorso viene usato così com’è scritto. Un nome semplice — il valore predefinito è `aggrega` — viene cercato nel tuo `PATH`, e il canale di output Aggrega indica quale file ha trovato e la versione che riporta."
   },
   "50f44f1b306a5336": {
     "at": "2026-11-03T01:02:01.114Z",
@@ -131335,6 +131364,17 @@
     "status": "machine",
     "text": "Alcuni valori di cui una bozza ha bisogno sono valori che nessuna sorgente può contenere — l’immagine in cui viene compilato il tuo codice, per esempio, l’email di un account proprietario, o la provenienza di un secret. Quando un import che scrive le proprie bozze lascia vuoti valori di questo tipo, l’editor si offre una sola volta, in una notifica che indica quanti sono, di chiederteli; ignorare l’offerta non cambia nulla. A un’anteprima non viene offerto nulla, così come `aggrega import --dry-run` non chiede nulla, perché a un’anteprima non viene applicata alcuna risposta; le sue segnalazioni nel canale di output nominano comunque ogni valore ancora vuoto. Se accetti l’offerta, ogni valore viene chiesto in una casella di input dedicata, nell’ordine in cui le bozze li elencano: la casella ha come titolo il file redatto e la chiave in cui si trova il valore, e pone la domanda con la descrizione del valore data dal compilatore stesso, la domanda che `aggrega import` pone in un terminale. La casella di un secret chiede da dove proviene il secret, con le parole del compilatore — mai il secret stesso — e nasconde ciò che digiti. Una casella che lasci vuota lascia quel valore in sospeso, da fornire in seguito nel [file delle risposte](../../language-reference/import-answers.md). Premere Esc in qualsiasi casella termina le domande e non invia nulla, comprese le risposte che avevi già digitato."
   },
+  "c78964c58ae343e5": {
+    "at": "2026-11-15T13:37:51.444Z",
+    "job": "session-0001-20261115133751",
+    "revision": {
+      "from": "2ee1d2f565a58e4c",
+      "reviewed": false
+    },
+    "srcHash": "c78964c58ae343e5",
+    "status": "machine",
+    "text": "Il compilatore `aggrega`, sulla macchina in cui si trova il tuo workspace. L’estensione esegue quello indicato dall’impostazione `aggrega.server.binaryPath`: un percorso che inizia con `~/` (`~\\` su Windows) o con `${userHome}` viene letto a partire dalla tua cartella home su quella macchina, qualsiasi altro percorso viene usato così com’è scritto, e un nome semplice — il valore predefinito, `aggrega` — viene cercato nel `PATH`. Se non ne trova nessuno, l’estensione si offre di scaricarne uno per te, e **Aggrega: Select Compiler Version** ne cambia in seguito la versione; vedi [Ottenere il compilatore](#getting-the-compiler)."
+  },
   "c78b65f7fc4e2917": {
     "at": "2026-11-08T10:48:22.903Z",
     "job": "session-0006-20261108104822",
@@ -164682,6 +164722,17 @@
     "srcHash": "f862cb4ab9fbf624",
     "status": "machine",
     "text": "[`entities/featurerecipe.md`](entities/featurerecipe.md) — FeatureRecipes con ambito di confine (la Feature `core/compose-bridge` si basa sul modello di assemblaggio a percorso unito documentato qui)."
+  },
+  "f866cd6029b9ff7e": {
+    "at": "2026-11-15T13:38:01.783Z",
+    "job": "session-0003-20261115133801",
+    "revision": {
+      "from": "6a18423a8dea7f25",
+      "reviewed": false
+    },
+    "srcHash": "f866cd6029b9ff7e",
+    "status": "machine",
+    "text": "Fare clic sulla riga Aggrega workspace apre la scelta qualunque cosa tu abbia collegato, anche quando si tratta di un solo workspace o di nessuno: il selettore elenca i workspace Aggrega raggiunti dalla tua Project folder — risalendo da essa e cercando in tutto ciò che contiene — ciascuno indicato dalla propria radice e, per ultima, una via per raggiungere una cartella che la tua finestra non ha affatto aperta: **Choose another folder Aggrega recognises…**, oppure **Choose a folder Aggrega recognises…** dove il selettore non ha alcun workspace da elencare. Quest’ultima voce c’è perché il raggiungere è limitato da ciò che contiene la tua finestra: il tuo editor cerca sempre e solo nelle cartelle che hai aperto, quindi un workspace che si trova altrove è raggiungibile aggiungendo la sua cartella e con nulla di più breve. Il language server si avvia non appena la risalita ha trovato da dove partire, senza attendere che quella ricerca finisca, quindi una finestra può collegarsi e solo un momento dopo segnalare che un secondo workspace è raggiungibile — l’elenco nel selettore si aggiorna quando la ricerca restituisce il risultato. Anche il workspace Aggrega in cui questa finestra ha lavorato per ultimo viene ripreso subito, compreso uno scelto all’interno della tua Project folder, perché l’editor interroga il marcatore proprio di quel workspace invece di attendere la ricerca; solo quando il marcatore è sparito, o non contrassegna più un workspace raggiunto dalla tua Project folder, la scelta viene abbandonata, e ti viene comunicato. Scegliere un’altra voce sposta lì il language server e lo segnala sia che venga raggiunta dalla stessa cartella di quella in uso sia da un’altra, e scegliere la voce già in uso non riavvia nulla e indica dove l’editor lavora già: **Aggrega: the editor already works in ⟨path⟩.**, riportando per intero la radice del workspace. Un workspace Aggrega raggiunto da due cartelle aperte contemporaneamente è una sola voce e conta come una: la scoperta risale, quindi una radice un livello più su risponde per ogni cartella sotto di essa, e chiedere quale di quelle cartelle contenga il workspace sarebbe una domanda con due risposte vere."
   },
   "f869bfd23f01d86c": {
     "at": "2026-11-03T17:29:36.700Z",

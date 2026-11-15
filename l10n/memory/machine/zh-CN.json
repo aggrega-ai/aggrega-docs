@@ -17304,6 +17304,13 @@
     "status": "machine",
     "text": "各严重级别的作用"
   },
+  "17a9b84ccee634d2": {
+    "at": "2026-11-15T13:38:01.783Z",
+    "job": "session-0003-20261115133801",
+    "srcHash": "17a9b84ccee634d2",
+    "status": "machine",
+    "text": "`aggrega` 二进制文件的路径。单纯的名称会在 `PATH` 中查找；以 `~/`（Windows 上为 `~\\`）或 `${userHome}` 开头的路径，从扩展所运行的主机上你的主文件夹中读取；其他任何路径按原样使用。"
+  },
   "17aa5154be177219": {
     "at": "2026-10-22T04:56:15.693842+00:00",
     "job": "msgbatch_01WhSSFNVABxaLkxubBM2sHx",
@@ -23541,6 +23548,17 @@
     "srcHash": "20516c854f6b6c99",
     "status": "machine",
     "text": "**问题：** 声明式状态非常适合 Day-1 资源配置，但开发者需要执行命令式操作：*“立即运行一次数据库备份。”* 严格声明式的 GitOps 流水线没有原生机制来重新触发静态脚本。"
+  },
+  "2052a59174f21a2e": {
+    "at": "2026-11-15T13:37:56.712Z",
+    "job": "session-0002-20261115133756",
+    "revision": {
+      "from": "26a05b2c23c51fd9",
+      "reviewed": false
+    },
+    "srcHash": "2052a59174f21a2e",
+    "status": "machine",
+    "text": "**启动失败时会说明编译器路径出了什么问题。** 当 `aggrega.server.binaryPath` 未指向任何东西时，通知显示 **Aggrega language server failed to start: the compiler at ⟨path⟩ was not found.**（Aggrega 语言服务器启动失败：未找到位于 ⟨path⟩ 的编译器。）；当它指向一个无法运行的文件时，显示 **… ⟨path⟩ is not an executable file.**（……⟨path⟩ 不是可执行文件。）。⟨path⟩ 是扩展尝试启动的文件：以 `~/` 或 `${userHome}` 开头的设置会显示为从你的主文件夹解析后的路径，即实际查找的位置。两者接着都会提示将 `aggrega.server.binaryPath` 设置为 aggrega 二进制文件，并附带 **Open binary path setting**（在设置界面中打开这一项设置）和 **Show output**。当路径未指向任何东西时，通知还会在这两项之前附带 **Download the compiler** 和 **Choose another file**，因为此时没有可替换的编译器：前者按[获取编译器](install.md#getting-the-compiler)所述下载一个编译器，后者请你选择一个已有的编译器文件并将该设置指向它。存在但无法运行的文件是你自己放在那里的，因此该通知不提供下载。任何其他启动失败都会在相同的开头之后给出所得到的原因，然后指明所运行的编译器以及指定它的设置。Aggrega 输出通道中也有相同的说明。"
   },
   "20583123a298a125": {
     "at": "2026-10-31T23:56:26.063Z",
@@ -58205,6 +58223,17 @@
     "srcHash": "50f113645082e12b",
     "status": "machine",
     "text": "二者都以叶子在其所属支柱内的点分路径为键，每个条目记录该叶子的 `origin`——同样是 `explicit` / `annotation` 的区分，只是逐个叶子应用。由注解贡献的叶子还额外携带声明它的编写表面、贡献它的注解键，以及该声明的源位置。当显式叶子覆盖了由注解贡献的叶子时，条目还会携带被它替换的、遭到抑制的贡献，这样策略不仅能看到最终胜出的值，还能看到被覆盖的内容。"
+  },
+  "50f194865a90ea82": {
+    "at": "2026-11-15T13:37:51.444Z",
+    "job": "session-0001-20261115133751",
+    "revision": {
+      "from": "b68d39e096e367b4",
+      "reviewed": false
+    },
+    "srcHash": "50f194865a90ea82",
+    "status": "machine",
+    "text": "**扩展运行 `aggrega.server.binaryPath` 所指定的编译器，并在提出获取编译器之前先查找一个。** 设置中以 `~/`（Windows 上为 `~\\`）或 `${userHome}` 开头的路径，从你在工作区所在机器上的主文件夹开始读取，因此在 Linux 和 macOS 上，`~/.local/bin/aggrega` 指的是安装脚本放在那里的文件；其他路径按原样使用。纯名称（默认为 `aggrega`）会在你的 `PATH` 上查找，Aggrega 输出通道会说明找到的是哪个文件以及它报告的版本。"
   },
   "50f44f1b306a5336": {
     "at": "2026-10-22T02:48:40.419851+00:00",
@@ -144964,6 +144993,17 @@
     "status": "machine",
     "text": "草稿所需的某些值是任何源都无法包含的 — 例如，你自己的代码所构建成的镜像、所有者账户的电子邮件，或某个机密的来源。当写入草稿的导入将此类值留空时，编辑器会在一条注明其数量的通知中提出一次，向你询问这些值；忽略该提议不会改变任何内容。预览不会收到任何提议，正如 `aggrega import --dry-run` 不会提问，因为答案不会应用于预览；预览在输出通道中的发现仍会指明每个仍为空的值。接受该提议后，每个值都会按草稿列出的顺序，在各自的输入框中询问：输入框的标题是所起草的文件以及该值所在的键，并使用编译器自己对该值的描述来提问，即 `aggrega import` 在终端中提出的问题。机密的输入框以编译器自己的措辞询问该机密从何而来 — 绝不询问机密本身 — 并隐藏你输入的内容。你留空的输入框会使该值仍然欠缺，留待之后在[答案文件](../../language-reference/import-answers.md)中回答。在任何输入框中按 Escape 都会结束提问且不发送任何内容，包括你已输入的答案。"
   },
+  "c78964c58ae343e5": {
+    "at": "2026-11-15T13:37:51.444Z",
+    "job": "session-0001-20261115133751",
+    "revision": {
+      "from": "2ee1d2f565a58e4c",
+      "reviewed": false
+    },
+    "srcHash": "c78964c58ae343e5",
+    "status": "machine",
+    "text": "位于你工作区所在机器上的 `aggrega` 编译器。扩展运行 `aggrega.server.binaryPath` 设置所指定的编译器：以 `~/`（Windows 上为 `~\\`）或 `${userHome}` 开头的路径从你在该机器上的主文件夹开始读取，其他路径按原样使用，而纯名称（默认为 `aggrega`）则在 `PATH` 上查找。如果找不到，扩展会提出为你下载一个，之后可通过 **Aggrega: Select Compiler Version** 更改版本；参见[获取编译器](#getting-the-compiler)。"
+  },
   "c78b65f7fc4e2917": {
     "at": "2026-11-08T10:48:22.903Z",
     "job": "session-0006-20261108104822",
@@ -181540,6 +181580,17 @@
     "srcHash": "f862cb4ab9fbf624",
     "status": "machine",
     "text": "[`entities/featurerecipe.md`](entities/featurerecipe.md) — 边界作用域的 FeatureRecipes（`core/compose-bridge` Feature 依赖本文所述的合并路径组装模型）。"
+  },
+  "f866cd6029b9ff7e": {
+    "at": "2026-11-15T13:38:01.783Z",
+    "job": "session-0003-20261115133801",
+    "revision": {
+      "from": "6a18423a8dea7f25",
+      "reviewed": false
+    },
+    "srcHash": "f866cd6029b9ff7e",
+    "status": "machine",
+    "text": "无论你已附加了什么，点击 Aggrega workspace 行都会打开选择列表，即使只有一个工作区或一个都没有也是如此：选择器列出你的 Project folder 所能到达的 Aggrega 工作区 — 从它向上逐级查找，并在其内部的所有内容中查找 — 每个工作区以其自身的根目录命名；最后一项是一种到达窗口根本没有打开的文件夹的方式：**Choose another folder Aggrega recognises…**，或者在选择器没有可列出的工作区时为 **Choose a folder Aggrega recognises…**。之所以有最后这一项，是因为可到达的范围受窗口所包含内容的限制：你的编辑器只会在你打开的文件夹中搜索，因此位于其他位置的工作区只能通过添加其文件夹来到达，没有更短的途径。只要向上查找找到了起点，语言服务器就会立即启动，而不会等待该搜索完成，因此窗口可能先完成附加，片刻之后才报告还有第二个工作区可以到达 — 选择器中的列表会在搜索返回时跟上。此窗口上次工作所在的 Aggrega 工作区也会立即被重新采用，包括你在 Project folder 内部选择的工作区，因为编辑器直接询问该工作区自身的标记，而不是等待搜索；只有当该标记已经消失，或不再标记你的 Project folder 所能到达的工作区时，该选择才会被放弃，并且会通知你。选择另一项会将语言服务器移到那里，并且无论该项是从当前使用的同一文件夹到达还是从另一个文件夹到达，都会告知你；选择已在使用的项则不会重启任何东西，并会告知编辑器已在何处工作：**Aggrega: the editor already works in ⟨path⟩.**，其中完整写出工作区根目录。同时从两个打开的文件夹到达的同一个 Aggrega 工作区是一个条目，也只算一个：发现过程是向上攀升的，因此上一级的根目录会代表其下方的每个文件夹，而去问这些文件夹中哪一个包含该工作区，将是一个有两个正确答案的问题。"
   },
   "f869bfd23f01d86c": {
     "at": "2026-10-22T04:05:10.557953+00:00",

@@ -15635,6 +15635,13 @@
     "status": "machine",
     "text": "Ce que fait chaque sévérité"
   },
+  "17a9b84ccee634d2": {
+    "at": "2026-11-15T13:38:01.783Z",
+    "job": "session-0003-20261115133801",
+    "srcHash": "17a9b84ccee634d2",
+    "status": "machine",
+    "text": "Chemin du binaire `aggrega`. Un nom simple est recherché dans `PATH` ; un chemin commençant par `~/` (`~\\` sous Windows) ou `${userHome}` est lu depuis votre dossier personnel sur l’hôte où s’exécute l’extension ; tout autre chemin est utilisé tel qu’il est écrit."
+  },
   "17aa5154be177219": {
     "at": "2026-11-04T01:29:35.126Z",
     "job": "session-0186-20261104012935",
@@ -21266,6 +21273,17 @@
     "srcHash": "20516c854f6b6c99",
     "status": "machine",
     "text": "**Le problème :** l’état déclaratif est parfait pour le provisionnement Day-1, mais les développeurs doivent exécuter des actions impératives : *« Lance une sauvegarde de la base tout de suite. »* Un pipeline GitOps strictement déclaratif n’a aucun mécanisme natif pour redéclencher un script statique."
+  },
+  "2052a59174f21a2e": {
+    "at": "2026-11-15T13:37:56.712Z",
+    "job": "session-0002-20261115133756",
+    "revision": {
+      "from": "26a05b2c23c51fd9",
+      "reviewed": false
+    },
+    "srcHash": "2052a59174f21a2e",
+    "status": "machine",
+    "text": "**Un démarrage qui échoue indique ce qui ne va pas dans le chemin du compilateur.** Lorsque `aggrega.server.binaryPath` ne désigne rien, la notification affiche **Aggrega language server failed to start: the compiler at ⟨path⟩ was not found.** (Échec du démarrage du serveur de langage Aggrega : le compilateur situé à ⟨path⟩ est introuvable.) ; lorsqu’il désigne un fichier qui ne peut pas être exécuté, elle affiche **… ⟨path⟩ is not an executable file.** (… ⟨path⟩ n’est pas un fichier exécutable.) ⟨path⟩ est le fichier que l’extension a tenté de démarrer : un paramètre commençant par `~/` ou `${userHome}` est affiché résolu à partir de votre dossier personnel, tel qu’il a été recherché. Toutes deux indiquent ensuite de faire pointer `aggrega.server.binaryPath` vers le binaire aggrega, et proposent **Open binary path setting**, qui ouvre l’écran des paramètres sur ce seul paramètre, et **Show output**. Lorsque le chemin ne désigne rien, la notification propose aussi **Download the compiler** et **Choose another file** avant ces deux-là, car il n’y a alors aucun compilateur à remplacer : le premier en télécharge un comme le décrit [Obtenir le compilateur](install.md#getting-the-compiler), et le second demande un fichier de compilateur dont vous disposez et y fait pointer le paramètre. Un fichier présent qui ne peut pas être exécuté est un fichier que vous avez placé là, aussi cette notification ne propose-t-elle aucun téléchargement. Tout autre échec de démarrage donne la raison qui lui a été fournie, après la même ouverture, puis nomme le compilateur qui a été exécuté et le paramètre qui le désigne. Le canal de sortie Aggrega contient le même compte rendu."
   },
   "20583123a298a125": {
     "at": "2026-11-02T19:40:32.531Z",
@@ -52745,6 +52763,17 @@
     "srcHash": "50f113645082e12b",
     "status": "machine",
     "text": "Chacune a pour clé le chemin pointé de la feuille dans son pilier, et chaque entrée enregistre l’`origin` de cette feuille — la même distinction `explicit` / `annotation`, appliquée une feuille à la fois. Une feuille apportée par une annotation porte en outre la surface de rédaction sur laquelle elle a été déclarée, la clé d’annotation qui l’a apportée et la position dans la source de cette déclaration. Là où une feuille explicite a écrasé une feuille apportée par une annotation, l’entrée porte aussi la contribution supprimée qu’elle a remplacée, si bien qu’une politique peut voir ce qui a été écrasé et non seulement ce qui l’a emporté."
+  },
+  "50f194865a90ea82": {
+    "at": "2026-11-15T13:37:51.444Z",
+    "job": "session-0001-20261115133751",
+    "revision": {
+      "from": "b68d39e096e367b4",
+      "reviewed": false
+    },
+    "srcHash": "50f194865a90ea82",
+    "status": "machine",
+    "text": "**L’extension exécute le compilateur que nomme `aggrega.server.binaryPath`, et en cherche un avant de proposer d’en obtenir un.** Un chemin du paramètre commençant par `~/` — `~\\` sous Windows — ou par `${userHome}` est lu à partir de votre dossier personnel sur la machine où se trouve votre workspace, de sorte que sous Linux et macOS `~/.local/bin/aggrega` désigne le fichier que les scripts d’installation y placent ; tout autre chemin est utilisé tel qu’il est écrit. Un nom simple — la valeur par défaut est `aggrega` — est recherché dans votre `PATH`, et le canal de sortie Aggrega indique quel fichier a été trouvé et la version qu’il signale."
   },
   "50f44f1b306a5336": {
     "at": "2026-11-03T01:02:01.114Z",
@@ -131367,6 +131396,17 @@
     "status": "machine",
     "text": "Certaines valeurs dont un brouillon a besoin sont des valeurs qu’aucune source ne peut contenir — l’image dans laquelle votre propre code est construit, par exemple, l’adresse e-mail d’un compte propriétaire, ou la provenance d’un secret. Lorsqu’un import qui écrit ses brouillons laisse de telles valeurs vides, l’éditeur propose une seule fois, dans une notification qui indique leur nombre, de vous les demander ; ignorer la proposition ne change rien. Rien n’est proposé pour un aperçu, de même que `aggrega import --dry-run` ne demande rien, car aucune réponse n’est appliquée à un aperçu ; ses constats sur le canal de sortie nomment toutefois chaque valeur encore vide. Si vous acceptez la proposition, chaque valeur est demandée dans une zone de saisie distincte, dans l’ordre où les brouillons les listent : la zone a pour titre le fichier rédigé et la clé où se trouve la valeur, et pose la question avec la description de la valeur fournie par le compilateur lui-même, la question que `aggrega import` pose dans un terminal. La zone d’un secret demande d’où provient le secret, avec les mots du compilateur — jamais le secret lui-même — et masque ce que vous tapez. Une zone que vous laissez vide laisse cette valeur due, à fournir plus tard dans le [fichier de réponses](../../language-reference/import-answers.md). Appuyer sur Échap dans n’importe quelle zone met fin aux questions et n’envoie rien, y compris les réponses que vous aviez déjà tapées."
   },
+  "c78964c58ae343e5": {
+    "at": "2026-11-15T13:37:51.444Z",
+    "job": "session-0001-20261115133751",
+    "revision": {
+      "from": "2ee1d2f565a58e4c",
+      "reviewed": false
+    },
+    "srcHash": "c78964c58ae343e5",
+    "status": "machine",
+    "text": "Le compilateur `aggrega`, sur la machine où se trouve votre workspace. L’extension exécute celui que nomme le paramètre `aggrega.server.binaryPath` : un chemin commençant par `~/` (`~\\` sous Windows) ou par `${userHome}` est lu à partir de votre dossier personnel sur cette machine, tout autre chemin est utilisé tel qu’il est écrit, et un nom simple — la valeur par défaut, `aggrega` — est recherché dans le `PATH`. Si elle n’en trouve aucun, l’extension propose d’en télécharger un pour vous, et **Aggrega: Select Compiler Version** en change ensuite la version ; voir [Obtenir le compilateur](#getting-the-compiler)."
+  },
   "c78b65f7fc4e2917": {
     "at": "2026-11-08T10:48:22.903Z",
     "job": "session-0006-20261108104822",
@@ -164716,6 +164756,17 @@
     "srcHash": "f862cb4ab9fbf624",
     "status": "machine",
     "text": "[`entities/featurerecipe.md`](entities/featurerecipe.md) — FeatureRecipes à portée de frontière (la Feature `core/compose-bridge` repose sur le modèle d’assemblage à chemin fusionné documenté ici)."
+  },
+  "f866cd6029b9ff7e": {
+    "at": "2026-11-15T13:38:01.783Z",
+    "job": "session-0003-20261115133801",
+    "revision": {
+      "from": "6a18423a8dea7f25",
+      "reviewed": false
+    },
+    "srcHash": "f866cd6029b9ff7e",
+    "status": "machine",
+    "text": "Cliquer sur la ligne Aggrega workspace ouvre le choix quel que soit ce que vous avez attaché, y compris lorsqu’il s’agit d’un seul espace de travail ou d’aucun : le sélecteur liste les espaces de travail Aggrega que votre Project folder atteint — en remontant depuis lui et en parcourant tout ce qu’il contient —, chacun nommé par sa propre racine, et, en dernier, un moyen d’atteindre un dossier que votre fenêtre n’a pas ouvert du tout : **Choose another folder Aggrega recognises…**, ou **Choose a folder Aggrega recognises…** lorsque le sélecteur n’a aucun espace de travail à lister. Cette dernière entrée est là parce que l’atteinte est bornée par ce que contient votre fenêtre : votre éditeur ne recherche jamais que dans les dossiers que vous avez ouverts, de sorte qu’un espace de travail situé ailleurs est atteignable en ajoutant son dossier, et par rien de plus court. Le serveur de langage démarre dès que la remontée a trouvé un point de départ, sans attendre la fin de cette recherche, si bien qu’une fenêtre peut s’attacher et ne signaler qu’un instant plus tard qu’un second espace de travail est atteignable — la liste du sélecteur se met à jour au retour de la recherche. L’espace de travail Aggrega dans lequel cette fenêtre a travaillé en dernier est lui aussi repris immédiatement, y compris celui que vous avez choisi à l’intérieur de votre Project folder, car l’éditeur interroge le propre marqueur de cet espace de travail au lieu d’attendre la recherche ; ce n’est qu’une fois ce marqueur disparu, ou lorsqu’il ne marque plus un espace de travail que votre Project folder atteint, que le choix est abandonné, et vous en êtes informé. Choisir une autre entrée y déplace le serveur de langage et le signale, qu’elle soit atteinte depuis le même dossier que celle en cours d’utilisation ou depuis un autre, et choisir l’entrée déjà utilisée ne redémarre rien et indique où l’éditeur travaille déjà : **Aggrega: the editor already works in ⟨path⟩.**, en nommant la racine de l’espace de travail en entier. Un espace de travail Aggrega atteint depuis deux dossiers ouverts à la fois est une seule entrée et compte pour une : la découverte remonte, de sorte qu’une racine située un niveau au-dessus répond pour chaque dossier en dessous, et demander lequel de ces dossiers contient l’espace de travail serait une question à deux réponses vraies."
   },
   "f869bfd23f01d86c": {
     "at": "2026-11-03T17:29:36.700Z",

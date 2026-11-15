@@ -17304,6 +17304,13 @@
     "status": "machine",
     "text": "Działanie poszczególnych poziomów ważności"
   },
+  "17a9b84ccee634d2": {
+    "at": "2026-11-15T13:38:01.783Z",
+    "job": "session-0003-20261115133801",
+    "srcHash": "17a9b84ccee634d2",
+    "status": "machine",
+    "text": "Ścieżka do pliku binarnego `aggrega`. Sama nazwa jest wyszukiwana w `PATH`; ścieżka zaczynająca się od `~/` (`~\\` w systemie Windows) lub `${userHome}` jest odczytywana z folderu domowego na hoście, na którym działa rozszerzenie; każda inna ścieżka jest używana tak, jak została zapisana."
+  },
   "17aa5154be177219": {
     "at": "2026-10-22T23:44:16.479857+00:00",
     "job": "msgbatch_01EAGuW4hKxXTyUyLvxe4k5v",
@@ -23541,6 +23548,17 @@
     "srcHash": "20516c854f6b6c99",
     "status": "machine",
     "text": "**Problem:** stan deklaratywny doskonale sprawdza się przy przydzielaniu zasobów w Day-1, ale deweloperzy muszą wykonywać akcje imperatywne: *„Zrób teraz kopię zapasową bazy danych.”* Ściśle deklaratywny potok GitOps nie ma natywnego mechanizmu ponownego wyzwolenia statycznego skryptu."
+  },
+  "2052a59174f21a2e": {
+    "at": "2026-11-15T13:37:56.712Z",
+    "job": "session-0002-20261115133756",
+    "revision": {
+      "from": "26a05b2c23c51fd9",
+      "reviewed": false
+    },
+    "srcHash": "2052a59174f21a2e",
+    "status": "machine",
+    "text": "**Nieudane uruchomienie mówi, co jest nie tak ze ścieżką kompilatora.** Gdy `aggrega.server.binaryPath` nie wskazuje niczego, powiadomienie brzmi **Aggrega language server failed to start: the compiler at ⟨path⟩ was not found.** (Nie udało się uruchomić serwera językowego Aggrega: nie znaleziono kompilatora w ⟨path⟩.); gdy wskazuje plik, którego nie można uruchomić, brzmi **… ⟨path⟩ is not an executable file.** (… ⟨path⟩ nie jest plikiem wykonywalnym.). ⟨path⟩ to plik, który rozszerzenie próbowało uruchomić: ustawienie zaczynające się od `~/` lub `${userHome}` jest pokazywane po rozwinięciu względem folderu domowego, tak jak było wyszukiwane. Oba dalej mówią, aby ustawić `aggrega.server.binaryPath` na plik binarny aggrega, i zawierają **Open binary path setting**, które otwiera ekran ustawień na tym jednym ustawieniu, oraz **Show output**. Gdy ścieżka nie wskazuje niczego, powiadomienie zawiera też **Download the compiler** i **Choose another file** przed tymi dwoma, ponieważ wtedy nie ma kompilatora do zastąpienia: pierwsze pobiera kompilator w sposób opisany w sekcji [Pobieranie kompilatora](install.md#getting-the-compiler), a drugie prosi o posiadany plik kompilatora i kieruje na niego ustawienie. Plik, który istnieje, ale nie można go uruchomić, został tam umieszczony przez użytkownika, więc to powiadomienie nie oferuje pobrania. Każde inne niepowodzenie uruchomienia podaje otrzymaną przyczynę po tym samym początku, a następnie wymienia uruchomiony kompilator i ustawienie, które go wskazuje. Kanał wyjściowy Aggrega zawiera ten sam opis."
   },
   "20583123a298a125": {
     "at": "2026-10-31T17:58:53.880Z",
@@ -58191,6 +58209,17 @@
     "srcHash": "50f113645082e12b",
     "status": "machine",
     "text": "Każda z tych map jest kluczowana kropkowaną ścieżką liścia w obrębie jego filaru, a każdy wpis zapisuje `origin` danego liścia — to samo rozróżnienie `explicit` / `annotation`, stosowane do jednego liścia naraz. Liść wniesiony przez adnotację dodatkowo niesie powierzchnię autorską, na której został zadeklarowany, klucz adnotacji, który go wniósł, oraz lokalizację tej deklaracji w źródle. Tam, gdzie jawny liść nadpisał liść wniesiony przez adnotację, wpis niesie też pominięty wkład, który zastąpił, dzięki czemu polityka widzi, co zostało nadpisane, a nie tylko to, co zwyciężyło."
+  },
+  "50f194865a90ea82": {
+    "at": "2026-11-15T13:37:51.444Z",
+    "job": "session-0001-20261115133751",
+    "revision": {
+      "from": "b68d39e096e367b4",
+      "reviewed": false
+    },
+    "srcHash": "50f194865a90ea82",
+    "status": "machine",
+    "text": "**Rozszerzenie uruchamia kompilator wskazany przez `aggrega.server.binaryPath` i najpierw go szuka, zanim zaproponuje jego pozyskanie.** Ścieżka w ustawieniu zaczynająca się od `~/` — `~\\` w systemie Windows — lub od `${userHome}` jest odczytywana względem folderu domowego na maszynie, na której znajduje się obszar roboczy, więc w systemach Linux i macOS `~/.local/bin/aggrega` wskazuje plik, który umieszczają tam skrypty instalacyjne; każda inna ścieżka jest używana dosłownie. Sama nazwa — domyślnie `aggrega` — jest wyszukiwana w `PATH`, a kanał wyjściowy Aggrega podaje, który plik został znaleziony i jaką wersję zgłasza."
   },
   "50f44f1b306a5336": {
     "at": "2026-10-22T12:28:13.070114+00:00",
@@ -144895,6 +144924,17 @@
     "status": "machine",
     "text": "Niektóre wartości potrzebne szkicowi to wartości, których żadne źródło nie może zawierać — na przykład obraz, w którym budowany jest własny kod, adres e-mail konta właściciela lub źródło sekretu. Gdy import, który zapisuje swoje szkice, pozostawia takie wartości puste, edytor jeden raz, w powiadomieniu podającym ich liczbę, proponuje, że o nie zapyta; odrzucenie propozycji niczego nie zmienia. Dla podglądu nie jest proponowane nic, tak jak `aggrega import --dry-run` o nic nie pyta, ponieważ do podglądu nie stosuje się żadnej odpowiedzi; jego wyniki w kanale wyjściowym nadal wskazują każdą wartość, która pozostaje pusta. Po przyjęciu propozycji o każdą wartość pyta osobne pole wprowadzania, w kolejności, w jakiej wymieniają je szkice: tytuł pola podaje utworzony plik i klucz, pod którym znajduje się wartość, a pytanie zawiera opis wartości sformułowany przez sam kompilator, czyli pytanie, które `aggrega import` zadaje w terminalu. Pole sekretu pyta słowami kompilatora, skąd pochodzi sekret — nigdy o sam sekret — i ukrywa wpisywany tekst. Pole pozostawione puste pozostawia tę wartość nieuzupełnioną, do podania później w [pliku odpowiedzi](../../language-reference/import-answers.md). Naciśnięcie Escape w dowolnym polu kończy pytania i niczego nie wysyła, łącznie z już wpisanymi odpowiedziami."
   },
+  "c78964c58ae343e5": {
+    "at": "2026-11-15T13:37:51.444Z",
+    "job": "session-0001-20261115133751",
+    "revision": {
+      "from": "2ee1d2f565a58e4c",
+      "reviewed": false
+    },
+    "srcHash": "c78964c58ae343e5",
+    "status": "machine",
+    "text": "Kompilator `aggrega` na maszynie, na której znajduje się obszar roboczy. Rozszerzenie uruchamia ten, który wskazuje ustawienie `aggrega.server.binaryPath`: ścieżka zaczynająca się od `~/` (`~\\` w systemie Windows) lub od `${userHome}` jest odczytywana względem folderu domowego na tej maszynie, każda inna ścieżka jest używana dosłownie, a sama nazwa — domyślnie `aggrega` — jest wyszukiwana w `PATH`. Jeśli nic nie znajdzie, rozszerzenie proponuje pobranie kompilatora, a **Aggrega: Select Compiler Version** pozwala później zmienić wersję; zob. [Pozyskiwanie kompilatora](#getting-the-compiler)."
+  },
   "c78b65f7fc4e2917": {
     "at": "2026-11-08T10:48:22.903Z",
     "job": "session-0006-20261108104822",
@@ -181469,6 +181509,17 @@
     "srcHash": "f862cb4ab9fbf624",
     "status": "machine",
     "text": "[`entities/featurerecipe.md`](entities/featurerecipe.md) — encje FeatureRecipes o zasięgu granicy (encja Feature `core/compose-bridge` opiera się na opisanym tutaj modelu składania scalonych ścieżek)."
+  },
+  "f866cd6029b9ff7e": {
+    "at": "2026-11-15T13:38:01.783Z",
+    "job": "session-0003-20261115133801",
+    "revision": {
+      "from": "6a18423a8dea7f25",
+      "reviewed": false
+    },
+    "srcHash": "f866cd6029b9ff7e",
+    "status": "machine",
+    "text": "Kliknięcie wiersza Aggrega workspace otwiera wybór niezależnie od tego, co jest dołączone, także gdy jest to jeden obszar roboczy lub żaden: selektor wymienia obszary robocze Aggrega osiągalne z folderu Project folder — idąc od niego w górę i przeglądając wszystko, co zawiera — każdy nazwany własnym katalogiem głównym, a na końcu sposób dotarcia do folderu, którego okno w ogóle nie ma otwartego: **Choose another folder Aggrega recognises…** lub **Choose a folder Aggrega recognises…**, gdy selektor nie ma żadnego obszaru roboczego do wymienienia. Ta ostatnia pozycja istnieje, ponieważ zasięg jest ograniczony tym, co zawiera okno: edytor przeszukuje wyłącznie otwarte foldery, więc obszar roboczy znajdujący się gdzie indziej jest osiągalny przez dodanie jego folderu i niczym krótszym. Serwer języka uruchamia się, gdy tylko wędrówka w górę znajdzie punkt startowy, bez czekania na zakończenie tego przeszukiwania, więc okno może się dołączyć i dopiero chwilę później zgłosić, że osiągalny jest drugi obszar roboczy — lista w selektorze nadrabia, gdy przeszukiwanie zwróci wynik. Obszar roboczy Aggrega, w którym to okno pracowało ostatnio, również jest od razu przejmowany ponownie, łącznie z wybranym wewnątrz folderu Project folder, ponieważ edytor pyta o własny znacznik tego obszaru roboczego, zamiast czekać na przeszukiwanie; dopiero gdy znacznik zniknie lub przestanie oznaczać obszar roboczy osiągalny z folderu Project folder, wybór zostaje porzucony, o czym użytkownik jest informowany. Wybranie innej pozycji przenosi tam serwer języka i informuje o tym, niezależnie od tego, czy jest ona osiągana z tego samego folderu co używana, czy z innego, a wybranie pozycji już używanej niczego nie uruchamia ponownie i informuje, gdzie edytor już pracuje: **Aggrega: the editor already works in ⟨path⟩.**, podając pełną ścieżkę katalogu głównego obszaru roboczego. Jeden obszar roboczy Aggrega osiągalny jednocześnie z dwóch otwartych folderów to jedna pozycja i liczy się jako jedna: wykrywanie wspina się w górę, więc katalog główny o poziom wyżej odpowiada za każdy folder poniżej, a pytanie, który z tych folderów zawiera obszar roboczy, byłoby pytaniem z dwiema prawdziwymi odpowiedziami."
   },
   "f869bfd23f01d86c": {
     "at": "2026-10-22T23:16:15.323655+00:00",
