@@ -484,7 +484,7 @@ can do the same: paste this prompt into it.
 
 <!-- copyable -->
 
-> Use the Aggrega tools only, and create no folder yourself. If the Workspace folder holds no `import-langgraph` folder yet, call the `scaffold` tool once with `example` set to `import-langgraph` and no `dir`: it writes the example into a new `import-langgraph` folder, whose `source` folder holds what this page imports. Then call the `import` tool with `workspace_root` set to `import-langgraph/source`, `source` set to `.` and `target` set to `compose`: it reads the answers it needs from `import-answers.yaml` beside `langgraph.json`, writes its drafts into `import-langgraph/source` and pulls what they need. Then call the `validate` tool with `workspace_root` set to `import-langgraph/source` and `release` set to `release.yaml`, and the `build` tool with `workspace_root` set to `import-langgraph/source`, `release` set to `release.yaml` and `write` set to true. Tell me which files the build wrote; they are under `import-langgraph/source/dist/`.
+> Use the Aggrega tools only, and create no folder yourself. If the Workspace folder holds no `import-langgraph` folder yet, call the `scaffold` tool once with `example` set to `import-langgraph` and no `dir`: it writes the example into a new `import-langgraph` folder, whose `source` folder holds what this page imports. Then call the `import` tool with `workspace_root` set to `import-langgraph/source`, `source` set to `.`, `format` set to `langgraph` and `target` set to `compose`: it reads the answers it needs from `import-answers.yaml` beside `langgraph.json`, writes its drafts into `import-langgraph/source` and pulls what they need. Then call the `validate` tool with `workspace_root` set to `import-langgraph/source` and `release` set to `release.yaml`, and the `build` tool with `workspace_root` set to `import-langgraph/source`, `release` set to `release.yaml` and `write` set to true. Tell me which files the build wrote; they are under `import-langgraph/source/dist/`.
 
 ## Open it in VS Code
 
@@ -525,11 +525,15 @@ accepts connections, so a server that opens the checkpointer as it starts
 finds the database accepting connections. Build your image at the project's
 root, write its name in place of `ghcr.io/example/support-agent:1.0.0` in
 `import-answers.yaml`, and import again with `--sync`, which writes the new
-answer into the drafts and pulls again; then build:
+answer into the drafts and pulls again; then build. The import names its
+format with `--format langgraph`: the folder now also holds
+`dist/compose/docker-compose.yaml`, which the build wrote and the Compose
+importer recognises too, and an import of a folder two importers recognise
+stops and asks for the format:
 
 ```bash
 docker build -t order-support:local .
-aggrega import . --sync
+aggrega import . --sync --format langgraph
 aggrega build --release release.yaml
 ```
 
