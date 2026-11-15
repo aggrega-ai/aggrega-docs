@@ -3497,6 +3497,17 @@
     "status": "machine",
     "text": "Verificar uma entidade nos termos de uma Release"
   },
+  "05130cff56de015d": {
+    "at": "2026-11-15T00:02:03.956Z",
+    "job": "session-0027-20261115000203",
+    "revision": {
+      "from": "289112c0fbb8061b",
+      "reviewed": false
+    },
+    "srcHash": "05130cff56de015d",
+    "status": "machine",
+    "text": "`release.yaml`, ao lado dele, é uma Release de rascunho com o mesmo nome que indica esse Aggregate. A entrada de cada instância escreve o seu `infra.image` — a imagem que executa a aplicação construída sobre o ADK, que contém as suas configurações — vazio, sob um comentário que diz o que é, e a importação assinala-o como em falta. Com `--target compose`, a entrada escreve também `infra.published_port`, 8000, a porta em que a aplicação escuta, que a sua Recipe do Compose publica no endereço de loopback do anfitrião, 127.0.0.1, sob o comentário que diz que só é acessível a partir desta máquina, por qualquer processo que nela seja executado, e que eliminar a linha mantém o serviço interno; uma segunda árvore recebe a porta livre seguinte. Quando o seu modelo está ligado, a entrada anexa a credencial que a instância apresenta a esse modelo sob `credential` na sua ligação `model`, por referência e nunca como valor: nenhuma configuração indica uma variável para ela, pelo que é lida de `GOOGLE_API_KEY`, a variável de onde as bibliotecas cliente da Gemini API da Google leem a sua chave, como referência `${…}` em todos os destinos exceto helm, e no helm como o nome de um Kubernetes Secret, escrito vazio para que a importação o assinale como em falta; no compose, a ligação `model` declara-a com essa chave. Um modelo ligado também tem uma entrada, que não contém infraestrutura, pelo que a Release o coloca junto da instância. Os valores que as configurações da árvore entregam às suas ferramentas e aos seus pedidos ao modelo são escritos num comentário acima da entrada, como descreve [Valores de credenciais que uma configuração contém](#credential-values-a-configuration-holds). Como todas as Releases de rascunho, escreve `metadata.environment` como `development` e, sem destino, um `spec.manifest` vazio que a importação assinala como em falta; com um destino, a importação gera o Manifest como rascunho, como descreve [O que um destino acrescenta](#what-a-target-adds)."
+  },
   "0514478fc397840c": {
     "at": "2026-11-04T06:11:40.115Z",
     "job": "session-0207-20261104061140",
@@ -9293,6 +9304,13 @@
     "status": "machine",
     "text": "**Onde a segunda avaliação falha na mesma expressão pelo mesmo motivo, é a sua falha que é comunicada.** A própria frase do autor mantém-se com `<redacted>` onde estava o valor, e um valor que o template codificou, colocou entre aspas ou transformou de outra forma também é ocultado, porque a substituição acontece antes da transformação."
   },
+  "0dbfc274b0d0bd7c": {
+    "at": "2026-11-15T00:02:03.956Z",
+    "job": "session-0027-20261115000203",
+    "srcHash": "0dbfc274b0d0bd7c",
+    "status": "machine",
+    "text": "A resposta. Uma resposta vazia deixa o valor em falta."
+  },
   "0dc1641dd8f5a59e": {
     "at": "2026-10-22T22:12:52.746Z",
     "job": "session-0051-20261022221252",
@@ -10965,6 +10983,17 @@
     "srcHash": "10120eab2e4af98c",
     "status": "machine",
     "text": "**Precedência de três níveis:** antes de aplicar a inferência OCI, o compilador verifica os caminhos locais (nível 1) e os diretórios do espaço de trabalho (nível 2), conforme definido no [modelo de resolução de entidades em três níveis](../../architecture/13-catalog-and-registry.md). A inferência OCI só se aplica quando a entidade chega ao nível 3 (registo remoto)."
+  },
+  "101518b83fa001fc": {
+    "at": "2026-11-15T00:02:03.956Z",
+    "job": "session-0027-20261115000203",
+    "revision": {
+      "from": "8e44fdf07990f8cb",
+      "reviewed": false
+    },
+    "srcHash": "101518b83fa001fc",
+    "status": "machine",
+    "text": "Para cada tipo de componente e cada tipo de feature de que os rascunhos precisam — nos componentes do Aggregate de rascunho, nas suas ligações e nos seus subsistemas, nos Aggregates do catálogo que ele compõe, como `core/dify`, e nos anexos da Release de rascunho —, o Manifest mapeia o tipo para a Recipe, ou, para um tipo de feature, para a feature recipe, dessa capacidade que o catálogo do workspace oferece para ele: a que existe, contando várias versões de uma mesma como uma; ou, quando há várias de nomes diferentes, a que tem o nome do próprio tipo, como `helm/postgres` para `core/datastore/postgres`. Um tipo sem nenhuma, ou com várias das quais nenhuma tem esse nome, fica por mapear, um aviso indica-o e diz porquê, e uma compilação dos rascunhos é interrompida indicando cada instância ou anexo dele até ser mapeado."
   },
   "101693dcc7edced9": {
     "at": "2026-11-03T14:46:26.927Z",
@@ -16324,6 +16353,13 @@
     "srcHash": "18b5840f82234dd2",
     "status": "machine",
     "text": "Mapeia o tipo Valkey para a Recipe do Compose (`compose/valkey`) e a credencial para `dotenv-secret`."
+  },
+  "18b5dad1c4a4239f": {
+    "at": "2026-11-15T00:02:03.956Z",
+    "job": "session-0027-20261115000203",
+    "srcHash": "18b5dad1c4a4239f",
+    "status": "machine",
+    "text": "Se o valor é o de um segredo, cuja resposta indica de onde provém o segredo e nunca contém o próprio segredo."
   },
   "18b9e1cefd517319": {
     "at": "2026-10-23T06:35:49.623Z",
@@ -27239,6 +27275,17 @@
     "srcHash": "2919bc705b83b1a4",
     "status": "machine",
     "text": "A referência à entidade Plugin que este passo executa, sempre qualificada pelo tipo de socket próprio do plugin: `<pluginType>/<name>` com uma versão opcional, como em `parser/yaml` ou `parser/yaml:1.0.0`. A qualificação é obrigatória, e não uma forma entre várias — um `name:version` sem qualificação é recusado, porque dois sockets podem conter um plugin com o mesmo nome e é a qualificação que torna a entidade resolúvel. A compilação resolve a entidade para o seu artefacto .wasm endereçado por conteúdo — localizado a partir da identidade do plugin e do registo configurado, com o seu digest fixado no ficheiro de bloqueio — e carrega os bytes. Uma simples referência a um .wasm ou a um artefacto não é aceite aqui."
+  },
+  "29202f840676d4ea": {
+    "at": "2026-11-15T00:02:03.956Z",
+    "job": "session-0027-20261115000203",
+    "revision": {
+      "from": "a309be11b24b4c5a",
+      "reviewed": false
+    },
+    "srcHash": "29202f840676d4ea",
+    "status": "machine",
+    "text": "O ficheiro de respostas do qual são lidos, e no qual são escritos, os valores que os rascunhos deixam vazios e que nenhuma origem pode conter, relativo à raiz do espaço de trabalho; um valor absoluto, ou um que sai do espaço de trabalho tal como escrito ou através de uma ligação, é recusado. Contém, sob o caminho de cada ficheiro redigido, o caminho da chave dentro desse documento e a sua resposta, e as respostas são escritas nos rascunhos. Se ausente, é lido o que o registo ao lado dos rascunhos indica, ou então import-answers.yaml ao lado do ficheiro de origem ou dentro do diretório de origem. A resposta de um segredo indica de onde provém o segredo — um nome de variável, ${NAME}, ou o nome de um Kubernetes Secret — e qualquer outra coisa é recusada sem que nada seja escrito. Nada é perguntado: cada valor ainda em falta é uma entrada de owed da resposta e uma conclusão de aviso que indica o ficheiro redigido, a chave e o que ela é, a sua resposta é enviada como answered, e onde os rascunhos são escritos a última conclusão indica quantos estão em falta e onde. Quando os rascunhos incluem uma Release, não têm nada em falta e a conversão terminou, as suas dependências são então obtidas, escrevendo o seu lockfile, e um pull que falha encerra as conclusões indicando porquê, com os rascunhos escritos; sem ligação nada é obtido e uma conclusão indica o pull a executar. Uma resposta para uma chave que estes rascunhos não deixam vazia é mantida no ficheiro e não aplicada, pelo que um único ficheiro de respostas serve todos os destinos."
   },
   "29214c1aa204722d": {
     "at": "2026-11-03T13:44:12.861Z",
@@ -54978,6 +55025,13 @@
     "status": "machine",
     "text": "`XDG_DATA_HOME`, `XDG_CONFIG_HOME`, `BASH_COMPLETION_USER_DIR` e `ZDOTDIR` mudam essas pastas e ficheiros de lugar tal como cada shell os lê. Um novo terminal ou janela carrega o preenchimento automático. Executar o comando novamente só reescreve um script quando o `aggrega` instalado escreve um diferente, e acrescenta as linhas a `~/.zshrc` ou ao perfil uma única vez; é também assim que se acrescenta o preenchimento automático a uma instalação já existente, uma vez que o comando volta a instalar o binário pelo caminho."
   },
+  "53e3d5d16806ff13": {
+    "at": "2026-11-15T00:02:03.956Z",
+    "job": "session-0027-20261115000203",
+    "srcHash": "53e3d5d16806ff13",
+    "status": "machine",
+    "text": "O `spec.manifest` da Release de rascunho, escrito vazio sem destino, é definido como o nome do Manifest, o comentário acima dele é removido, e nada mais muda na Release. [aggrega import](../cli/aggrega-import.md) descreve-o por completo."
+  },
   "53e7896a7df54673": {
     "at": "2026-11-03T09:43:52.236Z",
     "job": "session-0085-20261103094352",
@@ -59585,6 +59639,17 @@
     "status": "machine",
     "text": "**As duas formas são avaliadas com os delimitadores `[[ ]]` do Aggrega antes da colocação**, pelo que um corpo de qualquer das formas pode ler o contexto de pilares da Recipe; `{{ }}` em qualquer dos corpos é deixado intacto e torna-se uma diretiva Helm no momento do `helm install` a jusante. O que difere entre as formas é onde o ficheiro vai parar e se a proveniência é fundida nele:"
   },
+  "5ac77c337dd9c8a8": {
+    "at": "2026-11-15T00:02:03.956Z",
+    "job": "session-0027-20261115000203",
+    "revision": {
+      "from": "07f2ef54569e7248",
+      "reviewed": false
+    },
+    "srcHash": "5ac77c337dd9c8a8",
+    "status": "machine",
+    "text": "O ficheiro redigido em que o valor se encontra, tal como owed o indica."
+  },
   "5ac9f2d071a55fb3": {
     "at": "2026-11-03T01:01:59.650Z",
     "job": "session-0029-20261103010159",
@@ -62807,6 +62872,17 @@
     "status": "machine",
     "text": "Propaga-se em cascata para o contentor `.context.annotations.catalog` por nó do IR"
   },
+  "5fb21912e60fe7cd": {
+    "at": "2026-11-15T00:02:03.956Z",
+    "job": "session-0027-20261115000203",
+    "revision": {
+      "from": "b7cc81ecc795e8ba",
+      "reviewed": false
+    },
+    "srcHash": "5fb21912e60fe7cd",
+    "status": "machine",
+    "text": "Uma vez respondida a imagem, o agente é renderizado a executá-la, recebendo o endpoint do modelo como `OPENAI_BASE_URL`, o seu id como `OPENAI_MODEL` e a sua credencial como `OPENAI_API_KEY`, e o modelo é renderizado como um Service que alcança o seu host. Nenhuma variável transporta o endereço do servidor MCP: é o fornecedor do modelo, não a aplicação, que o alcança."
+  },
   "5fb7b1a3b6fa8291": {
     "at": "2026-11-03T09:08:45.888Z",
     "job": "session-0081-20261103090845",
@@ -65646,6 +65722,13 @@
     "srcHash": "63fe5708de05cf37",
     "status": "machine",
     "text": "Pesquisa de despacho do Provider; uma fixação que nenhuma versão de plugin satisfaz interrompe o build"
+  },
+  "63fe7fd5c4b8cc56": {
+    "at": "2026-11-15T00:02:03.956Z",
+    "job": "session-0027-20261115000203",
+    "srcHash": "63fe7fd5c4b8cc56",
+    "status": "machine",
+    "text": "O ficheiro redigido em que o valor se encontra, como caminho relativo ao outputDir da resposta."
   },
   "64004347b6aa6a2a": {
     "at": "2026-10-23T01:53:07.004Z",
@@ -74118,6 +74201,13 @@
     "status": "machine",
     "text": "Esta página é a referência do comando. Para que serve uma importação, como rever e compilar o que ela escreve, e guias práticos que levam um projeto da sua origem até um build encontram-se em [Importação](../../authoring/import/README.md)."
   },
+  "70e6fceeea484b96": {
+    "at": "2026-11-15T00:02:03.956Z",
+    "job": "session-0027-20261115000203",
+    "srcHash": "70e6fceeea484b96",
+    "status": "machine",
+    "text": "ImportAnswered[]"
+  },
   "70ef1efde5154fbd": {
     "at": "2026-11-03T22:29:52.482Z",
     "job": "session-0167-20261103222952",
@@ -74131,6 +74221,13 @@
     "srcHash": "70f030c6f4bca91c",
     "status": "machine",
     "text": "Uma Recipe ou uma FeatureRecipe declara `omits:` e o fornecedor que a renderiza não declara que deixa documentos renderizados de fora. Deixar um documento de fora do que uma fonte renderiza é algo que só o fornecedor pode fazer — só o fornecedor sabe que documentos a fonte renderiza e como se chama cada um —, pelo que um fornecedor que não o faça renderizaria todos os documentos que as entradas nomeiam e comunicaria sucesso. Em vez disso, a compilação recusa antes de qualquer renderização, para que a chave nunca fique silenciosamente sem efeito."
+  },
+  "70f2ba1bec148a1c": {
+    "at": "2026-11-15T00:02:03.956Z",
+    "job": "session-0027-20261115000203",
+    "srcHash": "70f2ba1bec148a1c",
+    "status": "machine",
+    "text": "Quando só o importador sabe qual de várias Recipes se aplica, ele próprio gera o Manifest como rascunho — o importador MCP mapeia cada servidor, pela sua chave, para a realização do modo como o servidor é executado, e um importador que anexa um segredo pelo nome mapeia `core/referenced-secret` para `helm/k8s-existing-secret` — e a importação completa-o: cada mapeamento escrito pelo importador que o catálogo oferece para esse tipo e essa capacidade é mantido, qualquer outro é descartado com um aviso, e os tipos que deixa são mapeados como acima."
   },
   "70f414e7b9f314a8": {
     "at": "2026-11-03T13:20:59.617Z",
@@ -77450,6 +77547,13 @@
     "srcHash": "75e38d839cc7a532",
     "status": "machine",
     "text": "**Como corrigir:** comparar o campo `kind:` do ficheiro que se está a publicar com os tipos que `aggrega push --list-kinds` imprime — um tipo mal escrito ou não suportado é comunicado aqui, e corrigir o campo é toda a correção. Quando o tipo é um dos que essa lista apresenta, trata-se de uma lacuna no conjunto de ferramentas e não na entidade, e vale a pena comunicá-la citando o tipo."
+  },
+  "75e764e432ab7ba8": {
+    "at": "2026-11-15T00:02:03.956Z",
+    "job": "session-0027-20261115000203",
+    "srcHash": "75e764e432ab7ba8",
+    "status": "machine",
+    "text": "Presente no valor de um segredo: o que a sua resposta deve ser, na frase mostrada a uma pessoa que lhe responde num terminal — ou, quando a resposta enviada para ele como answered foi recusada, porque foi recusada."
   },
   "75eace7f67096d34": {
     "at": "2026-11-04T13:01:09.618Z",
@@ -85095,6 +85199,13 @@
     "srcHash": "81bac81c00bba2b3",
     "status": "machine",
     "text": "O caminho de referência para o desenvolvimento local mantém a intenção do programador inalterada e troca a vinculação. O Aggregate continua a anexar o mesmo tipo de Feature de credenciais; o Manifest local mapeia esse tipo para uma FeatureRecipe local em vez da apoiada num cofre. O compilador continua a não obter nada — a FeatureRecipe local limita-se a entregar sintaxe nativa do fornecedor que o runtime local resolve: no Compose, uma referência a variável como `${SECRET_NAME}` escrita no ambiente do serviço, que o Docker Compose substitui a partir do ambiente da shell ou de um ficheiro `.env` quando a stack arranca. Trocar de ambiente é uma edição do Manifest."
+  },
+  "81bd47088e149b96": {
+    "at": "2026-11-15T00:02:03.956Z",
+    "job": "session-0027-20261115000203",
+    "srcHash": "81bd47088e149b96",
+    "status": "machine",
+    "text": "`ImportOwed`"
   },
   "81c2e6037520c696": {
     "at": "2026-11-12T07:54:52.875Z",
@@ -117007,6 +117118,17 @@
     "status": "machine",
     "text": "signature verification could not run for `<uri>` (the registry could not answer the signature lookup and no signature is required; continuing): `<the message above>` (não foi possível executar a verificação da assinatura para o artefacto indicado (o registo não conseguiu responder à consulta de assinatura e não é exigida nenhuma assinatura; a continuar): a mensagem acima)"
   },
+  "b1ab5c025dcff51e": {
+    "at": "2026-11-15T00:02:03.956Z",
+    "job": "session-0027-20261115000203",
+    "revision": {
+      "from": "ad4dbb120d8c630f",
+      "reviewed": false
+    },
+    "srcHash": "b1ab5c025dcff51e",
+    "status": "machine",
+    "text": "Uma importação que recebe um destino comunica, após os diagnósticos do importador, o que a geração do Manifest como rascunho encontrou: um `warn` que indica cada tipo de componente ou de feature que o Manifest deixa por mapear e porquê, e um `info` quando a Release de rascunho já indica um Manifest ou nenhuma Release de rascunho o referencia. Estes são da própria importação, e não de um importador, e não contêm nenhum código; [O que um destino acrescenta](#what-a-target-adds) descreve-os. Todas as importações comunicam depois, também como seus, um `warn` para cada valor que os rascunhos ainda têm em falta, indicando o ficheiro de rascunho, o caminho da chave e a sua descrição, e, sob `--offline`, quando gerou uma Release como rascunho e não tem nada em falta, um `info` que indica o `aggrega pull` a executar a seguir, como descreve [O ficheiro de respostas da importação](../import-answers.md)."
+  },
   "b1b0f68b357016a6": {
     "at": "2026-11-04T00:44:12.025Z",
     "job": "session-0182-20261104004412",
@@ -123313,6 +123435,17 @@
     "status": "machine",
     "text": "Tipo"
   },
+  "bab4d96ee9c4d8fc": {
+    "at": "2026-11-15T00:02:03.956Z",
+    "job": "session-0027-20261115000203",
+    "revision": {
+      "from": "5b9580585a4a4565",
+      "reviewed": false
+    },
+    "srcHash": "bab4d96ee9c4d8fc",
+    "status": "machine",
+    "text": "Uma importação que recebe um destino — `--target` em `aggrega import`, ou `target` na ferramenta de importação do assistente e no método `aggrega/import` da sessão, que indica uma capacidade de fornecedor como `compose` ou `helm` — passa esse destino ao importador, pelo que o importador gera os rascunhos para ele: cada segredo na forma que esse destino lê, e as linhas de que só esse destino precisa, escritas ativas, enquanto as linhas de que só outro destino precisa são omitidas. No `compose`, essas linhas incluem `infra.published_port` sempre que o importador publica um serviço no endereço de loopback do anfitrião, como indica a secção de cada importador; uma porta que o importador escolhe nunca recebe um número que outra porta da Release já utiliza. A importação gera então o Manifest como rascunho ao lado do que o importador gerou, seja qual for o importador executado: `manifest.yaml`, ao lado da Release de rascunho e com o mesmo nome e a mesma versão que ela — ou, quando o importador não gerou nenhuma Release como rascunho, ao lado do Aggregate de rascunho e com o mesmo nome e a mesma versão que este."
+  },
   "bab524b4f6e12ba7": {
     "at": "2026-11-03T15:04:39.860Z",
     "job": "session-0120-20261103150439",
@@ -128444,6 +128577,13 @@
     "status": "machine",
     "text": "Caso de prova compose-bridge"
   },
+  "c2303a5a2189dee8": {
+    "at": "2026-11-15T00:02:03.956Z",
+    "job": "session-0027-20261115000203",
+    "srcHash": "c2303a5a2189dee8",
+    "status": "machine",
+    "text": "Um valor que os rascunhos ainda deixam vazio, que nenhuma origem pôde fornecer e que nenhuma resposta forneceu."
+  },
   "c230f8a3555db3c0": {
     "at": "2026-11-04T05:50:39.710Z",
     "job": "session-0205-20261104055039",
@@ -133250,6 +133390,13 @@
     "srcHash": "c99f3d889147b5f8",
     "status": "machine",
     "text": "Um chart que um **anexo de Feature** traz é um contribuidor de pleno direito, e declara a sua própria identidade em vez de repetir a do componente ao qual está anexado. Essa identidade é composta a partir de duas coisas escritas pelo autor — o componente que acolhe o anexo e o nome sob o qual a Feature é anexada — atrás de um breve prefixo que a marca como identidade de um anexo e não de um componente; o valor composto é depois escrito para a posição do nome do chart através da derivação abaixo, exatamente como qualquer outra identidade."
+  },
+  "c9a144def761de5c": {
+    "at": "2026-11-15T00:02:03.956Z",
+    "job": "session-0027-20261115000203",
+    "srcHash": "c9a144def761de5c",
+    "status": "machine",
+    "text": "Respostas para valores que owed da resposta listou, cada uma indicando o ficheiro redigido e as chaves tal como owed as indicou. Cada uma é avaliada, mantida no ficheiro de respostas e escrita nos rascunhos exatamente como uma resposta introduzida num terminal: a resposta de um segredo indica de onde provém o segredo — um nome de variável, ${NAME}, ou o nome de um Kubernetes Secret — e uma que não o faça não é mantida nem escrita, ficando o seu valor em falta com o motivo como o seu secretAdvice. Um valor a que o ficheiro de respostas já responde é respondido a partir do ficheiro; uma resposta vazia, ou uma que indique um valor que os rascunhos não têm em falta, não é aplicada. Envie-a com sync depois de os rascunhos serem escritos, uma vez que um pedido que não seja um sync é recusado sobre um Aggregate já presente em outputDir. Sob dryRun, que não mantém nenhuma resposta, e sob um sync cuja conversão parou, que não escreve nada, nenhuma resposta enviada é aplicada."
   },
   "c9a1dcec506d78c1": {
     "at": "2026-10-23T01:53:07.004Z",
@@ -138675,6 +138822,13 @@
     "status": "machine",
     "text": "Carimbo de conformidade obrigatório. Identifica, pela sua versão, o binário aggrega que construiu este grafo."
   },
+  "d13a269a1bfe905f": {
+    "at": "2026-11-15T00:02:03.956Z",
+    "job": "session-0027-20261115000203",
+    "srcHash": "d13a269a1bfe905f",
+    "status": "machine",
+    "text": "As chaves que levam ao valor a partir do topo desse documento, uma entrada por chave, pelo que uma chave que contém um ponto continua a ser uma única entrada. Uma resposta enviada como answered indica o valor através destas chaves."
+  },
   "d13f115832c59d23": {
     "at": "2026-11-03T09:26:16.050Z",
     "job": "session-0083-20261103092616",
@@ -141581,6 +141735,13 @@
     "srcHash": "d5dddd51973e4060",
     "status": "machine",
     "text": "**Âmbito:** Usado estritamente dentro de definições de destino explícitas em `uses` e nas `features` anexadas, incluindo as Features de credenciais."
+  },
+  "d5e00b1049c3c980": {
+    "at": "2026-11-15T00:02:03.956Z",
+    "job": "session-0027-20261115000203",
+    "srcHash": "d5e00b1049c3c980",
+    "status": "machine",
+    "text": "As chaves que levam ao valor, tal como owed as indica."
   },
   "d5e4bfa4da07250c": {
     "at": "2026-11-15T00:00:16.232Z",
@@ -145685,6 +145846,17 @@
     "status": "machine",
     "text": "Uma Feature anexada a um componente contribui para o mesmo ficheiro"
   },
+  "dc14c424a7c5e08e": {
+    "at": "2026-11-15T00:02:03.956Z",
+    "job": "session-0027-20261115000203",
+    "revision": {
+      "from": "a424153ece34641d",
+      "reviewed": false
+    },
+    "srcHash": "dc14c424a7c5e08e",
+    "status": "machine",
+    "text": "`auto-apply-above-threshold` referencia o Component do catálogo com a melhor correspondência para um nó a que o rascunho dá um Component próprio cuja correspondência está no nível alto e tem pontuação igual ou superior a `reuse_threshold`, e gera como rascunho todos os outros. `hints-only` gera como rascunho cada um desses nós e não referencia nenhum Component do catálogo, registando uma correspondência forte como sugestão. Qualquer outro valor é lido como `hints-only`."
+  },
   "dc165c741b7c3204": {
     "at": "2026-11-04T00:08:16.163Z",
     "job": "session-0177-20261104000816",
@@ -146860,6 +147032,13 @@
     "status": "machine",
     "text": "apresenta as constatações de sobreposição de pilares de esquema e de estreitamento em extensão como linhas `notice:` informativas que nunca alteram o código de saída."
   },
+  "dda61ff1cb684265": {
+    "at": "2026-11-15T00:02:03.956Z",
+    "job": "session-0027-20261115000203",
+    "srcHash": "dda61ff1cb684265",
+    "status": "machine",
+    "text": "`ImportAnswered`"
+  },
   "dda6aa58ca67e4ca": {
     "at": "2026-11-04T08:19:29.837Z",
     "job": "session-0220-20261104081929",
@@ -147995,6 +148174,13 @@
     "srcHash": "df3a59e05240f42b",
     "status": "machine",
     "text": "Adiciona um registo e a política de confiança que a resolução aplica ao que ele serve. Escreve o ficheiro de configuração de toda a máquina, a menos que o pedido peça o contrário, pelo que cada espaço de trabalho da máquina resolve através da entrada."
+  },
+  "df3b1f840825a8af": {
+    "at": "2026-11-15T00:02:03.956Z",
+    "job": "session-0027-20261115000203",
+    "srcHash": "df3b1f840825a8af",
+    "status": "machine",
+    "text": "Os valores do fluxo são escritos na grafia em que as próprias ferramentas da plataforma os leem, os mesmos valores, indicando quais e porquê: os handles das arestas de um fluxo do Langflow, escritos como o editor do Langflow os escreve. Um valor que o rascunho escreve para que o fluxo alcance uma parte, ou um que pode transportar uma credencial, nunca é reescrito — continua a ser o da ligação, ou o de `empty_credentials` — e o aviso conta cada valor não reescrito."
   },
   "df3d6367ecb71ebe": {
     "at": "2026-11-03T16:49:01.800Z",
@@ -149868,6 +150054,13 @@
     "srcHash": "e1ccebcca1e3ad0a",
     "status": "machine",
     "text": "A file read from the directory and a file named in the importer's `with.sources` have the same name (Um ficheiro lido do diretório e um ficheiro nomeado nas origens do importador têm o mesmo nome)"
+  },
+  "e1cd85cdeac16e2b": {
+    "at": "2026-11-15T00:02:03.956Z",
+    "job": "session-0027-20261115000203",
+    "srcHash": "e1cd85cdeac16e2b",
+    "status": "machine",
+    "text": "Uma resposta para um valor que owed da resposta listou."
   },
   "e1cdd678407b1e32": {
     "at": "2026-10-22T22:12:52.746Z",
@@ -157690,6 +157883,17 @@
     "status": "machine",
     "text": "*Chaves de rastreio adicionais — que identificam o aggregate de origem, o nó da IR, a origem da feature e o tipo de catálogo — estão em desenvolvimento ativo e são disponibilizadas à medida que o renderizador de cada provider acrescenta a injeção.*"
   },
+  "edbf183ff6b2859f": {
+    "at": "2026-11-15T00:02:03.956Z",
+    "job": "session-0027-20261115000203",
+    "revision": {
+      "from": "246acf62d97926c5",
+      "reviewed": false
+    },
+    "srcHash": "edbf183ff6b2859f",
+    "status": "machine",
+    "text": "`release.yaml`, ao lado dele, é uma Release de rascunho com o mesmo nome que indica esse Aggregate. A entrada do agente escreve o seu `infra.image` — a imagem que executa a aplicação construída sobre o Agent Framework, que contém o seu agente declarativo — vazio, sob um comentário que diz o que é, e a importação assinala-o como em falta. Quando o seu modelo está ligado, a entrada anexa a credencial que o agente apresenta a esse modelo sob `credential` na sua ligação `model`, por referência e nunca como valor: lida da variável que o agente declarativo indica para a sua chave, escrita `=Env.NAME`, e caso contrário de `OPENAI_API_KEY`, a variável de onde as bibliotecas cliente da OpenAI leem a sua chave; como referência `${…}` em todos os destinos exceto helm, e no helm como o nome de um Kubernetes Secret, escrito vazio para que a importação o assinale como em falta; no compose, a ligação `model` declara-a com essa chave. Os valores que o agente declarativo declara para o seu modelo e os seus servidores MCP — as chaves e o `url` de cada servidor — são escritos num comentário acima da entrada do agente, como descreve [Valores de credenciais que um agente declarativo contém](#credential-values-a-declarative-agent-holds). Cada modelo ligado tem uma entrada, pelo que a Release o coloca junto do agente. O endpoint que a sua ligação declara é escrito como o `infra.endpoint` do modelo, e um escrito como referência é indicado ao lado da sua entrada, sendo usado o próprio endereço do Component até ser definido; uma ligação que não declara nenhum endpoint deixa a entrada sem infraestrutura, mantendo-se o próprio endereço do Component. Como todas as Releases de rascunho, escreve `metadata.environment` como `development` e, sem destino, um `spec.manifest` vazio que a importação assinala como em falta; com um destino, a importação gera o Manifest como rascunho, como descreve [O que um destino acrescenta](#what-a-target-adds)."
+  },
   "edbf616b9de57b3c": {
     "at": "2026-11-03T13:20:59.617Z",
     "job": "session-0110-20261103132059",
@@ -160850,6 +161054,17 @@
     "srcHash": "f2519461cf737ce5",
     "status": "machine",
     "text": "**A mutação é estritamente local ao chamador.** A FeatureRecipe modifica apenas o canal de inject do nó a que está anexada, nunca a saída `.provides` do destino. O `.provides.host` de um destino é potencialmente consumido por muitos chamadores em todo o cluster; o `injectMapping` do lado do chamador funde-se apenas no canal desse chamador específico, pelo que as mutações de encaminhamento ficam restringidas à aresta que as pediu."
+  },
+  "f253038a6acb3cd7": {
+    "at": "2026-11-15T00:02:03.956Z",
+    "job": "session-0027-20261115000203",
+    "revision": {
+      "from": "ae6180bbf6883734",
+      "reviewed": false
+    },
+    "srcHash": "f253038a6acb3cd7",
+    "status": "machine",
+    "text": "Uma vez respondida a imagem, a instância é renderizada a executá-la e recebe a credencial como `GOOGLE_API_KEY`, que o cliente Gemini do ADK envia à Gemini API, e o modelo como um Service que alcança o endereço da Gemini API."
   },
   "f2549ad0d6a8c27f": {
     "at": "2026-11-04T11:11:27.846Z",
@@ -164815,6 +165030,13 @@
     "srcHash": "f7c0db293ab185c1",
     "status": "machine",
     "text": "**As entradas de artefactos inline e `$import:` podem coexistir.** Uma Recipe pode declarar algumas entradas de `artifacts:` inline e outras através de diretivas `$import:` por entrada. Uma colisão de nomes de ficheiro entre as duas formas é um erro no carregamento."
+  },
+  "f7c3a97fb7769ec7": {
+    "at": "2026-11-15T00:02:03.956Z",
+    "job": "session-0027-20261115000203",
+    "srcHash": "f7c3a97fb7769ec7",
+    "status": "machine",
+    "text": "O que o valor é: a descrição do seu esquema, ou então o comentário que o rascunho escreve acima da sua chave, ou então o que o seu esquema diz que aceita."
   },
   "f7c69d6bf8bb878e": {
     "at": "2026-11-03T15:47:42.282Z",

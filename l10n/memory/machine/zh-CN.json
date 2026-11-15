@@ -3817,6 +3817,17 @@
     "status": "machine",
     "text": "关于 OCI URI 简写的展开规则（域名默认值、registry 段、版本回退、发布者展开），参见 [uri-grammar.md](uri-grammar.md)。"
   },
+  "05130cff56de015d": {
+    "at": "2026-11-15T00:02:03.956Z",
+    "job": "session-0027-20261115000203",
+    "revision": {
+      "from": "289112c0fbb8061b",
+      "reviewed": false
+    },
+    "srcHash": "05130cff56de015d",
+    "status": "machine",
+    "text": "`release.yaml` 位于其旁边，是一个同名的草稿 Release，指定该 Aggregate。每个实例的条目将其 `infra.image`（运行基于 ADK 构建的应用、包含其配置的镜像）写为空，并在其上方加一条说明其含义的注释，由导入将其列为待提供。使用 `--target compose` 时，条目还会写入 `infra.published_port`，即 8000，也就是应用监听的端口，其 Compose Recipe 会将它发布在主机的回环地址 127.0.0.1 上，上方的注释说明它只能从本机访问（本机上运行的任何进程都可访问），删除该行即可使服务保持为内部服务；第二棵树会取用下一个空闲端口。在其模型已连接时，条目会将实例向该模型出示的凭据以引用形式（而绝不以值的形式）附加在其 `model` 连接的 `credential` 下：没有任何配置为其指定变量，因此它从 `GOOGLE_API_KEY` 读取，即 Google 的 Gemini API 客户端库读取密钥所用的变量；在除 helm 之外的每个目标上写为 `${…}` 引用，在 helm 上写为一个 Kubernetes Secret 的名称，且写为空，由导入将其列为待提供；在 compose 上，`model` 连接以该键声明它。已连接的模型也有一个条目，不包含任何基础设施，因此 Release 会将其与该实例放置在一起。树中各配置传给其工具和模型请求的值会写在条目上方的注释中，如[配置所含的凭据值](#credential-values-a-configuration-holds)所述。与每个起草的 Release 一样，它将 `metadata.environment` 写为 `development`，并在没有目标时写入一个由导入列为待提供的空 `spec.manifest`；指定目标时，导入会起草 Manifest，如[目标会添加什么](#what-a-target-adds)所述。"
+  },
   "0514478fc397840c": {
     "at": "2026-10-22T05:14:14.914265+00:00",
     "job": "msgbatch_01SJr5F7Uh6g5vmdkzNw4vuV",
@@ -10050,6 +10061,13 @@
     "status": "machine",
     "text": "**如果第二次求值在同一表达式上因同一原因失败，报告的就是这次失败。** 作者自己写的语句得以保留，原先放值的位置变为 `<redacted>`；模板编码、加引号或以其他方式转换过的值同样被隐去，因为替换发生在转换之前。"
   },
+  "0dbfc274b0d0bd7c": {
+    "at": "2026-11-15T00:02:03.956Z",
+    "job": "session-0027-20261115000203",
+    "srcHash": "0dbfc274b0d0bd7c",
+    "status": "machine",
+    "text": "答案。空答案会使该值仍待提供。"
+  },
   "0dc1641dd8f5a59e": {
     "at": "2026-10-22T01:56:20.260469+00:00",
     "job": "msgbatch_019deoLCSd6FfqmJJpRt7haV",
@@ -11917,6 +11935,17 @@
     "srcHash": "10120eab2e4af98c",
     "status": "machine",
     "text": "**三层优先级：**在应用 OCI 推断之前，编译器会按照[三层实体解析模型](../../architecture/13-catalog-and-registry.md)的定义，先检查本地路径（第 1 层）和工作区目录（第 2 层）。只有当实体到达第 3 层（远程注册表）时，才会应用 OCI 推断。"
+  },
+  "101518b83fa001fc": {
+    "at": "2026-11-15T00:02:03.956Z",
+    "job": "session-0027-20261115000203",
+    "revision": {
+      "from": "8e44fdf07990f8cb",
+      "reviewed": false
+    },
+    "srcHash": "101518b83fa001fc",
+    "status": "machine",
+    "text": "对于草稿所需的每种组件类型和每种 feature 类型（包括起草的 Aggregate 的组件、其连接及其子系统上的类型，它所组合的目录 Aggregates（例如 `core/dify`）上的类型，以及起草的 Release 的附加项上的类型），Manifest 会将该类型映射到工作区目录为其提供的、属于该能力的 Recipe（对于 feature 类型则为 feature recipe）：即唯一存在的那一个，同一 Recipe 的多个版本算作一个；或者，若存在多个名称不同的，则为以该类型本身命名的那一个，例如 `core/datastore/postgres` 对应 `helm/postgres`。没有任何此类 Recipe，或有多个但均未以此命名的类型，将保持未映射状态，并由一条警告指出该类型及原因；构建这些草稿时会停止并列出该类型的每个实例或附加项，直到你为其建立映射。"
   },
   "101693dcc7edced9": {
     "at": "2026-10-30T18:25:06.762Z",
@@ -17839,6 +17868,13 @@
     "srcHash": "18b5840f82234dd2",
     "status": "machine",
     "text": "将 Valkey 类型映射到 Compose Recipe（`compose/valkey`），并将凭据映射到 `dotenv-secret`。"
+  },
+  "18b5dad1c4a4239f": {
+    "at": "2026-11-15T00:02:03.956Z",
+    "job": "session-0027-20261115000203",
+    "srcHash": "18b5dad1c4a4239f",
+    "status": "machine",
+    "text": "该值是否属于机密；机密的答案指明机密的来源，且绝不包含机密本身。"
   },
   "18b9e1cefd517319": {
     "at": "2026-10-22T02:42:41.008096+00:00",
@@ -29752,6 +29788,17 @@
     "srcHash": "2919bc705b83b1a4",
     "status": "machine",
     "text": "对此步骤所运行的 Plugin 实体的引用，始终以该插件自身的 socket 类型限定作用域：`<pluginType>/<name>`，可带可选版本，如 `parser/yaml` 或 `parser/yaml:1.0.0`。作用域是必需的，而非多种形式之一——未限定作用域的 `name:version` 会被拒绝，因为两个 socket 可能持有同名插件，而作用域使该实体可被解析。构建会将实体解析为其按内容寻址的 .wasm 制品（根据插件的身份和所配置的仓库定位，其摘要固定在 lockfile 中）并加载字节。此处不接受裸 .wasm 或制品引用。"
+  },
+  "29202f840676d4ea": {
+    "at": "2026-11-15T00:02:03.956Z",
+    "job": "session-0027-20261115000203",
+    "revision": {
+      "from": "a309be11b24b4c5a",
+      "reviewed": false
+    },
+    "srcHash": "29202f840676d4ea",
+    "status": "machine",
+    "text": "答案文件：草稿留空且任何源都无法提供的值从该文件读取并写入该文件，路径相对于工作区根目录；绝对值，或按原样或通过链接指向工作区之外的值，会被拒绝。该文件在每个草稿文件的路径下保存该文档内的键路径及其答案，答案会写入草稿。未提供时，读取草稿旁记录所指定的文件，否则读取源文件旁或源目录内的 import-answers.yaml。机密的答案指明机密的来源——变量名、${NAME} 或 Kubernetes Secret 的名称——其他任何内容都会被拒绝，且不写入任何内容。不会进行任何询问：每个仍待提供的值都是答复中 owed 的一个条目，也是一条警告发现项，指出草稿文件、键及其含义，其答案以 answered 发送；在写入草稿的情况下，最后一条发现项会说明还有多少待提供以及位于何处。当草稿包含 Release、没有待提供的值且转换已完成时，随后会拉取其依赖项并写入其 lockfile；拉取失败时，会以一条说明原因的发现项结束，草稿仍已写入；离线时不拉取任何内容，并由一条发现项指出需要运行的拉取。针对这些草稿未留空的键的答案会保留在文件中但不应用，因此一个答案文件可服务于所有目标。"
   },
   "29214c1aa204722d": {
     "at": "2026-10-29T23:55:51.039Z",
@@ -59944,6 +59991,13 @@
     "status": "machine",
     "text": "参数解析、参数校验、参数插值。"
   },
+  "53e3d5d16806ff13": {
+    "at": "2026-11-15T00:02:03.956Z",
+    "job": "session-0027-20261115000203",
+    "srcHash": "53e3d5d16806ff13",
+    "status": "machine",
+    "text": "起草的 Release 的 `spec.manifest` 在没有目标时写为空，此时会被设置为 Manifest 的名称，其上方的注释会被删除，Release 中的其他内容均不变。[aggrega import](../cli/aggrega-import.md) 对此有完整说明。"
+  },
   "53e7896a7df54673": {
     "at": "2026-10-22T03:12:40.354254+00:00",
     "job": "msgbatch_014XaJkkEi3rvZLnLM2UmemD",
@@ -64984,6 +65038,17 @@
     "status": "machine",
     "text": "**两种形式在放置之前都会使用 `[[ ]]` Aggrega 分隔符进行求值**，因此任一形式的内容都可以读取 Recipe 的 pillar 上下文；任一内容中的 `{{ }}` 都保持不变，并在下游 `helm install` 时成为 Helm 指令。两种形式的区别在于文件落在何处，以及是否将来源信息合并到其中："
   },
+  "5ac77c337dd9c8a8": {
+    "at": "2026-11-15T00:02:03.956Z",
+    "job": "session-0027-20261115000203",
+    "revision": {
+      "from": "07f2ef54569e7248",
+      "reviewed": false
+    },
+    "srcHash": "5ac77c337dd9c8a8",
+    "status": "machine",
+    "text": "该值所在的草稿文件，按 owed 所指出的。"
+  },
   "5ac9f2d071a55fb3": {
     "at": "2026-10-22T02:48:40.419851+00:00",
     "job": "msgbatch_01GfagNcas3ixJ7ofku3W8dE",
@@ -68532,6 +68597,17 @@
     "status": "machine",
     "text": "级联到 IR 每个节点的 `.context.annotations.catalog` 桶"
   },
+  "5fb21912e60fe7cd": {
+    "at": "2026-11-15T00:02:03.956Z",
+    "job": "session-0027-20261115000203",
+    "revision": {
+      "from": "b7cc81ecc795e8ba",
+      "reviewed": false
+    },
+    "srcHash": "5fb21912e60fe7cd",
+    "status": "machine",
+    "text": "镜像一经回答，智能体就会被渲染为运行该镜像，并获得以 `OPENAI_BASE_URL` 提供的模型端点、以 `OPENAI_MODEL` 提供的模型 id 以及以 `OPENAI_API_KEY` 提供的凭据，模型则被渲染为访问其主机的 Service。没有任何变量携带 MCP 服务器的地址：访问它的是模型的提供方，而不是应用。"
+  },
   "5fb26faf15bed089": {
     "at": "2026-10-22T08:23:20.000561+00:00",
     "job": "msgbatch_01HzD7wD8iu4mXKJLFLJkdaf",
@@ -71698,6 +71774,13 @@
     "srcHash": "63fe5708de05cf37",
     "status": "machine",
     "text": "Provider 分派查找；若没有任何插件版本满足固定版本，构建将中止"
+  },
+  "63fe7fd5c4b8cc56": {
+    "at": "2026-11-15T00:02:03.956Z",
+    "job": "session-0027-20261115000203",
+    "srcHash": "63fe7fd5c4b8cc56",
+    "status": "machine",
+    "text": "该值所在的草稿文件，为相对于答复的 outputDir 的路径。"
   },
   "64004347b6aa6a2a": {
     "at": "2026-10-22T02:30:34.989739+00:00",
@@ -80971,6 +81054,13 @@
     "status": "machine",
     "text": "本页是该命令的参考。导入的用途、如何审阅和构建它写出的内容，以及将项目从源描述带到构建的演练，请参阅[导入](../../authoring/import/README.md)。"
   },
+  "70e6fceeea484b96": {
+    "at": "2026-11-15T00:02:03.956Z",
+    "job": "session-0027-20261115000203",
+    "srcHash": "70e6fceeea484b96",
+    "status": "machine",
+    "text": "ImportAnswered[]"
+  },
   "70ef1efde5154fbd": {
     "at": "2026-10-22T04:49:50.527667+00:00",
     "job": "msgbatch_01HwjQt2GEKUPBmjkDpPghCQ",
@@ -80984,6 +81074,13 @@
     "srcHash": "70f030c6f4bca91c",
     "status": "machine",
     "text": "某个 Recipe 或 FeatureRecipe 声明了 `omits:`，而渲染它的 provider 并未声明自己会略去已渲染的文档。从 source 渲染的内容中略去某个文档只有 provider 能做到——只有 provider 知道 source 会渲染哪些文档以及每个文档的名称——因此不支持此功能的 provider 会渲染条目所列出的每个文档并报告成功。构建会在任何内容渲染之前拒绝，从而确保该键绝不会悄无声息地不起作用。"
+  },
+  "70f2ba1bec148a1c": {
+    "at": "2026-11-15T00:02:03.956Z",
+    "job": "session-0027-20261115000203",
+    "srcHash": "70f2ba1bec148a1c",
+    "status": "machine",
+    "text": "当只有导入器知道多个 Recipes 中哪一个适用时，它会自行起草 Manifest（MCP 导入器按键将每个服务器映射到该服务器运行方式的实现，按名称附加机密的导入器则将 `core/referenced-secret` 映射到 `helm/k8s-existing-secret`），再由导入将其补全：导入器所写的、目录为该类型和该能力提供的每个映射都会保留，其他映射则会被丢弃并给出警告，它留下的类型按上文所述进行映射。"
   },
   "70f414e7b9f314a8": {
     "at": "2026-10-22T03:31:15.615761+00:00",
@@ -84592,6 +84689,13 @@
     "srcHash": "75e38d839cc7a532",
     "status": "machine",
     "text": "**修复方法：**将你要发布的文件的 `kind:` 字段与 `aggrega push --list-kinds` 打印的类型进行核对——拼写错误或不受支持的类型会在此报告，更正该字段即可完全解决。如果该类型包含在该列表中，则这是工具链的缺陷而非你的实体的问题，值得附上该类型名称进行报告。"
+  },
+  "75e764e432ab7ba8": {
+    "at": "2026-11-15T00:02:03.956Z",
+    "job": "session-0027-20261115000203",
+    "srcHash": "75e764e432ab7ba8",
+    "status": "machine",
+    "text": "出现在机密的值上：其答案必须是什么，即向在终端回答它的人显示的那句话——或者，若以 answered 为其发送的答案被拒绝，则说明被拒绝的原因。"
   },
   "75eace7f67096d34": {
     "at": "2026-10-30T04:10:32.182Z",
@@ -92976,6 +93080,13 @@
     "srcHash": "81bac81c00bba2b3",
     "status": "machine",
     "text": "推荐的本地开发路径保持开发者意图不变，只替换绑定。Aggregate 继续挂接同一个凭据 Feature 类型；本地 Manifest 将该类型映射到本地 FeatureRecipe，而不是基于存储的那个。编译器仍然不获取任何内容——本地 FeatureRecipe 只是交付本地运行时能够解析的 provider 原生语法：对于 Compose，是写入服务环境中的变量引用，例如 `${SECRET_NAME}`，Docker Compose 会在栈启动时从 shell 环境或 `.env` 文件中替换它。切换环境只需编辑 Manifest。"
+  },
+  "81bd47088e149b96": {
+    "at": "2026-11-15T00:02:03.956Z",
+    "job": "session-0027-20261115000203",
+    "srcHash": "81bd47088e149b96",
+    "status": "machine",
+    "text": "`ImportOwed`"
   },
   "81c2e6037520c696": {
     "at": "2026-11-12T07:54:52.875Z",
@@ -127758,6 +127869,17 @@
     "status": "machine",
     "text": "signature verification could not run for `<uri>` (the registry could not answer the signature lookup and no signature is required; continuing): `<the message above>`（无法执行签名验证（registry 无法应答签名查询，且不要求签名；继续运行））"
   },
+  "b1ab5c025dcff51e": {
+    "at": "2026-11-15T00:02:03.956Z",
+    "job": "session-0027-20261115000203",
+    "revision": {
+      "from": "ad4dbb120d8c630f",
+      "reviewed": false
+    },
+    "srcHash": "b1ab5c025dcff51e",
+    "status": "machine",
+    "text": "指定了目标的导入会在导入器的诊断之后报告起草 Manifest 时的发现：一条 `warn`，指明 Manifest 未映射的每种组件类型或 feature 类型及原因；以及一条 `info`，在起草的 Release 已指定某个 Manifest，或没有任何起草的 Release 引用它时报告。这些属于导入本身而非导入器，不带代码；[目标会添加什么](#what-a-target-adds)对其进行了说明。随后，每次导入还会以其自身的名义，为草稿仍待提供的每个值报告一条 `warn`，指出起草的文件、键路径及其描述；在 `--offline` 下，若起草了 Release 且没有待提供的值，则报告一条 `info`，指出接下来要运行的 `aggrega pull`，如[导入答案文件](../import-answers.md)所述。"
+  },
   "b1b0f68b357016a6": {
     "at": "2026-10-22T04:56:15.693842+00:00",
     "job": "msgbatch_01WhSSFNVABxaLkxubBM2sHx",
@@ -134489,6 +134611,17 @@
     "status": "machine",
     "text": "类型"
   },
+  "bab4d96ee9c4d8fc": {
+    "at": "2026-11-15T00:02:03.956Z",
+    "job": "session-0027-20261115000203",
+    "revision": {
+      "from": "5b9580585a4a4565",
+      "reviewed": false
+    },
+    "srcHash": "bab4d96ee9c4d8fc",
+    "status": "machine",
+    "text": "指定了目标的导入（`aggrega import` 上的 `--target`，或助手导入工具上的 `target` 及会话的 `aggrega/import` 方法，命名一个 provider 能力，例如 `compose` 或 `helm`）会将该目标交给导入器，因此导入器会为该目标起草：每个机密都采用该目标读取的形式，仅该目标需要的行会以生效状态写入，而仅其他目标需要的行则会省略。在 `compose` 上，凡是导入器在主机回环地址上发布服务之处，这些行都包括 `infra.published_port`，如各导入器的章节所述；导入器选择的端口绝不会占用 Release 中另一个端口已占用的端口号。随后，无论运行的是哪个导入器，导入都会在导入器起草的内容旁边起草 Manifest：`manifest.yaml`，位于起草的 Release 旁边，其命名和版本与该 Release 相同（若导入器未起草 Release，则位于起草的 Aggregate 旁边，其命名和版本与该 Aggregate 相同）。"
+  },
   "bab524b4f6e12ba7": {
     "at": "2026-10-22T03:53:00.119047+00:00",
     "job": "msgbatch_013WHPBfgnxTj5isCEqnpB8T",
@@ -139951,6 +140084,13 @@
     "status": "machine",
     "text": "Compose-bridge 验证案例"
   },
+  "c2303a5a2189dee8": {
+    "at": "2026-11-15T00:02:03.956Z",
+    "job": "session-0027-20261115000203",
+    "srcHash": "c2303a5a2189dee8",
+    "status": "machine",
+    "text": "草稿仍留空、任何源都无法提供、也没有任何答案提供的一个值。"
+  },
   "c230f8a3555db3c0": {
     "at": "2026-10-22T05:14:14.914265+00:00",
     "job": "msgbatch_01SJr5F7Uh6g5vmdkzNw4vuV",
@@ -145365,6 +145505,13 @@
     "srcHash": "c99f3d889147b5f8",
     "status": "machine",
     "text": "**Feature 附件**带来的 chart 本身就是一个贡献者，它声明自己的标识，而不是重复其所附加的 component 的标识。该标识由你编写的两项内容组成——承载该附件的 component，以及 Feature 附加时所用的名称——前面带有一个简短的开头，标明它是附件的标识而非 component 的标识；组合后的值随后通过下文的推导写入 chart 名称位置，与其他任何标识完全相同。"
+  },
+  "c9a144def761de5c": {
+    "at": "2026-11-15T00:02:03.956Z",
+    "job": "session-0027-20261115000203",
+    "srcHash": "c9a144def761de5c",
+    "status": "machine",
+    "text": "针对答复的 owed 所列值的答案，每个答案都指出草稿文件以及 owed 所指出的键。每个答案都会被评判、保留在答案文件中，并以与在终端输入的答案完全相同的方式写入草稿：机密的答案指明机密的来源——变量名、${NAME} 或 Kubernetes Secret 的名称——不符合这一点的答案既不保留也不写入，其值仍待提供，原因作为其 secretAdvice。答案文件已回答的值从该文件获得答案；空答案，或指向草稿并不缺少的值的答案，不会被应用。请在草稿写入后与 sync 一起发送，因为对于 outputDir 中已有的 Aggregate，非 sync 的请求会被拒绝。在不保留任何答案的 dryRun 下，以及在转换已停止、不写入任何内容的 sync 下，发送的答案都不会被应用。"
   },
   "c9a1dcec506d78c1": {
     "at": "2026-10-22T02:30:34.989739+00:00",
@@ -151180,6 +151327,13 @@
     "status": "machine",
     "text": "强制性合规标记。通过版本标识构建此图的 aggrega 二进制文件。"
   },
+  "d13a269a1bfe905f": {
+    "at": "2026-11-15T00:02:03.956Z",
+    "job": "session-0027-20261115000203",
+    "srcHash": "d13a269a1bfe905f",
+    "status": "machine",
+    "text": "从该文档顶部通向该值的键，每个键一个条目，因此包含句点的键仍是一个条目。以 answered 发送的答案通过这些键来指明该值。"
+  },
   "d13f115832c59d23": {
     "at": "2026-10-22T03:12:40.354254+00:00",
     "job": "msgbatch_014XaJkkEi3rvZLnLM2UmemD",
@@ -154353,6 +154507,13 @@
     "srcHash": "d5dddd51973e4060",
     "status": "machine",
     "text": "**作用范围：** 严格用于 `uses` 中的显式目标定义以及附加的 `features` 上，包括凭据 Features。"
+  },
+  "d5e00b1049c3c980": {
+    "at": "2026-11-15T00:02:03.956Z",
+    "job": "session-0027-20261115000203",
+    "srcHash": "d5e00b1049c3c980",
+    "status": "machine",
+    "text": "通向该值的键，按 owed 所指出的。"
   },
   "d5e4bfa4da07250c": {
     "at": "2026-11-15T00:00:16.232Z",
@@ -158835,6 +158996,17 @@
     "status": "machine",
     "text": "附加到组件的 Feature 向同一文件贡献内容"
   },
+  "dc14c424a7c5e08e": {
+    "at": "2026-11-15T00:02:03.956Z",
+    "job": "session-0027-20261115000203",
+    "revision": {
+      "from": "a424153ece34641d",
+      "reviewed": false
+    },
+    "srcHash": "dc14c424a7c5e08e",
+    "status": "machine",
+    "text": "对于草稿为其提供独立 Component、且匹配处于高等级并得分不低于 `reuse_threshold` 的节点，`auto-apply-above-threshold` 会引用最佳匹配的目录 Component，其余节点则起草。`hints-only` 会起草每个此类节点，不引用任何目录 Component，并将强匹配记录为提示。其他任何值均按 `hints-only` 处理。"
+  },
   "dc165c741b7c3204": {
     "at": "2026-10-22T04:56:15.693842+00:00",
     "job": "msgbatch_01WhSSFNVABxaLkxubBM2sHx",
@@ -160119,6 +160291,13 @@
     "status": "machine",
     "text": "将 schema 支柱重叠和 extend 时收窄的发现以信息性的 `notice:` 行呈现，这些行从不改变退出码。"
   },
+  "dda61ff1cb684265": {
+    "at": "2026-11-15T00:02:03.956Z",
+    "job": "session-0027-20261115000203",
+    "srcHash": "dda61ff1cb684265",
+    "status": "machine",
+    "text": "`ImportAnswered`"
+  },
   "dda6aa58ca67e4ca": {
     "at": "2026-10-22T05:25:45.661574+00:00",
     "job": "msgbatch_01GK3s5ypk3MzMWPEKha5JkC",
@@ -161332,6 +161511,13 @@
     "srcHash": "df3a59e05240f42b",
     "status": "machine",
     "text": "注册一个注册表，以及解析对其所提供内容应用的信任策略。除非请求另有要求，它会写入全机配置文件，因此该机器上的每个工作区都会通过该条目进行解析。"
+  },
+  "df3b1f840825a8af": {
+    "at": "2026-11-15T00:02:03.956Z",
+    "job": "session-0027-20261115000203",
+    "srcHash": "df3b1f840825a8af",
+    "status": "machine",
+    "text": "流程的值会以平台自身工具读取它们时的写法写出，值本身不变，并说明是哪些值以及原因：Langflow 流程的边句柄，按 Langflow 编辑器的写法写出。草稿为使流程到达某个部件而写入的值，或可能携带凭据的值，绝不会改写——它保持为连线所写的值，或 `empty_credentials` 所决定的值——警告会统计每个未改写的值。"
   },
   "df3d6367ecb71ebe": {
     "at": "2026-10-30T00:21:58.288Z",
@@ -163362,6 +163548,13 @@
     "srcHash": "e1ccebcca1e3ad0a",
     "status": "machine",
     "text": "从目录读取的文件与 importer 的 `with.sources` 中指定的文件同名"
+  },
+  "e1cd85cdeac16e2b": {
+    "at": "2026-11-15T00:02:03.956Z",
+    "job": "session-0027-20261115000203",
+    "srcHash": "e1cd85cdeac16e2b",
+    "status": "machine",
+    "text": "针对答复的 owed 所列某个值的一个答案。"
   },
   "e1cdd678407b1e32": {
     "at": "2026-10-22T01:56:20.260469+00:00",
@@ -171904,6 +172097,17 @@
     "status": "machine",
     "text": "*其他追踪键——用于标识源 aggregate、IR 节点、feature 来源和目录类型——正在积极开发中，将随各 provider 的渲染器加入注入功能而陆续发布。*"
   },
+  "edbf183ff6b2859f": {
+    "at": "2026-11-15T00:02:03.956Z",
+    "job": "session-0027-20261115000203",
+    "revision": {
+      "from": "246acf62d97926c5",
+      "reviewed": false
+    },
+    "srcHash": "edbf183ff6b2859f",
+    "status": "machine",
+    "text": "其旁边的 `release.yaml` 是一个同名的 Release 草稿，指向该 Aggregate。智能体的条目将其 `infra.image`（运行基于 Agent Framework 构建的应用的镜像，其中包含其声明式智能体）写为空，并在其上方加一条说明其含义的注释，由导入将其列为待提供。在其模型已连接时，条目会将智能体向该模型出示的凭据以引用形式（而绝不以值的形式）附加在其 `model` 连接的 `credential` 下：从声明式智能体为其密钥指定的变量（写作 `=Env.NAME`）读取，否则从 `OPENAI_API_KEY` 读取，即 OpenAI 客户端库读取密钥所用的变量；在除 helm 之外的每个目标上写为 `${…}` 引用，在 helm 上写为一个 Kubernetes Secret 的名称，且写为空，由导入将其列为待提供；在 compose 上，`model` 连接以该键声明它。声明式智能体为其模型和 MCP 服务器声明的值——各个密钥以及每个服务器的 `url`——写在智能体条目上方的注释中，如[声明式智能体中包含的凭据值](#credential-values-a-declarative-agent-holds)所述。每个已连接的模型都有一个条目，因此 Release 会将其与智能体放置在一起。其连接所声明的端点写为模型的 `infra.endpoint`，以引用形式写出的端点会在其条目旁列出，在设置之前使用 Component 自身的地址；未声明端点的连接会使该条目不包含任何基础设施，Component 自身的地址保持有效。与每个起草的 Release 一样，它将 `metadata.environment` 写为 `development`，并在没有目标时写入一个由导入列为待提供的空 `spec.manifest`；指定目标时，导入会起草 Manifest，如[目标会添加什么](#what-a-target-adds)所述。"
+  },
   "edbf616b9de57b3c": {
     "at": "2026-10-22T03:31:15.615761+00:00",
     "job": "msgbatch_011cmDQ3j2qXo4wRgZxr6pvJ",
@@ -175258,6 +175462,17 @@
     "srcHash": "f2519461cf737ce5",
     "status": "machine",
     "text": "**变更严格限于调用方本地。** FeatureRecipe 只修改其所附加节点的注入管道，绝不修改目标的 `.provides` 输出。目标的 `.provides.host` 可能被集群中的多个调用方使用；调用方的 `injectMapping` 只合并到特定调用方的管道中，因此路由变更始终局限于请求它的那条边。"
+  },
+  "f253038a6acb3cd7": {
+    "at": "2026-11-15T00:02:03.956Z",
+    "job": "session-0027-20261115000203",
+    "revision": {
+      "from": "ae6180bbf6883734",
+      "reviewed": false
+    },
+    "srcHash": "f253038a6acb3cd7",
+    "status": "machine",
+    "text": "镜像一经回答，该实例就会被渲染为运行该镜像，并以 `GOOGLE_API_KEY` 获得凭据，ADK 的 Gemini 客户端会将其发送到 Gemini API；模型则渲染为一个访问 Gemini API 地址的 Service。"
   },
   "f2549ad0d6a8c27f": {
     "at": "2026-10-22T08:15:42.630087+00:00",
@@ -179513,6 +179728,13 @@
     "srcHash": "f7c0db293ab185c1",
     "status": "machine",
     "text": "**内联与 `$import:` 的 artifact 条目可以共存。** 一个 Recipe 可以内联声明部分 `artifacts:` 条目，其余条目通过逐条的 `$import:` 指令声明。两种形式之间的文件名冲突是加载时错误。"
+  },
+  "f7c3a97fb7769ec7": {
+    "at": "2026-11-15T00:02:03.956Z",
+    "job": "session-0027-20261115000203",
+    "srcHash": "f7c3a97fb7769ec7",
+    "status": "machine",
+    "text": "该值是什么：其 schema 的描述，否则为草稿在其键上方写的注释，否则为其 schema 所说明的可接受内容。"
   },
   "f7c69d6bf8bb878e": {
     "at": "2026-10-29T23:51:32.697Z",

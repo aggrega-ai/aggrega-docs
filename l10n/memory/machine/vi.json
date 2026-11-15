@@ -3817,6 +3817,17 @@
     "status": "machine",
     "text": "Về các quy tắc mở rộng dạng viết tắt của URI OCI (domain mặc định, phân đoạn registry, giá trị dự phòng của phiên bản, mở rộng publisher), xem [uri-grammar.md](uri-grammar.md)."
   },
+  "05130cff56de015d": {
+    "at": "2026-11-15T00:02:03.956Z",
+    "job": "session-0027-20261115000203",
+    "revision": {
+      "from": "289112c0fbb8061b",
+      "reviewed": false
+    },
+    "srcHash": "05130cff56de015d",
+    "status": "machine",
+    "text": "`release.yaml`, bên cạnh nó, là một Release nháp cùng tên, nêu tên Aggregate đó. Mục của mỗi instance ghi `infra.image` của instance — image chạy ứng dụng xây dựng trên ADK, chứa các cấu hình của nó — ở dạng trống, dưới một chú thích cho biết nó là gì, và lần nhập ghi nhận nó là giá trị còn thiếu. Với `--target compose`, mục còn ghi `infra.published_port`, 8000, cổng mà ứng dụng lắng nghe, được Recipe Compose của nó công bố trên địa chỉ loopback của máy chủ, 127.0.0.1, dưới chú thích cho biết cổng này chỉ truy cập được từ máy này, bởi bất kỳ tiến trình nào chạy trên đó, và việc xóa dòng này giữ dịch vụ ở dạng nội bộ; một cây thứ hai nhận cổng trống kế tiếp. Khi mô hình của instance đã được nối, mục gắn thông tin xác thực mà instance xuất trình cho mô hình đó dưới `credential` trên kết nối `model` của nó, bằng tham chiếu và không bao giờ dưới dạng giá trị: không cấu hình nào nêu tên một biến cho nó, nên nó được đọc từ `GOOGLE_API_KEY`, biến mà các thư viện client Gemini API của Google đọc khóa từ đó, dưới dạng tham chiếu `${…}` trên mọi target trừ helm, và trên helm dưới dạng tên của một Kubernetes Secret, được ghi trống để lần nhập ghi nhận là còn thiếu; trên compose, kết nối `model` khai báo nó với khóa đó. Một mô hình đã được nối cũng có một mục, không chứa hạ tầng nào, nên Release đặt nó cùng với instance. Các giá trị mà các cấu hình của cây truyền cho công cụ và cho các yêu cầu mô hình được ghi trong một chú thích phía trên mục đó, như [Các giá trị thông tin xác thực mà một cấu hình chứa](#credential-values-a-configuration-holds) mô tả. Giống như mọi Release được phác thảo, nó ghi `metadata.environment` là `development` và, khi không có target, một `spec.manifest` trống mà lần nhập ghi nhận là còn thiếu; khi được cung cấp một target, lần nhập phác thảo Manifest, như [Một target bổ sung những gì](#what-a-target-adds) mô tả."
+  },
   "0514478fc397840c": {
     "at": "2026-10-22T23:53:38.624924+00:00",
     "job": "msgbatch_011k5XEXAWyemaJqwBb86oM4",
@@ -10056,6 +10067,13 @@
     "status": "machine",
     "text": "**Khi lần đánh giá thứ hai thất bại tại cùng biểu thức vì cùng lý do, lỗi của nó là lỗi được báo cáo.** Câu do chính tác giả viết được giữ nguyên, với `<redacted>` ở chỗ giá trị từng đứng, và một giá trị mà template đã mã hóa, đặt trong dấu nháy hay biến đổi theo cách khác cũng bị che giấu, vì việc thay thế xảy ra trước khi biến đổi."
   },
+  "0dbfc274b0d0bd7c": {
+    "at": "2026-11-15T00:02:03.956Z",
+    "job": "session-0027-20261115000203",
+    "srcHash": "0dbfc274b0d0bd7c",
+    "status": "machine",
+    "text": "Câu trả lời. Một câu trả lời trống để giá trị vẫn còn thiếu."
+  },
   "0dc1641dd8f5a59e": {
     "at": "2026-10-22T10:27:55.857345+00:00",
     "job": "msgbatch_01St5AJWD4JFUsFvC38dR1rN",
@@ -11923,6 +11941,17 @@
     "srcHash": "10120eab2e4af98c",
     "status": "machine",
     "text": "**Thứ tự ưu tiên ba tầng:** Trước khi áp dụng suy luận OCI, trình biên dịch kiểm tra các đường dẫn cục bộ (Tầng 1) và các thư mục workspace (Tầng 2) như được định nghĩa trong [Mô hình phân giải thực thể ba tầng](../../architecture/13-catalog-and-registry.md). Suy luận OCI chỉ được áp dụng khi thực thể đến Tầng 3 (registry từ xa)."
+  },
+  "101518b83fa001fc": {
+    "at": "2026-11-15T00:02:03.956Z",
+    "job": "session-0027-20261115000203",
+    "revision": {
+      "from": "8e44fdf07990f8cb",
+      "reviewed": false
+    },
+    "srcHash": "101518b83fa001fc",
+    "status": "machine",
+    "text": "Với mỗi loại component và mỗi loại feature mà các bản phác thảo cần — trên các component của Aggregate đã phác thảo, các kết nối của chúng và các hệ thống con của nó, trên các Aggregates của catalog mà nó kết hợp, như `core/dify`, và trên các phần đính kèm của Release đã phác thảo — Manifest ánh xạ loại đó tới Recipe, hoặc với một loại feature là feature recipe, của năng lực đó mà catalog của workspace cung cấp cho loại ấy: cái duy nhất hiện có, nhiều phiên bản của cùng một cái được tính là một; hoặc, khi có nhiều cái mang tên khác nhau, cái được đặt theo tên của chính loại đó, như `helm/postgres` cho `core/datastore/postgres`. Một loại không có cái nào, hoặc có nhiều cái nhưng không cái nào được đặt tên như vậy, sẽ không được ánh xạ, một cảnh báo nêu tên nó và lý do, và một lần build các bản phác thảo sẽ dừng lại, nêu tên từng instance hoặc phần đính kèm của loại đó cho đến khi bạn ánh xạ nó."
   },
   "101693dcc7edced9": {
     "at": "2026-10-30T18:25:06.762Z",
@@ -17845,6 +17874,13 @@
     "srcHash": "18b5840f82234dd2",
     "status": "machine",
     "text": "Ánh xạ kiểu Valkey tới Recipe Compose (`compose/valkey`) và thông tin xác thực tới `dotenv-secret`."
+  },
+  "18b5dad1c4a4239f": {
+    "at": "2026-11-15T00:02:03.956Z",
+    "job": "session-0027-20261115000203",
+    "srcHash": "18b5dad1c4a4239f",
+    "status": "machine",
+    "text": "Giá trị có phải của một secret hay không; câu trả lời của secret nêu nơi secret đến từ và không bao giờ chứa chính secret đó."
   },
   "18b9e1cefd517319": {
     "at": "2026-10-22T11:59:38.351715+00:00",
@@ -29770,6 +29806,17 @@
     "srcHash": "2919bc705b83b1a4",
     "status": "machine",
     "text": "Tham chiếu đến thực thể Plugin mà bước này chạy, luôn được giới hạn phạm vi theo loại socket riêng của plugin: `<pluginType>/<name>` với một phiên bản tùy chọn, như trong `parser/yaml` hoặc `parser/yaml:1.0.0`. Phạm vi là bắt buộc chứ không phải một dạng trong số nhiều dạng — một `name:version` không có phạm vi sẽ bị từ chối, vì hai socket có thể chứa plugin cùng tên và phạm vi là thứ khiến thực thể có thể được phân giải. Quá trình build phân giải thực thể thành artifact .wasm được định địa chỉ theo nội dung của nó — được định vị từ danh tính của plugin và registry đã cấu hình, với digest được ghim trong lockfile — và tải các byte. Một tham chiếu .wasm hoặc artifact trần không được chấp nhận ở đây."
+  },
+  "29202f840676d4ea": {
+    "at": "2026-11-15T00:02:03.956Z",
+    "job": "session-0027-20261115000203",
+    "revision": {
+      "from": "a309be11b24b4c5a",
+      "reviewed": false
+    },
+    "srcHash": "29202f840676d4ea",
+    "status": "machine",
+    "text": "Tệp câu trả lời mà từ đó các giá trị do bản nháp để trống và không nguồn nào có thể chứa được đọc ra và ghi vào, tương đối với thư mục gốc của workspace; một giá trị tuyệt đối, hoặc một giá trị dẫn ra ngoài workspace theo cách viết hoặc qua một liên kết, sẽ bị từ chối. Tệp này chứa, dưới đường dẫn của mỗi tệp nháp, đường dẫn khóa bên trong tài liệu đó và câu trả lời của nó, và các câu trả lời được ghi vào bản nháp. Khi vắng mặt, tệp được đọc là tệp mà bản ghi bên cạnh các bản nháp nêu tên, hoặc nếu không thì import-answers.yaml bên cạnh tệp nguồn hoặc bên trong thư mục nguồn. Câu trả lời cho một secret nêu nơi secret đó đến từ — một tên biến, ${NAME}, hoặc tên của một Kubernetes Secret — và mọi thứ khác đều bị từ chối mà không ghi gì. Không có gì được hỏi: mỗi giá trị vẫn còn thiếu là một mục của owed trong câu trả lời và một phát hiện cảnh báo nêu tên tệp nháp, khóa và nó là gì, câu trả lời của nó được gửi dưới dạng answered, và khi các bản nháp được ghi, phát hiện cuối cùng cho biết còn thiếu bao nhiêu và ở đâu. Khi các bản nháp bao gồm một Release, không còn thiếu gì và quá trình chuyển đổi đã hoàn tất, các phụ thuộc của nó sau đó được kéo về, ghi lockfile của nó, và một lần kéo thất bại sẽ kết thúc các phát hiện bằng việc cho biết lý do, các bản nháp vẫn được ghi; khi ngoại tuyến không có gì được kéo về và một phát hiện nêu lần kéo cần chạy. Một câu trả lời cho một khóa mà các bản nháp này không để trống được giữ trong tệp và không được áp dụng, nên một tệp câu trả lời phục vụ mọi target."
   },
   "29214c1aa204722d": {
     "at": "2026-10-29T23:55:51.039Z",
@@ -59956,6 +60003,13 @@
     "status": "machine",
     "text": "Phân giải tham số, xác thực tham số, nội suy tham số."
   },
+  "53e3d5d16806ff13": {
+    "at": "2026-11-15T00:02:03.956Z",
+    "job": "session-0027-20261115000203",
+    "srcHash": "53e3d5d16806ff13",
+    "status": "machine",
+    "text": "`spec.manifest` của Release đã phác thảo, được ghi trống khi không có target, được đặt thành tên của Manifest, chú thích phía trên nó bị bỏ đi, và không có gì khác trong Release thay đổi. [aggrega import](../cli/aggrega-import.md) mô tả đầy đủ điều này."
+  },
   "53e7896a7df54673": {
     "at": "2026-10-22T21:48:24.698354+00:00",
     "job": "msgbatch_01QwJupw38VKZLFFnvvqQAaX",
@@ -65007,6 +65061,17 @@
     "status": "machine",
     "text": "**Cả hai dạng đều được đánh giá với các dấu phân cách Aggrega `[[ ]]` trước khi đặt vào**, nên nội dung của dạng nào cũng có thể đọc ngữ cảnh pillar của Recipe; `{{ }}` trong cả hai đều được giữ nguyên và trở thành một chỉ thị Helm vào lúc `helm install` ở hạ nguồn. Điều khác nhau giữa hai dạng là nơi tệp được đặt và việc provenance có được hợp nhất vào hay không:"
   },
+  "5ac77c337dd9c8a8": {
+    "at": "2026-11-15T00:02:03.956Z",
+    "job": "session-0027-20261115000203",
+    "revision": {
+      "from": "07f2ef54569e7248",
+      "reviewed": false
+    },
+    "srcHash": "5ac77c337dd9c8a8",
+    "status": "machine",
+    "text": "Tệp nháp chứa giá trị, như owed nêu tên."
+  },
   "5ac9f2d071a55fb3": {
     "at": "2026-10-22T12:16:26.328227+00:00",
     "job": "msgbatch_01AmdFteRWMHi1UpnWokTXuL",
@@ -68548,6 +68613,17 @@
     "status": "machine",
     "text": "Lan truyền vào bucket `.context.annotations.catalog` của từng node trong IR"
   },
+  "5fb21912e60fe7cd": {
+    "at": "2026-11-15T00:02:03.956Z",
+    "job": "session-0027-20261115000203",
+    "revision": {
+      "from": "b7cc81ecc795e8ba",
+      "reviewed": false
+    },
+    "srcHash": "5fb21912e60fe7cd",
+    "status": "machine",
+    "text": "Khi image đã được trả lời, agent được render chạy image đó và được cung cấp endpoint của mô hình dưới dạng `OPENAI_BASE_URL`, id của mô hình dưới dạng `OPENAI_MODEL` và thông tin xác thực của nó dưới dạng `OPENAI_API_KEY`, và mô hình được render thành một Service kết nối tới host của nó. Không biến nào mang địa chỉ của máy chủ MCP: chính nhà cung cấp của mô hình, không phải ứng dụng, kết nối tới nó."
+  },
   "5fb26faf15bed089": {
     "at": "2026-10-23T00:18:01.108465+00:00",
     "job": "msgbatch_01Pu2keEJxag9gdiPvh2kvBi",
@@ -71714,6 +71790,13 @@
     "srcHash": "63fe5708de05cf37",
     "status": "machine",
     "text": "Tra cứu để điều phối Provider; một pin mà không phiên bản plugin nào thỏa mãn sẽ dừng bản build"
+  },
+  "63fe7fd5c4b8cc56": {
+    "at": "2026-11-15T00:02:03.956Z",
+    "job": "session-0027-20261115000203",
+    "srcHash": "63fe7fd5c4b8cc56",
+    "status": "machine",
+    "text": "Tệp nháp chứa giá trị, dưới dạng đường dẫn tương đối với outputDir của câu trả lời."
   },
   "64004347b6aa6a2a": {
     "at": "2026-10-22T11:01:14.074299+00:00",
@@ -80988,6 +81071,13 @@
     "status": "machine",
     "text": "Trang này là tài liệu tham chiếu của lệnh. Mục đích của việc nhập, cách xem xét và build những gì nó ghi ra, và các hướng dẫn từng bước đưa một dự án từ nguồn của nó đến một bản build có trong [Nhập](../../authoring/import/README.md)."
   },
+  "70e6fceeea484b96": {
+    "at": "2026-11-15T00:02:03.956Z",
+    "job": "session-0027-20261115000203",
+    "srcHash": "70e6fceeea484b96",
+    "status": "machine",
+    "text": "ImportAnswered[]"
+  },
   "70ef1efde5154fbd": {
     "at": "2026-10-22T23:34:48.466793+00:00",
     "job": "msgbatch_012aTHHfasvCmeZDPUMZda5D",
@@ -81001,6 +81091,13 @@
     "srcHash": "70f030c6f4bca91c",
     "status": "machine",
     "text": "Một Recipe hoặc một FeatureRecipe khai báo `omits:` nhưng provider render nó không khai báo rằng nó loại bỏ các tài liệu đã render. Loại bỏ một tài liệu khỏi những gì một source render là việc chỉ provider làm được — chỉ provider biết source render những tài liệu nào và mỗi tài liệu tên là gì — nên một provider không làm việc đó sẽ render mọi tài liệu mà các mục nêu tên và báo thành công. Thay vào đó, bản build từ chối trước khi bất cứ thứ gì được render, để khóa này không bao giờ lặng lẽ không có tác dụng."
+  },
+  "70f2ba1bec148a1c": {
+    "at": "2026-11-15T00:02:03.956Z",
+    "job": "session-0027-20261115000203",
+    "srcHash": "70f2ba1bec148a1c",
+    "status": "machine",
+    "text": "Khi chỉ importer biết Recipe nào trong số nhiều Recipes được áp dụng, nó tự phác thảo Manifest — MCP importer ánh xạ mỗi server, theo khóa của nó, tới phần hiện thực của cách server đó chạy, và một importer gắn một secret theo tên sẽ ánh xạ `core/referenced-secret` tới `helm/k8s-existing-secret` — và lần import hoàn thiện nó: mỗi ánh xạ do importer viết mà catalog cung cấp cho loại và năng lực đó được giữ lại, mọi ánh xạ khác bị loại bỏ kèm một cảnh báo, và các loại mà nó để lại được ánh xạ như trên."
   },
   "70f414e7b9f314a8": {
     "at": "2026-10-22T23:05:19.615834+00:00",
@@ -84609,6 +84706,13 @@
     "srcHash": "75e38d839cc7a532",
     "status": "machine",
     "text": "**Cách khắc phục:** đối chiếu trường `kind:` của tệp bạn đang phát hành với các kiểu mà `aggrega push --list-kinds` in ra — một kiểu viết sai chính tả hoặc không được hỗ trợ sẽ báo ở đây, và sửa trường đó là toàn bộ cách khắc phục. Khi kiểu đó có trong danh sách ấy, đó là một thiếu sót trong bộ công cụ chứ không phải trong thực thể của bạn, và nên báo cáo nó kèm theo tên kiểu."
+  },
+  "75e764e432ab7ba8": {
+    "at": "2026-11-15T00:02:03.956Z",
+    "job": "session-0027-20261115000203",
+    "srcHash": "75e764e432ab7ba8",
+    "status": "machine",
+    "text": "Có mặt trên giá trị của một secret: câu trả lời của nó phải là gì, trong câu được hiển thị cho người trả lời nó tại terminal — hoặc, khi câu trả lời gửi cho nó dưới dạng answered bị từ chối, lý do nó bị từ chối."
   },
   "75eace7f67096d34": {
     "at": "2026-10-30T04:10:32.182Z",
@@ -92993,6 +93097,13 @@
     "srcHash": "81bac81c00bba2b3",
     "status": "machine",
     "text": "Lộ trình chuẩn cho phát triển cục bộ giữ nguyên ý định của nhà phát triển và hoán đổi ràng buộc. Aggregate vẫn đính kèm cùng loại Feature thông tin xác thực; Manifest cục bộ ánh xạ loại đó tới một FeatureRecipe cục bộ thay vì FeatureRecipe dựa trên kho. Trình biên dịch vẫn không lấy gì — FeatureRecipe cục bộ chỉ đơn giản chuyển giao cú pháp gốc của provider mà runtime cục bộ phân giải: với Compose, một tham chiếu biến như `${SECRET_NAME}` được ghi vào môi trường của dịch vụ, được Docker Compose thay thế từ môi trường shell hoặc tệp `.env` khi stack khởi động. Chuyển đổi môi trường là một lần chỉnh sửa Manifest."
+  },
+  "81bd47088e149b96": {
+    "at": "2026-11-15T00:02:03.956Z",
+    "job": "session-0027-20261115000203",
+    "srcHash": "81bd47088e149b96",
+    "status": "machine",
+    "text": "`ImportOwed`"
   },
   "81c2e6037520c696": {
     "at": "2026-11-12T07:54:52.875Z",
@@ -127759,6 +127870,17 @@
     "status": "machine",
     "text": "signature verification could not run for `<uri>` (the registry could not answer the signature lookup and no signature is required; continuing): `<the message above>` (không thể chạy xác minh chữ ký cho `<uri>` (registry không thể trả lời truy vấn chữ ký và không yêu cầu chữ ký; tiếp tục): `<the message above>`)"
   },
+  "b1ab5c025dcff51e": {
+    "at": "2026-11-15T00:02:03.956Z",
+    "job": "session-0027-20261115000203",
+    "revision": {
+      "from": "ad4dbb120d8c630f",
+      "reviewed": false
+    },
+    "srcHash": "b1ab5c025dcff51e",
+    "status": "machine",
+    "text": "Một lần nhập được cung cấp target sẽ báo cáo, sau các chẩn đoán của importer, những gì việc soạn thảo Manifest phát hiện: một `warn` nêu tên mỗi loại component hoặc feature mà Manifest để lại chưa ánh xạ và lý do, và một `info` khi Release được soạn thảo đã nêu tên một Manifest hoặc không có Release được soạn thảo nào tham chiếu nó. Đó là chẩn đoán của chính lần nhập chứ không phải của một importer, và không mang mã nào; [Một target bổ sung những gì](#what-a-target-adds) mô tả chúng. Sau đó mọi lần nhập đều báo cáo, cũng như của chính nó, một `warn` cho mỗi giá trị mà các bản nháp vẫn còn thiếu, nêu tên tệp nháp, đường dẫn khóa và mô tả của nó, và, dưới `--offline`, khi nó đã soạn thảo một Release và không còn thiếu gì, một `info` nêu tên lệnh `aggrega pull` cần chạy tiếp theo, như [Tệp câu trả lời của lần nhập](../import-answers.md) mô tả."
+  },
   "b1b0f68b357016a6": {
     "at": "2026-10-22T23:44:14.843805+00:00",
     "job": "msgbatch_01GeHnfKoboC7n3BW7EXQ1uC",
@@ -134502,6 +134624,17 @@
     "status": "machine",
     "text": "Loại"
   },
+  "bab4d96ee9c4d8fc": {
+    "at": "2026-11-15T00:02:03.956Z",
+    "job": "session-0027-20261115000203",
+    "revision": {
+      "from": "5b9580585a4a4565",
+      "reviewed": false
+    },
+    "srcHash": "bab4d96ee9c4d8fc",
+    "status": "machine",
+    "text": "Một lần import được cung cấp một target — `--target` trên `aggrega import`, hoặc `target` trên công cụ import của trợ lý và phương thức `aggrega/import` của phiên, nêu tên một năng lực của provider như `compose` hoặc `helm` — sẽ chuyển target đó cho importer, nên importer phác thảo cho target đó: mỗi secret ở dạng mà target đó đọc, và các dòng chỉ target đó cần được ghi ở trạng thái có hiệu lực, còn các dòng chỉ một target khác cần thì bị lược bỏ. Trên `compose`, các dòng đó bao gồm `infra.published_port` ở bất cứ đâu importer công bố một dịch vụ trên địa chỉ loopback của máy chủ, như phần của từng importer nêu; một cổng do importer chọn không bao giờ lấy số mà một cổng khác của Release đã lấy. Sau đó lần import phác thảo Manifest bên cạnh những gì importer đã phác thảo, dù importer nào đã chạy: `manifest.yaml`, nằm bên cạnh Release đã phác thảo và được đặt tên, đánh phiên bản như Release đó — hoặc, khi importer không phác thảo Release nào, nằm bên cạnh Aggregate đã phác thảo và được đặt tên, đánh phiên bản như Aggregate đó."
+  },
   "bab524b4f6e12ba7": {
     "at": "2026-10-22T23:05:22.318919+00:00",
     "job": "msgbatch_017aSFcXdUmEns3evvWzhxye",
@@ -139964,6 +140097,13 @@
     "status": "machine",
     "text": "Trường hợp chứng minh compose-bridge"
   },
+  "c2303a5a2189dee8": {
+    "at": "2026-11-15T00:02:03.956Z",
+    "job": "session-0027-20261115000203",
+    "srcHash": "c2303a5a2189dee8",
+    "status": "machine",
+    "text": "Một giá trị mà các bản nháp vẫn để trống, không nguồn nào cung cấp được và không câu trả lời nào đã cung cấp."
+  },
   "c230f8a3555db3c0": {
     "at": "2026-10-22T23:53:36.766860+00:00",
     "job": "msgbatch_01Wu8raobvwEgmrA6bGpzuKQ",
@@ -145378,6 +145518,13 @@
     "srcHash": "c99f3d889147b5f8",
     "status": "machine",
     "text": "Một chart do một **attachment Feature** mang đến là một contributor độc lập, và nó khai báo định danh riêng của nó thay vì lặp lại định danh của component mà nó được gắn vào. Định danh đó được tạo từ hai thứ bạn đã viết — component chứa attachment, và tên mà Feature được gắn theo — đứng sau một phần mở đầu ngắn đánh dấu nó là định danh của một attachment chứ không phải của một component; giá trị kết hợp sau đó được viết cho vị trí tên chart qua phép dẫn xuất bên dưới, giống hệt như bất kỳ định danh nào khác."
+  },
+  "c9a144def761de5c": {
+    "at": "2026-11-15T00:02:03.956Z",
+    "job": "session-0027-20261115000203",
+    "srcHash": "c9a144def761de5c",
+    "status": "machine",
+    "text": "Các câu trả lời cho những giá trị mà owed trong câu trả lời đã liệt kê, mỗi câu nêu tên tệp nháp và các khóa như owed đã nêu. Mỗi câu được đánh giá, giữ trong tệp câu trả lời và ghi vào bản nháp đúng như một câu trả lời được gõ tại terminal: câu trả lời cho một secret nêu nơi secret đó đến từ — một tên biến, ${NAME}, hoặc tên của một Kubernetes Secret — và câu nào không làm vậy thì không được giữ cũng không được ghi, giá trị của nó vẫn còn thiếu với lý do là secretAdvice của nó. Một giá trị mà tệp câu trả lời đã trả lời được trả lời từ tệp đó; một câu trả lời trống, hoặc một câu nêu tên một giá trị mà bản nháp không thiếu, không được áp dụng. Hãy gửi nó cùng sync sau khi các bản nháp đã được ghi, vì một yêu cầu không phải sync sẽ bị từ chối đối với một Aggregate đã có trong outputDir. Dưới dryRun, vốn không giữ câu trả lời nào, và dưới một sync mà quá trình chuyển đổi đã dừng, vốn không ghi gì, không câu trả lời nào được gửi được áp dụng."
   },
   "c9a1dcec506d78c1": {
     "at": "2026-10-22T11:01:14.074299+00:00",
@@ -151193,6 +151340,13 @@
     "status": "machine",
     "text": "Dấu tuân thủ bắt buộc. Xác định, theo phiên bản của nó, binary aggrega đã build đồ thị này."
   },
+  "d13a269a1bfe905f": {
+    "at": "2026-11-15T00:02:03.956Z",
+    "job": "session-0027-20261115000203",
+    "srcHash": "d13a269a1bfe905f",
+    "status": "machine",
+    "text": "Các khóa dẫn tới giá trị từ đầu tài liệu đó, mỗi khóa một mục, nên một khóa chứa dấu chấm vẫn là một mục. Một câu trả lời được gửi dưới dạng answered nêu tên giá trị bằng các khóa này."
+  },
   "d13f115832c59d23": {
     "at": "2026-10-22T21:48:24.698354+00:00",
     "job": "msgbatch_01QwJupw38VKZLFFnvvqQAaX",
@@ -154368,6 +154522,13 @@
     "srcHash": "d5dddd51973e4060",
     "status": "machine",
     "text": "**Phạm vi:** Chỉ được dùng bên trong các định nghĩa đích tường minh trong `uses` và trên các `features` được đính kèm, bao gồm cả các Features thông tin xác thực."
+  },
+  "d5e00b1049c3c980": {
+    "at": "2026-11-15T00:02:03.956Z",
+    "job": "session-0027-20261115000203",
+    "srcHash": "d5e00b1049c3c980",
+    "status": "machine",
+    "text": "Các khóa dẫn tới giá trị, như owed nêu tên."
   },
   "d5e4bfa4da07250c": {
     "at": "2026-11-15T00:00:16.232Z",
@@ -158862,6 +159023,17 @@
     "status": "machine",
     "text": "Một Feature được gắn vào một component đóng góp vào cùng một tệp"
   },
+  "dc14c424a7c5e08e": {
+    "at": "2026-11-15T00:02:03.956Z",
+    "job": "session-0027-20261115000203",
+    "revision": {
+      "from": "a424153ece34641d",
+      "reviewed": false
+    },
+    "srcHash": "dc14c424a7c5e08e",
+    "status": "machine",
+    "text": "`auto-apply-above-threshold` tham chiếu Component của catalog khớp nhất cho một node mà bản nháp cấp cho một Component riêng, khi kết quả khớp thuộc bậc cao và đạt điểm bằng hoặc cao hơn `reuse_threshold`, và soạn nháp mọi node còn lại. `hints-only` soạn nháp mọi node như vậy và không tham chiếu Component nào của catalog, ghi lại một kết quả khớp mạnh dưới dạng gợi ý. Mọi giá trị khác được đọc là `hints-only`."
+  },
   "dc165c741b7c3204": {
     "at": "2026-10-22T23:34:49.752518+00:00",
     "job": "msgbatch_01TcV2pobuFt4qNmD9rzSXon",
@@ -160146,6 +160318,13 @@
     "status": "machine",
     "text": "hiển thị các phát hiện về chồng lấn schema pillar và thu hẹp khi extend dưới dạng các dòng `notice:` mang tính thông tin, không bao giờ thay đổi mã thoát."
   },
+  "dda61ff1cb684265": {
+    "at": "2026-11-15T00:02:03.956Z",
+    "job": "session-0027-20261115000203",
+    "srcHash": "dda61ff1cb684265",
+    "status": "machine",
+    "text": "`ImportAnswered`"
+  },
   "dda6aa58ca67e4ca": {
     "at": "2026-10-23T00:02:41.868223+00:00",
     "job": "msgbatch_01GBmDXubWU53zHo6wo1SbnJ",
@@ -161359,6 +161538,13 @@
     "srcHash": "df3a59e05240f42b",
     "status": "machine",
     "text": "Đăng ký một registry và chính sách tin cậy mà quá trình phân giải áp dụng cho những gì nó cung cấp. Yêu cầu này ghi tệp cấu hình cho toàn máy trừ khi yêu cầu chỉ định khác, nên mọi workspace trên máy đều phân giải qua mục này."
+  },
+  "df3b1f840825a8af": {
+    "at": "2026-11-15T00:02:03.956Z",
+    "job": "session-0027-20261115000203",
+    "srcHash": "df3b1f840825a8af",
+    "status": "machine",
+    "text": "Các giá trị của luồng được viết theo cách viết mà chính các công cụ của nền tảng dùng để đọc chúng, vẫn là các giá trị ấy, kèm theo đó là những giá trị nào và lý do: các handle cạnh của một luồng Langflow, được viết như trình soạn thảo của Langflow viết chúng. Một giá trị mà bản nháp viết để luồng tới được một phần, hoặc một giá trị có thể mang thông tin xác thực, không bao giờ bị viết lại — nó vẫn là giá trị của phần nối dây, hoặc của `empty_credentials` — và cảnh báo đếm từng giá trị không được viết lại."
   },
   "df3d6367ecb71ebe": {
     "at": "2026-10-30T00:21:58.288Z",
@@ -163389,6 +163575,13 @@
     "srcHash": "e1ccebcca1e3ad0a",
     "status": "machine",
     "text": "A file read from the directory and a file named in the importer's `with.sources` have the same name (Một tệp đọc từ thư mục và một tệp được nêu trong with.sources của importer có cùng tên)"
+  },
+  "e1cd85cdeac16e2b": {
+    "at": "2026-11-15T00:02:03.956Z",
+    "job": "session-0027-20261115000203",
+    "srcHash": "e1cd85cdeac16e2b",
+    "status": "machine",
+    "text": "Một câu trả lời cho một giá trị mà owed trong câu trả lời đã liệt kê."
   },
   "e1cdd678407b1e32": {
     "at": "2026-10-22T10:27:55.857345+00:00",
@@ -171939,6 +172132,17 @@
     "status": "machine",
     "text": "*Các khóa truy vết bổ sung — xác định khối tổng hợp nguồn, nút IR, nguồn gốc tính năng và kiểu catalog — đang được tích cực phát triển và sẽ được phát hành khi renderer của từng provider bổ sung việc chèn.*"
   },
+  "edbf183ff6b2859f": {
+    "at": "2026-11-15T00:02:03.956Z",
+    "job": "session-0027-20261115000203",
+    "revision": {
+      "from": "246acf62d97926c5",
+      "reviewed": false
+    },
+    "srcHash": "edbf183ff6b2859f",
+    "status": "machine",
+    "text": "`release.yaml`, bên cạnh nó, là một Release nháp cùng tên nêu tên Aggregate đó. Mục của agent ghi `infra.image` của agent — image chạy ứng dụng xây dựng trên Agent Framework, chứa declarative agent của nó — ở dạng trống, dưới một chú thích cho biết nó là gì, và lần nhập ghi nhận nó là giá trị còn thiếu. Khi mô hình của agent đã được nối, mục gắn thông tin xác thực mà agent trình cho mô hình đó dưới `credential` trên kết nối `model` của nó, bằng tham chiếu và không bao giờ dưới dạng giá trị: được đọc từ biến mà declarative agent nêu tên cho khóa của nó, viết là `=Env.NAME`, và nếu không thì từ `OPENAI_API_KEY`, biến mà các thư viện client của OpenAI đọc khóa từ đó; dưới dạng tham chiếu `${…}` trên mọi target trừ helm, và trên helm dưới dạng tên của một Kubernetes Secret, được ghi trống để lần nhập ghi nhận là còn thiếu; trên compose, kết nối `model` khai báo nó với khóa đó. Các giá trị mà declarative agent nêu cho mô hình và các máy chủ MCP của nó — các khóa, và `url` của từng máy chủ — được viết trong một chú thích phía trên mục của agent, như [Các giá trị thông tin xác thực mà một declarative agent chứa](#credential-values-a-declarative-agent-holds) mô tả. Mỗi mô hình đã nối có một mục, nên Release đặt nó cùng với agent. Endpoint mà kết nối của nó nêu được viết thành `infra.endpoint` của mô hình, và một endpoint được viết dưới dạng tham chiếu được nêu tên bên cạnh mục của nó, địa chỉ riêng của Component được dùng cho đến khi nó được đặt; một kết nối không nêu endpoint nào để mục đó không chứa hạ tầng nào, địa chỉ riêng của Component vẫn giữ nguyên. Giống như mọi Release được phác thảo, nó ghi `metadata.environment` là `development` và, khi không có target, một `spec.manifest` trống mà lần nhập ghi nhận là còn thiếu; khi được cung cấp một target, lần nhập phác thảo Manifest, như [Một target bổ sung những gì](#what-a-target-adds) mô tả."
+  },
   "edbf616b9de57b3c": {
     "at": "2026-10-22T23:05:19.615834+00:00",
     "job": "msgbatch_01A9KTDPLLwkd6FLd7MqtM7B",
@@ -175299,6 +175503,17 @@
     "srcHash": "f2519461cf737ce5",
     "status": "machine",
     "text": "**Việc biến đổi hoàn toàn cục bộ tại bên gọi.** FeatureRecipe chỉ sửa đổi đường ống inject của nút mà nó được gắn vào, không bao giờ sửa đầu ra `.provides` của đích. `.provides.host` của một đích có thể được nhiều bên gọi trong cụm sử dụng; `injectMapping` phía bên gọi chỉ hợp nhất vào đường ống của bên gọi cụ thể, nên các biến đổi định tuyến chỉ giới hạn ở cạnh đã yêu cầu chúng."
+  },
+  "f253038a6acb3cd7": {
+    "at": "2026-11-15T00:02:03.956Z",
+    "job": "session-0027-20261115000203",
+    "revision": {
+      "from": "ae6180bbf6883734",
+      "reviewed": false
+    },
+    "srcHash": "f253038a6acb3cd7",
+    "status": "machine",
+    "text": "Khi image đã được trả lời, instance được render chạy image đó và nhận thông tin xác thực dưới dạng `GOOGLE_API_KEY`, thứ mà client Gemini của ADK gửi tới Gemini API, còn mô hình được render thành một Service truy cập địa chỉ của Gemini API."
   },
   "f2549ad0d6a8c27f": {
     "at": "2026-10-23T00:02:44.489841+00:00",
@@ -179556,6 +179771,13 @@
     "srcHash": "f7c0db293ab185c1",
     "status": "machine",
     "text": "**Các mục artifact inline và `$import:` có thể cùng tồn tại.** Một Recipe có thể khai báo một số mục `artifacts:` inline và những mục khác qua chỉ thị `$import:` cho từng mục. Xung đột tên tệp giữa hai dạng là lỗi khi tải."
+  },
+  "f7c3a97fb7769ec7": {
+    "at": "2026-11-15T00:02:03.956Z",
+    "job": "session-0027-20261115000203",
+    "srcHash": "f7c3a97fb7769ec7",
+    "status": "machine",
+    "text": "Giá trị là gì: mô tả trong schema của nó, nếu không thì chú thích mà bản nháp viết phía trên khóa của nó, nếu không nữa thì những gì schema của nó nói rằng nó nhận."
   },
   "f7c69d6bf8bb878e": {
     "at": "2026-10-29T23:51:32.697Z",

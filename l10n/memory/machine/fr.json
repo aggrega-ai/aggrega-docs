@@ -3431,6 +3431,17 @@
     "status": "machine",
     "text": "Vérifier une entité dans les termes d’une Release"
   },
+  "05130cff56de015d": {
+    "at": "2026-11-15T00:02:03.956Z",
+    "job": "session-0027-20261115000203",
+    "revision": {
+      "from": "289112c0fbb8061b",
+      "reviewed": false
+    },
+    "srcHash": "05130cff56de015d",
+    "status": "machine",
+    "text": "`release.yaml`, à côté, est une Release en brouillon du même nom nommant cet Aggregate. L’entrée de chaque instance écrit son `infra.image` — l’image exécutant l’application construite sur ADK, qui contient ses configurations — vide, sous un commentaire indiquant ce qu’elle est, et l’importation la signale comme due. Avec `--target compose`, l’entrée écrit aussi `infra.published_port`, 8000, le port sur lequel l’application écoute, que sa Recipe Compose publie sur l’adresse de bouclage de l’hôte, 127.0.0.1, sous le commentaire indiquant qu’il n’est joignable que depuis cette machine, par tout processus qui s’y exécute, et que supprimer la ligne garde le service interne ; un second arbre prend le port libre suivant. Lorsque son modèle est relié, l’entrée rattache les identifiants que l’instance présente à ce modèle sous `credential` sur sa connexion `model`, par référence et jamais comme valeur : aucune configuration ne nomme de variable pour eux, ils sont donc lus depuis `GOOGLE_API_KEY`, la variable dans laquelle les bibliothèques clientes de la Gemini API de Google lisent leur clé, comme référence `${…}` sur toutes les cibles sauf helm, et sur helm comme nom d’un Kubernetes Secret, écrit vide et signalé comme dû par l’importation ; sur compose, la connexion `model` les déclare avec cette clé. Un modèle relié a lui aussi une entrée, qui ne contient aucune infrastructure, de sorte que la Release le place avec l’instance. Les valeurs que les configurations de l’arbre remettent à leurs outils et à leurs requêtes de modèle sont écrites dans un commentaire au-dessus de l’entrée, comme le décrit [Valeurs d’identifiants que contient une configuration](#credential-values-a-configuration-holds). Comme toute Release produite en brouillon, elle écrit `metadata.environment` comme `development` et, sans cible, un `spec.manifest` vide que l’importation signale comme dû ; avec une cible, l’importation produit le Manifest en brouillon, comme le décrit [Ce qu’ajoute une cible](#what-a-target-adds)."
+  },
   "0514478fc397840c": {
     "at": "2026-11-04T06:11:40.115Z",
     "job": "session-0207-20261104061140",
@@ -9167,6 +9178,13 @@
     "status": "machine",
     "text": "**Lorsque la seconde évaluation échoue à la même expression pour la même raison, c’est son échec qui est signalé.** La phrase propre de l’auteur subsiste, avec `<redacted>` à la place de la valeur, et une valeur que le template a encodée, mise entre guillemets ou transformée d’une autre manière est masquée elle aussi, car le remplacement a lieu avant la transformation."
   },
+  "0dbfc274b0d0bd7c": {
+    "at": "2026-11-15T00:02:03.956Z",
+    "job": "session-0027-20261115000203",
+    "srcHash": "0dbfc274b0d0bd7c",
+    "status": "machine",
+    "text": "La réponse. Une réponse vide laisse la valeur due."
+  },
   "0dc1641dd8f5a59e": {
     "at": "2026-10-22T12:43:13.152Z",
     "job": "session-0036-20261022124313",
@@ -10799,6 +10817,17 @@
     "srcHash": "101150c631a12495",
     "status": "machine",
     "text": "Ce chapitre décrit Aggrega Studio — le frontend visuel de l’écosystème Aggrega — à travers le rôle architectural que jouent Studio et les frontends similaires vis-à-vis du compilateur Go. Plutôt que de réimplémenter les mécanismes internes du compilateur dans un langage frontend, un frontend consomme un contrat qu’émet le compilateur Go : le graphe de représentation intermédiaire (IR). Ce qu’affiche un éditeur visuel est une projection directe de ce que le compilateur a déjà résolu ; il n’existe aucune réimplémentation parallèle, côté frontend, de l’analyse YAML, de la résolution du catalogue ou de la construction du graphe susceptible de diverger de la référence Go."
+  },
+  "101518b83fa001fc": {
+    "at": "2026-11-15T00:02:03.956Z",
+    "job": "session-0027-20261115000203",
+    "revision": {
+      "from": "8e44fdf07990f8cb",
+      "reviewed": false
+    },
+    "srcHash": "101518b83fa001fc",
+    "status": "machine",
+    "text": "Pour chaque type de composant et chaque type de feature dont les brouillons ont besoin — sur les composants de l’Aggregate en brouillon, leurs connexions et ses sous-systèmes, sur les Aggregates du catalogue qu’il compose, comme `core/dify`, et sur les rattachements de la Release en brouillon —, le Manifest fait correspondre le type à la Recipe, ou pour un type de feature à la feature recipe, de cette capacité que le catalogue du workspace offre pour lui : celle qui existe, plusieurs versions d’une même comptant pour une ; ou, lorsqu’il y en a plusieurs de noms différents, celle qui porte le nom du type lui-même, comme `helm/postgres` pour `core/datastore/postgres`. Un type qui n’en a aucune, ou en a plusieurs dont aucune ne porte ce nom, reste sans correspondance, un avertissement le nomme en indiquant pourquoi, et un build des brouillons s’arrête en nommant chacune de ses instances ou chacun de ses rattachements tant que vous ne l’avez pas mis en correspondance."
   },
   "101693dcc7edced9": {
     "at": "2026-11-03T14:46:26.927Z",
@@ -16092,6 +16121,13 @@
     "srcHash": "18b5840f82234dd2",
     "status": "machine",
     "text": "Associe le type Valkey à la Recipe Compose (`compose/valkey`) et l’information d’identification à `dotenv-secret`."
+  },
+  "18b5dad1c4a4239f": {
+    "at": "2026-11-15T00:02:03.956Z",
+    "job": "session-0027-20261115000203",
+    "srcHash": "18b5dad1c4a4239f",
+    "status": "machine",
+    "text": "Si la valeur est celle d’un secret, dont la réponse nomme la provenance du secret et ne contient jamais le secret lui-même."
   },
   "18b9e1cefd517319": {
     "at": "2026-11-03T00:27:34.341Z",
@@ -26852,6 +26888,17 @@
     "srcHash": "2919bc705b83b1a4",
     "status": "machine",
     "text": "La référence à l’entité Plugin que cette étape exécute, toujours qualifiée par le type de socket propre au plugin : `<pluginType>/<name>` avec une version facultative, comme dans `parser/yaml` ou `parser/yaml:1.0.0`. La qualification est obligatoire et non une forme parmi d’autres — un `name:version` non qualifié est refusé, car deux sockets peuvent contenir un plugin du même nom et c’est la qualification qui rend l’entité résoluble. Le build résout l’entité en son artefact .wasm adressé par contenu — localisé à partir de l’identité du plugin et du registre configuré, son digest épinglé dans le fichier de verrouillage — et en charge les octets. Une simple référence à un .wasm ou à un artefact n’est pas acceptée ici."
+  },
+  "29202f840676d4ea": {
+    "at": "2026-11-15T00:02:03.956Z",
+    "job": "session-0027-20261115000203",
+    "revision": {
+      "from": "a309be11b24b4c5a",
+      "reviewed": false
+    },
+    "srcHash": "29202f840676d4ea",
+    "status": "machine",
+    "text": "Le fichier de réponses à partir duquel sont lues, et dans lequel sont écrites, les valeurs que les brouillons laissent vides et qu’aucune source ne peut contenir, relatif à la racine de l’espace de travail ; une valeur absolue, ou une valeur qui sort de l’espace de travail telle qu’écrite ou par un lien, est refusée. Il contient, sous le chemin de chaque fichier rédigé, le chemin de la clé dans ce document et sa réponse, et les réponses sont écrites dans les brouillons. En son absence, le fichier lu est celui que nomme l’enregistrement à côté des brouillons, ou à défaut import-answers.yaml à côté du fichier source ou dans le répertoire source. La réponse d’un secret nomme la provenance du secret — un nom de variable, ${NAME}, ou le nom d’un Kubernetes Secret — et toute autre chose est refusée sans que rien ne soit écrit. Rien n’est demandé : chaque valeur encore due est une entrée de owed de la réponse et un constat d’avertissement qui nomme le fichier rédigé, la clé et ce qu’elle est, sa réponse est envoyée comme answered, et là où les brouillons sont écrits, le dernier constat indique combien de valeurs sont dues et où. Lorsque les brouillons comprennent une Release, ne doivent plus rien et que la conversion est terminée, ses dépendances sont alors récupérées, ce qui écrit son fichier de verrouillage, et un pull qui échoue clôt les constats en indiquant pourquoi, les brouillons étant écrits ; hors ligne, rien n’est récupéré et un constat nomme le pull à exécuter. Une réponse pour une clé que ces brouillons ne laissent pas vide est conservée dans le fichier et non appliquée, de sorte qu’un seul fichier de réponses sert pour toutes les cibles."
   },
   "29214c1aa204722d": {
     "at": "2026-11-03T13:44:12.861Z",
@@ -54287,6 +54334,13 @@
     "status": "machine",
     "text": "`XDG_DATA_HOME`, `XDG_CONFIG_HOME`, `BASH_COMPLETION_USER_DIR` et `ZDOTDIR` déplacent ces dossiers et fichiers comme chaque shell les lit. Un nouveau terminal ou une nouvelle fenêtre charge la complétion. Relancer la commande ne réécrit un script que lorsque le `aggrega` installé en écrit un différent, et n’ajoute les lignes à `~/.zshrc` ou au profil qu’une seule fois ; c’est aussi la façon d’ajouter la complétion à une installation que vous avez déjà, puisque la commande réinstalle le binaire au passage."
   },
+  "53e3d5d16806ff13": {
+    "at": "2026-11-15T00:02:03.956Z",
+    "job": "session-0027-20261115000203",
+    "srcHash": "53e3d5d16806ff13",
+    "status": "machine",
+    "text": "Le `spec.manifest` de la Release en brouillon, écrit vide sans cible, est défini sur le nom du Manifest, le commentaire au-dessus est supprimé, et rien d’autre ne change dans la Release. [aggrega import](../cli/aggrega-import.md) le décrit en détail."
+  },
   "53e7896a7df54673": {
     "at": "2026-11-03T09:43:52.236Z",
     "job": "session-0085-20261103094352",
@@ -58877,6 +58931,17 @@
     "status": "machine",
     "text": "**Les deux formes sont évaluées avec les délimiteurs `[[ ]]` d’Aggrega avant leur placement**, de sorte qu’un corps de l’une ou l’autre forme peut lire le contexte des piliers de la Recipe ; `{{ }}` dans l’un ou l’autre corps est laissé intact et devient une directive Helm au moment du `helm install` en aval. Ce qui diffère entre les formes, c’est l’endroit où le fichier aboutit et si la provenance y est fusionnée :"
   },
+  "5ac77c337dd9c8a8": {
+    "at": "2026-11-15T00:02:03.956Z",
+    "job": "session-0027-20261115000203",
+    "revision": {
+      "from": "07f2ef54569e7248",
+      "reviewed": false
+    },
+    "srcHash": "5ac77c337dd9c8a8",
+    "status": "machine",
+    "text": "Le fichier rédigé dans lequel se trouve la valeur, tel que owed le nomme."
+  },
   "5ac9f2d071a55fb3": {
     "at": "2026-11-03T01:01:59.650Z",
     "job": "session-0029-20261103010159",
@@ -62027,6 +62092,17 @@
     "status": "machine",
     "text": "Se propage en cascade dans le compartiment `.context.annotations.catalog` par nœud de l’IR"
   },
+  "5fb21912e60fe7cd": {
+    "at": "2026-11-15T00:02:03.956Z",
+    "job": "session-0027-20261115000203",
+    "revision": {
+      "from": "b7cc81ecc795e8ba",
+      "reviewed": false
+    },
+    "srcHash": "5fb21912e60fe7cd",
+    "status": "machine",
+    "text": "Une fois l’image renseignée, l’agent est rendu l’exécutant, recevant le point de terminaison du modèle comme `OPENAI_BASE_URL`, son id comme `OPENAI_MODEL` et ses identifiants comme `OPENAI_API_KEY`, et le modèle est rendu comme un Service atteignant son hôte. Aucune variable ne porte l’adresse du serveur MCP : c’est le fournisseur du modèle, et non l’application, qui l’atteint."
+  },
   "5fb7b1a3b6fa8291": {
     "at": "2026-11-03T09:08:45.888Z",
     "job": "session-0081-20261103090845",
@@ -64803,6 +64879,13 @@
     "srcHash": "63fe5708de05cf37",
     "status": "machine",
     "text": "Recherche de dispatch du Provider ; un épinglage qu’aucune version de plugin ne satisfait arrête le build"
+  },
+  "63fe7fd5c4b8cc56": {
+    "at": "2026-11-15T00:02:03.956Z",
+    "job": "session-0027-20261115000203",
+    "srcHash": "63fe7fd5c4b8cc56",
+    "status": "machine",
+    "text": "Le fichier rédigé dans lequel se trouve la valeur, sous forme de chemin relatif à l’outputDir de la réponse."
   },
   "64004347b6aa6a2a": {
     "at": "2026-10-30T19:08:02.729Z",
@@ -73181,6 +73264,13 @@
     "status": "machine",
     "text": "Cette page est la référence de la commande. À quoi sert un import, comment relire et construire ce qu’il écrit, et des tutoriels pas à pas qui mènent un projet de sa source jusqu’à un build se trouvent dans [Import](../../authoring/import/README.md)."
   },
+  "70e6fceeea484b96": {
+    "at": "2026-11-15T00:02:03.956Z",
+    "job": "session-0027-20261115000203",
+    "srcHash": "70e6fceeea484b96",
+    "status": "machine",
+    "text": "ImportAnswered[]"
+  },
   "70ef1efde5154fbd": {
     "at": "2026-11-03T22:29:52.482Z",
     "job": "session-0167-20261103222952",
@@ -73194,6 +73284,13 @@
     "srcHash": "70f030c6f4bca91c",
     "status": "machine",
     "text": "Une Recipe ou une FeatureRecipe déclare `omits:` et le fournisseur qui en effectue le rendu ne déclare pas qu’il exclut des documents rendus. Exclure un document de ce qu’une source rend est une chose que seul le fournisseur peut faire — seul le fournisseur sait quels documents la source rend et comment chacun s’appelle —, si bien qu’un fournisseur qui ne le fait pas rendrait chaque document que les entrées nomment et signalerait un succès. Le build refuse plutôt avant que quoi que ce soit ne soit rendu, de sorte que la clé ne reste jamais silencieusement sans effet."
+  },
+  "70f2ba1bec148a1c": {
+    "at": "2026-11-15T00:02:03.956Z",
+    "job": "session-0027-20261115000203",
+    "srcHash": "70f2ba1bec148a1c",
+    "status": "machine",
+    "text": "Lorsque seul l’importateur sait laquelle de plusieurs Recipes s’applique, il produit lui-même le Manifest en brouillon — l’importateur MCP fait correspondre chaque serveur, par sa clé, à la réalisation de la manière dont le serveur s’exécute, et un importateur rattachant un secret par son nom fait correspondre `core/referenced-secret` à `helm/k8s-existing-secret` — et l’importation le complète : chaque correspondance écrite par l’importateur que le catalogue offre pour ce type et cette capacité est conservée, toute autre est écartée avec un avertissement, et les types qu’il laisse sont mis en correspondance comme ci-dessus."
   },
   "70f414e7b9f314a8": {
     "at": "2026-11-03T13:20:59.617Z",
@@ -76463,6 +76560,13 @@
     "srcHash": "75e38d839cc7a532",
     "status": "machine",
     "text": "**Comment corriger :** comparez le champ `kind:` du fichier que vous publiez aux types qu’affiche `aggrega push --list-kinds` — un type mal orthographié ou non pris en charge est signalé ici, et corriger le champ est tout le remède. Si le type figure dans cette liste, il s’agit d’une lacune de la chaîne d’outils et non de votre entité, et cela vaut la peine de la signaler en citant le type."
+  },
+  "75e764e432ab7ba8": {
+    "at": "2026-11-15T00:02:03.956Z",
+    "job": "session-0027-20261115000203",
+    "srcHash": "75e764e432ab7ba8",
+    "status": "machine",
+    "text": "Présent sur la valeur d’un secret : ce que doit être sa réponse, dans la phrase présentée à une personne qui y répond dans un terminal — ou, lorsque la réponse envoyée pour elle comme answered a été refusée, pourquoi elle a été refusée."
   },
   "75eace7f67096d34": {
     "at": "2026-11-04T13:01:09.618Z",
@@ -84042,6 +84146,13 @@
     "srcHash": "81bac81c00bba2b3",
     "status": "machine",
     "text": "La voie de référence pour le développement local garde l’intention du développeur inchangée et remplace la liaison. L’Aggregate continue d’attacher le même type de Feature d’identifiant ; le Manifest local associe ce type à une FeatureRecipe locale au lieu de celle adossée au store. Le compilateur ne récupère toujours rien — la FeatureRecipe locale délivre simplement une syntaxe native du provider que l’environnement d’exécution local résout : pour Compose, une référence de variable telle que `${SECRET_NAME}` écrite dans l’environnement du service, que Docker Compose substitue à partir de l’environnement du shell ou d’un fichier `.env` au démarrage de la stack. Changer d’environnement est une modification du Manifest."
+  },
+  "81bd47088e149b96": {
+    "at": "2026-11-15T00:02:03.956Z",
+    "job": "session-0027-20261115000203",
+    "srcHash": "81bd47088e149b96",
+    "status": "machine",
+    "text": "`ImportOwed`"
   },
   "81c2e6037520c696": {
     "at": "2026-11-12T07:54:52.875Z",
@@ -115581,6 +115692,17 @@
     "status": "machine",
     "text": "signature verification could not run for `<uri>` (the registry could not answer the signature lookup and no signature is required; continuing): `<the message above>` (la vérification de la signature n’a pas pu s’exécuter pour l’artefact indiqué (le registre n’a pas pu répondre à la recherche de signature et aucune signature n’est requise ; poursuite) : le message ci-dessus)"
   },
+  "b1ab5c025dcff51e": {
+    "at": "2026-11-15T00:02:03.956Z",
+    "job": "session-0027-20261115000203",
+    "revision": {
+      "from": "ad4dbb120d8c630f",
+      "reviewed": false
+    },
+    "srcHash": "b1ab5c025dcff51e",
+    "status": "machine",
+    "text": "Une importation qui reçoit une cible rapporte, après les diagnostics de l’importateur, ce qu’a trouvé la production en brouillon du Manifest : un `warn` nommant chaque type de composant ou de feature que le Manifest laisse sans correspondance et pourquoi, et un `info` lorsque la Release produite en brouillon nomme déjà un Manifest ou qu’aucune Release produite en brouillon ne le référence. Ceux-ci appartiennent à l’importation elle-même plutôt qu’à un importateur, et ne portent aucun code ; [Ce qu’ajoute une cible](#what-a-target-adds) les décrit. Chaque importation rapporte ensuite, également comme les siens, un `warn` pour chaque valeur que les brouillons doivent encore, nommant le fichier produit en brouillon, le chemin de la clé et sa description, et, sous `--offline`, lorsqu’elle a produit une Release en brouillon et ne doit rien, un `info` nommant l’`aggrega pull` à exécuter ensuite, comme le décrit [Le fichier de réponses de l’importation](../import-answers.md)."
+  },
   "b1b0f68b357016a6": {
     "at": "2026-11-04T00:44:12.025Z",
     "job": "session-0182-20261104004412",
@@ -121769,6 +121891,17 @@
     "status": "machine",
     "text": "Type"
   },
+  "bab4d96ee9c4d8fc": {
+    "at": "2026-11-15T00:02:03.956Z",
+    "job": "session-0027-20261115000203",
+    "revision": {
+      "from": "5b9580585a4a4565",
+      "reviewed": false
+    },
+    "srcHash": "bab4d96ee9c4d8fc",
+    "status": "machine",
+    "text": "Une importation qui reçoit une cible — `--target` sur `aggrega import`, ou `target` sur l’outil d’importation de l’assistant et la méthode `aggrega/import` de la session, nommant une capacité de fournisseur telle que `compose` ou `helm` — transmet cette cible à l’importateur, qui produit donc ses brouillons pour elle : chaque secret sous la forme que cette cible lit, et les lignes dont seule cette cible a besoin, écrites actives, tandis que les lignes dont seule une autre cible a besoin sont omises. Sur `compose`, ces lignes comprennent `infra.published_port` partout où l’importateur publie un service sur l’adresse de bouclage de l’hôte, comme l’indique la section de chaque importateur ; un port que choisit l’importateur ne prend jamais un numéro que prend un autre port de la Release. L’importation produit ensuite le Manifest en brouillon à côté de ce qu’a produit l’importateur, quel que soit l’importateur exécuté : `manifest.yaml`, à côté de la Release en brouillon et nommé et versionné comme elle — ou, lorsque l’importateur n’a produit aucune Release en brouillon, à côté de l’Aggregate en brouillon et nommé et versionné comme lui."
+  },
   "bab524b4f6e12ba7": {
     "at": "2026-11-03T15:04:39.860Z",
     "job": "session-0120-20261103150439",
@@ -126857,6 +126990,13 @@
     "status": "machine",
     "text": "`ClientCapabilities.window`"
   },
+  "c2303a5a2189dee8": {
+    "at": "2026-11-15T00:02:03.956Z",
+    "job": "session-0027-20261115000203",
+    "srcHash": "c2303a5a2189dee8",
+    "status": "machine",
+    "text": "Une valeur que les brouillons laissent encore vide, qu’aucune source n’a pu fournir et qu’aucune réponse n’a fournie."
+  },
   "c230f8a3555db3c0": {
     "at": "2026-11-04T05:50:39.710Z",
     "job": "session-0205-20261104055039",
@@ -131575,6 +131715,13 @@
     "srcHash": "c99f3d889147b5f8",
     "status": "machine",
     "text": "Un chart qu’apporte un **rattachement de Feature** est un contributeur à part entière, et il déclare sa propre identité plutôt que de répéter celle du composant auquel il est rattaché. Cette identité est composée de deux éléments que vous avez écrits — le composant qui héberge le rattachement, et le nom sous lequel la Feature est rattachée — derrière un court préfixe qui la marque comme l’identité d’un rattachement plutôt que d’un composant ; la valeur composée est ensuite écrite pour la position du nom de chart au moyen de la dérivation ci-dessous, exactement comme toute autre identité."
+  },
+  "c9a144def761de5c": {
+    "at": "2026-11-15T00:02:03.956Z",
+    "job": "session-0027-20261115000203",
+    "srcHash": "c9a144def761de5c",
+    "status": "machine",
+    "text": "Réponses pour des valeurs que owed de la réponse a listées, chacune nommant le fichier rédigé et les clés telles que owed les a nommées. Chacune est évaluée, conservée dans le fichier de réponses et écrite dans les brouillons exactement comme l’est une réponse saisie dans un terminal : la réponse d’un secret nomme la provenance du secret — un nom de variable, ${NAME}, ou le nom d’un Kubernetes Secret — et une réponse qui ne le fait pas n’est ni conservée ni écrite, sa valeur restant due avec la raison comme secretAdvice. Une valeur à laquelle le fichier de réponses répond déjà reçoit sa réponse du fichier ; une réponse vide, ou une réponse nommant une valeur que les brouillons ne doivent pas, n’est pas appliquée. Envoyez-la avec sync une fois les brouillons écrits, car une requête qui n’est pas un sync est refusée sur un Aggregate déjà présent dans outputDir. Sous dryRun, qui ne conserve aucune réponse, et sous un sync dont la conversion s’est arrêtée, qui n’écrit rien, aucune réponse envoyée n’est appliquée."
   },
   "c9a1dcec506d78c1": {
     "at": "2026-10-30T19:08:02.729Z",
@@ -136923,6 +137070,13 @@
     "status": "machine",
     "text": "Tampon de conformité obligatoire. Identifie, par sa version, le binaire aggrega qui a construit ce graphe."
   },
+  "d13a269a1bfe905f": {
+    "at": "2026-11-15T00:02:03.956Z",
+    "job": "session-0027-20261115000203",
+    "srcHash": "d13a269a1bfe905f",
+    "status": "machine",
+    "text": "Les clés menant à la valeur depuis le haut de ce document, une entrée par clé, de sorte qu’une clé contenant un point reste une seule entrée. Une réponse envoyée comme answered nomme la valeur par ces clés."
+  },
   "d13f115832c59d23": {
     "at": "2026-11-03T09:26:16.050Z",
     "job": "session-0083-20261103092616",
@@ -139764,6 +139918,13 @@
     "srcHash": "d5dddd51973e4060",
     "status": "machine",
     "text": "**Portée :** utilisé strictement dans des définitions de cible explicites au sein de `uses` et sur les `features` rattachées, Features d’identifiants comprises."
+  },
+  "d5e00b1049c3c980": {
+    "at": "2026-11-15T00:02:03.956Z",
+    "job": "session-0027-20261115000203",
+    "srcHash": "d5e00b1049c3c980",
+    "status": "machine",
+    "text": "Les clés menant à la valeur, telles que owed les nomme."
   },
   "d5e4bfa4da07250c": {
     "at": "2026-11-15T00:00:16.232Z",
@@ -143821,6 +143982,17 @@
     "status": "machine",
     "text": "Une Feature rattachée à un composant contribue au même fichier"
   },
+  "dc14c424a7c5e08e": {
+    "at": "2026-11-15T00:02:03.956Z",
+    "job": "session-0027-20261115000203",
+    "revision": {
+      "from": "a424153ece34641d",
+      "reviewed": false
+    },
+    "srcHash": "dc14c424a7c5e08e",
+    "status": "machine",
+    "text": "`auto-apply-above-threshold` référence le Component du catalogue qui correspond le mieux pour un nœud auquel le brouillon donne un Component propre, dont la correspondance est au niveau élevé et obtient un score égal ou supérieur à `reuse_threshold`, et produit en brouillon tous les autres. `hints-only` produit en brouillon chacun de ces nœuds et ne référence aucun Component du catalogue, en enregistrant une correspondance forte comme suggestion. Toute autre valeur est lue comme `hints-only`."
+  },
   "dc165c741b7c3204": {
     "at": "2026-11-04T00:08:16.163Z",
     "job": "session-0177-20261104000816",
@@ -144989,6 +145161,13 @@
     "status": "machine",
     "text": "fait apparaître les constats de chevauchement des piliers de schéma et de restriction lors de l’extension sous forme de lignes `notice:` informatives qui ne modifient jamais le code de sortie."
   },
+  "dda61ff1cb684265": {
+    "at": "2026-11-15T00:02:03.956Z",
+    "job": "session-0027-20261115000203",
+    "srcHash": "dda61ff1cb684265",
+    "status": "machine",
+    "text": "`ImportAnswered`"
+  },
   "dda6aa58ca67e4ca": {
     "at": "2026-11-04T08:19:29.837Z",
     "job": "session-0220-20261104081929",
@@ -146109,6 +146288,13 @@
     "srcHash": "df3a59e05240f42b",
     "status": "machine",
     "text": "Enregistre un registre et la politique de confiance que la résolution applique à ce qu’il sert. Elle écrit le fichier de configuration de toute la machine sauf si la requête demande autre chose, de sorte que chaque espace de travail de la machine résout au moyen de l’entrée."
+  },
+  "df3b1f840825a8af": {
+    "at": "2026-11-15T00:02:03.956Z",
+    "job": "session-0027-20261115000203",
+    "srcHash": "df3b1f840825a8af",
+    "status": "machine",
+    "text": "Les valeurs du flux sont écrites dans la graphie dans laquelle les outils propres de la plateforme les lisent, avec les mêmes valeurs, en indiquant lesquelles et pourquoi : les poignées d’arêtes d’un flux Langflow, écrites comme l’éditeur de Langflow les écrit. Une valeur que le brouillon écrit pour que le flux atteigne une partie, ou une valeur pouvant porter des identifiants, n’est jamais réécrite dans une autre graphie — elle reste celle du câblage, ou celle d’`empty_credentials` — et l’avertissement compte chaque valeur non réécrite."
   },
   "df3d6367ecb71ebe": {
     "at": "2026-11-03T16:49:01.800Z",
@@ -147964,6 +148150,13 @@
     "srcHash": "e1ccebcca1e3ad0a",
     "status": "machine",
     "text": "A file read from the directory and a file named in the importer's `with.sources` have the same name (Un fichier lu dans le répertoire et un fichier nommé dans les sources de l’importer portent le même nom)"
+  },
+  "e1cd85cdeac16e2b": {
+    "at": "2026-11-15T00:02:03.956Z",
+    "job": "session-0027-20261115000203",
+    "srcHash": "e1cd85cdeac16e2b",
+    "status": "machine",
+    "text": "Une réponse pour une valeur que owed de la réponse a listée."
   },
   "e1cdd678407b1e32": {
     "at": "2026-10-22T12:20:05.813Z",
@@ -155670,6 +155863,17 @@
     "status": "machine",
     "text": "*Des clés de traçage supplémentaires — identifiant l’agrégat source, le nœud IR, l’origine de la fonctionnalité et le type de catalogue — sont en cours de développement actif et sont livrées à mesure que le moteur de rendu de chaque fournisseur ajoute l’injection.*"
   },
+  "edbf183ff6b2859f": {
+    "at": "2026-11-15T00:02:03.956Z",
+    "job": "session-0027-20261115000203",
+    "revision": {
+      "from": "246acf62d97926c5",
+      "reviewed": false
+    },
+    "srcHash": "edbf183ff6b2859f",
+    "status": "machine",
+    "text": "`release.yaml`, à côté, est une Release en brouillon du même nom nommant cet Aggregate. L’entrée de l’agent écrit son `infra.image` — l’image exécutant l’application construite sur Agent Framework, qui contient son agent déclaratif — vide, sous un commentaire indiquant ce qu’elle est, et l’importation la signale comme due. Lorsque son modèle est relié, l’entrée rattache les identifiants que l’agent présente à ce modèle sous `credential` sur sa connexion `model`, par référence et jamais comme valeur : lus depuis la variable que l’agent déclaratif nomme pour sa clé, écrite `=Env.NAME`, et sinon depuis `OPENAI_API_KEY`, la variable dans laquelle les bibliothèques clientes d’OpenAI lisent leur clé ; comme référence `${…}` sur toutes les cibles sauf helm, et sur helm comme nom d’un Kubernetes Secret, écrit vide et signalé comme dû par l’importation ; sur compose, la connexion `model` les déclare avec cette clé. Les valeurs qu’indique l’agent déclaratif pour son modèle et ses serveurs MCP — les clés, et l’`url` de chaque serveur — sont écrites dans un commentaire au-dessus de l’entrée de l’agent, comme le décrit [Valeurs d’identifiants que contient un agent déclaratif](#credential-values-a-declarative-agent-holds). Chaque modèle relié a une entrée, de sorte que la Release le place avec l’agent. Le point de terminaison qu’indique sa connexion est écrit comme l’`infra.endpoint` du modèle, et un point de terminaison écrit comme une référence est nommé à côté de son entrée, l’adresse propre du Component étant utilisée tant qu’il n’est pas défini ; une connexion n’indiquant aucun point de terminaison laisse l’entrée sans aucune infrastructure, l’adresse propre du Component restant en vigueur. Comme toute Release produite en brouillon, elle écrit `metadata.environment` comme `development` et, sans cible, un `spec.manifest` vide que l’importation signale comme dû ; avec une cible, l’importation produit le Manifest en brouillon, comme le décrit [Ce qu’ajoute une cible](#what-a-target-adds)."
+  },
   "edbf616b9de57b3c": {
     "at": "2026-11-03T13:20:59.617Z",
     "job": "session-0110-20261103132059",
@@ -158804,6 +159008,17 @@
     "srcHash": "f2519461cf737ce5",
     "status": "machine",
     "text": "**La modification est strictement locale à l’appelant.** La FeatureRecipe ne modifie que le canal d’injection du nœud auquel elle est rattachée, jamais la sortie `.provides` de la cible. Le `.provides.host` d’une cible est consommé par potentiellement de nombreux appelants dans tout le cluster ; `injectMapping` côté appelant ne fusionne que dans le canal de l’appelant concerné, de sorte que les modifications de routage restent limitées à l’arête qui les a demandées."
+  },
+  "f253038a6acb3cd7": {
+    "at": "2026-11-15T00:02:03.956Z",
+    "job": "session-0027-20261115000203",
+    "revision": {
+      "from": "ae6180bbf6883734",
+      "reviewed": false
+    },
+    "srcHash": "f253038a6acb3cd7",
+    "status": "machine",
+    "text": "Une fois l’image renseignée, l’instance est rendue l’exécutant et reçoit les identifiants comme `GOOGLE_API_KEY`, que le client Gemini d’ADK envoie à la Gemini API, et le modèle comme un Service atteignant l’adresse de la Gemini API."
   },
   "f2549ad0d6a8c27f": {
     "at": "2026-11-04T11:11:27.846Z",
@@ -162722,6 +162937,13 @@
     "srcHash": "f7c0db293ab185c1",
     "status": "machine",
     "text": "**Les entrées d’artefacts inline et `$import:` peuvent coexister.** Une Recipe peut déclarer certaines entrées `artifacts:` inline et d’autres via des directives `$import:` par entrée. Une collision de noms de fichiers entre les deux formes est une erreur au chargement."
+  },
+  "f7c3a97fb7769ec7": {
+    "at": "2026-11-15T00:02:03.956Z",
+    "job": "session-0027-20261115000203",
+    "srcHash": "f7c3a97fb7769ec7",
+    "status": "machine",
+    "text": "Ce qu’est la valeur : la description de son schéma, sinon le commentaire que le brouillon écrit au-dessus de sa clé, sinon ce que son schéma dit qu’elle accepte."
   },
   "f7c69d6bf8bb878e": {
     "at": "2026-11-03T15:47:42.282Z",
