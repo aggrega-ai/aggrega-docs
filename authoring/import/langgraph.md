@@ -279,9 +279,9 @@ default, 25, stands. The database gets a password, so the PostgreSQL Recipe
 writes none of its own, and the graph presents the same password on its
 connection to the database.
 
-`release.yaml` — the environment, the image, and where the key and the
-passwords come from, with comments above the graph saying what its image is and
-what it is handed:
+`release.yaml` — the environment, the image, the published port, and where the
+key and the passwords come from, with comments above the graph saying what its
+image is and what it is handed:
 
 <!-- quotes: draft/release.yaml -->
 ```yaml
@@ -305,6 +305,8 @@ spec:
       infra:
         # Left for the Release, since the source cannot supply it: infra.image, the container image running the application
         image: "ghcr.io/example/support-agent:1.0.0"
+        # Published on this machine's loopback address, 127.0.0.1: reachable from this machine only, by any process running on it. Delete this line to keep the service internal.
+        published_port: 8000
       uses:
         checkpointer_db:
           postgres:
@@ -334,7 +336,9 @@ spec:
 
 The environment, `development`, is a default the import writes because no
 configuration names one; change it where the Release deploys elsewhere. The
-image is the answer the import read from `import-answers.yaml`. The key and
+image is the answer the import read from `import-answers.yaml`. The graph is
+published on your machine's loopback address, on 8000, forwarding to the port
+its program listens on, `infra.port`, 8000 unless you set it. The key and
 the password are variable references, `${OPENAI_API_KEY}` and
 `${POSTGRES_PASSWORD}`, never values.
 
@@ -412,6 +416,8 @@ service:
       LANGGRAPH_GRAPH_ENTRYPOINT: ./src/support_agent/graph.py:graph
       OPENAI_API_KEY: ${OPENAI_API_KEY}
       LANGGRAPH_CHECKPOINTER_PASSWORD: ${POSTGRES_PASSWORD}
+    ports:
+      - 127.0.0.1:8000:8000
     [… omitted: the labels the build writes on every service, naming the Aggregate, the component, the environment and the compiler's version]
     networks:
       - compose
@@ -467,9 +473,9 @@ nothing else:
 
 The key and the password are variable references, filled from your shell when
 the stack starts. The model gets no service of its own: the graph reaches the
-OpenAI API at its own address. The services publish no port on your machine:
-the rendered file gives the graph none, and the database's own port is
-reached on the stack's network.
+OpenAI API at its own address. The graph's service publishes its port on
+127.0.0.1 alone, and the database's own port is reached on the stack's network,
+with nothing published.
 
 ## With an AI assistant
 
@@ -545,14 +551,12 @@ graph's service runs.
 
 The request below reaches the program this walkthrough's image runs: the
 graph behind a small HTTP server on port 8000, answering
-`POST /threads/<thread>/runs`. Your own program decides its own address, route
-and reply. The services publish no port and the image carries no HTTP client,
-so the request comes from a container started on the stack's network,
-`order-support_compose`:
+`POST /threads/<thread>/runs`. Your own program decides its own route and
+reply. Send it to <http://127.0.0.1:8000>, the address `published_port`
+publishes:
 
 ```bash
-docker run --rm --network order-support_compose curlimages/curl:8.11.1 -sS -X POST \
-  http://support:8000/threads/order-1234/runs -H 'Content-Type: application/json' \
+curl -sS -X POST http://127.0.0.1:8000/threads/order-1234/runs -H 'Content-Type: application/json' \
   -d '{"message": "Where is my order 1234? It has not arrived yet."}'
 ```
 

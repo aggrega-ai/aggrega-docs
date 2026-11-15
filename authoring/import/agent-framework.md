@@ -261,7 +261,8 @@ hosted service, so the agent's Component refuses a connection to it that
 carries no credential; the connection declares one, under the key
 `OPENAI_API_KEY`, the variable the declarative agent reads its key from.
 
-`release.yaml` — the environment, the image, and where the key comes from:
+`release.yaml` — the environment, the image, the published port, and where the
+key comes from:
 
 <!-- quotes: draft/release.yaml -->
 ```yaml
@@ -284,6 +285,8 @@ spec:
       infra:
         # Left for the Release, since the source cannot supply it: infra.image, the container image running the application built on Agent Framework, holding its declarative agent
         image: "ghcr.io/example/support-agent:1.0.0"
+        # Published on this machine's loopback address, 127.0.0.1: reachable from this machine only, by any process running on it. Delete this line to keep the service internal.
+        published_port: 8000
       uses:
         model:
           gpt-4-1-mini:
@@ -298,7 +301,9 @@ spec:
 
 The environment, `development`, is a default the import writes because no
 declarative agent names one; change it where the Release deploys elsewhere.
-The image is the answer the import read from `import-answers.yaml`. The key is
+The image is the answer the import read from `import-answers.yaml`. The agent
+is published on your machine's loopback address, on 8000, forwarding to the
+port its program listens on, `infra.port`, 8000 unless you set it. The key is
 the variable reference `${OPENAI_API_KEY}`, named after the variable the
 declarative agent reads, never a value. The MCP server's address is written as
 the declarative agent states it, for review, and set nowhere else: Agent
@@ -370,6 +375,8 @@ services:
       OPENAI_BASE_URL: https://api.openai.com/v1
       OPENAI_MODEL: gpt-4.1-mini
       OPENAI_API_KEY: ${OPENAI_API_KEY}
+    ports:
+      - 127.0.0.1:8000:8000
     [… omitted: the labels the build writes on every service, naming the Aggregate, the component, the environment and the compiler's version]
     networks:
       - compose
@@ -382,7 +389,7 @@ loads it as [The project](#the-project) describes. No variable carries the MCP
 server's address, which the provider reaches. The model gets no service of its
 own: the agent reaches the OpenAI API at its own address. The key is a variable
 reference, filled from your shell when the stack starts. The service publishes
-no port on your machine: the rendered file gives it none.
+its port on 127.0.0.1 alone.
 
 ## With an AI assistant
 
@@ -457,14 +464,12 @@ docker compose -p docs-assistant -f dist/compose/docker-compose.yaml up -d --wai
 
 The request below reaches the program this walkthrough's image runs: the
 declarative agent behind a small HTTP server on port 8000, answering
-`POST /ask`. Your own program decides its own address, route and reply. The
-service publishes no port and the image carries no HTTP client, so the request
-comes from a container started on the stack's network, `docs-assistant_compose`.
-Send it once the program listens, a few seconds after the stack starts:
+`POST /ask`. Your own program decides its own route and reply. Send it to
+<http://127.0.0.1:8000>, the address `published_port` publishes, once the
+program listens, a few seconds after the stack starts:
 
 ```bash
-docker run --rm --network docs-assistant_compose curlimages/curl:8.11.1 -sS -X POST \
-  http://supportagent:8000/ask -H 'Content-Type: application/json' \
+curl -sS -X POST http://127.0.0.1:8000/ask -H 'Content-Type: application/json' \
   -d '{"question": "In one short sentence: what is Azure Container Apps?"}'
 ```
 

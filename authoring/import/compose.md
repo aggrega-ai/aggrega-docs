@@ -562,7 +562,10 @@ From another terminal, the request above reaches the API at the same address,
 unchanged, and the stand-in answers the same way, `"host": "127.0.0.1:8080"`.
 The connections deliver the Services' names:
 `kubectl exec -n <namespace> deploy/api -- printenv DATABASE_HOST DATABASE_USER DATABASE_NAME CACHE_HOST`
-prints `db-default`, `notes`, `notes` and `cache-default`.
+prints `db-default`, `notes`, `notes` and `cache-default`. The API does not
+receive its database password on Kubernetes yet: the Secret
+`notes-db-password` reaches the database alone, so `DATABASE_PASSWORD` is not
+set in the `api` container.
 
 ## When the Compose file changes
 

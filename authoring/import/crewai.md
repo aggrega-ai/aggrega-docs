@@ -291,8 +291,8 @@ declares no `allow_delegation` is drafted with `false`. The model is a hosted
 service, so the agent's Component refuses a connection to it that carries no
 credential; each connection declares one, under the key `OPENAI_API_KEY`.
 
-`release.yaml` — the environment, each agent's image, and where each key comes
-from:
+`release.yaml` — the environment, each agent's image and published port, and
+where each key comes from:
 
 <!-- quotes: draft/release.yaml -->
 ```yaml
@@ -312,6 +312,8 @@ spec:
       infra:
         # Left for the Release, since the source cannot supply it: infra.image, the container image running the crew's program
         image: "ghcr.io/example/support-brief:1.0.0"
+        # Published on this machine's loopback address, 127.0.0.1: reachable from this machine only, by any process running on it. Delete this line to keep the service internal.
+        published_port: 8000
       uses:
         model:
           gpt-4o-mini:
@@ -325,6 +327,8 @@ spec:
       infra:
         # Left for the Release, since the source cannot supply it: infra.image, the container image running the crew's program
         image: "ghcr.io/example/support-brief:1.0.0"
+        # Published on this machine's loopback address, 127.0.0.1: reachable from this machine only, by any process running on it. Delete this line to keep the service internal.
+        published_port: 8001
       uses:
         model:
           gpt-4o-mini:
@@ -339,7 +343,11 @@ spec:
 
 The environment, `development`, is a default the import writes because no
 declaration names one; change it where the Release deploys elsewhere. Each
-image is the answer the import read from `import-answers.yaml`. The
+image is the answer the import read from `import-answers.yaml`. Each agent is
+published on your machine's loopback address, forwarding to the port its
+program listens on, `infra.port`, 8000 unless you set it: the researcher on
+8000 and the writer on 8001, since two services of one Release cannot publish
+the same port. The
 declarations name no variable for the key, so each connection reads it from
 `${OPENAI_API_KEY}`, the variable OpenAI's client libraries read, as a variable
 reference and never a value.
@@ -400,7 +408,8 @@ Aggregate's `values` or the Release's `infra`, and the notice reports that one
 leaf is declared in both. It changes no verdict.
 
 The researcher's service in `dist/compose/docker-compose.yaml`; the writer's
-differs only in its name and in the values its own variables carry:
+differs only in its name, in the values its own variables carry and in the
+port it publishes:
 
 ```yaml
 services:
@@ -418,6 +427,8 @@ services:
       CREWAI_ROLE: |
         Support plan researcher
       OPENAI_API_KEY: ${OPENAI_API_KEY}
+    ports:
+      - 127.0.0.1:8000:8000
     [… omitted: the labels the build writes on every service, naming the Aggregate, the component, the environment and the compiler's version]
     networks:
       - compose
@@ -432,8 +443,9 @@ name the program reads instead. Each value the import drafted keeps the line
 break its declaration ended with, so the file writes it as a block.
 The model gets no service of its own: the agents reach the OpenAI API at its
 own address. The key is a variable reference, filled from your shell when the
-stack starts. The services publish no port on your machine: the rendered file
-gives them none.
+stack starts. Each service publishes its port on 127.0.0.1 alone: the
+researcher's 8000 and the writer's 8001, each forwarding to the program's port
+8000 inside its container.
 
 ## With an AI assistant
 
@@ -504,14 +516,12 @@ docker compose -p support-brief -f dist/compose/docker-compose.yaml up -d --wait
 
 The request below reaches the program this walkthrough's image runs: the
 crew behind a small HTTP server on port 8000, answering `POST /kickoff`. Your
-own program decides its own address, route and reply. The services publish no
-port and the image carries no HTTP client, so the request comes from a
-container started on the stack's network, `support-brief_compose`. Send it once
-the program listens, a few seconds after the stack starts:
+own program decides its own route and reply. Send it to the researcher at
+<http://127.0.0.1:8000>, the address `published_port` publishes, once the
+program listens, a few seconds after the stack starts:
 
 ```bash
-docker run --rm --network support-brief_compose curlimages/curl:8.11.1 -sS -X POST \
-  http://researcher:8000/kickoff -H 'Content-Type: application/json' \
+curl -sS -X POST http://127.0.0.1:8000/kickoff -H 'Content-Type: application/json' \
   -d '{"question": "Which support plan covers a weekend outage, and what does it cost?"}'
 ```
 
@@ -524,7 +534,8 @@ docker run --rm --network support-brief_compose curlimages/curl:8.11.1 -sS -X PO
 The run set `OPENAI_API_KEY` to a placeholder, so the reply is OpenAI's
 refusal of it, passed on by the program. The crew's request reached the OpenAI
 API with the key the build delivered. Both agents run the same image, so the
-request could go to either.
+request could go to either: the writer answers the same at
+<http://127.0.0.1:8001>.
 
 Stop the stack with:
 

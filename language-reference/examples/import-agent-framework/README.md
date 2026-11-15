@@ -87,12 +87,11 @@ can do the same: paste this prompt into it.
 
 With the stack running as the walkthrough runs it, one request reaches the
 agent. The route below is the walkthrough's own program's, a small HTTP server
-on port 8000; your own program decides its own. The service publishes no port,
-so the request comes from a container on the stack's network:
+on port 8000; your own program decides its own. The Release publishes the agent
+on 127.0.0.1:8000, so the request goes from your machine:
 
 ```sh
-docker run --rm --network docs-assistant_compose curlimages/curl:8.11.1 -sS -X POST \
-  http://supportagent:8000/ask -H 'Content-Type: application/json' \
+curl -sS -X POST http://127.0.0.1:8000/ask -H 'Content-Type: application/json' \
   -d '{"question": "In one short sentence: what is Azure Container Apps?"}'
 ```
 

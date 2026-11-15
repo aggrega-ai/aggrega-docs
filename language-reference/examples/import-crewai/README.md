@@ -86,12 +86,12 @@ can do the same: paste this prompt into it.
 
 With the stack running as the walkthrough runs it, one request reaches the
 crew. The route below is the walkthrough's own program's, a small HTTP server
-on port 8000; your own program decides its own. The services publish no port,
-so the request comes from a container on the stack's network:
+on port 8000; your own program decides its own. The Release publishes the
+researcher on 127.0.0.1:8000 and the writer on 127.0.0.1:8001, so the request
+goes to the researcher from your machine:
 
 ```sh
-docker run --rm --network support-brief_compose curlimages/curl:8.11.1 -sS -X POST \
-  http://researcher:8000/kickoff -H 'Content-Type: application/json' \
+curl -sS -X POST http://127.0.0.1:8000/kickoff -H 'Content-Type: application/json' \
   -d '{"question": "Which support plan covers a weekend outage, and what does it cost?"}'
 ```
 

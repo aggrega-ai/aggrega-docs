@@ -105,7 +105,8 @@ received:
 Imported with `--target helm` and applied to Kubernetes, as
 [the walkthrough](../../../authoring/import/compose.md#on-kubernetes) shows,
 the API answers the same request at the same address once a local port is
-forwarded to its Service:
+forwarded to its Service; there it does not receive its database password yet,
+since the Secret reaches the database alone:
 
 ```sh
 kubectl port-forward -n <namespace> svc/api-default 8080:8080

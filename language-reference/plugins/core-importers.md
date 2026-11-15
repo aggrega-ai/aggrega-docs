@@ -1860,7 +1860,12 @@ one.
 
 `release.yaml`, beside it, is a draft Release of the same name naming that Aggregate. It writes each
 agent's `infra.image` — the image running the crew's program, which no declaration names — empty,
-under a comment saying what it is, and the import owes it. It attaches the credential each agent
+under a comment saying what it is, and the import owes it. With `--target compose` each agent's entry
+also writes `infra.published_port`, 8000, the port the Component's `infra.port` names for the
+program by default, which its Compose Recipe publishes on the host's loopback address, 127.0.0.1,
+under the comment saying it is reachable from this machine only, by any process running on it, and
+that deleting the line keeps the service internal; a second agent takes the next free port, so the
+classic project's two agents are published on 8000 and 8001. It attaches the credential each agent
 presents to its model under `credential` on its `model` connection, by reference and never as a
 value: no declaration names a variable for it, so it is read from the variable the provider's client
 libraries read their API key from — `OPENAI_API_KEY` for OpenAI — as a `${…}` reference on every
@@ -2076,8 +2081,12 @@ LangGraph installed, not the server image `langgraph build` builds — the varia
 which `inject:` block replaces which of their names. Each graph's entry writes its `infra.image`, the
 image running the application, empty under a comment saying what it is, and the import owes it; the
 Docker Compose Recipe runs the catalog's own [quickstart agent](../examples/quickstart-ai/README.md),
-which reads the default variables, while it is unset. The datastore and the model have entries too,
-so the Release places them with the graphs. A comment above the application's first graph states the
+which reads the default variables, while it is unset. With `--target compose` each graph's entry also
+writes `infra.published_port`, 8000, the port the Component's `infra.port` names for the application
+by default, which its Compose Recipe publishes on the host's loopback address, 127.0.0.1, under the
+comment saying it is reachable from this machine only, by any process running on it, and that
+deleting the line keeps the service internal; a second graph takes the next free port. The datastore
+and the model have entries too, so the Release places them with the graphs. A comment above the application's first graph states the
 environment its configuration declares, as
 [The environment a configuration states](#the-environment-a-configuration-states) describes. Like
 every drafted Release, it writes `metadata.environment` as `development` and, with no target, an empty
@@ -2549,7 +2558,11 @@ the agent's entry in the Release, and its decision chooses nothing.
 
 `release.yaml`, beside it, is a draft Release of the same name naming that Aggregate. The agent's entry
 writes its `infra.image` — the image running the application built on Agent Framework, which holds
-its declarative agent — empty, under a comment saying what it is, and the import owes it. Where its
+its declarative agent — empty, under a comment saying what it is, and the import owes it. With
+`--target compose` the entry also writes `infra.published_port`, 8000, the port the Component's
+`infra.port` names for the application by default, which its Compose Recipe publishes on the host's
+loopback address, 127.0.0.1, under the comment saying it is reachable from this machine only, by any
+process running on it, and that deleting the line keeps the service internal. Where its
 model is wired, the entry attaches the credential the agent presents to that model under `credential`
 on its `model` connection, by reference and never as a value: read from the variable the declarative
 agent names for its key, written `=Env.NAME`, and otherwise from `OPENAI_API_KEY`, the variable
