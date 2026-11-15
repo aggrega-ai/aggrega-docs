@@ -121,7 +121,7 @@ The script names the version it installs and the path it installs it to, says ho
 it is not there, prints the installed version, and ends with what to do next, as in this run on Linux:
 
 ```text
-Installing aggrega 0.9.0-rc.3 (linux-amd64)
+Installing aggrega 0.9.0 (linux-amd64)
   Downloaded and checked against its SHA-256 checksum
   Installed /home/myuser/.local/bin/aggrega
 
@@ -129,8 +129,8 @@ Installing aggrega 0.9.0-rc.3 (linux-amd64)
 
   echo 'export PATH="/home/myuser/.local/bin:$PATH"' >> ~/.bashrc
 
-aggrega 0.9.0-rc.3 (committed 2026-11-11T12:57:07Z, commit 3eccd4b5, abi v1beta1, go1.26.0)
-embedded  15 plugins version 0.9.0-rc.3 — `aggrega plugin list` for details
+aggrega 0.9.0 (committed 2026-11-15T04:52:20Z, commit 20597808, abi v1beta1, go1.26.0)
+embedded  15 plugins version 0.9.0 — `aggrega plugin list` for details
 
 Next:
   Run the AI quickstart:        curl -fsSL https://aggrega.ai/quickstart-ai.sh | sh
@@ -147,12 +147,12 @@ irm https://aggrega.ai/install.ps1 | iex
 It prints the same kind of summary, as in this run on Windows:
 
 ```text
-Installing aggrega 0.9.0-rc.3 (windows-amd64)
+Installing aggrega 0.9.0 (windows-amd64)
   Downloaded and checked against its SHA-256 checksum
   Installed C:\Users\myuser\AppData\Local\Programs\aggrega\aggrega.exe
 
-aggrega 0.9.0-rc.3 (committed 2026-11-11T12:57:07Z, commit 3eccd4b5, abi v1beta1, go1.26.0)
-embedded  15 plugins version 0.9.0-rc.3 — `aggrega plugin list` for details
+aggrega 0.9.0 (committed 2026-11-15T04:52:20Z, commit 20597808, abi v1beta1, go1.26.0)
+embedded  15 plugins version 0.9.0 — `aggrega plugin list` for details
 
 Next:
   Run the AI quickstart:        irm https://aggrega.ai/quickstart-ai.ps1 | iex
