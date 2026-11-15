@@ -62,8 +62,12 @@ The source is a file or a directory. A file is handed to the importer whole. A
 directory is read into named sources: exactly the files the importer's declared
 file patterns match, at any depth, each named by its path inside the directory
 written with forward slashes, in sorted order, and no other file of the
-directory is opened. A link inside the directory is never followed out of it:
-the directory is held to itself wherever it lies, inside the workspace or
+directory is opened. A directory holding the folder aggrega build writes to —
+dist/ beneath the workspace root — is read without it: nothing in that folder
+is recognized or handed to the importer, so a directory you have built is
+read as the project it holds, and a directory that is that folder, or lies
+inside it, is read as named. A link inside the directory is never followed out
+of it: the directory is held to itself wherever it lies, inside the workspace or
 outside it, so a link leading out of it — to a directory, or to a file the
 importer's patterns match (any importer's, when the format is recognized) — is
 refused before anything is read. A link to a directory is never entered, and a
