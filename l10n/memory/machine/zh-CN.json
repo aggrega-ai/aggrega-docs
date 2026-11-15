@@ -10312,6 +10312,13 @@
     "status": "machine",
     "text": "挂接所针对的能力，适用于插槽承载多个能力的情况。"
   },
+  "0e2f7904e492a34d": {
+    "at": "2026-11-15T00:01:03.678Z",
+    "job": "session-0025-20261115000103",
+    "srcHash": "0e2f7904e492a34d",
+    "status": "machine",
+    "text": "**值等于另一个服务为其 Component 设置、且该 Component 会发布的某个值时**（例如 `DATABASE_USER: notes`，与之并列的 PostgreSQL 服务设置了 `POSTGRES_USER: notes`），生成一条连接，从该 `provides` 键提供该变量。若多个服务或键持有该值，则读取其键或其自身变量的结尾与该变量名结尾相同的那个；若没有，则读取该服务的其他变量尚未从中读取的那个；否则不读取该变量。"
+  },
   "0e3821a2878f93dd": {
     "at": "2026-10-22T03:18:41.939034+00:00",
     "job": "msgbatch_01WVZNy6gZ7XHn9XMQG1UFc9",
@@ -12472,6 +12479,17 @@
     "srcHash": "10dce4c7dbc08492",
     "status": "machine",
     "text": "一个典型的双插件链如下："
+  },
+  "10e6f737d075fd40": {
+    "at": "2026-11-15T00:01:03.678Z",
+    "job": "session-0025-20261115000103",
+    "revision": {
+      "from": "816506e3a5888f33",
+      "reviewed": false
+    },
+    "srcHash": "10e6f737d075fd40",
+    "status": "machine",
+    "text": "与之并列，`release.yaml` 是一个同名的草稿 Release，其 `spec.aggregate` 指向该 Aggregate。对于 `core/compute/server` 的实例，它写出 `infra.image`（按原样写出的镜像）和 `infra.port`（`ports` 第一个条目中容器监听的端口；若 `ports` 为空，则取 `expose` 的第一个条目）。使用 `--target compose` 时，它还会写出 `infra.published_port`，即同一个 `ports` 条目按源文件所写发布的主机端口，并附上注释，说明该端口只能从本机、由本机上运行的任何进程访问，删除该行即可使服务保持内部；低于 1024 的主机端口 `published_port` 不接受，因此不会写出，而由条目上方的注释指出。每个服务条目上方的注释写出源文件中有、但草稿中没有任何键承载的内容——匹配到其他 Component 且草稿未转换其标签的服务的镜像，它的 `ports`、`expose`、`volumes`，以及草稿未转换的 `environment` 中的每个变量——供你在 Component 接受时自行填入。草稿留给 Release 的内容——未指定镜像的服务的镜像（例如自行构建镜像的服务），以及不是单个数字的端口——会以空值写出，并附上说明原因的注释。构建只放置 Release 所列的实例，因此每个模型的实例在各服务条目之后都有一个空条目 `<key>: {}`：`core/ai-model/docker-model-runner` 的实例如此（它在 Compose 上没有缺少默认值的输入），被起草为独立 Component 的模型也是如此，因此起草的模型已经放置好，一旦你编写了实现它的 Recipe 即可构建。Component 不接受的端口（例如低于 `core/compute/server` 下限 1024 的端口）会按源文件所写写出，构建会因此中止并指出该端口。Release 写出 `metadata.environment`，在未指定目标时写出空的 `spec.manifest`，与 MCP 导入器的 Release 相同；指定目标时，导入会起草 Manifest，如[目标会添加什么](#what-a-target-adds)所述，将每个 Component 映射到在该目标上实现它的 Recipe——`core/compute/server` 映射到 `compose/server` 或 `helm/server`，`core/ai-model/docker-model-runner` 映射到 `compose/docker-model-runner` 或 `helm/docker-model-runner`。"
   },
   "10e960a3da20bdfb": {
     "at": "2026-10-22T04:43:27.484470+00:00",
@@ -14654,6 +14672,13 @@
     "srcHash": "1423e7c3b0305c9a",
     "status": "machine",
     "text": "duplicate delivery key across inject sources（多个 inject 来源之间存在重复的交付键） (Aggregate `<name>`, at `.spec.components.<component>.inject.<mechanism>.<key>`, `\"<mechanism>\"`, `\"<key>\"`, `\"<socket>\"`, `\"<alias>\"`)"
+  },
+  "142c9bd53a9c85f9": {
+    "at": "2026-11-15T00:01:03.678Z",
+    "job": "session-0025-20261115000103",
+    "srcHash": "142c9bd53a9c85f9",
+    "status": "machine",
+    "text": "此外，对于每个服务，其环境中未按上述方式读取的每个变量："
   },
   "1430e8c142aa32af": {
     "at": "2026-10-22T04:05:10.557953+00:00",
@@ -29820,6 +29845,13 @@
     "srcHash": "294ca72026173442",
     "status": "machine",
     "text": "**它不会猜测你的来源无法陈述的内容。** 没有任何来源会指定 Release 部署到的环境，因此起草的 Release 指定 `development`，并附有注释说明这是一个需要更改的默认值。目录要求而任何来源都不包含的值——所有者账户的电子邮件、由你自己的代码构建的应用程序镜像、Kubernetes Secret 的名称——会被起草为空并加以询问，如下文[导入如何运行](#how-an-import-runs)所述。"
+  },
+  "2950552022c7eac0": {
+    "at": "2026-11-15T00:01:03.678Z",
+    "job": "session-0025-20261115000103",
+    "srcHash": "2950552022c7eac0",
+    "status": "machine",
+    "text": "其他所有变量都按源文件所写保留在服务条目上方的注释中。[Compose 导入演练](../../authoring/import/compose.md)展示了一个项目，其 API 以这种方式访问数据库和缓存，并按起草结果构建和运行。"
   },
   "2952016172820cfa": {
     "at": "2026-10-22T01:56:20.260469+00:00",
@@ -50291,6 +50323,17 @@
     "status": "machine",
     "text": "**AOT 纯粹性（不从实时云获取数据）**：编译器对实时云在数学意义上是盲的。它在编译期间从不向基础设施 API 进行身份验证，也从不获取实时 IP 地址。它完全基于*控制反转*运行：映射确定性的指针，并提前传递抽象的注入契约，以便运行时环境能够安全地解析最终的物理连接。"
   },
+  "4696cccd3b0da821": {
+    "at": "2026-11-15T00:01:03.678Z",
+    "job": "session-0025-20261115000103",
+    "revision": {
+      "from": "46394157b0492951",
+      "reviewed": false
+    },
+    "srcHash": "4696cccd3b0da821",
+    "status": "machine",
+    "text": "Compose 不将任何环境变量值标记为凭据，导入器也不根据变量名判断其含义，因此每个非空的环境变量值都被定位为一个其格式未标记为凭据、但可能携带凭据的输入。默认情况下，每个值按原样写入草稿（写入它被转换成的值，或写入 Release 中其服务条目上方的注释），并在 `credential-carried` 警告中按其服务和变量（`environment.<variable>`）指出，从不写出其值。将 [`empty_credentials` 设置](#settings)设为 `all` 时，每个值被写为空并以 `credential-emptied` 报告：注释只列出变量，不带值。设为 `marked` 时不会清空任何值，因为 Compose 没有标记任何值。仅由一个 Compose 会插值的变量引用构成的值（`${NAME}` 或 `$NAME`）本身不含值：它按原文写出，不出现在任何警告中。带有默认值或消息的引用（例如 `${NAME:-value}`）含有该文本，会像其他值一样被定位。Compose 从别处读取的值（`env_file`、secret 的文件）不会被读取。"
+  },
   "4696f6e8fcf9a734": {
     "at": "2026-10-22T02:24:43.656154+00:00",
     "job": "msgbatch_01LPuEFeUVjFEgXoDzuak74j",
@@ -56861,6 +56904,13 @@
     "srcHash": "4fd6fd31701a2524",
     "status": "machine",
     "text": "**`.context.used_by`（列表，见下文）。** 其 `uses` 条目指向本 component 的各个 component。由附加到该 component 的 FeatureRecipe 在生成附件自身资源的模板上读取；在其他所有位置为空。"
+  },
+  "4fe40eb8685d6fa9": {
+    "at": "2026-11-15T00:01:03.678Z",
+    "job": "session-0025-20261115000103",
+    "srcHash": "4fe40eb8685d6fa9",
+    "status": "machine",
+    "text": "**Recipe 根据 Component 的某个值设置的变量**（`POSTGRES_DB`、`POSTGRES_USER`），若其值包含文本，则在目录的 Component 声明该值时，成为实例的该值 `database` 或 `user`，写在 Aggregate 中，上方有一条列出这些变量的注释。"
   },
   "4fe423f6192326bb": {
     "at": "2026-10-22T02:54:42.494843+00:00",
@@ -67999,6 +68049,17 @@
     "status": "machine",
     "text": "`DocumentSet`"
   },
+  "5f5cd514f3ed9054": {
+    "at": "2026-11-15T00:01:03.678Z",
+    "job": "session-0025-20261115000103",
+    "revision": {
+      "from": "9fbeabd623f0ad4a",
+      "reviewed": false
+    },
+    "srcHash": "5f5cd514f3ed9054",
+    "status": "machine",
+    "text": "`aggregate.yaml` 是一个草稿 Aggregate，按[草稿如何命名](#how-a-draft-is-named)所述以项目命名，每个服务对应一个实例，实例的类型是该服务的决策所选的 Component，其键的取法与 MCP 导入器为服务器取键的方式相同；当键不是服务名，或导入读取了多个目录时，实例上方有一条注释，指出该服务及其来源文件。服务的 `depends_on` 所列的每个服务都是一条连接，即 `uses: <key>: <key>: {target: <key>}`，写在一个 socket 和一个别名之下，二者都以目标的键命名。组件通过别名读取它的每条连接，无论该连接接入哪个 socket，因此服务的每条连接都有自己的别名。服务环境中的变量也可以生成连接，从它所指向的服务发布的内容中提供该变量，如[服务的环境和镜像会变成什么](#what-a-services-environment-and-image-become)所述。当工作区的目录包含 `core/ai-model/docker-model-runner` 时，无论 `reuse_mode` 如何设置，每个模型都是它的一个实例，且不为其起草 Component：该实例按源文件所写的形式写出 `model` 和 `runtime_flags`，并将源文件的 `context_size` 写为 `context_window`，即该运行时为模型上下文长度声明的值，其 Compose Recipe 会将其写回为 Compose 的 `context_size`。当目录中没有 `core/ai-model/docker-model-runner` 时，模型被起草为 `<target_namespace>/ai-model/<key>`，这是一个 `ai-model` 类别的 Component，其 values 声明 `model`、`context_size` 和 `runtime_flags`，其实例写出源文件所给的每一项。每个模型都有一条决策说明属于哪种情况——`mapped llm (model) to core/ai-model/docker-model-runner as a\nreference, NONE`，或一个草稿，其决策记录工作区的目录中没有 `core/ai-model/docker-model-runner`——无论哪种情况，引用该模型的每个服务都会连接到它，如同连接到它所依赖的服务。以长格式引用模型并带有 `endpoint_var` 或 `model_var` 的服务，会指明模型地址和标识符传给该服务时所用的变量。草稿中没有任何键保存变量名——连接写在以模型命名、不声明任何值的 socket 上，而导入器拿不到任何 Component 的 infrastructure 键——因此连接上方有一条注释，按条目所写的形式列出每个变量，服务的决策也记录同一句话："
+  },
   "5f5d21bf23dca47c": {
     "at": "2026-10-30T18:25:06.762Z",
     "job": "session-0003-20261030182506",
@@ -77475,6 +77536,13 @@
     "srcHash": "6ca1545a0e79fc95",
     "status": "machine",
     "text": "**名称不匹配任何已输出文件时，该轮处理就没有可切分的内容，此时它会拒绝，而不是跳过该连线。**连线携带的操作正是解析该连接的手段，因此丢弃它们会使组装后的输出引用一个无人连线的端点——这会在部署时失败，远离导致问题的 provider，而且看起来像是连接本身的错误，而不是连线的错误。"
+  },
+  "6ca6cd314fe816c7": {
+    "at": "2026-11-15T00:01:03.678Z",
+    "job": "session-0025-20261115000103",
+    "srcHash": "6ca6cd314fe816c7",
+    "status": "machine",
+    "text": "**值为单个变量引用、且所引用的变量是另一个服务的 secret 的读取来源时**（`DATABASE_PASSWORD: ${POSTGRES_PASSWORD}`），在 `core/compute/server` 的实例上，若目标将 secret 写为服务器接受的值，它就成为一个独立的 secret，以小写的变量名挂接，并从同一个变量读取。`helm/server` 拒绝 `core/referenced-secret`，因此使用 `--target helm` 时，这类变量保留在注释中。"
   },
   "6ca74614c6ec2042": {
     "at": "2026-10-22T08:23:20.000561+00:00",
@@ -87873,6 +87941,13 @@
     "status": "machine",
     "text": "完全退出 Claude Desktop，然后重新启动。应用已启动的服务器会继续运行，重命名可执行文件也不会使其停止，因此更改的设置只有在应用退出并重新启动后才会生效。在 Windows 上，可通过任务管理器查看 `aggrega` 进程是否仍在运行。"
   },
+  "7ac2a89ee560f230": {
+    "at": "2026-11-15T00:01:03.678Z",
+    "job": "session-0025-20261115000103",
+    "srcHash": "7ac2a89ee560f230",
+    "status": "machine",
+    "text": "当服务是其镜像所在行指定的目录 Component 的实例，且工作区的目录包含该 Component 时，导入器会按照标准目录中该 Component 的 Compose Recipes 读取镜像和环境的方式来读取它们（依据镜像表为每个 Recipe 记录的内容），并将其转换到草稿中："
+  },
   "7ac2f78272577f72": {
     "at": "2026-10-22T03:00:38.891470+00:00",
     "job": "msgbatch_018TuANWNnugzXZUxyABeHjT",
@@ -94980,6 +95055,13 @@
     "srcHash": "851748be483cbec6",
     "status": "machine",
     "text": "声明该插槽后，Aggregate 省略 `pool_size` 的边渲染为 `10`，Release 省略 `storage_class` 的边渲染为 `standard`。编写的值按键优先，且限于其自身支柱：设置了 `pool_size: 42` 的 Aggregate 渲染为 `42`，而 `tls_mode` 仍填充为 `require`；设置了 `storage_class: gp3` 的 Release 渲染为 `gp3`，不影响任一开发者键。"
+  },
+  "85188159620a0bef": {
+    "at": "2026-11-15T00:01:03.678Z",
+    "job": "session-0025-20261115000103",
+    "srcHash": "85188159620a0bef",
+    "status": "machine",
+    "text": "导入报告 `mapped db (postgres) to core/datastore/postgres as a reference, HIGH at 0.9`。项目中没有 `cache` 服务，因此 `CACHE_URL` 不生成连接，保留在注释中。使用 `reuse_mode: hints-only` 时，`db` 则是 `type: imported/datastore/postgres`，起草在 `components/imported-datastore-postgres.yaml` 中，该文件以 `# resembles core/datastore/postgres (score 0.9000); reference it by setting type: core/datastore/postgres` 开头；此时它的镜像和环境写在其条目上方的注释中，因为起草的 Component 不声明目录中的 Recipes 所读取的任何值。指定 `--target compose` 时，Manifest 将 `core/datastore/postgres` 映射到 `compose/postgres`，将 `core/compute/server` 映射到 `compose/server`；指定 `--target helm` 时，则映射到 `helm/postgres` 和 `helm/server`。"
   },
   "8519a1ec0daf5254": {
     "at": "2026-10-22T02:13:05.447791+00:00",
@@ -125915,6 +125997,13 @@
     "status": "machine",
     "text": "guest 自身渲染该节点作者提供的源、或为该节点合成的资源时所使用的名称，已按其目标在该位置接受的字母表写出。为空或缺失表示 guest 不派生此类名称。"
   },
+  "afa643e383936e5c": {
+    "at": "2026-11-15T00:01:03.678Z",
+    "job": "session-0025-20261115000103",
+    "srcHash": "afa643e383936e5c",
+    "status": "machine",
+    "text": "服务的环境和镜像会变成什么"
+  },
   "afa91ee1ab22b33f": {
     "at": "2026-10-30T04:21:50.177Z",
     "job": "session-0053-20261030042150",
@@ -141855,6 +141944,13 @@
     "srcHash": "c5666b93077accf4",
     "status": "machine",
     "text": "要打开的工作区的绝对路径。缺省时会话没有工作区；空字符串是客户端提供的路径，与不发送路径不同。"
+  },
+  "c5671769955affbf": {
+    "at": "2026-11-15T00:01:03.678Z",
+    "job": "session-0025-20261115000103",
+    "srcHash": "c5671769955affbf",
+    "status": "machine",
+    "text": "**值为项目中另一个服务的名称时**，若该服务所在行指定了发布其主机名的 `provides` 键，则生成一条到该服务的连接，其 `inject` 块从该键提供该变量——`CACHE_HOST: cache` 即从缓存的 `host` 得到 `CACHE_HOST`。"
   },
   "c56d41ddf11097fc": {
     "at": "2026-10-22T03:00:38.891470+00:00",
@@ -163755,6 +163851,13 @@
     "status": "machine",
     "text": "🔴 **两种导入形式都不在其范围内。** 通过 `$import:` 提供的 `valuesMapping:`、`workload:` 或 `artifacts:` 条目——无论导入指向本地文件还是库条目——在渲染解析它之前，在你的 Recipe 中不含任何文本，因此**此类主体内部**对该键的引用不会被检查。在导入节点的 provider 报告名称时，它渲染该 provider 报告的名称；在其未报告名称时，它渲染空值而不是中止。因此，只有当导入某个主体的每个 Recipe 都绑定一个会报告名称的 provider 时，该导入主体才应读取该键——例如一个为提供 chart 的 `helm` Recipes 编写、并在其描述中说明这一点的库条目。若主体面向的导入方的 provider 可能不报告名称，则应改为通过导入方 Recipe 设置的值来获取名称。"
   },
+  "e2ede250bf814353": {
+    "at": "2026-11-15T00:01:03.678Z",
+    "job": "session-0025-20261115000103",
+    "srcHash": "e2ede250bf814353",
+    "status": "machine",
+    "text": "**镜像的标签**是 Recipe 用来构建镜像引用的 infrastructure 键，例如 `engine_version`（`postgres:16` 对应 `16`），写在 Release 中，上方有一条指出源镜像的注释。"
+  },
   "e2f566d112f3b48f": {
     "at": "2026-10-22T03:18:41.939034+00:00",
     "job": "msgbatch_01WVZNy6gZ7XHn9XMQG1UFc9",
@@ -171121,6 +171224,13 @@
     "srcHash": "ed3591114bcb8de1",
     "status": "machine",
     "text": "Schema 桥接跨支柱传递：将意图桥接到基础设施"
+  },
+  "ed375d99169eb9e8": {
+    "at": "2026-11-15T00:01:03.678Z",
+    "job": "session-0025-20261115000103",
+    "srcHash": "ed375d99169eb9e8",
+    "status": "machine",
+    "text": "**Recipe 从中读取密码的变量**，例如 `POSTGRES_PASSWORD`，若其值是单个变量引用，则成为挂接在该槽位上的 secret，从该引用指定的变量中读取，并以 Recipe 读取它时所用的键声明。"
   },
   "ed3965f4ff10a9f7": {
     "at": "2026-10-22T03:12:40.354254+00:00",

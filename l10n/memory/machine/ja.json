@@ -10312,6 +10312,13 @@
     "status": "machine",
     "text": "ソケットが複数の機能を持つ場合の、このアタッチメントの対象となる機能です。"
   },
+  "0e2f7904e492a34d": {
+    "at": "2026-11-15T00:01:03.678Z",
+    "job": "session-0025-20261115000103",
+    "srcHash": "0e2f7904e492a34d",
+    "status": "machine",
+    "text": "**別のサービスがその Component に設定し、Component が公開する値と等しい値**（`POSTGRES_USER: notes` を設定する PostgreSQL サービスと並ぶ `DATABASE_USER: notes`）は、その `provides` キーから変数を届ける接続を生みます。複数のサービスやキーがその値を保持する場合は、キーまたはそれ自身の変数の末尾が変数名の末尾と一致するものが読まれ、それがなければ、サービスの他の変数がまだ読まれていないものが読まれます。それ以外の場合、その変数は読まれません。"
+  },
   "0e3821a2878f93dd": {
     "at": "2026-10-22T03:18:41.939034+00:00",
     "job": "msgbatch_01WVZNy6gZ7XHn9XMQG1UFc9",
@@ -12472,6 +12479,17 @@
     "srcHash": "10dce4c7dbc08492",
     "status": "machine",
     "text": "典型的な 2 プラグインの連鎖は次のとおりです。"
+  },
+  "10e6f737d075fd40": {
+    "at": "2026-11-15T00:01:03.678Z",
+    "job": "session-0025-20261115000103",
+    "revision": {
+      "from": "816506e3a5888f33",
+      "reviewed": false
+    },
+    "srcHash": "10e6f737d075fd40",
+    "status": "machine",
+    "text": "その隣の `release.yaml` は同じ名前のドラフト Release で、その `spec.aggregate` が Aggregate を示します。`core/compute/server` のインスタンスについては、記述どおりのイメージである `infra.image` と、`ports` の最初のエントリ（`ports` が何も保持しない場合は `expose` の最初のエントリ）でコンテナが待ち受けるポートである `infra.port` を書きます。`--target compose` の場合は、同じ `ports` エントリが公開するホストポートである `infra.published_port` もソースの記述どおりに書き、このマシンからのみ、そこで動作する任意のプロセスから到達可能であり、その行を削除するとサービスは内部にとどまる旨のコメントを付けます。`published_port` が受け取らない 1024 未満のホストポートは書かれず、エントリの上のコメントがそれを示します。各サービスのエントリの上のコメントは、ソースが記述していてドラフトのどのキーも持たないもの（別の Component に一致し、ドラフトがそのタグを変換しないサービスのイメージ、その `ports`、`expose`、`volumes`、およびドラフトが変換しない `environment` の各変数）を、Component がそれを受け取る場所へ移せるように書きます。ドラフトが Release に委ねるもの（自身のイメージをビルドするサービスのように、イメージを示さないサービスのイメージと、単一の数値でないポート）は、理由を示すコメントの下に空で書かれます。ビルドは Release が示すインスタンスだけを配置するため、各モデルのインスタンスには、サービスのエントリの後に空のエントリ `<key>: {}` があります。これは、Compose 上でデフォルトのない入力を受け取らない `core/ai-model/docker-model-runner` のインスタンスでも、独自の Component としてドラフトされたモデルでも同じです。そのため、ドラフトされたモデルはすでに配置されており、それを実現する Recipe を書けばビルドできます。`core/compute/server` の下限 1024 未満のポートのように、Component が受け取らないポートはソースの記述どおりに書かれ、ビルドはそれを示して停止します。Release は、MCP インポーターの Release と同様に `metadata.environment` を書き、ターゲットがない場合は空の `spec.manifest` を書きます。ターゲットが与えられた場合、インポートは [ターゲットが追加するもの](#what-a-target-adds)で説明するとおり Manifest をドラフトし、各 Component をそのターゲット上で実現する Recipe に対応付けます。`core/compute/server` は `compose/server` または `helm/server` に、`core/ai-model/docker-model-runner` は `compose/docker-model-runner` または `helm/docker-model-runner` に対応付けられます。"
   },
   "10e960a3da20bdfb": {
     "at": "2026-10-22T04:43:27.484470+00:00",
@@ -14654,6 +14672,13 @@
     "srcHash": "1423e7c3b0305c9a",
     "status": "machine",
     "text": "duplicate delivery key across inject sources (Aggregate `<name>`, at `.spec.components.<component>.inject.<mechanism>.<key>`, `\"<mechanism>\"`, `\"<key>\"`, `\"<socket>\"`, `\"<alias>\"`)（inject ソース間での配信キーの重複）"
+  },
+  "142c9bd53a9c85f9": {
+    "at": "2026-11-15T00:01:03.678Z",
+    "job": "session-0025-20261115000103",
+    "srcHash": "142c9bd53a9c85f9",
+    "status": "machine",
+    "text": "さらに、すべてのサービスについて、このように読まれなかった環境の各変数は次のとおりです。"
   },
   "1430e8c142aa32af": {
     "at": "2026-10-22T04:05:10.557953+00:00",
@@ -29820,6 +29845,13 @@
     "srcHash": "294ca72026173442",
     "status": "machine",
     "text": "**ソースが記述できない内容を推測しません。** Release がデプロイされる環境を指定するソースはないため、ドラフトされた Release は `development` を指定し、変更すべきデフォルトであることを示すコメントが付きます。カタログが必要とし、どのソースも保持していない値（オーナーアカウントのメールアドレス、自分のコードからビルドしたアプリケーションのイメージ、Kubernetes Secret の名前）は、空のままドラフトされ、後述の[インポートの実行の流れ](#how-an-import-runs)で説明するとおりに尋ねられます。"
+  },
+  "2950552022c7eac0": {
+    "at": "2026-11-15T00:01:03.678Z",
+    "job": "session-0025-20261115000103",
+    "srcHash": "2950552022c7eac0",
+    "status": "machine",
+    "text": "その他の変数はすべて、ソースの記述どおりにサービスのエントリの上のコメントに残されます。[Compose インポートのウォークスルー](../../authoring/import/compose.md)では、API がこの方法でデータベースとキャッシュに到達するプロジェクトを、ドラフトどおりにビルドして実行します。"
   },
   "2952016172820cfa": {
     "at": "2026-10-22T01:56:20.260469+00:00",
@@ -50291,6 +50323,17 @@
     "status": "machine",
     "text": "**AOT の純粋性（ライブクラウドからの取得なし）**：コンパイラはライブクラウドに対して数学的に盲目です。コンパイル中にインフラ API で認証することも、ライブの IP アドレスを取得することも決してありません。完全に*制御の反転*に基づいて動作し、決定論的なポインタをマッピングし、抽象的な注入契約を事前に渡すことで、ランタイム環境が最終的な物理接続を安全に解決できるようにします。"
   },
+  "4696cccd3b0da821": {
+    "at": "2026-11-15T00:01:03.678Z",
+    "job": "session-0025-20261115000103",
+    "revision": {
+      "from": "46394157b0492951",
+      "reviewed": false
+    },
+    "srcHash": "4696cccd3b0da821",
+    "status": "machine",
+    "text": "Compose はどの環境変数の値も認証情報としてマークせず、インポーターは変数名をその意味のために読まないため、何かを保持するすべての環境変数の値は、そのフォーマットが認証情報ではないとマークしつつ認証情報を持ち得る入力として検出されます。デフォルトでは、それぞれドラフトに記述どおりに移され（変換先の値、または Release 内のサービスのエントリの上のコメントへ）、`credential-carried` 警告でそのサービスと変数（`environment.<variable>`）によって示されます。値によって示されることはありません。[`empty_credentials` 設定](#settings)が `all` の場合、それぞれ空で書かれ、`credential-emptied` で報告されます。コメントは値なしで変数を示します。`marked` の場合、Compose が何もマークしないため、空で書かれるものはありません。Compose が補間する変数参照 1 つだけからなる値（`${NAME}` または `$NAME`）は独自の値を保持しません。そのままのテキストとして書かれ、どの警告でも示されません。`${NAME:-value}` のようにデフォルトやメッセージを持つ参照はそのテキストを保持し、他の値と同様に検出されます。Compose が別の場所から読む値（`env_file` やシークレットのファイル）は読まれません。"
+  },
   "4696f6e8fcf9a734": {
     "at": "2026-10-22T02:24:43.656154+00:00",
     "job": "msgbatch_01LPuEFeUVjFEgXoDzuak74j",
@@ -56861,6 +56904,13 @@
     "srcHash": "4fd6fd31701a2524",
     "status": "machine",
     "text": "**`.context.used_by`（リスト、後述）。** `uses` エントリがこのコンポーネントを指しているコンポーネントです。コンポーネントにアタッチされた FeatureRecipe が、アタッチメント自身のリソースを生成するテンプレートで読みます。それ以外では空です。"
+  },
+  "4fe40eb8685d6fa9": {
+    "at": "2026-11-15T00:01:03.678Z",
+    "job": "session-0025-20261115000103",
+    "srcHash": "4fe40eb8685d6fa9",
+    "status": "machine",
+    "text": "**Recipe が Component の値の 1 つから設定する変数**（`POSTGRES_DB`、`POSTGRES_USER`）で、値がテキストを保持するものは、カタログの Component がその値を宣言している場合、インスタンスのその値（`database` または `user`）になり、変数を示すコメントの下で Aggregate に書かれます。"
   },
   "4fe423f6192326bb": {
     "at": "2026-10-22T02:54:42.494843+00:00",
@@ -68005,6 +68055,17 @@
     "status": "machine",
     "text": "`DocumentSet`"
   },
+  "5f5cd514f3ed9054": {
+    "at": "2026-11-15T00:01:03.678Z",
+    "job": "session-0025-20261115000103",
+    "revision": {
+      "from": "9fbeabd623f0ad4a",
+      "reviewed": false
+    },
+    "srcHash": "5f5cd514f3ed9054",
+    "status": "machine",
+    "text": "`aggregate.yaml` は、[ドラフトの命名方法](#how-a-draft-is-named)で説明するとおりプロジェクトにちなんで名付けられたドラフト Aggregate で、サービスごとに、その判定が選んだ Component のインスタンスを 1 つずつ保持します。インスタンスは MCP インポーターがサーバーにキーを付けるのと同じ方法でキーが付けられ、キーがサービス名でない場合やインポートが複数のディレクトリを読んだ場合は、その上のコメントがサービスと読み込み元のファイルを示します。サービスの `depends_on` が示す各サービスは接続 `uses: <key>: <key>: {target: <key>}` になり、どちらもターゲットのキーにちなんで名付けられたソケットとエイリアスの下に書かれます。コンポーネントは、どのソケットに接続されていても各接続をそのエイリアスで読み取るため、サービスの各接続にはそれぞれ固有のエイリアスがあります。サービスの環境の変数も接続を生むことがあり、[サービスの環境とイメージがどうなるか](#what-a-services-environment-and-image-become)で説明するとおり、到達するサービスが公開するものから変数を届けます。各モデルは、ワークスペースのカタログが `core/ai-model/docker-model-runner` を保持する場合、`reuse_mode` の指定にかかわらずそのインスタンスになり、そのための Component はドラフトされません。インスタンスは `model` と `runtime_flags` をソースの記述どおりに書き、ソースの `context_size` を `context_window` として書きます。これはランタイムがモデルのコンテキスト長として宣言する値で、その Compose Recipe が Compose の `context_size` として書き戻します。カタログが `core/ai-model/docker-model-runner` を保持しない場合、モデルは `<target_namespace>/ai-model/<key>` としてドラフトされます。これは `ai-model` カテゴリの Component で、その values は `model`、`context_size`、`runtime_flags` を宣言し、そのインスタンスはソースが記述する各値を書きます。すべてのモデルには、どちらであるかを示す判定があり（`mapped llm (model) to core/ai-model/docker-model-runner as a\nreference, NONE`、またはワークスペースのカタログが `core/ai-model/docker-model-runner` を保持しないことを判定が記録するドラフト）、どちらの場合も、そのモデルを示す各サービスは、依存するサービスと同様にモデルに接続されます。長い形式で `endpoint_var` または `model_var` を使ってモデルを示すサービスは、モデルのアドレスと識別子がサービスに届く変数を示します。ドラフトのどのキーも変数名を保持しないため（接続はモデルにちなんで名付けられた、値を宣言しないソケットに書かれ、インポーターにはどの Component のインフラキーも渡されません）、接続の上のコメントがエントリの記述どおりに各変数を示し、サービスの判定も同じ文を記録します。"
+  },
   "5f5d21bf23dca47c": {
     "at": "2026-10-30T18:25:06.762Z",
     "job": "session-0003-20261030182506",
@@ -77481,6 +77542,13 @@
     "srcHash": "6ca1545a0e79fc95",
     "status": "machine",
     "text": "**出力されたどのファイルとも一致しない名前では、そのパスに分割する対象がなくなります。そのため、配線を無視するのではなく拒否します。** 配線が持つ操作こそが接続を解決するものであり、それを捨てると、組み立てられた出力は何も配線されていないエンドポイントを参照することになります。これはデプロイ時に、原因となった provider から遠く離れた場所で失敗し、配線ではなく接続の誤りのように見えます。"
+  },
+  "6ca6cd314fe816c7": {
+    "at": "2026-11-15T00:01:03.678Z",
+    "job": "session-0025-20261115000103",
+    "srcHash": "6ca6cd314fe816c7",
+    "status": "machine",
+    "text": "**別のサービスのシークレットの読み取り元である変数を示す、1 つの変数参照である値**（`DATABASE_PASSWORD: ${POSTGRES_PASSWORD}`）は、`core/compute/server` のインスタンス上では、ターゲットがシークレットをサーバーが受け取る値として書く場合、独自のシークレットになります。これは小文字の変数名で付けられ、同じ変数から読まれます。`helm/server` は `core/referenced-secret` を拒否するため、`--target helm` ではそのような変数はコメントに残ります。"
   },
   "6ca74614c6ec2042": {
     "at": "2026-10-22T08:23:20.000561+00:00",
@@ -87877,6 +87945,13 @@
     "status": "machine",
     "text": "Claude Desktop を完全に終了してから、再度起動します。アプリケーションがすでに起動したサーバーは実行を続け、実行ファイルの名前を変更しても停止しないため、変更した設定はアプリケーションを終了して再起動した後にのみ有効になります。Windows では、タスク マネージャーで `aggrega` プロセスがまだ実行中かどうかを確認できます。"
   },
+  "7ac2a89ee560f230": {
+    "at": "2026-11-15T00:01:03.678Z",
+    "job": "session-0025-20261115000103",
+    "srcHash": "7ac2a89ee560f230",
+    "status": "machine",
+    "text": "サービスが、そのイメージの行が示すカタログの Component のインスタンスであり、ワークスペースのカタログがその Component を保持する場合、インポーターは、イメージテーブルが各 Recipe について記録する内容から、標準カタログのその Component 用の Compose Recipes が読むのと同じようにイメージと環境を読み、ドラフトへ変換します。"
+  },
   "7ac2f78272577f72": {
     "at": "2026-10-22T03:00:38.891470+00:00",
     "job": "msgbatch_018TuANWNnugzXZUxyABeHjT",
@@ -94988,6 +95063,13 @@
     "srcHash": "851748be483cbec6",
     "status": "machine",
     "text": "このソケットを宣言すると、Aggregate が `pool_size` を省略したエッジは `10` をレンダリングし、Release が `storage_class` を省略したエッジは `standard` をレンダリングします。記述はキーごとに、それぞれのピラー内で優先されます。`pool_size: 42` を設定した Aggregate は `42` をレンダリングし、`tls_mode` は引き続き `require` で埋められます。また `storage_class: gp3` を設定した Release は、どちらの開発者キーにも影響を与えずに `gp3` をレンダリングします。"
+  },
+  "85188159620a0bef": {
+    "at": "2026-11-15T00:01:03.678Z",
+    "job": "session-0025-20261115000103",
+    "srcHash": "85188159620a0bef",
+    "status": "machine",
+    "text": "インポートは `mapped db (postgres) to core/datastore/postgres as a reference, HIGH at 0.9` を報告します。プロジェクトには `cache` サービスがないため、`CACHE_URL` は接続を生まず、コメントに残ります。`reuse_mode: hints-only` の場合、`db` は代わりに `type: imported/datastore/postgres` となり、`components/imported-datastore-postgres.yaml` にドラフトされます。このファイルは `# resembles core/datastore/postgres (score 0.9000); reference it by setting type: core/datastore/postgres` で始まります。ドラフトされた Component はカタログの Recipes が読む値を何も宣言しないため、そのイメージと環境はエントリの上のコメントに書かれます。`--target compose` の場合、Manifest は `core/datastore/postgres` を `compose/postgres` に、`core/compute/server` を `compose/server` に対応付けます。`--target helm` の場合は `helm/postgres` と `helm/server` に対応付けます。"
   },
   "8519a1ec0daf5254": {
     "at": "2026-10-22T02:13:05.447791+00:00",
@@ -125923,6 +126005,13 @@
     "status": "machine",
     "text": "ゲスト自身がこのノードの作成者提供ソース、またはノードのために合成するリソースをレンダリングする際の名前で、ターゲットがその位置で受け付けるアルファベットにすでに書き換えられています。空または存在しない場合、ゲストはそのような名前を導出しないことを意味します。"
   },
+  "afa643e383936e5c": {
+    "at": "2026-11-15T00:01:03.678Z",
+    "job": "session-0025-20261115000103",
+    "srcHash": "afa643e383936e5c",
+    "status": "machine",
+    "text": "サービスの環境とイメージがどうなるか"
+  },
   "afa91ee1ab22b33f": {
     "at": "2026-10-30T04:21:50.177Z",
     "job": "session-0053-20261030042150",
@@ -141863,6 +141952,13 @@
     "srcHash": "c5666b93077accf4",
     "status": "machine",
     "text": "開くワークスペースの絶対パスです。省略した場合、セッションはワークスペースを持ちません。空文字列はクライアントが指定したパスであり、何も送らない場合とは異なります。"
+  },
+  "c5671769955affbf": {
+    "at": "2026-11-15T00:01:03.678Z",
+    "job": "session-0025-20261115000103",
+    "srcHash": "c5671769955affbf",
+    "status": "machine",
+    "text": "**プロジェクトの別のサービスの名前である値**は、そのサービスの行がホスト名を公開する `provides` キーを示す場合、そのサービスへの接続を生み、その `inject` ブロックがそのキーから変数を届けます。`CACHE_HOST: cache` は、キャッシュの `host` から得る `CACHE_HOST` になります。"
   },
   "c56d41ddf11097fc": {
     "at": "2026-10-22T03:00:38.891470+00:00",
@@ -163765,6 +163861,13 @@
     "status": "machine",
     "text": "🔴 **どちらのインポート形式も対象外です。** `$import:` を通じて提供される `valuesMapping:`、`workload:`、`artifacts:` エントリは、インポートがローカルファイルを指すかライブラリエントリを指すかにかかわらず、レンダリングで解決されるまで Recipe 内にテキストを持たないため、**そのような本体の内部**にあるこのキーへの参照はチェックされません。インポートするノードの provider が名前を報告する場合はその名前がレンダリングされ、報告しない場合は停止ではなく空の値がレンダリングされます。したがって、インポートされる本体がこのキーを読み取るのは、それをインポートするすべての Recipe が名前を報告する provider をバインドする場合に限られます。たとえば、チャートをソースとする `helm` Recipes 向けに書かれ、その旨を説明に記したライブラリエントリです。provider が名前を報告しない可能性のあるインポート元を想定した本体は、代わりにインポートする Recipe が設定する値を通じて名前を受け取ります。"
   },
+  "e2ede250bf814353": {
+    "at": "2026-11-15T00:01:03.678Z",
+    "job": "session-0025-20261115000103",
+    "srcHash": "e2ede250bf814353",
+    "status": "machine",
+    "text": "**イメージのタグ**は、Recipe がイメージ参照を組み立てる元となるインフラキーです。たとえば `engine_version` で、`postgres:16` なら `16` です。これはソースのイメージを示すコメントの下で Release に書かれます。"
+  },
   "e2f566d112f3b48f": {
     "at": "2026-10-22T03:18:41.939034+00:00",
     "job": "msgbatch_01WVZNy6gZ7XHn9XMQG1UFc9",
@@ -171127,6 +171230,13 @@
     "srcHash": "ed3591114bcb8de1",
     "status": "machine",
     "text": "スキーマブリッジによるピラー横断パイピング：意図とインフラストラクチャの橋渡し"
+  },
+  "ed375d99169eb9e8": {
+    "at": "2026-11-15T00:01:03.678Z",
+    "job": "session-0025-20261115000103",
+    "srcHash": "ed375d99169eb9e8",
+    "status": "machine",
+    "text": "**Recipe がパスワードを読む変数**（`POSTGRES_PASSWORD` など）で、値が 1 つの変数参照であるものは、そのスロットに付けられるシークレットになり、参照が示す変数から読まれ、Recipe が読むときのキーで宣言されます。"
   },
   "ed3965f4ff10a9f7": {
     "at": "2026-10-22T03:12:40.354254+00:00",
