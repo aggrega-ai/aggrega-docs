@@ -6,18 +6,18 @@ Aggrega ships a set of Wasm plugins compiled directly into the CLI binary. These
 
 | Type | Name | Capabilities | Version |
 | --- | --- | --- | --- |
-| governance | `governance/cel` | — | `0.9.0 (commit 20597808a)` |
-| governance | `governance/label-injector` | — | `0.9.0 (commit 20597808a)` |
-| governance | `governance/rego` | — | `0.9.0 (commit 20597808a)` |
-| governance | `governance/selector-tagger` | — | `0.9.0 (commit 20597808a)` |
-| linter | `linter/publishing` | — | `0.9.0 (commit 20597808a)` |
-| parser | `parser/hcl` | parse:hcl | `0.9.0 (commit 20597808a)` |
-| parser | `parser/json` | parse:json | `0.9.0 (commit 20597808a)` |
-| parser | `parser/jsonc` | parse:jsonc | `0.9.0 (commit 20597808a)` |
-| parser | `parser/toml` | parse:toml | `0.9.0 (commit 20597808a)` |
-| parser | `parser/yaml` | parse:yaml | `0.9.0 (commit 20597808a)` |
-| provider | `provider/cloudformation` | cloudformation | `0.9.0 (commit 20597808a)` |
-| provider | `provider/compose` | compose | `0.9.0 (commit 20597808a)` |
-| provider | `provider/helm` | helm | `0.9.0 (commit 20597808a)` |
-| provider | `provider/helm-chart` | helm-chart | `0.9.0 (commit 20597808a)` |
-| provider | `provider/terraform` | terraform | `0.9.0 (commit 20597808a)` |
+| governance | `governance/cel` | — | `0.9.1 (commit 7c5c48d07)` |
+| governance | `governance/label-injector` | — | `0.9.1 (commit 7c5c48d07)` |
+| governance | `governance/rego` | — | `0.9.1 (commit 7c5c48d07)` |
+| governance | `governance/selector-tagger` | — | `0.9.1 (commit 7c5c48d07)` |
+| linter | `linter/publishing` | — | `0.9.1 (commit 7c5c48d07)` |
+| parser | `parser/hcl` | parse:hcl | `0.9.1 (commit 7c5c48d07)` |
+| parser | `parser/json` | parse:json | `0.9.1 (commit 7c5c48d07)` |
+| parser | `parser/jsonc` | parse:jsonc | `0.9.1 (commit 7c5c48d07)` |
+| parser | `parser/toml` | parse:toml | `0.9.1 (commit 7c5c48d07)` |
+| parser | `parser/yaml` | parse:yaml | `0.9.1 (commit 7c5c48d07)` |
+| provider | `provider/cloudformation` | cloudformation | `0.9.1 (commit 7c5c48d07)` |
+| provider | `provider/compose` | compose | `0.9.1 (commit 7c5c48d07)` |
+| provider | `provider/helm` | helm | `0.9.1 (commit 7c5c48d07)` |
+| provider | `provider/helm-chart` | helm-chart | `0.9.1 (commit 7c5c48d07)` |
+| provider | `provider/terraform` | terraform | `0.9.1 (commit 7c5c48d07)` |
