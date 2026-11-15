@@ -201,17 +201,3 @@ npm install
 npm run build     # astro build -> dist/
 npm run dev       # local preview
 ```
-
-## Follow-ups
-
-- Per-page meta descriptions fall back to a site tagline because the corpus has
-  no frontmatter; a first-paragraph extraction (mirroring the title-from-heading
-  approach) would improve them.
-- Breadcrumb segments are humanised from route names, so an initialism such as
-  "CLI" renders as "Cli" until a proper-noun map is added.
-- The sidebar's group labels and the labels it gives an entry ("What is
-  Aggrega", "Install"), the version selector's accessible label, the
-  footer's privacy link label and the accessibility panel's texts are written in
-  English in the site project and show in English on every language's pages.
-- Callout panels use the shared dark surface with the default per-type border; a
-  per-type accent colour from the brand's semantic palette is a later refinement.

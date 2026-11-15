@@ -42,9 +42,9 @@ the approach holds. The compiler that followed was written around the entity mod
   annotation the Manifest binds, with the same output as attaching it explicitly.
 - **`aggrega build --trace`**, which writes each component's intermediate state for debugging.
 
-## Milestone 3 — Ready for public use
+## Milestone 3 — The 0.9.0 release
 
-Everything from Milestone 2 up to the public release:
+What 0.9.0 adds:
 
 - **Five targets, rendered by plugins.** Kubernetes manifests, Helm charts, Docker Compose, Terraform and
   CloudFormation are each written by a WebAssembly provider plugin built into the binary, so a fresh
@@ -76,8 +76,8 @@ Everything from Milestone 2 up to the public release:
 
 ## Milestone 4 — Users adoption, more clouds and a larger catalog
 
-- **Users adoption.** What users tell us once Aggrega is public decides the order of the work: whatever
-  makes it easier to adopt comes first.
+- **Users adoption.** What users tell us decides the order of the work: whatever makes it easier to adopt
+  comes first.
 - **Azure and Google Cloud providers.**
 - **A larger catalog.** More components, and Recipes for every target, Terraform and CloudFormation
   realizations of the base components included.
