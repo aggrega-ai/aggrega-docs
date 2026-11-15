@@ -6,7 +6,7 @@ each, and is not a runnable workspace.
 against two realizations of the same credential; write it into a folder of your own with:
 
 ```sh
-aggrega scaffold --example credential-shape-per-target
+aggrega draft --example credential-shape-per-target
 ```
 
 It then prints the commands to run next:

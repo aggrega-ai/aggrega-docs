@@ -384,14 +384,14 @@ in the attachment identifies the entity, and does not choose the engine.
 - `.aggrega-config.yaml` — the default registry and the governance
   attachment.
 
-## Scaffold the example
+## Draft the example
 
 You can build this example with the commands below, or [have your AI assistant build it for you](#with-an-ai-assistant).
 
 Write the example into a new folder named after it:
 
 ```sh
-aggrega scaffold --example policy-payload-leaf-sensitivity
+aggrega draft --example policy-payload-leaf-sensitivity
 ```
 
 It then prints the commands to run next. The first changes into the new folder:
@@ -414,4 +414,4 @@ can do the same: paste this prompt into it.
 
 <!-- copyable -->
 
-> Use the Aggrega tools only, and create no folder yourself. If the Workspace folder holds no `policy-payload-leaf-sensitivity` folder yet, call the `scaffold` tool once with `example` set to `policy-payload-leaf-sensitivity` and no `dir`: it writes the example into a new `policy-payload-leaf-sensitivity` folder. Then call the `build` tool with `workspace_root` set to `policy-payload-leaf-sensitivity`, `release` set to `release-negative-authored.yaml`, `auto_pull` set to true and `write` set to true: it is meant to be refused, so read me the refusal. Then call the `build` tool the same way with `release` set to `release-delegated.yaml`. Tell me which files that second build wrote; they are under `policy-payload-leaf-sensitivity/dist/`.
+> Use the Aggrega tools only, and create no folder yourself. If the Workspace folder holds no `policy-payload-leaf-sensitivity` folder yet, call the `draft` tool once with `example` set to `policy-payload-leaf-sensitivity` and no `dir`: it writes the example into a new `policy-payload-leaf-sensitivity` folder. Then call the `build` tool with `workspace_root` set to `policy-payload-leaf-sensitivity`, `release` set to `release-negative-authored.yaml`, `auto_pull` set to true and `write` set to true: it is meant to be refused, so read me the refusal. Then call the `build` tool the same way with `release` set to `release-delegated.yaml`. Tell me which files that second build wrote; they are under `policy-payload-leaf-sensitivity/dist/`.

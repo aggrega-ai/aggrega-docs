@@ -82,14 +82,14 @@ Because both a Compose and a synthesized helm Recipe carry the names
   rendered workloads reference fixed images and the synthesized Recipes render
   no floating tag.
 
-## Scaffold the example
+## Draft the example
 
 You can build this example with the commands below, or [have your AI assistant build it for you](#with-an-ai-assistant).
 
 Write the example into a new folder named after it:
 
 ```sh
-aggrega scaffold --example fluent-bit-to-fluentd
+aggrega draft --example fluent-bit-to-fluentd
 ```
 
 It then prints the commands to run next. The first changes into the new folder:
@@ -121,7 +121,7 @@ can do the same: paste this prompt into it.
 
 <!-- copyable -->
 
-> Use the Aggrega tools only, and create no folder yourself. If the Workspace folder holds no `fluent-bit-to-fluentd` folder yet, call the `scaffold` tool once with `example` set to `fluent-bit-to-fluentd` and no `dir`: it writes the example into a new `fluent-bit-to-fluentd` folder. Then call the `build` tool once for each Release, in this order — `release-compose.yaml`, `release-helm-synth.yaml` — each time with `workspace_root` set to `fluent-bit-to-fluentd`, `release` set to that file, `auto_pull` set to true and `write` set to true. Tell me which files each build wrote; they are under `fluent-bit-to-fluentd/dist/`.
+> Use the Aggrega tools only, and create no folder yourself. If the Workspace folder holds no `fluent-bit-to-fluentd` folder yet, call the `draft` tool once with `example` set to `fluent-bit-to-fluentd` and no `dir`: it writes the example into a new `fluent-bit-to-fluentd` folder. Then call the `build` tool once for each Release, in this order — `release-compose.yaml`, `release-helm-synth.yaml` — each time with `workspace_root` set to `fluent-bit-to-fluentd`, `release` set to that file, `auto_pull` set to true and `write` set to true. Tell me which files each build wrote; they are under `fluent-bit-to-fluentd/dist/`.
 
 ## What the injected forward target looks like
 

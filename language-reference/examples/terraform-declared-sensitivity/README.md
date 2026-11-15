@@ -186,14 +186,14 @@ are values an operator supplies and differ per environment. A Release cannot
 declare `values:`, so a typed parameter is the surface for exactly this: the
 developer declares the variation point, the Release fulfils it.
 
-## Scaffold the example
+## Draft the example
 
 You can build this example with the commands below, or [have your AI assistant build it for you](#with-an-ai-assistant).
 
 Write the example into a new folder named after it:
 
 ```sh
-aggrega scaffold --example terraform-declared-sensitivity
+aggrega draft --example terraform-declared-sensitivity
 ```
 
 It then prints the commands to run next. The first changes into the new folder:
@@ -217,4 +217,4 @@ can do the same: paste this prompt into it.
 
 <!-- copyable -->
 
-> Use the Aggrega tools only, and create no folder yourself. If the Workspace folder holds no `terraform-declared-sensitivity` folder yet, call the `scaffold` tool once with `example` set to `terraform-declared-sensitivity` and no `dir`: it writes the example into a new `terraform-declared-sensitivity` folder. Then call the `build` tool with `workspace_root` set to `terraform-declared-sensitivity`, `release` set to `release.yaml`, `auto_pull` set to true and `write` set to true. Tell me which files the build wrote; they are under `terraform-declared-sensitivity/dist/`.
+> Use the Aggrega tools only, and create no folder yourself. If the Workspace folder holds no `terraform-declared-sensitivity` folder yet, call the `draft` tool once with `example` set to `terraform-declared-sensitivity` and no `dir`: it writes the example into a new `terraform-declared-sensitivity` folder. Then call the `build` tool with `workspace_root` set to `terraform-declared-sensitivity`, `release` set to `release.yaml`, `auto_pull` set to true and `write` set to true. Tell me which files the build wrote; they are under `terraform-declared-sensitivity/dist/`.

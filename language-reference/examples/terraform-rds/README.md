@@ -34,14 +34,14 @@ never runs `terraform`; it produces the HCL a downstream `terraform apply` runs.
 - `.aggrega-config.yaml` — names the hub registry the catalog entities resolve
   from.
 
-## Scaffold the example
+## Draft the example
 
 You can build this example with the commands below, or [have your AI assistant build it for you](#with-an-ai-assistant).
 
 Write the example into a new folder named after it:
 
 ```sh
-aggrega scaffold --example terraform-rds
+aggrega draft --example terraform-rds
 ```
 
 It then prints the commands to run next. The first changes into the new folder:
@@ -89,7 +89,7 @@ can do the same: paste this prompt into it.
 
 <!-- copyable -->
 
-> Use the Aggrega tools only, and create no folder yourself. If the Workspace folder holds no `terraform-rds` folder yet, call the `scaffold` tool once with `example` set to `terraform-rds` and no `dir`: it writes the example into a new `terraform-rds` folder. Then call the `build` tool with `workspace_root` set to `terraform-rds`, `release` set to `release.yaml`, `auto_pull` set to true and `write` set to true. Tell me which files the build wrote; they are under `terraform-rds/dist/`.
+> Use the Aggrega tools only, and create no folder yourself. If the Workspace folder holds no `terraform-rds` folder yet, call the `draft` tool once with `example` set to `terraform-rds` and no `dir`: it writes the example into a new `terraform-rds` folder. Then call the `build` tool with `workspace_root` set to `terraform-rds`, `release` set to `release.yaml`, `auto_pull` set to true and `write` set to true. Tell me which files the build wrote; they are under `terraform-rds/dist/`.
 
 ## The credential slot on a managed target
 

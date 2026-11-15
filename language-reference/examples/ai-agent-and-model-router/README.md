@@ -54,14 +54,14 @@ datastore category). Six Feature attachments over four Feature kinds — five on
 the router, one on the agent's `model` connection — each of which puts something
 in the rendered output; the section below shows what each one produces.
 
-## Scaffold the example
+## Draft the example
 
 You can build this example with the commands below, or [have your AI assistant build it for you](#with-an-ai-assistant).
 
 Write the example into a new folder named after it:
 
 ```sh
-aggrega scaffold --example ai-agent-and-model-router
+aggrega draft --example ai-agent-and-model-router
 ```
 
 It then prints the commands to run next. The first changes into the new folder:
@@ -140,7 +140,7 @@ can do the same: paste this prompt into it.
 
 <!-- copyable -->
 
-> Use the Aggrega tools only, and create no folder yourself. If the Workspace folder holds no `ai-agent-and-model-router` folder yet, call the `scaffold` tool once with `example` set to `ai-agent-and-model-router` and no `dir`: it writes the example into a new `ai-agent-and-model-router` folder. Then call the `build` tool with `workspace_root` set to `ai-agent-and-model-router`, `release` set to `release.yaml`, `auto_pull` set to true and `write` set to true. Tell me which files the build wrote; they are under `ai-agent-and-model-router/dist/`.
+> Use the Aggrega tools only, and create no folder yourself. If the Workspace folder holds no `ai-agent-and-model-router` folder yet, call the `draft` tool once with `example` set to `ai-agent-and-model-router` and no `dir`: it writes the example into a new `ai-agent-and-model-router` folder. Then call the `build` tool with `workspace_root` set to `ai-agent-and-model-router`, `release` set to `release.yaml`, `auto_pull` set to true and `write` set to true. Tell me which files the build wrote; they are under `ai-agent-and-model-router/dist/`.
 
 ## The rendered tree
 

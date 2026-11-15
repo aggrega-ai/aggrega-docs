@@ -14,14 +14,14 @@ synthesis — no external chart. The app reads **two data keys from one secret**
 a username and a password. One credential slot backs both, filled by a
 multi-key referenceable credential.
 
-## Scaffold the example
+## Draft the example
 
 You can build this example with the commands below, or [have your AI assistant build it for you](#with-an-ai-assistant).
 
 Write the example into a new folder named after it:
 
 ```sh
-aggrega scaffold --example multikey-secret-synth
+aggrega draft --example multikey-secret-synth
 ```
 
 It then prints the commands to run next. The first changes into the new folder:
@@ -50,7 +50,7 @@ can do the same: paste this prompt into it.
 
 <!-- copyable -->
 
-> Use the Aggrega tools only, and create no folder yourself. If the Workspace folder holds no `multikey-secret-synth` folder yet, call the `scaffold` tool once with `example` set to `multikey-secret-synth` and no `dir`: it writes the example into a new `multikey-secret-synth` folder. Then call the `build` tool with `workspace_root` set to `multikey-secret-synth`, `release` set to `release.yaml`, `auto_pull` set to true and `write` set to true. Tell me which files the build wrote; they are under `multikey-secret-synth/dist/`.
+> Use the Aggrega tools only, and create no folder yourself. If the Workspace folder holds no `multikey-secret-synth` folder yet, call the `draft` tool once with `example` set to `multikey-secret-synth` and no `dir`: it writes the example into a new `multikey-secret-synth` folder. Then call the `build` tool with `workspace_root` set to `multikey-secret-synth`, `release` set to `release.yaml`, `auto_pull` set to true and `write` set to true. Tell me which files the build wrote; they are under `multikey-secret-synth/dist/`.
 
 ## One slot, two keys
 

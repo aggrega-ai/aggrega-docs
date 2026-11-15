@@ -3,7 +3,7 @@
 The examples come in two kinds of page.
 
 A **runnable example** is a whole workspace you write into a folder of your own with
-`aggrega scaffold --example <name>`, then build and read. [Runnable Examples](examples/README.md) describes them and
+`aggrega draft --example <name>`, then build and read. [Runnable Examples](examples/README.md) describes them and
 the header each carries, and [In teaching order](examples/by-product-and-capability.md#in-teaching-order) lists every
 one of them in the order to work through them: tier by tier, simplest first within each tier. The Examples section of
 the sidebar follows the same order.

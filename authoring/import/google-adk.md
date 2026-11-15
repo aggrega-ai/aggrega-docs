@@ -13,7 +13,7 @@ example, where a check script runs the import again, compares what it writes,
 what it prints and the blocks this page quotes with the files kept there, and
 validates and builds what the import wrote.
 
-## Scaffold the example
+## Draft the example
 
 You can run this import with the commands on this page, or
 [have your AI assistant run it for you](#with-an-ai-assistant).
@@ -21,7 +21,7 @@ You can run this import with the commands on this page, or
 Write the example into a new folder named after it:
 
 ```bash
-aggrega scaffold --example import-google-adk
+aggrega draft --example import-google-adk
 ```
 
 It then prints the commands to run next. The first changes into the new folder;
@@ -32,7 +32,7 @@ page imports and is where the import runs:
 cd import-google-adk
 ```
 
-![The scaffolded example's source folder open in Visual Studio Code, showing the agent's configuration: support_agent on gemini-2.5-flash with the google_search tool.](../../images/editor/import/google-adk/scaffold.png)
+![The drafted example's source folder open in Visual Studio Code, showing the agent's configuration: support_agent on gemini-2.5-flash with the google_search tool.](../../images/editor/import/google-adk/scaffold.png)
 
 ## The project
 
@@ -371,7 +371,7 @@ can do the same: paste this prompt into it.
 
 <!-- copyable -->
 
-> Use the Aggrega tools only, and create no folder yourself. If the Workspace folder holds no `import-google-adk` folder yet, call the `scaffold` tool once with `example` set to `import-google-adk` and no `dir`: it writes the example into a new `import-google-adk` folder, whose `source` folder holds what this page imports. Then call the `import` tool with `workspace_root` set to `import-google-adk/source`, `source` set to `support_agent` and `target` set to `compose`: it reads the answers it needs from `import-answers.yaml` inside the `support_agent` folder, writes its drafts into `import-google-adk/source` and pulls what they need. Then call the `validate` tool with `workspace_root` set to `import-google-adk/source` and `release` set to `release.yaml`, and the `build` tool with `workspace_root` set to `import-google-adk/source`, `release` set to `release.yaml` and `write` set to true. Tell me which files the build wrote; they are under `import-google-adk/source/dist/`.
+> Use the Aggrega tools only, and create no folder yourself. If the Workspace folder holds no `import-google-adk` folder yet, call the `draft` tool once with `example` set to `import-google-adk` and no `dir`: it writes the example into a new `import-google-adk` folder, whose `source` folder holds what this page imports. Then call the `import` tool with `workspace_root` set to `import-google-adk/source`, `source` set to `support_agent` and `target` set to `compose`: it reads the answers it needs from `import-answers.yaml` inside the `support_agent` folder, writes its drafts into `import-google-adk/source` and pulls what they need. Then call the `validate` tool with `workspace_root` set to `import-google-adk/source` and `release` set to `release.yaml`, and the `build` tool with `workspace_root` set to `import-google-adk/source`, `release` set to `release.yaml` and `write` set to true. Tell me which files the build wrote; they are under `import-google-adk/source/dist/`.
 
 ## Open it in VS Code
 

@@ -90,14 +90,14 @@ position.
 What it does **not** give up is what the edge may carry. `endpoint` and `model`
 are both keys `core/ai-model/anthropic` declares in its `provides` pillar.
 
-## Scaffold the example
+## Draft the example
 
 You can build this example with the commands below, or [have your AI assistant build it for you](#with-an-ai-assistant).
 
 Write the example into a new folder named after it:
 
 ```sh
-aggrega scaffold --example adhoc-uses-socket
+aggrega draft --example adhoc-uses-socket
 ```
 
 It then prints the commands to run next. The first changes into the new folder:
@@ -127,7 +127,7 @@ can do the same: paste this prompt into it.
 
 <!-- copyable -->
 
-> Use the Aggrega tools only, and create no folder yourself. If the Workspace folder holds no `adhoc-uses-socket` folder yet, call the `scaffold` tool once with `example` set to `adhoc-uses-socket` and no `dir`: it writes the example into a new `adhoc-uses-socket` folder. Then call the `build` tool with `workspace_root` set to `adhoc-uses-socket`, `release` set to `release-delivers.yaml`, `auto_pull` set to true and `write` set to true. Tell me which files the build wrote; they are under `adhoc-uses-socket/dist/`.
+> Use the Aggrega tools only, and create no folder yourself. If the Workspace folder holds no `adhoc-uses-socket` folder yet, call the `draft` tool once with `example` set to `adhoc-uses-socket` and no `dir`: it writes the example into a new `adhoc-uses-socket` folder. Then call the `build` tool with `workspace_root` set to `adhoc-uses-socket`, `release` set to `release-delivers.yaml`, `auto_pull` set to true and `write` set to true. Tell me which files the build wrote; they are under `adhoc-uses-socket/dist/`.
 
 ## Read the output
 

@@ -141,7 +141,7 @@ Beyond URI strings, Aggrega's authoring surface carries several distinct format-
 
 Each format has its own grammar, its own validator, and its own error-reporting shape. Authors who hit a format-string parse error read the per-format reference for the syntax rules.
 
-The editor reports these errors while you author: `aggrega serve` validates each document it is sent against its kind's schema and returns the same verdict a build would give (see `cli/aggrega-serve.md` "Live validation"), and `aggrega scaffold` drafts a starter document of any kind.
+The editor reports these errors while you author: `aggrega serve` validates each document it is sent against its kind's schema and returns the same verdict a build would give (see `cli/aggrega-serve.md` "Live validation"), and `aggrega draft` drafts a starter document of any kind.
 
 ## Cross-references
 

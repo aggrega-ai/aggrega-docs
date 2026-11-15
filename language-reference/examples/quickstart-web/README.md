@@ -89,13 +89,13 @@ for every later run, until you remove it with
 $env:QUICKSTART_STEP=2; irm https://aggrega.ai/quickstart-web.ps1 | iex
 ```
 
-## Scaffold the example
+## Draft the example
 
 If you prefer to build and run it step by step, write the example into a new
 folder named after it:
 
 ```sh
-aggrega scaffold --example quickstart-web
+aggrega draft --example quickstart-web
 ```
 
 It then prints the commands to run next. The first changes into the new folder:
@@ -129,7 +129,7 @@ can do the same: paste this prompt into it.
 
 <!-- copyable -->
 
-> Use the Aggrega tools only, and create no folder yourself. If the Workspace folder holds no `quickstart-web` folder yet, call the `scaffold` tool once with `example` set to `quickstart-web` and no `dir`: it writes the example into a new `quickstart-web` folder, with a README and the step folders `1` to `4`. Then call the `build` tool with `workspace_root` set to `quickstart-web/1`, `release` set to `release.yaml`, `auto_pull` set to true and `write` set to true. Tell me which files the build wrote; they are under `quickstart-web/1/dist/`.
+> Use the Aggrega tools only, and create no folder yourself. If the Workspace folder holds no `quickstart-web` folder yet, call the `draft` tool once with `example` set to `quickstart-web` and no `dir`: it writes the example into a new `quickstart-web` folder, with a README and the step folders `1` to `4`. Then call the `build` tool with `workspace_root` set to `quickstart-web/1`, `release` set to `release.yaml`, `auto_pull` set to true and `write` set to true. Tell me which files the build wrote; they are under `quickstart-web/1/dist/`.
 
 ## A web app and its PostgreSQL — `1/`
 
@@ -445,7 +445,7 @@ the output, with your own credentials, after replacing the placeholders.
 ## Checking every step
 
 In a checkout of the documentation repository, which holds the shared build
-helper a copy written by `aggrega scaffold --example` does not carry,
+helper a copy written by `aggrega draft --example` does not carry,
 `./check.sh` in this directory builds the four steps and checks that each
 writes what this page shows: the two Compose files with their services and
 variables, and the two Terraform root configurations with their module blocks,

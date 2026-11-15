@@ -32,7 +32,7 @@ import wrote. It needs the standard-library catalog
 checked out beside this repository, or its directory named in
 `AGGREGA_CATALOG_DIRS`.
 
-## Scaffold the example
+## Draft the example
 
 You can run this example's import with the commands below, or
 [have your AI assistant run it for you](#with-an-ai-assistant).
@@ -40,7 +40,7 @@ You can run this example's import with the commands below, or
 Write the example into a new folder named after it:
 
 ```sh
-aggrega scaffold --example import-mcp
+aggrega draft --example import-mcp
 ```
 
 It then prints the commands to run next. The first changes into the new folder:
@@ -77,7 +77,7 @@ can do the same: paste this prompt into it.
 
 <!-- copyable -->
 
-> Use the Aggrega tools only, and create no folder yourself. If the Workspace folder holds no `import-mcp` folder yet, call the `scaffold` tool once with `example` set to `import-mcp` and no `dir`: it writes the example into a new `import-mcp` folder, whose `source` folder holds what this example imports. Then call the `import` tool with `workspace_root` set to `import-mcp/source`, `source` set to `.mcp.json` and `target` set to `helm`: it reads the answers it needs from `import-answers.yaml` beside `.mcp.json`, writes its drafts into `import-mcp/source` and pulls what they need. Then call the `validate` tool with `workspace_root` set to `import-mcp/source` and `release` set to `release.yaml`, and the `build` tool with `workspace_root` set to `import-mcp/source`, `release` set to `release.yaml` and `write` set to true. Tell me which files the build wrote; they are under `import-mcp/source/dist/`.
+> Use the Aggrega tools only, and create no folder yourself. If the Workspace folder holds no `import-mcp` folder yet, call the `draft` tool once with `example` set to `import-mcp` and no `dir`: it writes the example into a new `import-mcp` folder, whose `source` folder holds what this example imports. Then call the `import` tool with `workspace_root` set to `import-mcp/source`, `source` set to `.mcp.json` and `target` set to `helm`: it reads the answers it needs from `import-answers.yaml` beside `.mcp.json`, writes its drafts into `import-mcp/source` and pulls what they need. Then call the `validate` tool with `workspace_root` set to `import-mcp/source` and `release` set to `release.yaml`, and the `build` tool with `workspace_root` set to `import-mcp/source`, `release` set to `release.yaml` and `write` set to true. Tell me which files the build wrote; they are under `import-mcp/source/dist/`.
 
 ## Test it
 

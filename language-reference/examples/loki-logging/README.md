@@ -47,14 +47,14 @@ dashboards server reads them back over the query API.
   config-reload sidecar image to resolvable tags so the rendered workload
   references pinned versions.
 
-## Scaffold the example
+## Draft the example
 
 You can build this example with the commands below, or [have your AI assistant build it for you](#with-an-ai-assistant).
 
 Write the example into a new folder named after it:
 
 ```sh
-aggrega scaffold --example loki-logging
+aggrega draft --example loki-logging
 ```
 
 It then prints the commands to run next. The first changes into the new folder:
@@ -84,7 +84,7 @@ can do the same: paste this prompt into it.
 
 <!-- copyable -->
 
-> Use the Aggrega tools only, and create no folder yourself. If the Workspace folder holds no `loki-logging` folder yet, call the `scaffold` tool once with `example` set to `loki-logging` and no `dir`: it writes the example into a new `loki-logging` folder. Then call the `build` tool with `workspace_root` set to `loki-logging`, `release` set to `release.yaml`, `auto_pull` set to true and `write` set to true. Tell me which files the build wrote; they are under `loki-logging/dist/`.
+> Use the Aggrega tools only, and create no folder yourself. If the Workspace folder holds no `loki-logging` folder yet, call the `draft` tool once with `example` set to `loki-logging` and no `dir`: it writes the example into a new `loki-logging` folder. Then call the `build` tool with `workspace_root` set to `loki-logging`, `release` set to `release.yaml`, `auto_pull` set to true and `write` set to true. Tell me which files the build wrote; they are under `loki-logging/dist/`.
 
 ## What renders
 

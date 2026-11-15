@@ -20,14 +20,14 @@ single consumer — the difference is *which* Secret each consumer ends up
 pointing at, and that question has no content until there is more than one
 consumer.
 
-## Scaffold the example
+## Draft the example
 
 You can build this example with the commands below, or [have your AI assistant build it for you](#with-an-ai-assistant).
 
 Write the example into a new folder named after it:
 
 ```sh
-aggrega scaffold --example model-api-key-sharing
+aggrega draft --example model-api-key-sharing
 ```
 
 It then prints the commands to run next. The first changes into the new folder:
@@ -77,7 +77,7 @@ can do the same: paste this prompt into it.
 
 <!-- copyable -->
 
-> Use the Aggrega tools only, and create no folder yourself. If the Workspace folder holds no `model-api-key-sharing` folder yet, call the `scaffold` tool once with `example` set to `model-api-key-sharing` and no `dir`: it writes the example into a new `model-api-key-sharing` folder. Then call the `build` tool once for each Release, in this order — `release-per-consumer.yaml`, `release-shared.yaml` and `release-composed.yaml` — each time with `workspace_root` set to `model-api-key-sharing`, `release` set to that file, `auto_pull` set to true and `write` set to true. Tell me which files each build wrote; they are under `model-api-key-sharing/dist/`.
+> Use the Aggrega tools only, and create no folder yourself. If the Workspace folder holds no `model-api-key-sharing` folder yet, call the `draft` tool once with `example` set to `model-api-key-sharing` and no `dir`: it writes the example into a new `model-api-key-sharing` folder. Then call the `build` tool once for each Release, in this order — `release-per-consumer.yaml`, `release-shared.yaml` and `release-composed.yaml` — each time with `workspace_root` set to `model-api-key-sharing`, `release` set to that file, `auto_pull` set to true and `write` set to true. Tell me which files each build wrote; they are under `model-api-key-sharing/dist/`.
 
 ## Per-consumer — each connection holds its own key
 

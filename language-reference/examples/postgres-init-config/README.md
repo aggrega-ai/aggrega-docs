@@ -24,14 +24,14 @@ developer values:
   `custom_config` unset.
 - **`release-config.yaml`** (`aggregate-config.yaml`) — both set.
 
-## Scaffold the example
+## Draft the example
 
 You can build this example with the commands below, or [have your AI assistant build it for you](#with-an-ai-assistant).
 
 Write the example into a new folder named after it:
 
 ```sh
-aggrega scaffold --example postgres-init-config
+aggrega draft --example postgres-init-config
 ```
 
 It then prints the commands to run next. The first changes into the new folder:
@@ -60,7 +60,7 @@ can do the same: paste this prompt into it.
 
 <!-- copyable -->
 
-> Use the Aggrega tools only, and create no folder yourself. If the Workspace folder holds no `postgres-init-config` folder yet, call the `scaffold` tool once with `example` set to `postgres-init-config` and no `dir`: it writes the example into a new `postgres-init-config` folder. Then call the `build` tool once for each Release, in this order — `release-bare.yaml` and `release-config.yaml` — each time with `workspace_root` set to `postgres-init-config`, `release` set to that file, `auto_pull` set to true and `write` set to true. Tell me which files each build wrote; they are under `postgres-init-config/dist/`.
+> Use the Aggrega tools only, and create no folder yourself. If the Workspace folder holds no `postgres-init-config` folder yet, call the `draft` tool once with `example` set to `postgres-init-config` and no `dir`: it writes the example into a new `postgres-init-config` folder. Then call the `build` tool once for each Release, in this order — `release-bare.yaml` and `release-config.yaml` — each time with `workspace_root` set to `postgres-init-config`, `release` set to that file, `auto_pull` set to true and `write` set to true. Tell me which files each build wrote; they are under `postgres-init-config/dist/`.
 
 ## Bare — the additive baseline
 

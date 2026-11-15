@@ -91,14 +91,14 @@ Each Release names the image each task runs under `infra.image`, as
 task runs with, and, where `report` has a schedule, the role the schedule starts
 each run under. Every account-specific value there is a placeholder.
 
-## Scaffold the example
+## Draft the example
 
 You can build this example with the commands below, or [have your AI assistant build it for you](#with-an-ai-assistant).
 
 Write the example into a new folder named after it:
 
 ```sh
-aggrega scaffold --example task-run-on-demand
+aggrega draft --example task-run-on-demand
 ```
 
 It then prints the commands to run next. The first changes into the new folder:
@@ -118,7 +118,7 @@ aggrega build --release release-helm.yaml --auto-pull  # one Release
 ```
 
 In a checkout of the documentation repository, which holds the shared build
-helper a copy written by `aggrega scaffold --example` does not carry,
+helper a copy written by `aggrega draft --example` does not carry,
 `./check.sh` builds all six Releases and checks each outcome. It prints one line
 per Release and exits 0 only when each ended as this page describes:
 
@@ -142,7 +142,7 @@ can do the same: paste this prompt into it.
 
 <!-- copyable -->
 
-> Use the Aggrega tools only, and create no folder yourself. If the Workspace folder holds no `task-run-on-demand` folder yet, call the `scaffold` tool once with `example` set to `task-run-on-demand` and no `dir`: it writes the example into a new `task-run-on-demand` folder. Then call the `build` tool with `workspace_root` set to `task-run-on-demand`, `release` set to `release-helm.yaml`, `auto_pull` set to true and `write` set to true. Tell me which files the build wrote; they are under `task-run-on-demand/dist/`.
+> Use the Aggrega tools only, and create no folder yourself. If the Workspace folder holds no `task-run-on-demand` folder yet, call the `draft` tool once with `example` set to `task-run-on-demand` and no `dir`: it writes the example into a new `task-run-on-demand` folder. Then call the `build` tool with `workspace_root` set to `task-run-on-demand`, `release` set to `release-helm.yaml`, `auto_pull` set to true and `write` set to true. Tell me which files the build wrote; they are under `task-run-on-demand/dist/`.
 
 ## Kubernetes
 

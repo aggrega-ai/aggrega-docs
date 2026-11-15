@@ -58,14 +58,14 @@ The entities this example uses all live in the published catalog. Nothing is
 copied in beside the release files, so the example resolves against the catalog
 as it stands rather than against a private snapshot of it.
 
-## Scaffold the example
+## Draft the example
 
 You can build this example with the commands below, or [have your AI assistant build it for you](#with-an-ai-assistant).
 
 Write the example into a new folder named after it:
 
 ```sh
-aggrega scaffold --example cloudformation-rds-stack
+aggrega draft --example cloudformation-rds-stack
 ```
 
 It then prints the commands to run next. The first changes into the new folder:
@@ -103,7 +103,7 @@ can do the same: paste this prompt into it.
 
 <!-- copyable -->
 
-> Use the Aggrega tools only, and create no folder yourself. If the Workspace folder holds no `cloudformation-rds-stack` folder yet, call the `scaffold` tool once with `example` set to `cloudformation-rds-stack` and no `dir`: it writes the example into a new `cloudformation-rds-stack` folder. Then call the `build` tool with `workspace_root` set to `cloudformation-rds-stack`, `release` set to `release-one-stack.yaml`, `auto_pull` set to true and `write` set to true. Tell me which files the build wrote; they are under `cloudformation-rds-stack/dist/`.
+> Use the Aggrega tools only, and create no folder yourself. If the Workspace folder holds no `cloudformation-rds-stack` folder yet, call the `draft` tool once with `example` set to `cloudformation-rds-stack` and no `dir`: it writes the example into a new `cloudformation-rds-stack` folder. Then call the `build` tool with `workspace_root` set to `cloudformation-rds-stack`, `release` set to `release-one-stack.yaml`, `auto_pull` set to true and `write` set to true. Tell me which files the build wrote; they are under `cloudformation-rds-stack/dist/`.
 
 ## What lands, and who contributed it
 

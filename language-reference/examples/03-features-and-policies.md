@@ -6,7 +6,7 @@ a runnable workspace.
 shows both in a workspace you build; write it into a folder of your own with:
 
 ```sh
-aggrega scaffold --example policy-data-class-route
+aggrega draft --example policy-data-class-route
 ```
 
 It then prints the commands to run next:

@@ -67,14 +67,14 @@ sockets to the three checks. The attachments: `shield`, the
 path; `upstream_key`, the credential the guard presents to the model API; and
 `ngc_api_key` on each NemoGuard component.
 
-## Scaffold the example
+## Draft the example
 
 You can build this example with the commands below, or [have your AI assistant build it for you](#with-an-ai-assistant).
 
 Write the example into a new folder named after it:
 
 ```sh
-aggrega scaffold --example nemo-guardrails-nemoguard-nims
+aggrega draft --example nemo-guardrails-nemoguard-nims
 ```
 
 It then prints the commands to run next. The first changes into the new folder:
@@ -125,7 +125,7 @@ can do the same: paste this prompt into it.
 
 <!-- copyable -->
 
-> Use the Aggrega tools only, and create no folder yourself. If the Workspace folder holds no `nemo-guardrails-nemoguard-nims` folder yet, call the `scaffold` tool once with `example` set to `nemo-guardrails-nemoguard-nims` and no `dir`: it writes the example into a new `nemo-guardrails-nemoguard-nims` folder. Then call the `build` tool with `workspace_root` set to `nemo-guardrails-nemoguard-nims`, `release` set to `release.yaml`, `auto_pull` set to true and `write` set to true. Tell me which files the build wrote; they are under `nemo-guardrails-nemoguard-nims/dist/`.
+> Use the Aggrega tools only, and create no folder yourself. If the Workspace folder holds no `nemo-guardrails-nemoguard-nims` folder yet, call the `draft` tool once with `example` set to `nemo-guardrails-nemoguard-nims` and no `dir`: it writes the example into a new `nemo-guardrails-nemoguard-nims` folder. Then call the `build` tool with `workspace_root` set to `nemo-guardrails-nemoguard-nims`, `release` set to `release.yaml`, `auto_pull` set to true and `write` set to true. Tell me which files the build wrote; they are under `nemo-guardrails-nemoguard-nims/dist/`.
 
 ## The rendered tree
 

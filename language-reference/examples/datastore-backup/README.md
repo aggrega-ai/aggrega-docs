@@ -135,14 +135,14 @@ attachments naming Secrets the cluster already holds, so no key is written into
 any rendered file. Every account-specific value in the AWS Releases is a
 placeholder.
 
-## Scaffold the example
+## Draft the example
 
 You can build this example with the commands below, or [have your AI assistant build it for you](#with-an-ai-assistant).
 
 Write the example into a new folder named after it:
 
 ```sh
-aggrega scaffold --example datastore-backup
+aggrega draft --example datastore-backup
 ```
 
 It then prints the commands to run next. The first changes into the new folder:
@@ -164,7 +164,7 @@ aggrega build --release release-helm-velero.yaml --auto-pull  # one Release
 ```
 
 In a checkout of the documentation repository, which holds the shared build
-helper a copy written by `aggrega scaffold --example` does not carry,
+helper a copy written by `aggrega draft --example` does not carry,
 `./check.sh` builds all six Releases and checks each outcome. It prints one line
 per Release and exits 0 only when each ended as this page describes:
 
@@ -188,7 +188,7 @@ can do the same: paste this prompt into it.
 
 <!-- copyable -->
 
-> Use the Aggrega tools only, and create no folder yourself. If the Workspace folder holds no `datastore-backup` folder yet, call the `scaffold` tool once with `example` set to `datastore-backup` and no `dir`: it writes the example into a new `datastore-backup` folder. Then call the `build` tool with `workspace_root` set to `datastore-backup`, `release` set to `release-helm-velero.yaml`, `auto_pull` set to true and `write` set to true. Tell me which files the build wrote; they are under `datastore-backup/dist/`.
+> Use the Aggrega tools only, and create no folder yourself. If the Workspace folder holds no `datastore-backup` folder yet, call the `draft` tool once with `example` set to `datastore-backup` and no `dir`: it writes the example into a new `datastore-backup` folder. Then call the `build` tool with `workspace_root` set to `datastore-backup`, `release` set to `release-helm-velero.yaml`, `auto_pull` set to true and `write` set to true. Tell me which files the build wrote; they are under `datastore-backup/dist/`.
 
 ## Kubernetes, with Velero
 

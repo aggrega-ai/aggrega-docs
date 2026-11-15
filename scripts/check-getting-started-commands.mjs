@@ -3,34 +3,34 @@
 // Copyright 2026 Cognitio s.r.l.
 //
 // check-getting-started-commands.mjs — hold the commands of the Getting started
-// page to the pages they come from, every page that scaffolds an example to what
-// `aggrega scaffold --example` prints, and the quickstart scripts to their
+// page to the pages they come from, every page that drafts an example to what
+// `aggrega draft --example` prints, and the quickstart scripts to their
 // examples' pages, so no page and no script can drift from the examples.
 //
 // A command block is a fenced block marked sh, bash, shell, zsh, powershell or
 // pwsh; its lines are read with blank lines left out.
 //
-// A scaffold line is a command line `aggrega scaffold --example <name>`, or the
-// same followed by a directory, `aggrega scaffold --example <name> <dir>`. <name>
+// A draft line is a command line `aggrega draft --example <name>`, or the
+// same followed by a directory, `aggrega draft --example <name> <dir>`. <name>
 // must be a directory under language-reference/examples/ holding a README.md.
 // The command writes the example and then prints the commands to run next:
 // `cd <dir>` (<dir> is <name> where the line names no directory), then the lines
 // of the example README's Build block — read by scripts/lib/build-commands.awk,
 // the reader scripts/check-build-commands-parity.sh holds to the CLI's own
 // reading, which this check runs first — blank lines left out. Those are "the
-// lines it prints" below. `aggrega scaffold --example --list` writes nothing and
-// is not a scaffold line.
+// lines it prints" below. `aggrega draft --example --list` writes nothing and
+// is not a draft line.
 //
-// Any line of a page, prose included, that scaffolds an example and changes
-// directory on the same line — `aggrega scaffold --example <name> && cd <name>`,
+// Any line of a page, prose included, that drafts an example and changes
+// directory on the same line — `aggrega draft --example <name> && cd <name>`,
 // or with `;`, `||`, `&`, `Set-Location`, `pushd` — fails: the command prints the
-// `cd` itself, so the page shows the scaffold line alone and the `cd` in the
-// commands after it. A command line naming `aggrega scaffold --example` in any
+// `cd` itself, so the page shows the draft line alone and the `cd` in the
+// commands after it. A command line naming `aggrega draft --example` in any
 // other shape fails too, naming the shape to write.
 //
-// "The commands after a scaffold line" are the lines after it in its own block,
+// "The commands after a draft line" are the lines after it in its own block,
 // where it has any; otherwise the lines of the next command block on the page, up
-// to that block's own first scaffold line.
+// to that block's own first draft line.
 //
 // A one-command line runs a step of an example with its quickstart script, step 1
 // where it names none:
@@ -52,11 +52,11 @@
 //
 //   - a command block holding a one-command line is held to that section of the
 //     example's README, wherever on the page it sits;
-//   - before its first scaffold line, every other command block is held to
+//   - before its first draft line, every other command block is held to
 //     install.md;
-//   - the commands after a scaffold line must EQUAL the lines it prints, in
-//     order; a scaffold line with no command block after it fails;
-//   - every later block, up to the next scaffold line, is held to the example's
+//   - the commands after a draft line must EQUAL the lines it prints, in
+//     order; a draft line with no command block after it fails;
+//   - every later block, up to the next draft line, is held to the example's
 //     README.
 //
 // A block is held to a source page when its lines appear there as a run of
@@ -65,11 +65,11 @@
 // command its source's command blocks do not carry, or, where each one is
 // carried, the first one that does not follow the one before it there.
 //
-// Every other Markdown page under the documentation root that carries a scaffold
+// Every other Markdown page under the documentation root that carries a draft
 // line in a command block — the example READMEs, the concept pages, the import
 // walkthroughs and the rest; node_modules, dist, site, l10n, testdata and every
 // directory whose name starts with a dot left out — is read the lighter way: the
-// commands after each scaffold line must be a non-empty PREFIX of the lines it
+// commands after each draft line must be a non-empty PREFIX of the lines it
 // prints, so the page shows them in the order the command prints them. Where the
 // next fenced block quotes what the command printed — a block, not a command
 // block, opening `Wrote the example <name> into <dir>` — or no fenced block
@@ -94,7 +94,7 @@
 //     inside it every line is blank, a comment, `run <command>` or
 //     `require_env <NAME> <value>`, and any other line fails;
 //   - the script's steps must be the README's steps: step 1, read from the Build
-//     block as for a scaffold line, and each step N above 1 the README gives a
+//     block as for a draft line, and each step N above 1 the README gives a
 //     command block opening with the line `cd ../<N>`. There must be exactly one
 //     such block for each N; a block opening otherwise is not a step's block;
 //   - a step's README block is read without its `cd` lines, its comment lines
@@ -144,11 +144,11 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 const COMMAND_INFO = new Set(["sh", "bash", "shell", "zsh", "powershell", "pwsh"]);
-const SCAFFOLD = /^aggrega scaffold --example ([a-z0-9][a-z0-9-]*)(?: ([^\s;&|<>`'"]+))?$/;
-const LIST = /^aggrega scaffold --example --list$/;
-const NAMES_SCAFFOLD = /\baggrega\s+scaffold\b.*\s--example\b/;
+const DRAFT = /^aggrega draft --example ([a-z0-9][a-z0-9-]*)(?: ([^\s;&|<>`'"]+))?$/;
+const LIST = /^aggrega draft --example --list$/;
+const NAMES_DRAFT = /\baggrega\s+draft\b.*\s--example\b/;
 const JOINED =
-  /\baggrega\s+scaffold\s+--example(?:\s+|=)\S+.*(?:&&|\|\||;|&)\s*(?:cd|Set-Location|sl|pushd|chdir)(?:\s|$|`)/;
+  /\baggrega\s+draft\s+--example(?:\s+|=)\S+.*(?:&&|\|\||;|&)\s*(?:cd|Set-Location|sl|pushd|chdir)(?:\s|$|`)/;
 const ONE_COMMAND_SH = /^curl -fsSL https:\/\/aggrega\.ai\/(quickstart-[a-z0-9][a-z0-9-]*)\.sh \| sh(?: -s --((?: \S+)+))?$/;
 const ONE_COMMAND_PS1 = /^(?:\$env:QUICKSTART_STEP=([0-9]+); )?irm https:\/\/aggrega\.ai\/(quickstart-[a-z0-9][a-z0-9-]*)\.ps1 \| iex$/;
 const NAMES_ONE_COMMAND = /https:\/\/aggrega\.ai\/quickstart-[^\s/]*\.(?:sh|ps1)\b/;
@@ -299,14 +299,14 @@ if (opts.fencedBlocks) {
 const failures = [];
 let commands = 0;
 let checkedBlocks = 0;
-let scaffoldLines = 0;
+let draftLines = 0;
 
 function nameOf(file) {
   const fromRoot = path.relative(opts.docsRoot, file);
   return fromRoot && !fromRoot.startsWith("..") ? fromRoot : file;
 }
 
-// --- what a scaffold line prints ----------------------------------------------------
+// --- what a draft line prints ----------------------------------------------------
 // The README's Build block is read by build-commands.awk, held first to the CLI's
 // own reading by check-build-commands-parity.sh, so no page is judged by a reading
 // the CLI does not share.
@@ -321,7 +321,7 @@ function checkParity() {
     if (err.status === 1) {
       process.stdout.write(err.stdout ?? "");
       process.stdout.write(
-        "check-getting-started-commands: lib/build-commands.awk does not read the Build block as the CLI does, so what a scaffold line prints cannot be computed\n",
+        "check-getting-started-commands: lib/build-commands.awk does not read the Build block as the CLI does, so what a draft line prints cannot be computed\n",
       );
       process.exit(1);
     }
@@ -329,7 +329,7 @@ function checkParity() {
   }
 }
 
-// printed returns the lines `aggrega scaffold --example <name> [<dir>]` prints to
+// printed returns the lines `aggrega draft --example <name> [<dir>]` prints to
 // run next, blank lines left out, or undefined where the example does not exist.
 function printed(name, dir) {
   const lines = buildBlock(name);
@@ -362,28 +362,28 @@ function buildBlock(name) {
   return printedCache.get(readme);
 }
 
-// scaffoldOf reads one command line: { name, dir } for a scaffold line, "list" for
-// the list form, a failure reason for any other shape naming `aggrega scaffold
+// draftOf reads one command line: { name, dir } for a draft line, "list" for
+// the list form, a failure reason for any other shape naming `aggrega draft
 // --example`, and undefined for a line that does not name it.
-function scaffoldOf(text) {
-  const m = text.match(SCAFFOLD);
+function draftOf(text) {
+  const m = text.match(DRAFT);
   if (m) return { name: m[1], dir: m[2] ?? m[1] };
   if (LIST.test(text)) return "list";
   if (JOINED.test(text)) return undefined; // reported by the joined-form pass over every line
-  if (NAMES_SCAFFOLD.test(text)) {
-    return 'is not a scaffold line this check reads: write "aggrega scaffold --example <name>", optionally followed by a directory, alone on its line';
+  if (NAMES_DRAFT.test(text)) {
+    return 'is not a draft line this check reads: write "aggrega draft --example <name>", optionally followed by a directory, alone on its line';
   }
   return undefined;
 }
 
-// joinedForm fails every line of a page, prose and blocks alike, that scaffolds an
+// joinedForm fails every line of a page, prose and blocks alike, that drafts an
 // example and changes directory on the same line.
 function joinedForm(pageName, markdown) {
   markdown.split(/\r?\n/).forEach((text, index) => {
     if (!JOINED.test(text)) return;
     failures.push(
-      `${pageName}:${index + 1}: "${text.trim()}" scaffolds an example and changes directory on one line: ` +
-        'write "aggrega scaffold --example <name>" alone; the command prints "cd <name>" itself, so the commands after it start with that line',
+      `${pageName}:${index + 1}: "${text.trim()}" drafts an example and changes directory on one line: ` +
+        'write "aggrega draft --example <name>" alone; the command prints "cd <name>" itself, so the commands after it start with that line',
     );
   });
 }
@@ -480,13 +480,13 @@ function holdOneCommand(pageName, lines, name) {
   return false;
 }
 
-// split returns a block's lines cut at its scaffold lines: runs of other lines, and
-// each scaffold line on its own, in order.
+// split returns a block's lines cut at its draft lines: runs of other lines, and
+// each draft line on its own, in order.
 function split(pageName, block) {
   const parts = [];
   let run = [];
   for (const l of block.lines) {
-    const s = scaffoldOf(l.text);
+    const s = draftOf(l.text);
     if (s === undefined || s === "list") {
       run.push(l);
       continue;
@@ -498,22 +498,22 @@ function split(pageName, block) {
     }
     parts.push({ lines: run });
     run = [];
-    parts.push({ scaffold: s, line: l });
+    parts.push({ draft: s, line: l });
   }
   parts.push({ lines: run });
   return parts;
 }
 
-// after returns the commands after the scaffold line at part index pi of block bi:
+// after returns the commands after the draft line at part index pi of block bi:
 // { lines } from its own block or the next command block, { account: true } where
 // (on a page read the lighter way) a block quoting the command's output comes
 // first, or undefined where nothing follows.
 function after(blocks, parts, bi, pi, strict) {
   const rest = [];
-  for (let k = pi + 1; k < parts[bi].length && !parts[bi][k].scaffold; k++) rest.push(...parts[bi][k].lines);
+  for (let k = pi + 1; k < parts[bi].length && !parts[bi][k].draft; k++) rest.push(...parts[bi][k].lines);
   if (rest.length > 0) return { lines: rest };
-  if (parts[bi].slice(pi + 1).some((p) => p.scaffold)) return { lines: [] };
-  const s = parts[bi][pi].scaffold;
+  if (parts[bi].slice(pi + 1).some((p) => p.draft)) return { lines: [] };
+  const s = parts[bi][pi].draft;
   for (let j = bi + 1; j < blocks.length; j++) {
     if (blocks[j].command) return { lines: parts[j][0].lines };
     if (!strict && blocks[j].lines[0]?.text.startsWith(`Wrote the example ${s.name} into ${s.dir} `)) return { account: true };
@@ -534,7 +534,7 @@ function checkStrict(file) {
   const blocks = pageBlocks(markdown);
   const parts = blocks.map((b) => (b.command ? split(pageName, b) : [{ lines: b.lines }]));
   let sourceRel = "install.md";
-  let expect; // the scaffold line whose printed lines the next commands must equal
+  let expect; // the draft line whose printed lines the next commands must equal
   const holdToSource = (lines) => {
     if (lines.length === 0) return;
     commands += lines.length;
@@ -576,17 +576,17 @@ function checkStrict(file) {
       return;
     }
     parts[bi].forEach((part) => {
-      if (!part.scaffold) {
+      if (!part.draft) {
         holdToSource(part.lines);
         return;
       }
       if (expect) {
-        failures.push(`${pageName}:${expect.line}: no command follows "${expect.text}" before the next scaffold line`);
+        failures.push(`${pageName}:${expect.line}: no command follows "${expect.text}" before the next draft line`);
         expect = undefined;
       }
       commands++;
-      scaffoldLines++;
-      const { name, dir } = part.scaffold;
+      draftLines++;
+      const { name, dir } = part.draft;
       const want = printed(name, dir);
       sourceRel = `${EXAMPLES}/${name}/README.md`;
       if (!want) {
@@ -622,15 +622,15 @@ function checkLight(file) {
       holdOneCommand(pageName, [l], one.name);
     }
   }
-  if (!NAMES_SCAFFOLD.test(markdown)) return;
+  if (!NAMES_DRAFT.test(markdown)) return;
   const blocks = pageBlocks(markdown);
   const parts = blocks.map((b) => (b.command ? split(pageName, b) : [{ lines: b.lines }]));
   blocks.forEach((block, bi) => {
     if (!block.command) return;
     parts[bi].forEach((part, pi) => {
-      if (!part.scaffold) return;
-      scaffoldLines++;
-      const { name, dir } = part.scaffold;
+      if (!part.draft) return;
+      draftLines++;
+      const { name, dir } = part.draft;
       const want = printed(name, dir);
       if (!want) {
         failures.push(
@@ -902,10 +902,10 @@ const scope = opts.only ? nameOf(opts.page) : `${nameOf(opts.page)} and ${otherP
 if (failures.length > 0) {
   for (const f of failures) process.stdout.write(`${f}\n`);
   process.stdout.write(
-    `check-getting-started-commands: ${failures.length} line(s) in ${scope}${scripts ? ` and the quickstart scripts` : ""} differ from the pages they come from or from what scaffold prints\n`,
+    `check-getting-started-commands: ${failures.length} line(s) in ${scope}${scripts ? ` and the quickstart scripts` : ""} differ from the pages they come from or from what aggrega draft prints\n`,
   );
   process.exit(1);
 }
 process.stdout.write(
-  `check-getting-started-commands: ${scope}: ${checkedBlocks} command block(s), ${commands} command(s), ${scaffoldLines} scaffold line(s), each as the page it comes from gives it and as scaffold prints it${scripts ? `; ${scripts.note}` : ""}\n`,
+  `check-getting-started-commands: ${scope}: ${checkedBlocks} command block(s), ${commands} command(s), ${draftLines} draft line(s), each as the page it comes from gives it and as aggrega draft prints it${scripts ? `; ${scripts.note}` : ""}\n`,
 );

@@ -5,7 +5,7 @@ This page explains one idea, who writes which data about a component, and is not
 into a folder of your own with:
 
 ```sh
-aggrega scaffold --example postgres-three-realizations
+aggrega draft --example postgres-three-realizations
 ```
 
 It then prints the commands to run next:

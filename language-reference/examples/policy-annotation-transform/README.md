@@ -350,14 +350,14 @@ plugins:
 The attachment names a version the hub publishes, so the pin resolves through
 the registry the workspace reads, or from the `aggrega` binary of that release.
 
-## Scaffold the example
+## Draft the example
 
 You can build this example with the commands below, or [have your AI assistant build it for you](#with-an-ai-assistant).
 
 Write the example into a new folder named after it:
 
 ```sh
-aggrega scaffold --example policy-annotation-transform
+aggrega draft --example policy-annotation-transform
 ```
 
 It then prints the commands to run next. The first changes into the new folder:
@@ -389,12 +389,12 @@ can do the same: paste this prompt into it.
 
 <!-- copyable -->
 
-> Use the Aggrega tools only, and create no folder yourself. If the Workspace folder holds no `policy-annotation-transform` folder yet, call the `scaffold` tool once with `example` set to `policy-annotation-transform` and no `dir`: it writes the example into a new `policy-annotation-transform` folder. Then call the `cli-build` tool, which runs `aggrega build` and takes its `--config` flag, with `workspace_root` set to `policy-annotation-transform`, `release` set to `release.yaml`, `auto_pull` set to true and `config` set to `governance-rego.yaml`; then call it again the same way with `config` set to `governance-cel.yaml`. Last, call the `build` tool with `workspace_root` set to `policy-annotation-transform`, `release` set to `release-by-hand.yaml`, `auto_pull` set to true and `write` set to true. Tell me which files each build wrote; they are under `policy-annotation-transform/dist/`.
+> Use the Aggrega tools only, and create no folder yourself. If the Workspace folder holds no `policy-annotation-transform` folder yet, call the `draft` tool once with `example` set to `policy-annotation-transform` and no `dir`: it writes the example into a new `policy-annotation-transform` folder. Then call the `cli-build` tool, which runs `aggrega build` and takes its `--config` flag, with `workspace_root` set to `policy-annotation-transform`, `release` set to `release.yaml`, `auto_pull` set to true and `config` set to `governance-rego.yaml`; then call it again the same way with `config` set to `governance-cel.yaml`. Last, call the `build` tool with `workspace_root` set to `policy-annotation-transform`, `release` set to `release-by-hand.yaml`, `auto_pull` set to true and `write` set to true. Tell me which files each build wrote; they are under `policy-annotation-transform/dist/`.
 
 ## Checking every build
 
 This self-check runs in a checkout of the documentation repository, which holds
-the shared build helper it uses; a copy written by `aggrega scaffold --example`
+the shared build helper it uses; a copy written by `aggrega draft --example`
 does not carry that helper.
 
 ```bash

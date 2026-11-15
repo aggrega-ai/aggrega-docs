@@ -57,14 +57,14 @@ its metrics.
   re-pins the controller, webhook, CA-injector, and ACME solver images to those
   tags so the rendered workloads reference pinned versions.
 
-## Scaffold the example
+## Draft the example
 
 You can build this example with the commands below, or [have your AI assistant build it for you](#with-an-ai-assistant).
 
 Write the example into a new folder named after it:
 
 ```sh
-aggrega scaffold --example cert-manager-tls
+aggrega draft --example cert-manager-tls
 ```
 
 It then prints the commands to run next. The first changes into the new folder:
@@ -94,7 +94,7 @@ can do the same: paste this prompt into it.
 
 <!-- copyable -->
 
-> Use the Aggrega tools only, and create no folder yourself. If the Workspace folder holds no `cert-manager-tls` folder yet, call the `scaffold` tool once with `example` set to `cert-manager-tls` and no `dir`: it writes the example into a new `cert-manager-tls` folder. Then call the `build` tool with `workspace_root` set to `cert-manager-tls`, `release` set to `release.yaml`, `auto_pull` set to true and `write` set to true. Tell me which files the build wrote; they are under `cert-manager-tls/dist/`.
+> Use the Aggrega tools only, and create no folder yourself. If the Workspace folder holds no `cert-manager-tls` folder yet, call the `draft` tool once with `example` set to `cert-manager-tls` and no `dir`: it writes the example into a new `cert-manager-tls` folder. Then call the `build` tool with `workspace_root` set to `cert-manager-tls`, `release` set to `release.yaml`, `auto_pull` set to true and `write` set to true. Tell me which files the build wrote; they are under `cert-manager-tls/dist/`.
 
 ## What renders
 

@@ -47,14 +47,14 @@ Manifest changes per target.
   nginx image pinned to an explicit tag, so the rendered Deployment references
   a stable image.
 
-## Scaffold the example
+## Draft the example
 
 You can build this example with the commands below, or [have your AI assistant build it for you](#with-an-ai-assistant).
 
 Write the example into a new folder named after it:
 
 ```sh
-aggrega scaffold --example nginx-gateway
+aggrega draft --example nginx-gateway
 ```
 
 It then prints the commands to run next. The first changes into the new folder:
@@ -87,7 +87,7 @@ can do the same: paste this prompt into it.
 
 <!-- copyable -->
 
-> Use the Aggrega tools only, and create no folder yourself. If the Workspace folder holds no `nginx-gateway` folder yet, call the `scaffold` tool once with `example` set to `nginx-gateway` and no `dir`: it writes the example into a new `nginx-gateway` folder. Then call the `build` tool once for each Release, in this order — `release-compose.yaml` and `release-helm-synth.yaml` — each time with `workspace_root` set to `nginx-gateway`, `release` set to that file, `auto_pull` set to true and `write` set to true. Tell me which files each build wrote; they are under `nginx-gateway/dist/`.
+> Use the Aggrega tools only, and create no folder yourself. If the Workspace folder holds no `nginx-gateway` folder yet, call the `draft` tool once with `example` set to `nginx-gateway` and no `dir`: it writes the example into a new `nginx-gateway` folder. Then call the `build` tool once for each Release, in this order — `release-compose.yaml` and `release-helm-synth.yaml` — each time with `workspace_root` set to `nginx-gateway`, `release` set to that file, `auto_pull` set to true and `write` set to true. Tell me which files each build wrote; they are under `nginx-gateway/dist/`.
 
 ## What the injected upstream looks like
 

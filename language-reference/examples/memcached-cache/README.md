@@ -61,14 +61,14 @@ realization can enforce a Memcached password.
   cache that answers every client while the Aggregate says it is protected, so
   each Recipe halts the build instead, naming the slot.
 
-## Scaffold the example
+## Draft the example
 
 You can build this example with the commands below, or [have your AI assistant build it for you](#with-an-ai-assistant).
 
 Write the example into a new folder named after it:
 
 ```sh
-aggrega scaffold --example memcached-cache
+aggrega draft --example memcached-cache
 ```
 
 It then prints the commands to run next. The first changes into the new folder:
@@ -100,7 +100,7 @@ can do the same: paste this prompt into it.
 
 <!-- copyable -->
 
-> Use the Aggrega tools only, and create no folder yourself. If the Workspace folder holds no `memcached-cache` folder yet, call the `scaffold` tool once with `example` set to `memcached-cache` and no `dir`: it writes the example into a new `memcached-cache` folder. Then call the `build` tool once for each Release, in this order — `release-compose.yaml` and `release-helm-synth.yaml` — each time with `workspace_root` set to `memcached-cache`, `release` set to that file, `auto_pull` set to true and `write` set to true. Tell me which files each build wrote; they are under `memcached-cache/dist/`.
+> Use the Aggrega tools only, and create no folder yourself. If the Workspace folder holds no `memcached-cache` folder yet, call the `draft` tool once with `example` set to `memcached-cache` and no `dir`: it writes the example into a new `memcached-cache` folder. Then call the `build` tool once for each Release, in this order — `release-compose.yaml` and `release-helm-synth.yaml` — each time with `workspace_root` set to `memcached-cache`, `release` set to that file, `auto_pull` set to true and `write` set to true. Tell me which files each build wrote; they are under `memcached-cache/dist/`.
 
 ## The control: a password the cache cannot enforce
 

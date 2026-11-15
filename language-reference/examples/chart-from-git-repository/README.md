@@ -76,14 +76,14 @@ is reproducible. The reference is what the build **looks the entry up by**, whic
 is what lets you keep writing `ref: hello-world-0.1.0` in the Recipe and still
 resolve to the exact commit that tag stood at when the lockfile was written.
 
-## Scaffold the example
+## Draft the example
 
 You can build this example with the commands below, or [have your AI assistant build it for you](#with-an-ai-assistant).
 
 Write the example into a new folder named after it:
 
 ```sh
-aggrega scaffold --example chart-from-git-repository
+aggrega draft --example chart-from-git-repository
 ```
 
 It then prints the commands to run next. The first changes into the new folder:
@@ -146,7 +146,7 @@ can do the same: paste this prompt into it.
 
 <!-- copyable -->
 
-> Use the Aggrega tools only, and create no folder yourself. If the Workspace folder holds no `chart-from-git-repository` folder yet, call the `scaffold` tool once with `example` set to `chart-from-git-repository` and no `dir`: it writes the example into a new `chart-from-git-repository` folder. Then call the `build` tool with `workspace_root` set to `chart-from-git-repository`, `release` set to `release-chart.yaml`, `auto_pull` set to true and `write` set to true. Tell me which files the build wrote; they are under `chart-from-git-repository/dist/`.
+> Use the Aggrega tools only, and create no folder yourself. If the Workspace folder holds no `chart-from-git-repository` folder yet, call the `draft` tool once with `example` set to `chart-from-git-repository` and no `dir`: it writes the example into a new `chart-from-git-repository` folder. Then call the `build` tool with `workspace_root` set to `chart-from-git-repository`, `release` set to `release-chart.yaml`, `auto_pull` set to true and `write` set to true. Tell me which files the build wrote; they are under `chart-from-git-repository/dist/`.
 
 ## When the reference moves
 

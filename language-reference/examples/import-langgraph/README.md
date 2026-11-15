@@ -36,7 +36,7 @@ import wrote. It needs the standard-library catalog
 checked out beside this repository, or its directory named in
 `AGGREGA_CATALOG_DIRS`.
 
-## Scaffold the example
+## Draft the example
 
 You can run this example's import with the commands below, or
 [have your AI assistant run it for you](#with-an-ai-assistant).
@@ -44,7 +44,7 @@ You can run this example's import with the commands below, or
 Write the example into a new folder named after it:
 
 ```sh
-aggrega scaffold --example import-langgraph
+aggrega draft --example import-langgraph
 ```
 
 It then prints the commands to run next. The first changes into the new folder:
@@ -81,7 +81,7 @@ can do the same: paste this prompt into it.
 
 <!-- copyable -->
 
-> Use the Aggrega tools only, and create no folder yourself. If the Workspace folder holds no `import-langgraph` folder yet, call the `scaffold` tool once with `example` set to `import-langgraph` and no `dir`: it writes the example into a new `import-langgraph` folder, whose `source` folder holds what this example imports. Then call the `import` tool with `workspace_root` set to `import-langgraph/source`, `source` set to `.` and `target` set to `compose`: it reads the answers it needs from `import-answers.yaml` beside `langgraph.json`, writes its drafts into `import-langgraph/source` and pulls what they need. Then call the `validate` tool with `workspace_root` set to `import-langgraph/source` and `release` set to `release.yaml`, and the `build` tool with `workspace_root` set to `import-langgraph/source`, `release` set to `release.yaml` and `write` set to true. Tell me which files the build wrote; they are under `import-langgraph/source/dist/`.
+> Use the Aggrega tools only, and create no folder yourself. If the Workspace folder holds no `import-langgraph` folder yet, call the `draft` tool once with `example` set to `import-langgraph` and no `dir`: it writes the example into a new `import-langgraph` folder, whose `source` folder holds what this example imports. Then call the `import` tool with `workspace_root` set to `import-langgraph/source`, `source` set to `.` and `target` set to `compose`: it reads the answers it needs from `import-answers.yaml` beside `langgraph.json`, writes its drafts into `import-langgraph/source` and pulls what they need. Then call the `validate` tool with `workspace_root` set to `import-langgraph/source` and `release` set to `release.yaml`, and the `build` tool with `workspace_root` set to `import-langgraph/source`, `release` set to `release.yaml` and `write` set to true. Tell me which files the build wrote; they are under `import-langgraph/source/dist/`.
 
 ## Test it
 

@@ -62,14 +62,14 @@ The Recipe references in the Manifests are provider-scoped (`compose/rabbitmq`,
   materialized as a Secret and referenced by an env `secretKeyRef`, so the
   plaintext never lands in the rendered manifest.
 
-## Scaffold the example
+## Draft the example
 
 You can build this example with the commands below, or [have your AI assistant build it for you](#with-an-ai-assistant).
 
 Write the example into a new folder named after it:
 
 ```sh
-aggrega scaffold --example rabbitmq-broker
+aggrega draft --example rabbitmq-broker
 ```
 
 It then prints the commands to run next. The first changes into the new folder:
@@ -105,7 +105,7 @@ can do the same: paste this prompt into it.
 
 <!-- copyable -->
 
-> Use the Aggrega tools only, and create no folder yourself. If the Workspace folder holds no `rabbitmq-broker` folder yet, call the `scaffold` tool once with `example` set to `rabbitmq-broker` and no `dir`: it writes the example into a new `rabbitmq-broker` folder. Then call the `build` tool once for each Release, in this order — `release-compose.yaml`, `release-helm-synth.yaml`, `release-compose-auth.yaml` and `release-helm-synth-auth.yaml` — each time with `workspace_root` set to `rabbitmq-broker`, `release` set to that file, `auto_pull` set to true and `write` set to true. Tell me which files each build wrote; they are under `rabbitmq-broker/dist/`.
+> Use the Aggrega tools only, and create no folder yourself. If the Workspace folder holds no `rabbitmq-broker` folder yet, call the `draft` tool once with `example` set to `rabbitmq-broker` and no `dir`: it writes the example into a new `rabbitmq-broker` folder. Then call the `build` tool once for each Release, in this order — `release-compose.yaml`, `release-helm-synth.yaml`, `release-compose-auth.yaml` and `release-helm-synth-auth.yaml` — each time with `workspace_root` set to `rabbitmq-broker`, `release` set to that file, `auto_pull` set to true and `write` set to true. Tell me which files each build wrote; they are under `rabbitmq-broker/dist/`.
 
 ## Credential delivery note
 

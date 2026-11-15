@@ -2,7 +2,7 @@
 # Copyright 2026 Cognitio s.r.l.
 #
 # build-commands.awk — print the commands a runnable example's page gives to run
-# next, read as `aggrega scaffold --example` reads them once it has written the
+# next, read as `aggrega draft --example` reads them once it has written the
 # example: the lines of the first sh, bash or shell block under a level-two
 # heading exactly "Build", each printed as "| <line as written>", without the
 # blank lines that open or close the block. A page with no such block, or one

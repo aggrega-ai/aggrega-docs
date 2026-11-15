@@ -13,7 +13,7 @@ import { corpusRoot, routeOf } from "./translations.mjs";
 // each tier is a level-three heading carrying its title, followed by one line
 // per example, `- [name](name/README.md) …`, in the order to work through them.
 // This module reads those headings and those entry lines, and nothing else: no
-// header, no tier list. The command `aggrega scaffold --example --list` reads
+// header, no tier list. The command `aggrega draft --example --list` reads
 // the page too, with a reader of its own, and nothing here checks that the two
 // readings agree. A section holding no entry line this module recognizes stops
 // the build, naming the page, rather than publishing a sidebar with no example.

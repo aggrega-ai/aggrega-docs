@@ -49,14 +49,14 @@ of its own:
 | `release-mismatched.yaml` | `aggregate-mismatched.yaml` | the same with the two ends reading two parameters: the build succeeds, and the conventions check advises |
 | `release-operator-wired.yaml` | `aggregate-operator-wired.yaml` | the extraction connection left to the operator: the Release wires it and names its key in `infra` |
 
-## Scaffold the example
+## Draft the example
 
 You can build this example with the commands below, or [have your AI assistant build it for you](#with-an-ai-assistant).
 
 Write the example into a new folder named after it:
 
 ```sh
-aggrega scaffold --example connection-credentials
+aggrega draft --example connection-credentials
 ```
 
 It then prints the commands to run next. The first changes into the new folder:
@@ -125,7 +125,7 @@ can do the same: paste this prompt into it.
 
 <!-- copyable -->
 
-> Use the Aggrega tools only, and create no folder yourself. If the Workspace folder holds no `connection-credentials` folder yet, call the `scaffold` tool once with `example` set to `connection-credentials` and no `dir`: it writes the example into a new `connection-credentials` folder. Then call the `build` tool once for each Release, in this order — `release-matched.yaml`, `release-mismatched.yaml`, `release-operator-wired.yaml` — each time with `workspace_root` set to `connection-credentials`, `release` set to that file, `auto_pull` set to true and `write` set to true. Tell me which files each build wrote; they are under `connection-credentials/dist/`.
+> Use the Aggrega tools only, and create no folder yourself. If the Workspace folder holds no `connection-credentials` folder yet, call the `draft` tool once with `example` set to `connection-credentials` and no `dir`: it writes the example into a new `connection-credentials` folder. Then call the `build` tool once for each Release, in this order — `release-matched.yaml`, `release-mismatched.yaml`, `release-operator-wired.yaml` — each time with `workspace_root` set to `connection-credentials`, `release` set to that file, `auto_pull` set to true and `write` set to true. Tell me which files each build wrote; they are under `connection-credentials/dist/`.
 
 ## The rendered tree
 

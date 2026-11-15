@@ -58,7 +58,7 @@ In a checkout of the documentation repository, most workspaces also carry a
 `build-release.sh` helper that the repository's own checks build through. It
 runs `aggrega build` for one release, echoing the command first, and reports which
 `aggrega` binary it used and where that binary came from; set `AGGREGA_BIN` to
-choose the binary. A copy written by `aggrega scaffold --example` carries the
+choose the binary. A copy written by `aggrega draft --example` carries the
 helper without the shared script it calls, so build such a copy with
 `aggrega build` directly.
 
@@ -192,10 +192,10 @@ list none.
   `aggrega import`, then reviewed and built.
 
 An example lists at least one product or one capability, so the index can place
-it. Its README also carries a `## Scaffold the example` section, holding
-`aggrega scaffold --example <name>` in its first command block and `cd <name>`
+it. Its README also carries a `## Draft the example` section, holding
+`aggrega draft --example <name>` in its first command block and `cd <name>`
 in its second, directly followed by a `## Build` section whose first command
-block is what `aggrega scaffold --example` prints to run next after that `cd`.
+block is what `aggrega draft --example` prints to run next after that `cd`.
 `scripts/gen-examples-index.sh --check`, run
 from the root of this repository, checks every header against these lists,
 refuses an example missing either section, and one with neither an executable

@@ -45,14 +45,14 @@ dashboards server reads them back over the query API.
 - **Reproducible images.** The Recipe pins the Tempo server image tag from
   `infra.engine_version` so the rendered workload references a pinned version.
 
-## Scaffold the example
+## Draft the example
 
 You can build this example with the commands below, or [have your AI assistant build it for you](#with-an-ai-assistant).
 
 Write the example into a new folder named after it:
 
 ```sh
-aggrega scaffold --example tempo-tracing
+aggrega draft --example tempo-tracing
 ```
 
 It then prints the commands to run next. The first changes into the new folder:
@@ -82,7 +82,7 @@ can do the same: paste this prompt into it.
 
 <!-- copyable -->
 
-> Use the Aggrega tools only, and create no folder yourself. If the Workspace folder holds no `tempo-tracing` folder yet, call the `scaffold` tool once with `example` set to `tempo-tracing` and no `dir`: it writes the example into a new `tempo-tracing` folder. Then call the `build` tool with `workspace_root` set to `tempo-tracing`, `release` set to `release.yaml`, `auto_pull` set to true and `write` set to true. Tell me which files the build wrote; they are under `tempo-tracing/dist/`.
+> Use the Aggrega tools only, and create no folder yourself. If the Workspace folder holds no `tempo-tracing` folder yet, call the `draft` tool once with `example` set to `tempo-tracing` and no `dir`: it writes the example into a new `tempo-tracing` folder. Then call the `build` tool with `workspace_root` set to `tempo-tracing`, `release` set to `release.yaml`, `auto_pull` set to true and `write` set to true. Tell me which files the build wrote; they are under `tempo-tracing/dist/`.
 
 ## What renders
 

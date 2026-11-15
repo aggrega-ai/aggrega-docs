@@ -25,14 +25,14 @@ Recipe reads the produced Secret's name from `.features.root_password.provides.n
 The reference name and the generated Secret's `metadata.name` are one value —
 there is no re-derivation and no convention for the two sides to agree on.
 
-## Scaffold the example
+## Draft the example
 
 You can build this example with the commands below, or [have your AI assistant build it for you](#with-an-ai-assistant).
 
 Write the example into a new folder named after it:
 
 ```sh
-aggrega scaffold --example mariadb-bitnami-credential-set
+aggrega draft --example mariadb-bitnami-credential-set
 ```
 
 It then prints the commands to run next. The first changes into the new folder:
@@ -63,7 +63,7 @@ can do the same: paste this prompt into it.
 
 <!-- copyable -->
 
-> Use the Aggrega tools only, and create no folder yourself. If the Workspace folder holds no `mariadb-bitnami-credential-set` folder yet, call the `scaffold` tool once with `example` set to `mariadb-bitnami-credential-set` and no `dir`: it writes the example into a new `mariadb-bitnami-credential-set` folder. Then call the `build` tool with `workspace_root` set to `mariadb-bitnami-credential-set`, `release` set to `release.yaml`, `auto_pull` set to true and `write` set to true. Tell me which files the build wrote; they are under `mariadb-bitnami-credential-set/dist/`.
+> Use the Aggrega tools only, and create no folder yourself. If the Workspace folder holds no `mariadb-bitnami-credential-set` folder yet, call the `draft` tool once with `example` set to `mariadb-bitnami-credential-set` and no `dir`: it writes the example into a new `mariadb-bitnami-credential-set` folder. Then call the `build` tool with `workspace_root` set to `mariadb-bitnami-credential-set`, `release` set to `release.yaml`, `auto_pull` set to true and `write` set to true. Tell me which files the build wrote; they are under `mariadb-bitnami-credential-set/dist/`.
 
 ## What the credential produces
 

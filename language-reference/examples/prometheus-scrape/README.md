@@ -115,14 +115,14 @@ decided by what it publishes.
   claim — nothing else. Each Grafana renders as its own Deployment, Service and
   data volume claim.
 
-## Scaffold the example
+## Draft the example
 
 You can build this example with the commands below, or [have your AI assistant build it for you](#with-an-ai-assistant).
 
 Write the example into a new folder named after it:
 
 ```sh
-aggrega scaffold --example prometheus-scrape
+aggrega draft --example prometheus-scrape
 ```
 
 It then prints the commands to run next. The first changes into the new folder:
@@ -158,7 +158,7 @@ can do the same: paste this prompt into it.
 
 <!-- copyable -->
 
-> Use the Aggrega tools only, and create no folder yourself. If the Workspace folder holds no `prometheus-scrape` folder yet, call the `scaffold` tool once with `example` set to `prometheus-scrape` and no `dir`: it writes the example into a new `prometheus-scrape` folder. Then call the `build` tool once for each Release, in this order — `release-compose.yaml` and `release-helm-synth.yaml` — each time with `workspace_root` set to `prometheus-scrape`, `release` set to that file, `auto_pull` set to true and `write` set to true. Tell me which files each build wrote; they are under `prometheus-scrape/dist/`.
+> Use the Aggrega tools only, and create no folder yourself. If the Workspace folder holds no `prometheus-scrape` folder yet, call the `draft` tool once with `example` set to `prometheus-scrape` and no `dir`: it writes the example into a new `prometheus-scrape` folder. Then call the `build` tool once for each Release, in this order — `release-compose.yaml` and `release-helm-synth.yaml` — each time with `workspace_root` set to `prometheus-scrape`, `release` set to that file, `auto_pull` set to true and `write` set to true. Tell me which files each build wrote; they are under `prometheus-scrape/dist/`.
 
 ## What the compiled scrape configuration looks like
 

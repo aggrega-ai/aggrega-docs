@@ -107,14 +107,14 @@ Secret the controller's pod mounts is the operator's own, created separately.
 The field leaves a document out; it does not check that whatever the rest of
 the output relies on exists somewhere else.
 
-## Scaffold the example
+## Draft the example
 
 You can build this example with the commands below, or [have your AI assistant build it for you](#with-an-ai-assistant).
 
 Write the example into a new folder named after it:
 
 ```sh
-aggrega scaffold --example ai-gateway-own-webhook-certificate
+aggrega draft --example ai-gateway-own-webhook-certificate
 ```
 
 It then prints the commands to run next. The first changes into the new folder:
@@ -151,7 +151,7 @@ can do the same: paste this prompt into it.
 
 <!-- copyable -->
 
-> Use the Aggrega tools only, and create no folder yourself. If the Workspace folder holds no `ai-gateway-own-webhook-certificate` folder yet, call the `scaffold` tool once with `example` set to `ai-gateway-own-webhook-certificate` and no `dir`: it writes the example into a new `ai-gateway-own-webhook-certificate` folder. Then call the `build` tool once for each Release, in this order — `release-cert-manager.yaml`, `release-own-certificate.yaml` — each time with `workspace_root` set to `ai-gateway-own-webhook-certificate`, `release` set to that file, `auto_pull` set to true and `write` set to true. Then call the `cli-build` tool, which runs `aggrega build` and takes its `--verify-determinism` flag, with `workspace_root` set to `ai-gateway-own-webhook-certificate`, `release` set to `release-negative-without-omits.yaml`, `auto_pull` set to true and `verify_determinism` set to true: it is meant to be refused, so read me the refusal. Then call the `build` tool the same way as the first two builds with `release` set to `release-negative-stale-omits.yaml`: it is meant to be refused too, so read me that refusal as well. Tell me which files each build wrote; they are under `ai-gateway-own-webhook-certificate/dist/`.
+> Use the Aggrega tools only, and create no folder yourself. If the Workspace folder holds no `ai-gateway-own-webhook-certificate` folder yet, call the `draft` tool once with `example` set to `ai-gateway-own-webhook-certificate` and no `dir`: it writes the example into a new `ai-gateway-own-webhook-certificate` folder. Then call the `build` tool once for each Release, in this order — `release-cert-manager.yaml`, `release-own-certificate.yaml` — each time with `workspace_root` set to `ai-gateway-own-webhook-certificate`, `release` set to that file, `auto_pull` set to true and `write` set to true. Then call the `cli-build` tool, which runs `aggrega build` and takes its `--verify-determinism` flag, with `workspace_root` set to `ai-gateway-own-webhook-certificate`, `release` set to `release-negative-without-omits.yaml`, `auto_pull` set to true and `verify_determinism` set to true: it is meant to be refused, so read me the refusal. Then call the `build` tool the same way as the first two builds with `release` set to `release-negative-stale-omits.yaml`: it is meant to be refused too, so read me that refusal as well. Tell me which files each build wrote; they are under `ai-gateway-own-webhook-certificate/dist/`.
 
 ## The two certificate modes, as rendered
 
@@ -364,7 +364,7 @@ decide about an entry, and which providers honour it — is
 ## Checking every build
 
 This self-check runs in a checkout of the documentation repository, which holds
-the shared build helper it uses; a copy written by `aggrega scaffold --example`
+the shared build helper it uses; a copy written by `aggrega draft --example`
 does not carry that helper.
 
 ```bash

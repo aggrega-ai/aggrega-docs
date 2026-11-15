@@ -67,7 +67,7 @@ What 0.9.0 adds:
   LangGraph, Google ADK, Microsoft Agent Framework, MCP and Docker Compose projects, scoring each mapping
   against the catalog; `--sync` keeps the drafts in step with their source.
 - **A gentle start.** A Release or an Aggregate with a single scope needs no boundaries or subsystems, and
-  `aggrega scaffold`, `aggrega edit-document`, `aggrega validate`, `aggrega lint` and `aggrega explain`
+  `aggrega draft`, `aggrega edit-document`, `aggrega validate`, `aggrega lint` and `aggrega explain`
   support the authoring loop.
 - **The editor and the assistant.** The Visual Studio Code extension brings validation, navigation, hover,
   completion and a topology graph to Aggrega YAML through `aggrega serve`; `aggrega mcp` and the Aggrega

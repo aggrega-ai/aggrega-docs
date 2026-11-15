@@ -44,14 +44,14 @@ the gateway. With a model wired, the gateway reads its routes from a file
 rendered with it, so it takes no etcd connection and no Admin API key; the
 Aggregate wires neither.
 
-## Scaffold the example
+## Draft the example
 
 You can build this example with the commands below, or [have your AI assistant build it for you](#with-an-ai-assistant).
 
 Write the example into a new folder named after it:
 
 ```sh
-aggrega scaffold --example apisix-token-budget
+aggrega draft --example apisix-token-budget
 ```
 
 It then prints the commands to run next. The first changes into the new folder:
@@ -93,7 +93,7 @@ can do the same: paste this prompt into it.
 
 <!-- copyable -->
 
-> Use the Aggrega tools only, and create no folder yourself. If the Workspace folder holds no `apisix-token-budget` folder yet, call the `scaffold` tool once with `example` set to `apisix-token-budget` and no `dir`: it writes the example into a new `apisix-token-budget` folder. Then call the `build` tool with `workspace_root` set to `apisix-token-budget`, `release` set to `release.yaml`, `auto_pull` set to true and `write` set to true. Tell me which files the build wrote; they are under `apisix-token-budget/dist/`.
+> Use the Aggrega tools only, and create no folder yourself. If the Workspace folder holds no `apisix-token-budget` folder yet, call the `draft` tool once with `example` set to `apisix-token-budget` and no `dir`: it writes the example into a new `apisix-token-budget` folder. Then call the `build` tool with `workspace_root` set to `apisix-token-budget`, `release` set to `release.yaml`, `auto_pull` set to true and `write` set to true. Tell me which files the build wrote; they are under `apisix-token-budget/dist/`.
 
 ## The rendered tree
 

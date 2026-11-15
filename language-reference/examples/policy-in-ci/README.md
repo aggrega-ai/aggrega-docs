@@ -90,12 +90,12 @@ opposite reasons:
   unpinned workload. So `require-pinned-image.sh` reads the six pod-spec paths
   explicitly, and adding a workload kind means adding a path.
 
-## Scaffold the example
+## Draft the example
 
 Write the example into a new folder named after it:
 
 ```sh
-aggrega scaffold --example policy-in-ci
+aggrega draft --example policy-in-ci
 ```
 
 It then prints the commands to run next. The first changes into the new folder:

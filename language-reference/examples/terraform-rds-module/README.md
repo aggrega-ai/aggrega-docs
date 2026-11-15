@@ -108,14 +108,14 @@ standard library ships a `generated-secret` FeatureRecipe under more than one â€
 so a bare name does not resolve at all, and the build halts loudly rather than
 silently picking a provider for you.
 
-## Scaffold the example
+## Draft the example
 
 You can build this example with the commands below, or [have your AI assistant build it for you](#with-an-ai-assistant).
 
 Write the example into a new folder named after it:
 
 ```sh
-aggrega scaffold --example terraform-rds-module
+aggrega draft --example terraform-rds-module
 ```
 
 It then prints the commands to run next. The first changes into the new folder:
@@ -139,4 +139,4 @@ can do the same: paste this prompt into it.
 
 <!-- copyable -->
 
-> Use the Aggrega tools only, and create no folder yourself. If the Workspace folder holds no `terraform-rds-module` folder yet, call the `scaffold` tool once with `example` set to `terraform-rds-module` and no `dir`: it writes the example into a new `terraform-rds-module` folder. Then call the `build` tool with `workspace_root` set to `terraform-rds-module`, `release` set to `release.yaml`, `auto_pull` set to true and `write` set to true. Tell me which files the build wrote; they are under `terraform-rds-module/dist/`.
+> Use the Aggrega tools only, and create no folder yourself. If the Workspace folder holds no `terraform-rds-module` folder yet, call the `draft` tool once with `example` set to `terraform-rds-module` and no `dir`: it writes the example into a new `terraform-rds-module` folder. Then call the `build` tool with `workspace_root` set to `terraform-rds-module`, `release` set to `release.yaml`, `auto_pull` set to true and `write` set to true. Tell me which files the build wrote; they are under `terraform-rds-module/dist/`.

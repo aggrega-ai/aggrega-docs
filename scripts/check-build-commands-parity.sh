@@ -3,7 +3,7 @@
 # Copyright 2026 Cognitio s.r.l.
 #
 # check-build-commands-parity.sh — hold lib/build-commands.awk to the reading
-# `aggrega scaffold --example` gives a page's Build section.
+# `aggrega draft --example` gives a page's Build section.
 #
 # lib/build-commands.awk reads the commands a runnable example's page gives to
 # run next as the CLI reads them, in awk, because this repository's scripts run

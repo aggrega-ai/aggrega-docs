@@ -5,7 +5,7 @@ else, and is not a runnable workspace.
 [Cross-boundary networking](cross-boundary-networking/README.md) shows it in a workspace you build; write it into a folder of your own with:
 
 ```sh
-aggrega scaffold --example cross-boundary-networking
+aggrega draft --example cross-boundary-networking
 ```
 
 It then prints the commands to run next:

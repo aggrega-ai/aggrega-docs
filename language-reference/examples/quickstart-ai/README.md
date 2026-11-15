@@ -101,13 +101,13 @@ for every later run, until you remove it with
 $env:QUICKSTART_STEP=2; irm https://aggrega.ai/quickstart-ai.ps1 | iex
 ```
 
-## Scaffold the example
+## Draft the example
 
 If you prefer to build and run it step by step, write the example into a new
 folder named after it:
 
 ```sh
-aggrega scaffold --example quickstart-ai
+aggrega draft --example quickstart-ai
 ```
 
 It then prints the commands to run next. The first changes into the new folder:
@@ -139,7 +139,7 @@ can do the same: paste this prompt into it.
 
 <!-- copyable -->
 
-> Use the Aggrega tools only, and create no folder yourself. If the Workspace folder holds no `quickstart-ai` folder yet, call the `scaffold` tool once with `example` set to `quickstart-ai` and no `dir`: it writes the example into a new `quickstart-ai` folder, with a README and the step folders `1` to `4`. Then call the `build` tool with `workspace_root` set to `quickstart-ai/1`, `release` set to `release.yaml`, `auto_pull` set to true and `write` set to true. Tell me which files the build wrote; they are under `quickstart-ai/1/dist/`.
+> Use the Aggrega tools only, and create no folder yourself. If the Workspace folder holds no `quickstart-ai` folder yet, call the `draft` tool once with `example` set to `quickstart-ai` and no `dir`: it writes the example into a new `quickstart-ai` folder, with a README and the step folders `1` to `4`. Then call the `build` tool with `workspace_root` set to `quickstart-ai/1`, `release` set to `release.yaml`, `auto_pull` set to true and `write` set to true. Tell me which files the build wrote; they are under `quickstart-ai/1/dist/`.
 
 ## An agent with a local model and memory — `1/`
 
@@ -401,7 +401,7 @@ a cluster.
 ## Checking every step
 
 In a checkout of the documentation repository, which holds the shared build
-helper a copy written by `aggrega scaffold --example` does not carry,
+helper a copy written by `aggrega draft --example` does not carry,
 `./check.sh` in this directory builds the four steps and checks that each
 writes what this page describes: the three Compose files with their services,
 the chat page among them, their connections and the gateway's guardrails, and

@@ -21,14 +21,14 @@ synthesized helm target. The two password slots are delivered by different
 mechanisms because the Component declares them differently, and the Recipe wires
 each the way its slot demands.
 
-## Scaffold the example
+## Draft the example
 
 You can build this example with the commands below, or [have your AI assistant build it for you](#with-an-ai-assistant).
 
 Write the example into a new folder named after it:
 
 ```sh
-aggrega scaffold --example mariadb-helm-synth
+aggrega draft --example mariadb-helm-synth
 ```
 
 It then prints the commands to run next. The first changes into the new folder:
@@ -54,7 +54,7 @@ can do the same: paste this prompt into it.
 
 <!-- copyable -->
 
-> Use the Aggrega tools only, and create no folder yourself. If the Workspace folder holds no `mariadb-helm-synth` folder yet, call the `scaffold` tool once with `example` set to `mariadb-helm-synth` and no `dir`: it writes the example into a new `mariadb-helm-synth` folder. Then call the `build` tool with `workspace_root` set to `mariadb-helm-synth`, `release` set to `release.yaml`, `auto_pull` set to true and `write` set to true. Tell me which files the build wrote; they are under `mariadb-helm-synth/dist/`.
+> Use the Aggrega tools only, and create no folder yourself. If the Workspace folder holds no `mariadb-helm-synth` folder yet, call the `draft` tool once with `example` set to `mariadb-helm-synth` and no `dir`: it writes the example into a new `mariadb-helm-synth` folder. Then call the `build` tool with `workspace_root` set to `mariadb-helm-synth`, `release` set to `release.yaml`, `auto_pull` set to true and `write` set to true. Tell me which files the build wrote; they are under `mariadb-helm-synth/dist/`.
 
 ## root_password — Black-Box, delivered on the inject pipe
 

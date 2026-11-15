@@ -55,14 +55,14 @@ Feature attachment, in the Release: `allowlist`, `core/caller-allowlist`, on the
 model server. The Release affirms that the cluster enforces network policy and
 names one source outside the Aggregate, a monitoring agent.
 
-## Scaffold the example
+## Draft the example
 
 You can build this example with the commands below, or [have your AI assistant build it for you](#with-an-ai-assistant).
 
 Write the example into a new folder named after it:
 
 ```sh
-aggrega scaffold --example model-server-caller-allowlist
+aggrega draft --example model-server-caller-allowlist
 ```
 
 It then prints the commands to run next. The first changes into the new folder:
@@ -109,7 +109,7 @@ can do the same: paste this prompt into it.
 
 <!-- copyable -->
 
-> Use the Aggrega tools only, and create no folder yourself. If the Workspace folder holds no `model-server-caller-allowlist` folder yet, call the `scaffold` tool once with `example` set to `model-server-caller-allowlist` and no `dir`: it writes the example into a new `model-server-caller-allowlist` folder. Then call the `build` tool with `workspace_root` set to `model-server-caller-allowlist`, `release` set to `release.yaml`, `auto_pull` set to true and `write` set to true. Tell me which files the build wrote; they are under `model-server-caller-allowlist/dist/`.
+> Use the Aggrega tools only, and create no folder yourself. If the Workspace folder holds no `model-server-caller-allowlist` folder yet, call the `draft` tool once with `example` set to `model-server-caller-allowlist` and no `dir`: it writes the example into a new `model-server-caller-allowlist` folder. Then call the `build` tool with `workspace_root` set to `model-server-caller-allowlist`, `release` set to `release.yaml`, `auto_pull` set to true and `write` set to true. Tell me which files the build wrote; they are under `model-server-caller-allowlist/dist/`.
 
 ## The rendered tree
 

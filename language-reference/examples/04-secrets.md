@@ -5,7 +5,7 @@ This page explains one idea, how a credential reaches the component that needs i
 a workspace you build; write it into a folder of your own with:
 
 ```sh
-aggrega scaffold --example advanced-platform
+aggrega draft --example advanced-platform
 ```
 
 It then prints the commands to run next:

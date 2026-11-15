@@ -42,14 +42,14 @@ Two Releases share the one Aggregate, each with a Manifest of its own:
 | `release-helm.yaml` | `manifest-helm.yaml` | Kubernetes | a Secret the namespace already holds: `core/referenced-secret` bound to `helm/k8s-existing-secret` |
 | `release-compose.yaml` | `manifest-compose.yaml` | Docker Compose | a Compose variable reference: `core/secret-value` bound to `compose/dotenv-secret` |
 
-## Scaffold the example
+## Draft the example
 
 You can build this example with the commands below, or [have your AI assistant build it for you](#with-an-ai-assistant).
 
 Write the example into a new folder named after it:
 
 ```sh
-aggrega scaffold --example mcp-address-from-secret
+aggrega draft --example mcp-address-from-secret
 ```
 
 It then prints the commands to run next. The first changes into the new folder:
@@ -100,7 +100,7 @@ can do the same: paste this prompt into it.
 
 <!-- copyable -->
 
-> Use the Aggrega tools only, and create no folder yourself. If the Workspace folder holds no `mcp-address-from-secret` folder yet, call the `scaffold` tool once with `example` set to `mcp-address-from-secret` and no `dir`: it writes the example into a new `mcp-address-from-secret` folder. Then call the `build` tool once for each Release, in this order — `release-helm.yaml` and `release-compose.yaml` — each time with `workspace_root` set to `mcp-address-from-secret`, `release` set to that file, `auto_pull` set to true and `write` set to true. Tell me which files each build wrote; they are under `mcp-address-from-secret/dist/`.
+> Use the Aggrega tools only, and create no folder yourself. If the Workspace folder holds no `mcp-address-from-secret` folder yet, call the `draft` tool once with `example` set to `mcp-address-from-secret` and no `dir`: it writes the example into a new `mcp-address-from-secret` folder. Then call the `build` tool once for each Release, in this order — `release-helm.yaml` and `release-compose.yaml` — each time with `workspace_root` set to `mcp-address-from-secret`, `release` set to that file, `auto_pull` set to true and `write` set to true. Tell me which files each build wrote; they are under `mcp-address-from-secret/dist/`.
 
 ## The tool holds the address without its key
 

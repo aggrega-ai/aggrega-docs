@@ -59,14 +59,14 @@ the resolved annotation — all three are operator scrape knobs in the feature's
 `infra`. (It is FeatureRecipe Resource Generation — `source:` + `valuesMapping:`
 rendered by the helm provider — not a Wasm mutator or pipeline step.)
 
-## Scaffold the example
+## Draft the example
 
 You can build this example with the commands below, or [have your AI assistant build it for you](#with-an-ai-assistant).
 
 Write the example into a new folder named after it:
 
 ```sh
-aggrega scaffold --example annotation-driven-monitoring
+aggrega draft --example annotation-driven-monitoring
 ```
 
 It then prints the commands to run next. The first changes into the new folder:
@@ -91,7 +91,7 @@ can do the same: paste this prompt into it.
 
 <!-- copyable -->
 
-> Use the Aggrega tools only, and create no folder yourself. If the Workspace folder holds no `annotation-driven-monitoring` folder yet, call the `scaffold` tool once with `example` set to `annotation-driven-monitoring` and no `dir`: it writes the example into a new `annotation-driven-monitoring` folder. Then call the `build` tool with `workspace_root` set to `annotation-driven-monitoring`, `release` set to `release.yaml`, `auto_pull` set to true and `write` set to true. Tell me which files the build wrote; they are under `annotation-driven-monitoring/dist/`.
+> Use the Aggrega tools only, and create no folder yourself. If the Workspace folder holds no `annotation-driven-monitoring` folder yet, call the `draft` tool once with `example` set to `annotation-driven-monitoring` and no `dir`: it writes the example into a new `annotation-driven-monitoring` folder. Then call the `build` tool with `workspace_root` set to `annotation-driven-monitoring`, `release` set to `release.yaml`, `auto_pull` set to true and `write` set to true. Tell me which files the build wrote; they are under `annotation-driven-monitoring/dist/`.
 
 ## What the rendered output proves
 

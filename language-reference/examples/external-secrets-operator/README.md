@@ -51,14 +51,14 @@ Kubernetes `Secret`s.
   resolvable release tag (`ghcr.io/external-secrets/external-secrets:v2.7.0`),
   so the rendered workloads reference a pinned version.
 
-## Scaffold the example
+## Draft the example
 
 You can build this example with the commands below, or [have your AI assistant build it for you](#with-an-ai-assistant).
 
 Write the example into a new folder named after it:
 
 ```sh
-aggrega scaffold --example external-secrets-operator
+aggrega draft --example external-secrets-operator
 ```
 
 It then prints the commands to run next. The first changes into the new folder:
@@ -88,7 +88,7 @@ can do the same: paste this prompt into it.
 
 <!-- copyable -->
 
-> Use the Aggrega tools only, and create no folder yourself. If the Workspace folder holds no `external-secrets-operator` folder yet, call the `scaffold` tool once with `example` set to `external-secrets-operator` and no `dir`: it writes the example into a new `external-secrets-operator` folder. Then call the `build` tool with `workspace_root` set to `external-secrets-operator`, `release` set to `release.yaml`, `auto_pull` set to true and `write` set to true. Tell me which files the build wrote; they are under `external-secrets-operator/dist/`.
+> Use the Aggrega tools only, and create no folder yourself. If the Workspace folder holds no `external-secrets-operator` folder yet, call the `draft` tool once with `example` set to `external-secrets-operator` and no `dir`: it writes the example into a new `external-secrets-operator` folder. Then call the `build` tool with `workspace_root` set to `external-secrets-operator`, `release` set to `release.yaml`, `auto_pull` set to true and `write` set to true. Tell me which files the build wrote; they are under `external-secrets-operator/dist/`.
 
 ## What renders
 

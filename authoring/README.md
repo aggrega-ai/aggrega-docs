@@ -6,7 +6,7 @@ The guide is written for two audiences at once: a person authoring by hand in an
 
 ## Read in this order
 
-1. [Authoring Aggrega files](getting-started.md) — the end-to-end authoring loop: pick your role, learn the shape, scaffold, fill, validate, build. Start here.
+1. [Authoring Aggrega files](getting-started.md) — the end-to-end authoring loop: pick your role, learn the shape, draft, fill, validate, build. Start here.
 2. [Personas](personas.md) — the four collaborating authoring roles (developer, architect, operations, operator) and the guidance-not-enforcement framing behind them.
 3. [Entities by Role](entities-by-role.md) — every entity kind mapped to the role that typically owns it, so you know which file each concern belongs in.
 4. [Install](../install.md) — install the `aggrega` binary, with the commands first; its connect section points to [Connect the MCP server](../ai-assistants/mcp-server.md).
@@ -25,4 +25,4 @@ The guide is written for two audiences at once: a person authoring by hand in an
 
 ## How the assistant surfaces relate to this guide
 
-The `aggrega mcp` server exposes this guide, the language reference, and the JSON Schemas as resources an assistant reads before it writes YAML, plus tools that scaffold and validate entities. The assistant's built-in authoring prompts point back at these pages rather than restating them, so this guide is the single prose home for the authoring method. See [Authoring Aggrega files](getting-started.md) for the loop and [Connect the MCP server](../ai-assistants/mcp-server.md) for the connection.
+The `aggrega mcp` server exposes this guide, the language reference, and the JSON Schemas as resources an assistant reads before it writes YAML, plus tools that draft and validate entities. The assistant's built-in authoring prompts point back at these pages rather than restating them, so this guide is the single prose home for the authoring method. See [Authoring Aggrega files](getting-started.md) for the loop and [Connect the MCP server](../ai-assistants/mcp-server.md) for the connection.

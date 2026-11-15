@@ -61,14 +61,14 @@ Each Release binds the `model` socket of the two assistants to a gateway the
 Aggregate declares. That is edge wiring within a socket the Component declares,
 which a Release may do; it adds no component and changes no value.
 
-## Scaffold the example
+## Draft the example
 
 You can build this example with the commands below, or [have your AI assistant build it for you](#with-an-ai-assistant).
 
 Write the example into a new folder named after it:
 
 ```sh
-aggrega scaffold --example policy-data-class-route
+aggrega draft --example policy-data-class-route
 ```
 
 It then prints the commands to run next. The first changes into the new folder:
@@ -125,7 +125,7 @@ can do the same: paste this prompt into it.
 
 <!-- copyable -->
 
-> Use the Aggrega tools only, and create no folder yourself. If the Workspace folder holds no `policy-data-class-route` folder yet, call the `scaffold` tool once with `example` set to `policy-data-class-route` and no `dir`: it writes the example into a new `policy-data-class-route` folder. Then call the `cli-build` tool, which runs `aggrega build` and takes its `--config` flag, once for each Release, in this order — `release-masked.yaml`, `release-unmasked.yaml` and `release-masking-off-route.yaml` — each time with `workspace_root` set to `policy-data-class-route`, `release` set to that file, `auto_pull` set to true and `config` set to `governance-rego.yaml`. The second and the third are meant to be refused, so read me each refusal. Tell me which files the first build wrote; they are under `policy-data-class-route/dist/`.
+> Use the Aggrega tools only, and create no folder yourself. If the Workspace folder holds no `policy-data-class-route` folder yet, call the `draft` tool once with `example` set to `policy-data-class-route` and no `dir`: it writes the example into a new `policy-data-class-route` folder. Then call the `cli-build` tool, which runs `aggrega build` and takes its `--config` flag, once for each Release, in this order — `release-masked.yaml`, `release-unmasked.yaml` and `release-masking-off-route.yaml` — each time with `workspace_root` set to `policy-data-class-route`, `release` set to that file, `auto_pull` set to true and `config` set to `governance-rego.yaml`. The second and the third are meant to be refused, so read me each refusal. Tell me which files the first build wrote; they are under `policy-data-class-route/dist/`.
 
 ## The halt
 
@@ -398,7 +398,7 @@ nothing records its digest, every build with it warns that it runs unverified.
 ## Checking every build
 
 This self-check runs in a checkout of the documentation repository, which holds
-the shared build helper it uses; a copy written by `aggrega scaffold --example`
+the shared build helper it uses; a copy written by `aggrega draft --example`
 does not carry that helper.
 
 ```bash

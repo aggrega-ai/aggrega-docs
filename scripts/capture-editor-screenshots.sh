@@ -54,8 +54,8 @@ WHAT IT DOES, IN ORDER
                                         each
      The quickstart steps and the import pages are the ones this checkout holds.
      Each folder it opens is laid out from this checkout's examples — an import
-     example is scaffolded with `aggrega scaffold --example`, or laid out from
-     the checkout as the scaffold writes it where the compiler finds no
+     example is drafted with `aggrega draft --example`, or laid out from
+     the checkout as the draft command writes it where the compiler finds no
      documentation for its version — and each import is the one the page's own
      import command runs. Before a frame is written, the text the window draws is
      read for your home directory and the checkouts' paths, and a frame drawing

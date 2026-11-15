@@ -47,14 +47,14 @@ A writer — a Thanos Receive tier or a Prometheus instance with the Thanos
 sidecar — must ship metric blocks into the same bucket. Until a writer has
 uploaded blocks, the Store Gateway serves an empty result set.
 
-## Scaffold the example
+## Draft the example
 
 You can build this example with the commands below, or [have your AI assistant build it for you](#with-an-ai-assistant).
 
 Write the example into a new folder named after it:
 
 ```sh
-aggrega scaffold --example thanos-stack
+aggrega draft --example thanos-stack
 ```
 
 It then prints the commands to run next. The first changes into the new folder:
@@ -83,7 +83,7 @@ can do the same: paste this prompt into it.
 
 <!-- copyable -->
 
-> Use the Aggrega tools only, and create no folder yourself. If the Workspace folder holds no `thanos-stack` folder yet, call the `scaffold` tool once with `example` set to `thanos-stack` and no `dir`: it writes the example into a new `thanos-stack` folder. Then call the `build` tool with `workspace_root` set to `thanos-stack`, `release` set to `release-helm-synth.yaml`, `auto_pull` set to true and `write` set to true. Tell me which files the build wrote; they are under `thanos-stack/dist/`.
+> Use the Aggrega tools only, and create no folder yourself. If the Workspace folder holds no `thanos-stack` folder yet, call the `draft` tool once with `example` set to `thanos-stack` and no `dir`: it writes the example into a new `thanos-stack` folder. Then call the `build` tool with `workspace_root` set to `thanos-stack`, `release` set to `release-helm-synth.yaml`, `auto_pull` set to true and `write` set to true. Tell me which files the build wrote; they are under `thanos-stack/dist/`.
 
 ## What the composed stack looks like
 

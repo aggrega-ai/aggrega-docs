@@ -73,14 +73,14 @@ credentials materialized as Kubernetes Secrets).
   clients read from a server reporting none. A consumer wired to it points its
   S3 client at the endpoint and presents a key pair on its own connection.
 
-## Scaffold the example
+## Draft the example
 
 You can build this example with the commands below, or [have your AI assistant build it for you](#with-an-ai-assistant).
 
 Write the example into a new folder named after it:
 
 ```sh
-aggrega scaffold --example s3-object-store
+aggrega draft --example s3-object-store
 ```
 
 It then prints the commands to run next. The first changes into the new folder:
@@ -134,7 +134,7 @@ can do the same: paste this prompt into it.
 
 <!-- copyable -->
 
-> Use the Aggrega tools only, and create no folder yourself. If the Workspace folder holds no `s3-object-store` folder yet, call the `scaffold` tool once with `example` set to `s3-object-store` and no `dir`: it writes the example into a new `s3-object-store` folder. Then call the `build` tool once for each Release, in this order — `release-compose-auth.yaml` and `release-helm-synth-auth.yaml` — each time with `workspace_root` set to `s3-object-store`, `release` set to that file, `auto_pull` set to true and `write` set to true. Then call the `build` tool the same way with `release` set to `release-helm-synth.yaml`: it is meant to be refused, so read me the refusal. Tell me which files the first two builds wrote; they are under `s3-object-store/dist/`.
+> Use the Aggrega tools only, and create no folder yourself. If the Workspace folder holds no `s3-object-store` folder yet, call the `draft` tool once with `example` set to `s3-object-store` and no `dir`: it writes the example into a new `s3-object-store` folder. Then call the `build` tool once for each Release, in this order — `release-compose-auth.yaml` and `release-helm-synth-auth.yaml` — each time with `workspace_root` set to `s3-object-store`, `release` set to that file, `auto_pull` set to true and `write` set to true. Then call the `build` tool the same way with `release` set to `release-helm-synth.yaml`: it is meant to be refused, so read me the refusal. Tell me which files the first two builds wrote; they are under `s3-object-store/dist/`.
 
 ## Credential delivery note
 

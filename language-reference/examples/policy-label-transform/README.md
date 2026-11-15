@@ -173,14 +173,14 @@ before it runs; `selector-tagger` attached there halts the build with:
   ir-verdict: plugin "governance/selector-tagger:0.9.0": call "verdict_ir": wasm: plugin "selector-tagger" does not declare export "verdict_ir" in describe(): wasm: plugin rejected by the sandbox
 ```
 
-## Scaffold the example
+## Draft the example
 
 You can build this example with the commands below, or [have your AI assistant build it for you](#with-an-ai-assistant).
 
 Write the example into a new folder named after it:
 
 ```sh
-aggrega scaffold --example policy-label-transform
+aggrega draft --example policy-label-transform
 ```
 
 It then prints the commands to run next. The first changes into the new folder:
@@ -209,7 +209,7 @@ can do the same: paste this prompt into it.
 
 <!-- copyable -->
 
-> Use the Aggrega tools only, and create no folder yourself. If the Workspace folder holds no `policy-label-transform` folder yet, call the `scaffold` tool once with `example` set to `policy-label-transform` and no `dir`: it writes the example into a new `policy-label-transform` folder. Then call the `build` tool once for each Release, in this order — `release-staging.yaml` and `release-production.yaml` — each time with `workspace_root` set to `policy-label-transform`, `release` set to that file, `auto_pull` set to true and `write` set to true. Tell me which files each build wrote; they are under `policy-label-transform/dist/`.
+> Use the Aggrega tools only, and create no folder yourself. If the Workspace folder holds no `policy-label-transform` folder yet, call the `draft` tool once with `example` set to `policy-label-transform` and no `dir`: it writes the example into a new `policy-label-transform` folder. Then call the `build` tool once for each Release, in this order — `release-staging.yaml` and `release-production.yaml` — each time with `workspace_root` set to `policy-label-transform`, `release` set to that file, `auto_pull` set to true and `write` set to true. Tell me which files each build wrote; they are under `policy-label-transform/dist/`.
 
 ## The labels each node ends with
 
@@ -379,7 +379,7 @@ only whether the build completes.
 ## Checking every build
 
 This self-check runs in a checkout of the documentation repository, which holds
-the shared build helper it uses; a copy written by `aggrega scaffold --example`
+the shared build helper it uses; a copy written by `aggrega draft --example`
 does not carry that helper.
 
 ```bash

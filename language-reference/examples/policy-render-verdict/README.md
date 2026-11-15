@@ -341,14 +341,14 @@ and without it, and `check.sh` compares the two trees on every run. A refused
 build writes no `dist/` at all. To fix a refusal, the Release changes — a pinned
 tag, an encryption key — and the next build is judged again.
 
-## Scaffold the example
+## Draft the example
 
 You can build this example with the commands below, or [have your AI assistant build it for you](#with-an-ai-assistant).
 
 Write the example into a new folder named after it:
 
 ```sh
-aggrega scaffold --example policy-render-verdict
+aggrega draft --example policy-render-verdict
 ```
 
 It then prints the commands to run next. The first changes into the new folder:
@@ -407,12 +407,12 @@ can do the same: paste this prompt into it.
 
 <!-- copyable -->
 
-> Use the Aggrega tools only, and create no folder yourself. If the Workspace folder holds no `policy-render-verdict` folder yet, call the `scaffold` tool once with `example` set to `policy-render-verdict` and no `dir`: it writes the example into a new `policy-render-verdict` folder. Then call the `cli-build` tool, which runs `aggrega build` and takes its `--config` flag, once for each Release, in this order — `release-terraform.yaml` and `release-terraform-unencrypted.yaml` — each time with `workspace_root` set to `policy-render-verdict`, `release` set to that file, `auto_pull` set to true and `config` set to `governance-rego.yaml`. The second is meant to be refused, so read me the refusal. Tell me which files the first build wrote; they are under `policy-render-verdict/dist/`.
+> Use the Aggrega tools only, and create no folder yourself. If the Workspace folder holds no `policy-render-verdict` folder yet, call the `draft` tool once with `example` set to `policy-render-verdict` and no `dir`: it writes the example into a new `policy-render-verdict` folder. Then call the `cli-build` tool, which runs `aggrega build` and takes its `--config` flag, once for each Release, in this order — `release-terraform.yaml` and `release-terraform-unencrypted.yaml` — each time with `workspace_root` set to `policy-render-verdict`, `release` set to that file, `auto_pull` set to true and `config` set to `governance-rego.yaml`. The second is meant to be refused, so read me the refusal. Tell me which files the first build wrote; they are under `policy-render-verdict/dist/`.
 
 ## Checking every build
 
 This self-check runs in a checkout of the documentation repository, which holds
-the shared build helper it uses; a copy written by `aggrega scaffold --example`
+the shared build helper it uses; a copy written by `aggrega draft --example`
 does not carry that helper.
 
 ```bash

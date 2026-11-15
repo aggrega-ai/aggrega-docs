@@ -61,14 +61,14 @@ credential for the synthesized helm path.
   is attached, the injected value enables user/password authentication on both
   realizations.
 
-## Scaffold the example
+## Draft the example
 
 You can build this example with the commands below, or [have your AI assistant build it for you](#with-an-ai-assistant).
 
 Write the example into a new folder named after it:
 
 ```sh
-aggrega scaffold --example nats-messaging
+aggrega draft --example nats-messaging
 ```
 
 It then prints the commands to run next. The first changes into the new folder:
@@ -104,7 +104,7 @@ can do the same: paste this prompt into it.
 
 <!-- copyable -->
 
-> Use the Aggrega tools only, and create no folder yourself. If the Workspace folder holds no `nats-messaging` folder yet, call the `scaffold` tool once with `example` set to `nats-messaging` and no `dir`: it writes the example into a new `nats-messaging` folder. Then call the `build` tool once for each Release, in this order — `release-compose.yaml`, `release-helm-synth.yaml`, `release-compose-auth.yaml` and `release-helm-synth-auth.yaml` — each time with `workspace_root` set to `nats-messaging`, `release` set to that file, `auto_pull` set to true and `write` set to true. Tell me which files each build wrote; they are under `nats-messaging/dist/`.
+> Use the Aggrega tools only, and create no folder yourself. If the Workspace folder holds no `nats-messaging` folder yet, call the `draft` tool once with `example` set to `nats-messaging` and no `dir`: it writes the example into a new `nats-messaging` folder. Then call the `build` tool once for each Release, in this order — `release-compose.yaml`, `release-helm-synth.yaml`, `release-compose-auth.yaml` and `release-helm-synth-auth.yaml` — each time with `workspace_root` set to `nats-messaging`, `release` set to that file, `auto_pull` set to true and `write` set to true. Tell me which files each build wrote; they are under `nats-messaging/dist/`.
 
 ## Credential delivery note
 

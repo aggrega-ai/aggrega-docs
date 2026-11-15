@@ -165,14 +165,14 @@ settings:
 So one rule, over the same `web`, is a warning on a developer's build and the
 reason a pipeline's build stops.
 
-## Scaffold the example
+## Draft the example
 
 You can build this example with the commands below, or [have your AI assistant build it for you](#with-an-ai-assistant).
 
 Write the example into a new folder named after it:
 
 ```sh
-aggrega scaffold --example policy-org-overlay
+aggrega draft --example policy-org-overlay
 ```
 
 It then prints the commands to run next. The first changes into the new folder:
@@ -253,12 +253,12 @@ can do the same: paste this prompt into it.
 
 <!-- copyable -->
 
-> Use the Aggrega tools only, and create no folder yourself. If the Workspace folder holds no `policy-org-overlay` folder yet, call the `scaffold` tool once with `example` set to `policy-org-overlay` and no `dir`: it writes the example into a new `policy-org-overlay` folder. Then call the `build` tool with `workspace_root` set to `policy-org-overlay`, `release` set to `release.yaml`, `auto_pull` set to true and `write` set to true, and tell me what the policy reported. Then call the `cli-build` tool, which runs `aggrega build` and takes its `--config` flag, with `workspace_root` set to `policy-org-overlay`, `release` set to `release.yaml`, `auto_pull` set to true and `config` set to `org/config.yaml`, and tell me what the policy reported this time. Tell me which files each build wrote; they are under `policy-org-overlay/dist/`.
+> Use the Aggrega tools only, and create no folder yourself. If the Workspace folder holds no `policy-org-overlay` folder yet, call the `draft` tool once with `example` set to `policy-org-overlay` and no `dir`: it writes the example into a new `policy-org-overlay` folder. Then call the `build` tool with `workspace_root` set to `policy-org-overlay`, `release` set to `release.yaml`, `auto_pull` set to true and `write` set to true, and tell me what the policy reported. Then call the `cli-build` tool, which runs `aggrega build` and takes its `--config` flag, with `workspace_root` set to `policy-org-overlay`, `release` set to `release.yaml`, `auto_pull` set to true and `config` set to `org/config.yaml`, and tell me what the policy reported this time. Tell me which files each build wrote; they are under `policy-org-overlay/dist/`.
 
 ## Checking every build
 
 This self-check runs in a checkout of the documentation repository, which holds
-the shared build helper it uses; a copy written by `aggrega scaffold --example`
+the shared build helper it uses; a copy written by `aggrega draft --example`
 does not carry that helper.
 
 ```bash

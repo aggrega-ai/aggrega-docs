@@ -203,14 +203,14 @@ If you prefer to build and run it step by step, the sections below give the comm
 The first writes the example into a new folder:
 
 ```sh
-aggrega scaffold --example quickstart-ai
+aggrega draft --example quickstart-ai
 ```
 
-`aggrega scaffold --example` reads the example from the documentation published for your version of `aggrega` and
+`aggrega draft --example` reads the example from the documentation published for your version of `aggrega` and
 writes its files into a new folder named after it: the four steps, in the folders `1/` to `4/`, each a complete
 workspace that builds as it stands. It then prints the commands to run next, which change into that folder and build
-and start the first step: the ones below. [`aggrega scaffold`](language-reference/cli/aggrega-scaffold.md) describes
-the command, and `aggrega scaffold --example --list` lists every example there is.
+and start the first step: the ones below. [`aggrega draft`](language-reference/cli/aggrega-scaffold.md) describes
+the command, and `aggrega draft --example --list` lists every example there is.
 
 ## Build it and run it
 
@@ -253,7 +253,7 @@ An AI assistant [set up with Aggrega's tools](ai-assistants/set-up.md) can do th
 
 <!-- copyable -->
 
-> Use the Aggrega tools only, and create no folder yourself. If the Workspace folder holds no `quickstart-ai` folder yet, call the `scaffold` tool once with `example` set to `quickstart-ai` and no `dir`: it writes the example into a new `quickstart-ai` folder, with a README and the step folders `1` to `4`. Then call the `build` tool with `workspace_root` set to `quickstart-ai/1`, `release` set to `release.yaml`, `auto_pull` set to true and `write` set to true. Tell me which files the build wrote; they are under `quickstart-ai/1/dist/`.
+> Use the Aggrega tools only, and create no folder yourself. If the Workspace folder holds no `quickstart-ai` folder yet, call the `draft` tool once with `example` set to `quickstart-ai` and no `dir`: it writes the example into a new `quickstart-ai` folder, with a README and the step folders `1` to `4`. Then call the `build` tool with `workspace_root` set to `quickstart-ai/1`, `release` set to `release.yaml`, `auto_pull` set to true and `write` set to true. Tell me which files the build wrote; they are under `quickstart-ai/1/dist/`.
 
 ## Open it in VS Code
 
@@ -300,7 +300,7 @@ An AI assistant [set up with Aggrega's tools](ai-assistants/set-up.md) can do th
 
 <!-- copyable -->
 
-> Use the Aggrega tools only, and create no folder yourself. If the Workspace folder holds no `quickstart-ai` folder yet, call the `scaffold` tool once with `example` set to `quickstart-ai` and no `dir`: it writes the example into a new `quickstart-ai` folder, with a README and the step folders `1` to `4`. Then call the `build` tool with `workspace_root` set to `quickstart-ai/2`, `release` set to `release.yaml`, `auto_pull` set to true and `write` set to true. Tell me which files the build wrote; they are under `quickstart-ai/2/dist/`.
+> Use the Aggrega tools only, and create no folder yourself. If the Workspace folder holds no `quickstart-ai` folder yet, call the `draft` tool once with `example` set to `quickstart-ai` and no `dir`: it writes the example into a new `quickstart-ai` folder, with a README and the step folders `1` to `4`. Then call the `build` tool with `workspace_root` set to `quickstart-ai/2`, `release` set to `release.yaml`, `auto_pull` set to true and `write` set to true. Tell me which files the build wrote; they are under `quickstart-ai/2/dist/`.
 
 ### Add guardrails: Presidio PII masking + prompt-injection blocking
 
@@ -356,7 +356,7 @@ An AI assistant [set up with Aggrega's tools](ai-assistants/set-up.md) can do th
 
 <!-- copyable -->
 
-> Use the Aggrega tools only, and create no folder yourself. If the Workspace folder holds no `quickstart-ai` folder yet, call the `scaffold` tool once with `example` set to `quickstart-ai` and no `dir`: it writes the example into a new `quickstart-ai` folder, with a README and the step folders `1` to `4`. Then call the `build` tool with `workspace_root` set to `quickstart-ai/3`, `release` set to `release.yaml`, `auto_pull` set to true and `write` set to true. Tell me which files the build wrote; they are under `quickstart-ai/3/dist/`.
+> Use the Aggrega tools only, and create no folder yourself. If the Workspace folder holds no `quickstart-ai` folder yet, call the `draft` tool once with `example` set to `quickstart-ai` and no `dir`: it writes the example into a new `quickstart-ai` folder, with a README and the step folders `1` to `4`. Then call the `build` tool with `workspace_root` set to `quickstart-ai/3`, `release` set to `release.yaml`, `auto_pull` set to true and `write` set to true. Tell me which files the build wrote; they are under `quickstart-ai/3/dist/`.
 
 ### Same app, on Kubernetes
 
@@ -380,7 +380,7 @@ An AI assistant [set up with Aggrega's tools](ai-assistants/set-up.md) can do th
 
 <!-- copyable -->
 
-> Use the Aggrega tools only, and create no folder yourself. If the Workspace folder holds no `quickstart-ai` folder yet, call the `scaffold` tool once with `example` set to `quickstart-ai` and no `dir`: it writes the example into a new `quickstart-ai` folder, with a README and the step folders `1` to `4`. Then call the `build` tool with `workspace_root` set to `quickstart-ai/4`, `release` set to `release.yaml`, `auto_pull` set to true and `write` set to true. Tell me which files the build wrote; they are under `quickstart-ai/4/dist/`.
+> Use the Aggrega tools only, and create no folder yourself. If the Workspace folder holds no `quickstart-ai` folder yet, call the `draft` tool once with `example` set to `quickstart-ai` and no `dir`: it writes the example into a new `quickstart-ai` folder, with a README and the step folders `1` to `4`. Then call the `build` tool with `workspace_root` set to `quickstart-ai/4`, `release` set to `release.yaml`, `auto_pull` set to true and `write` set to true. Tell me which files the build wrote; they are under `quickstart-ai/4/dist/`.
 
 ## The second track: a web app with PostgreSQL
 
@@ -425,7 +425,7 @@ If you prefer to build and run it step by step, the sections below give the comm
 The first writes the example into a new folder:
 
 ```sh
-aggrega scaffold --example quickstart-web
+aggrega draft --example quickstart-web
 ```
 
 It then prints the commands to run next, which are the ones below.
@@ -466,7 +466,7 @@ An AI assistant [set up with Aggrega's tools](ai-assistants/set-up.md) can do th
 
 <!-- copyable -->
 
-> Use the Aggrega tools only, and create no folder yourself. If the Workspace folder holds no `quickstart-web` folder yet, call the `scaffold` tool once with `example` set to `quickstart-web` and no `dir`: it writes the example into a new `quickstart-web` folder, with a README and the step folders `1` to `4`. Then call the `build` tool with `workspace_root` set to `quickstart-web/1`, `release` set to `release.yaml`, `auto_pull` set to true and `write` set to true. Tell me which files the build wrote; they are under `quickstart-web/1/dist/`.
+> Use the Aggrega tools only, and create no folder yourself. If the Workspace folder holds no `quickstart-web` folder yet, call the `draft` tool once with `example` set to `quickstart-web` and no `dir`: it writes the example into a new `quickstart-web` folder, with a README and the step folders `1` to `4`. Then call the `build` tool with `workspace_root` set to `quickstart-web/1`, `release` set to `release.yaml`, `auto_pull` set to true and `write` set to true. Tell me which files the build wrote; they are under `quickstart-web/1/dist/`.
 
 ### Add a cache
 
@@ -504,7 +504,7 @@ An AI assistant [set up with Aggrega's tools](ai-assistants/set-up.md) can do th
 
 <!-- copyable -->
 
-> Use the Aggrega tools only, and create no folder yourself. If the Workspace folder holds no `quickstart-web` folder yet, call the `scaffold` tool once with `example` set to `quickstart-web` and no `dir`: it writes the example into a new `quickstart-web` folder, with a README and the step folders `1` to `4`. Then call the `build` tool with `workspace_root` set to `quickstart-web/2`, `release` set to `release.yaml`, `auto_pull` set to true and `write` set to true. Tell me which files the build wrote; they are under `quickstart-web/2/dist/`.
+> Use the Aggrega tools only, and create no folder yourself. If the Workspace folder holds no `quickstart-web` folder yet, call the `draft` tool once with `example` set to `quickstart-web` and no `dir`: it writes the example into a new `quickstart-web` folder, with a README and the step folders `1` to `4`. Then call the `build` tool with `workspace_root` set to `quickstart-web/2`, `release` set to `release.yaml`, `auto_pull` set to true and `write` set to true. Tell me which files the build wrote; they are under `quickstart-web/2/dist/`.
 
 ### Same database, managed on AWS
 
@@ -528,7 +528,7 @@ An AI assistant [set up with Aggrega's tools](ai-assistants/set-up.md) can do th
 
 <!-- copyable -->
 
-> Use the Aggrega tools only, and create no folder yourself. If the Workspace folder holds no `quickstart-web` folder yet, call the `scaffold` tool once with `example` set to `quickstart-web` and no `dir`: it writes the example into a new `quickstart-web` folder, with a README and the step folders `1` to `4`. Then call the `build` tool with `workspace_root` set to `quickstart-web/3`, `release` set to `release.yaml`, `auto_pull` set to true and `write` set to true. Tell me which files the build wrote; they are under `quickstart-web/3/dist/`.
+> Use the Aggrega tools only, and create no folder yourself. If the Workspace folder holds no `quickstart-web` folder yet, call the `draft` tool once with `example` set to `quickstart-web` and no `dir`: it writes the example into a new `quickstart-web` folder, with a README and the step folders `1` to `4`. Then call the `build` tool with `workspace_root` set to `quickstart-web/3`, `release` set to `release.yaml`, `auto_pull` set to true and `write` set to true. Tell me which files the build wrote; they are under `quickstart-web/3/dist/`.
 
 ### Add backups
 
@@ -553,7 +553,7 @@ An AI assistant [set up with Aggrega's tools](ai-assistants/set-up.md) can do th
 
 <!-- copyable -->
 
-> Use the Aggrega tools only, and create no folder yourself. If the Workspace folder holds no `quickstart-web` folder yet, call the `scaffold` tool once with `example` set to `quickstart-web` and no `dir`: it writes the example into a new `quickstart-web` folder, with a README and the step folders `1` to `4`. Then call the `build` tool with `workspace_root` set to `quickstart-web/4`, `release` set to `release.yaml`, `auto_pull` set to true and `write` set to true. Tell me which files the build wrote; they are under `quickstart-web/4/dist/`.
+> Use the Aggrega tools only, and create no folder yourself. If the Workspace folder holds no `quickstart-web` folder yet, call the `draft` tool once with `example` set to `quickstart-web` and no `dir`: it writes the example into a new `quickstart-web` folder, with a README and the step folders `1` to `4`. Then call the `build` tool with `workspace_root` set to `quickstart-web/4`, `release` set to `release.yaml`, `auto_pull` set to true and `write` set to true. Tell me which files the build wrote; they are under `quickstart-web/4/dist/`.
 
 ## Starters for the cloud
 
@@ -566,7 +566,7 @@ run each from the folder you started in.
 You can build this starter with the commands below, or [have your AI assistant write and build it for you](#with-an-ai-assistant-8).
 
 ```sh
-aggrega scaffold --example terraform-rds
+aggrega draft --example terraform-rds
 ```
 
 It then prints the commands to run next:
@@ -587,14 +587,14 @@ An AI assistant [set up with Aggrega's tools](ai-assistants/set-up.md) can do th
 
 <!-- copyable -->
 
-> Use the Aggrega tools only, and create no folder yourself. If the Workspace folder holds no `terraform-rds` folder yet, call the `scaffold` tool once with `example` set to `terraform-rds` and no `dir`: it writes the example into a new `terraform-rds` folder. Then call the `build` tool with `workspace_root` set to `terraform-rds`, `release` set to `release.yaml`, `auto_pull` set to true and `write` set to true. Tell me which files the build wrote; they are under `terraform-rds/dist/`.
+> Use the Aggrega tools only, and create no folder yourself. If the Workspace folder holds no `terraform-rds` folder yet, call the `draft` tool once with `example` set to `terraform-rds` and no `dir`: it writes the example into a new `terraform-rds` folder. Then call the `build` tool with `workspace_root` set to `terraform-rds`, `release` set to `release.yaml`, `auto_pull` set to true and `write` set to true. Tell me which files the build wrote; they are under `terraform-rds/dist/`.
 
 ### AWS CloudFormation
 
 You can build this starter with the commands below, or [have your AI assistant write and build it for you](#with-an-ai-assistant-9).
 
 ```sh
-aggrega scaffold --example cloudformation-rds-stack
+aggrega draft --example cloudformation-rds-stack
 ```
 
 It then prints the commands to run next:
@@ -617,7 +617,7 @@ An AI assistant [set up with Aggrega's tools](ai-assistants/set-up.md) can do th
 
 <!-- copyable -->
 
-> Use the Aggrega tools only, and create no folder yourself. If the Workspace folder holds no `cloudformation-rds-stack` folder yet, call the `scaffold` tool once with `example` set to `cloudformation-rds-stack` and no `dir`: it writes the example into a new `cloudformation-rds-stack` folder. Then call the `build` tool with `workspace_root` set to `cloudformation-rds-stack`, `release` set to `release-one-stack.yaml`, `auto_pull` set to true and `write` set to true. Tell me which files the build wrote; they are under `cloudformation-rds-stack/dist/`.
+> Use the Aggrega tools only, and create no folder yourself. If the Workspace folder holds no `cloudformation-rds-stack` folder yet, call the `draft` tool once with `example` set to `cloudformation-rds-stack` and no `dir`: it writes the example into a new `cloudformation-rds-stack` folder. Then call the `build` tool with `workspace_root` set to `cloudformation-rds-stack`, `release` set to `release-one-stack.yaml`, `auto_pull` set to true and `write` set to true. Tell me which files the build wrote; they are under `cloudformation-rds-stack/dist/`.
 
 ## Where to go next
 

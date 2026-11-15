@@ -55,14 +55,14 @@ What that host *resolves to* is an Ops concern decided below the Aggregate — s
 the same edge yields `aggrega-gw:5432` under compose and `db-default.backend`
 under helm, with no change to developer intent.
 
-## Scaffold the example
+## Draft the example
 
 You can build this example with the commands below, or [have your AI assistant build it for you](#with-an-ai-assistant).
 
 Write the example into a new folder named after it:
 
 ```sh
-aggrega scaffold --example cross-boundary-networking
+aggrega draft --example cross-boundary-networking
 ```
 
 It then prints the commands to run next. The first changes into the new folder:
@@ -90,7 +90,7 @@ can do the same: paste this prompt into it.
 
 <!-- copyable -->
 
-> Use the Aggrega tools only, and create no folder yourself. If the Workspace folder holds no `cross-boundary-networking` folder yet, call the `scaffold` tool once with `example` set to `cross-boundary-networking` and no `dir`: it writes the example into a new `cross-boundary-networking` folder. Then call the `build` tool with `workspace_root` set to `cross-boundary-networking`, `release` set to `release-compose.yaml`, `catalog_dirs` set to a list holding `catalog-compose`, `auto_pull` set to true and `write` set to true. Then call the `build` tool the same way with `release` set to `release-helm.yaml` and `catalog_dirs` set to a list holding `catalog-helm`. Tell me which files each build wrote; they are under `cross-boundary-networking/dist/`.
+> Use the Aggrega tools only, and create no folder yourself. If the Workspace folder holds no `cross-boundary-networking` folder yet, call the `draft` tool once with `example` set to `cross-boundary-networking` and no `dir`: it writes the example into a new `cross-boundary-networking` folder. Then call the `build` tool with `workspace_root` set to `cross-boundary-networking`, `release` set to `release-compose.yaml`, `catalog_dirs` set to a list holding `catalog-compose`, `auto_pull` set to true and `write` set to true. Then call the `build` tool the same way with `release` set to `release-helm.yaml` and `catalog_dirs` set to a list holding `catalog-helm`. Tell me which files each build wrote; they are under `cross-boundary-networking/dist/`.
 
 ## Variant A — local (Docker Compose): the bridge
 

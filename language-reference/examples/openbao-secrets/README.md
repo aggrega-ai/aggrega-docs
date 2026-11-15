@@ -49,14 +49,14 @@ materialized at build time.
   release tag (`quay.io/openbao/openbao:2.5.5`), so the rendered workload
   references a pinned version.
 
-## Scaffold the example
+## Draft the example
 
 You can build this example with the commands below, or [have your AI assistant build it for you](#with-an-ai-assistant).
 
 Write the example into a new folder named after it:
 
 ```sh
-aggrega scaffold --example openbao-secrets
+aggrega draft --example openbao-secrets
 ```
 
 It then prints the commands to run next. The first changes into the new folder:
@@ -86,7 +86,7 @@ can do the same: paste this prompt into it.
 
 <!-- copyable -->
 
-> Use the Aggrega tools only, and create no folder yourself. If the Workspace folder holds no `openbao-secrets` folder yet, call the `scaffold` tool once with `example` set to `openbao-secrets` and no `dir`: it writes the example into a new `openbao-secrets` folder. Then call the `build` tool with `workspace_root` set to `openbao-secrets`, `release` set to `release.yaml`, `auto_pull` set to true and `write` set to true. Tell me which files the build wrote; they are under `openbao-secrets/dist/`.
+> Use the Aggrega tools only, and create no folder yourself. If the Workspace folder holds no `openbao-secrets` folder yet, call the `draft` tool once with `example` set to `openbao-secrets` and no `dir`: it writes the example into a new `openbao-secrets` folder. Then call the `build` tool with `workspace_root` set to `openbao-secrets`, `release` set to `release.yaml`, `auto_pull` set to true and `write` set to true. Tell me which files the build wrote; they are under `openbao-secrets/dist/`.
 
 ## What renders
 

@@ -33,7 +33,7 @@ import wrote. It needs the standard-library catalog
 checked out beside this repository, or its directory named in
 `AGGREGA_CATALOG_DIRS`.
 
-## Scaffold the example
+## Draft the example
 
 You can run this example's import with the commands below, or
 [have your AI assistant run it for you](#with-an-ai-assistant).
@@ -41,7 +41,7 @@ You can run this example's import with the commands below, or
 Write the example into a new folder named after it:
 
 ```sh
-aggrega scaffold --example import-flowise
+aggrega draft --example import-flowise
 ```
 
 It then prints the commands to run next. The first changes into the new folder:
@@ -77,7 +77,7 @@ can do the same: paste this prompt into it.
 
 <!-- copyable -->
 
-> Use the Aggrega tools only, and create no folder yourself. If the Workspace folder holds no `import-flowise` folder yet, call the `scaffold` tool once with `example` set to `import-flowise` and no `dir`: it writes the example into a new `import-flowise` folder, whose `source` folder holds what this example imports. Then call the `import` tool with `workspace_root` set to `import-flowise/source`, `source` set to `support-chat.json` and `target` set to `compose`: it reads the answers it needs from `import-answers.yaml` beside `support-chat.json`, writes its drafts into `import-flowise/source` and pulls what they need. Then call the `validate` tool with `workspace_root` set to `import-flowise/source` and `release` set to `release.yaml`, and the `build` tool with `workspace_root` set to `import-flowise/source`, `release` set to `release.yaml` and `write` set to true. Tell me which files the build wrote; they are under `import-flowise/source/dist/`.
+> Use the Aggrega tools only, and create no folder yourself. If the Workspace folder holds no `import-flowise` folder yet, call the `draft` tool once with `example` set to `import-flowise` and no `dir`: it writes the example into a new `import-flowise` folder, whose `source` folder holds what this example imports. Then call the `import` tool with `workspace_root` set to `import-flowise/source`, `source` set to `support-chat.json` and `target` set to `compose`: it reads the answers it needs from `import-answers.yaml` beside `support-chat.json`, writes its drafts into `import-flowise/source` and pulls what they need. Then call the `validate` tool with `workspace_root` set to `import-flowise/source` and `release` set to `release.yaml`, and the `build` tool with `workspace_root` set to `import-flowise/source`, `release` set to `release.yaml` and `write` set to true. Tell me which files the build wrote; they are under `import-flowise/source/dist/`.
 
 ## Test it
 

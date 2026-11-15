@@ -1,9 +1,9 @@
 # A page with its sections in order
 
-## Scaffold the example
+## Draft the example
 
 ```sh
-aggrega scaffold --example demo
+aggrega draft --example demo
 ```
 
 ```sh

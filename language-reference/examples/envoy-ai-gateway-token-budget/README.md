@@ -73,14 +73,14 @@ A cluster runs one cert-manager. Where yours already runs one, remove `certs`
 from the Aggregate and the Release before building; the build then renders the
 same files less cert-manager's own.
 
-## Scaffold the example
+## Draft the example
 
 You can build this example with the commands below, or [have your AI assistant build it for you](#with-an-ai-assistant).
 
 Write the example into a new folder named after it:
 
 ```sh
-aggrega scaffold --example envoy-ai-gateway-token-budget
+aggrega draft --example envoy-ai-gateway-token-budget
 ```
 
 It then prints the commands to run next. The first changes into the new folder:
@@ -124,7 +124,7 @@ can do the same: paste this prompt into it.
 
 <!-- copyable -->
 
-> Use the Aggrega tools only, and create no folder yourself. If the Workspace folder holds no `envoy-ai-gateway-token-budget` folder yet, call the `scaffold` tool once with `example` set to `envoy-ai-gateway-token-budget` and no `dir`: it writes the example into a new `envoy-ai-gateway-token-budget` folder. Then call the `build` tool with `workspace_root` set to `envoy-ai-gateway-token-budget`, `release` set to `release.yaml`, `auto_pull` set to true and `write` set to true. Tell me which files the build wrote; they are under `envoy-ai-gateway-token-budget/dist/`.
+> Use the Aggrega tools only, and create no folder yourself. If the Workspace folder holds no `envoy-ai-gateway-token-budget` folder yet, call the `draft` tool once with `example` set to `envoy-ai-gateway-token-budget` and no `dir`: it writes the example into a new `envoy-ai-gateway-token-budget` folder. Then call the `build` tool with `workspace_root` set to `envoy-ai-gateway-token-budget`, `release` set to `release.yaml`, `auto_pull` set to true and `write` set to true. Tell me which files the build wrote; they are under `envoy-ai-gateway-token-budget/dist/`.
 
 ## The rendered tree
 

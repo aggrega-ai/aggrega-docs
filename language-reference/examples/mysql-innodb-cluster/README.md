@@ -62,14 +62,14 @@ would be a second thing to keep in step for no gain.
 - `.aggrega-config.yaml` — names the hub registry the standard-library catalog
   resolves from. This example authors no entities of its own.
 
-## Scaffold the example
+## Draft the example
 
 You can build this example with the commands below, or [have your AI assistant build it for you](#with-an-ai-assistant).
 
 Write the example into a new folder named after it:
 
 ```sh
-aggrega scaffold --example mysql-innodb-cluster
+aggrega draft --example mysql-innodb-cluster
 ```
 
 It then prints the commands to run next. The first changes into the new folder:
@@ -112,7 +112,7 @@ can do the same: paste this prompt into it.
 
 <!-- copyable -->
 
-> Use the Aggrega tools only, and create no folder yourself. If the Workspace folder holds no `mysql-innodb-cluster` folder yet, call the `scaffold` tool once with `example` set to `mysql-innodb-cluster` and no `dir`: it writes the example into a new `mysql-innodb-cluster` folder. Then call the `build` tool once for each Release, in this order — `release-single.yaml` and `release-replicated.yaml` — each time with `workspace_root` set to `mysql-innodb-cluster`, `release` set to that file, `auto_pull` set to true and `write` set to true. Tell me which files each build wrote; they are under `mysql-innodb-cluster/dist/`.
+> Use the Aggrega tools only, and create no folder yourself. If the Workspace folder holds no `mysql-innodb-cluster` folder yet, call the `draft` tool once with `example` set to `mysql-innodb-cluster` and no `dir`: it writes the example into a new `mysql-innodb-cluster` folder. Then call the `build` tool once for each Release, in this order — `release-single.yaml` and `release-replicated.yaml` — each time with `workspace_root` set to `mysql-innodb-cluster`, `release` set to that file, `auto_pull` set to true and `write` set to true. Tell me which files each build wrote; they are under `mysql-innodb-cluster/dist/`.
 
 ## What the database renders to
 

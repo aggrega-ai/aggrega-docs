@@ -5,7 +5,7 @@ This page explains one idea, which file of a build says what, and is not a runna
 write it into a folder of your own with:
 
 ```sh
-aggrega scaffold --example quickstart-web
+aggrega draft --example quickstart-web
 ```
 
 It then prints the commands to run next:

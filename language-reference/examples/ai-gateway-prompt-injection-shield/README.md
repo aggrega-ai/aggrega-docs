@@ -41,14 +41,14 @@ Two `uses` edges: the gateway's `guard` socket to the guard, and the guard's
 shield, on the gateway, at `sensitivity: standard`; and `upstream_key`, the
 credential the guard presents to the model API, on the guard.
 
-## Scaffold the example
+## Draft the example
 
 You can build this example with the commands below, or [have your AI assistant build it for you](#with-an-ai-assistant).
 
 Write the example into a new folder named after it:
 
 ```sh
-aggrega scaffold --example ai-gateway-prompt-injection-shield
+aggrega draft --example ai-gateway-prompt-injection-shield
 ```
 
 It then prints the commands to run next. The first changes into the new folder:
@@ -99,7 +99,7 @@ can do the same: paste this prompt into it.
 
 <!-- copyable -->
 
-> Use the Aggrega tools only, and create no folder yourself. If the Workspace folder holds no `ai-gateway-prompt-injection-shield` folder yet, call the `scaffold` tool once with `example` set to `ai-gateway-prompt-injection-shield` and no `dir`: it writes the example into a new `ai-gateway-prompt-injection-shield` folder. Then call the `build` tool with `workspace_root` set to `ai-gateway-prompt-injection-shield`, `release` set to `release.yaml`, `auto_pull` set to true and `write` set to true. Tell me which files the build wrote; they are under `ai-gateway-prompt-injection-shield/dist/`.
+> Use the Aggrega tools only, and create no folder yourself. If the Workspace folder holds no `ai-gateway-prompt-injection-shield` folder yet, call the `draft` tool once with `example` set to `ai-gateway-prompt-injection-shield` and no `dir`: it writes the example into a new `ai-gateway-prompt-injection-shield` folder. Then call the `build` tool with `workspace_root` set to `ai-gateway-prompt-injection-shield`, `release` set to `release.yaml`, `auto_pull` set to true and `write` set to true. Tell me which files the build wrote; they are under `ai-gateway-prompt-injection-shield/dist/`.
 
 ## The rendered tree
 

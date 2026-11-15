@@ -179,14 +179,14 @@ own. Read the database side of this example to learn how catalog entities are
 **built**; read the consumption examples to learn how a whole stack is **used**
 from the shipped catalog.
 
-## Scaffold the example
+## Draft the example
 
 You can build this example with the commands below, or [have your AI assistant build it for you](#with-an-ai-assistant).
 
 Write the example into a new folder named after it:
 
 ```sh
-aggrega scaffold --example mariadb-adminer
+aggrega draft --example mariadb-adminer
 ```
 
 It then prints the commands to run next. The first changes into the new folder:
@@ -213,7 +213,7 @@ can do the same: paste this prompt into it.
 
 <!-- copyable -->
 
-> Use the Aggrega tools only, and create no folder yourself. If the Workspace folder holds no `mariadb-adminer` folder yet, call the `scaffold` tool once with `example` set to `mariadb-adminer` and no `dir`: it writes the example into a new `mariadb-adminer` folder. Then call the `build` tool with `workspace_root` set to `mariadb-adminer`, `release` set to `release-compose.yaml`, `auto_pull` set to true and `write` set to true. Tell me which files the build wrote; they are under `mariadb-adminer/dist/`.
+> Use the Aggrega tools only, and create no folder yourself. If the Workspace folder holds no `mariadb-adminer` folder yet, call the `draft` tool once with `example` set to `mariadb-adminer` and no `dir`: it writes the example into a new `mariadb-adminer` folder. Then call the `build` tool with `workspace_root` set to `mariadb-adminer`, `release` set to `release-compose.yaml`, `auto_pull` set to true and `write` set to true. Tell me which files the build wrote; they are under `mariadb-adminer/dist/`.
 
 ## Layout
 

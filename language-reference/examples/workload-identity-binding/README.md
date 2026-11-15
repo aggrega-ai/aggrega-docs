@@ -19,14 +19,14 @@ The teaching point is the direction of the flow. The producer states the name
 once; the consumer reads it. Nothing on the consuming side restates a value the
 producer already owns, so the two cannot drift apart.
 
-## Scaffold the example
+## Draft the example
 
 You can build this example with the commands below, or [have your AI assistant build it for you](#with-an-ai-assistant).
 
 Write the example into a new folder named after it:
 
 ```sh
-aggrega scaffold --example workload-identity-binding
+aggrega draft --example workload-identity-binding
 ```
 
 It then prints the commands to run next. The first changes into the new folder:
@@ -55,7 +55,7 @@ can do the same: paste this prompt into it.
 
 <!-- copyable -->
 
-> Use the Aggrega tools only, and create no folder yourself. If the Workspace folder holds no `workload-identity-binding` folder yet, call the `scaffold` tool once with `example` set to `workload-identity-binding` and no `dir`: it writes the example into a new `workload-identity-binding` folder. Then call the `build` tool with `workspace_root` set to `workload-identity-binding`, `release` set to `release.yaml`, `auto_pull` set to true and `write` set to true. Tell me which files the build wrote; they are under `workload-identity-binding/dist/`.
+> Use the Aggrega tools only, and create no folder yourself. If the Workspace folder holds no `workload-identity-binding` folder yet, call the `draft` tool once with `example` set to `workload-identity-binding` and no `dir`: it writes the example into a new `workload-identity-binding` folder. Then call the `build` tool with `workspace_root` set to `workload-identity-binding`, `release` set to `release.yaml`, `auto_pull` set to true and `write` set to true. Tell me which files the build wrote; they are under `workload-identity-binding/dist/`.
 
 ## The Component declares the need; the Release fills it
 
