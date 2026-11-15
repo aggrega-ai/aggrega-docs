@@ -12440,6 +12440,17 @@
     "status": "machine",
     "text": "**Katalog pamięci podręcznej artefaktów jest osobnym korzeniem, niezależnie od położenia.** Wszystko, co zawiera pamięć podręczna, jest\nzapisywane, odczytywane i usuwane wyłącznie w katalogu pamięci podręcznej, więc jeden z własnych katalogów pamięci podręcznej lub\nplik w nim, będący dowiązaniem wychodzącym poza katalog pamięci podręcznej, jest zatrzymywany — nawet jeśli prowadzi w inne miejsce\nw obszarze roboczym — natomiast dowiązanie prowadzące w inne miejsce w katalogu pamięci podręcznej jest śledzone. Położenie samego\nkatalogu pamięci podręcznej wynika z zapisu jego wartości. Zapisany w obrębie korzenia obszaru roboczego —\nłącznie z domyślnym `.aggrega/cache` — jest własnym katalogiem obszaru roboczego: katalog pamięci podręcznej będący\ndowiązaniem do innego miejsca w obszarze roboczym jest śledzony, a prowadzący poza obszar roboczy jest odrzucany, zarówno\nprzy odczycie, jak i przy zapisie. Zapisany jako wychodzący na zewnątrz (`../shared-cache`), jest katalogiem wskazanym przez konfigurację,\nodczytywanym i zapisywanym tam, dokąd prowadzi."
   },
+  "109b6421cbf9d06b": {
+    "at": "2026-11-15T12:36:49.308Z",
+    "job": "session-0002-20261115123649",
+    "revision": {
+      "from": "f093c87f7bfc68eb",
+      "reviewed": false
+    },
+    "srcHash": "109b6421cbf9d06b",
+    "status": "machine",
+    "text": "`sources` — nazwane źródła, każde z nazwą i bajtami, na jednej liście posortowanej według nazwy: w przypadku importu katalogu każdy jego plik wybrany przez zadeklarowane wzorce plików importera, z pominięciem folderu wyników budowania obszaru roboczego, nazwany ścieżką rozdzielaną ukośnikami wewnątrz katalogu; oraz pliki, które wpis `plugins.importer` dołączający ten importer deklaruje w `with.sources`, każdy pod swoją nazwą bazową. Plik katalogu i plik z `with.sources` o tej samej nazwie powodują odrzucenie importu, zamiast by jeden przesłaniał drugi. Pole nieobecne, gdy źródeł nie ma."
+  },
   "10a211b46e4b42cb": {
     "at": "2026-10-30T00:50:28.131Z",
     "job": "session-0041-20261030005028",
@@ -71989,6 +72000,17 @@
     "status": "machine",
     "text": "CLI `aggrega`, w każdym kroku."
   },
+  "63a1ec88b29ed79f": {
+    "at": "2026-11-15T12:36:40.000Z",
+    "job": "session-0001-20261115123640",
+    "revision": {
+      "from": "0fc5b18dbf6e708d",
+      "reviewed": false
+    },
+    "srcHash": "63a1ec88b29ed79f",
+    "status": "machine",
+    "text": "`aggrega/import` — przekształca obcy opis źródłowy w robocze pliki autorskie Aggrega; jest to ta sama konwersja, którą [`aggrega import`](aggrega-import.md) wykonuje w terminalu. `source` jest wymagane i wskazuje plik lub katalog do konwersji, jako ścieżkę bezwzględną albo względną wobec katalogu głównego obszaru roboczego — opis wyeksportowany przez inne narzędzie znajduje się tam, gdzie go zapisano, więc jest odczytywany tam, gdzie faktycznie się znajduje, a nie tylko wewnątrz obszaru roboczego. Katalog jest odczytywany tak, jak odczytuje go [`aggrega import`](aggrega-import.md): ograniczony do tych jego plików, które wybierają zadeklarowane wzorce plików importera, z pominięciem folderu wyników kompilacji obszaru roboczego `dist/`, i zamknięty w sobie, gdziekolwiek się znajduje, więc żadne dowiązanie w nim nie jest śledzone poza niego. `outputDir` jest opcjonalne i wskazuje katalog, do którego trafiają wersje robocze, i **nie** podlega tej zasadzie: następuje do niego zapis, więc jest to ścieżka wewnątrz obszaru roboczego, a wartość bezwzględna lub wskazująca poza katalog główny — wprost albo przez dowiązanie, łącznie z jeszcze nieutworzonym katalogiem pod takim dowiązaniem — jest odrzucana. Gdy zostanie pominięte, wersje robocze trafiają pod katalog główny obszaru roboczego, tam, gdzie zapisuje je [`aggrega import`](aggrega-import.md), gdy nie wskazuje miejsca docelowego — również przy `dryRun`. `format` jawnie wskazuje format źródła; gdy zostanie pominięty, format jest rozpoznawany po sygnaturach deklarowanych przez importery — zarówno z katalogu obszaru roboczego, jak i [importery rdzenia](../plugins/core-importers.md) kompilatora — a źródło, którego żaden nie rozpoznaje albo które rozpoznają importery więcej niż jednego formatu, jest odrzucane z prośbą o `format`, zamiast zgadywania. `target` wskazuje możliwość dostawcy, taką jak `compose` lub `helm` — słowo, z którym wiąże się `spec.capability` encji Recipe — i obok wersji roboczych importera tworzy roboczy Manifest, względem którego buduje się roboczy Release dla tego dostawcy, dokładnie tak jak `aggrega import --target`: `manifest.yaml`, mapujący każdy typ komponentu i każdy typ funkcji potrzebny wersjom roboczym — łącznie z typami katalogowej encji Aggregate, którą roboczy Aggregate włącza w swój skład — na Recipe lub recepturę funkcji tej możliwości, jaką katalog obszaru roboczego dla niego oferuje, według nazwy kwalifikowanej możliwością, bez wersji: na jedyną, jaka istnieje, albo spośród kilku na tę nazwaną od typu. `spec.manifest` encji Release jest ustawiane na niego; typ bez żadnej albo z kilkoma, z których żadna nie ma takiej nazwy, pozostaje niezmapowany, z ustaleniem `warn`, które go wskazuje, a mapowanie utworzone przez sam importer jest zachowywane tam, gdzie katalog oferuje je dla tego typu i tej możliwości, a w przeciwnym razie odrzucane z ustaleniem `warn`. `target`, z którym nie wiąże się żaden Recipe w katalogu, jest odrzucany przed uruchomieniem importera, z podaniem go i możliwości, z którymi wiążą się Recipes katalogu, i nic nie jest zapisywane; gdy zostanie pominięty, Manifest nie jest tworzony — z wyjątkiem trybu `sync`, który tworzy go dla celu wskazanego w zapisie wcześniejszego importu. Importer rdzenia, którego maszyna jeszcze nie ma, jest pobierany przez pierwszy import, który go potrzebuje — zob. [Co mówi odpowiedź importu](#what-an-import-response-tells-you). `dryRun` robi wszystko to, co zwykłe żądanie, z wyjątkiem zapisu, i zwraca wersje robocze jako treść, dla klienta, który najpierw pokazuje je autorowi; nic nie jest tworzone, a `written` jest puste. `sync` aktualizuje względem źródła to, co wcześniejszy import utworzył w `outputDir`, zmieniając tylko to, co zapisał import, tak jak `aggrega import --sync`; bez niego żądanie, którego wersje robocze nadpisałyby istniejący już Aggregate, jest odrzucane. Odpowiedź zawiera `format`, `outputDir`, `written`, `files`, `drift`, `diagnostics`, `decisions` i `halted`. Zob. [Co mówi odpowiedź importu](#what-an-import-response-tells-you), ponieważ źródło, którego importer nie mógł w pełni przekonwertować, daje odpowiedź pomyślną, a nie błąd."
+  },
   "63a2675e37d38d25": {
     "at": "2026-10-29T19:15:25.530Z",
     "job": "session-0015-20261029191525",
@@ -96261,6 +96283,17 @@
     "srcHash": "8552a1c4d33254cd",
     "status": "machine",
     "text": "Etykiety statusu są określane względem bieżącej wersji kompilatora. Elementy w trakcie aktywnego rozwoju mogą zmieniać etykiety; wpisy w poszczególnych sekcjach opisują plan zmiany, jeśli jest znany."
+  },
+  "855514d6130a37f3": {
+    "at": "2026-11-15T12:36:49.308Z",
+    "job": "session-0002-20261115123649",
+    "revision": {
+      "from": "085ee1cb623bb672",
+      "reviewed": false
+    },
+    "srcHash": "855514d6130a37f3",
+    "status": "machine",
+    "text": "**Wysłany katalog jest wczytywany do plików wskazanych przez jego importer, a katalog, którego nie da się odczytać, jest błędem.** Gdy `source` wskazuje katalog, importer otrzymuje te jego pliki, które wybierają wzorce plików deklarowane przez jego sygnatury, z pominięciem folderu wyników budowania obszaru roboczego `dist/`, każdy nazwany ścieżką wewnątrz katalogu, w kolejności posortowanej, obok plików, które jego wpis `plugins.importer` wymienia pod `with.sources`. Importer niedeklarujący wzorców plików, katalog bez plików przez nie wybieranych, plik katalogu i plik z `with.sources` o tej samej nazwie oraz dowiązanie wśród plików czytanych przez import lub dowiązanie do katalogu, które wyprowadza poza katalog — każdy z tych przypadków zwraca błąd z kodem warunku i niczego nie zapisuje."
   },
   "856053fca6a8d0b8": {
     "at": "2026-10-22T08:02:26.315Z",
@@ -144098,6 +144131,17 @@
     "srcHash": "c69afa6797a9f34e",
     "status": "machine",
     "text": "**Open Policy Agent (OPA/Rego):** szeroko stosowany język do oceny złożonych, wieloskokowych relacji w grafie i wyznaczania dostępu z minimalnymi uprawnieniami w rozproszonych topologiach. Silnik Rego wkompilowany w CLI uruchamia pliki `.rego` w ich obecnej postaci; polityka, która potrzebuje pełnego zestawu wbudowanych funkcji OPA, jest kompilowana własnym zestawem narzędzi OPA i działa za gościem adaptera."
+  },
+  "c69ff6b9e17494fc": {
+    "at": "2026-11-15T12:36:55.200Z",
+    "job": "session-0003-20261115123655",
+    "revision": {
+      "from": "409a81bcb20904dd",
+      "reviewed": false
+    },
+    "srcHash": "c69ff6b9e17494fc",
+    "status": "machine",
+    "text": "**Co odczytuje import katalogu.** Źródłem może być katalog, a o tym, co zostanie odczytane, decydują zadeklarowane wzorce plików importera: host odczytuje dokładnie te pliki katalogu, na dowolnej głębokości, które wybiera jeden ze wzorców `files` sygnatur importera — każdy dopasowywany do końca ścieżki pliku w katalogu, rozdzielanej ukośnikami — i przekazuje je jako `sources` w kolejności nazw, z pustym `bytes` i własną nazwą katalogu jako `name`. Żaden inny plik katalogu nie jest otwierany. Folder, do którego build obszaru roboczego zapisuje wyrenderowane pliki — `dist/` pod katalogiem głównym obszaru roboczego — nie jest odczytywany jako część zawierającego go katalogu: żaden z jego plików nie jest przekazywany ani rozpoznawany, a dowiązanie prowadzące do niego jest pomijane, więc katalog, który został zbudowany, jest odczytywany jako projekt, który zawiera, natomiast katalog będący tym folderem lub leżący w nim jest odczytywany tak, jak go wskazano. Sygnatura bez wzorców `files` nie wybiera żadnego pliku katalogu, więc importer, który nie deklaruje żadnego wzorca, odczytuje jeden plik i odrzuca katalog; odrzucany jest też katalog, w którym nie ma pliku wybieranego przez wzorce. Import nie wychodzi poza katalog: dowiązanie wśród plików, które miałyby zostać odczytane, lub dowiązanie do katalogu, prowadzące poza katalog, jest odrzucane, zanim cokolwiek zostanie odczytane, do dowiązania do katalogu nigdy się nie wchodzi, a dowiązanie do pliku niewybieranego przez żaden wzorzec jest pomijane bez odczytu. Rozpoznawanie formatu katalogu podlega tej samej zasadzie — każda sygnatura jest sprawdzana względem plików wybieranych przez jej wzorce, w kolejności nazw, każdy plik jest odczytywany i parsowany najwyżej raz na składnię, a sygnatura bez wzorców nie dotyczy żadnego z nich. Host niczego nie ogranicza: katalog zbyt duży dla importera odrzucają własne limity środowiska wykonawczego importera. Żaden z importerów kompilatora Langflow, Flowise, n8n, Dify i Agent Framework nie deklaruje wzorców `files`, więc każdy odczytuje jeden plik; jego importer MCP deklaruje nazwy czterech konfiguracji klientów, więc odczytuje każdą z nich, która znajduje się w katalogu, jego importer Compose deklaruje osiem nazw plików Compose, więc otrzymuje każdy plik Compose z katalogu i scala te, które odczytałby Compose; jego importer CrewAI deklaruje sześć nazw, pod którymi zapisywane są deklaracje projektu CrewAI, więc otrzymuje deklaracje projektu, a nic z jego programu; jego importer LangGraph deklaruje `langgraph.json`, więc otrzymuje konfigurację aplikacji, a nic z jej kodu ani plików środowiskowych — plik środowiskowy trafia do niego tylko przez `with.sources` jego dołączenia; a jego importer Google ADK deklaruje `root_agent.yaml`, więc otrzymuje konfigurację głównego agenta aplikacji, a nic z jej kodu ani pliku środowiskowego — konfiguracje wskazywane przez jej podagentów trafiają do niego tylko przez `with.sources` jego dołączenia."
   },
   "c6a29c59051ef36b": {
     "at": "2026-10-29T21:33:51.093Z",

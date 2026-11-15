@@ -11271,6 +11271,17 @@
     "status": "machine",
     "text": "**Le répertoire du cache d’artefacts est une racine à part entière, où qu’il se trouve.** Tout ce que contient le cache est écrit, lu et supprimé uniquement à l’intérieur du répertoire du cache, de sorte qu’un des répertoires propres du cache, ou un fichier de l’un d’eux, qui est un lien menant hors du répertoire du cache est bloqué — même lorsqu’il mène ailleurs dans l’espace de travail — tandis qu’un lien menant ailleurs dans le répertoire du cache est suivi. L’emplacement du répertoire du cache lui-même se déduit de la façon dont sa valeur est écrite. Écrit à l’intérieur de la racine de l’espace de travail — y compris la valeur par défaut `.aggrega/cache` — il est un répertoire propre de l’espace de travail : un répertoire du cache qui est un lien vers un autre endroit de l’espace de travail est suivi, et un répertoire qui mène hors de l’espace de travail est refusé, en lecture comme en écriture. Écrit en remontant vers l’extérieur (`../shared-cache`), c’est un répertoire que nomme la configuration, lu et écrit là où il mène."
   },
+  "109b6421cbf9d06b": {
+    "at": "2026-11-15T12:36:49.308Z",
+    "job": "session-0002-20261115123649",
+    "revision": {
+      "from": "f093c87f7bfc68eb",
+      "reviewed": false
+    },
+    "srcHash": "109b6421cbf9d06b",
+    "status": "machine",
+    "text": "`sources` — les sources nommées, chacune portant son nom et ses octets, dans une seule liste triée par nom : pour l’importation d’un répertoire, chacun de ses fichiers que sélectionnent les motifs de fichier déclarés par l’importateur, hormis le dossier de sortie de build de l’espace de travail, nommé par son chemin séparé par des barres obliques à l’intérieur du répertoire ; et les fichiers que l’entrée `plugins.importer` rattachant cet importateur déclare sous `with.sources`, chacun sous son nom de base. Un fichier du répertoire et un fichier de `with.sources` portant le même nom font refuser l’importation plutôt que l’un ne masque l’autre. Absent lorsqu’il n’y en a aucune."
+  },
   "10a211b46e4b42cb": {
     "at": "2026-11-03T22:09:05.579Z",
     "job": "session-0165-20261103220905",
@@ -65129,6 +65140,17 @@
     "status": "machine",
     "text": "La CLI `aggrega`, pour chaque étape."
   },
+  "63a1ec88b29ed79f": {
+    "at": "2026-11-15T12:36:40.000Z",
+    "job": "session-0001-20261115123640",
+    "revision": {
+      "from": "0fc5b18dbf6e708d",
+      "reviewed": false
+    },
+    "srcHash": "63a1ec88b29ed79f",
+    "status": "machine",
+    "text": "`aggrega/import` — transforme la description d’une source externe en brouillons de fichiers de rédaction Aggrega, la même conversion que celle qu’effectue [`aggrega import`](aggrega-import.md) dans un terminal. `source` est obligatoire et indique le fichier ou le répertoire à convertir, soit sous forme de chemin absolu, soit relativement à la racine du workspace — une description exportée par un autre outil se trouve là où vous l’avez enregistrée, elle est donc lue là où elle se trouve réellement plutôt qu’uniquement dans le workspace. Un répertoire est lu comme [`aggrega import`](aggrega-import.md) en lit un : limité à ceux de ses fichiers que sélectionnent les motifs de fichiers déclarés par l’importeur, à l’exclusion du dossier de sortie de build du workspace `dist/`, et cantonné à lui-même où qu’il se trouve, de sorte qu’aucun lien qu’il contient n’est suivi vers l’extérieur. `outputDir` est facultatif et indique le répertoire où vont les brouillons, et il ne suit **pas** ce contrat : on y écrit, c’est donc un chemin dans le workspace, et une valeur absolue, ou qui se résout hors de la racine — tel qu’écrit, ou via un lien, y compris un répertoire pas encore créé sous celui-ci — est refusée. Si vous l’omettez, les brouillons vont sous la racine du workspace, là où [`aggrega import`](aggrega-import.md) les écrit lorsqu’il n’indique aucune destination — y compris avec `dryRun`. `format` indique explicitement le format de la source ; si vous l’omettez, le format est reconnu par les signatures que déclarent les importeurs — ceux du catalogue du workspace comme les [importeurs de base](../plugins/core-importers.md) du compilateur — et une source qu’aucun ne reconnaît, ou que reconnaissent des importeurs de plus d’un format, est refusée en demandant `format` plutôt que devinée. `target` indique une capability de provider, telle que `compose` ou `helm` — le mot auquel se lie le `spec.capability` d’une Recipe — et produit en brouillon, à côté des brouillons de l’importeur, le Manifest sur lequel la Release en brouillon se construit pour ce provider, exactement comme le fait `aggrega import --target` : `manifest.yaml`, qui associe chaque type de composant et chaque type de fonctionnalité dont les brouillons ont besoin — y compris les types d’un Aggregate du catalogue que compose celui en brouillon — à la Recipe ou à la recette de fonctionnalité de cette capability que le catalogue du workspace propose pour lui, par son nom qualifié par la capability et sans version : celle qui existe ou, parmi plusieurs, celle qui porte le nom du type. Le `spec.manifest` de la Release est défini sur celui-ci ; un type qui n’en a aucune, ou qui en a plusieurs dont aucune ne porte ce nom, reste non associé avec un constat `warn` qui le nomme, et une association que l’importeur a lui-même produite est conservée là où le catalogue la propose pour ce type et cette capability, et abandonnée avec un constat `warn` dans le cas contraire. Un `target` auquel aucune Recipe du catalogue ne se lie est refusé avant l’exécution de l’importeur, en le nommant ainsi que les capabilities auxquelles se lient les Recipes du catalogue, et rien n’est écrit ; si vous l’omettez, aucun Manifest n’est produit — sauf avec `sync`, qui produit le brouillon pour la cible que nomme l’enregistrement de l’importation précédente. Un importeur de base que la machine ne possède pas encore est récupéré par la première importation qui en a besoin — voir [Ce que vous apprend une réponse d’importation](#what-an-import-response-tells-you). `dryRun` fait tout ce que fait la requête simple sauf écrire, et répond avec les brouillons sous forme de contenu, pour un client qui les présente d’abord à l’auteur ; rien n’est créé dans ce mode et `written` est vide. `sync` met à jour par rapport à la source ce qu’une importation précédente a produit dans `outputDir`, en ne modifiant que ce que l’importation a écrit, comme le fait `aggrega import --sync` ; sans lui, une requête dont les brouillons écraseraient un Aggregate déjà présent est refusée. La réponse contient `format`, `outputDir`, `written`, `files`, `drift`, `diagnostics`, `decisions` et `halted`. Voir [Ce que vous apprend une réponse d’importation](#what-an-import-response-tells-you), car une source que l’importeur n’a pas pu convertir entièrement est une réponse réussie et non une erreur."
+  },
   "63a2675e37d38d25": {
     "at": "2026-10-30T06:04:18.554Z",
     "job": "session-0066-20261030060418",
@@ -87171,6 +87193,17 @@
     "srcHash": "8552a1c4d33254cd",
     "status": "machine",
     "text": "Les étiquettes d’état sont évaluées par rapport au compilateur actuel. Les surfaces en cours de développement actif peuvent passer d’une étiquette à l’autre ; les entrées par section décrivent le plan de transition lorsqu’il est connu."
+  },
+  "855514d6130a37f3": {
+    "at": "2026-11-15T12:36:49.308Z",
+    "job": "session-0002-20261115123649",
+    "revision": {
+      "from": "085ee1cb623bb672",
+      "reviewed": false
+    },
+    "srcHash": "855514d6130a37f3",
+    "status": "machine",
+    "text": "**Un répertoire que vous envoyez est lu dans les fichiers que nomme son importeur, et un répertoire qu’il ne peut pas lire est une erreur.** Là où `source` nomme un répertoire, l’importeur reçoit ceux de ses fichiers que sélectionnent les motifs de fichiers déclarés par ses signatures, hormis le dossier de sortie de build de l’espace de travail `dist/`, chacun nommé par son chemin à l’intérieur du répertoire, dans l’ordre trié, à côté des fichiers que son entrée `plugins.importer` nomme sous `with.sources`. Un importeur qui ne déclare aucun motif de fichier, un répertoire ne contenant aucun fichier qu’ils sélectionnent, un fichier du répertoire et un fichier de `with.sources` de même nom, et un lien parmi les fichiers que l’import lirait, ou vers un répertoire, qui mène hors du répertoire, reviennent chacun sous forme d’erreur portant le code de la condition, sans que rien ne soit écrit."
   },
   "856053fca6a8d0b8": {
     "at": "2026-10-22T08:02:26.315Z",
@@ -130637,6 +130670,17 @@
     "srcHash": "c69afa6797a9f34e",
     "status": "machine",
     "text": "**Open Policy Agent (OPA/Rego) :** un langage largement utilisé pour évaluer des relations de graphe complexes à plusieurs sauts et calculer l’accès au moindre privilège à travers des topologies distribuées. Le moteur Rego compilé dans la CLI exécute les fichiers `.rego` tels quels ; une policy qui a besoin de toute la surface de builtins d’OPA est compilée avec la propre chaîne d’outils d’OPA et s’exécute derrière un guest adaptateur."
+  },
+  "c69ff6b9e17494fc": {
+    "at": "2026-11-15T12:36:55.200Z",
+    "job": "session-0003-20261115123655",
+    "revision": {
+      "from": "409a81bcb20904dd",
+      "reviewed": false
+    },
+    "srcHash": "c69ff6b9e17494fc",
+    "status": "machine",
+    "text": "**Ce que lit l’importation d’un répertoire.** Une source peut être un répertoire, et les motifs de fichier déclarés par l’importateur décident de ce qu’il lit : l’hôte lit exactement les fichiers du répertoire, à toute profondeur, que sélectionne l’un des motifs `files` des signatures de l’importateur — chacun comparé à la fin du chemin du fichier séparé par des barres obliques à l’intérieur du répertoire — et les transmet sous `sources` dans l’ordre des noms, avec `bytes` vide et le nom propre du répertoire comme `name`. Aucun autre fichier du répertoire n’est ouvert. Le dossier dans lequel un build de l’espace de travail écrit ses fichiers rendus — `dist/` sous la racine de l’espace de travail — n’est pas lu comme faisant partie d’un répertoire qui le contient : aucun de ses fichiers n’est transmis ni reconnu, et un lien qui y mène est ignoré, si bien qu’un répertoire qui a été construit est lu comme le projet qu’il contient, tandis qu’un répertoire qui est ce dossier, ou qui se trouve à l’intérieur, est lu tel qu’il est nommé. Une signature qui ne déclare aucun motif `files` ne sélectionne aucun fichier d’un répertoire, si bien qu’un importateur qui n’en déclare aucun lit un seul fichier et refuse un répertoire, et un répertoire ne contenant aucun fichier que sélectionnent ses motifs est refusé aussi. Le répertoire est tenu à lui-même : un lien parmi les fichiers que l’hôte lirait, ou vers un répertoire, qui mène hors du répertoire est refusé avant que quoi que ce soit ne soit lu, un lien vers un répertoire n’est jamais parcouru, et un lien vers un fichier qu’aucun motif ne sélectionne est ignoré sans être lu. La reconnaissance du format d’un répertoire suit la même règle — chaque signature est essayée sur les fichiers que sélectionnent ses motifs, dans l’ordre des noms, chaque fichier lu et analysé au plus une fois par syntaxe, et une signature qui ne déclare aucun motif ne s’applique à aucun d’eux. L’hôte ne plafonne rien : un répertoire trop volumineux pour l’importateur est refusé par les limites d’exécution propres à l’importateur. Aucun des importateurs Langflow, Flowise, n8n, Dify et Agent Framework du compilateur ne déclare de motifs `files`, si bien que chacun lit un seul fichier ; son importateur MCP déclare les noms des quatre configurations de clients, si bien qu’il lit chacune d’elles que contient un répertoire ; son importateur Compose déclare les huit noms de fichiers Compose, si bien qu’il reçoit chaque fichier Compose que contient un répertoire et fusionne ceux que Compose lirait ; et son importateur CrewAI déclare les six noms sous lesquels sont écrites les déclarations d’un projet CrewAI, si bien qu’il reçoit les déclarations d’un projet et rien de son programme ; et son importateur LangGraph déclare `langgraph.json`, si bien qu’il reçoit la configuration d’une application et rien de son code ni de ses fichiers d’environnement, un fichier d’environnement ne lui parvenant que sous le `with.sources` de son rattachement ; et son importateur Google ADK déclare `root_agent.yaml`, si bien qu’il reçoit la configuration de l’agent racine d’une application et rien de son code ni de son fichier d’environnement, les configurations que nomment ses sous-agents ne lui parvenant que sous le `with.sources` de son rattachement."
   },
   "c6a29c59051ef36b": {
     "at": "2026-10-30T06:38:36.798Z",

@@ -12446,6 +12446,17 @@
     "status": "machine",
     "text": "**Thư mục bộ đệm artifact là một gốc riêng, dù nó ở đâu.** Mọi thứ bộ đệm chứa đều được\nghi, đọc và xóa chỉ bên trong thư mục bộ đệm, nên một trong các thư mục riêng của bộ đệm, hoặc một\ntệp trong đó, là liên kết dẫn ra ngoài thư mục bộ đệm sẽ bị giữ lại — kể cả khi nó dẫn tới nơi khác\nbên trong workspace — còn một liên kết dẫn tới nơi khác bên trong thư mục bộ đệm thì được đi theo. Vị trí của\nchính thư mục bộ đệm được xác định từ cách viết giá trị của nó. Khi được viết bên trong gốc workspace —\nkể cả giá trị mặc định `.aggrega/cache` — nó là thư mục riêng của workspace: một thư mục bộ đệm là\nliên kết tới nơi khác bên trong workspace được đi theo, và một liên kết dẫn ra ngoài workspace bị từ chối, khi\nđọc cũng như khi ghi. Khi được viết leo ra ngoài (`../shared-cache`), nó là một thư mục mà cấu hình\nnêu tên, được đọc và ghi ở nơi nó dẫn tới."
   },
+  "109b6421cbf9d06b": {
+    "at": "2026-11-15T12:36:49.308Z",
+    "job": "session-0002-20261115123649",
+    "revision": {
+      "from": "f093c87f7bfc68eb",
+      "reviewed": false
+    },
+    "srcHash": "109b6421cbf9d06b",
+    "status": "machine",
+    "text": "`sources` — các nguồn có tên, mỗi nguồn mang tên và các byte của nó, trong một danh sách sắp xếp theo tên: với một lần import thư mục, mọi tệp của thư mục mà các mẫu tệp được khai báo của importer chọn, trừ thư mục đầu ra build của workspace, được đặt tên theo đường dẫn phân tách bằng dấu gạch chéo bên trong thư mục; và các tệp mà mục `plugins.importer` gắn importer này khai báo dưới `with.sources`, mỗi tệp dưới tên cơ sở của nó. Một tệp thư mục và một tệp `with.sources` trùng tên sẽ khiến lần import bị từ chối thay vì để tệp này che tệp kia. Vắng mặt khi không có nguồn nào."
+  },
   "10a211b46e4b42cb": {
     "at": "2026-10-30T00:50:28.131Z",
     "job": "session-0041-20261030005028",
@@ -72015,6 +72026,17 @@
     "status": "machine",
     "text": "CLI `aggrega`, cho mọi bước."
   },
+  "63a1ec88b29ed79f": {
+    "at": "2026-11-15T12:36:40.000Z",
+    "job": "session-0001-20261115123640",
+    "revision": {
+      "from": "0fc5b18dbf6e708d",
+      "reviewed": false
+    },
+    "srcHash": "63a1ec88b29ed79f",
+    "status": "machine",
+    "text": "`aggrega/import` — chuyển một mô tả nguồn bên ngoài thành các tệp soạn thảo Aggrega dạng bản nháp, cùng phép chuyển đổi mà [`aggrega import`](aggrega-import.md) thực hiện tại terminal. `source` là bắt buộc và chỉ định tệp hoặc thư mục cần chuyển đổi, dưới dạng đường dẫn tuyệt đối hoặc tương đối với thư mục gốc của workspace — một mô tả do công cụ khác xuất ra nằm ở bất cứ nơi nào bạn đã lưu, nên nó được đọc ở nơi nó thực sự nằm chứ không chỉ bên trong workspace. Một thư mục được đọc như cách [`aggrega import`](aggrega-import.md) đọc: các tệp trong đó mà các mẫu tệp do importer khai báo chọn ra, trừ thư mục đầu ra build của workspace là `dist/`, và giới hạn trong chính nó dù nó nằm ở đâu, nên không liên kết nào bên trong được theo ra ngoài nó. `outputDir` là tùy chọn và chỉ định thư mục chứa các bản nháp, và nó **không** mang hợp đồng đó: nó được ghi vào, nên nó là một đường dẫn bên trong workspace, và một giá trị tuyệt đối, hoặc một giá trị phân giải ra ngoài thư mục gốc — theo cách viết, hoặc qua một liên kết, kể cả một thư mục chưa được tạo nằm dưới liên kết đó — sẽ bị từ chối. Bỏ qua nó thì các bản nháp được đặt dưới thư mục gốc của workspace, nơi [`aggrega import`](aggrega-import.md) ghi chúng khi không chỉ định đích — kể cả khi dùng `dryRun`. `format` chỉ định rõ định dạng nguồn; bỏ qua nó thì định dạng được nhận diện bằng các chữ ký mà các importer khai báo — của catalog trong workspace cũng như của [các importer lõi](../plugins/core-importers.md) của trình biên dịch — và một nguồn không importer nào nhận diện được, hoặc được nhận diện bởi importer của nhiều hơn một định dạng, sẽ bị từ chối kèm yêu cầu cung cấp `format` thay vì bị đoán. `target` chỉ định một capability của provider, chẳng hạn `compose` hoặc `helm` — từ mà `spec.capability` của một Recipe gắn vào — và soạn nháp, bên cạnh các bản nháp của importer, Manifest mà Release được soạn nháp build dựa vào cho provider đó, đúng như `aggrega import --target` làm: `manifest.yaml`, ánh xạ mỗi loại component và loại tính năng mà các bản nháp cần — kể cả các loại của một Aggregate trong catalog mà Aggregate được soạn nháp kết hợp — tới Recipe hoặc công thức tính năng của capability đó mà catalog của workspace cung cấp cho nó, theo tên có định danh capability và không có phiên bản: cái duy nhất hiện có, hoặc trong số nhiều cái thì cái được đặt theo tên của loại. `spec.manifest` của Release được đặt trỏ tới nó; một loại không có cái nào, hoặc có nhiều cái nhưng không cái nào được đặt tên như vậy, được để không ánh xạ kèm một phát hiện `warn` nêu tên loại đó, và một ánh xạ mà chính importer đã soạn nháp được giữ lại nếu catalog cung cấp nó cho loại và capability đó, nếu không thì bị loại bỏ kèm một phát hiện `warn`. Một `target` mà không Recipe nào trong catalog gắn vào sẽ bị từ chối trước khi importer chạy, kèm tên của nó và các capability mà các Recipes của catalog gắn vào, và không có gì được ghi; bỏ qua nó thì không có Manifest nào được soạn nháp — trừ khi dùng `sync`, khi đó bản nháp được soạn cho target mà bản ghi của lần import trước chỉ định. Một importer lõi mà máy chưa có sẽ được tải về bởi lần import đầu tiên cần nó — xem [What an import response tells you](#what-an-import-response-tells-you). `dryRun` làm mọi việc mà yêu cầu thông thường làm trừ việc ghi, trả lời bằng các bản nháp dưới dạng nội dung, dành cho client muốn đưa chúng cho người viết xem trước; không có gì được tạo và `written` để trống. `sync` cập nhật những gì một lần import trước đã soạn nháp trong `outputDir` theo nguồn, chỉ thay đổi những gì lần import đó đã ghi, như `aggrega import --sync` làm; không có nó, một yêu cầu mà các bản nháp sẽ ghi đè lên một Aggregate đã có sẽ bị từ chối. Câu trả lời mang `format`, `outputDir`, `written`, `files`, `drift`, `diagnostics`, `decisions` và `halted`. Xem [What an import response tells you](#what-an-import-response-tells-you), vì một nguồn mà importer không thể chuyển đổi hoàn toàn là một câu trả lời thành công chứ không phải một lỗi."
+  },
   "63a2675e37d38d25": {
     "at": "2026-10-29T19:15:25.530Z",
     "job": "session-0015-20261029191525",
@@ -96295,6 +96317,17 @@
     "srcHash": "8552a1c4d33254cd",
     "status": "machine",
     "text": "Các nhãn trạng thái được đánh giá dựa trên trình biên dịch hiện tại. Các bề mặt đang được phát triển tích cực có thể chuyển đổi giữa các nhãn; các mục theo từng phần mô tả kế hoạch chuyển đổi khi đã biết."
+  },
+  "855514d6130a37f3": {
+    "at": "2026-11-15T12:36:49.308Z",
+    "job": "session-0002-20261115123649",
+    "revision": {
+      "from": "085ee1cb623bb672",
+      "reviewed": false
+    },
+    "srcHash": "855514d6130a37f3",
+    "status": "machine",
+    "text": "**Một thư mục bạn gửi được đọc thành các tệp mà importer của nó chỉ định, và thư mục nào nó không đọc được là một lỗi.** Khi `source` chỉ định một thư mục, importer được giao những tệp trong đó mà các mẫu tệp do chữ ký của nó khai báo chọn, trừ thư mục đầu ra build của workspace `dist/`, mỗi tệp được đặt tên theo đường dẫn bên trong thư mục, theo thứ tự đã sắp xếp, bên cạnh các tệp mà mục `plugins.importer` của nó chỉ định dưới `with.sources`. Một importer không khai báo mẫu tệp nào, một thư mục không chứa tệp nào được chọn, một tệp của thư mục và một tệp `with.sources` trùng tên, và một liên kết trong số các tệp mà import sẽ đọc, hoặc trỏ tới một thư mục, dẫn ra ngoài thư mục — mỗi trường hợp đều trả về lỗi mang mã của điều kiện, và không có gì được ghi."
   },
   "856053fca6a8d0b8": {
     "at": "2026-10-22T08:02:26.315Z",
@@ -144180,6 +144213,17 @@
     "srcHash": "c69afa6797a9f34e",
     "status": "machine",
     "text": "**Open Policy Agent (OPA/Rego):** Một ngôn ngữ được dùng rộng rãi để đánh giá các quan hệ đồ thị phức tạp, nhiều bước và tính toán quyền truy cập tối thiểu trên các topo phân tán. Engine Rego được biên dịch vào CLI chạy các tệp `.rego` nguyên trạng; một chính sách cần toàn bộ tập hàm dựng sẵn của OPA được biên dịch bằng bộ công cụ riêng của OPA và chạy sau một guest bộ điều hợp."
+  },
+  "c69ff6b9e17494fc": {
+    "at": "2026-11-15T12:36:55.200Z",
+    "job": "session-0003-20261115123655",
+    "revision": {
+      "from": "409a81bcb20904dd",
+      "reviewed": false
+    },
+    "srcHash": "c69ff6b9e17494fc",
+    "status": "machine",
+    "text": "**Việc nhập một thư mục đọc những gì.** Nguồn có thể là một thư mục, và các mẫu tệp mà importer khai báo quyết định những gì nó đọc: host đọc đúng những tệp của thư mục, ở bất kỳ độ sâu nào, được một trong các mẫu `files` của các chữ ký của importer chọn — mỗi mẫu được khớp với phần cuối đường dẫn phân tách bằng dấu gạch chéo của tệp bên trong thư mục — và chuyển chúng dưới dạng `sources` theo thứ tự tên, với `bytes` để trống và tên của chính thư mục làm `name`. Không tệp nào khác của thư mục được mở. Thư mục mà một lần build của workspace ghi các tệp đã render vào — `dist/` bên dưới thư mục gốc của workspace — không được đọc như một phần của thư mục chứa nó: không tệp nào của nó được chuyển hay được nhận diện, và một liên kết dẫn tới nó sẽ bị bỏ qua, nên một thư mục đã được build sẽ được đọc như dự án mà nó chứa, còn một thư mục chính là thư mục đó, hoặc nằm bên trong nó, sẽ được đọc đúng như được chỉ định. Một chữ ký không khai báo mẫu `files` nào sẽ không chọn tệp nào của thư mục, nên một importer không khai báo mẫu nào sẽ đọc một tệp và từ chối thư mục, và một thư mục không chứa tệp nào mà các mẫu chọn cũng bị từ chối. Thư mục bị giới hạn trong chính nó: một liên kết nằm trong số các tệp sẽ được đọc, hoặc trỏ tới một thư mục, mà dẫn ra ngoài thư mục sẽ bị từ chối trước khi đọc bất cứ thứ gì, một liên kết tới thư mục không bao giờ được đi vào, và một liên kết tới tệp mà không mẫu nào chọn sẽ bị bỏ qua mà không đọc. Việc nhận diện định dạng của một thư mục theo cùng quy tắc — mỗi chữ ký được thử với các tệp mà mẫu của nó chọn, theo thứ tự tên, mỗi tệp được đọc và phân tích nhiều nhất một lần cho mỗi cú pháp, và một chữ ký không khai báo mẫu nào không áp dụng cho tệp nào. Host không giới hạn gì: một thư mục quá lớn đối với importer sẽ bị từ chối bởi các giới hạn runtime của chính importer. Không importer nào trong số các importer Langflow, Flowise, n8n, Dify và Agent Framework của trình biên dịch khai báo mẫu `files`, nên mỗi importer đọc một tệp; importer MCP của nó khai báo tên của bốn cấu hình client, nên nó đọc mọi tệp trong số đó mà thư mục chứa, importer Compose của nó khai báo tám tên tệp Compose, nên nó được chuyển mọi tệp Compose mà thư mục chứa và hợp nhất những tệp mà Compose sẽ đọc; và importer CrewAI của nó khai báo sáu tên mà các khai báo của một dự án CrewAI được ghi dưới đó, nên nó được chuyển các khai báo của dự án và không phần nào của chương trình; và importer LangGraph của nó khai báo `langgraph.json`, nên nó được chuyển cấu hình của ứng dụng và không phần nào của mã hay các tệp môi trường, một tệp môi trường chỉ đến được với nó qua `with.sources` của phần đính kèm; và importer Google ADK của nó khai báo `root_agent.yaml`, nên nó được chuyển cấu hình root agent của ứng dụng và không phần nào của mã hay tệp môi trường, các cấu hình mà sub-agent của nó nêu tên chỉ đến được với nó qua `with.sources` của phần đính kèm."
   },
   "c6a29c59051ef36b": {
     "at": "2026-10-29T21:33:51.093Z",

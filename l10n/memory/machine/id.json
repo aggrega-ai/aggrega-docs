@@ -12446,6 +12446,17 @@
     "status": "machine",
     "text": "**Direktori cache artefak adalah akar tersendiri, di mana pun letaknya.** Semua yang disimpan cache\nditulis, dibaca, dan dihapus hanya di dalam direktori cache, sehingga salah satu direktori milik cache, atau\nfile di dalamnya, yang berupa tautan yang mengarah ke luar direktori cache ditahan — bahkan jika mengarah ke tempat lain\ndi dalam workspace — sedangkan yang mengarah ke tempat lain di dalam direktori cache diikuti. Letak direktori\ncache itu sendiri dibaca dari cara nilainya dieja. Jika ditulis di dalam akar workspace —\ntermasuk default `.aggrega/cache` — direktori itu adalah direktori milik workspace: direktori cache yang berupa\ntautan ke tempat lain di dalam workspace diikuti, dan yang mengarah ke luar workspace ditolak, baik untuk\nmembaca maupun menulis. Jika ditulis keluar (`../shared-cache`), direktori itu adalah direktori yang dinamai konfigurasi,\ndibaca dan ditulis di tempat yang ditujunya."
   },
+  "109b6421cbf9d06b": {
+    "at": "2026-11-15T12:36:49.308Z",
+    "job": "session-0002-20261115123649",
+    "revision": {
+      "from": "f093c87f7bfc68eb",
+      "reviewed": false
+    },
+    "srcHash": "109b6421cbf9d06b",
+    "status": "machine",
+    "text": "`sources` — sumber bernama, masing-masing memuat nama dan byte-nya, dalam satu daftar yang diurutkan menurut nama: untuk impor sebuah direktori, setiap berkasnya yang dipilih oleh pola berkas yang dideklarasikan importer, kecuali folder keluaran build workspace, dinamai dengan path berpemisah garis miring di dalam direktori; serta berkas-berkas yang dideklarasikan di bawah `with.sources` oleh entri `plugins.importer` yang memasang importer ini, masing-masing dengan nama dasarnya. Berkas direktori dan berkas `with.sources` dengan nama yang sama menyebabkan impor ditolak, alih-alih yang satu menyembunyikan yang lain. Tidak ada jika tidak ada sumber."
+  },
   "10a211b46e4b42cb": {
     "at": "2026-10-30T00:50:28.131Z",
     "job": "session-0041-20261030005028",
@@ -72015,6 +72026,17 @@
     "status": "machine",
     "text": "CLI `aggrega`, untuk setiap langkah."
   },
+  "63a1ec88b29ed79f": {
+    "at": "2026-11-15T12:36:40.000Z",
+    "job": "session-0001-20261115123640",
+    "revision": {
+      "from": "0fc5b18dbf6e708d",
+      "reviewed": false
+    },
+    "srcHash": "63a1ec88b29ed79f",
+    "status": "machine",
+    "text": "`aggrega/import` — mengubah deskripsi sumber asing menjadi draf file authoring Aggrega, konversi yang sama yang dilakukan [`aggrega import`](aggrega-import.md) di terminal. `source` wajib diisi dan menyebutkan file atau direktori yang akan dikonversi, baik sebagai jalur absolut maupun relatif terhadap root workspace — deskripsi yang diekspor oleh alat lain berada di mana pun Anda menyimpannya, sehingga dibaca di tempat sebenarnya berada, bukan hanya di dalam workspace. Sebuah direktori dibaca sebagaimana [`aggrega import`](aggrega-import.md) membacanya: file di dalamnya yang dipilih oleh pola file yang dideklarasikan importer, kecuali folder output build workspace `dist/`, dan dibatasi pada dirinya sendiri di mana pun letaknya, sehingga tidak ada tautan di dalamnya yang diikuti ke luar. `outputDir` bersifat opsional dan menyebutkan direktori tempat draf disimpan, dan **tidak** mengikuti kontrak tersebut: direktori ini ditulisi, sehingga berupa jalur di dalam workspace, dan nilai absolut, atau nilai yang teresolusi ke luar root — sebagaimana tertulis, atau melalui tautan, termasuk direktori yang belum dibuat di bawahnya — ditolak. Jika dihilangkan, draf ditempatkan di bawah root workspace, tempat [`aggrega import`](aggrega-import.md) menulisnya ketika tidak menyebutkan tujuan — termasuk di bawah `dryRun`. `format` menyebutkan format sumber secara eksplisit; jika dihilangkan, format dikenali dari tanda tangan yang dideklarasikan importer — baik importer dari katalog workspace maupun [importer inti](../plugins/core-importers.md) compiler — dan sumber yang tidak dikenali oleh importer mana pun, atau dikenali oleh importer dari lebih dari satu format, ditolak dengan meminta `format` alih-alih ditebak. `target` menyebutkan capability provider, seperti `compose` atau `helm` — kata yang diikat oleh `spec.capability` sebuah Recipe — dan membuat draf, di samping draf importer, Manifest yang menjadi acuan build Release yang didraf untuk provider tersebut, persis seperti yang dilakukan `aggrega import --target`: `manifest.yaml`, yang memetakan setiap tipe komponen dan tipe fitur yang dibutuhkan draf — termasuk tipe dari Aggregate katalog yang disusun oleh Aggregate yang didraf — ke Recipe atau resep fitur dengan capability tersebut yang ditawarkan katalog workspace untuknya, berdasarkan nama yang dikualifikasi capability tanpa versi: satu-satunya yang ada, atau, di antara beberapa, yang dinamai sesuai tipe tersebut. `spec.manifest` milik Release diatur ke manifest tersebut; tipe yang tidak memiliki satu pun, atau memiliki beberapa tetapi tidak ada yang dinamai demikian, dibiarkan tidak terpetakan dengan temuan `warn` yang menyebutkannya, dan pemetaan yang didraf sendiri oleh importer dipertahankan jika katalog menawarkannya untuk tipe dan capability tersebut, dan jika tidak, dibuang dengan temuan `warn`. `target` yang tidak diikat oleh Recipe mana pun di katalog ditolak sebelum importer berjalan, dengan menyebutkan target tersebut dan capability yang diikat oleh Recipes di katalog, dan tidak ada yang ditulis; jika dihilangkan, tidak ada Manifest yang didraf — kecuali di bawah `sync`, yang membuat draf untuk target yang disebutkan oleh catatan impor sebelumnya. Importer inti yang belum dimiliki mesin akan diambil oleh impor pertama yang membutuhkannya — lihat [Apa yang disampaikan respons impor kepada Anda](#what-an-import-response-tells-you). `dryRun` melakukan semua yang dilakukan permintaan biasa kecuali menulis, dan menjawab dengan draf sebagai konten, untuk klien yang terlebih dahulu menampilkannya kepada penulis; tidak ada yang dibuat dalam mode ini dan `written` kosong. `sync` memperbarui apa yang didraf oleh impor sebelumnya di `outputDir` agar sesuai dengan sumber, hanya mengubah apa yang ditulis oleh impor tersebut, seperti yang dilakukan `aggrega import --sync`; tanpa opsi ini, permintaan yang drafnya akan menimpa Aggregate yang sudah ada ditolak. Jawaban berisi `format`, `outputDir`, `written`, `files`, `drift`, `diagnostics`, `decisions`, dan `halted`. Lihat [Apa yang disampaikan respons impor kepada Anda](#what-an-import-response-tells-you), karena sumber yang tidak dapat dikonversi sepenuhnya oleh importer merupakan jawaban yang berhasil, bukan error."
+  },
   "63a2675e37d38d25": {
     "at": "2026-10-29T19:15:25.530Z",
     "job": "session-0015-20261029191525",
@@ -96293,6 +96315,17 @@
     "srcHash": "8552a1c4d33254cd",
     "status": "machine",
     "text": "Label status dievaluasi terhadap kompiler saat ini. Permukaan yang sedang aktif dikembangkan dapat berpindah label; entri per bagian menjelaskan rencana transisinya jika sudah diketahui."
+  },
+  "855514d6130a37f3": {
+    "at": "2026-11-15T12:36:49.308Z",
+    "job": "session-0002-20261115123649",
+    "revision": {
+      "from": "085ee1cb623bb672",
+      "reviewed": false
+    },
+    "srcHash": "855514d6130a37f3",
+    "status": "machine",
+    "text": "**Direktori yang Anda kirim dibaca menjadi file-file yang disebutkan importernya, dan direktori yang tidak dapat dibacanya merupakan error.** Jika `source` menyebutkan sebuah direktori, importer menerima file-file di dalamnya yang dipilih oleh pola file yang dideklarasikan signature-nya, kecuali folder keluaran build workspace `dist/`, masing-masing dinamai dengan path-nya di dalam direktori, dalam urutan terurut, di samping file-file yang disebutkan entri `plugins.importer`-nya di bawah `with.sources`. Importer yang tidak mendeklarasikan pola file, direktori yang tidak memuat file yang dipilih pola tersebut, file direktori dan file `with.sources` dengan nama yang sama, serta link di antara file yang akan dibaca impor, atau ke sebuah direktori, yang mengarah keluar dari direktori, masing-masing dikembalikan sebagai error yang memuat kode kondisinya, tanpa ada yang ditulis."
   },
   "856053fca6a8d0b8": {
     "at": "2026-10-22T08:02:26.315Z",
@@ -144136,6 +144169,17 @@
     "srcHash": "c69afa6797a9f34e",
     "status": "machine",
     "text": "**Open Policy Agent (OPA/Rego):** Bahasa yang banyak digunakan untuk mengevaluasi hubungan graf yang kompleks dan multi-hop serta menghitung akses hak istimewa minimum di seluruh topologi terdistribusi. Mesin Rego yang dikompilasi ke dalam CLI menjalankan file `.rego` apa adanya; kebijakan yang membutuhkan seluruh fungsi bawaan OPA dikompilasi dengan toolchain OPA sendiri dan berjalan di balik guest adaptor."
+  },
+  "c69ff6b9e17494fc": {
+    "at": "2026-11-15T12:36:55.200Z",
+    "job": "session-0003-20261115123655",
+    "revision": {
+      "from": "409a81bcb20904dd",
+      "reviewed": false
+    },
+    "srcHash": "c69ff6b9e17494fc",
+    "status": "machine",
+    "text": "**Apa yang dibaca oleh impor sebuah direktori.** Sumber dapat berupa direktori, dan pola file yang dideklarasikan importer menentukan apa yang dibacanya: host membaca tepat file-file dalam direktori tersebut, pada kedalaman berapa pun, yang dipilih oleh salah satu pola `files` dari signature importer — masing-masing dicocokkan dengan bagian akhir path file yang dipisahkan garis miring di dalam direktori — dan menyerahkannya sebagai `sources` dalam urutan nama, dengan `bytes` kosong dan nama direktori itu sendiri sebagai `name`. Tidak ada file lain dalam direktori yang dibuka. Folder tempat build workspace menulis file hasil render-nya — `dist/` di bawah root workspace — tidak dibaca sebagai bagian dari direktori yang memuatnya: tidak satu pun filenya diserahkan atau dikenali, dan link yang mengarah kepadanya dilewati, sehingga direktori yang telah di-build dibaca sebagai proyek yang dimuatnya, sedangkan direktori yang merupakan folder tersebut, atau berada di dalamnya, dibaca sebagaimana disebutkan. Signature yang tidak mendeklarasikan pola `files` tidak memilih file apa pun dari sebuah direktori, sehingga importer yang tidak mendeklarasikannya membaca satu file dan menolak direktori, dan direktori yang tidak berisi file yang dipilih oleh polanya juga ditolak. Direktori dibatasi pada dirinya sendiri: link di antara file yang akan dibacanya, atau ke sebuah direktori, yang mengarah ke luar direktori ditolak sebelum apa pun dibaca, link ke direktori tidak pernah dimasuki, dan link ke file yang tidak dipilih oleh pola mana pun dilewati tanpa dibaca. Pengenalan format sebuah direktori mengikuti aturan yang sama — setiap signature dicoba terhadap file yang dipilih oleh polanya, dalam urutan nama, setiap file dibaca dan di-parse paling banyak sekali per sintaks, dan signature yang tidak mendeklarasikan pola tidak berlaku untuk satu pun di antaranya. Host tidak membatasi apa pun: direktori yang terlalu besar bagi importer ditolak oleh batas runtime milik importer itu sendiri. Tidak satu pun importer Langflow, Flowise, n8n, Dify, dan Agent Framework milik compiler yang mendeklarasikan pola `files`, sehingga masing-masing membaca satu file; importer MCP-nya mendeklarasikan nama keempat konfigurasi klien, sehingga ia membaca setiap konfigurasi tersebut yang ada dalam direktori, importer Compose-nya mendeklarasikan delapan nama file Compose, sehingga ia menerima setiap file Compose yang ada dalam direktori dan menggabungkan file yang akan dibaca Compose; dan importer CrewAI-nya mendeklarasikan enam nama tempat deklarasi proyek CrewAI ditulis, sehingga ia menerima deklarasi proyek dan tidak menerima satu pun bagian programnya; dan importer LangGraph-nya mendeklarasikan `langgraph.json`, sehingga ia menerima konfigurasi aplikasi dan tidak menerima kode maupun file environment-nya, dengan file environment hanya sampai kepadanya melalui `with.sources` pada lampirannya; dan importer Google ADK-nya mendeklarasikan `root_agent.yaml`, sehingga ia menerima konfigurasi root agent aplikasi dan tidak menerima kode maupun file environment-nya, dengan konfigurasi yang disebut oleh sub-agent-nya hanya sampai kepadanya melalui `with.sources` pada lampirannya."
   },
   "c6a29c59051ef36b": {
     "at": "2026-10-29T21:33:51.093Z",

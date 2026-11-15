@@ -11265,6 +11265,17 @@
     "status": "machine",
     "text": "**El directorio de la caché de artefactos es una raíz propia, dondequiera que esté.** Todo lo que contiene la caché se escribe, se lee y se elimina solo dentro del directorio de la caché, así que uno de los directorios propios de la caché, o un archivo dentro de uno, que sea un enlace que conduce fuera del directorio de la caché queda retenido — incluso cuando conduce a otro lugar dentro del espacio de trabajo — mientras que uno que conduce a otro lugar dentro del directorio de la caché se sigue. Dónde está el propio directorio de la caché se deduce de cómo está escrito su valor. Escrito dentro de la raíz del espacio de trabajo — incluido el predeterminado `.aggrega/cache` — es un directorio propio del espacio de trabajo: un directorio de caché que sea un enlace a otro lugar dentro del espacio de trabajo se sigue, y uno que conduce fuera del espacio de trabajo se rechaza, tanto para leer como para escribir. Escrito saliendo hacia arriba (`../shared-cache`), es un directorio que nombra la configuración, leído y escrito allí adonde conduce."
   },
+  "109b6421cbf9d06b": {
+    "at": "2026-11-15T12:36:49.308Z",
+    "job": "session-0002-20261115123649",
+    "revision": {
+      "from": "f093c87f7bfc68eb",
+      "reviewed": false
+    },
+    "srcHash": "109b6421cbf9d06b",
+    "status": "machine",
+    "text": "`sources` — las fuentes con nombre, cada una con su nombre y sus bytes, en una única lista ordenada por nombre: para una importación de un directorio, cada archivo suyo que seleccionan los patrones de archivo declarados del importador, excluida la carpeta de salida de compilación del espacio de trabajo, nombrado por su ruta separada por barras dentro del directorio; y los archivos que la entrada `plugins.importer` que vincula este importador declara bajo `with.sources`, cada uno con su nombre base. Un archivo del directorio y un archivo de `with.sources` con el mismo nombre hacen que la importación se rechace, en lugar de que uno oculte al otro. Ausente donde no hay ninguna."
+  },
   "10a211b46e4b42cb": {
     "at": "2026-11-03T22:09:05.579Z",
     "job": "session-0165-20261103220905",
@@ -65111,6 +65122,17 @@
     "status": "machine",
     "text": "La CLI `aggrega`, para cada paso."
   },
+  "63a1ec88b29ed79f": {
+    "at": "2026-11-15T12:36:40.000Z",
+    "job": "session-0001-20261115123640",
+    "revision": {
+      "from": "0fc5b18dbf6e708d",
+      "reviewed": false
+    },
+    "srcHash": "63a1ec88b29ed79f",
+    "status": "machine",
+    "text": "`aggrega/import` — convierte la descripción de un origen externo en borradores de archivos de autoría de Aggrega, la misma conversión que [`aggrega import`](aggrega-import.md) realiza en una terminal. `source` es obligatorio e indica el archivo o el directorio que se va a convertir, ya sea como ruta absoluta o relativa a la raíz del workspace — una descripción exportada por otra herramienta está donde la hayas guardado, así que se lee donde realmente está y no solo dentro del workspace. Un directorio se lee como lo lee [`aggrega import`](aggrega-import.md): limitado a los archivos que seleccionan los patrones de archivo declarados por el importador, excluida la carpeta de salida de compilación del workspace, `dist/`, y confinado a sí mismo dondequiera que esté, de modo que no se sigue hacia fuera ningún enlace que contenga. `outputDir` es opcional e indica el directorio al que van los borradores, y **no** sigue ese contrato: en él se escribe, así que es una ruta dentro del workspace, y un valor absoluto, o uno que se resuelve fuera de la raíz — tal como está escrito o a través de un enlace, incluido un directorio aún no creado debajo de él — se rechaza. Si lo omites, los borradores van bajo la raíz del workspace, donde los escribe [`aggrega import`](aggrega-import.md) cuando no indica ningún destino — también con `dryRun`. `format` indica explícitamente el formato del origen; si lo omites, el formato se reconoce por las firmas que declaran los importadores — tanto los del catálogo del workspace como los [importadores principales](../plugins/core-importers.md) del compilador —, y un origen que ninguno reconoce, o que reconocen importadores de más de un formato, se rechaza pidiendo `format` en lugar de adivinarse. `target` indica una capability de provider, como `compose` o `helm` — la palabra a la que se vincula el `spec.capability` de una Recipe — y genera como borrador, junto a los borradores del importador, el Manifest sobre el que se construye la Release en borrador para ese provider, exactamente como lo hace `aggrega import --target`: `manifest.yaml`, que asigna cada tipo de componente y cada tipo de funcionalidad que necesitan los borradores — incluidos los tipos de un Aggregate del catálogo que compone el que está en borrador — a la Recipe o a la receta de funcionalidad de esa capability que el catálogo del workspace ofrece para él, por su nombre calificado por la capability y sin versión: la única que hay o, entre varias, la que lleva el nombre del tipo. El `spec.manifest` de la Release apunta a él; un tipo sin ninguna, o con varias y ninguna con ese nombre, queda sin asignar con un hallazgo `warn` que lo nombra, y una asignación que el propio importador generó se conserva donde el catálogo la ofrece para ese tipo y esa capability, y en caso contrario se descarta con un hallazgo `warn`. Un `target` al que no se vincula ninguna Recipe del catálogo se rechaza antes de que se ejecute el importador, nombrándolo junto con las capabilities a las que se vinculan las Recipes del catálogo, y no se escribe nada; si lo omites, no se genera ningún Manifest — salvo con `sync`, que genera el borrador para el destino que nombra el registro de la importación anterior. Un importador principal que la máquina aún no tiene se descarga en la primera importación que lo necesita — consulta [Qué te indica una respuesta de importación](#what-an-import-response-tells-you). `dryRun` hace todo lo que hace la solicitud simple excepto escribir, y responde con los borradores como contenido, para un cliente que los muestra primero al autor; en este modo no se crea nada y `written` está vacío. `sync` actualiza respecto al origen lo que una importación anterior generó en `outputDir`, modificando solo lo que escribió la importación, como lo hace `aggrega import --sync`; sin él, se rechaza una solicitud cuyos borradores sobrescribirían un Aggregate ya existente. La respuesta contiene `format`, `outputDir`, `written`, `files`, `drift`, `diagnostics`, `decisions` y `halted`. Consulta [Qué te indica una respuesta de importación](#what-an-import-response-tells-you), porque un origen que el importador no pudo convertir por completo es una respuesta correcta y no un error."
+  },
   "63a2675e37d38d25": {
     "at": "2026-10-30T06:04:18.554Z",
     "job": "session-0066-20261030060418",
@@ -87159,6 +87181,17 @@
     "srcHash": "8552a1c4d33254cd",
     "status": "machine",
     "text": "Las etiquetas de estado se evalúan respecto al compilador actual. Las superficies en desarrollo activo pueden pasar de una etiqueta a otra; las entradas por sección describen el plan de transición cuando se conoce."
+  },
+  "855514d6130a37f3": {
+    "at": "2026-11-15T12:36:49.308Z",
+    "job": "session-0002-20261115123649",
+    "revision": {
+      "from": "085ee1cb623bb672",
+      "reviewed": false
+    },
+    "srcHash": "855514d6130a37f3",
+    "status": "machine",
+    "text": "**Un directorio que envías se lee en los archivos que nombra su importador, y uno que no se puede leer es un error.** Donde `source` nombra un directorio, el importador recibe los archivos de este que seleccionan los patrones de archivo que declaran sus firmas, excluida la carpeta de salida de compilación del espacio de trabajo `dist/`, cada uno nombrado por su ruta dentro del directorio, en orden, junto a los archivos que su entrada `plugins.importer` nombra bajo `with.sources`. Un importador que no declara patrones de archivo, un directorio que no contiene ningún archivo que estos seleccionen, un archivo del directorio y un archivo de `with.sources` con el mismo nombre, y un enlace entre los archivos que la importación leería, o hacia un directorio, que lleva fuera del directorio vuelven cada uno como un error con el código de la condición, sin que se escriba nada."
   },
   "856053fca6a8d0b8": {
     "at": "2026-10-22T08:02:26.315Z",
@@ -130565,6 +130598,17 @@
     "srcHash": "c69afa6797a9f34e",
     "status": "machine",
     "text": "**Open Policy Agent (OPA/Rego):** un lenguaje ampliamente usado para evaluar relaciones de grafo complejas de varios saltos y calcular el acceso de mínimo privilegio en topologías distribuidas. El motor Rego compilado en la CLI ejecuta los archivos `.rego` tal como están; una policy que necesita toda la superficie de builtins de OPA se compila con la propia toolchain de OPA y se ejecuta detrás de un guest adaptador."
+  },
+  "c69ff6b9e17494fc": {
+    "at": "2026-11-15T12:36:55.200Z",
+    "job": "session-0003-20261115123655",
+    "revision": {
+      "from": "409a81bcb20904dd",
+      "reviewed": false
+    },
+    "srcHash": "c69ff6b9e17494fc",
+    "status": "machine",
+    "text": "**Qué lee una importación de un directorio.** Una fuente puede ser un directorio, y los patrones de archivo declarados del importador deciden qué lee: el host lee exactamente los archivos del directorio, a cualquier profundidad, que selecciona uno de los patrones `files` de las firmas del importador — cada uno comparado con el final de la ruta separada por barras del archivo dentro del directorio — y los entrega como `sources` en orden de nombre, con `bytes` vacío y el nombre del propio directorio como `name`. No se abre ningún otro archivo del directorio. La carpeta en la que una compilación del espacio de trabajo escribe sus archivos renderizados — `dist/` bajo la raíz del espacio de trabajo — no se lee como parte de un directorio que la contiene: ninguno de sus archivos se entrega ni se reconoce, y un enlace que lleva a ella se omite, así que un directorio que se ha compilado se lee como el proyecto que contiene, mientras que un directorio que es esa carpeta, o está dentro de ella, se lee tal como se nombra. Una firma que no declara ningún patrón `files` no selecciona ningún archivo de un directorio, así que un importador que no declara ninguno lee un solo archivo y rechaza un directorio, y un directorio que no contiene ningún archivo que seleccionen sus patrones también se rechaza. El directorio queda confinado a sí mismo: un enlace entre los archivos que el host leería, o a un directorio, que lleva fuera del directorio se rechaza antes de leer nada, en un enlace a un directorio nunca se entra, y un enlace a un archivo que ningún patrón selecciona se omite sin leerlo. Reconocer el formato de un directorio sigue la misma regla — cada firma se prueba con los archivos que seleccionan sus patrones, en orden de nombre, cada archivo leído y analizado como mucho una vez por sintaxis, y una firma que no declara ningún patrón no se aplica a ninguno de ellos. El host no limita nada: un directorio demasiado grande para el importador lo rechazan los límites de ejecución propios del importador. Ninguno de los importadores Langflow, Flowise, n8n, Dify y Agent Framework del compilador declara patrones `files`, así que cada uno lee un solo archivo; su importador MCP declara los nombres de las cuatro configuraciones de cliente, así que lee cada una de ellas que contenga un directorio; su importador Compose declara los ocho nombres de archivo de Compose, así que recibe cada archivo Compose que contiene un directorio y combina los que leería Compose; y su importador CrewAI declara los seis nombres con los que se escriben las declaraciones de un proyecto CrewAI, así que recibe las declaraciones de un proyecto y nada de su programa; y su importador LangGraph declara `langgraph.json`, así que recibe la configuración de una aplicación y nada de su código ni de sus archivos de entorno, y un archivo de entorno le llega solo bajo el `with.sources` de su vinculación; y su importador Google ADK declara `root_agent.yaml`, así que recibe la configuración del agente raíz de una aplicación y nada de su código ni de su archivo de entorno, y las configuraciones que nombran sus subagentes le llegan solo bajo el `with.sources` de su vinculación."
   },
   "c6a29c59051ef36b": {
     "at": "2026-10-30T06:38:36.798Z",
