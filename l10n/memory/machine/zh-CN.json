@@ -3543,6 +3543,13 @@
     "status": "machine",
     "text": "`manifest.yaml`——目录为每个类型提供的唯一一个 Helm Recipe："
   },
+  "04c168c7637e12c9": {
+    "at": "2026-11-15T00:01:27.771Z",
+    "job": "session-0021-20261115000127",
+    "srcHash": "04c168c7637e12c9",
+    "status": "machine",
+    "text": "只使用 Aggrega 工具，不要自己创建任何文件夹。如果工作区文件夹中还没有 `mysql-standalone` 文件夹，调用一次 `scaffold` 工具，将 `example` 设为 `mysql-standalone`，不设 `dir`：它会把示例写入一个新的 `mysql-standalone` 文件夹。然后按以下顺序为每个 Release 各调用一次 `build` 工具——`release-helm-synth.yaml`、`release-helm-synth-auth.yaml` 和 `release-compose.yaml`——每次都将 `workspace_root` 设为 `mysql-standalone`、`release` 设为该文件、`auto_pull` 设为 true、`write` 设为 true。告诉我每次构建写入了哪些文件；它们位于 `mysql-standalone/dist/` 下。"
+  },
   "04c376d95478652f": {
     "at": "2026-11-12T09:43:55.100Z",
     "job": "session-0009-20261112094355",
@@ -19938,6 +19945,13 @@
     "status": "machine",
     "text": "**此外，边界条目若命名了所部署 Aggregate 中不存在的组件，也会中止构建。**上面两条规则从组件一侧判断放置——是否有东西放置了它。这条规则从 Release 一侧判断：名称能否解析。解析不到任何内容的条目什么也不放置，因此它的 `subDirectory`、注解、逐组件 `infra:` 和 `uses:` 配置的是一个不存在的组件，构建会停止，而不是生成该条目从未触及的部署。两种写法都会检查：边界 `components:` 下的名称按组合完成后组件所带的 id 解析，路由条目 `components:` 下的名称按组件在该子模块内的本地名称解析。诊断信息报告条目所指向的 id，在路由写法下它不是文件中的名称——文件写的是本地部分，前缀由子模块提供。"
   },
+  "1baf3451a064ccc6": {
+    "at": "2026-11-15T00:01:27.771Z",
+    "job": "session-0021-20261115000127",
+    "srcHash": "1baf3451a064ccc6",
+    "status": "machine",
+    "text": "只使用 Aggrega 工具，不要自己创建任何文件夹。如果工作区文件夹中还没有 `mariadb-bitnami-credential-set` 文件夹，调用一次 `scaffold` 工具，将 `example` 设为 `mariadb-bitnami-credential-set`，不设 `dir`：它会把示例写入一个新的 `mariadb-bitnami-credential-set` 文件夹。然后调用 `build` 工具，将 `workspace_root` 设为 `mariadb-bitnami-credential-set`、`release` 设为 `release.yaml`、`auto_pull` 设为 true、`write` 设为 true。告诉我构建写入了哪些文件；它们位于 `mariadb-bitnami-credential-set/dist/` 下。"
+  },
   "1bafa3509f805bba": {
     "at": "2026-10-22T02:13:05.447791+00:00",
     "job": "msgbatch_01EP4VHoVp3GUUNothAVw7Eq",
@@ -27907,6 +27921,13 @@
     "srcHash": "26a1482133e049c7",
     "status": "machine",
     "text": "`aggrega registry update` 刷新本地可搜索索引，详见下文。"
+  },
+  "26a5bbe1156716bf": {
+    "at": "2026-11-15T00:01:27.771Z",
+    "job": "session-0021-20261115000127",
+    "srcHash": "26a5bbe1156716bf",
+    "status": "machine",
+    "text": "只使用 Aggrega 工具，不要自己创建任何文件夹。如果工作区文件夹中还没有 `import-n8n` 文件夹，调用一次 `scaffold` 工具，将 `example` 设为 `import-n8n`，不设 `dir`：它会把示例写入一个新的 `import-n8n` 文件夹，其中的 `source` 文件夹存放本示例要导入的内容。然后调用 `import` 工具，将 `workspace_root` 设为 `import-n8n/source`、`source` 设为 `support-agent.json`、`target` 设为 `compose`：它从 `support-agent.json` 旁边的 `import-answers.yaml` 读取所需的答案，将草稿写入 `import-n8n/source`，并拉取这些草稿所需的内容。然后调用 `validate` 工具，将 `workspace_root` 设为 `import-n8n/source`、`release` 设为 `release.yaml`；再调用 `build` 工具，将 `workspace_root` 设为 `import-n8n/source`、`release` 设为 `release.yaml`、`write` 设为 true。告诉我构建写入了哪些文件；它们位于 `import-n8n/source/dist/` 下。"
   },
   "26a606982576b2b2": {
     "at": "2026-10-22T03:18:41.939034+00:00",
@@ -46049,6 +46070,13 @@
     "status": "machine",
     "text": "**你导入的目录本身就是一个根，无论它位于何处**——在工作区内与在工作区外都一样，这正是它与你在工作区内指定的其他所有目录的不同之处。\n`aggrega import`、助手的导入工具以及会话的 `aggrega/import` 会将该目录中的每个文件按其在该目录中的位置交给导入器，因此交给导入器的内容只会从该目录内部读取。受到判定的是导入将要从中获取内容的对象：指向导入器某个模式所选中文件的链接（在格式由识别而非指定得出时，适用任一导入器的模式），以及指向目录的链接，后者永远不会被进入。其中指向该目录之外的链接会在读取任何文件之前被拒绝，即使它指向工作区内的其他位置；而被选中的、指向该目录内其他位置文件的链接，会在其指向处以链接自身的名称被读取。没有任何模式选中的文件链接既不受判定，也不会被读取。目录本身按你指定的方式使用，若它是一个链接，则会跟随到其指向的位置。"
   },
+  "40b062b68002fd08": {
+    "at": "2026-11-15T00:01:27.771Z",
+    "job": "session-0021-20261115000127",
+    "srcHash": "40b062b68002fd08",
+    "status": "machine",
+    "text": "只使用 Aggrega 工具，不要自己创建任何文件夹。如果工作区文件夹中还没有 `mysql-innodb-cluster` 文件夹，调用一次 `scaffold` 工具，将 `example` 设为 `mysql-innodb-cluster`，不设 `dir`：它会把示例写入一个新的 `mysql-innodb-cluster` 文件夹。然后按以下顺序为每个 Release 各调用一次 `build` 工具——`release-single.yaml` 和 `release-replicated.yaml`——每次都将 `workspace_root` 设为 `mysql-innodb-cluster`、`release` 设为该文件、`auto_pull` 设为 true、`write` 设为 true。告诉我每次构建写入了哪些文件；它们位于 `mysql-innodb-cluster/dist/` 下。"
+  },
   "40b2bbb84653b9c5": {
     "at": "2026-10-29T23:51:32.697Z",
     "job": "session-0035-20261029235132",
@@ -53493,6 +53521,13 @@
     "status": "machine",
     "text": "可选的符号，`+` 或 `-`；"
   },
+  "4af2ac5ee69f38ef": {
+    "at": "2026-11-15T00:01:27.771Z",
+    "job": "session-0021-20261115000127",
+    "srcHash": "4af2ac5ee69f38ef",
+    "status": "machine",
+    "text": "只使用 Aggrega 工具，不要自己创建任何文件夹。如果工作区文件夹中还没有 `jaeger-tracing` 文件夹，调用一次 `scaffold` 工具，将 `example` 设为 `jaeger-tracing`，不设 `dir`：它会把示例写入一个新的 `jaeger-tracing` 文件夹。然后调用 `build` 工具，将 `workspace_root` 设为 `jaeger-tracing`、`release` 设为 `release.yaml`、`auto_pull` 设为 true、`write` 设为 true。告诉我构建写入了哪些文件；它们位于 `jaeger-tracing/dist/` 下。"
+  },
   "4af80f135b9e3321": {
     "at": "2026-11-10T00:35:43.000Z",
     "job": "session-0007-20261110003543",
@@ -57914,6 +57949,13 @@
     "srcHash": "51565cdce0a0296a",
     "status": "machine",
     "text": "**用户体验（脚本生成）：** AOT 编译器不会连接集群。相反，Wasm 格式化插件会将生成的 shell 脚本输出到 `dist/scripts/` 文件夹（例如 `run-db-backup.sh`）。该脚本包含确切的原生编排器命令（例如 `kubectl create job --from=cronjob/db-backup`）。在 Day 2，开发者只需执行生成的脚本，从而在配置生成与运行时执行之间保持完全分离。"
+  },
+  "51595368989a8236": {
+    "at": "2026-11-15T00:01:27.771Z",
+    "job": "session-0021-20261115000127",
+    "srcHash": "51595368989a8236",
+    "status": "machine",
+    "text": "只使用 Aggrega 工具，不要自己创建任何文件夹。如果工作区文件夹中还没有 `multikey-secret-synth` 文件夹，调用一次 `scaffold` 工具，将 `example` 设为 `multikey-secret-synth`，不设 `dir`：它会把示例写入一个新的 `multikey-secret-synth` 文件夹。然后调用 `build` 工具，将 `workspace_root` 设为 `multikey-secret-synth`、`release` 设为 `release.yaml`、`auto_pull` 设为 true、`write` 设为 true。告诉我构建写入了哪些文件；它们位于 `multikey-secret-synth/dist/` 下。"
   },
   "515cb86e3d56ec81": {
     "at": "2026-11-01T14:22:26.161Z",
@@ -74359,6 +74401,13 @@
     "status": "machine",
     "text": "`ArtifactDelimiters`"
   },
+  "6811cea4430cbf2b": {
+    "at": "2026-11-15T00:01:27.771Z",
+    "job": "session-0021-20261115000127",
+    "srcHash": "6811cea4430cbf2b",
+    "status": "machine",
+    "text": "只使用 Aggrega 工具，不要自己创建任何文件夹。如果工作区文件夹中还没有 `mcp-address-from-secret` 文件夹，调用一次 `scaffold` 工具，将 `example` 设为 `mcp-address-from-secret`，不设 `dir`：它会把示例写入一个新的 `mcp-address-from-secret` 文件夹。然后按以下顺序为每个 Release 各调用一次 `build` 工具——`release-helm.yaml` 和 `release-compose.yaml`——每次都将 `workspace_root` 设为 `mcp-address-from-secret`、`release` 设为该文件、`auto_pull` 设为 true、`write` 设为 true。告诉我每次构建写入了哪些文件；它们位于 `mcp-address-from-secret/dist/` 下。"
+  },
   "6819467b610ddd71": {
     "at": "2026-10-22T05:25:45.661574+00:00",
     "job": "msgbatch_01GK3s5ypk3MzMWPEKha5JkC",
@@ -79110,6 +79159,13 @@
     "status": "machine",
     "text": "**`.source_boundary_path`（string）** — 容纳发起连接的组件的 Release 边界路径，嵌套边界以 `/` 连接（`edge`、`edge/inner`）。"
   },
+  "6e8f06b18a138544": {
+    "at": "2026-11-15T00:01:27.771Z",
+    "job": "session-0021-20261115000127",
+    "srcHash": "6e8f06b18a138544",
+    "status": "machine",
+    "text": "只使用 Aggrega 工具，不要自己创建任何文件夹。如果工作区文件夹中还没有 `model-api-key-sharing` 文件夹，调用一次 `scaffold` 工具，将 `example` 设为 `model-api-key-sharing`，不设 `dir`：它会把示例写入一个新的 `model-api-key-sharing` 文件夹。然后按以下顺序为每个 Release 各调用一次 `build` 工具——`release-per-consumer.yaml`、`release-shared.yaml` 和 `release-composed.yaml`——每次都将 `workspace_root` 设为 `model-api-key-sharing`、`release` 设为该文件、`auto_pull` 设为 true、`write` 设为 true。告诉我每次构建写入了哪些文件；它们位于 `model-api-key-sharing/dist/` 下。"
+  },
   "6e96185e241dd9a5": {
     "at": "2026-10-22T03:24:54.319294+00:00",
     "job": "msgbatch_01Quwt1bUbFp43kX3BAncRfN",
@@ -83572,6 +83628,13 @@
     "srcHash": "74f23abd6165acdb",
     "status": "machine",
     "text": "Aggregate `subsystems.<name>.components.<id>.values:`——同上，用于按子系统分组的组件。"
+  },
+  "74f27f71029ab42a": {
+    "at": "2026-11-15T00:01:27.771Z",
+    "job": "session-0021-20261115000127",
+    "srcHash": "74f27f71029ab42a",
+    "status": "machine",
+    "text": "只使用 Aggrega 工具，不要自己创建任何文件夹。如果工作区文件夹中还没有 `memcached-cache` 文件夹，调用一次 `scaffold` 工具，将 `example` 设为 `memcached-cache`，不设 `dir`：它会把示例写入一个新的 `memcached-cache` 文件夹。然后按以下顺序为每个 Release 各调用一次 `build` 工具——`release-compose.yaml` 和 `release-helm-synth.yaml`——每次都将 `workspace_root` 设为 `memcached-cache`、`release` 设为该文件、`auto_pull` 设为 true、`write` 设为 true。告诉我每次构建写入了哪些文件；它们位于 `memcached-cache/dist/` 下。"
   },
   "74f34ca4b4cdb42b": {
     "at": "2026-10-22T02:36:32.846651+00:00",
@@ -91089,6 +91152,13 @@
     "status": "machine",
     "text": "Recipe 可以渲染一个获取的 chart，并在其旁边添加自己的文件。这里，目录中的 `core/datastore/mariadb` 由一个厂商的 chart 实现，并由一个制品添加 Prometheus ServiceMonitor："
   },
+  "7f6e26b37e50d93a": {
+    "at": "2026-11-15T00:01:27.771Z",
+    "job": "session-0021-20261115000127",
+    "srcHash": "7f6e26b37e50d93a",
+    "status": "machine",
+    "text": "只使用 Aggrega 工具，不要自己创建任何文件夹。如果工作区文件夹中还没有 `loki-logging` 文件夹，调用一次 `scaffold` 工具，将 `example` 设为 `loki-logging`，不设 `dir`：它会把示例写入一个新的 `loki-logging` 文件夹。然后调用 `build` 工具，将 `workspace_root` 设为 `loki-logging`、`release` 设为 `release.yaml`、`auto_pull` 设为 true、`write` 设为 true。告诉我构建写入了哪些文件；它们位于 `loki-logging/dist/` 下。"
+  },
   "7f70f8c195e2f0a3": {
     "at": "2026-10-22T05:25:45.661574+00:00",
     "job": "msgbatch_01GK3s5ypk3MzMWPEKha5JkC",
@@ -93639,6 +93709,13 @@
     "status": "machine",
     "text": "上报为"
   },
+  "8308b7f19a962bed": {
+    "at": "2026-11-15T00:01:27.771Z",
+    "job": "session-0021-20261115000127",
+    "srcHash": "8308b7f19a962bed",
+    "status": "machine",
+    "text": "在栈按照分步指南的方式运行时——凭据已存储、工作流已激活——打开 <http://127.0.0.1:5678> 进入 n8n 的编辑器，并用聊天触发器存储的用户名和密码向它发送一条消息，用户名和密码通过 curl 的标准输入从 `CHAT_USER` 和 `CHAT_PASSWORD` 读取："
+  },
   "830a36329c72dfa8": {
     "at": "2026-10-22T02:02:14.297198+00:00",
     "job": "msgbatch_016CHyieYQChUE1r8UVGktgV",
@@ -94133,6 +94210,13 @@
     "srcHash": "83b2180992e7a531",
     "status": "machine",
     "text": "`core/datastore/postgres` 公开两个可选的开发者值，用于决定数据库首次启动时的形态：`init_scripts`（在初始化时运行一次的 SQL 或 shell）和 `custom_config`（一个 `postgresql.conf` 片段）。在合成 helm 目标上，Recipe 将它们以挂载的 ConfigMap 形式带入容器。本示例表明该功能是**增量式**的：两个值都不设置的 Aggregate，其渲染结果与最小数据库完全相同；设置了它们的 Aggregate 则获得 ConfigMap、卷和挂载，其他一切不受影响。"
+  },
+  "83bcd35ffda225ec": {
+    "at": "2026-11-15T00:01:27.771Z",
+    "job": "session-0021-20261115000127",
+    "srcHash": "83bcd35ffda225ec",
+    "status": "machine",
+    "text": "只使用 Aggrega 工具，不要自己创建任何文件夹。如果工作区文件夹中还没有 `kong-stack` 文件夹，调用一次 `scaffold` 工具，将 `example` 设为 `kong-stack`，不设 `dir`：它会把示例写入一个新的 `kong-stack` 文件夹。然后调用 `build` 工具，将 `workspace_root` 设为 `kong-stack`、`release` 设为 `release-helm-synth.yaml`、`auto_pull` 设为 true、`write` 设为 true。告诉我构建写入了哪些文件；它们位于 `kong-stack/dist/` 下。"
   },
   "83c3408401900a27": {
     "at": "2026-10-22T23:05:21.167953+00:00",
@@ -111080,6 +111164,13 @@
     "status": "machine",
     "text": "env_file 或绑定挂载的 secret 文件"
   },
+  "9b8c983a2e532b88": {
+    "at": "2026-11-15T00:01:27.771Z",
+    "job": "session-0021-20261115000127",
+    "srcHash": "9b8c983a2e532b88",
+    "status": "machine",
+    "text": "只使用 Aggrega 工具，不要自己创建任何文件夹。如果工作区文件夹中还没有 `module-boundary-routing` 文件夹，调用一次 `scaffold` 工具，将 `example` 设为 `module-boundary-routing`，不设 `dir`：它会把示例写入一个新的 `module-boundary-routing` 文件夹。然后调用 `build` 工具，将 `workspace_root` 设为 `module-boundary-routing`、`release` 设为 `release.yaml`、`auto_pull` 设为 true、`write` 设为 true。告诉我构建写入了哪些文件；它们位于 `module-boundary-routing/dist/` 下。"
+  },
   "9b979d25e1c8f9c0": {
     "at": "2026-10-22T01:33:54.654983+00:00",
     "job": "msgbatch_01LUPrwrVc3dPv7pYcgEkmHm",
@@ -124111,6 +124202,13 @@
     "srcHash": "ad6a3d843b7dbe6e",
     "status": "machine",
     "text": "完整的 Recipe 编写接口参见 [entities/recipe](../language-reference/entities/recipe.md)——`source:`（指针）、`valuesMapping:`（映射器，有三种编写方式：内联块标量、文件 `$import:`、指向 MappingLibrary 条目的库 `$import:`）、Wasm 驱动的源 schema、原生 IaC 支持以及完整示例。"
+  },
+  "ad6d56f15544683a": {
+    "at": "2026-11-15T00:01:27.771Z",
+    "job": "session-0021-20261115000127",
+    "srcHash": "ad6d56f15544683a",
+    "status": "machine",
+    "text": "只使用 Aggrega 工具，不要自己创建任何文件夹。如果工作区文件夹中还没有 `kafka-broker` 文件夹，调用一次 `scaffold` 工具，将 `example` 设为 `kafka-broker`，不设 `dir`：它会把示例写入一个新的 `kafka-broker` 文件夹。然后调用 `build` 工具，将 `workspace_root` 设为 `kafka-broker`、`release` 设为 `release.yaml`、`auto_pull` 设为 true、`write` 设为 true。告诉我构建写入了哪些文件；它们位于 `kafka-broker/dist/` 下。"
   },
   "ad6e9cf9cfed16cf": {
     "at": "2026-10-22T03:31:15.615761+00:00",
@@ -141360,6 +141458,13 @@
     "status": "machine",
     "text": "`aggrega import . --target compose` 写入的文件（未经修改），以及它打印的内容：`stdout.txt` 为标准输出，`import.txt` 为标准错误"
   },
+  "c47202a3e7083104": {
+    "at": "2026-11-15T00:01:27.771Z",
+    "job": "session-0021-20261115000127",
+    "srcHash": "c47202a3e7083104",
+    "status": "machine",
+    "text": "只使用 Aggrega 工具，不要自己创建任何文件夹。如果工作区文件夹中还没有 `mariadb-helm-synth` 文件夹，调用一次 `scaffold` 工具，将 `example` 设为 `mariadb-helm-synth`，不设 `dir`：它会把示例写入一个新的 `mariadb-helm-synth` 文件夹。然后调用 `build` 工具，将 `workspace_root` 设为 `mariadb-helm-synth`、`release` 设为 `release.yaml`、`auto_pull` 设为 true、`write` 设为 true。告诉我构建写入了哪些文件；它们位于 `mariadb-helm-synth/dist/` 下。"
+  },
   "c47394426e829c39": {
     "at": "2026-10-22T01:28:14.340357+00:00",
     "job": "msgbatch_01VgMDjmtoUBcnFhMoL2dHBt",
@@ -148186,6 +148291,13 @@
     "status": "machine",
     "text": "Component 的 `spec.inject` 允许列表可以指定标准机制以外的交付机制——即组件自身管道能理解的机制，任何向其交付的内容都必须为它产生一个值。当 Feature 挂接到这样的组件时，由 FeatureRecipe 的 `injectMapping` 说明它产生的每个值在哪种机制下交付。组件声明了、而映射没有为其产生任何键的机制，就是一次会静默永不发生的交付，因此构建会停止。"
   },
+  "cde4bf483cbb15bc": {
+    "at": "2026-11-15T00:01:27.771Z",
+    "job": "session-0021-20261115000127",
+    "srcHash": "cde4bf483cbb15bc",
+    "status": "machine",
+    "text": "只使用 Aggrega 工具，不要自己创建任何文件夹。如果工作区文件夹中还没有 `nats-messaging` 文件夹，调用一次 `scaffold` 工具，将 `example` 设为 `nats-messaging`，不设 `dir`：它会把示例写入一个新的 `nats-messaging` 文件夹。然后按以下顺序为每个 Release 各调用一次 `build` 工具——`release-compose.yaml`、`release-helm-synth.yaml`、`release-compose-auth.yaml` 和 `release-helm-synth-auth.yaml`——每次都将 `workspace_root` 设为 `nats-messaging`、`release` 设为该文件、`auto_pull` 设为 true、`write` 设为 true。告诉我每次构建写入了哪些文件；它们位于 `nats-messaging/dist/` 下。"
+  },
   "cde5b2eff7d7ab60": {
     "at": "2026-10-30T00:50:36.309Z",
     "job": "session-0042-20261030005036",
@@ -148650,6 +148762,13 @@
     "srcHash": "ce77795bef61d8c8",
     "status": "machine",
     "text": "`while it is already named inside a routing entry in boundary \"<boundary>\"`；"
+  },
+  "ce77a3bfdb3a4d1d": {
+    "at": "2026-11-15T00:01:27.771Z",
+    "job": "session-0021-20261115000127",
+    "srcHash": "ce77a3bfdb3a4d1d",
+    "status": "machine",
+    "text": "这次运行为 OpenAI 密钥存储了一个占位符，因此工作流在调用模型时停止，它在编辑器中的执行记录显示 OpenAI 的拒绝：`Incorrect API key provided: sk-place*****************-key.`"
   },
   "ce78e28e9e70e7f6": {
     "at": "2026-11-12T20:26:44.164Z",
@@ -150699,6 +150818,13 @@
     "srcHash": "d1117e31834b495a",
     "status": "machine",
     "text": "**当一个路径中已存在的最深部分在跟随其链接后是工作区根目录或位于其下方时，该路径就在工作区内**——根目录自身的链接也以同样方式跟随，因此通过其自身链接到达的工作区仍然包含其下方的一切。"
+  },
+  "d111a7ce199768af": {
+    "at": "2026-11-15T00:01:27.771Z",
+    "job": "session-0021-20261115000127",
+    "srcHash": "d111a7ce199768af",
+    "status": "machine",
+    "text": "只使用 Aggrega 工具，不要自己创建任何文件夹。如果工作区文件夹中还没有 `mariadb-adminer` 文件夹，调用一次 `scaffold` 工具，将 `example` 设为 `mariadb-adminer`，不设 `dir`：它会把示例写入一个新的 `mariadb-adminer` 文件夹。然后调用 `build` 工具，将 `workspace_root` 设为 `mariadb-adminer`、`release` 设为 `release-compose.yaml`、`auto_pull` 设为 true、`write` 设为 true。告诉我构建写入了哪些文件；它们位于 `mariadb-adminer/dist/` 下。"
   },
   "d1120b7cfb9a50d7": {
     "at": "2026-10-22T02:48:40.419851+00:00",
@@ -159980,6 +160106,13 @@
     "status": "machine",
     "text": "构建不需要其中任何一项：它在没有密钥的情况下编译为 Kubernetes 清单，既不联系 NVIDIA，也不联系集群。"
   },
+  "ddd2f983f6f111d6": {
+    "at": "2026-11-15T00:01:27.771Z",
+    "job": "session-0021-20261115000127",
+    "srcHash": "ddd2f983f6f111d6",
+    "status": "machine",
+    "text": "使用 `--target helm` 导入并应用到 Kubernetes 后，一旦凭据已存储、工作流已在运行中的实例上激活（如[分步指南](../../../authoring/import/n8n.md#test-it)所示），并且本地端口已转发到其 Service，n8n 就会在同一地址接收同一条消息；这次运行在那里得到了相同的回答："
+  },
   "ddd3f55770353990": {
     "at": "2026-10-22T02:02:14.297198+00:00",
     "job": "msgbatch_016CHyieYQChUE1r8UVGktgV",
@@ -165379,6 +165512,13 @@
     "srcHash": "e5117a3f1b78b275",
     "status": "machine",
     "text": "通常由谁编写哪些文件。这种分工是指导，而不是编译器强制执行的规则：在小团队或个人项目中，一个人编写全部文件。"
+  },
+  "e512ba4e98f485d3": {
+    "at": "2026-11-15T00:01:27.771Z",
+    "job": "session-0021-20261115000127",
+    "srcHash": "e512ba4e98f485d3",
+    "status": "machine",
+    "text": "只使用 Aggrega 工具，不要自己创建任何文件夹。如果工作区文件夹中还没有 `model-server-caller-allowlist` 文件夹，调用一次 `scaffold` 工具，将 `example` 设为 `model-server-caller-allowlist`，不设 `dir`：它会把示例写入一个新的 `model-server-caller-allowlist` 文件夹。然后调用 `build` 工具，将 `workspace_root` 设为 `model-server-caller-allowlist`、`release` 设为 `release.yaml`、`auto_pull` 设为 true、`write` 设为 true。告诉我构建写入了哪些文件；它们位于 `model-server-caller-allowlist/dist/` 下。"
   },
   "e51a0b1bf8548448": {
     "at": "2026-11-14T09:58:41.460Z",
@@ -172333,6 +172473,13 @@
     "srcHash": "eedf562572877aea",
     "status": "machine",
     "text": "当前状态"
+  },
+  "eee26ee229d4bd22": {
+    "at": "2026-11-15T00:01:27.771Z",
+    "job": "session-0021-20261115000127",
+    "srcHash": "eee26ee229d4bd22",
+    "status": "machine",
+    "text": "只使用 Aggrega 工具，不要自己创建任何文件夹。如果工作区文件夹中还没有 `keycloak-stack` 文件夹，调用一次 `scaffold` 工具，将 `example` 设为 `keycloak-stack`，不设 `dir`：它会把示例写入一个新的 `keycloak-stack` 文件夹。然后调用 `build` 工具，将 `workspace_root` 设为 `keycloak-stack`、`release` 设为 `release-helm-synth.yaml`、`auto_pull` 设为 true、`write` 设为 true。告诉我构建写入了哪些文件；它们位于 `keycloak-stack/dist/` 下。"
   },
   "eee69a0581372969": {
     "at": "2026-10-22T02:30:34.989739+00:00",

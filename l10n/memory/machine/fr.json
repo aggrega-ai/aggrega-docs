@@ -3168,6 +3168,13 @@
     "status": "machine",
     "text": "`manifest.yaml` — la seule Recipe Helm que le catalogue propose pour chaque type :"
   },
+  "04c168c7637e12c9": {
+    "at": "2026-11-15T00:01:27.771Z",
+    "job": "session-0021-20261115000127",
+    "srcHash": "04c168c7637e12c9",
+    "status": "machine",
+    "text": "Utilisez uniquement les outils Aggrega et ne créez vous-même aucun dossier. Si le dossier de l’espace de travail ne contient pas encore de dossier `mysql-standalone`, appelez une fois l’outil `scaffold` avec `example` défini sur `mysql-standalone` et sans `dir` : il écrit l’exemple dans un nouveau dossier `mysql-standalone`. Appelez ensuite l’outil `build` une fois pour chaque Release, dans cet ordre — `release-helm-synth.yaml`, `release-helm-synth-auth.yaml` et `release-compose.yaml` —, chaque fois avec `workspace_root` défini sur `mysql-standalone`, `release` défini sur ce fichier, `auto_pull` défini sur true et `write` défini sur true. Indiquez-moi quels fichiers chaque build a écrits ; ils se trouvent sous `mysql-standalone/dist/`."
+  },
   "04c376d95478652f": {
     "at": "2026-11-12T09:43:55.100Z",
     "job": "session-0009-20261112094355",
@@ -18005,6 +18012,13 @@
     "status": "machine",
     "text": "**Et une entrée de frontière qui nomme un composant que l’Aggregate déployé ne contient pas arrête le build.** Les deux règles ci-dessus lisent le placement du côté du composant — quelque chose l’a-t-il placé ? Celle-ci le lit du côté de la Release : le nom se résout-il ? Une entrée qui ne se résout en rien ne place rien, de sorte que son `subDirectory`, ses annotations, son `infra:` par composant et ses `uses:` configurent un composant qui n’existe pas, et le build s’arrête plutôt que d’émettre un déploiement que l’entrée n’a jamais atteint. Les deux écritures sont vérifiées : un nom sous les `components:` d’une frontière est lu comme l’identifiant que porte le composant une fois la composition terminée, et un nom sous les `components:` d’une entrée de routage est lu comme le nom local qu’il porte à l’intérieur de ce sous-module. Le diagnostic indique l’identifiant que l’entrée a adressé, qui, dans l’écriture routée, n’est pas le nom présent dans le fichier — le fichier écrit la moitié locale et le sous-module fournit son préfixe."
   },
+  "1baf3451a064ccc6": {
+    "at": "2026-11-15T00:01:27.771Z",
+    "job": "session-0021-20261115000127",
+    "srcHash": "1baf3451a064ccc6",
+    "status": "machine",
+    "text": "Utilisez uniquement les outils Aggrega et ne créez vous-même aucun dossier. Si le dossier de l’espace de travail ne contient pas encore de dossier `mariadb-bitnami-credential-set`, appelez une fois l’outil `scaffold` avec `example` défini sur `mariadb-bitnami-credential-set` et sans `dir` : il écrit l’exemple dans un nouveau dossier `mariadb-bitnami-credential-set`. Appelez ensuite l’outil `build` avec `workspace_root` défini sur `mariadb-bitnami-credential-set`, `release` défini sur `release.yaml`, `auto_pull` défini sur true et `write` défini sur true. Indiquez-moi quels fichiers le build a écrits ; ils se trouvent sous `mariadb-bitnami-credential-set/dist/`."
+  },
   "1bafa3509f805bba": {
     "at": "2026-10-22T21:56:12.149Z",
     "job": "session-0050-20261022215612",
@@ -25162,6 +25176,13 @@
     "srcHash": "26a1482133e049c7",
     "status": "machine",
     "text": "`aggrega registry update` actualise l’index interrogeable local, décrit ci-dessous."
+  },
+  "26a5bbe1156716bf": {
+    "at": "2026-11-15T00:01:27.771Z",
+    "job": "session-0021-20261115000127",
+    "srcHash": "26a5bbe1156716bf",
+    "status": "machine",
+    "text": "Utilisez uniquement les outils Aggrega et ne créez vous-même aucun dossier. Si le dossier de l’espace de travail ne contient pas encore de dossier `import-n8n`, appelez une fois l’outil `scaffold` avec `example` défini sur `import-n8n` et sans `dir` : il écrit l’exemple dans un nouveau dossier `import-n8n`, dont le dossier `source` contient ce que cet exemple importe. Appelez ensuite l’outil `import` avec `workspace_root` défini sur `import-n8n/source`, `source` défini sur `support-agent.json` et `target` défini sur `compose` : il lit les réponses dont il a besoin dans `import-answers.yaml`, à côté de `support-agent.json`, écrit ses brouillons dans `import-n8n/source` et récupère ce dont ils ont besoin. Appelez ensuite l’outil `validate` avec `workspace_root` défini sur `import-n8n/source` et `release` défini sur `release.yaml`, puis l’outil `build` avec `workspace_root` défini sur `import-n8n/source`, `release` défini sur `release.yaml` et `write` défini sur true. Indiquez-moi quels fichiers le build a écrits ; ils se trouvent sous `import-n8n/source/dist/`."
   },
   "26a606982576b2b2": {
     "at": "2026-11-03T11:13:56.542Z",
@@ -41623,6 +41644,13 @@
     "status": "machine",
     "text": "**Un répertoire que vous importez est une racine à part entière, où qu’il se trouve** — à l’intérieur de l’espace de travail comme à l’extérieur, et c’est en cela qu’il diffère de tout autre répertoire que vous nommez dans l’espace de travail. `aggrega import`, l’outil d’import de l’assistant et `aggrega/import` de la session transmettent à l’importeur chaque fichier du répertoire sous sa place dans ce répertoire, de sorte que ce qu’ils lui transmettent n’est lu qu’à l’intérieur du répertoire. Ce qui est évalué, c’est ce dont l’import tirerait quelque chose : un lien vers un fichier que sélectionne un motif de l’importeur — de n’importe quel importeur, lorsque le format est reconnu plutôt que nommé — et un lien vers un répertoire, dans lequel on n’entre jamais. L’un de ceux-ci menant hors du répertoire est refusé avant qu’aucun fichier ne soit lu, même lorsqu’il mène ailleurs dans l’espace de travail, tandis qu’un lien sélectionné vers un fichier situé ailleurs dans le répertoire est lu là où il pointe, sous le nom propre du lien. Un lien vers un fichier qu’aucun motif ne sélectionne n’est ni évalué ni lu. Le répertoire lui-même est utilisé tel que vous l’avez nommé ; s’il est un lien, il est suivi jusqu’à sa cible."
   },
+  "40b062b68002fd08": {
+    "at": "2026-11-15T00:01:27.771Z",
+    "job": "session-0021-20261115000127",
+    "srcHash": "40b062b68002fd08",
+    "status": "machine",
+    "text": "Utilisez uniquement les outils Aggrega et ne créez vous-même aucun dossier. Si le dossier de l’espace de travail ne contient pas encore de dossier `mysql-innodb-cluster`, appelez une fois l’outil `scaffold` avec `example` défini sur `mysql-innodb-cluster` et sans `dir` : il écrit l’exemple dans un nouveau dossier `mysql-innodb-cluster`. Appelez ensuite l’outil `build` une fois pour chaque Release, dans cet ordre — `release-single.yaml` et `release-replicated.yaml` —, chaque fois avec `workspace_root` défini sur `mysql-innodb-cluster`, `release` défini sur ce fichier, `auto_pull` défini sur true et `write` défini sur true. Indiquez-moi quels fichiers chaque build a écrits ; ils se trouvent sous `mysql-innodb-cluster/dist/`."
+  },
   "40b2bbb84653b9c5": {
     "at": "2026-11-03T15:47:38.665Z",
     "job": "session-0124-20261103154738",
@@ -48446,6 +48474,13 @@
     "status": "machine",
     "text": "un signe facultatif, `+` ou `-` ;"
   },
+  "4af2ac5ee69f38ef": {
+    "at": "2026-11-15T00:01:27.771Z",
+    "job": "session-0021-20261115000127",
+    "srcHash": "4af2ac5ee69f38ef",
+    "status": "machine",
+    "text": "Utilisez uniquement les outils Aggrega et ne créez vous-même aucun dossier. Si le dossier de l’espace de travail ne contient pas encore de dossier `jaeger-tracing`, appelez une fois l’outil `scaffold` avec `example` défini sur `jaeger-tracing` et sans `dir` : il écrit l’exemple dans un nouveau dossier `jaeger-tracing`. Appelez ensuite l’outil `build` avec `workspace_root` défini sur `jaeger-tracing`, `release` défini sur `release.yaml`, `auto_pull` défini sur true et `write` défini sur true. Indiquez-moi quels fichiers le build a écrits ; ils se trouvent sous `jaeger-tracing/dist/`."
+  },
   "4af80f135b9e3321": {
     "at": "2026-11-10T00:35:43.000Z",
     "job": "session-0007-20261110003543",
@@ -52417,6 +52452,13 @@
     "srcHash": "51565cdce0a0296a",
     "status": "machine",
     "text": "**L’UX (génération de scripts) :** le compilateur AOT ne se connecte pas au cluster. À la place, le plugin de formatage Wasm produit un script shell généré dans le dossier `dist/scripts/` (par ex. `run-db-backup.sh`). Ce script contient la commande native exacte de l’orchestrateur (par ex. `kubectl create job --from=cronjob/db-backup`). Au Day 2, le développeur exécute simplement le script généré, en maintenant une séparation parfaite entre la génération de la configuration et l’exécution."
+  },
+  "51595368989a8236": {
+    "at": "2026-11-15T00:01:27.771Z",
+    "job": "session-0021-20261115000127",
+    "srcHash": "51595368989a8236",
+    "status": "machine",
+    "text": "Utilisez uniquement les outils Aggrega et ne créez vous-même aucun dossier. Si le dossier de l’espace de travail ne contient pas encore de dossier `multikey-secret-synth`, appelez une fois l’outil `scaffold` avec `example` défini sur `multikey-secret-synth` et sans `dir` : il écrit l’exemple dans un nouveau dossier `multikey-secret-synth`. Appelez ensuite l’outil `build` avec `workspace_root` défini sur `multikey-secret-synth`, `release` défini sur `release.yaml`, `auto_pull` défini sur true et `write` défini sur true. Indiquez-moi quels fichiers le build a écrits ; ils se trouvent sous `multikey-secret-synth/dist/`."
   },
   "515cb86e3d56ec81": {
     "at": "2026-11-02T18:47:12.619Z",
@@ -67194,6 +67236,13 @@
     "status": "machine",
     "text": "`ArtifactDelimiters`"
   },
+  "6811cea4430cbf2b": {
+    "at": "2026-11-15T00:01:27.771Z",
+    "job": "session-0021-20261115000127",
+    "srcHash": "6811cea4430cbf2b",
+    "status": "machine",
+    "text": "Utilisez uniquement les outils Aggrega et ne créez vous-même aucun dossier. Si le dossier de l’espace de travail ne contient pas encore de dossier `mcp-address-from-secret`, appelez une fois l’outil `scaffold` avec `example` défini sur `mcp-address-from-secret` et sans `dir` : il écrit l’exemple dans un nouveau dossier `mcp-address-from-secret`. Appelez ensuite l’outil `build` une fois pour chaque Release, dans cet ordre — `release-helm.yaml` et `release-compose.yaml` —, chaque fois avec `workspace_root` défini sur `mcp-address-from-secret`, `release` défini sur ce fichier, `auto_pull` défini sur true et `write` défini sur true. Indiquez-moi quels fichiers chaque build a écrits ; ils se trouvent sous `mcp-address-from-secret/dist/`."
+  },
   "6819467b610ddd71": {
     "at": "2026-11-04T06:48:44.911Z",
     "job": "session-0212-20261104064844",
@@ -71452,6 +71501,13 @@
     "status": "machine",
     "text": "**`.source_boundary_path` (chaîne)** — le chemin de la frontière de la Release qui contient le composant qui se connecte, les frontières imbriquées étant jointes par `/` (`edge`, `edge/inner`)."
   },
+  "6e8f06b18a138544": {
+    "at": "2026-11-15T00:01:27.771Z",
+    "job": "session-0021-20261115000127",
+    "srcHash": "6e8f06b18a138544",
+    "status": "machine",
+    "text": "Utilisez uniquement les outils Aggrega et ne créez vous-même aucun dossier. Si le dossier de l’espace de travail ne contient pas encore de dossier `model-api-key-sharing`, appelez une fois l’outil `scaffold` avec `example` défini sur `model-api-key-sharing` et sans `dir` : il écrit l’exemple dans un nouveau dossier `model-api-key-sharing`. Appelez ensuite l’outil `build` une fois pour chaque Release, dans cet ordre — `release-per-consumer.yaml`, `release-shared.yaml` et `release-composed.yaml` —, chaque fois avec `workspace_root` défini sur `model-api-key-sharing`, `release` défini sur ce fichier, `auto_pull` défini sur true et `write` défini sur true. Indiquez-moi quels fichiers chaque build a écrits ; ils se trouvent sous `model-api-key-sharing/dist/`."
+  },
   "6e96185e241dd9a5": {
     "at": "2026-11-03T12:27:44.093Z",
     "job": "session-0105-20261103122744",
@@ -75519,6 +75575,13 @@
     "srcHash": "74f23abd6165acdb",
     "status": "machine",
     "text": "Aggregate `subsystems.<name>.components.<id>.values:` — idem, à l’intérieur de composants regroupés en sous-systèmes."
+  },
+  "74f27f71029ab42a": {
+    "at": "2026-11-15T00:01:27.771Z",
+    "job": "session-0021-20261115000127",
+    "srcHash": "74f27f71029ab42a",
+    "status": "machine",
+    "text": "Utilisez uniquement les outils Aggrega et ne créez vous-même aucun dossier. Si le dossier de l’espace de travail ne contient pas encore de dossier `memcached-cache`, appelez une fois l’outil `scaffold` avec `example` défini sur `memcached-cache` et sans `dir` : il écrit l’exemple dans un nouveau dossier `memcached-cache`. Appelez ensuite l’outil `build` une fois pour chaque Release, dans cet ordre — `release-compose.yaml` et `release-helm-synth.yaml` —, chaque fois avec `workspace_root` défini sur `memcached-cache`, `release` défini sur ce fichier, `auto_pull` défini sur true et `write` défini sur true. Indiquez-moi quels fichiers chaque build a écrits ; ils se trouvent sous `memcached-cache/dist/`."
   },
   "74f34ca4b4cdb42b": {
     "at": "2026-11-02T22:45:48.640Z",
@@ -82309,6 +82372,13 @@
     "status": "machine",
     "text": "Une Recipe peut effectuer le rendu d’un chart récupéré et ajouter ses propres fichiers à côté. Ici, `core/datastore/mariadb` du catalogue est réalisé par le chart d’un éditeur, et un artefact ajoute un ServiceMonitor Prometheus :"
   },
+  "7f6e26b37e50d93a": {
+    "at": "2026-11-15T00:01:27.771Z",
+    "job": "session-0021-20261115000127",
+    "srcHash": "7f6e26b37e50d93a",
+    "status": "machine",
+    "text": "Utilisez uniquement les outils Aggrega et ne créez vous-même aucun dossier. Si le dossier de l’espace de travail ne contient pas encore de dossier `loki-logging`, appelez une fois l’outil `scaffold` avec `example` défini sur `loki-logging` et sans `dir` : il écrit l’exemple dans un nouveau dossier `loki-logging`. Appelez ensuite l’outil `build` avec `workspace_root` défini sur `loki-logging`, `release` défini sur `release.yaml`, `auto_pull` défini sur true et `write` défini sur true. Indiquez-moi quels fichiers le build a écrits ; ils se trouvent sous `loki-logging/dist/`."
+  },
   "7f70f8c195e2f0a3": {
     "at": "2026-11-04T07:09:44.037Z",
     "job": "session-0213-20261104070944",
@@ -84637,6 +84707,13 @@
     "status": "machine",
     "text": "Rapporté comme"
   },
+  "8308b7f19a962bed": {
+    "at": "2026-11-15T00:01:27.771Z",
+    "job": "session-0021-20261115000127",
+    "srcHash": "8308b7f19a962bed",
+    "status": "machine",
+    "text": "Avec la pile en cours d’exécution telle que le pas-à-pas l’exécute — les identifiants enregistrés et le workflow actif —, ouvrez <http://127.0.0.1:5678> pour l’éditeur de n8n, et envoyez au déclencheur de chat un message avec l’utilisateur et le mot de passe qu’il enregistre, lus depuis `CHAT_USER` et `CHAT_PASSWORD` sur l’entrée standard de curl :"
+  },
   "830a36329c72dfa8": {
     "at": "2026-10-22T15:28:11.412Z",
     "job": "session-0044-20261022152811",
@@ -85106,6 +85183,13 @@
     "srcHash": "83b2180992e7a531",
     "status": "machine",
     "text": "`core/datastore/postgres` expose deux valeurs facultatives du développeur qui déterminent le premier démarrage de la base de données : `init_scripts` (du SQL ou du shell exécuté une seule fois à l’initialisation) et `custom_config` (un fragment de `postgresql.conf`). Sur la cible helm synthétisée, la Recipe les transporte dans le conteneur sous forme de ConfigMaps montées. Cet exemple montre que la fonctionnalité est **additive** : un Aggregate qui ne définit aucune des deux valeurs est rendu exactement comme une base de données minimale, et un Aggregate qui les définit obtient les ConfigMaps, les volumes et les montages sans que rien d’autre ne soit perturbé."
+  },
+  "83bcd35ffda225ec": {
+    "at": "2026-11-15T00:01:27.771Z",
+    "job": "session-0021-20261115000127",
+    "srcHash": "83bcd35ffda225ec",
+    "status": "machine",
+    "text": "Utilisez uniquement les outils Aggrega et ne créez vous-même aucun dossier. Si le dossier de l’espace de travail ne contient pas encore de dossier `kong-stack`, appelez une fois l’outil `scaffold` avec `example` défini sur `kong-stack` et sans `dir` : il écrit l’exemple dans un nouveau dossier `kong-stack`. Appelez ensuite l’outil `build` avec `workspace_root` défini sur `kong-stack`, `release` défini sur `release-helm-synth.yaml`, `auto_pull` défini sur true et `write` défini sur true. Indiquez-moi quels fichiers le build a écrits ; ils se trouvent sous `kong-stack/dist/`."
   },
   "83c3408401900a27": {
     "at": "2026-11-03T13:44:11.193Z",
@@ -100491,6 +100575,13 @@
     "status": "machine",
     "text": "env_file ou fichier de secret monté en bind"
   },
+  "9b8c983a2e532b88": {
+    "at": "2026-11-15T00:01:27.771Z",
+    "job": "session-0021-20261115000127",
+    "srcHash": "9b8c983a2e532b88",
+    "status": "machine",
+    "text": "Utilisez uniquement les outils Aggrega et ne créez vous-même aucun dossier. Si le dossier de l’espace de travail ne contient pas encore de dossier `module-boundary-routing`, appelez une fois l’outil `scaffold` avec `example` défini sur `module-boundary-routing` et sans `dir` : il écrit l’exemple dans un nouveau dossier `module-boundary-routing`. Appelez ensuite l’outil `build` avec `workspace_root` défini sur `module-boundary-routing`, `release` défini sur `release.yaml`, `auto_pull` défini sur true et `write` défini sur true. Indiquez-moi quels fichiers le build a écrits ; ils se trouvent sous `module-boundary-routing/dist/`."
+  },
   "9b979d25e1c8f9c0": {
     "at": "2026-10-22T07:44:28.418Z",
     "job": "session-0023-20261022074428",
@@ -112278,6 +112369,13 @@
     "srcHash": "ad6a3d843b7dbe6e",
     "status": "machine",
     "text": "Voir [entities/recipe](../language-reference/entities/recipe.md) pour la surface de rédaction complète de la Recipe — `source:` (pointeur), `valuesMapping:` (mapper, avec trois modes de rédaction : block scalar inline, `$import:` de fichier, `$import:` de bibliothèque vers une entrée d’une MappingLibrary), schémas de source pilotés par Wasm, prise en charge native de l’IaC et exemples commentés."
+  },
+  "ad6d56f15544683a": {
+    "at": "2026-11-15T00:01:27.771Z",
+    "job": "session-0021-20261115000127",
+    "srcHash": "ad6d56f15544683a",
+    "status": "machine",
+    "text": "Utilisez uniquement les outils Aggrega et ne créez vous-même aucun dossier. Si le dossier de l’espace de travail ne contient pas encore de dossier `kafka-broker`, appelez une fois l’outil `scaffold` avec `example` défini sur `kafka-broker` et sans `dir` : il écrit l’exemple dans un nouveau dossier `kafka-broker`. Appelez ensuite l’outil `build` avec `workspace_root` défini sur `kafka-broker`, `release` défini sur `release.yaml`, `auto_pull` défini sur true et `write` défini sur true. Indiquez-moi quels fichiers le build a écrits ; ils se trouvent sous `kafka-broker/dist/`."
   },
   "ad6e9cf9cfed16cf": {
     "at": "2026-11-03T13:20:59.617Z",
@@ -128036,6 +128134,13 @@
     "status": "machine",
     "text": "les fichiers que `aggrega import . --target compose` a écrits, inchangés, et ce qu’il a affiché : `stdout.txt` sur la sortie standard, `import.txt` sur la sortie d’erreur standard"
   },
+  "c47202a3e7083104": {
+    "at": "2026-11-15T00:01:27.771Z",
+    "job": "session-0021-20261115000127",
+    "srcHash": "c47202a3e7083104",
+    "status": "machine",
+    "text": "Utilisez uniquement les outils Aggrega et ne créez vous-même aucun dossier. Si le dossier de l’espace de travail ne contient pas encore de dossier `mariadb-helm-synth`, appelez une fois l’outil `scaffold` avec `example` défini sur `mariadb-helm-synth` et sans `dir` : il écrit l’exemple dans un nouveau dossier `mariadb-helm-synth`. Appelez ensuite l’outil `build` avec `workspace_root` défini sur `mariadb-helm-synth`, `release` défini sur `release.yaml`, `auto_pull` défini sur true et `write` défini sur true. Indiquez-moi quels fichiers le build a écrits ; ils se trouvent sous `mariadb-helm-synth/dist/`."
+  },
   "c47394426e829c39": {
     "at": "2026-10-22T02:10:02.194Z",
     "job": "session-0007-20261022021002",
@@ -134157,6 +134262,13 @@
     "status": "machine",
     "text": "La liste d’autorisation `spec.inject` d’un Component peut nommer des mécanismes de livraison au-delà des mécanismes standard — un mécanisme que la logique interne du composant comprend, et pour lequel tout ce qui y livre doit produire une valeur. Lorsqu’une Feature est rattachée à un tel composant, c’est l’`injectMapping` de la FeatureRecipe qui indique sous quel mécanisme chaque valeur qu’elle produit est livrée. Un mécanisme que le composant a déclaré et pour lequel le mapping ne produit aucune clé est une livraison qui n’aurait silencieusement jamais lieu, si bien que la build s’arrête à la place."
   },
+  "cde4bf483cbb15bc": {
+    "at": "2026-11-15T00:01:27.771Z",
+    "job": "session-0021-20261115000127",
+    "srcHash": "cde4bf483cbb15bc",
+    "status": "machine",
+    "text": "Utilisez uniquement les outils Aggrega et ne créez vous-même aucun dossier. Si le dossier de l’espace de travail ne contient pas encore de dossier `nats-messaging`, appelez une fois l’outil `scaffold` avec `example` défini sur `nats-messaging` et sans `dir` : il écrit l’exemple dans un nouveau dossier `nats-messaging`. Appelez ensuite l’outil `build` une fois pour chaque Release, dans cet ordre — `release-compose.yaml`, `release-helm-synth.yaml`, `release-compose-auth.yaml` et `release-helm-synth-auth.yaml` —, chaque fois avec `workspace_root` défini sur `nats-messaging`, `release` défini sur ce fichier, `auto_pull` défini sur true et `write` défini sur true. Indiquez-moi quels fichiers chaque build a écrits ; ils se trouvent sous `nats-messaging/dist/`."
+  },
   "cde5b2eff7d7ab60": {
     "at": "2026-11-03T22:29:52.482Z",
     "job": "session-0167-20261103222952",
@@ -134603,6 +134715,13 @@
     "srcHash": "ce77795bef61d8c8",
     "status": "machine",
     "text": "`while it is already named inside a routing entry in boundary \"<boundary>\"`;"
+  },
+  "ce77a3bfdb3a4d1d": {
+    "at": "2026-11-15T00:01:27.771Z",
+    "job": "session-0021-20261115000127",
+    "srcHash": "ce77a3bfdb3a4d1d",
+    "status": "machine",
+    "text": "L’exécution a enregistré une valeur fictive pour la clé OpenAI, si bien que le workflow s’est arrêté à son appel au modèle, et son exécution dans l’éditeur affiche le refus d’OpenAI : `Incorrect API key provided: sk-place*****************-key.`"
   },
   "ce78e28e9e70e7f6": {
     "at": "2026-11-12T20:26:44.164Z",
@@ -136464,6 +136583,13 @@
     "srcHash": "d1117e31834b495a",
     "status": "machine",
     "text": "**Un chemin est à l’intérieur du workspace lorsque sa partie existante la plus profonde, liens suivis, est la racine du workspace ou se trouve en dessous** — les liens propres à la racine étant suivis de la même façon, de sorte qu’un workspace que vous atteignez par un lien qui lui est propre contient toujours tout ce qui se trouve en dessous."
+  },
+  "d111a7ce199768af": {
+    "at": "2026-11-15T00:01:27.771Z",
+    "job": "session-0021-20261115000127",
+    "srcHash": "d111a7ce199768af",
+    "status": "machine",
+    "text": "Utilisez uniquement les outils Aggrega et ne créez vous-même aucun dossier. Si le dossier de l’espace de travail ne contient pas encore de dossier `mariadb-adminer`, appelez une fois l’outil `scaffold` avec `example` défini sur `mariadb-adminer` et sans `dir` : il écrit l’exemple dans un nouveau dossier `mariadb-adminer`. Appelez ensuite l’outil `build` avec `workspace_root` défini sur `mariadb-adminer`, `release` défini sur `release-compose.yaml`, `auto_pull` défini sur true et `write` défini sur true. Indiquez-moi quels fichiers le build a écrits ; ils se trouvent sous `mariadb-adminer/dist/`."
   },
   "d1120b7cfb9a50d7": {
     "at": "2026-11-03T00:27:36.365Z",
@@ -144846,6 +144972,13 @@
     "status": "machine",
     "text": "Le build n’a besoin d’aucun de ces éléments : il compile en manifestes Kubernetes sans qu’aucune clé soit présente, et ne contacte ni NVIDIA ni le cluster."
   },
+  "ddd2f983f6f111d6": {
+    "at": "2026-11-15T00:01:27.771Z",
+    "job": "session-0021-20261115000127",
+    "srcHash": "ddd2f983f6f111d6",
+    "status": "machine",
+    "text": "Importé avec `--target helm` et appliqué à Kubernetes, n8n accepte le même message à la même adresse une fois les identifiants enregistrés et le workflow activé sur l’instance en cours d’exécution, comme le montre [le pas-à-pas](../../../authoring/import/n8n.md#test-it), et un port local redirigé vers son Service ; l’exécution y a obtenu la même réponse :"
+  },
   "ddd3f55770353990": {
     "at": "2026-10-22T15:28:11.412Z",
     "job": "session-0044-20261022152811",
@@ -149769,6 +149902,13 @@
     "srcHash": "e5117a3f1b78b275",
     "status": "machine",
     "text": "Qui écrit généralement quels fichiers. La répartition est une orientation, et non une règle que le compilateur impose : dans une petite équipe ou un projet mené seul, une seule personne les écrit tous."
+  },
+  "e512ba4e98f485d3": {
+    "at": "2026-11-15T00:01:27.771Z",
+    "job": "session-0021-20261115000127",
+    "srcHash": "e512ba4e98f485d3",
+    "status": "machine",
+    "text": "Utilisez uniquement les outils Aggrega et ne créez vous-même aucun dossier. Si le dossier de l’espace de travail ne contient pas encore de dossier `model-server-caller-allowlist`, appelez une fois l’outil `scaffold` avec `example` défini sur `model-server-caller-allowlist` et sans `dir` : il écrit l’exemple dans un nouveau dossier `model-server-caller-allowlist`. Appelez ensuite l’outil `build` avec `workspace_root` défini sur `model-server-caller-allowlist`, `release` défini sur `release.yaml`, `auto_pull` défini sur true et `write` défini sur true. Indiquez-moi quels fichiers le build a écrits ; ils se trouvent sous `model-server-caller-allowlist/dist/`."
   },
   "e51a0b1bf8548448": {
     "at": "2026-11-14T09:58:41.460Z",
@@ -156044,6 +156184,13 @@
     "srcHash": "eedf562572877aea",
     "status": "machine",
     "text": "État actuel"
+  },
+  "eee26ee229d4bd22": {
+    "at": "2026-11-15T00:01:27.771Z",
+    "job": "session-0021-20261115000127",
+    "srcHash": "eee26ee229d4bd22",
+    "status": "machine",
+    "text": "Utilisez uniquement les outils Aggrega et ne créez vous-même aucun dossier. Si le dossier de l’espace de travail ne contient pas encore de dossier `keycloak-stack`, appelez une fois l’outil `scaffold` avec `example` défini sur `keycloak-stack` et sans `dir` : il écrit l’exemple dans un nouveau dossier `keycloak-stack`. Appelez ensuite l’outil `build` avec `workspace_root` défini sur `keycloak-stack`, `release` défini sur `release-helm-synth.yaml`, `auto_pull` défini sur true et `write` défini sur true. Indiquez-moi quels fichiers le build a écrits ; ils se trouvent sous `keycloak-stack/dist/`."
   },
   "eee69a0581372969": {
     "at": "2026-10-30T20:20:36.751Z",
