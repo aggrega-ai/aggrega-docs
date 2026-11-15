@@ -75,7 +75,7 @@ The check reads the form of the answer, so a secret that happens to look like a 
 
 ## With no terminal
 
-In continuous integration, through a pipe, from the assistant's import tool (`aggrega mcp`) and from the editor, nothing is asked. An import that still owes values once the answers file is read:
+In continuous integration, through a pipe and from the assistant's import tool (`aggrega mcp`), nothing is asked, and the editor's import asks nothing while it runs. An import that still owes values once the answers file is read:
 
 - writes the drafts, each owed value left empty;
 - writes the answers file with every owed key present and its answer empty;
@@ -92,6 +92,8 @@ Write each answer beside its key, then run `aggrega import <source> --sync` into
 The assistant's import tool takes the answers file as `answers`, named relative to the workspace root or absolute. A call that still owes values fails with that sentence and carries the import's result, the warnings included, beside it. The editor's import takes the answers file too, and the same sentence closes its diagnostics.
 
 Both also list each value still owed as data, under `owed`: the drafted file, the key path as a list of keys, the question, whether the value is a secret's, and for a secret what its answer must be (`secretAdvice` from the editor, `secret_advice` from the assistant's import tool). Send each answer back under `answered` — the drafted file, the key path and the answer — with `sync`, and the import checks it, keeps it in the answers file and writes it into the drafts, as it does with an answer typed at a terminal. A secret's answer that is not a name is neither kept nor written: the value stays in `owed`, with the reason in place of its advice.
+
+After an import that writes its drafts, the editor offers to ask each value still owed in an input box of its own, and sends the answers back this way; after a preview it offers nothing, as nothing is asked under `--dry-run`. [Answering the values an import still owes](../authoring/editor/import.md#answering-the-values-an-import-still-owes) describes the questions.
 
 Under `--dry-run` nothing is asked and nothing is written, the answers file included. Each owed value is still named on standard error, and the exit status is the dry run's own.
 
