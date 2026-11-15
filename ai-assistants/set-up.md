@@ -40,5 +40,16 @@ Visual Studio Code with GitHub Copilot, Kiro and OpenClaw install the plugin too
 
 - **An assistant that installs the plugin** skips connecting the server: the plugin connected it. The plugin does not install the binary, so step 1 still applies. Where the assistant starts the plugin's server outside your project — Codex starts it in the plugin's own folder — the skill tells it to name your project's folder to the server, as [The folder the server works in](skill.md#the-folder-the-server-works-in) describes.
 - **An assistant that installs no plugin and is not in the `--agent` list** skips installing the skill. It still reaches Aggrega's tools through the MCP server once it is connected, and the server hands it guidance of its own when it connects.
-- **An assistant that cannot run commands** — a chat application with no access to your terminal — cannot follow the prompt. Install the binary as [Install](../install.md) describes, and connect the application yourself as [Connect the MCP server](mcp-server.md) describes; Claude Desktop, for example, adds Aggrega from an extension package each release carries, whose **Workspace folder** setting names the workspace the assistant works in; a change to it takes effect once the extension is turned off and on again or the application is restarted.
+- **An assistant that cannot run commands** — a chat application with no access to your terminal — cannot follow the prompt. Install the binary as [Install](../install.md) describes, and connect the application yourself as [Connect the MCP server](mcp-server.md) describes. For Claude Desktop, see [Claude Desktop](#claude-desktop) below.
 - **A server someone else runs for you**, reached over HTTPS, needs neither the binary nor the plugin nor the skill. Give the assistant's client the address instead, as [A server reached over HTTPS](mcp-server.md#a-server-reached-over-https) describes.
+
+## Claude Desktop
+
+Claude Desktop connects to Aggrega through the extension package each release carries, and that package launches the `aggrega` installed on your computer. Set both up on your computer yourself:
+
+1. Install `aggrega` in PowerShell on Windows with `irm https://aggrega.ai/install.ps1 | iex`, or in a terminal on macOS or Linux with `curl -fsSL https://aggrega.ai/install.sh | sh`. [Install the binary](../install.md#install-the-binary) describes what the installer does.
+2. Install the extension package, set its **Workspace folder**, and restart Claude Desktop, as [Claude Desktop](mcp-server.md#claude-desktop) on Connect the MCP server describes.
+
+A Claude Desktop session can run its commands in a cloud container rather than on your computer, so the prompt above, pasted into it, works on the container. There, `aggrega` installs and runs from the session's shell once the container's network policy allows `aggrega.ai` — an organization owner allows it in the organization's network access settings. The Aggrega MCP server is not connected there: Claude Desktop adds a local server only from its extension settings, and the extension launches the `aggrega` on your computer, not the one in the container.
+
+`aggrega skills install` has no Claude Desktop entry, so a Claude Desktop session skips installing the skill. It reaches Aggrega's tools through the MCP server once the extension is installed, and the server hands it guidance of its own when it connects.
