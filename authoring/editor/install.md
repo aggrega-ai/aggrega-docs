@@ -3,7 +3,7 @@
 ## Prerequisites
 
 - Visual Studio Code 1.85 or newer, on the desktop. The extension works by starting the `aggrega` program and provides no version a browser can run in its place, so it does not run in editors that run entirely in a web browser, such as vscode.dev and github.dev.
-- The `aggrega` compiler, on the machine your workspace is on. The extension runs the one the `aggrega.server.binaryPath` setting names: a path is used as written, and a plain name — the default, `aggrega` — is looked up on `PATH`. Where it finds none, the extension offers to download one for you, and **Aggrega: Select Compiler Version** changes the version later; see [Getting the compiler](#getting-the-compiler).
+- The `aggrega` compiler, on the machine your workspace is on. The extension runs the one the `aggrega.server.binaryPath` setting names: a path starting with `~/` (`~\` on Windows) or `${userHome}` is read from your home folder on that machine, any other path is used as written, and a plain name — the default, `aggrega` — is looked up on `PATH`. Where it finds none, the extension offers to download one for you, and **Aggrega: Select Compiler Version** changes the version later; see [Getting the compiler](#getting-the-compiler).
 - A folder Aggrega recognises as a workspace root, at or above the folder you open. Aggrega reads one file at your project root — `.aggrega-config.yaml`, carrying a `workspace:` block — and climbs from the opened folder to find it. Marking the root with a `workspace:` block is the explicit choice and the one to prefer; a project that has never declared one can still be recognised by other markers, which [Aggrega's own configuration reference](../../language-reference/cli/configuration.md) covers along with everything else configuration can do in a larger project.
 
 You do not have to arrange any of that by hand: see [The welcome page](welcome-page.md).
@@ -28,7 +28,9 @@ The extension shows its own text — its commands, settings, views and messages 
 ## Getting the compiler
 
 **The extension runs the compiler `aggrega.server.binaryPath` names, and finds one before it offers to
-get one.** A path in the setting is used as written. A plain name — the default is `aggrega` — is looked up on your `PATH`, and the Aggrega
+get one.** A path in the setting starting with `~/` — `~\` on Windows — or with `${userHome}` is read
+from your home folder on the machine your workspace is on, so on Linux and macOS `~/.local/bin/aggrega`
+names the file the install scripts put there; any other path is used as written. A plain name — the default is `aggrega` — is looked up on your `PATH`, and the Aggrega
 output channel says which file that found and the version it reports.
 
 ![The welcome page's compiler step, marked to do, offering Use the compiler on my PATH, Point at a compiler I have and Download the compiler.](../../images/editor/manual/install-compiler-step.png)

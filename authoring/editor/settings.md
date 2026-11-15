@@ -23,7 +23,7 @@ they write `.aggrega/active-release` or `.aggrega-config.yaml` rather than an ed
 | Setting | Default | Purpose |
 |---------|---------|---------|
 | `aggrega.getStarted.show` | `true` | Whether the [welcome page](welcome-page.md) opens on startup. Three surfaces move this one setting and stay in step: the checkbox at the page's own foot, **Aggrega: Stop opening the welcome page on startup**, and **Aggrega: Get started**. Turning it off stops the page opening rather than removing it; turning it back on with **Aggrega: Get started** also opens it. |
-| `aggrega.server.binaryPath` | `aggrega` | Path to the `aggrega` binary. |
+| `aggrega.server.binaryPath` | `aggrega` | Path to the `aggrega` binary. A plain name is looked up on `PATH`; a path starting with `~/` (`~\` on Windows) or `${userHome}` is read from your home folder on the host the extension runs on; any other path is used as written. |
 | `aggrega.server.debounceMs` | `300` | Debounce window for proactive validate-on-change. |
 | `aggrega.server.respawnAttempts` | `5` | How many times, within the window below, the language server is started again after it stops without being asked to, before the extension leaves it stopped and raises the stopped-responding notification. A server started again that stops before it has answered counts the same as one that stops while running. See [Lifecycle](language-server.md#lifecycle). |
 | `aggrega.server.respawnWindowSeconds` | `180` | Sliding window, in seconds, over which those restarts are counted. |

@@ -25,7 +25,9 @@ indicator is where the reason is written down, and it is also where you act on i
 **A start that fails says what is wrong with the compiler's path.** Where `aggrega.server.binaryPath`
 names nothing, the notification reads **Aggrega language server failed to start: the compiler at
 ⟨path⟩ was not found.**; where it names a file that cannot be run, it reads **… ⟨path⟩ is not an
-executable file.** Both go on to say to set `aggrega.server.binaryPath` to the aggrega binary, and
+executable file.** ⟨path⟩ is the file the extension tried to start: a setting starting with `~/` or
+`${userHome}` is shown read from your home folder, as it was looked for. Both go on to say to set
+`aggrega.server.binaryPath` to the aggrega binary, and
 carry **Open binary path setting**, which opens the settings screen on that one setting, and **Show
 output**. Where the path names nothing, the notification also carries **Download the compiler** and
 **Choose another file** ahead of those two, because there is then no compiler to replace: the first
