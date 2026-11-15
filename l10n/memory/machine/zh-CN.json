@@ -18514,6 +18514,17 @@
     "status": "machine",
     "text": "运行 `aggrega config init` 注册一个注册表及其签名信任策略，然后运行\n`aggrega registry update` 构建搜索所读取的本地索引。"
   },
+  "19782f9732838bb5": {
+    "at": "2026-11-15T09:28:20.698Z",
+    "job": "session-0001-20261115092820",
+    "revision": {
+      "from": "7df0a5eca32063d6",
+      "reviewed": false
+    },
+    "srcHash": "19782f9732838bb5",
+    "status": "machine",
+    "text": "**用户采用。** 用户给我们的反馈决定工作的先后顺序：凡是能让它更易于采用的工作都优先进行。"
+  },
   "19791f63e771da12": {
     "at": "2026-10-22T02:48:40.419851+00:00",
     "job": "msgbatch_01GfagNcas3ixJ7ofku3W8dE",
@@ -33257,6 +33268,17 @@
     "status": "machine",
     "text": "**每个资源都会列出紧邻其前、且含有资源的那个 wave 中的所有资源，不会列出更早的 wave。** 其余部分由 CloudFormation 串联起来：wave `2` 中的资源依赖 wave `1`，而后者又依赖 wave `0`，因此整个序列是有序的，同时每个资源自身的列表只有一个 wave 的规模，而不是整个栈的规模。wave 不必连续，负值也很常见——对于栈中其余部分要读取的存储桶或角色，`-1` 是常用的选择。最低的 wave 不列出任何资源，因为它之前没有任何内容。"
   },
+  "2de57a9a430f58b1": {
+    "at": "2026-11-15T09:28:20.698Z",
+    "job": "session-0001-20261115092820",
+    "revision": {
+      "from": "ba4e7e5d2488e643",
+      "reviewed": false
+    },
+    "srcHash": "2de57a9a430f58b1",
+    "status": "machine",
+    "text": "Rego 和 CEL 挂接指定的是标准库目录为编译进 CLI 的两个引擎所带有的 Plugin 实体，即 `governance/rego:0.9.0` 和 `governance/cel:0.9.0`，实际运行的引擎是编译进运行本次构建的二进制文件中的那个。OPA 的 Plugin 实体位于 `catalog/plugin/governance/`，是本工作区自己的声明，版本为 `1.0.0`，因此其挂接指定 `governance/opa:1.0.0`。拒绝信息以挂接引用的最后一段为标题，省略版本——`policy plugin \"rego\"`、`\"cel\"` 或 `\"opa\"`——且每次构建只挂接一个引擎，因此其输出的拒绝信息会指出该引擎。OPA guest 在每次构建时都从其实体旁边读取，并且由于没有记录其摘要，每次使用它的构建都会警告它在未经验证的情况下运行。"
+  },
   "2de9062ba3202d74": {
     "at": "2026-10-22T03:24:54.319294+00:00",
     "job": "msgbatch_01Quwt1bUbFp43kX3BAncRfN",
@@ -38690,6 +38712,17 @@
     "srcHash": "359eb5059b503f93",
     "status": "machine",
     "text": "Recipe 的 locals 与其 `source` 模板（#5）共享上下文，而该表面不提供此名称：节点是否提供源（由 `source` 模板决定）正是该名称所依赖的因素之一。该引用会以未知根诊断终止，诊断会列出 `.context.instance_id` 作为 `.context` 在此处定义的内容。请改为在 `provides` 条目或基础渲染阶段的模板中读取该键。"
+  },
+  "359eff2ed4db70c0": {
+    "at": "2026-11-15T09:28:20.698Z",
+    "job": "session-0001-20261115092820",
+    "revision": {
+      "from": "dacb718f2e007af7",
+      "reviewed": false
+    },
+    "srcHash": "359eff2ed4db70c0",
+    "status": "machine",
+    "text": "`governance/rego:0.9.0`，配合 `policies/production-support.rego`"
   },
   "35a821bbbdf24ae3": {
     "at": "2026-11-05T21:03:25.752Z",
@@ -45811,6 +45844,17 @@
     "status": "machine",
     "text": "该连接，由其 socket 和别名标识，并以 document 指明读取该位置的文档——即候选项请求和容器请求作为 connection 接收的值。"
   },
+  "3fcc17b0221ce543": {
+    "at": "2026-11-15T09:28:20.698Z",
+    "job": "session-0001-20261115092820",
+    "revision": {
+      "from": "cbbf69ea47f6da42",
+      "reviewed": false
+    },
+    "srcHash": "3fcc17b0221ce543",
+    "status": "machine",
+    "text": "`uri: governance/rego:0.9.0` 指明该 Plugin 实体。它是一个标识：一个 `<pluginType>/<name>` 坐标加一个版本，两部分都属于该形式。**版本即插件发布时的版本**——hub 将其发布为 `oci://hub.aggrega.ai/plugin/governance/rego:0.9.0`。版本参与解析：若挂载指定的版本在任何目录、任何仓库中都不存在，`aggrega` 二进制文件本身也不带有，构建就会停止。二进制文件只带有其自身发布版本的引擎实体。"
+  },
   "3fd8878d73a313c3": {
     "at": "2026-10-22T05:14:14.914265+00:00",
     "job": "msgbatch_01SJr5F7Uh6g5vmdkzNw4vuV",
@@ -51378,6 +51422,17 @@
     "srcHash": "474916bc0739b51e",
     "status": "machine",
     "text": "源自底层库的错误（Helm SDK 的 chart 加载错误、docker-compose YAML 解析器错误、因源路径缺失而产生的文件 I/O 错误）会被加上按 provider 区分的上下文前缀，并根据其触发于合成阶段还是目录内容加载阶段，出现在 `[TRANSLATION_ERROR]` 或 `[CATALOG_ERROR]` 之下。被包装的库消息会逐字保留原工具的诊断信息，以便作者将其与该工具自身的文档进行对照。"
+  },
+  "474df35e4f0fb79d": {
+    "at": "2026-11-15T09:28:20.698Z",
+    "job": "session-0001-20261115092820",
+    "revision": {
+      "from": "b202bc913e5416c1",
+      "reviewed": false
+    },
+    "srcHash": "474df35e4f0fb79d",
+    "status": "machine",
+    "text": "两者都像任何治理插件一样，通过工作区配置中的 `plugins.governance` 挂接（参见[挂接策略](policy-socket.md#attaching-a-policy)），并且两者都列在[嵌入式插件](embedded-plugins.md)中。本页的挂接示例写的是 `0.9.0`，即标准库目录中各插件的 Plugin 实体的版本；构建使用的是编译进 CLI 的插件。"
   },
   "474e2b7f761bd8c1": {
     "at": "2026-10-22T03:31:15.615761+00:00",
@@ -76389,6 +76444,17 @@
     "status": "machine",
     "text": "有四种结构会在此条件下报告，语句会说明你遇到的是哪一种。转义体无法解析为 YAML。转义的值既不是块标量也不是映射。`properties:` 键的内容不是名称到 schema 的映射。以及，在最外层，交给编译器的文档为空，或包含读取器没有处理规则的节点。"
   },
+  "69e594dfb7381d8f": {
+    "at": "2026-11-15T09:28:20.698Z",
+    "job": "session-0001-20261115092820",
+    "revision": {
+      "from": "f8d7af2f1db446af",
+      "reviewed": false
+    },
+    "srcHash": "69e594dfb7381d8f",
+    "status": "machine",
+    "text": "`.aggrega-config.yaml` 将 hub 指定为其仓库，不指定任何目录文件夹，也不包含任何治理挂接。策略由构建通过 `--config` 指定的文件挂接：Rego 引擎用 `governance-rego.yaml`，CEL 引擎用 `governance-cel.yaml`。Rego 的那个文件内容如下："
+  },
   "69e6dfa6e5fad9c6": {
     "at": "2026-10-22T08:15:42.630087+00:00",
     "job": "msgbatch_01LUbCfEJyTdJEKDU86sBZQP",
@@ -77673,6 +77739,17 @@
     "srcHash": "6bb33c7474f23da2",
     "status": "machine",
     "text": "Kubernetes 输出——Kubewarden 渲染适配器"
+  },
+  "6bb7863d2d2edc11": {
+    "at": "2026-11-15T09:28:20.698Z",
+    "job": "session-0001-20261115092820",
+    "revision": {
+      "from": "49dba91702a14413",
+      "reviewed": false
+    },
+    "srcHash": "6bb7863d2d2edc11",
+    "status": "machine",
+    "text": "`0.9.0` 是 hub 发布每个引擎的 Plugin 实体的一个版本，因此挂接可以从工作区读取的仓库中解析，也可以从该版本的 `aggrega` 二进制文件中解析，该文件本身带有该实体。实际运行的引擎是编译进运行本次构建的 `aggrega` 二进制文件中的那个，无论挂接指定的是哪个版本。监控注解所接受的对象需要一个能注入子键对象的引擎，而 0.8.7 之前的版本中的引擎做不到这一点。"
   },
   "6bbcb24d2f0d86af": {
     "at": "2026-10-22T04:05:10.557953+00:00",
@@ -95257,6 +95334,13 @@
     "status": "machine",
     "text": "聊天触发器只接受带有上面所存储的用户名和密码的消息；没有它们时，它会回复 `HTTP/1.1 401 Unauthorized` 和 `Authorization is required!`，密码错误时则回复 `HTTP/1.1 403 Forbidden`。将两者放在 `CHAT_USER` 和 `CHAT_PASSWORD` 中后，curl 会从其标准输入读取它们，因此它们不会出现在任何命令行上："
   },
+  "842898676877a4be": {
+    "at": "2026-11-15T09:28:20.698Z",
+    "job": "session-0001-20261115092820",
+    "srcHash": "842898676877a4be",
+    "status": "machine",
+    "text": "0.9.0 新增的内容："
+  },
   "842ef1af34141ccd": {
     "at": "2026-10-29T21:34:59.076Z",
     "job": "session-0024-20261029213459",
@@ -103111,6 +103195,17 @@
     "srcHash": "8f072b5eaf0a556a",
     "status": "machine",
     "text": "过于繁忙的注册表会回答 429 Too Many Requests，或带有说明需等待多久的 `Retry-After` 标头的 503 Service Unavailable。命令向注册表发出的每个请求都会按注册表要求的时间等待（未说明时为十秒），然后再次发送；发往该注册表的每个请求都会随之等待，向其并发发送的请求也会减少，直到它再次正常回答。如果注册表在五分钟内只回答“放慢速度”，则以此条件拒绝，并指出该注册表、其最后一次回答以及它只给出这一回答的时长；在等待期间自身时间限制到期的请求也同样如此。随后 `aggrega registry update` 会将该注册表报告为未编入索引，而它保留运行前的索引。"
+  },
+  "8f090b1467ee6d9b": {
+    "at": "2026-11-15T09:28:20.698Z",
+    "job": "session-0001-20261115092820",
+    "revision": {
+      "from": "cc7f7b98a691b4f6",
+      "reviewed": false
+    },
+    "srcHash": "8f090b1467ee6d9b",
+    "status": "machine",
+    "text": "使用 `--catalog` 指定目录检出进行构建时，该示例不需要其他任何东西：借助挂接所指定版本的 `aggrega` 二进制文件（它本身带有该 Plugin 实体），每个实体都无需网络即可解析，运行的引擎就是编译在 `aggrega` 二进制文件中的那个。没有它时，这些实体从 `hub.aggrega.ai` 读取。"
   },
   "8f0a047ec74c7d84": {
     "at": "2026-11-05T20:22:43.828Z",
@@ -112303,6 +112398,17 @@
     "status": "machine",
     "text": "片段——合并覆盖文档后的源 compose 文件，或求值为 compose YAML 的 `artifacts:` 正文——只能通过 provider 所保留的键到达组装后的 `docker-compose.yaml`，而这组键是固定的。片段写入的每个键要么按原样保留到组装后的文件中，要么被指名拒绝；没有任何键会被无声地丢弃。一个片段就是一个 compose 文件，因此它是一个 YAML 文档。"
   },
+  "9bda609cadd12285": {
+    "at": "2026-11-15T09:28:20.698Z",
+    "job": "session-0001-20261115092820",
+    "revision": {
+      "from": "f0d17763b49d28ce",
+      "reviewed": false
+    },
+    "srcHash": "9bda609cadd12285",
+    "status": "machine",
+    "text": "Rego 引擎编译在 CLI 二进制文件中，其版本就是发布它的编译器版本。其他版本的编译器会从 hub 读取挂接所指定的 Plugin 实体，并运行编译在其自身中的引擎：挂接中的版本用于标识该实体，而不是选择引擎。"
+  },
   "9bdce33a71b23d70": {
     "at": "2026-10-22T01:50:22.319444+00:00",
     "job": "msgbatch_01VwQyd4vfmNKqBKVTg2vP5W",
@@ -114954,6 +115060,17 @@
     "srcHash": "9fa8ec5ab6795ee4",
     "status": "machine",
     "text": "1. 确定性编译器，而非 IaC 生成器"
+  },
+  "9faa18d9fcfdb6fb": {
+    "at": "2026-11-15T09:28:20.698Z",
+    "job": "session-0001-20261115092820",
+    "revision": {
+      "from": "915a9450cc1673de",
+      "reviewed": false
+    },
+    "srcHash": "9faa18d9fcfdb6fb",
+    "status": "machine",
+    "text": "只使用 Aggrega 工具，不要自己创建任何文件夹。如果工作区文件夹中还没有 `import-langgraph` 文件夹，调用一次 `scaffold` 工具，将 `example` 设为 `import-langgraph`，不设 `dir`：它会把示例写入一个新的 `import-langgraph` 文件夹，其中的 `source` 文件夹包含本示例要导入的内容。然后调用 `import` 工具，将 `workspace_root` 设为 `import-langgraph/source`，`source` 设为 `.`，`format` 设为 `langgraph`，`target` 设为 `compose`：它从 `langgraph.json` 旁边的 `import-answers.yaml` 读取所需的答案，将草稿写入 `import-langgraph/source`，并拉取草稿所需的内容。然后调用 `validate` 工具，将 `workspace_root` 设为 `import-langgraph/source`，`release` 设为 `release.yaml`；再调用 `build` 工具，将 `workspace_root` 设为 `import-langgraph/source`，`release` 设为 `release.yaml`，`write` 设为 true。告诉我构建写入了哪些文件；它们位于 `import-langgraph/source/dist/` 下。"
   },
   "9fb4438da5c1edfd": {
     "at": "2026-10-22T04:49:50.527667+00:00",
@@ -141101,6 +141218,13 @@
     "status": "machine",
     "text": "按需运行，在任何读取外部格式的地方"
   },
+  "c261e87c2370d3de": {
+    "at": "2026-11-15T09:28:20.698Z",
+    "job": "session-0001-20261115092820",
+    "srcHash": "c261e87c2370d3de",
+    "status": "machine",
+    "text": "里程碑 3 — 0.9.0 版本"
+  },
   "c2624337dacf00a4": {
     "at": "2026-10-22T05:25:45.661574+00:00",
     "job": "msgbatch_01GK3s5ypk3MzMWPEKha5JkC",
@@ -150513,6 +150637,17 @@
     "status": "machine",
     "text": "合成的 helm Recipe 是 Kubernetes 路径：它只依赖官方镜像标签，\n而非第三方 chart，其渲染出的资源\n集合与 workload 声明的内容完全一致。"
   },
+  "cf13f5ffdf6616ce": {
+    "at": "2026-11-15T09:28:20.698Z",
+    "job": "session-0001-20261115092820",
+    "revision": {
+      "from": "68ecb1d3124654fe",
+      "reviewed": false
+    },
+    "srcHash": "cf13f5ffdf6616ce",
+    "status": "machine",
+    "text": "只使用 Aggrega 工具，不要自行创建任何文件夹。如果 Workspace 文件夹中还没有 `import-langgraph` 文件夹，请调用一次 `scaffold` 工具，将 `example` 设为 `import-langgraph`，且不设 `dir`：它会把示例写入新的 `import-langgraph` 文件夹，其中的 `source` 文件夹包含本页导入的内容。然后调用 `import` 工具，将 `workspace_root` 设为 `import-langgraph/source`，`source` 设为 `.`，`format` 设为 `langgraph`，`target` 设为 `compose`：它会从 `langgraph.json` 旁边的 `import-answers.yaml` 读取所需的回答，将草稿写入 `import-langgraph/source`，并拉取草稿所需的内容。然后调用 `validate` 工具，将 `workspace_root` 设为 `import-langgraph/source`，`release` 设为 `release.yaml`；再调用 `build` 工具，将 `workspace_root` 设为 `import-langgraph/source`，`release` 设为 `release.yaml`，`write` 设为 true。告诉我构建写出了哪些文件；它们位于 `import-langgraph/source/dist/` 下。"
+  },
   "cf15af0e14b7e507": {
     "at": "2026-10-22T02:30:34.989739+00:00",
     "job": "msgbatch_01BHgKyqG71NKP39yT1pobDo",
@@ -159623,6 +159758,17 @@
     "status": "machine",
     "text": "使用方 Component 可以声明一个属性，其名称与从库条目引入的某个属性相同。此时，在合并后的结构中，使用方编译后的属性会完全替换库条目的属性；库的 `x-aggrega-source` 注解随被替换的属性一同丢弃。"
   },
+  "dbae905ce4ec2ad0": {
+    "at": "2026-11-15T09:28:20.698Z",
+    "job": "session-0001-20261115092820",
+    "revision": {
+      "from": "a0f48be9a0185e2d",
+      "reviewed": false
+    },
+    "srcHash": "dbae905ce4ec2ad0",
+    "status": "machine",
+    "text": "三个挂载都是 Rego 引擎 `governance/rego:0.9.0`，处于 `ir-verdict` 角色，该角色在渲染任何内容之前评判构建图。`0.9.0` 是其 Plugin 实体在标准库目录中的版本。引擎本身编译在 CLI 中——`aggrega plugin list` 将 `governance/rego` 列在嵌入的内置插件之中——因此这里的构建都不会获取插件。"
+  },
   "dbaed02f55c44c21": {
     "at": "2026-10-22T02:30:34.989739+00:00",
     "job": "msgbatch_01BHgKyqG71NKP39yT1pobDo",
@@ -162132,6 +162278,17 @@
     "status": "machine",
     "text": "**目标不满足其 socket 的 `selector:` 的 `uses:` 边。** 某个 `usesSchema` socket 声明了一个 `selector:` 字段，排除了附加在边另一端的目标 Component。selector 是目录作者表达“此 socket 只接受标签匹配此表达式的目标”的方式；一条满足 socket 名称查找但不满足 selector 表达式的边属于类型安全违规。"
   },
+  "decb2676edbfbdf6": {
+    "at": "2026-11-15T09:28:20.698Z",
+    "job": "session-0001-20261115092820",
+    "revision": {
+      "from": "84cc6286e64da6c3",
+      "reviewed": false
+    },
+    "srcHash": "decb2676edbfbdf6",
+    "status": "machine",
+    "text": "挂接指定的是 hub 发布的一个版本，因此固定项通过工作区读取的仓库解析，或从该版本的 `aggrega` 二进制文件中解析。"
+  },
   "decf464a2fdeeba2": {
     "at": "2026-10-22T05:07:43.448651+00:00",
     "job": "msgbatch_017U8zLucNunw6USSWNfR6c8",
@@ -162222,6 +162379,17 @@
     "srcHash": "def1b7417a224f96",
     "status": "machine",
     "text": "Aggrega 实体带有两种结构相似的元数据机制——`metadata.labels` 和 `metadata.annotations`——此外还有分散在边界级联界面和 feature 挂载界面上的带注解字段。共有六个不同的界面编写或承载注解/标签内容，每个界面的级联规则、使用方和前缀约定各不相同。本页集中记录这些界面，定义运行时模板上下文公开的三个语义分桶，说明作者应遵循的前缀规范，并将五个 Feature 挂载界面并列记录，使其与更广泛的标签/注解词汇一同呈现。"
+  },
+  "def2ee699787715f": {
+    "at": "2026-11-15T09:28:20.698Z",
+    "job": "session-0001-20261115092820",
+    "revision": {
+      "from": "cb3e1441451328cc",
+      "reviewed": false
+    },
+    "srcHash": "def2ee699787715f",
+    "status": "machine",
+    "text": "下面的运行使用了这样一个镜像：图位于 `langgraph.json` 指定的路径 `src/support_agent/graph.py`，一个节点通过 `OPENAI_MODEL` 指定的模型作答，镜像的命令则是程序自带的一个小型 HTTP 服务器，监听 8000 端口。镜像在其工作目录中保留项目的目录结构，因此 `LANGGRAPH_GRAPH_ENTRYPOINT` 指定的、相对于该目录的路径能够找到图。服务器加载该图，通过 LangGraph 的 PostgreSQL checkpointer 将每个对话的状态保存在数据库中（该 checkpointer 使用数据库的主机、端口、用户、数据库名称和密码打开，每一项都从其到达时所在的 `LANGGRAPH_CHECKPOINTER_` 变量中读取，因此程序自身不写入其中任何一项），并针对每个 `POST /threads/<thread>/runs` 运行一次图。图的服务会在数据库开始接受连接后启动，因此在启动时打开 checkpointer 的服务器会发现数据库已在接受连接。在项目根目录构建你的镜像，在 `import-answers.yaml` 中用它的名称替换 `ghcr.io/example/support-agent:1.0.0`，然后使用 `--sync` 再次导入，它会把新答案写入草稿并再次拉取；然后构建。导入通过 `--format langgraph` 指明其格式：该文件夹现在还包含 `dist/compose/docker-compose.yaml`，它由构建写出，Compose 导入器也能识别它，而导入一个能被两个导入器识别的文件夹时，导入会停下来并询问格式："
   },
   "def604f22f1c0fd3": {
     "at": "2026-11-14T23:38:24.651Z",
@@ -170824,6 +170992,17 @@
     "status": "machine",
     "text": "调用在哪个工作区中得到应答"
   },
+  "eab2f31a6cb03ac9": {
+    "at": "2026-11-15T09:28:20.698Z",
+    "job": "session-0001-20261115092820",
+    "revision": {
+      "from": "bd045b042e58ff06",
+      "reviewed": false
+    },
+    "srcHash": "eab2f31a6cb03ac9",
+    "status": "machine",
+    "text": "`governance/rego:0.9.0`，配合 `policies/support-tier.rego`"
+  },
   "eab32074af827a6d": {
     "at": "2026-10-22T01:33:54.654983+00:00",
     "job": "msgbatch_01LUPrwrVc3dPv7pYcgEkmHm",
@@ -174582,6 +174761,17 @@
     "status": "machine",
     "text": "槽位上的 `sensitive` 与叶子节点级关键字具有相同的上限——它只做标注，不加密、不校验、不拒绝、不强制交付机制，也不改变任何渲染出的字节。完整说明见 [`vocabulary/compact-form-authoring.md`](../vocabulary/compact-form-authoring.md) “What the keyword does not do”。"
   },
+  "efa4c721db05c8a5": {
+    "at": "2026-11-15T09:28:20.698Z",
+    "job": "session-0001-20261115092820",
+    "revision": {
+      "from": "055d378151d91d92",
+      "reviewed": false
+    },
+    "srcHash": "efa4c721db05c8a5",
+    "status": "machine",
+    "text": "`0.9.0` 是标准库目录中三个 Plugin 实体的版本；插件本身编译在 CLI 中，构建从那里提供它们。`aggrega build --release release-production.yaml --auto-pull\n--detail` 会针对这三者逐一列出这两项："
+  },
   "efab8f3d16922940": {
     "at": "2026-10-22T01:39:34.791258+00:00",
     "job": "msgbatch_01NzZHjUiYAJW3BfQRFzEVzQ",
@@ -178029,6 +178219,17 @@
     "srcHash": "f4225609f31ae882",
     "status": "machine",
     "text": "它们每一个都满足两点，这也正是它们列入清单的原因：**它会代表你访问注册表或远程 URL**，因此耗时由本机之外的因素决定；并且**它本来就会在执行过程中写出对自身的陈述**——即在终端前观察的人所读到的内容。因此报告交给你的就是同一份陈述，而不是为传输另行编写的第二份，操作本身的行为也无需为此做任何改变。"
+  },
+  "f426c460916b52b3": {
+    "at": "2026-11-15T09:28:20.698Z",
+    "job": "session-0001-20261115092820",
+    "revision": {
+      "from": "d9bc90809c3a8c0f",
+      "reviewed": false
+    },
+    "srcHash": "f426c460916b52b3",
+    "status": "machine",
+    "text": "`--config` 为该次运行指定全局配置文件，取代机器原本会读取的那个文件，此工作区的 `.aggrega-config.yaml` 仍叠加在其之上。工作区文件中的 `plugins.governance` 列表会替换指定文件所带的列表，这就是工作区文件不声明该列表的原因。`0.9.0` 是每个引擎的 Plugin 实体在标准库目录中的版本。两个引擎都编译在 CLI 中——`aggrega plugin list` 将 `governance/rego` 和 `governance/cel` 列在嵌入的内置插件之中——因此这里的构建都不会获取插件。"
   },
   "f42875c48d376626": {
     "at": "2026-11-01T19:00:07.009Z",

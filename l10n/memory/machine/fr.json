@@ -16717,6 +16717,17 @@
     "status": "machine",
     "text": "Exécutez `aggrega config init` pour enregistrer un registre avec sa politique de confiance des signatures, puis `aggrega registry update` pour construire l’index local que lit la recherche."
   },
+  "19782f9732838bb5": {
+    "at": "2026-11-15T09:28:20.698Z",
+    "job": "session-0001-20261115092820",
+    "revision": {
+      "from": "7df0a5eca32063d6",
+      "reviewed": false
+    },
+    "srcHash": "19782f9732838bb5",
+    "status": "machine",
+    "text": "**Adoption par les utilisateurs.** Ce que les utilisateurs nous disent décide de l’ordre du travail : tout ce qui en facilite l’adoption passe en premier."
+  },
   "19791f63e771da12": {
     "at": "2026-11-03T00:27:36.365Z",
     "job": "session-0026-20261103002736",
@@ -30069,6 +30080,17 @@
     "status": "machine",
     "text": "**Chaque ressource nomme chaque ressource de la vague immédiatement précédente qui contient des ressources, et aucune vague antérieure à celle-ci.** CloudFormation enchaîne le reste : une ressource de la vague `2` dépend de la vague `1`, qui dépend de la vague `0`, de sorte que toute la séquence est ordonnée tandis que la liste propre à chaque ressource reste de la taille d’une seule vague plutôt que de la stack entière. Les vagues n’ont pas besoin d’être contiguës, et les valeurs négatives sont ordinaires — `-1` est un choix courant pour un bucket ou un rôle que lit le reste de la stack. La vague la plus basse ne nomme rien, car rien ne la précède."
   },
+  "2de57a9a430f58b1": {
+    "at": "2026-11-15T09:28:20.698Z",
+    "job": "session-0001-20261115092820",
+    "revision": {
+      "from": "ba4e7e5d2488e643",
+      "reviewed": false
+    },
+    "srcHash": "2de57a9a430f58b1",
+    "status": "machine",
+    "text": "Les rattachements Rego et CEL nomment les entités Plugin que le catalogue de la bibliothèque standard contient pour les deux moteurs compilés dans la CLI, `governance/rego:0.9.0` et `governance/cel:0.9.0`, et le moteur qui s’exécute est celui compilé dans le binaire qui exécute le build. L’entité Plugin d’OPA, dans `catalog/plugin/governance/`, est une déclaration propre à cet espace de travail en version `1.0.0`, donc son rattachement nomme `governance/opa:1.0.0`. Un refus est précédé du dernier segment de la référence du rattachement, sans sa version — `policy plugin \"rego\"`, `\"cel\"` ou `\"opa\"` — et chaque build rattache un seul moteur, donc le refus qu’il affiche nomme ce moteur. Le guest OPA est lu à côté de son entité à chaque build, et comme rien n’enregistre son digest, chaque build qui l’utilise avertit qu’il s’exécute sans vérification."
+  },
   "2de9062ba3202d74": {
     "at": "2026-11-03T12:27:44.093Z",
     "job": "session-0105-20261103122744",
@@ -34981,6 +35003,17 @@
     "srcHash": "359eb5059b503f93",
     "status": "machine",
     "text": "Les locals d’une Recipe partagent leur contexte avec son template `source` (#5), et cette surface n’offre pas le nom : le fait que le nœud fournisse une source, ce que décide le template `source`, est l’une des choses dont dépend le nom. La référence s’arrête avec le diagnostic de racine inconnue, qui liste `.context.instance_id` comme ce que `.context` y définit. Lisez plutôt la clé dans une entrée `provides`, ou dans un template de la phase de rendu de base."
+  },
+  "359eff2ed4db70c0": {
+    "at": "2026-11-15T09:28:20.698Z",
+    "job": "session-0001-20261115092820",
+    "revision": {
+      "from": "dacb718f2e007af7",
+      "reviewed": false
+    },
+    "srcHash": "359eff2ed4db70c0",
+    "status": "machine",
+    "text": "`governance/rego:0.9.0`, avec `policies/production-support.rego`"
   },
   "35a821bbbdf24ae3": {
     "at": "2026-11-05T17:28:23.934Z",
@@ -41467,6 +41500,17 @@
     "status": "machine",
     "text": "La connexion, par son socket et son alias, avec document nommant le document dans lequel la position a été lue — la valeur que les requêtes de candidature et de conteneur prennent comme connection."
   },
+  "3fcc17b0221ce543": {
+    "at": "2026-11-15T09:28:20.698Z",
+    "job": "session-0001-20261115092820",
+    "revision": {
+      "from": "cbbf69ea47f6da42",
+      "reviewed": false
+    },
+    "srcHash": "3fcc17b0221ce543",
+    "status": "machine",
+    "text": "`uri: governance/rego:0.9.0` nomme cette entité Plugin. C’est une identité : une coordonnée `<pluginType>/<name>` plus une version, et les deux moitiés font partie de la forme. **La version est celle sous laquelle le plugin est publié** — le hub la publie sous la forme `oci://hub.aggrega.ai/plugin/governance/rego:0.9.0`. La version intervient dans la résolution : un rattachement qui nomme une version que ne porte aucun répertoire de catalogue, aucun registre ni le binaire `aggrega` lui-même arrête le build. Le binaire ne porte l’entité du moteur qu’à la version de sa propre release."
+  },
   "3fd8878d73a313c3": {
     "at": "2026-11-04T04:12:48.125Z",
     "job": "session-0202-20261104041248",
@@ -46533,6 +46577,17 @@
     "srcHash": "474916bc0739b51e",
     "status": "machine",
     "text": "Les erreurs qui naissent dans une bibliothèque sous-jacente (erreurs de chargement de chart du SDK Helm, erreurs du parseur YAML de docker-compose, erreurs d’E/S de fichier dues à un chemin source manquant) sont enveloppées avec le préfixe de contexte par fournisseur et apparaissent sous `[TRANSLATION_ERROR]` ou `[CATALOG_ERROR]` selon qu’elles se sont déclenchées pendant la synthèse ou pendant le chargement du contenu du catalogue. Le message de bibliothèque enveloppé conserve tel quel le diagnostic de l’outil d’origine, afin que les auteurs puissent le comparer à la documentation propre de l’outil."
+  },
+  "474df35e4f0fb79d": {
+    "at": "2026-11-15T09:28:20.698Z",
+    "job": "session-0001-20261115092820",
+    "revision": {
+      "from": "b202bc913e5416c1",
+      "reviewed": false
+    },
+    "srcHash": "474df35e4f0fb79d",
+    "status": "machine",
+    "text": "Tous deux se rattachent comme n’importe quel plugin de gouvernance, via `plugins.governance` dans la configuration de l’espace de travail (voir [Rattacher une politique](policy-socket.md#attaching-a-policy)), et tous deux figurent parmi les [plugins embarqués](embedded-plugins.md). Les rattachements de cette page nomment `0.9.0`, la version de l’entité Plugin de chaque plugin dans le catalogue de la bibliothèque standard ; le build sert le plugin compilé dans la CLI."
   },
   "474e2b7f761bd8c1": {
     "at": "2026-11-03T13:20:59.617Z",
@@ -69095,6 +69150,17 @@
     "status": "machine",
     "text": "Quatre structures sont signalées sous cette condition, et la phrase vous dit laquelle vous avez. Le corps d’échappement ne s’analyse pas comme du YAML. La valeur de l’échappement n’est ni un scalaire de bloc ni un mappage. Une clé `properties:` contient quelque chose qui n’est pas un mappage de noms vers des schémas. Et, au niveau le plus externe, le document transmis au compilateur est vide ou contient un nœud pour lequel le lecteur n’a aucune règle."
   },
+  "69e594dfb7381d8f": {
+    "at": "2026-11-15T09:28:20.698Z",
+    "job": "session-0001-20261115092820",
+    "revision": {
+      "from": "f8d7af2f1db446af",
+      "reviewed": false
+    },
+    "srcHash": "69e594dfb7381d8f",
+    "status": "machine",
+    "text": "`.aggrega-config.yaml` désigne le hub comme registre, aucun répertoire de catalogue et aucun rattachement de gouvernance. La politique est rattachée par le fichier qu’un build nomme avec `--config` : `governance-rego.yaml` pour le moteur Rego, `governance-cel.yaml` pour le moteur CEL. Celui de Rego se lit ainsi :"
+  },
   "69e6dfa6e5fad9c6": {
     "at": "2026-11-04T10:10:47.161Z",
     "job": "session-0230-20261104101047",
@@ -70278,6 +70344,17 @@
     "srcHash": "6bb33c7474f23da2",
     "status": "machine",
     "text": "Sortie Kubernetes — l’adaptateur de rendu Kubewarden"
+  },
+  "6bb7863d2d2edc11": {
+    "at": "2026-11-15T09:28:20.698Z",
+    "job": "session-0001-20261115092820",
+    "revision": {
+      "from": "49dba91702a14413",
+      "reviewed": false
+    },
+    "srcHash": "6bb7863d2d2edc11",
+    "status": "machine",
+    "text": "`0.9.0` est une version à laquelle le hub publie l’entité Plugin de chaque moteur, si bien que le rattachement est résolu depuis le registre que lit le workspace, ou depuis le binaire `aggrega` de cette version, qui la porte. Le moteur qui s’exécute est celui compilé dans le binaire `aggrega` qui exécute le build, quelle que soit la version que nomme le rattachement. L’objet que prend l’annotation de surveillance nécessite un moteur qui injecte un objet de sous-clés, et les moteurs des versions antérieures à 0.8.7 ne le font pas."
   },
   "6bbcb24d2f0d86af": {
     "at": "2026-11-03T16:07:30.748Z",
@@ -86208,6 +86285,13 @@
     "status": "machine",
     "text": "Le déclencheur de chat n’accepte un message qu’avec l’utilisateur et le mot de passe enregistrés plus haut ; sans eux, il répond `HTTP/1.1 401 Unauthorized` et `Authorization is required!`, et avec un mot de passe erroné `HTTP/1.1 403 Forbidden`. Avec les deux dans `CHAT_USER` et `CHAT_PASSWORD`, curl les lit depuis son entrée standard, de sorte qu’ils n’apparaissent sur aucune ligne de commande :"
   },
+  "842898676877a4be": {
+    "at": "2026-11-15T09:28:20.698Z",
+    "job": "session-0001-20261115092820",
+    "srcHash": "842898676877a4be",
+    "status": "machine",
+    "text": "Ce qu’apporte la 0.9.0 :"
+  },
   "842ef1af34141ccd": {
     "at": "2026-10-30T07:09:12.317Z",
     "job": "session-0074-20261030070912",
@@ -93433,6 +93517,17 @@
     "srcHash": "8f072b5eaf0a556a",
     "status": "machine",
     "text": "Un registre trop occupé répond 429 Too Many Requests, ou 503 Service Unavailable avec un en-tête `Retry-After` indiquant combien de temps attendre. Chaque requête qu’une commande adresse à un registre attend aussi longtemps que le registre le demande — dix secondes lorsqu’il ne le précise pas — puis est redemandée ; chaque requête vers ce registre attend avec elle, et moins de requêtes lui sont envoyées à la fois jusqu’à ce qu’il réponde de nouveau. Un registre qui ne répond rien d’autre que « ralentissez » pendant cinq minutes est refusé sous cette condition, en nommant le registre, sa dernière réponse et depuis combien de temps il ne répondait rien d’autre, de même qu’une requête dont le propre délai expire pendant qu’elle attend. `aggrega registry update` signale alors ce registre comme non indexé, et celui-ci conserve l’index qu’il avait avant l’exécution."
+  },
+  "8f090b1467ee6d9b": {
+    "at": "2026-11-15T09:28:20.698Z",
+    "job": "session-0001-20261115092820",
+    "revision": {
+      "from": "cc7f7b98a691b4f6",
+      "reviewed": false
+    },
+    "srcHash": "8f090b1467ee6d9b",
+    "status": "machine",
+    "text": "Construit avec `--catalog` nommant un checkout du catalogue, l’exemple n’a besoin de rien d’autre : avec le binaire `aggrega` de la version que nomme le rattachement, qui porte lui-même l’entité Plugin, chaque entité est résolue sans réseau, et le moteur qui s’exécute est celui compilé dans le binaire `aggrega`. Sans cette option, les entités sont lues depuis `hub.aggrega.ai`."
   },
   "8f0a047ec74c7d84": {
     "at": "2026-11-05T16:44:55.584Z",
@@ -101710,6 +101805,17 @@
     "status": "machine",
     "text": "Un fragment — un fichier compose issu d’une source une fois sa surcouche fusionnée, ou un corps `artifacts:` qui s’évalue en YAML compose — n’atteint le `docker-compose.yaml` assemblé qu’à travers les clés que le fournisseur porte, et cet ensemble est fixe. Chaque clé qu’un fragment écrit est soit portée dans le fichier assemblé telle qu’elle est écrite, soit refusée nommément ; aucune n’est laissée de côté sans un mot. Un fragment est un seul fichier compose, il est donc un seul document YAML."
   },
+  "9bda609cadd12285": {
+    "at": "2026-11-15T09:28:20.698Z",
+    "job": "session-0001-20261115092820",
+    "revision": {
+      "from": "f0d17763b49d28ce",
+      "reviewed": false
+    },
+    "srcHash": "9bda609cadd12285",
+    "status": "machine",
+    "text": "Le moteur Rego est compilé dans le binaire de la CLI, et sa version est la version du compilateur qui le livre. Un compilateur d’une autre version lit depuis le hub l’entité Plugin que nomme le rattachement et exécute le moteur compilé en lui : la version indiquée dans le rattachement identifie l’entité et ne choisit pas le moteur."
+  },
   "9bdce33a71b23d70": {
     "at": "2026-10-22T11:34:20.013Z",
     "job": "session-0033-20261022113420",
@@ -104078,6 +104184,17 @@
     "srcHash": "9fa8ec5ab6795ee4",
     "status": "machine",
     "text": "1. Un compilateur déterministe, pas un générateur d’IaC"
+  },
+  "9faa18d9fcfdb6fb": {
+    "at": "2026-11-15T09:28:20.698Z",
+    "job": "session-0001-20261115092820",
+    "revision": {
+      "from": "915a9450cc1673de",
+      "reviewed": false
+    },
+    "srcHash": "9faa18d9fcfdb6fb",
+    "status": "machine",
+    "text": "Utilisez uniquement les outils Aggrega et ne créez vous-même aucun dossier. Si le dossier de l’espace de travail ne contient pas encore de dossier `import-langgraph`, appelez une fois l’outil `scaffold` avec `example` défini à `import-langgraph` et sans `dir` : il écrit l’exemple dans un nouveau dossier `import-langgraph`, dont le dossier `source` contient ce que cet exemple importe. Appelez ensuite l’outil `import` avec `workspace_root` défini à `import-langgraph/source`, `source` défini à `.`, `format` défini à `langgraph` et `target` défini à `compose` : il lit les réponses dont il a besoin dans `import-answers.yaml`, à côté de `langgraph.json`, écrit ses brouillons dans `import-langgraph/source` et récupère ce dont ils ont besoin. Appelez ensuite l’outil `validate` avec `workspace_root` défini à `import-langgraph/source` et `release` défini à `release.yaml`, puis l’outil `build` avec `workspace_root` défini à `import-langgraph/source`, `release` défini à `release.yaml` et `write` défini à true. Indiquez-moi quels fichiers le build a écrits ; ils se trouvent sous `import-langgraph/source/dist/`."
   },
   "9fb4438da5c1edfd": {
     "at": "2026-11-03T23:30:42.700Z",
@@ -127996,6 +128113,13 @@
     "status": "machine",
     "text": "À la demande, partout où un format étranger est lu"
   },
+  "c261e87c2370d3de": {
+    "at": "2026-11-15T09:28:20.698Z",
+    "job": "session-0001-20261115092820",
+    "srcHash": "c261e87c2370d3de",
+    "status": "machine",
+    "text": "Jalon 3 — La version 0.9.0"
+  },
   "c2624337dacf00a4": {
     "at": "2026-11-04T07:09:47.104Z",
     "job": "session-0214-20261104070947",
@@ -136447,6 +136571,17 @@
     "status": "machine",
     "text": "La Recipe helm synthétisée est le chemin Kubernetes : elle ne dépend que d’un tag d’image officiel plutôt que d’un chart tiers, et son ensemble de ressources rendu est exactement ce que déclare la charge de travail."
   },
+  "cf13f5ffdf6616ce": {
+    "at": "2026-11-15T09:28:20.698Z",
+    "job": "session-0001-20261115092820",
+    "revision": {
+      "from": "68ecb1d3124654fe",
+      "reviewed": false
+    },
+    "srcHash": "cf13f5ffdf6616ce",
+    "status": "machine",
+    "text": "Utilise uniquement les outils Aggrega, et ne crée aucun dossier toi-même. Si le dossier du Workspace ne contient pas encore de dossier `import-langgraph`, appelle une fois l’outil `scaffold` avec `example` défini sur `import-langgraph` et sans `dir` : il écrit l’exemple dans un nouveau dossier `import-langgraph`, dont le dossier `source` contient ce que cette page importe. Appelle ensuite l’outil `import` avec `workspace_root` défini sur `import-langgraph/source`, `source` défini sur `.`, `format` défini sur `langgraph` et `target` défini sur `compose` : il lit les réponses dont il a besoin dans `import-answers.yaml` à côté de `langgraph.json`, écrit ses brouillons dans `import-langgraph/source` et récupère ce dont ils ont besoin. Appelle ensuite l’outil `validate` avec `workspace_root` défini sur `import-langgraph/source` et `release` défini sur `release.yaml`, et l’outil `build` avec `workspace_root` défini sur `import-langgraph/source`, `release` défini sur `release.yaml` et `write` défini sur true. Dis-moi quels fichiers le build a écrits ; ils se trouvent sous `import-langgraph/source/dist/`."
+  },
   "cf18359aec627b01": {
     "at": "2026-11-03T14:46:30.297Z",
     "job": "session-0119-20261103144630",
@@ -144636,6 +144771,17 @@
     "status": "machine",
     "text": "le `gpt-4o-mini` d’OpenAI, atteint comme référence : rien ne s’exécute pour lui dans le cluster"
   },
+  "dbae905ce4ec2ad0": {
+    "at": "2026-11-15T09:28:20.698Z",
+    "job": "session-0001-20261115092820",
+    "revision": {
+      "from": "a0f48be9a0185e2d",
+      "reviewed": false
+    },
+    "srcHash": "dbae905ce4ec2ad0",
+    "status": "machine",
+    "text": "Les trois rattachements sont le moteur Rego, `governance/rego:0.9.0`, au rôle `ir-verdict`, qui juge le graphe de build avant que quoi que ce soit ne soit rendu. `0.9.0` est la version de son entité Plugin dans le catalogue de la bibliothèque standard. Le moteur lui-même est compilé dans la CLI — `aggrega plugin list` liste `governance/rego` parmi les built-ins embarqués — si bien qu’aucun build ici ne récupère de plugin."
+  },
   "dbaed02f55c44c21": {
     "at": "2026-10-30T19:18:26.912Z",
     "job": "session-0009-20261030191826",
@@ -146928,6 +147074,17 @@
     "status": "machine",
     "text": "**Une arête `uses:` dont la cible ne satisfait pas le `selector:` de son socket.** Un socket `usesSchema` déclare un champ `selector:` qui exclut le Component cible relié à l’autre extrémité de l’arête. Le sélecteur est la façon dont l’auteur du catalogue dit « ce socket n’accepte que des cibles dont les labels correspondent à cette expression » ; une arête qui satisfait la recherche par nom de socket mais pas l’expression du sélecteur est une violation de la sûreté de typage."
   },
+  "decb2676edbfbdf6": {
+    "at": "2026-11-15T09:28:20.698Z",
+    "job": "session-0001-20261115092820",
+    "revision": {
+      "from": "84cc6286e64da6c3",
+      "reviewed": false
+    },
+    "srcHash": "decb2676edbfbdf6",
+    "status": "machine",
+    "text": "Le rattachement nomme une version que le hub publie, si bien que l’épinglage se résout via le registre que lit le workspace, ou depuis le binaire `aggrega` de cette version."
+  },
   "decf464a2fdeeba2": {
     "at": "2026-11-04T01:50:22.188Z",
     "job": "session-0187-20261104015022",
@@ -147011,6 +147168,17 @@
     "srcHash": "def1b7417a224f96",
     "status": "machine",
     "text": "Les entités d’Aggrega portent deux mécanismes de métadonnées structurellement similaires — `metadata.labels` et `metadata.annotations` — ainsi que des champs porteurs d’annotations répartis entre les surfaces en cascade sur les frontières et les surfaces de rattachement de fonctionnalités. Six surfaces distinctes rédigent ou portent du contenu d’annotations/labels, chacune avec des règles de cascade différentes, des consommateurs différents et des conventions de préfixe différentes. Cette page documente les surfaces en un seul endroit, définit les trois compartiments sémantiques qu’expose le contexte de template à l’exécution, nomme la discipline de préfixes que les auteurs devraient suivre, et documente côte à côte les cinq surfaces de rattachement de Feature afin qu’elles soient visibles à côté du vocabulaire plus large des labels/annotations."
+  },
+  "def2ee699787715f": {
+    "at": "2026-11-15T09:28:20.698Z",
+    "job": "session-0001-20261115092820",
+    "revision": {
+      "from": "cb3e1441451328cc",
+      "reviewed": false
+    },
+    "srcHash": "def2ee699787715f",
+    "status": "machine",
+    "text": "L’exécution ci-dessous a utilisé une telle image : le graphe au chemin que nomme `langgraph.json`, `src/support_agent/graph.py`, un nœud qui répond par l’intermédiaire du modèle que nomme `OPENAI_MODEL`, et, comme commande de l’image, un petit serveur HTTP propre au programme sur le port 8000. L’image conserve l’arborescence du projet dans son répertoire de travail, de sorte que le chemin que nomme `LANGGRAPH_GRAPH_ENTRYPOINT`, relatif à celui-ci, trouve le graphe. Le serveur charge ce graphe, conserve l’état de chaque conversation dans la base de données grâce au checkpointer PostgreSQL de LangGraph, ouvert avec l’hôte, le port, l’utilisateur, le nom et le mot de passe de la base de données, chacun lu dans la variable `LANGGRAPH_CHECKPOINTER_` sous laquelle il arrive, de sorte que le programme n’en écrit lui-même aucun, et exécute le graphe une fois pour chaque `POST /threads/<thread>/runs`. Le service du graphe démarre dès que la base de données accepte les connexions ; un serveur qui ouvre le checkpointer à son démarrage trouve donc la base de données prête à accepter des connexions. Construisez votre image à la racine du projet, écrivez son nom à la place de `ghcr.io/example/support-agent:1.0.0` dans `import-answers.yaml`, et relancez l’import avec `--sync`, qui écrit la nouvelle réponse dans les brouillons et refait le pull ; puis lancez le build. L’import nomme son format avec `--format langgraph` : le dossier contient désormais aussi `dist/compose/docker-compose.yaml`, que le build a écrit et que l’importeur Compose reconnaît également, et l’import d’un dossier que deux importeurs reconnaissent s’arrête et demande le format :"
   },
   "def604f22f1c0fd3": {
     "at": "2026-11-14T23:38:24.651Z",
@@ -154809,6 +154977,17 @@
     "status": "machine",
     "text": "Dans quel workspace un appel reçoit sa réponse"
   },
+  "eab2f31a6cb03ac9": {
+    "at": "2026-11-15T09:28:20.698Z",
+    "job": "session-0001-20261115092820",
+    "revision": {
+      "from": "bd045b042e58ff06",
+      "reviewed": false
+    },
+    "srcHash": "eab2f31a6cb03ac9",
+    "status": "machine",
+    "text": "`governance/rego:0.9.0`, avec `policies/support-tier.rego`"
+  },
   "eab32074af827a6d": {
     "at": "2026-10-22T07:22:08.562Z",
     "job": "session-0022-20261022072208",
@@ -158254,6 +158433,17 @@
     "status": "machine",
     "text": "`sensitive` sur un slot porte le même plafond que le mot-clé au niveau des feuilles — il annote ; il ne chiffre pas, ne valide pas, ne rejette pas, n’impose pas de mécanisme de livraison et ne modifie aucun octet rendu. L’énoncé complet se trouve dans [`vocabulary/compact-form-authoring.md`](../vocabulary/compact-form-authoring.md) « Ce que le mot-clé ne fait pas »."
   },
+  "efa4c721db05c8a5": {
+    "at": "2026-11-15T09:28:20.698Z",
+    "job": "session-0001-20261115092820",
+    "revision": {
+      "from": "055d378151d91d92",
+      "reviewed": false
+    },
+    "srcHash": "efa4c721db05c8a5",
+    "status": "machine",
+    "text": "`0.9.0` est la version des trois entités Plugin du catalogue de la bibliothèque standard ; les plugins eux-mêmes sont compilés dans la CLI, et un build les sert depuis celle-ci. `aggrega build --release release-production.yaml --auto-pull\n--detail` liste les deux, pour chacun des trois :"
+  },
   "efab8f3d16922940": {
     "at": "2026-10-22T08:42:51.391Z",
     "job": "session-0026-20261022084251",
@@ -161476,6 +161666,17 @@
     "srcHash": "f4225609f31ae882",
     "status": "machine",
     "text": "Deux choses sont vraies de chacune d’elles, et toutes deux expliquent sa présence dans la liste : **elle atteint un registre ou une URL distante en votre nom**, si bien que sa durée dépend de quelque chose d’extérieur à la machine ; et **elle écrit déjà son propre compte rendu d’elle-même au fur et à mesure** — le compte rendu que lit une personne qui observe un terminal. Le suivi vous remet donc ce même compte rendu plutôt qu’un second composé pour le transport, et rien de ce que fait l’opération n’a dû changer pour le produire."
+  },
+  "f426c460916b52b3": {
+    "at": "2026-11-15T09:28:20.698Z",
+    "job": "session-0001-20261115092820",
+    "revision": {
+      "from": "d9bc90809c3a8c0f",
+      "reviewed": false
+    },
+    "srcHash": "f426c460916b52b3",
+    "status": "machine",
+    "text": "`--config` nomme le fichier de configuration global pour cette exécution, à la place de celui que la machine lirait sinon, et le `.aggrega-config.yaml` de cet espace de travail se superpose toujours à lui. Une liste `plugins.governance` dans le fichier de l’espace de travail remplacerait celle que porte le fichier nommé, c’est pourquoi le fichier de l’espace de travail n’en déclare aucune. `0.9.0` est la version de l’entité Plugin de chaque moteur dans le catalogue de la bibliothèque standard. Les deux moteurs sont compilés dans la CLI — `aggrega plugin list` liste `governance/rego` et `governance/cel` parmi les plugins intégrés embarqués — si bien qu’aucun build ici ne récupère de plugin."
   },
   "f42875c48d376626": {
     "at": "2026-11-03T17:29:36.700Z",
