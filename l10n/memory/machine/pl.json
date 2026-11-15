@@ -6472,6 +6472,13 @@
     "status": "machine",
     "text": "Klauzula jest całkowicie pomijana, gdy nie dotyczy żaden z faktów, a każda jej część jest pomijana niezależnie:"
   },
+  "088a00669fefa4a2": {
+    "at": "2026-11-15T00:47:22.827Z",
+    "job": "session-0003-20261115004722",
+    "srcHash": "088a00669fefa4a2",
+    "status": "machine",
+    "text": "W każdym celu ten sam wpis routingu ustawia `infra.marketplace_enabled` na `true` w komponentach `api`, `worker` i `scheduler` instalacji, każde pod komentarzem wyjaśniającym dlaczego: instalacja nie sięga do niczego u dostawcy Dify, chyba że encja Release na to pozwala, każdy z trzech komponentów odczytuje własne ustawienie, a Dify instaluje wtyczkę obsługującą model aplikacji, taki jak model OpenAI, ze swojego marketplace’u wtyczek."
+  },
   "088a8313af2558c5": {
     "at": "2026-10-22T23:44:18.033086+00:00",
     "job": "msgbatch_01RW6fe423uAAc5jf8jBuLb6",
@@ -58595,6 +58602,17 @@
     "status": "machine",
     "text": "Szablony encji Recipe odczytują to, co połączenie dostarcza pod `.context.inject` i `.context.uses`, oraz to, co dołączony Feature dostarcza pod `.features`. Syntetyczna uprząż nie podłącza żadnego połączenia i nie dołącza żadnego Feature, więc każdy taki odczyt nic nie znajduje: odczyt pod `.context.inject.env` trafia na pusty kanał dostarczania, a `range` po `.context.uses` nie trafia na żadne połączenie. Validate najpierw renderuje Recipe, a render, który się zakończy, jest zgłaszany jak zwykle. Gdy render się zatrzyma, a szablony Recipe — łącznie z importowanymi przez nie plikami i wpisami bibliotek — odczytują cokolwiek spod tych trzech, validate zgłasza render jako niepodjęty, wymienia wartości, które Recipe tam odczytuje, wypisuje zdanie, na którym render się zatrzymał, i kończy z kodem `0`. Wariant z chartem [przykładu MariaDB + Adminer](../examples/mariadb-adminer/) odczytuje dane uwierzytelniające bazy danych z kanału dostarczania, który wypełniają jego dwa dołączone sekrety:"
   },
+  "51a62b4849faa429": {
+    "at": "2026-11-15T00:47:22.827Z",
+    "job": "session-0003-20261115004722",
+    "revision": {
+      "from": "edbf183ff6b2859f",
+      "reviewed": false
+    },
+    "srcHash": "51a62b4849faa429",
+    "status": "machine",
+    "text": "`release.yaml`, obok niego, to szkic encji Release o tej samej nazwie, wskazujący tę encję Aggregate. Wpis agenta zapisuje jego `infra.image` — obraz uruchamiający aplikację zbudowaną na Agent Framework, który zawiera jej deklaratywnego agenta — jako pusty, pod komentarzem mówiącym, czym on jest, a import zgłasza go jako brakujący. Z `--target compose` wpis zapisuje także `infra.published_port`, 8000, port, który `infra.port` encji Component domyślnie wskazuje dla aplikacji i który jej encja Recipe Compose publikuje na adresie pętli zwrotnej hosta, 127.0.0.1, pod komentarzem informującym, że usługa jest osiągalna tylko z tej maszyny, dla każdego działającego na niej procesu, oraz że usunięcie wiersza pozostawia usługę wewnętrzną. Gdy jego model jest podłączony, wpis dołącza poświadczenie, które agent przedstawia temu modelowi, pod `credential` w jego połączeniu `model`, przez odwołanie, a nigdy jako wartość: odczytywane ze zmiennej, którą deklaratywny agent wskazuje dla swojego klucza, zapisanej jako `=Env.NAME`, a w przeciwnym razie z `OPENAI_API_KEY`, zmiennej, z której biblioteki klienckie OpenAI odczytują swój klucz; jako odwołanie `${…}` w każdym celu oprócz helm, a w helm jako nazwa obiektu Kubernetes Secret, zapisana jako pusta i zgłaszana przez import jako brakująca; w compose połączenie `model` deklaruje je z tym kluczem. Wartości, które deklaratywny agent podaje dla swojego modelu i swoich serwerów MCP — klucze oraz `url` każdego serwera — są zapisywane w komentarzu nad wpisem agenta, jak opisuje [Wartości poświadczeń w deklaratywnym agencie](#credential-values-a-declarative-agent-holds). Każdy podłączony model ma wpis, więc encja Release umieszcza go razem z agentem. Punkt końcowy podany przez jego połączenie jest zapisywany jako `infra.endpoint` modelu, a punkt końcowy zapisany jako odwołanie jest wskazany obok jego wpisu, przy czym do czasu jego ustawienia używany jest własny adres encji Component; połączenie niepodające punktu końcowego pozostawia wpis bez żadnej infrastruktury, a własny adres encji Component pozostaje w mocy. Jak każdy szkic encji Release, zapisuje `metadata.environment` jako `development` oraz, bez celu, puste `spec.manifest`, które import zgłasza jako brakujące; po podaniu celu import tworzy szkic encji Manifest, jak opisuje [Co dodaje cel](#what-a-target-adds)."
+  },
   "51a773e3a152a6d0": {
     "at": "2026-10-23T00:02:43.446982+00:00",
     "job": "msgbatch_013KkBfZb9E8JzDFk2rQG1By",
@@ -65911,6 +65929,17 @@
     "srcHash": "5b74f2800e476c88",
     "status": "machine",
     "text": "**Co jest zapisywane i gdzie.** Pliki przykładu, w postaci, w jakiej zawiera je dokumentacja, trafiają do katalogu wskazanego jako drugi argument — albo, gdy żaden nie zostanie wskazany, do katalogu nazwanego od przykładu w folderze, w którym uruchomiono polecenie. Katalog nie może jeszcze istnieć lub musi być pusty. Wszystko inne jest odrzucane i pozostawiane dokładnie w dotychczasowym stanie: katalog zawierający plik, plik znajdujący się pod tą ścieżką lub dowiązanie. Nieistniejące jeszcze katalogi nadrzędne są tworzone. Żaden plik przykładu nie zostaje w innym miejscu i żaden nie trafia na swoje miejsce, zanim wszystkie nie zostaną zapisane: najpierw są zapisywane na boku, a przenoszone dopiero wtedy, gdy wszystkie są gotowe."
+  },
+  "5b74f711a0858531": {
+    "at": "2026-11-15T00:47:22.827Z",
+    "job": "session-0003-20261115004722",
+    "revision": {
+      "from": "2b15ecc5961b2d04",
+      "reviewed": false
+    },
+    "srcHash": "5b74f711a0858531",
+    "status": "machine",
+    "text": "Import zgłasza trzy puste wartości jako wymagane. Przy imporcie z `--target compose` ta sama encja Release zapisuje `secret_key: \"${DIFY_SECRET_KEY}\"` i `origin: \"${DIFY_OWNER_PASSWORD}\"`, a jako wymagany zgłasza tylko adres e-mail właściciela; zapisuje też `infra.published_port` w komponencie `api`, 5001, oraz w interfejsie użytkownika, komponencie `console`, 3001, każde pod komentarzem informującym, że usługa jest osiągalna tylko z tej maszyny, dla każdego działającego na niej procesu, oraz że usunięcie wiersza pozostawia usługę wewnętrzną, a pod portem komponentu `api` zapisuje `infra.console_url` z adresem, pod którym publikowana jest konsola, `\"http://127.0.0.1:3001\"`, który serwer Dify przyjmuje jako adres konsoli. [Przewodnik po imporcie Dify](../../authoring/import/dify.md) buduje aplikację dla obu celów i uruchamia ją w Kubernetes."
   },
   "5b753b7e2624b914": {
     "at": "2026-10-22T08:46:18.120972+00:00",
@@ -130666,6 +130695,17 @@
     "status": "machine",
     "text": "**Emitowane komunikaty.** Capability w gnieździe przekrojowym:"
   },
+  "b444534d8724359a": {
+    "at": "2026-11-15T00:47:22.827Z",
+    "job": "session-0003-20261115004722",
+    "revision": {
+      "from": "b5cf783f0fd7ea93",
+      "reviewed": false
+    },
+    "srcHash": "b444534d8724359a",
+    "status": "machine",
+    "text": "Przy imporcie z `--target helm` jej szkic encji Release wypełnia `secret_key`, a we wpisie routingu rozmieszczającym instalację wskazuje właściciela i włącza marketplace wtyczek, przy czym każda wymagana wartość jest zapisywana jako pusta:"
+  },
   "b447f168f70e39ff": {
     "at": "2026-10-17T19:02:11.925Z",
     "job": "76a3f1e63ad5",
@@ -164306,6 +164346,17 @@
     "status": "machine",
     "text": "Jeden punkt końcowy połączenia przekraczającego granicę: węzeł, ścieżka granicy, w którą składa się jego wyrenderowane wyjście, oraz provider, który go wyrenderował. Dwa punkty końcowe połączenia wskazują konsumujący i konsumowany koniec krawędzi uses, której końce składają się w różne grupy dyspozycji."
   },
+  "e1a92bdc504cf4d6": {
+    "at": "2026-11-15T00:47:22.827Z",
+    "job": "session-0003-20261115004722",
+    "revision": {
+      "from": "1b3adafd43ff012c",
+      "reviewed": false
+    },
+    "srcHash": "e1a92bdc504cf4d6",
+    "status": "machine",
+    "text": "`release.yaml`, obok niego, to szkic encji Release o tej samej nazwie, wskazującej tę encję Aggregate. Komentarze nad wpisem pierwszego grafu mówią, czym jest obraz każdego grafu — własnym obrazem aplikacji, jej kodem z zainstalowanym LangGraph, a nie obrazem serwera, który buduje `langgraph build` — jakie zmienne otrzymuje i który blok `inject:` zastępuje którą z ich nazw. Wpis każdego grafu zapisuje jego `infra.image`, obraz uruchamiający aplikację, jako pusty pod komentarzem wyjaśniającym, czym jest, a import zgłasza tę wartość jako wymaganą; dopóki nie jest ustawiony, encja Recipe Docker Compose uruchamia własnego [agenta quickstart](../examples/quickstart-ai/README.md) katalogu, który odczytuje zmienne domyślne. Z `--target compose` wpis każdego grafu zapisuje także `infra.published_port`, 8000, port, który `infra.port` encji Component domyślnie wskazuje dla aplikacji i który jej encja Recipe Compose publikuje na adresie pętli zwrotnej hosta, 127.0.0.1, pod komentarzem informującym, że usługa jest osiągalna tylko z tej maszyny, dla każdego działającego na niej procesu, oraz że usunięcie wiersza pozostawia usługę wewnętrzną; drugi graf otrzymuje następny wolny port. Magazyn danych i model również mają wpisy, więc encja Release umieszcza je razem z grafami. Komentarz nad pierwszym grafem aplikacji określa środowisko deklarowane w jej konfiguracji, jak opisuje [Środowisko określane przez konfigurację](#the-environment-a-configuration-states). Jak każdy szkic encji Release, zapisuje `metadata.environment` jako `development` oraz, bez celu, puste `spec.manifest`, które import zgłasza jako wymagane; gdy podany jest cel, import tworzy szkic encji Manifest, jak opisuje [Co dodaje cel](#what-a-target-adds)."
+  },
   "e1aa7e115cd0c612": {
     "at": "2026-10-22T22:51:17.853388+00:00",
     "job": "msgbatch_01TQWjohL4SQN2SRjSV4rs3v",
@@ -180061,6 +180112,17 @@
     "srcHash": "f6d958636d799c66",
     "status": "machine",
     "text": "Przy tych samych danych wejściowych dostawca generuje w kolejnych uruchomieniach identyczny bajt po bajcie szablon stosu: identyfikatory logiczne, klucze wyjść, nazwy eksportów i kolejność zasobów są w pełni deterministyczne, dzięki czemu różnice w szablonie stosu CloudFormation są czytelne podczas przeglądu GitOps."
+  },
+  "f6daaff5dc3f3221": {
+    "at": "2026-11-15T00:47:22.827Z",
+    "job": "session-0003-20261115004722",
+    "revision": {
+      "from": "0da5744722fdb96f",
+      "reviewed": false
+    },
+    "srcHash": "f6daaff5dc3f3221",
+    "status": "machine",
+    "text": "`release.yaml`, obok niego, to szkic encji Release o tej samej nazwie, wskazujący tę encję Aggregate. Zapisuje on `infra.image` każdego agenta — obraz uruchamiający program załogi, którego żadna deklaracja nie wskazuje — jako pusty pod komentarzem wyjaśniającym, czym jest, a import zgłasza tę wartość jako wymaganą. Z `--target compose` wpis każdego agenta zapisuje także `infra.published_port`, 8000, port, który `infra.port` encji Component domyślnie wskazuje dla programu i który jej encja Recipe Compose publikuje na adresie pętli zwrotnej hosta, 127.0.0.1, pod komentarzem informującym, że usługa jest osiągalna tylko z tej maszyny, dla każdego działającego na niej procesu, oraz że usunięcie wiersza pozostawia usługę wewnętrzną; drugi agent otrzymuje następny wolny port, więc dwaj agenci klasycznego projektu są publikowani na 8000 i 8001. Poświadczenie, które każdy agent przedstawia swojemu modelowi, dołącza w `credential` w jego połączeniu `model`, przez odwołanie i nigdy jako wartość: żadna deklaracja nie wskazuje dla niego zmiennej, więc jest ono odczytywane ze zmiennej, z której biblioteki klienckie dostawcy odczytują swój klucz API — `OPENAI_API_KEY` dla OpenAI — jako odwołanie `${…}` w każdym celu oprócz helm, a w helm jako nazwa obiektu Secret Kubernetes, zapisana jako pusta, aby import zgłosił ją jako wymaganą; w compose połączenie `model` agenta deklaruje je z tym kluczem. Każdy model również ma wpis, niezawierający żadnej infrastruktury, dzięki czemu encja Release rozmieszcza go razem z agentami. W przypadku modelu zadeklarowanego jako obiekt `llm` każdy pozostały element jest zapisywany jako wartość instancji modelu, gdy encja Component z katalogu deklaruje wartość o tej nazwie, a w przeciwnym razie w komentarzu nad wpisem modelu w encji Release, aby można go było przenieść tam, gdzie encja Component go przyjmuje. Jak każdy szkic encji Release, zapisuje `metadata.environment` jako `development` oraz, bez celu, puste `spec.manifest`, które import zgłasza jako wymagane; gdy podany jest cel, import tworzy szkic encji Manifest, jak opisuje [Co dodaje cel](#what-a-target-adds)."
   },
   "f6dd651f6c97b13e": {
     "at": "2026-10-22T23:05:21.167953+00:00",

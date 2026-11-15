@@ -5859,6 +5859,13 @@
     "status": "machine",
     "text": "La clause est entièrement omise lorsqu’aucun des faits ne s’applique, et chaque moitié est omise indépendamment :"
   },
+  "088a00669fefa4a2": {
+    "at": "2026-11-15T00:47:22.827Z",
+    "job": "session-0003-20261115004722",
+    "srcHash": "088a00669fefa4a2",
+    "status": "machine",
+    "text": "Sur chaque cible, la même entrée de routage définit `infra.marketplace_enabled` à `true` sur les composants `api`, `worker` et `scheduler` de l’installation, chacun sous un commentaire indiquant pourquoi : l’installation n’atteint rien de l’éditeur de Dify à moins que la Release ne l’autorise, chacun des trois lit son propre paramètre, et Dify installe le plugin servant le modèle d’une application, comme celui d’OpenAI, depuis sa place de marché de plugins."
+  },
   "088a8313af2558c5": {
     "at": "2026-11-04T03:28:35.383Z",
     "job": "session-0197-20261104032835",
@@ -53086,6 +53093,17 @@
     "status": "machine",
     "text": "La condition est signalée dès que la build sait ce que chaque plugin déclare sur lui-même, avant l’exécution qui invoquerait l’étape, et une fois par étape rédigée plutôt qu’une fois par build — de sorte qu’un auteur voit toutes les étapes fautives d’un pipeline à partir d’une seule build. Les noms de Provider sont comparés à l’identique."
   },
+  "51a62b4849faa429": {
+    "at": "2026-11-15T00:47:22.827Z",
+    "job": "session-0003-20261115004722",
+    "revision": {
+      "from": "edbf183ff6b2859f",
+      "reviewed": false
+    },
+    "srcHash": "51a62b4849faa429",
+    "status": "machine",
+    "text": "`release.yaml`, à côté, est une Release en brouillon du même nom nommant cet Aggregate. L’entrée de l’agent écrit son `infra.image` — l’image exécutant l’application construite sur Agent Framework, qui contient son agent déclaratif — vide, sous un commentaire indiquant ce qu’elle est, et l’importation la signale comme due. Avec `--target compose`, l’entrée écrit aussi `infra.published_port`, 8000, le port que l’`infra.port` du Component désigne par défaut pour l’application, que sa Recipe Compose publie sur l’adresse de bouclage de l’hôte, 127.0.0.1, sous le commentaire indiquant qu’il n’est joignable que depuis cette machine, par tout processus qui s’y exécute, et que supprimer la ligne garde le service interne. Lorsque son modèle est relié, l’entrée rattache les identifiants que l’agent présente à ce modèle sous `credential` sur sa connexion `model`, par référence et jamais comme valeur : lus depuis la variable que l’agent déclaratif nomme pour sa clé, écrite `=Env.NAME`, et sinon depuis `OPENAI_API_KEY`, la variable dans laquelle les bibliothèques clientes d’OpenAI lisent leur clé ; comme référence `${…}` sur toutes les cibles sauf helm, et sur helm comme nom d’un Kubernetes Secret, écrit vide et signalé comme dû par l’importation ; sur compose, la connexion `model` les déclare avec cette clé. Les valeurs qu’indique l’agent déclaratif pour son modèle et ses serveurs MCP — les clés, et l’`url` de chaque serveur — sont écrites dans un commentaire au-dessus de l’entrée de l’agent, comme le décrit [Valeurs d’identifiants que contient un agent déclaratif](#credential-values-a-declarative-agent-holds). Chaque modèle relié a une entrée, de sorte que la Release le place avec l’agent. Le point de terminaison qu’indique sa connexion est écrit comme l’`infra.endpoint` du modèle, et un point de terminaison écrit comme une référence est nommé à côté de son entrée, l’adresse propre du Component étant utilisée tant qu’il n’est pas défini ; une connexion n’indiquant aucun point de terminaison laisse l’entrée sans aucune infrastructure, l’adresse propre du Component restant en vigueur. Comme toute Release produite en brouillon, elle écrit `metadata.environment` comme `development` et, sans cible, un `spec.manifest` vide que l’importation signale comme dû ; avec une cible, l’importation produit le Manifest en brouillon, comme le décrit [Ce qu’ajoute une cible](#what-a-target-adds)."
+  },
   "51a773e3a152a6d0": {
     "at": "2026-11-04T09:20:00.075Z",
     "job": "session-0226-20261104092000",
@@ -59755,6 +59773,17 @@
     "srcHash": "5b74f2800e476c88",
     "status": "machine",
     "text": "**Ce qu’il écrit, et où.** Les fichiers de l’exemple, tels que la documentation les contient, dans le répertoire que vous nommez en deuxième argument — ou, si vous n’en nommez aucun, dans un répertoire portant le nom de l’exemple dans le dossier où vous exécutez la commande. Le répertoire ne doit pas encore exister, ou doit être vide. Tout autre cas est refusé et laissé exactement tel qu’il était : un répertoire qui contient un fichier, un fichier situé à ce chemin, ou un lien. Les répertoires au-dessus de lui qui n’existent pas encore sont créés. Aucun fichier de l’exemple n’est laissé ailleurs, et aucun n’est mis en place avant que tous soient écrits : ils sont d’abord écrits à part, puis déplacés une fois que chacun d’eux est là."
+  },
+  "5b74f711a0858531": {
+    "at": "2026-11-15T00:47:22.827Z",
+    "job": "session-0003-20261115004722",
+    "revision": {
+      "from": "2b15ecc5961b2d04",
+      "reviewed": false
+    },
+    "srcHash": "5b74f711a0858531",
+    "status": "machine",
+    "text": "L’importation signale comme dues les trois valeurs vides. Importée avec `--target compose`, la même Release écrit `secret_key: \"${DIFY_SECRET_KEY}\"` et `origin: \"${DIFY_OWNER_PASSWORD}\"`, et ne signale comme due que l’adresse e-mail du propriétaire ; elle écrit aussi `infra.published_port` sur le composant `api`, 5001, et sur le front-end, le composant `console`, 3001, chacun sous le commentaire indiquant qu’il n’est joignable que depuis cette machine, par tout processus qui s’y exécute, et que supprimer la ligne garde le service interne, et, sous le port du composant `api`, `infra.console_url` avec l’adresse à laquelle la console est publiée, `\"http://127.0.0.1:3001\"`, que le serveur Dify prend comme adresse de la console. Le [guide pas à pas de l’importation Dify](../../authoring/import/dify.md) construit une application pour les deux cibles et l’exécute sur Kubernetes."
   },
   "5b753b7e2624b914": {
     "at": "2026-10-22T10:50:19.225Z",
@@ -118382,6 +118411,17 @@
     "status": "machine",
     "text": "**Messages émis.** Une capacité sur un socket transversal :"
   },
+  "b444534d8724359a": {
+    "at": "2026-11-15T00:47:22.827Z",
+    "job": "session-0003-20261115004722",
+    "revision": {
+      "from": "b5cf783f0fd7ea93",
+      "reviewed": false
+    },
+    "srcHash": "b444534d8724359a",
+    "status": "machine",
+    "text": "Importée avec `--target helm`, sa Release produite en brouillon renseigne `secret_key`, et nomme le propriétaire et active la place de marché de plugins dans l’entrée de routage plaçant l’installation, chaque valeur due étant écrite vide :"
+  },
   "b447f168f70e39ff": {
     "at": "2026-10-17T19:02:11.925Z",
     "job": "76a3f1e63ad5",
@@ -148975,6 +149015,17 @@
     "status": "machine",
     "text": "Un point de terminaison d’un lien inter-frontières : le nœud, le chemin de frontière dans lequel sa sortie rendue s’assemble, et le fournisseur qui l’a rendu. Les deux points de terminaison d’un lien nomment les extrémités consommatrice et consommée d’une arête uses dont les extrémités s’assemblent dans des groupes de distribution différents."
   },
+  "e1a92bdc504cf4d6": {
+    "at": "2026-11-15T00:47:22.827Z",
+    "job": "session-0003-20261115004722",
+    "revision": {
+      "from": "1b3adafd43ff012c",
+      "reviewed": false
+    },
+    "srcHash": "e1a92bdc504cf4d6",
+    "status": "machine",
+    "text": "`release.yaml`, à côté, est une Release en brouillon du même nom nommant cet Aggregate. Des commentaires au-dessus de l’entrée du premier graphe indiquent quelle est l’image de chaque graphe — celle de l’application elle-même, son code avec LangGraph installé, et non l’image serveur que construit `langgraph build` —, les variables qui lui sont transmises et quel bloc `inject:` remplace lequel de leurs noms. L’entrée de chaque graphe écrit vide son `infra.image`, l’image exécutant l’application, sous un commentaire indiquant ce qu’elle est, et l’importation la signale comme due ; tant qu’elle n’est pas définie, la Recipe Docker Compose exécute l’[agent quickstart](../examples/quickstart-ai/README.md) du catalogue lui-même, qui lit les variables par défaut. Avec `--target compose`, l’entrée de chaque graphe écrit aussi `infra.published_port`, 8000, le port que l’`infra.port` du Component désigne par défaut pour l’application, que sa Recipe Compose publie sur l’adresse de bouclage de l’hôte, 127.0.0.1, sous le commentaire indiquant qu’il n’est joignable que depuis cette machine, par tout processus qui s’y exécute, et que supprimer la ligne garde le service interne ; un deuxième graphe prend le port libre suivant. Le magasin de données et le modèle ont eux aussi des entrées, si bien que la Release les place avec les graphes. Un commentaire au-dessus du premier graphe de l’application indique l’environnement que déclare sa configuration, comme le décrit [L’environnement qu’indique une configuration](#the-environment-a-configuration-states). Comme toute Release produite en brouillon, elle écrit `metadata.environment` avec la valeur `development` et, sans cible, un `spec.manifest` vide que l’importation signale comme dû ; lorsqu’une cible est donnée, l’importation produit le Manifest en brouillon, comme le décrit [Ce qu’ajoute une cible](#what-a-target-adds)."
+  },
   "e1aa7e115cd0c612": {
     "at": "2026-11-03T12:09:18.843Z",
     "job": "session-0102-20261103120918",
@@ -163378,6 +163429,17 @@
     "srcHash": "f6d958636d799c66",
     "status": "machine",
     "text": "À entrées identiques, le fournisseur émet un template de stack identique octet pour octet d’une exécution à l’autre : les ID logiques, les clés de sortie, les noms d’export et l’ordre des ressources sont tous déterministes, de sorte qu’un template de stack CloudFormation produit des diffs propres en revue GitOps."
+  },
+  "f6daaff5dc3f3221": {
+    "at": "2026-11-15T00:47:22.827Z",
+    "job": "session-0003-20261115004722",
+    "revision": {
+      "from": "0da5744722fdb96f",
+      "reviewed": false
+    },
+    "srcHash": "f6daaff5dc3f3221",
+    "status": "machine",
+    "text": "`release.yaml`, à côté, est une Release en brouillon du même nom nommant cet Aggregate. Elle écrit vide l’`infra.image` de chaque agent — l’image exécutant le programme de la crew, que ne nomme aucune déclaration — sous un commentaire indiquant ce qu’elle est, et l’importation la signale comme due. Avec `--target compose`, l’entrée de chaque agent écrit aussi `infra.published_port`, 8000, le port que l’`infra.port` du Component désigne par défaut pour le programme, que sa Recipe Compose publie sur l’adresse de bouclage de l’hôte, 127.0.0.1, sous le commentaire indiquant qu’il n’est joignable que depuis cette machine, par tout processus qui s’y exécute, et que supprimer la ligne garde le service interne ; un deuxième agent prend le port libre suivant, si bien que les deux agents du projet classique sont publiés sur 8000 et 8001. Elle rattache les identifiants que chaque agent présente à son modèle sous `credential` sur sa connexion `model`, par référence et jamais comme valeur : aucune déclaration ne nomme de variable pour eux, ils sont donc lus depuis la variable dans laquelle les bibliothèques clientes du fournisseur lisent leur clé d’API — `OPENAI_API_KEY` pour OpenAI — sous la forme d’une référence `${…}` sur toute cible sauf helm, et sur helm comme le nom d’un Secret Kubernetes, écrit vide pour que l’importation le signale comme dû ; sur compose, la connexion `model` de l’agent les déclare avec cette clé. Chaque modèle a lui aussi une entrée, qui ne contient aucune infrastructure, si bien que la Release le place avec les agents. Pour un modèle déclaré comme un objet `llm`, chaque autre membre est écrit comme valeur de l’instance du modèle lorsque le Component du catalogue déclare une valeur de ce nom, et sinon dans un commentaire au-dessus de l’entrée du modèle dans la Release, pour que vous le reportiez là où le Component le prend. Comme toute Release produite en brouillon, elle écrit `metadata.environment` avec la valeur `development` et, sans cible, un `spec.manifest` vide que l’importation signale comme dû ; lorsqu’une cible est donnée, l’importation produit le Manifest en brouillon, comme le décrit [Ce qu’ajoute une cible](#what-a-target-adds)."
   },
   "f6dd651f6c97b13e": {
     "at": "2026-11-03T13:21:01.958Z",

@@ -5865,6 +5865,13 @@
     "status": "machine",
     "text": "A cláusula é omitida por completo quando nenhum dos fatos se aplica, e cada metade é omitida de forma independente:"
   },
+  "088a00669fefa4a2": {
+    "at": "2026-11-15T00:47:22.827Z",
+    "job": "session-0003-20261115004722",
+    "srcHash": "088a00669fefa4a2",
+    "status": "machine",
+    "text": "Em todos os destinos, a mesma entrada de roteamento define `infra.marketplace_enabled` como `true` nos componentes `api`, `worker` e `scheduler` da instalação, cada um sob um comentário que diz por quê: a instalação não alcança nada do fornecedor do Dify a menos que a Release o permita, cada um dos três lê sua própria configuração, e o Dify instala o plugin que serve o modelo de uma aplicação, como o da OpenAI, a partir de seu marketplace de plugins."
+  },
   "088a8313af2558c5": {
     "at": "2026-11-04T03:28:35.383Z",
     "job": "session-0197-20261104032835",
@@ -53072,6 +53079,17 @@
     "status": "machine",
     "text": "A condição é relatada assim que a build sabe o que cada plugin declara sobre si mesmo, antes da execução que invocaria a etapa, e uma vez por etapa escrita em vez de uma vez por build — assim um autor vê todas as etapas problemáticas de um pipeline a partir de uma única build. Os nomes de Provider são comparados de forma exata."
   },
+  "51a62b4849faa429": {
+    "at": "2026-11-15T00:47:22.827Z",
+    "job": "session-0003-20261115004722",
+    "revision": {
+      "from": "edbf183ff6b2859f",
+      "reviewed": false
+    },
+    "srcHash": "51a62b4849faa429",
+    "status": "machine",
+    "text": "`release.yaml`, ao lado dele, é uma Release de rascunho com o mesmo nome que nomeia esse Aggregate. A entrada do agente escreve seu `infra.image` — a imagem que executa a aplicação construída sobre o Agent Framework, que contém seu agente declarativo — vazio, sob um comentário que diz o que é, e a importação o marca como pendente. Com `--target compose`, a entrada também escreve `infra.published_port`, 8000, a porta que o `infra.port` do Component indica por padrão para a aplicação, que sua Recipe do Compose publica no endereço de loopback do host, 127.0.0.1, sob o comentário que diz que ele só pode ser acessado a partir desta máquina, por qualquer processo em execução nela, e que excluir a linha mantém o serviço interno. Onde seu modelo está conectado, a entrada vincula a credencial que o agente apresenta a esse modelo sob `credential` em sua conexão `model`, por referência e nunca como valor: lida da variável que o agente declarativo nomeia para sua chave, escrita `=Env.NAME`, e, caso contrário, de `OPENAI_API_KEY`, a variável da qual as bibliotecas cliente da OpenAI leem sua chave; como uma referência `${…}` em todos os destinos exceto helm, e no helm como o nome de um Kubernetes Secret, escrito vazio para que a importação o marque como pendente; no compose, a conexão `model` a declara com essa chave. Os valores que o agente declarativo declara para seu modelo e seus servidores MCP — as chaves e a `url` de cada servidor — são escritos em um comentário acima da entrada do agente, como descreve [Valores de credenciais que um agente declarativo contém](#credential-values-a-declarative-agent-holds). Cada modelo conectado tem uma entrada, de modo que a Release o posiciona junto com o agente. O endpoint que sua conexão declara é escrito como o `infra.endpoint` do modelo, e um escrito como referência é nomeado ao lado de sua entrada, sendo usado o próprio endereço do Component até que seja definido; uma conexão que não declara nenhum endpoint deixa a entrada sem infraestrutura, e o próprio endereço do Component permanece. Como toda Release de rascunho, ela escreve `metadata.environment` como `development` e, sem destino, um `spec.manifest` vazio que a importação marca como pendente; com um destino, a importação gera o Manifest como rascunho, como descreve [O que um destino adiciona](#what-a-target-adds)."
+  },
   "51a773e3a152a6d0": {
     "at": "2026-11-04T09:20:00.075Z",
     "job": "session-0226-20261104092000",
@@ -59735,6 +59753,17 @@
     "srcHash": "5b74f2800e476c88",
     "status": "machine",
     "text": "**O que ele escreve, e onde.** Os arquivos do exemplo, como a documentação os traz, no diretório que você nomeia como segundo argumento — ou, quando você não nomeia nenhum, em um diretório com o nome do exemplo na pasta em que você executa o comando. O diretório ainda não deve existir, ou deve estar vazio. Qualquer outra coisa é recusada e deixada exatamente como estava: um diretório que contém um arquivo, um arquivo nesse caminho ou um link. Diretórios acima dele que ainda não existem são criados. Nenhum arquivo do exemplo é deixado em outro lugar, e nenhum é colocado no lugar antes que todos sejam escritos: eles são escritos à parte primeiro e movidos para dentro assim que todos estiverem lá."
+  },
+  "5b74f711a0858531": {
+    "at": "2026-11-15T00:47:22.827Z",
+    "job": "session-0003-20261115004722",
+    "revision": {
+      "from": "2b15ecc5961b2d04",
+      "reviewed": false
+    },
+    "srcHash": "5b74f711a0858531",
+    "status": "machine",
+    "text": "A importação indica como pendentes os três valores vazios. Importada com `--target compose`, a mesma Release escreve `secret_key: \"${DIFY_SECRET_KEY}\"` e `origin: \"${DIFY_OWNER_PASSWORD}\"`, e indica como pendente apenas o e-mail do proprietário; ela também escreve `infra.published_port` no componente `api`, 5001, e no front-end, o componente `console`, 3001, cada um sob o comentário que diz que ele só pode ser acessado a partir desta máquina, por qualquer processo em execução nela, e que excluir a linha mantém o serviço interno, e, abaixo da porta do componente `api`, `infra.console_url` com o endereço em que o console é publicado, `\"http://127.0.0.1:3001\"`, que o servidor do Dify usa como endereço do console. O [passo a passo da importação do Dify](../../authoring/import/dify.md) faz o build de uma aplicação para os dois destinos e a executa no Kubernetes."
   },
   "5b753b7e2624b914": {
     "at": "2026-10-22T10:50:19.225Z",
@@ -118350,6 +118379,17 @@
     "status": "machine",
     "text": "**Mensagens emitidas.** Uma capacidade em um socket transversal:"
   },
+  "b444534d8724359a": {
+    "at": "2026-11-15T00:47:22.827Z",
+    "job": "session-0003-20261115004722",
+    "revision": {
+      "from": "b5cf783f0fd7ea93",
+      "reviewed": false
+    },
+    "srcHash": "b444534d8724359a",
+    "status": "machine",
+    "text": "Importada com `--target helm`, sua Release gerada como rascunho preenche `secret_key`, e nomeia o proprietário e ativa o marketplace de plugins na entrada de roteamento que posiciona a instalação, com cada valor pendente escrito vazio:"
+  },
   "b447f168f70e39ff": {
     "at": "2026-10-17T19:02:11.925Z",
     "job": "76a3f1e63ad5",
@@ -148909,6 +148949,17 @@
     "status": "machine",
     "text": "Um endpoint de um link entre fronteiras: o nó, o caminho da fronteira no qual a sua saída renderizada é montada e o provedor que o renderizou. Os dois endpoints de um link nomeiam as extremidades consumidora e consumida de uma aresta uses cujas extremidades são montadas em grupos de despacho diferentes."
   },
+  "e1a92bdc504cf4d6": {
+    "at": "2026-11-15T00:47:22.827Z",
+    "job": "session-0003-20261115004722",
+    "revision": {
+      "from": "1b3adafd43ff012c",
+      "reviewed": false
+    },
+    "srcHash": "e1a92bdc504cf4d6",
+    "status": "machine",
+    "text": "`release.yaml`, ao lado dele, é uma Release de rascunho com o mesmo nome que nomeia esse Aggregate. Comentários acima da entrada do primeiro grafo dizem qual é a imagem de cada grafo — a própria da aplicação, seu código com o LangGraph instalado, não a imagem de servidor da qual `langgraph build` faz o build —, as variáveis que ela recebe e qual bloco `inject:` substitui qual de seus nomes. A entrada de cada grafo escreve vazio seu `infra.image`, a imagem que executa a aplicação, sob um comentário que diz o que ele é, e a importação o indica como pendente; enquanto ele não é definido, a Recipe do Docker Compose executa o [agente quickstart](../examples/quickstart-ai/README.md) do próprio catálogo, que lê as variáveis padrão. Com `--target compose`, a entrada de cada grafo também escreve `infra.published_port`, 8000, a porta que o `infra.port` do Component indica por padrão para a aplicação, que sua Recipe do Compose publica no endereço de loopback do host, 127.0.0.1, sob o comentário que diz que ele só pode ser acessado a partir desta máquina, por qualquer processo em execução nela, e que excluir a linha mantém o serviço interno; um segundo grafo recebe a próxima porta livre. O armazenamento de dados e o modelo também têm entradas, de modo que a Release os posiciona junto com os grafos. Um comentário acima do primeiro grafo da aplicação indica o ambiente que sua configuração declara, como descreve [O ambiente que uma configuração indica](#the-environment-a-configuration-states). Como toda Release gerada como rascunho, ela escreve `metadata.environment` como `development` e, sem destino, um `spec.manifest` vazio que a importação indica como pendente; dado um destino, a importação gera o Manifest como rascunho, como descreve [O que um destino adiciona](#what-a-target-adds)."
+  },
   "e1aa7e115cd0c612": {
     "at": "2026-11-03T12:09:18.843Z",
     "job": "session-0102-20261103120918",
@@ -163282,6 +163333,17 @@
     "srcHash": "f6d958636d799c66",
     "status": "machine",
     "text": "Com as mesmas entradas, o provedor emite um template de stack idêntico byte a byte entre execuções: IDs lógicos, chaves de saída, nomes de export e ordem dos recursos são todos determinísticos, então um template de stack do CloudFormation gera diffs limpos na revisão GitOps."
+  },
+  "f6daaff5dc3f3221": {
+    "at": "2026-11-15T00:47:22.827Z",
+    "job": "session-0003-20261115004722",
+    "revision": {
+      "from": "0da5744722fdb96f",
+      "reviewed": false
+    },
+    "srcHash": "f6daaff5dc3f3221",
+    "status": "machine",
+    "text": "`release.yaml`, ao lado dele, é uma Release de rascunho com o mesmo nome que nomeia esse Aggregate. Ela escreve vazio o `infra.image` de cada agente — a imagem que executa o programa da crew, que nenhuma declaração nomeia — sob um comentário que diz o que ele é, e a importação o indica como pendente. Com `--target compose`, a entrada de cada agente também escreve `infra.published_port`, 8000, a porta que o `infra.port` do Component indica por padrão para o programa, que sua Recipe do Compose publica no endereço de loopback do host, 127.0.0.1, sob o comentário que diz que ele só pode ser acessado a partir desta máquina, por qualquer processo em execução nela, e que excluir a linha mantém o serviço interno; um segundo agente recebe a próxima porta livre, de modo que os dois agentes do projeto clássico são publicados em 8000 e 8001. Ela anexa a credencial que cada agente apresenta ao seu modelo sob `credential` em sua conexão `model`, por referência e nunca como valor: nenhuma declaração nomeia uma variável para ela, então ela é lida da variável da qual as bibliotecas cliente do provedor leem sua chave de API — `OPENAI_API_KEY` para a OpenAI — como uma referência `${…}` em todos os destinos exceto helm, e no helm como o nome de um Secret do Kubernetes, escrito vazio para que a importação o indique como pendente; no compose, a conexão `model` do agente a declara com essa chave. Cada modelo também tem uma entrada, que não contém nenhuma infraestrutura, então a Release o posiciona junto com os agentes. De um modelo declarado como um objeto `llm`, cada um dos outros membros é escrito como um valor da instância do modelo onde o Component do catálogo declara um valor com esse nome, e caso contrário em um comentário acima da entrada do modelo na Release, para que você o leve onde o Component o aceita. Como toda Release gerada como rascunho, ela escreve `metadata.environment` como `development` e, sem destino, um `spec.manifest` vazio que a importação indica como pendente; dado um destino, a importação gera o Manifest como rascunho, como descreve [O que um destino adiciona](#what-a-target-adds)."
   },
   "f6dd651f6c97b13e": {
     "at": "2026-11-03T13:21:01.958Z",

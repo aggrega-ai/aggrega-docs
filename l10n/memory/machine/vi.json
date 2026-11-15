@@ -6472,6 +6472,13 @@
     "status": "machine",
     "text": "Mệnh đề bị lược bỏ hoàn toàn khi không có dữ kiện nào áp dụng, và mỗi nửa được lược bỏ một cách độc lập:"
   },
+  "088a00669fefa4a2": {
+    "at": "2026-11-15T00:47:22.827Z",
+    "job": "session-0003-20261115004722",
+    "srcHash": "088a00669fefa4a2",
+    "status": "machine",
+    "text": "Trên mọi target, cùng mục định tuyến đó đặt `infra.marketplace_enabled` thành `true` trên các component `api`, `worker` và `scheduler` của bản cài đặt, mỗi cái dưới một chú thích giải thích lý do: bản cài đặt không truy cập được gì của nhà cung cấp Dify trừ khi Release cho phép, mỗi component trong ba component đọc thiết lập riêng của nó, và Dify cài đặt plugin phục vụ model của một ứng dụng, chẳng hạn của OpenAI, từ chợ plugin của nó."
+  },
   "088a8313af2558c5": {
     "at": "2026-10-22T23:44:18.033086+00:00",
     "job": "msgbatch_01RW6fe423uAAc5jf8jBuLb6",
@@ -58621,6 +58628,17 @@
     "status": "machine",
     "text": "Các template của một Recipe đọc những gì một kết nối phân phối dưới `.context.inject` và `.context.uses`, và những gì một Feature được đính kèm phân phối dưới `.features`. Bộ khung tổng hợp không nối kết nối nào và không đính kèm Feature nào, nên mọi lần đọc như vậy đều không tìm thấy gì: một lần đọc dưới `.context.inject.env` gặp một đường ống phân phối rỗng, và một `range` trên `.context.uses` không gặp kết nối nào. Validate render Recipe trước, và một lần render hoàn tất được báo cáo như bình thường. Khi lần render dừng lại và các template của Recipe — bao gồm cả các tệp và mục thư viện mà chúng import — đọc bất cứ thứ gì dưới ba vị trí đó, validate báo cáo lần render là chưa được thực hiện, nêu tên các giá trị mà Recipe đọc ở đó, in ra câu mà lần render dừng lại, và thoát với `0`. Biến thể chart của [ví dụ MariaDB + Adminer](../examples/mariadb-adminer/) đọc thông tin xác thực cơ sở dữ liệu từ đường ống phân phối mà hai secret được đính kèm của nó lấp đầy:"
   },
+  "51a62b4849faa429": {
+    "at": "2026-11-15T00:47:22.827Z",
+    "job": "session-0003-20261115004722",
+    "revision": {
+      "from": "edbf183ff6b2859f",
+      "reviewed": false
+    },
+    "srcHash": "51a62b4849faa429",
+    "status": "machine",
+    "text": "`release.yaml`, bên cạnh nó, là một Release nháp cùng tên nêu tên Aggregate đó. Mục của agent ghi `infra.image` của agent — image chạy ứng dụng xây dựng trên Agent Framework, chứa declarative agent của nó — ở dạng trống, dưới một chú thích cho biết nó là gì, và lần nhập ghi nhận nó là giá trị còn thiếu. Với `--target compose`, mục đó cũng ghi `infra.published_port`, 8000, cổng mà `infra.port` của Component chỉ định mặc định cho ứng dụng, được Recipe Compose của nó công bố trên địa chỉ loopback của máy chủ, 127.0.0.1, dưới chú thích cho biết dịch vụ chỉ có thể truy cập từ máy này, bởi bất kỳ tiến trình nào chạy trên máy, và việc xóa dòng đó giữ dịch vụ ở dạng nội bộ. Khi mô hình của agent đã được nối, mục gắn thông tin xác thực mà agent trình cho mô hình đó dưới `credential` trên kết nối `model` của nó, bằng tham chiếu và không bao giờ dưới dạng giá trị: được đọc từ biến mà declarative agent nêu tên cho khóa của nó, viết là `=Env.NAME`, và nếu không thì từ `OPENAI_API_KEY`, biến mà các thư viện client của OpenAI đọc khóa từ đó; dưới dạng tham chiếu `${…}` trên mọi target trừ helm, và trên helm dưới dạng tên của một Kubernetes Secret, được ghi trống để lần nhập ghi nhận là còn thiếu; trên compose, kết nối `model` khai báo nó với khóa đó. Các giá trị mà declarative agent nêu cho mô hình và các máy chủ MCP của nó — các khóa, và `url` của từng máy chủ — được viết trong một chú thích phía trên mục của agent, như [Các giá trị thông tin xác thực mà một declarative agent chứa](#credential-values-a-declarative-agent-holds) mô tả. Mỗi mô hình đã nối có một mục, nên Release đặt nó cùng với agent. Endpoint mà kết nối của nó nêu được viết thành `infra.endpoint` của mô hình, và một endpoint được viết dưới dạng tham chiếu được nêu tên bên cạnh mục của nó, địa chỉ riêng của Component được dùng cho đến khi nó được đặt; một kết nối không nêu endpoint nào để mục đó không chứa hạ tầng nào, địa chỉ riêng của Component vẫn giữ nguyên. Giống như mọi Release được phác thảo, nó ghi `metadata.environment` là `development` và, khi không có target, một `spec.manifest` trống mà lần nhập ghi nhận là còn thiếu; khi được cung cấp một target, lần nhập phác thảo Manifest, như [Một target bổ sung những gì](#what-a-target-adds) mô tả."
+  },
   "51a773e3a152a6d0": {
     "at": "2026-10-23T00:02:43.446982+00:00",
     "job": "msgbatch_013KkBfZb9E8JzDFk2rQG1By",
@@ -65937,6 +65955,17 @@
     "srcHash": "5b74f2800e476c88",
     "status": "machine",
     "text": "**Ghi gì và ghi vào đâu.** Các tệp của ví dụ, đúng như tài liệu chứa chúng, được ghi vào thư mục bạn nêu làm đối số thứ hai — hoặc, khi bạn không nêu, vào một thư mục mang tên ví dụ trong thư mục nơi bạn chạy lệnh. Thư mục đó phải chưa tồn tại, hoặc phải trống. Mọi trường hợp khác đều bị từ chối và được giữ nguyên như cũ: một thư mục chứa một tệp, một tệp nằm ở đường dẫn đó, hoặc một liên kết. Các thư mục cấp trên chưa tồn tại sẽ được tạo. Không tệp nào của ví dụ bị bỏ lại ở nơi khác, và không tệp nào được đặt vào chỗ trước khi tất cả đã được ghi: chúng được ghi ra một chỗ riêng trước rồi chuyển vào khi tất cả đã có mặt."
+  },
+  "5b74f711a0858531": {
+    "at": "2026-11-15T00:47:22.827Z",
+    "job": "session-0003-20261115004722",
+    "revision": {
+      "from": "2b15ecc5961b2d04",
+      "reviewed": false
+    },
+    "srcHash": "5b74f711a0858531",
+    "status": "machine",
+    "text": "Lần nhập ghi nhận ba giá trị trống là giá trị còn thiếu. Khi nhập với `--target compose`, cùng Release đó ghi `secret_key: \"${DIFY_SECRET_KEY}\"` và `origin: \"${DIFY_OWNER_PASSWORD}\"`, và chỉ ghi nhận email của chủ sở hữu là giá trị còn thiếu; nó cũng ghi `infra.published_port` trên component `api`, 5001, và trên front end, tức component `console`, 3001, mỗi cái dưới chú thích cho biết dịch vụ chỉ có thể truy cập từ máy này, bởi bất kỳ tiến trình nào chạy trên máy, và việc xóa dòng đó giữ dịch vụ ở dạng nội bộ, và, bên dưới cổng của component `api`, ghi `infra.console_url` với địa chỉ mà console được công bố, `\"http://127.0.0.1:3001\"`, mà máy chủ Dify dùng làm địa chỉ của console. [Hướng dẫn từng bước nhập Dify](../../authoring/import/dify.md) build một ứng dụng cho cả hai target và chạy nó trên Kubernetes."
   },
   "5b753b7e2624b914": {
     "at": "2026-10-22T10:27:55.857345+00:00",
@@ -130718,6 +130747,17 @@
     "status": "machine",
     "text": "**Thông báo được phát ra.** Một capability trên một socket xuyên suốt:"
   },
+  "b444534d8724359a": {
+    "at": "2026-11-15T00:47:22.827Z",
+    "job": "session-0003-20261115004722",
+    "revision": {
+      "from": "b5cf783f0fd7ea93",
+      "reviewed": false
+    },
+    "srcHash": "b444534d8724359a",
+    "status": "machine",
+    "text": "Khi nhập với `--target helm`, Release được soạn thảo của nó đáp ứng `secret_key`, đồng thời nêu tên chủ sở hữu và bật chợ plugin trong mục định tuyến đặt bản cài đặt, với mỗi giá trị còn thiếu được ghi trống:"
+  },
   "b447f168f70e39ff": {
     "at": "2026-10-17T19:02:11.925Z",
     "job": "76a3f1e63ad5",
@@ -164396,6 +164436,17 @@
     "status": "machine",
     "text": "Một đầu mút của một liên kết xuyên ranh giới: node, đường dẫn ranh giới mà đầu ra đã render của nó được lắp ráp vào, và provider đã render nó. Hai đầu mút của một liên kết nêu tên đầu tiêu thụ và đầu được tiêu thụ của một cạnh uses có hai đầu được lắp ráp vào các nhóm dispatch khác nhau."
   },
+  "e1a92bdc504cf4d6": {
+    "at": "2026-11-15T00:47:22.827Z",
+    "job": "session-0003-20261115004722",
+    "revision": {
+      "from": "1b3adafd43ff012c",
+      "reviewed": false
+    },
+    "srcHash": "e1a92bdc504cf4d6",
+    "status": "machine",
+    "text": "`release.yaml`, bên cạnh nó, là một Release nháp cùng tên, nêu Aggregate đó. Các chú thích phía trên mục của graph đầu tiên cho biết image của mỗi graph là gì — image riêng của ứng dụng, tức mã của nó có cài LangGraph, chứ không phải image server mà `langgraph build` build — các biến được truyền cho nó và khối `inject:` nào thay thế tên nào trong số đó. Mục của mỗi graph ghi trống `infra.image` của nó, image chạy ứng dụng, dưới một chú thích cho biết nó là gì, và lần nhập ghi nhận nó là giá trị còn thiếu; trong khi nó chưa được đặt, Recipe Docker Compose chạy [agent quickstart](../examples/quickstart-ai/README.md) riêng của catalog, vốn đọc các biến mặc định. Với `--target compose`, mục của mỗi graph cũng ghi `infra.published_port`, 8000, cổng mà `infra.port` của Component chỉ định mặc định cho ứng dụng, được Recipe Compose của nó công bố trên địa chỉ loopback của máy chủ, 127.0.0.1, dưới chú thích cho biết dịch vụ chỉ có thể truy cập từ máy này, bởi bất kỳ tiến trình nào chạy trên máy, và việc xóa dòng đó giữ dịch vụ ở dạng nội bộ; graph thứ hai lấy cổng trống tiếp theo. Kho dữ liệu và model cũng có các mục, nên Release đặt chúng cùng với các graph. Một chú thích phía trên graph đầu tiên của ứng dụng nêu môi trường mà cấu hình của nó khai báo, như [Môi trường mà một cấu hình nêu ra](#the-environment-a-configuration-states) mô tả. Như mọi Release được soạn thảo, nó ghi `metadata.environment` là `development` và, khi không có target, một `spec.manifest` trống mà lần nhập ghi nhận là giá trị còn thiếu; khi có target, lần nhập soạn thảo Manifest, như [Một target bổ sung những gì](#what-a-target-adds) mô tả."
+  },
   "e1aa7e115cd0c612": {
     "at": "2026-10-22T22:51:17.853388+00:00",
     "job": "msgbatch_01TQWjohL4SQN2SRjSV4rs3v",
@@ -180175,6 +180226,17 @@
     "srcHash": "f6d958636d799c66",
     "status": "machine",
     "text": "Với cùng các đầu vào, provider xuất ra một stack template giống hệt nhau đến từng byte qua các lần chạy: logical ID, khóa output, tên export và thứ tự tài nguyên đều mang tính tất định, nhờ đó một stack template CloudFormation cho ra diff gọn gàng khi review theo GitOps."
+  },
+  "f6daaff5dc3f3221": {
+    "at": "2026-11-15T00:47:22.827Z",
+    "job": "session-0003-20261115004722",
+    "revision": {
+      "from": "0da5744722fdb96f",
+      "reviewed": false
+    },
+    "srcHash": "f6daaff5dc3f3221",
+    "status": "machine",
+    "text": "`release.yaml`, bên cạnh nó, là một Release nháp cùng tên chỉ định Aggregate đó. Nó ghi trống `infra.image` của mỗi agent — image chạy chương trình của crew, mà không khai báo nào nêu tên — dưới một chú thích cho biết nó là gì, và lần nhập ghi nhận nó là giá trị còn thiếu. Với `--target compose`, mục của mỗi agent cũng ghi `infra.published_port`, 8000, cổng mà `infra.port` của Component chỉ định mặc định cho chương trình, được Recipe Compose của nó công bố trên địa chỉ loopback của máy chủ, 127.0.0.1, dưới chú thích cho biết dịch vụ chỉ có thể truy cập từ máy này, bởi bất kỳ tiến trình nào chạy trên máy, và việc xóa dòng đó giữ dịch vụ ở dạng nội bộ; agent thứ hai lấy cổng trống tiếp theo, nên hai agent của dự án cổ điển được công bố trên 8000 và 8001. Nó gắn thông tin xác thực mà mỗi agent xuất trình cho model của mình dưới `credential` trên kết nối `model` của agent, bằng tham chiếu và không bao giờ dưới dạng giá trị: không khai báo nào nêu tên một biến cho nó, nên nó được đọc từ biến mà các thư viện client của nhà cung cấp đọc khóa API của chúng — `OPENAI_API_KEY` đối với OpenAI — dưới dạng tham chiếu `${…}` trên mọi target trừ helm, và trên helm dưới dạng tên của một Kubernetes Secret, được ghi trống để lần nhập ghi nhận là giá trị còn thiếu; trên compose, kết nối `model` của agent khai báo nó với khóa đó. Mỗi model cũng có một mục, không chứa hạ tầng nào, nên Release đặt nó cùng với các agent. Với một model được khai báo dưới dạng một đối tượng `llm`, mỗi thành phần khác được ghi thành một giá trị của instance của model khi Component của catalog khai báo một giá trị mang tên đó, và nếu không thì trong một chú thích phía trên mục của model trong Release, để bạn mang nó tới nơi Component nhận nó. Như mọi Release được soạn thảo, nó ghi `metadata.environment` là `development` và, khi không có target, một `spec.manifest` trống mà lần nhập ghi nhận là giá trị còn thiếu; khi có target, lần nhập soạn thảo Manifest, như [Một target bổ sung những gì](#what-a-target-adds) mô tả."
   },
   "f6dd651f6c97b13e": {
     "at": "2026-10-22T23:05:21.167953+00:00",

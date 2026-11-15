@@ -6472,6 +6472,13 @@
     "status": "machine",
     "text": "当所有事实都不适用时，整个子句会被省略；各部分也会各自独立地省略："
   },
+  "088a00669fefa4a2": {
+    "at": "2026-11-15T00:47:22.827Z",
+    "job": "session-0003-20261115004722",
+    "srcHash": "088a00669fefa4a2",
+    "status": "machine",
+    "text": "在每个目标上，同一个路由条目都会在安装的 `api`、`worker` 和 `scheduler` 组件上将 `infra.marketplace_enabled` 设为 `true`，每一项上方都有注释说明原因：除非 Release 允许，否则安装无法访问 Dify 供应商的任何内容；这三个组件各自读取自己的设置；而 Dify 会从其插件市场安装为应用的模型（例如 OpenAI 的模型）提供服务的插件。"
+  },
   "088a8313af2558c5": {
     "at": "2026-10-22T05:07:43.448651+00:00",
     "job": "msgbatch_017U8zLucNunw6USSWNfR6c8",
@@ -58609,6 +58616,17 @@
     "status": "machine",
     "text": "Recipe 的模板会在 `.context.inject` 和 `.context.uses` 下读取连接交付的内容，在 `.features` 下读取已挂载的 Feature 交付的内容。合成的测试框架不接线任何连接，也不挂载任何 Feature，因此所有此类读取都找不到内容：在 `.context.inject.env` 下的读取会遇到空的交付管道，对 `.context.uses` 的 `range` 不会遇到任何连接。validate 会先渲染该 Recipe，渲染完成则照常报告。当渲染停止，且 Recipe 的模板（包括它们导入的文件和库条目）读取了这三者之下的任何内容时，validate 会将渲染报告为未尝试，列出 Recipe 在那里读取的值，打印渲染停止时的语句，并以 `0` 退出。[MariaDB + Adminer 示例](../examples/mariadb-adminer/)的 chart 变体从其两个已挂载密钥所填充的交付管道中读取数据库凭据："
   },
+  "51a62b4849faa429": {
+    "at": "2026-11-15T00:47:22.827Z",
+    "job": "session-0003-20261115004722",
+    "revision": {
+      "from": "edbf183ff6b2859f",
+      "reviewed": false
+    },
+    "srcHash": "51a62b4849faa429",
+    "status": "machine",
+    "text": "其旁边的 `release.yaml` 是一个同名的 Release 草稿，指向该 Aggregate。智能体的条目将其 `infra.image`（运行基于 Agent Framework 构建的应用的镜像，其中包含其声明式智能体）写为空，并在其上方加一条说明其含义的注释，由导入将其列为待提供。使用 `--target compose` 时，该条目还会写入 `infra.published_port` 为 8000，即 Component 的 `infra.port` 默认为该应用指定的端口，其 Compose Recipe 将其发布在主机的回环地址 127.0.0.1 上，上方有注释说明该服务只能从本机访问，本机上运行的任何进程都可以访问，并且删除该行会使服务保持为内部服务。在其模型已连接时，条目会将智能体向该模型出示的凭据以引用形式（而绝不以值的形式）附加在其 `model` 连接的 `credential` 下：从声明式智能体为其密钥指定的变量（写作 `=Env.NAME`）读取，否则从 `OPENAI_API_KEY` 读取，即 OpenAI 客户端库读取密钥所用的变量；在除 helm 之外的每个目标上写为 `${…}` 引用，在 helm 上写为一个 Kubernetes Secret 的名称，且写为空，由导入将其列为待提供；在 compose 上，`model` 连接以该键声明它。声明式智能体为其模型和 MCP 服务器声明的值——各个密钥以及每个服务器的 `url`——写在智能体条目上方的注释中，如[声明式智能体中包含的凭据值](#credential-values-a-declarative-agent-holds)所述。每个已连接的模型都有一个条目，因此 Release 会将其与智能体放置在一起。其连接所声明的端点写为模型的 `infra.endpoint`，以引用形式写出的端点会在其条目旁列出，在设置之前使用 Component 自身的地址；未声明端点的连接会使该条目不包含任何基础设施，Component 自身的地址保持有效。与每个起草的 Release 一样，它将 `metadata.environment` 写为 `development`，并在没有目标时写入一个由导入列为待提供的空 `spec.manifest`；指定目标时，导入会起草 Manifest，如[目标会添加什么](#what-a-target-adds)所述。"
+  },
   "51a773e3a152a6d0": {
     "at": "2026-10-22T08:03:58.541373+00:00",
     "job": "msgbatch_01JG3MCod2kUphSC2Zwegw3H",
@@ -65914,6 +65932,17 @@
     "srcHash": "5b74f2800e476c88",
     "status": "machine",
     "text": "**写入什么，写到哪里。** 示例的文件按文档中的原样写入你作为第二个参数指定的目录——如果未指定，则写入运行命令所在文件夹中以该示例命名的目录。该目录必须尚不存在，或者必须为空。其他任何情况都会被拒绝，并保持原样不动：目录中有文件、该路径上已有一个文件，或者是一个链接。其上层尚不存在的目录会被创建。示例的任何文件都不会留在其他地方，并且在全部文件写完之前不会有任何文件就位：它们先写到一旁，等每一个都写好后再移入。"
+  },
+  "5b74f711a0858531": {
+    "at": "2026-11-15T00:47:22.827Z",
+    "job": "session-0003-20261115004722",
+    "revision": {
+      "from": "2b15ecc5961b2d04",
+      "reviewed": false
+    },
+    "srcHash": "5b74f711a0858531",
+    "status": "machine",
+    "text": "导入会将这三个空值列为待提供的值。使用 `--target compose` 导入时，同一个 Release 会写入 `secret_key: \"${DIFY_SECRET_KEY}\"` 和 `origin: \"${DIFY_OWNER_PASSWORD}\"`，只将所有者的电子邮件列为待提供的值；它还会在 `api` 组件上写入 `infra.published_port` 为 5001，在前端即 `console` 组件上写入 3001，每一项上方都有注释说明该服务只能从本机访问，本机上运行的任何进程都可以访问，并且删除该行会使服务保持为内部服务；并在 `api` 组件的端口下方写入 `infra.console_url`，其值为控制台发布所在的地址 `\"http://127.0.0.1:3001\"`，Dify 服务器将其作为控制台的地址。[Dify 导入演练](../../authoring/import/dify.md)为两种目标构建一个应用，并在 Kubernetes 上运行它。"
   },
   "5b753b7e2624b914": {
     "at": "2026-10-22T01:39:34.791258+00:00",
@@ -130717,6 +130746,17 @@
     "status": "machine",
     "text": "**发出的消息。** 横切插槽上的能力："
   },
+  "b444534d8724359a": {
+    "at": "2026-11-15T00:47:22.827Z",
+    "job": "session-0003-20261115004722",
+    "revision": {
+      "from": "b5cf783f0fd7ea93",
+      "reviewed": false
+    },
+    "srcHash": "b444534d8724359a",
+    "status": "machine",
+    "text": "使用 `--target helm` 导入时，其起草的 Release 会提供 `secret_key`，并在放置安装的路由条目中指定所有者并开启插件市场，其中每个待提供的值都写为空值："
+  },
   "b447f168f70e39ff": {
     "at": "2026-10-17T19:02:11.925Z",
     "job": "76a3f1e63ad5",
@@ -164369,6 +164409,17 @@
     "status": "machine",
     "text": "跨边界链接的一个端点：节点、其渲染输出所汇编到的边界路径，以及渲染它的 provider。链接的两个端点分别指明一条 uses 边的消费端和被消费端，且这两端汇编到不同的分派组中。"
   },
+  "e1a92bdc504cf4d6": {
+    "at": "2026-11-15T00:47:22.827Z",
+    "job": "session-0003-20261115004722",
+    "revision": {
+      "from": "1b3adafd43ff012c",
+      "reviewed": false
+    },
+    "srcHash": "e1a92bdc504cf4d6",
+    "status": "machine",
+    "text": "旁边的 `release.yaml` 是一个同名的 Release 草稿，指向该 Aggregate。第一个图条目上方的注释说明每个图的镜像是什么（应用自己的镜像，即安装了 LangGraph 的应用代码，而不是 `langgraph build` 构建的服务器镜像）、它接收哪些变量，以及哪个 `inject:` 块替换其中哪个变量名。每个图的条目将其 `infra.image`（即运行该应用的镜像）写为空值，上方有一条注释说明它是什么，导入会将其列为待提供的值；在未设置期间，Docker Compose Recipe 运行目录自带的[快速入门智能体](../examples/quickstart-ai/README.md)，它读取默认变量。使用 `--target compose` 时，每个图的条目还会写入 `infra.published_port` 为 8000，即 Component 的 `infra.port` 默认为该应用指定的端口，其 Compose Recipe 将其发布在主机的回环地址 127.0.0.1 上，上方有注释说明该服务只能从本机访问，本机上运行的任何进程都可以访问，并且删除该行会使服务保持为内部服务；第二个图使用下一个空闲端口。数据存储和模型也有条目，因此 Release 会将它们与各个图放置在一起。应用第一个图上方的注释给出其配置所声明的环境，如[配置所声明的环境](#the-environment-a-configuration-states)所述。与每个起草的 Release 一样，它将 `metadata.environment` 写为 `development`，并在没有目标时写入一个由导入列为待提供的空 `spec.manifest`；给定目标时，导入会起草 Manifest，如[目标会添加什么](#what-a-target-adds)所述。"
+  },
   "e1aa7e115cd0c612": {
     "at": "2026-10-22T03:24:54.319294+00:00",
     "job": "msgbatch_01Quwt1bUbFp43kX3BAncRfN",
@@ -180132,6 +180183,17 @@
     "srcHash": "f6d958636d799c66",
     "status": "machine",
     "text": "在输入相同时，provider 在多次运行中输出逐字节相同的堆栈模板：逻辑 ID、输出键、导出名称和资源顺序都是确定的，因此 CloudFormation 堆栈模板在 GitOps 审查中可以得到干净的 diff。"
+  },
+  "f6daaff5dc3f3221": {
+    "at": "2026-11-15T00:47:22.827Z",
+    "job": "session-0003-20261115004722",
+    "revision": {
+      "from": "0da5744722fdb96f",
+      "reviewed": false
+    },
+    "srcHash": "f6daaff5dc3f3221",
+    "status": "machine",
+    "text": "旁边的 `release.yaml` 是一个同名的 Release 草稿，指向该 Aggregate。它将每个 agent 的 `infra.image`——运行 crew 程序的镜像，任何声明都未指定——写为空值，上方有一条注释说明它是什么，导入会将其列为待提供的值。使用 `--target compose` 时，每个 agent 的条目还会写入 `infra.published_port` 为 8000，即 Component 的 `infra.port` 默认为该程序指定的端口，其 Compose Recipe 将其发布在主机的回环地址 127.0.0.1 上，上方有注释说明该服务只能从本机访问，本机上运行的任何进程都可以访问，并且删除该行会使服务保持为内部服务；第二个 agent 使用下一个空闲端口，因此经典项目的两个 agent 分别发布在 8000 和 8001 上。它将每个 agent 向其模型出示的凭据附加在其 `model` 连接的 `credential` 下，以引用方式而非值的方式：没有任何声明为其指定变量，因此它从提供方的客户端库读取 API 密钥所用的变量中读取——对于 OpenAI 为 `OPENAI_API_KEY`——在除 helm 之外的所有目标上以 `${…}` 引用的形式，在 helm 上则作为一个 Kubernetes Secret 的名称，写为空值，由导入列为待提供的值；在 compose 上，agent 的 `model` 连接以该键声明它。每个模型也有一个条目，其中不含任何基础设施，因此 Release 将模型与各 agent 一起放置。对于以 `llm` 对象声明的模型，其其他每个成员在目录的 Component 声明了同名值时写为模型实例的值，否则写在 Release 中该模型条目上方的注释里，供你在该 Component 接受它的位置携带。与每个起草的 Release 一样，它将 `metadata.environment` 写为 `development`，并在没有目标时写入一个由导入列为待提供的空 `spec.manifest`；给定目标时，导入会起草 Manifest，如[目标会添加什么](#what-a-target-adds)所述。"
   },
   "f6dd651f6c97b13e": {
     "at": "2026-10-22T03:31:15.615761+00:00",
