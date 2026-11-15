@@ -1450,6 +1450,17 @@
     "status": "machine",
     "text": "**以模块方式组合。** 多 workload 能力——实际上由对象存储、Store Gateway 和查询前端\n  组成的指标读取层——被打包为组合三个单 workload 组件的子聚合，\n  而不是一个单体组件。该模块按名称导入，并在任何需要\n  Thanos 读取层的地方复用。"
   },
+  "01dcd01f81809e41": {
+    "at": "2026-11-15T02:27:56.103Z",
+    "job": "session-0001-20261115022756",
+    "revision": {
+      "from": "e859dab21289178f",
+      "reviewed": false
+    },
+    "srcHash": "01dcd01f81809e41",
+    "status": "machine",
+    "text": "结束时会说明源被识别为什么、起草了多少个文件以及它们的去向，计数的是草稿，不包括 `.aggrega-import.json`，即每次导入都会在其草稿旁写入的、记录导入写入了什么的记录；导入器自己的发现以及每个写入磁盘的文件（包括该记录）都会进入 Aggrega 输出通道，因为它们指明的是源文件中的位置，而不是你编写的文档中的位置。当写入草稿的导入使草稿仍欠缺任何源都无法包含的值时，编辑器会提出向你询问这些值，如[回答导入仍欠缺的值](#answering-the-values-an-import-still-owes)所述。"
+  },
   "01dde99e44c6bcae": {
     "at": "2026-10-22T08:03:58.541373+00:00",
     "job": "msgbatch_01JG3MCod2kUphSC2Zwegw3H",
@@ -60558,6 +60569,13 @@
     "status": "machine",
     "text": "**Schema 支柱重叠 lint（目录加载）。** 当某个 Feature 的 `spec.schema` 在 `infra` 和 `values` 两个支柱中声明了相同的属性名时，会触发一条建议性警告。这种重叠很少是有意为之——跨支柱的同名属性会使编写意图含混（当注解指向该共享名称时，哪个支柱生效？），并使诊断消息复杂化。该警告不会阻断，也无法退出：有意重叠的作者保留重叠和警告，无意重叠的作者则在其中一个支柱中重命名该属性。"
   },
+  "541d72aa69c8cc85": {
+    "at": "2026-11-15T02:27:56.103Z",
+    "job": "session-0001-20261115022756",
+    "srcHash": "541d72aa69c8cc85",
+    "status": "machine",
+    "text": "在写入草稿的导入之后，编辑器会提出在各自的输入框中询问每个仍欠缺的值，并以这种方式发回答案；在预览之后则不会提出任何提议，因为在 `--dry-run` 下不会提问。[回答导入仍欠缺的值](../authoring/editor/import.md#answering-the-values-an-import-still-owes)介绍了这些问题。"
+  },
   "54200c04c69bf2e1": {
     "at": "2026-10-29T23:14:13.329Z",
     "job": "session-0033-20261029231413",
@@ -93808,6 +93826,13 @@
     "srcHash": "8202a4baf7c86584",
     "status": "machine",
     "text": "子系统：在一个 Aggregate 内分组"
+  },
+  "82046ee3c1689af5": {
+    "at": "2026-11-15T02:27:56.103Z",
+    "job": "session-0001-20261115022756",
+    "srcHash": "82046ee3c1689af5",
+    "status": "machine",
+    "text": "扩展以 Visual Studio Code 运行时所用的显示语言显示其自身的文本（命令、设置、视图和消息），前提是已翻译为该语言，否则显示英文；你通过 **Configure Display Language** 更改的显示语言会在编辑器重启后生效。编译器报告的内容，包括其诊断信息和导入的问题，会按编译器的措辞呈现给你，与在终端中一样。"
   },
   "8206b6a6523627c7": {
     "at": "2026-10-22T08:03:58.541373+00:00",
@@ -144717,6 +144742,17 @@
     "status": "machine",
     "text": "`attach_egress_allowlist` 为 `true`，但草稿未写入任何平台，或组合的是 Dify 安装（其条目不接受 Feature），因此未附加任何内容。"
   },
+  "c7891fce419cde4d": {
+    "at": "2026-11-15T02:27:56.103Z",
+    "job": "session-0001-20261115022756",
+    "revision": {
+      "from": "a84aef8994641360",
+      "reviewed": false
+    },
+    "srcHash": "c7891fce419cde4d",
+    "status": "machine",
+    "text": "草稿所需的某些值是任何源都无法包含的 — 例如，你自己的代码所构建成的镜像、所有者账户的电子邮件，或某个机密的来源。当写入草稿的导入将此类值留空时，编辑器会在一条注明其数量的通知中提出一次，向你询问这些值；忽略该提议不会改变任何内容。预览不会收到任何提议，正如 `aggrega import --dry-run` 不会提问，因为答案不会应用于预览；预览在输出通道中的发现仍会指明每个仍为空的值。接受该提议后，每个值都会按草稿列出的顺序，在各自的输入框中询问：输入框的标题是所起草的文件以及该值所在的键，并使用编译器自己对该值的描述来提问，即 `aggrega import` 在终端中提出的问题。机密的输入框以编译器自己的措辞询问该机密从何而来 — 绝不询问机密本身 — 并隐藏你输入的内容。你留空的输入框会使该值仍然欠缺，留待之后在[答案文件](../../language-reference/import-answers.md)中回答。在任何输入框中按 Escape 都会结束提问且不发送任何内容，包括你已输入的答案。"
+  },
   "c78b65f7fc4e2917": {
     "at": "2026-11-08T10:48:22.903Z",
     "job": "session-0006-20261108104822",
@@ -167434,6 +167470,17 @@
     "status": "machine",
     "text": "aggrega push: sign `<reference>`:`<version>`: `<the underlying failure>`: signing: registry requires signatures; refusing to push unsigned content（aggrega push：对该引用及版本签名时发生底层失败：signing：registry 要求签名；拒绝推送未签名内容）"
   },
+  "e5d0a3634c65b37a": {
+    "at": "2026-11-15T02:27:56.103Z",
+    "job": "session-0001-20261115022756",
+    "revision": {
+      "from": "cbdd708688a412dc",
+      "reviewed": false
+    },
+    "srcHash": "e5d0a3634c65b37a",
+    "status": "machine",
+    "text": "然后，编辑器会携带你的答案再次发送导入，带有相同的进度和 Cancel 按钮，其发现、文件和结束信息会像第一次导入那样进入输出通道。答案会通过同步发送，因为草稿已在磁盘上。编译器会将每个答案写入草稿，并将其保存在 `aggrega import` 读取的答案文件中，因此之后对该源的导入或同步不会再次询问；该文件已回答的值根本不会被询问。如果对某个机密的回答不是其来源的名称，编译器会以其自己的措辞拒绝，该值仍然欠缺。再次发送导入后草稿仍欠缺的任何值，都会以同样的方式提出。"
+  },
   "e5d205f9dfe26873": {
     "at": "2026-10-22T08:23:20.000561+00:00",
     "job": "msgbatch_01HzD7wD8iu4mXKJLFLJkdaf",
@@ -181367,6 +181414,17 @@
     "srcHash": "f8a0a26d24ce5993",
     "status": "machine",
     "text": "编译器按声明顺序执行基础 Recipe 的 `pipeline:` 步骤，方式与执行 FeatureRecipe 的 `pipeline:` 相同：针对渲染输出调度每个步骤所指定的 Wasm 插件，将返回的 JSON Patch 操作应用到所指向的文档，并发出该步骤的副作用。FeatureRecipe 的 `pipeline:` 字段共享相同的 schema 结构和相同的执行方式——各部分的执行状态请参见 [entities/featurerecipe.md](featurerecipe.md) 的“Authoring Contract”以及 [语言状态](../10-status.md#compilation-pipeline-phases)。"
+  },
+  "f8a2546a20f864d0": {
+    "at": "2026-11-15T02:27:56.103Z",
+    "job": "session-0001-20261115022756",
+    "revision": {
+      "from": "50220ad04074e0b7",
+      "reviewed": false
+    },
+    "srcHash": "f8a2546a20f864d0",
+    "status": "machine",
+    "text": "在持续集成中、通过管道以及从助手的导入工具（`aggrega mcp`）中，都不会提问，编辑器的导入在运行期间也不会提问。读取答案文件后仍欠缺值的导入会："
   },
   "f8a68acae8fa45d2": {
     "at": "2026-10-29T23:55:51.039Z",

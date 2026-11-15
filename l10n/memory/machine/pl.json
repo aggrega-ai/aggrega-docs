@@ -1450,6 +1450,17 @@
     "status": "machine",
     "text": "**Kompozycja jako moduł.** Funkcjonalność obejmująca wiele obciążeń — warstwa odczytu metryk,\n  która w rzeczywistości jest magazynem obiektów plus Store Gateway plus frontend zapytań — jest\n  spakowana jako podagregat składający trzy komponenty z pojedynczym obciążeniem, a nie jako\n  jeden monolityczny komponent. Moduł jest importowany po nazwie i ponownie używany wszędzie tam,\n  gdzie potrzebna jest warstwa odczytu Thanos."
   },
+  "01dcd01f81809e41": {
+    "at": "2026-11-15T02:27:56.103Z",
+    "job": "session-0001-20261115022756",
+    "revision": {
+      "from": "e859dab21289178f",
+      "reviewed": false
+    },
+    "srcHash": "01dcd01f81809e41",
+    "status": "machine",
+    "text": "Na zakończenie podawane jest, jako co rozpoznano źródło, ile plików utworzono jako szkice i gdzie trafiły, przy czym liczone są szkice, a nie `.aggrega-import.json` — zapis tego, co zapisał import, który każdy import zapisuje obok swoich szkiców; własne wyniki importera i każdy plik zapisany na dysku, łącznie z tym zapisem, trafiają do kanału wyjściowego Aggrega, ponieważ wskazują miejsce w pliku źródłowym, a nie w dokumencie napisanym przez użytkownika. Gdy import, który zapisuje swoje szkice, pozostawia w nich brakujące wartości, których żadne źródło nie może zawierać, edytor proponuje, że o nie zapyta, jak opisano w sekcji [Podawanie wartości, których import wciąż nie uzupełnił](#answering-the-values-an-import-still-owes)."
+  },
   "01dde99e44c6bcae": {
     "at": "2026-10-23T00:02:43.446982+00:00",
     "job": "msgbatch_013KkBfZb9E8JzDFk2rQG1By",
@@ -60544,6 +60555,13 @@
     "status": "machine",
     "text": "**Lint nakładania się filarów schematu (ładowanie katalogu).** Ostrzeżenie doradcze jest zgłaszane, gdy `spec.schema` encji Feature deklaruje tę samą nazwę właściwości zarówno w filarze `infra`, jak i `values`. Takie nakładanie się rzadko jest zamierzone — właściwości o tej samej nazwie w różnych filarach zaciemniają intencję autora (który filar zadziała, gdy adnotacja wskazuje wspólną nazwę?) i komplikują komunikaty diagnostyczne. Ostrzeżenie nie blokuje i nie można go wyłączyć: autor, który zamierzył nakładanie się, zachowuje je wraz z ostrzeżeniem, a autor, który go nie zamierzył, zmienia nazwę właściwości w jednym z filarów."
   },
+  "541d72aa69c8cc85": {
+    "at": "2026-11-15T02:27:56.103Z",
+    "job": "session-0001-20261115022756",
+    "srcHash": "541d72aa69c8cc85",
+    "status": "machine",
+    "text": "Po imporcie, który zapisuje swoje szkice, edytor proponuje, że zapyta o każdą wciąż brakującą wartość w osobnym polu wprowadzania, i w ten sposób odsyła odpowiedzi; po podglądzie nie proponuje niczego, ponieważ przy `--dry-run` nie są zadawane żadne pytania. Pytania opisano w sekcji [Podawanie wartości, których import wciąż nie uzupełnił](../authoring/editor/import.md#answering-the-values-an-import-still-owes)."
+  },
   "54200c04c69bf2e1": {
     "at": "2026-10-29T23:14:13.329Z",
     "job": "session-0033-20261029231413",
@@ -93797,6 +93815,13 @@
     "srcHash": "8202a4baf7c86584",
     "status": "machine",
     "text": "Podsystemy: grupowanie wewnątrz jednej encji Aggregate"
+  },
+  "82046ee3c1689af5": {
+    "at": "2026-11-15T02:27:56.103Z",
+    "job": "session-0001-20261115022756",
+    "srcHash": "82046ee3c1689af5",
+    "status": "machine",
+    "text": "Rozszerzenie wyświetla własny tekst — swoje polecenia, ustawienia, widoki i komunikaty — w języku wyświetlania, w którym działa Visual Studio Code, jeśli jest na ten język przetłumaczony, a w przeciwnym razie po angielsku; język wyświetlania zmieniony za pomocą **Configure Display Language** zaczyna obowiązywać po ponownym uruchomieniu edytora. To, co zgłasza kompilator, w tym jego diagnostyka i pytania importu, dociera w takim brzmieniu, w jakim formułuje je kompilator, tak jak w terminalu."
   },
   "8206b6a6523627c7": {
     "at": "2026-10-23T00:02:41.868223+00:00",
@@ -144648,6 +144673,17 @@
     "status": "machine",
     "text": "`attach_egress_allowlist` ma wartość `true`, a szkic nie zapisuje żadnej platformy lub komponuje instalację Dify, której wpis nie przyjmuje encji Feature, więc nic nie zostaje dołączone."
   },
+  "c7891fce419cde4d": {
+    "at": "2026-11-15T02:27:56.103Z",
+    "job": "session-0001-20261115022756",
+    "revision": {
+      "from": "a84aef8994641360",
+      "reviewed": false
+    },
+    "srcHash": "c7891fce419cde4d",
+    "status": "machine",
+    "text": "Niektóre wartości potrzebne szkicowi to wartości, których żadne źródło nie może zawierać — na przykład obraz, w którym budowany jest własny kod, adres e-mail konta właściciela lub źródło sekretu. Gdy import, który zapisuje swoje szkice, pozostawia takie wartości puste, edytor jeden raz, w powiadomieniu podającym ich liczbę, proponuje, że o nie zapyta; odrzucenie propozycji niczego nie zmienia. Dla podglądu nie jest proponowane nic, tak jak `aggrega import --dry-run` o nic nie pyta, ponieważ do podglądu nie stosuje się żadnej odpowiedzi; jego wyniki w kanale wyjściowym nadal wskazują każdą wartość, która pozostaje pusta. Po przyjęciu propozycji o każdą wartość pyta osobne pole wprowadzania, w kolejności, w jakiej wymieniają je szkice: tytuł pola podaje utworzony plik i klucz, pod którym znajduje się wartość, a pytanie zawiera opis wartości sformułowany przez sam kompilator, czyli pytanie, które `aggrega import` zadaje w terminalu. Pole sekretu pyta słowami kompilatora, skąd pochodzi sekret — nigdy o sam sekret — i ukrywa wpisywany tekst. Pole pozostawione puste pozostawia tę wartość nieuzupełnioną, do podania później w [pliku odpowiedzi](../../language-reference/import-answers.md). Naciśnięcie Escape w dowolnym polu kończy pytania i niczego nie wysyła, łącznie z już wpisanymi odpowiedziami."
+  },
   "c78b65f7fc4e2917": {
     "at": "2026-11-08T10:48:22.903Z",
     "job": "session-0006-20261108104822",
@@ -167371,6 +167407,17 @@
     "status": "machine",
     "text": "aggrega push: sign `<reference>`:`<version>`: `<the underlying failure>`: signing: registry requires signatures; refusing to push unsigned content (aggrega push: podpisanie: signing: rejestr wymaga podpisów; odmowa wypchnięcia niepodpisanej treści)"
   },
+  "e5d0a3634c65b37a": {
+    "at": "2026-11-15T02:27:56.103Z",
+    "job": "session-0001-20261115022756",
+    "revision": {
+      "from": "cbdd708688a412dc",
+      "reviewed": false
+    },
+    "srcHash": "e5d0a3634c65b37a",
+    "status": "machine",
+    "text": "Następnie edytor ponownie wysyła import z odpowiedziami, z tym samym wskaźnikiem postępu i przyciskiem Cancel, a jego wyniki, pliki i zakończenie trafiają do kanału wyjściowego tak jak w przypadku pierwszego importu. Odpowiedzi są wysyłane w ramach synchronizacji, ponieważ szkice są już na dysku. Kompilator zapisuje każdą odpowiedź w szkicach i przechowuje ją w pliku odpowiedzi, który odczytuje `aggrega import`, więc późniejszy import lub synchronizacja tego źródła nie pyta o nią ponownie; o wartość, na którą ten plik już odpowiada, nie pada żadne pytanie. Sekret, na który odpowiedziano czymś innym niż nazwą jego źródła, jest odrzucany przez kompilator jego własnymi słowami i pozostaje nieuzupełniony. Wszystko, czego szkicom wciąż brakuje po ponownym wysłaniu importu, jest proponowane w ten sam sposób."
+  },
   "e5d205f9dfe26873": {
     "at": "2026-10-23T00:17:59.759325+00:00",
     "job": "msgbatch_01QUECv2TWWQk8Qb4joPrDfW",
@@ -181296,6 +181343,17 @@
     "srcHash": "f8a0a26d24ce5993",
     "status": "machine",
     "text": "Kompilator wykonuje kroki `pipeline:` bazowej encji Recipe w zadeklarowanej kolejności, w ten sam sposób, w jaki wykonuje `pipeline:` encji FeatureRecipe: dla każdego kroku uruchamia wskazany plugin Wasm na wyrenderowanym wyniku, stosuje zwrócone operacje JSON Patch do adresowanych dokumentów i emituje efekty uboczne kroku. Pole `pipeline:` encji FeatureRecipe ma ten sam kształt schematu i to samo wykonanie — zob. [entities/featurerecipe.md](featurerecipe.md), sekcja „Authoring Contract”, oraz [Status języka](../10-status.md#compilation-pipeline-phases), gdzie opisano stan wykonania każdej powierzchni."
+  },
+  "f8a2546a20f864d0": {
+    "at": "2026-11-15T02:27:56.103Z",
+    "job": "session-0001-20261115022756",
+    "revision": {
+      "from": "50220ad04074e0b7",
+      "reviewed": false
+    },
+    "srcHash": "f8a2546a20f864d0",
+    "status": "machine",
+    "text": "W ciągłej integracji, przez potok i z narzędzia importu asystenta (`aggrega mcp`) nie jest zadawane żadne pytanie, a import edytora o nic nie pyta w trakcie działania. Import, któremu po odczytaniu pliku odpowiedzi nadal brakuje wartości:"
   },
   "f8a68acae8fa45d2": {
     "at": "2026-10-29T23:55:51.039Z",
