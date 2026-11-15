@@ -372,6 +372,8 @@ cd ../4
 aggrega build --release release.yaml --auto-pull
 ```
 
+![The fourth step of quickstart-ai in Visual Studio Code: the topology graph shows the same components without the chat page, the agent using memory and the gateway, and the gateway using gpt, llm and the Presidio analyzer and anonymizer.](images/editor/quickstart-ai/step-4.png)
+
 #### With an AI assistant
 
 An AI assistant [set up with Aggrega's tools](ai-assistants/set-up.md) can do the same: paste this prompt into it.
