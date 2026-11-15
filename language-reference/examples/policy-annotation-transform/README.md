@@ -67,15 +67,15 @@ attachment, which is why that key carries no dot or slash.
 
 ## Attaching the policy
 
-`.aggrega-config.yaml` declares the catalog directories and no governance
-attachment. The policy is attached by the file a build names with `--config`:
+`.aggrega-config.yaml` names the hub as its registry and no catalog directory,
+and no governance attachment. The policy is attached by the file a build names with `--config`:
 `governance-rego.yaml` for the Rego engine, `governance-cel.yaml` for the CEL
 engine. The Rego one reads:
 
 ```yaml
 plugins:
   governance:
-    - uri: governance/rego:0.9.0-rc.2
+    - uri: governance/rego:0.9.0
       role: annotation-transform
       with:
         sources:
@@ -86,8 +86,9 @@ plugins:
 one the machine would otherwise read, and this workspace's
 `.aggrega-config.yaml` still layers on top of it.
 
-`0.9.0-rc.2` is a version at which the standard-library catalog carries each engine's
-Plugin entity, so the attachment resolves from the catalog the workspace reads.
+`0.9.0` is a version at which the hub publishes each engine's Plugin entity,
+so the attachment resolves from the registry the workspace reads, or from the
+`aggrega` binary of that release, which carries it.
 The engine that runs is the one compiled into the `aggrega` binary running the
 build, whatever version the attachment names. The object the monitoring
 annotation takes needs an engine that injects an object of subkeys, and the engines of releases before 0.8.7 do not.
@@ -343,11 +344,11 @@ plugins:
     - uri: governance/rego
       [… omitted: the artifact digest, which depends on the aggrega binary that built it, recorded twice]
       referenced_from:
-        - governance/rego:0.9.0-rc.2
+        - governance/rego:0.9.0
 ```
 
-The attachment names a version that catalog carries, so the pin resolves
-through the catalog the workspace reads.
+The attachment names a version the hub publishes, so the pin resolves through
+the registry the workspace reads, or from the `aggrega` binary of that release.
 
 ## Scaffold the example
 

@@ -174,8 +174,8 @@ for engine in rego cel; do
     cat "$WORK/$engine.diff" >> "$WORK/$engine.log"
   elif [[ "$lock" != *$'mutators:\n    - plugin: governance/'"$engine"$'\n      role: annotation-transform\n'* ]]; then
     verdict="MISMATCH: the lockfile records no annotation-transform attachment of governance/$engine"
-  elif [[ "$lock" != *$'      referenced_from:\n        - governance/'"$engine"$':0.9.0-rc.2\n'* ]]; then
-    verdict="MISMATCH: the lockfile pins no plugin for governance/$engine:0.9.0-rc.2"
+  elif [[ "$lock" != *$'      referenced_from:\n        - governance/'"$engine"$':0.9.0\n'* ]]; then
+    verdict="MISMATCH: the lockfile pins no plugin for governance/$engine:0.9.0"
   elif [ "$injected" -ne 3 ]; then
     verdict="MISMATCH: the graph records $injected component(s) as injected by governance/$engine, expected 3"
   else

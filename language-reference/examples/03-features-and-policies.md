@@ -137,12 +137,12 @@ The operator attaches the engine once per role, each attachment with its own pol
 # .aggrega-config.yaml
 plugins:
   governance:
-    - uri: governance/rego:0.9.0-rc.2
+    - uri: governance/rego:0.9.0
       role: label-transform
       with:
         sources:
           - policies/egress-tagging.rego
-    - uri: governance/rego:0.9.0-rc.2
+    - uri: governance/rego:0.9.0
       role: ir-verdict
       with:
         sources:

@@ -1404,7 +1404,7 @@ The policy itself stays as it will be enforced:
 ```yaml
 plugins:
   governance:
-    - uri: governance/rego:0.9.0-rc.2
+    - uri: governance/rego:0.9.0
       role: ir-verdict
       with:
         sources:
@@ -1511,7 +1511,7 @@ stops the build even at `warn`. It exits `1`, and its last line names the policy
 file and the key:
 
 ```text
-ir-verdict: plugin "governance/cel:0.9.0-rc.2": call "verdict_ir": wasm: plugin "cel" call to verdict_ir: policy source "datastore-ha.cel" could not be evaluated: No such key: nodes
+ir-verdict: plugin "governance/cel:0.9.0": call "verdict_ir": wasm: plugin "cel" call to verdict_ir: policy source "datastore-ha.cel" could not be evaluated: No such key: nodes
 ```
 
 A `render-verdict` policy is tested the same way. Attached at `render-verdict` in
