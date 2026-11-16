@@ -34,4 +34,13 @@ Translate into Hindi. Each choice below is a default, made without a native spea
 - `content-neutral`: सामग्री-तटस्थ.
 - `agnostic to`: … से निरपेक्ष, as in "परिपाटियों से निरपेक्ष"; never "अज्ञेय", which means "unknowable".
 
+## Recurring terms
+
+- A kept term keeps the source's number inside a compound or before a postposition too: "cross-Component" is "Component के पार", never "Components के पार".
+- `Ghost Infrastructure`: छद्म इन्फ़्रास्ट्रक्चर; `Loud Guardrail`, `Loud Guardrails`: मुखर गार्डरेल. In running text give the English in parentheses at the first occurrence on a page or in a heading, not at every occurrence, and never two parentheticals in a row.
+- A heading on an error or warnings page, and the text of every link to such a heading, is the English name first, then the Hindi in parentheses: "Ghost Infrastructure Tracker (छद्म इन्फ़्रास्ट्रक्चर ट्रैकर)".
+- "kind", the noun naming an entity's kind, stays in Latin letters: "एंटिटी kind", "उस kind के लिए".
+- A label an editor or a client shows on screen (a setting's name, a button, a menu item) stays in English exactly as the screen shows it, in the source's emphasis.
+- A quoted phrase takes “ ” whatever quotation mark the source uses; ‘ ’ only for a quotation inside “ ”.
+
 A native speaker who finds a default here wrong corrects this file; every translation made after the correction follows it.
