@@ -22,6 +22,7 @@ Each kit installs with its language's own package tool:
 go get github.com/aggrega-ai/aggrega-pdk/go               # Go
 cargo add aggrega-pdk-rust extism-pdk                     # Rust
 npm install @aggrega-ai/aggrega-pdk-typescript            # TypeScript
+npm install --save-dev @extism/js-pdk                     # TypeScript
 ```
 
 Each kit's README carries the language-specific quickstart: the build command that turns the source into a `.wasm` module, and the examples to start from.
