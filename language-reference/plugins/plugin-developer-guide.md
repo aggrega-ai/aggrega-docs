@@ -16,6 +16,16 @@ The sockets a plugin can target — among them the mutation gate at topology con
 
 You author the guest against the host through the three-language plugin development kit (PDK) — Go, Rust, or TypeScript. The PDK wraps the underlying Wasm toolchain with Aggrega-typed builders for the input and output shapes each socket carries.
 
+Each kit installs with its language's own package tool:
+
+```sh
+go get github.com/aggrega-ai/aggrega-pdk/go               # Go
+cargo add aggrega-pdk-rust extism-pdk                     # Rust
+npm install @aggrega-ai/aggrega-pdk-typescript            # TypeScript
+```
+
+Each kit's README carries the language-specific quickstart: the build command that turns the source into a `.wasm` module, and the examples to start from.
+
 ## 2. The `describe()` self-report
 
 Every plugin exports a `describe()` function that returns the plugin's self-report: the socket type(s) it implements, the ABI version it targets, the capabilities it claims — read according to the socket type, so capability names for a provider or a pipeline step and prefixed source formats for a parser or an importer — the host functions it imports, and the per-export capability of each entry point it offers. `describe()` is the plugin's own account of what it is and what it does.
