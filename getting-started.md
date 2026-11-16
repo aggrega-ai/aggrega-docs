@@ -7,6 +7,12 @@ This chapter will guide you to:
 - build the example and run it on your machine;
 - grow the example one step at a time.
 
+<!-- demo-video -->
+
+On aggrega.ai, this page shows a demo video that follows the AI track below in two and a half minutes: it installs the
+aggrega CLI, builds the quickstart into a Docker Compose file and starts it, chats with the agent answering from a local
+model, then writes Kubernetes manifests without contacting a cluster.
+
 There are two tracks:
 
 - an AI agent on a local model
