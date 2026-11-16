@@ -66,6 +66,14 @@ served at `aggrega.ai/docs`.
   button (`src/plugins/copyable-blockquote.mjs`, `src/styles/copyable.css`). It
   is a blockquote rather than a fenced block so that the translation tool
   translates its sentences, keeping every inline code span byte for byte.
+- **The demo video.** The Getting started page shows Aggrega's demo video
+  where it writes `<!-- demo-video -->` above a paragraph; the paragraph is the
+  video's caption, translated with the page (`src/plugins/demo-video.mjs`). The
+  video plays only when the reader starts it. Its files are in `public/video/`:
+  `aggrega-demo.web.mp4`, the poster `aggrega-demo.poster.jpg`, and one
+  subtitle file `aggrega-demo.<lang>.vtt` per language; a page carries its own
+  language's subtitles, or the English ones where its language has none. A
+  marker whose video or English subtitles are missing stops the build.
 - **Relative links.** Body prose links between pages are authored as relative
   Markdown paths (for example `../entities/component.md`). A remark plugin
   (`src/plugins/rewrite-relative-md-links.mjs`) rewrites those to the built

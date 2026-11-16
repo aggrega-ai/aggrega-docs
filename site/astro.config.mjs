@@ -22,6 +22,7 @@ import rewriteRelativeMdLinks from "./src/plugins/rewrite-relative-md-links.mjs"
 import dropTitleHeading from "./src/plugins/drop-title-heading.mjs";
 import copyableBlockquote from "./src/plugins/copyable-blockquote.mjs";
 import docsHome from "./src/plugins/docs-home.mjs";
+import demoVideo from "./src/plugins/demo-video.mjs";
 import { codeThemes } from "./src/code-themes.mjs";
 import { analyticsModule } from "./src/analytics.mjs";
 import installedChunks from "./src/installed-chunks.mjs";
@@ -95,11 +96,13 @@ export default defineConfig({
       [rewriteRelativeMdLinks, { contentRoot: corpusRoot }],
       // The page's title heading is left out of the rendered body, since
       // Starlight renders the title itself; a blockquote marked copyable is
-      // shown as a block with a copy button; and the home is given the
-      // classes its stylesheet (src/styles/home.css) styles. The title heading
-      // is dropped before the home's body is wrapped.
+      // shown as a block with a copy button; a marked paragraph captions the
+      // demo video, shown above it with the subtitles of the page's language;
+      // and the home is given the classes its stylesheet (src/styles/home.css)
+      // styles. The title heading is dropped before the home's body is wrapped.
       dropTitleHeading,
       copyableBlockquote,
+      [demoVideo, { contentRoot: corpusRoot, base }],
       [docsHome, { contentRoot: corpusRoot }],
     ],
   },
