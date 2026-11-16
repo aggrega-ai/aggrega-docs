@@ -42,5 +42,10 @@ Translate into Hindi. Each choice below is a default, made without a native spea
 - "kind", the noun naming an entity's kind, stays in Latin letters: "एंटिटी kind", "उस kind के लिए".
 - A label an editor or a client shows on screen (a setting's name, a button, a menu item) stays in English exactly as the screen shows it, in the source's emphasis.
 - A quoted phrase takes “ ” whatever quotation mark the source uses; ‘ ’ only for a quotation inside “ ”.
+- One rendering per term across the whole documentation: value मान (never "वैल्यू"); version संस्करण (never "वर्ज़न"); registry reference रजिस्ट्री रेफ़रेंस; entry प्रविष्टि; diagnostic डायग्नोस्टिक; service सेवा; local लोकल; a running program's process प्रोसेस, a procedure प्रक्रिया.
+- A kept term takes masculine agreement: "Recipe प्रकाशित करता है". A kept plural stays plural after "each of": "each of its Recipes" is "उसके Recipes में से हर एक".
+- The four domains are written alike, never one translated beside another kept in English: डेवलपर, प्लेटफ़ॉर्म आर्किटेक्ट, प्लेटफ़ॉर्म ऑप्स, प्लेटफ़ॉर्म ऑपरेटर, with the English in parentheses at the first occurrence on a page.
+- The text of a link to a heading is that heading's own translation, word for word.
+- Status labels ("available", "accepted but inert") in inline code stay as they are; in plain text they are translated, with the English in parentheses where the label is defined.
 
 A native speaker who finds a default here wrong corrects this file; every translation made after the correction follows it.
