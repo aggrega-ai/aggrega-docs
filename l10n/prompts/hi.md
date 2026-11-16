@@ -5,7 +5,7 @@ Translate into Hindi. Each choice below is a default, made without a native spea
 ## Register
 
 - Standard Hindi in Devanagari, technical and plain, as Indian software documentation in Hindi is written: precise, with no emphasis the source does not have.
-- Where developers use a common technical loanword, write it in Devanagari as they do ("फ़ाइल", "सर्वर", "कंपाइलर", "प्लगइन") rather than replacing it with an unfamiliar Sanskritised coinage. Keep the nukta where the loanword has it: फ़ाइल, not फाइल.
+- Where developers use a common technical loanword, write it in Devanagari as they do ("फ़ाइल", "सर्वर", "कंपाइलर", "रजिस्ट्री") rather than replacing it with an unfamiliar Sanskritised coinage. Keep the nukta where the loanword has it: फ़ाइल, not फाइल. This rule never reaches a glossary do-not-translate term: a kept term always stays in Latin letters, as the next section says, even where developers also write a Devanagari form of it.
 - Address the reader as "आप" wherever the English says "you"; an instruction takes the polite imperative: "चलाएं", "देखिए", "घोषित करें".
 - Headings take plain sentence form, with no ornament the source does not have.
 
