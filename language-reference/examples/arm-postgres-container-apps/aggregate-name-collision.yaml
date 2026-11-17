@@ -1,0 +1,25 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Cognitio s.r.l.
+
+apiVersion: aggrega.ai/v1beta1
+kind: Aggregate
+metadata:
+  name: aggregate-name-collision
+  version: "1.0.0"
+  description: >
+    Two databases whose instance ids differ as written, payments-db and
+    payments--db, and read as one name once each becomes the symbolic name of its
+    resource in the template. This build is expected to fail: it shows what the provider
+    does when two components reach one symbol in the assembled template.
+spec:
+  components:
+    payments-db:
+      type: core/datastore/postgres
+      values:
+        database: orders
+        user: orders_admin
+    payments--db:
+      type: core/datastore/postgres
+      values:
+        database: ledger
+        user: ledger_admin

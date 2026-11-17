@@ -106,6 +106,7 @@ Tier `advanced`: boundaries, governance policy, annotation-driven Features and a
 - [policy-render-verdict](policy-render-verdict/README.md) (`advanced`) — One house rule, attached at the `render-verdict` role, judges the files a build writes for four targets and refuses a violation planted on each.
 - [policy-annotation-transform](policy-annotation-transform/README.md) (`advanced`) — A governance policy gives every component of a shop the platform's monitoring and an AWS IAM role.
 - [ai-gateway-own-webhook-certificate](ai-gateway-own-webhook-certificate/README.md) (`advanced`) — This is an advanced example.
+- [arm-postgres-container-apps](arm-postgres-container-apps/README.md) (`advanced`) — A managed PostgreSQL database and the server that reads it, authored once as developer intent and assembled into **one Azure Resource Manager template**.
 
 ### Importers
 
@@ -238,6 +239,7 @@ Tier `importers`: a project written in another format, drafted into Aggrega file
 
 ### `core/compute/server`
 
+- [arm-postgres-container-apps](arm-postgres-container-apps/README.md) (`advanced`) — A managed PostgreSQL database and the server that reads it, authored once as developer intent and assembled into **one Azure Resource Manager template**.
 - [quickstart-ai](quickstart-ai/README.md) (`start`) — A small LangGraph agent, grown in four steps: it starts on a local model with a memory, gains a cloud model with the local one as its fallback, gets guardrails in front of both, and finally builds for Kubernetes.
 
 ### `core/datastore/cognee`
@@ -291,6 +293,7 @@ Tier `importers`: a project written in another format, drafted into Aggrega file
 
 ### `core/datastore/postgres`
 
+- [arm-postgres-container-apps](arm-postgres-container-apps/README.md) (`advanced`) — A managed PostgreSQL database and the server that reads it, authored once as developer intent and assembled into **one Azure Resource Manager template**.
 - [aws-rds-and-ecs-service](aws-rds-and-ecs-service/README.md) (`advanced`) — One Aggregate holds a PostgreSQL database and the server that reads it.
 - [credential-secretkeyref](credential-secretkeyref/README.md) (`start`) — A single PostgreSQL database whose password is supplied by the credential subsystem, shown per provider.
 - [credential-shape-per-target](credential-shape-per-target/README.md) (`authoring`) — How a credential reaches a running container is a property of **where you deploy**, not of the application.
@@ -560,6 +563,7 @@ components wired through `uses` sockets, with values piped across each edge.
 - [ai-gateway-prompt-injection-shield](ai-gateway-prompt-injection-shield/README.md) (`start`) — A support assistant's users can type anything, and some of what they type tries to make the model ignore the instructions it was given.
 - [ai-gateway-semantic-cache](ai-gateway-semantic-cache/README.md) (`start`) — A support assistant is asked the same questions all day in slightly different words.
 - [apisix-token-budget](apisix-token-budget/README.md) (`start`) — A team puts two OpenAI models behind one gateway and wants a ceiling on what the gateway spends on them each day, counted in tokens.
+- [arm-postgres-container-apps](arm-postgres-container-apps/README.md) (`advanced`) — A managed PostgreSQL database and the server that reads it, authored once as developer intent and assembled into **one Azure Resource Manager template**.
 - [aws-rds-and-ecs-service](aws-rds-and-ecs-service/README.md) (`advanced`) — One Aggregate holds a PostgreSQL database and the server that reads it.
 - [catalog-only](catalog-only/README.md) (`start`) — This example deploys a small, real stack — a **MariaDB** database with an **Adminer** web UI in front of it — by referencing **standard-library catalog entities only**.
 - [connection-credentials](connection-credentials/README.md) (`start`) — A semantic-memory store reaching two models and presenting a different key to each, compiled to Kubernetes manifests.
@@ -594,6 +598,7 @@ credential attachments and how each target delivers them.
 - [advanced-platform](advanced-platform/README.md) (`advanced`) — A multi-boundary Kubernetes platform that combines several mechanisms in one build from a single Developer-authored `Aggregate`: boundary-scope FeatureRecipes, parameter hoisting, the credential subsystem, and cross-boundary references resolving through Service DNS.
 - [ai-agent-and-model-router](ai-agent-and-model-router/README.md) (`start`) — An agent application that reaches two upstream provider models through one in-cluster router, compiled to Kubernetes manifests.
 - [apisix-stack](apisix-stack/README.md) (`start`) — This example compiles a small, real stack — a **dynamic API gateway** — to synthesized Kubernetes manifests from one Developer-authored `Aggregate`.
+- [arm-postgres-container-apps](arm-postgres-container-apps/README.md) (`advanced`) — A managed PostgreSQL database and the server that reads it, authored once as developer intent and assembled into **one Azure Resource Manager template**.
 - [catalog-only](catalog-only/README.md) (`start`) — This example deploys a small, real stack — a **MariaDB** database with an **Adminer** web UI in front of it — by referencing **standard-library catalog entities only**.
 - [connection-credentials](connection-credentials/README.md) (`start`) — A semantic-memory store reaching two models and presenting a different key to each, compiled to Kubernetes manifests.
 - [credential-secretkeyref](credential-secretkeyref/README.md) (`start`) — A single PostgreSQL database whose password is supplied by the credential subsystem, shown per provider.
@@ -695,6 +700,7 @@ a Release that is meant to halt, and the message it halts with.
 
 - [adhoc-uses-socket](adhoc-uses-socket/README.md) (`start`) — This example teaches one line, and both halves of it.
 - [ai-gateway-own-webhook-certificate](ai-gateway-own-webhook-certificate/README.md) (`advanced`) — This is an advanced example.
+- [arm-postgres-container-apps](arm-postgres-container-apps/README.md) (`advanced`) — A managed PostgreSQL database and the server that reads it, authored once as developer intent and assembled into **one Azure Resource Manager template**.
 - [chart-from-git-repository](chart-from-git-repository/README.md) (`authoring`) — A Helm chart does not have to come from a chart registry.
 - [cloudformation-rds-stack](cloudformation-rds-stack/README.md) (`advanced`) — A managed database and the application that reads it, authored once as developer intent and assembled into AWS CloudFormation stack templates.
 - [credential-secretkeyref](credential-secretkeyref/README.md) (`start`) — A single PostgreSQL database whose password is supplied by the credential subsystem, shown per provider.
@@ -732,6 +738,7 @@ a Component, Feature or Recipe written for the example, kept beside it or publis
 
 Terraform or CloudFormation output for managed cloud services.
 
+- [arm-postgres-container-apps](arm-postgres-container-apps/README.md) (`advanced`) — A managed PostgreSQL database and the server that reads it, authored once as developer intent and assembled into **one Azure Resource Manager template**.
 - [aws-rds-and-ecs-service](aws-rds-and-ecs-service/README.md) (`advanced`) — One Aggregate holds a PostgreSQL database and the server that reads it.
 - [cloudformation-rds-stack](cloudformation-rds-stack/README.md) (`advanced`) — A managed database and the application that reads it, authored once as developer intent and assembled into AWS CloudFormation stack templates.
 - [datastore-backup](datastore-backup/README.md) (`start`) — A PostgreSQL database backed up on Kubernetes through Velero and through CloudNativePG, and on AWS through Amazon RDS's own automated backups, on Terraform and on CloudFormation, and through AWS Backup, from one `core/backup` attachment the operator writes in each Release, with the refusal on a target that has no backup product.

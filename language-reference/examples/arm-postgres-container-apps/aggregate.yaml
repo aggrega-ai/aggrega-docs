@@ -1,0 +1,47 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Cognitio s.r.l.
+
+apiVersion: aggrega.ai/v1beta1
+kind: Aggregate
+metadata:
+  name: aggregate
+  version: "1.0.0"
+  description: >
+    A PostgreSQL database and the server that reads it. This is the whole of the
+    developer-authored surface: which target a build produces, and who holds the
+    database's password, are decided by the Release and the Manifest, never here.
+spec:
+  components:
+    # -- Database --------------------------------------------------------
+    # The developer states intent: a logical database named orders, owned by
+    # the orders_admin user. Nothing here says where the database runs, how
+    # large it is, or where its password lives.
+    payments-db:
+      type: core/datastore/postgres
+      values:
+        database: orders
+        user: orders_admin
+
+    # -- Server ----------------------------------------------------------
+    # The server declares that it uses the database and which of the
+    # database's published entries it wants, under the environment variable
+    # names its own configuration reads. It never names an address: the
+    # database's address does not exist until the target creates the server,
+    # so what the server receives is a value the target resolves when it
+    # deploys.
+    orders-api:
+      type: core/compute/server
+      uses:
+        database:
+          db:
+            target: payments-db
+            inject:
+              env:
+                - in: DB_HOST
+                  from: host
+                - in: DB_PORT
+                  from: port
+                - in: DB_USER
+                  from: user
+                - in: DB_NAME
+                  from: database

@@ -1,0 +1,53 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Cognitio s.r.l.
+
+apiVersion: aggrega.ai/v1beta1
+kind: Release
+metadata:
+  name: orders
+  environment: production
+  version: "1.0.0"
+spec:
+  aggregate: aggregate
+  manifest: manifest
+  boundaries:
+    # One boundary becomes one template, so the database and the server are two
+    # resources of one Azure Resource Manager template.
+    #
+    # Every subscription-specific value below is a placeholder: the subscription
+    # id is the zero GUID, and the resource group, network, DNS zone, vault,
+    # identity, environment and image names stand for resources the operator
+    # already runs. Replace them with your own before deploying.
+    azure:
+      directory: one-deployment
+      components:
+        payments-db:
+          # The administrator's password is a Key Vault secret the operator
+          # created. Naming its resource ID here, and nothing else, is all the
+          # Release says about the password: no secret text is written, and the
+          # template carries a Key Vault reference Azure Resource Manager reads
+          # while it deploys.
+          features:
+            password:
+              type: core/referenced-secret
+              infra:
+                origin: /subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/orders-security/providers/Microsoft.KeyVault/vaults/orders-vault/secrets/orders-db-password
+          infra:
+            engine_version: "16"
+            storage:
+              size: 64Gi
+              type: Premium_LRS
+            ha:
+              enabled: false
+              read_replicas: 0
+            overrides:
+              sku_name: GP_Standard_D2ds_v5
+              delegated_subnet_id: /subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/orders-network/providers/Microsoft.Network/virtualNetworks/orders-vnet/subnets/postgres
+              private_dns_zone_id: /subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/orders-network/providers/Microsoft.Network/privateDnsZones/orders.postgres.database.azure.com
+        orders-api:
+          infra:
+            image: registry.example.com/orders-api:1.0.0
+            port: 8080
+            replicas: 2
+            overrides:
+              container_app_environment_id: /subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/orders-apps/providers/Microsoft.App/managedEnvironments/orders-environment
