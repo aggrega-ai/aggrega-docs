@@ -16,9 +16,10 @@ Azure Container Apps app, and the database's administrator password is a Key
 Vault secret that already exists, so no password is written anywhere in the
 template.
 
-The same developer intent is built two ways: as one template, and —
-deliberately — as a build that halts because two components would claim one
-name inside the template.
+The same developer intent is built three ways: as one template, as two templates
+deployed one after the other and linked by the server's read of the database's
+host, and — deliberately — as a build that halts because two components would
+claim one name inside the template.
 
 Output blocks on this page are copied from a real run, per
 [Reading the output on these pages](../reading-the-output.md).
@@ -33,6 +34,9 @@ Output blocks on this page are copied from a real run, per
   assemble into a single template. It names the Key Vault secret that holds the
   password, the network the database is placed in, the Container Apps
   environment the server runs in and the server's image.
+- `release-two-deployments.yaml` — the same two components in two boundaries, so
+  they assemble into two templates, one per output directory. The server's
+  template reads the database's host from the database's deployment.
 - `release-negative-name-collision.yaml` with `aggregate-name-collision.yaml` —
   **expected to fail.** Two components whose instance ids become one symbolic
   name.
@@ -64,7 +68,7 @@ cd arm-postgres-container-apps
 
 ## Build
 
-This example ships two releases, so name the one you want. One release builds
+This example ships three releases, so name the one you want. One release builds
 per run. Each release's first build needs its lockfile, which the pull writes:
 
 ```bash
@@ -244,6 +248,84 @@ az stack group create --name <stack> --resource-group <group> \
 stops declaring it, and `--deny-settings-mode none` puts no deny assignment on
 what the stack manages. The [ARM provider](../../providers/arm.md#deploying-at-resource-group-scope)
 page sets out the deploy commands and what each flag decides.
+
+## Two templates, deployed one after the other
+
+`release-two-deployments.yaml` builds the same Aggregate with the database and
+the server in two boundaries. Each boundary writes its own template, and the
+server's template reads the database's host from the database's deployment:
+
+```bash
+aggrega pull --release release-two-deployments.yaml
+aggrega build --release release-two-deployments.yaml
+```
+
+The build writes two files, one per output directory:
+
+```
+[… omitted: the pull's line, which reports the lockfile it wrote, and a lint notice about the credential Feature's origin]
+Total build time:              58.2s
+Build completed: 2 files written to <workspace>/dist
+```
+
+`dist/two-deployments-database/arm/arm-template.json` is the database's template,
+and `dist/two-deployments-server/arm/arm-template.json` is the server's. The
+Aggregate is the one the single template builds from; only the Release differs.
+
+### The database's template publishes what the server reads
+
+The server reads four of the database's entries, so the database's template gains
+four string outputs, each named for the component and the entry. The host is the
+expression of the single template, passed through `string()` so every value
+crosses as text:
+
+```json
+    "payments_zhdb__host": {
+      "type": "string",
+      "value": "[string(reference('PaymentsDb').outputs.fqdn.value)]"
+    },
+```
+
+The template also records the name it is deployed under, in its `metadata`:
+
+```json
+  "metadata": {
+    "aggrega.ai/deployment-name": "aggrega--orders--two-deployments-database-zsarm"
+  }
+```
+
+### The server's template reads that deployment
+
+The server cannot reference a resource that another template declares, so it
+reads the database's deployment by its resource ID and takes the output from it:
+
+```json
+                    "value": "[reference(format('/subscriptions/{0}/resourceGroups/{1}/providers/Microsoft.Resources/deployments/{2}', subscription().subscriptionId, resourceGroup().name, 'aggrega--orders--two-deployments-database-zsarm'), '2025-04-01').outputs.payments_zhdb__host.value]"
+```
+
+The ID is built from the server's own subscription and resource group, which
+assumes the database is deployed to the same resource group. A boundary that
+declares `aggrega.ai/azure-subscription` or `aggrega.ai/azure-resource-group` in
+its `annotations` places its template elsewhere, and the read then names those
+values as strings.
+
+### Deploy the database first, under the recorded name
+
+The deployment's name is part of what the server reads, so the database's template
+is deployed before the server's, under exactly the name it records. Nothing reads
+the server's deployment, so its name is yours to choose:
+
+```bash
+az deployment group create --resource-group <group> -n aggrega--orders--two-deployments-database-zsarm --template-file dist/two-deployments-database/arm/arm-template.json
+az deployment group create --resource-group <group> -n <name> --template-file dist/two-deployments-server/arm/arm-template.json
+```
+
+The database's name is the one in its template's
+`metadata["aggrega.ai/deployment-name"]`. It derives from the Release's name and
+the boundary's output directory, so changing the database boundary's `directory:`
+in the Release renames its deployment, and the server's template, built again,
+reads the new name. Build both templates from one Release and deploy the database
+as recorded.
 
 ## The build that halts
 

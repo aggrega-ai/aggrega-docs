@@ -7,7 +7,8 @@
 #
 # Usage: ./build-release.sh [RELEASE] [-- EXTRA aggrega build args]
 #   RELEASE is a release*.yaml filename or its <P> token; this example ships
-#   two, so name one: one-deployment or negative-name-collision. The shared
+#   three, so name one: one-deployment, two-deployments or
+#   negative-name-collision. The shared
 #   helper auto-discovers the catalog source and echoes the equivalent
 #   direct aggrega build command. See that helper for the full discovery rules
 #   and binary resolution.
