@@ -184,7 +184,7 @@ The assembly- and reference-scoped keys are not node-scoped, so they sit outside
 | `aggrega.ai/azure-resource-group` | `arm` | The Azure resource group the boundary's template deploys into. A cross-boundary reference reads it to build the producing deployment's resource ID. | The producer is taken to be in the consuming deployment's own resource group. |
 <!-- END GENERATED: well-known-annotation-boundary-scope -->
 
-**When each is resolved**, which the declaration itself does not carry. `aggrega.ai/chart-name` is resolved once per umbrella-chart assembly, from the boundary annotation cascade; every contributor to one assembly must resolve it to the same value, and disagreement halts the build naming the boundaries. The `aggrega.ai/aws-*` keys and the `aggrega.ai/azure-*` keys the `arm` provider reads are resolved per cross-boundary reference under component-over-boundary precedence, so a component value wins over a boundary value; Category 6 above describes the reference each one shapes.
+**When each is resolved**, which the declaration itself does not carry. `aggrega.ai/chart-name` is resolved once per umbrella-chart assembly, from the boundary annotation cascade; every contributor to one assembly must resolve it to the same value, and disagreement halts the build naming the boundaries. The `aggrega.ai/aws-*` keys and the `aggrega.ai/azure-*` keys the `arm` provider reads are resolved per cross-boundary reference from the producing component's own annotation set, in which a component's Release entry wins over its boundary's and a value the Release writes wins over one the Aggregate writes; Category 6 above describes the reference each one shapes.
 
 ### Reserved names no provider reads
 

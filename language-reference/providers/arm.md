@@ -184,7 +184,7 @@ A Release boundary's `syncWave:` value orders the resources of the template that
 
 **An authored `dependsOn` is extended, never replaced.** The entries a resource wrote stay first, in the order it wrote them, and the wave's entries follow. A single symbolic name and a list are both read, and the merged value is a list. A `dependsOn` that is neither halts, naming the pointer. A resource declared `existing: true` is neither a dependent nor a target, because the template does not deploy it.
 
-**It is deployment order, not readiness.** A template expresses no notion of a resource being serviceable: `dependsOn` waits for ARM to finish deploying the named resource. A template whose resources all carry one wave, and a Release that declares no `syncWave`, get no ordering added. A wave orders one template and nothing beyond it; sequencing two templates is the operator's concern.
+**It is deployment order, not readiness.** A template expresses no notion of a resource being serviceable: `dependsOn` waits for ARM to finish deploying the named resource. A template whose resources all carry one wave, and a Release that declares no `syncWave`, get no ordering added. A wave orders one template and nothing beyond it; sequencing two templates is the operator's concern, and [a link between two templates](#linking-across-deployments) names the order they are deployed in.
 
 ## Provenance
 
@@ -201,6 +201,61 @@ Each assembled template is checked before it is written against the limits ARM s
 ## Determinism
 
 Given the same inputs the provider emits a byte-identical template across runs: symbolic names, output names, section content and `dependsOn` entries are all deterministic, written with sorted keys, two-space indentation and one trailing newline. An `arm-template.json` diffs cleanly in review.
+
+## Linking across deployments
+
+A `uses` edge between two `arm` boundaries that resolve to different output directories joins two templates, each deployed as its own deployment. The edge is wired in both templates. A boundary at resource-group scope can be a producer: the template of the component a `uses` edge points at.
+
+**The producing template exposes what the consumer reads as outputs.** For each provided value the consuming component reads, the producing template gains a string output named for the component and the key, as for any [output the provider writes](#top-level-sections-in-the-assembled-template). A provided value that is an expression crosses as `[string(<expression>)]`, so every value reaches the consumer as text; a plain literal crosses as written. Several consumers of one value share one output.
+
+**The consuming template reads the producer's deployment by its resource ID.** A value wired to the consumer becomes `reference(format('/subscriptions/{0}/resourceGroups/{1}/providers/Microsoft.Resources/deployments/{2}', <subscription>, <resource group>, '<name>'), '2025-04-01').outputs.<output>.value`, written in a resource's `properties`, an output's `value` or the input of an output's `copy` loop, the places ARM evaluates `reference()`. The compiler contacts nothing: the ID is a string it builds from names, and ARM reads the deployment when the consumer is deployed.
+
+### The deployment name
+
+Only a producing template records the name it must be deployed under, in its `metadata`:
+
+```json
+  "metadata": {
+    "aggrega.ai/deployment-name": "aggrega--orders--two-deployments-database-zsarm"
+  }
+```
+
+The name derives from the Release's name and the boundary's output directory, so changing the boundary's `directory:` in the Release renames it, and the consumer, built again, reads the new name. A fragment that already writes another value under that metadata key halts the build.
+
+**Deploy each producer first, with `-n` set to the recorded name,** and then its consumers, whose own names are yours to choose, since nothing reads them:
+
+```bash
+az deployment group create --resource-group <group> -n <recorded-name> --template-file <producer>/arm-template.json
+az deployment group create --resource-group <group> -n <name> --template-file <consumer>/arm-template.json
+```
+
+### Where the producer is deployed
+
+Two annotations on the producer's boundary place its deployment, and they are read as opaque strings:
+
+| Annotation | What it names | When absent |
+| --- | --- | --- |
+| `aggrega.ai/azure-subscription` | The subscription ID the producing template is deployed into | The consumer's own subscription |
+| `aggrega.ai/azure-resource-group` | The resource group the producing template is deployed into | The consumer's own resource group |
+
+A component's own value wins over a boundary's within the Release, and a value the Release writes wins over one the Aggregate writes; see [Well-known annotations](well-known-annotations.md). Because the compiler does not look the placement up, the annotations must match where the operator deploys the producer. A link reaches a producer deployed at resource-group scope; a producer in a subscription-scope or management-group-scope boundary is [not reached](#what-arm-does-not-do).
+
+### What the operator owns
+
+The links rest on deployments that already exist in Azure, so these are the operator's to keep:
+
+- **A deployment name keeps its location.** At a scope whose deploy command takes a location, a name reused with another location is refused by Azure.
+- **Deployment history is limited to 800 entries per scope.** Above 700, Azure deletes the oldest down to 600. A producer's entry that is groomed away fails the consumer's deploy. Redeploying the producer under its recorded name moves its entry to the newest place, so redeploy it before its consumers when its scope is busy.
+- **A CanNotDelete lock stops the grooming.** Under a lock nothing is deleted, and once the history reaches 800 entries further deploys fail until entries are removed.
+- **A producer deployed as a deployment stack is not reachable.** A stack names its own deployments, so no name the template records can be reached; deploy a producer with `az deployment group create`. A consumer may be deployed either way.
+
+### What halts
+
+- **A secret read across deployments.** A provided value that reads a secret (a `list*` function, `listOutputsWithSecureValues`, or a `securestring` or `secureObject` parameter's value) would be recorded in the producer's deployment history. Store the secret in Key Vault and attach `core/referenced-secret` on both ends. See [A secret is read across deployments](../errors/fatal-halts.md#a-secret-is-read-across-deployments).
+- **A value read from another deployment written where ARM does not evaluate it.** Outside a resource's `properties`, an output's `value` or an output's `copy` input. See [A value read from another deployment is written where ARM does not evaluate it](../errors/fatal-halts.md#a-value-read-from-another-deployment-is-written-where-arm-does-not-evaluate-it).
+- **A provided value that splices a call into literal text.** Write the provided value as one expression, `[format('postgres://{0}:5432', reference('Db').outputs.fqdn.value)]`. See [A provided value splices a call into literal text across deployments](../errors/fatal-halts.md#a-provided-value-splices-a-call-into-literal-text-across-deployments).
+
+A Recipe publishes a provided value as one whole expression or as a plain literal. Within one template, text around a value still composes into `format()` as described under [Writing ARM text](#writing-arm-text).
 
 ## Deploying at resource-group scope
 
@@ -222,7 +277,6 @@ az stack group create --name <stack> --resource-group <group> --template-file ar
 
 ## What `arm` does not do
 
-- **An edge between two `arm` boundaries halts as a dangling reference.** A `uses` edge whose producer and consumer assemble into different templates does not reach the consumer: the consumer's expression names a symbolic name its own template does not declare, and the build halts naming the contributor, the JSON pointer and the symbol. Keep the two components in one boundary, or in boundaries that resolve to one output directory, so that they assemble into one template.
 - **Subscription and management-group content halts.** A fragment whose `$schema` declares subscription or management-group scope is refused naming the scope: the provider assembles a boundary at resource-group scope only. A tenant-scope `$schema` is refused too. Write the resources of a boundary in a resource-group template.
 - **It never signs in to Azure or runs ARM.** No build contacts Azure; every value ARM resolves at deploy time stays an expression.
 - **It does not generate a secret.** See [the credential model](../../architecture/08-credential-model.md): on `arm`, the generating Features halt the build, and a supplied secret travels as a `securestring` parameter or a Key Vault reference.

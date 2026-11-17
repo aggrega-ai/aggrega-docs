@@ -5621,7 +5621,7 @@ Emitted message:
 
 <!-- covers: internal/plugincondition.ErrPluginRequiredInputUnresolved -->
 
-Within one assembled template, every symbolic name a `reference()` call, a `dependsOn` entry or a `list*` call names must be a resource the template declares, and every `parameters()` or `variables()` argument must be a declaration the template makes. A name that matches nothing would fail when the template deploys. The usual causes are a typo — symbolic names are case-sensitive — and a value that arrived from a component assembled into a different template, which an `arm` template cannot reach.
+Within one assembled template, every symbolic name a `reference()` call, a `dependsOn` entry or a `list*` call names must be a resource the template declares, and every `parameters()` or `variables()` argument must be a declaration the template makes. A name that matches nothing would fail when the template deploys. The usual causes are a typo — symbolic names are case-sensitive — and a symbolic name written by hand for a resource that another boundary's template declares. A value a `uses` edge delivers from another boundary is wired by the link and never reaches this check as a bare symbolic name; see [arm → Linking across deployments](../providers/arm.md#linking-across-deployments).
 
 Emitted message. The condition leads, then which name matched nothing:
 > a plugin could not resolve something it requires to exactly one value
@@ -5629,7 +5629,43 @@ Emitted message. The condition leads, then which name matched nothing:
 
 A parameter or variable that is not declared reports in the same shape, naming the section to declare it under.
 
-**How to fix:** correct the name, declare the resource, parameter or variable in a fragment of the same template, or keep the two components in one boundary so that they assemble into one template. See [arm → What `arm` does not do](../providers/arm.md#what-arm-does-not-do).
+**How to fix:** correct the name, declare the resource, parameter or variable in a fragment of the same template, or keep the two components in one boundary so that they assemble into one template. To read a value another boundary's template produces, declare a `uses` edge and read the provided value; see [arm → Linking across deployments](../providers/arm.md#linking-across-deployments).
+
+### A secret is read across deployments
+
+<!-- covers: internal/plugincondition.ErrPluginValueNotRepresentable -->
+
+When a `uses` edge joins two `arm` boundaries, the producing template exposes the provided value as an output and the consuming template reads that output from the producer's deployment. A deployment records the outputs it exposes, and the value another deployment reads from them, in its deployment history, where anyone who can read the history can read them. A provided value that reads a secret therefore stops the build: a list function (`listKeys`, `listSecrets` and the other `list*` calls), `listOutputsWithSecureValues`, or the value of a `securestring` or `secureObject` parameter of the producing template.
+
+Emitted message. The condition leads, then the provides key and component:
+> a plugin has no representation for a value it was given
+> arm-provider: provides key `<key>` of component `<component>` reads a secret, and a link would write it as an output of the template of boundary `<boundary>`: a secret read by another deployment lands in its history; store it in Key Vault and attach core/referenced-secret on both ends
+
+**How to fix:** keep the secret in Azure Key Vault and attach a `core/referenced-secret` Feature to the secret's slot on both components, so each end receives a Key Vault reference and no template carries the value. See [arm → Linking across deployments](../providers/arm.md#linking-across-deployments).
+
+### A value read from another deployment is written where ARM does not evaluate it
+
+<!-- covers: internal/plugincondition.ErrPluginValueNotRepresentable -->
+
+The consuming template reads a provided value from the producer's deployment with `reference()`, which Azure Resource Manager evaluates only inside a resource's `properties`, an output's `value` or the input of an output's `copy` loop. The same value written anywhere else in the consuming template, such as a resource's `tags`, its `name` or a `variables` entry, would fail when the template deploys. A value read from another deployment and written inside literal text that is not an expression, such as text that opens with `[[`, would reach the template unevaluated. The build stops at the pointer instead.
+
+Emitted message. The condition leads, then the pointer, boundary, provides key and component:
+> a plugin has no representation for a value it was given
+> arm-provider: at JSON pointer `<pointer>` in the template of boundary `<boundary>`, the value of provides key `<key>` of component `<component>` is read from another deployment with reference(), which ARM evaluates only inside a resource's properties, an output's value or the input of an output's copy loop; move the value into one of those
+
+**How to fix:** open the Recipe that writes the value at the pointer and move it into a resource's `properties` or an output's value. A provided value written as a plain literal is not read from another deployment and may be written anywhere.
+
+### A provided value splices a call into literal text across deployments
+
+<!-- covers: internal/plugincondition.ErrPluginValueNotRepresentable -->
+
+Within one template, the provider turns a value written inside literal text into a `format()` expression. Between two deployments the producing template exposes the provided value as it is written, so a provides value made of literal text around a complete template call would reach the consumer as text and never be evaluated. The build stops at the producer's provides.
+
+Emitted message. The condition leads, then the provides key and socket:
+> a plugin has no representation for a value it was given
+> arm-provider: provides key `<key>` of component `<component>`, which the link on socket `<socket>` carries to another deployment, splices a template call into literal text, which that deployment would receive unevaluated, as text; write the provides value as one expression, such as [format('postgres://{0}:5432', reference('Db').outputs.fqdn.value)]
+
+**How to fix:** write the Recipe's `provides` value as one expression, with the literal text inside a `format()` call. A provides value is published as a whole expression or as a plain literal.
 
 ### A sourced ARM template's required parameter is left unbound
 
@@ -6799,7 +6835,7 @@ Where one entry appears against two short codes, it covers two distinct conditio
 | `E0288` | `a plugin has no expression for a construct this build declares` | A workload declares a form compose cannot express; A container declares a field compose has no primitive for; An omits entry names a kind or a namespace a compose file does not have; An omits entry names a namespace a CloudFormation template does not have; A rule reads a bound CloudFormation parameter by name; The assembled CloudFormation stack cannot carry a transform |
 | `E0289` | `a plugin could not resolve something it requires to exactly one value` | A health probe cannot be turned into a compose healthcheck; A configmap volume has no file behind it; What an omits entry left out is still named by the compose file; What an omits entry left out is still named by a CloudFormation template; A valuesMapping key names no parameter of a sourced CloudFormation template; Another component references a CloudFormation parameter a sourced template's binding filled; Two components order one pair of transforms oppositely; An ARM reference names nothing in its template level; A sourced ARM template's required parameter is left unbound; A cross-boundary reference has no consuming stack to be written into; A synthesized StatefulSet has no single service to govern it |
 | `E0290` | `two things a plugin produced occupy one name in its output` | An authored export name is one the build derives for a cross-stack reference; The output a cross-stack reference publishes on already carries an Export; Two entries reach one stack output name; A CloudFormation fragment writes one key twice; Two rendered resources land at one output file |
-| `E0291` | `a plugin has no representation for a value it was given` | A published port declares a transport compose cannot spell; A resources quantity cannot be converted to a compose value; A resource quantity the helm provider emits is not a quantity; A service type the helm provider cannot render; A Kubernetes version the helm provider cannot render a chart for; A value bound to a CloudFormation parameter cannot take the parameter's type; A value bound to a CloudFormation parameter is one its constraints refuse; A secret bound to a CloudFormation parameter would be written into the template; A dynamic reference is bound where CloudFormation does not resolve it; An ARM expression does not parse; A value is written inside an ARM expression; A cross-boundary reference was spliced into a longer string |
+| `E0291` | `a plugin has no representation for a value it was given` | A published port declares a transport compose cannot spell; A resources quantity cannot be converted to a compose value; A resource quantity the helm provider emits is not a quantity; A service type the helm provider cannot render; A Kubernetes version the helm provider cannot render a chart for; A value bound to a CloudFormation parameter cannot take the parameter's type; A value bound to a CloudFormation parameter is one its constraints refuse; A secret bound to a CloudFormation parameter would be written into the template; A dynamic reference is bound where CloudFormation does not resolve it; An ARM expression does not parse; A value is written inside an ARM expression; A secret is read across deployments; A value read from another deployment is written where ARM does not evaluate it; A provided value splices a call into literal text across deployments; A cross-boundary reference was spliced into a longer string |
 | `E0292` | `a plugin reported a failure that none of the declared kinds names` | A plugin reported a failure it did not classify |
 | `E0293` | `wasm: guest plugin named a condition the socket does not declare` | A plugin named a condition the socket does not declare |
 | `E0294` | `components in different subsystems take the same identity: rename one of them, since a subsystem contributes nothing to a component's identity` | Two subsystems declare a component under one name |
