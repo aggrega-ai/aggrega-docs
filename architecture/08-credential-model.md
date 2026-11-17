@@ -250,11 +250,15 @@ The build cannot be where the password is made. Its output is a pure function of
 - on `terraform`, the random provider's `random_password`, drawn when the configuration is applied;
 - on `cloudformation`, a Secrets Manager secret that generates its own string when the stack creates it.
 
+On `arm` there is no such resource, as the paragraph on where it cannot be used says.
+
 In every case the rendered output names the generator and the secret resource and carries no value. That is a property of what the build has, not a protection it adds: the value never exists until the target makes it. Where the target keeps it afterwards is the target's — Terraform keeps it in the plan and state, a cluster in a Secret.
 
 **What the target needs running.** A request is only filled where something fills it. On `helm` that is the controller, and the compiler cannot inspect the cluster to know whether one runs, so the helm FeatureRecipes halt the build unless the Release affirms the prerequisite with `infra.control_plane_present: true` on the attachment. On `terraform` and `cloudformation` the apply or the stack generates the value itself and nothing needs to be running beforehand.
 
 **Where it cannot be used.** Compose runs no controller and has no resource that generates a value, so no FeatureRecipe realizes `core/random-password` there, and a build binding it on compose halts for want of one. A Release targeting compose supplies its credential through `core/secret-value`, typically as a variable reference Docker Compose substitutes when the stack starts.
+
+**On `arm`, the generating forms halt.** ARM has no secret generator, so a build binding `core/random-password` or `core/generated-secret` on `arm` halts with E0099 for want of a Recipe, as on compose. A supplied secret travels as a `securestring` parameter supplied when the template deploys, or as a Key Vault reference the consuming Recipe writes in a sourced template's parameter; the template never carries the value as text.
 
 **How a consumer reads it.** `core/random-password` publishes the same `provides.name` and `provides.key` as `core/referenced-secret`, and carries the same `feature.aggrega.ai/kind: secret` label, so a slot selecting the credential family admits it and a consumer reads a generated credential exactly as it reads one that already exists.
 

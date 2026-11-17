@@ -40,7 +40,7 @@ The plugin-socket architecture at the broader extensibility level, including the
 
 ## Aggrega's standard-library providers
 
-The `helm`, `helm-chart`, `compose`, `terraform`, and `cloudformation` providers together form the standard-library provider set. They cover the common deployment targets without requiring enterprise teams to author their own providers.
+The `helm`, `helm-chart`, `compose`, `terraform`, `cloudformation`, and `arm` providers together form the standard-library provider set. They cover the common targets without requiring enterprise teams to author their own providers.
 
 [`helm`](helm.md) supports all three input kinds: **sourced** (an upstream Helm chart fetched through the Helm SDK with the Recipe's `valuesMapping` output as the chart's overrides), **synthesized** (flat Kubernetes YAML — a controller object chosen by the Workload's `form` (Deployment, StatefulSet, DaemonSet, Job, or CronJob) plus Services and PVCs — emitted from a parsed Workload), and **artifacts** (standalone YAML files alongside the chart output). See the Provider Capability Matrix in [../../architecture/16-recipe-input-composition.md](../../architecture/16-recipe-input-composition.md) for which of the three kinds it accepts.
 
@@ -51,6 +51,8 @@ The `helm`, `helm-chart`, `compose`, `terraform`, and `cloudformation` providers
 [`terraform`](terraform.md) supports **sourced** (vendors a Terraform module verbatim and supplies the `valuesMapping` output as the arguments of that component's `module` block in the boundary's root configuration) and **artifacts** (emits an authored HCL or `.tf.json` body as its template evaluates, without rewriting it). It does not offer the synthesized input kind — there is no faithful mapping from the platform Workload kind to arbitrary Terraform resources. The provider emits configuration and never runs Terraform; runtime-dependent values stay as `${ ... }` interpolation strings the Terraform runtime resolves at apply time.
 
 [`cloudformation`](cloudformation.md) renders a boundary into one AWS CloudFormation stack template, assembling the resource fragments its components author into a single pure-JSON template, surfacing each component's `provides` as stack `Outputs`, and wiring `uses` edges as `Fn::GetAtt` within a stack and as `Fn::ImportValue` / `Fn::GetStackOutput` across stacks. It supports sourced and artifacts input and emits configuration without ever running CloudFormation; runtime-only values stay as CloudFormation intrinsics.
+
+[`arm`](arm.md) renders a boundary into one Azure Resource Manager template at resource-group scope, assembling the resource fragments its components author, or wrapping a compiled template a Recipe sources as a nested template, and surfacing each component's `provides` as template `outputs`. It supports sourced and artifacts input and emits configuration without ever running ARM; runtime-only values stay as ARM template expressions.
 
 The [provider reference index](reference-matrix.md) routes you to each provider's own reference page; which input kinds each one accepts is answered by the capability matrix in [../../architecture/16-recipe-input-composition.md](../../architecture/16-recipe-input-composition.md).
 

@@ -77,7 +77,7 @@ The form carries no platform-native resource kinds itself. Each target provider 
 | `scheduled` | CronJob | halts the build |
 | `task` | Job | halts the build |
 
-The terraform and cloudformation providers render sourced and artifacts-only Recipes and synthesize no Workload: a Recipe declaring `workload:` bound to either halts, naming the input kinds the provider supports.
+The terraform, cloudformation and arm providers render sourced and artifacts-only Recipes and synthesize no Workload: a Recipe declaring `workload:` bound to any of them halts, naming the input kinds the provider supports.
 
 When a target provider has no clean mapping for a form, the build halts loudly rather than degrade the workload into a shape that misrepresents the intent — choosing a form a target boundary cannot express is a build-time error, not a silent downgrade. The compose provider halts on `daemon`, `scheduled`, and `task`. The helm provider emits a CronJob for `scheduled` (see [`schedule`](#schedule) below) and halts only when its schedule is absent or malformed.
 

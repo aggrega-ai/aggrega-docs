@@ -18,16 +18,17 @@ The compiler reads every Aggregate, Manifest, Component, Feature, Recipe, Featur
 
 A document anchors a node with `&name` and then aliases it with `*name` somewhere inside the content that anchor covers. Expanding the alias reproduces the anchor, whose content carries the alias again, so the document describes a structure with no end. There is nothing finite to read, let alone validate, and the build stops instead of starting a walk that cannot finish.
 
-Reading YAML into a tree does not expand aliases, so a document in this shape is read without complaint and fails only when something walks it. The refusal therefore sits between the reading and the walk — and a build reads authored YAML at more than one point, so the same condition can be met at more than one. Four points report it, each framing the same explanation with whatever locates the document on that surface:
+Reading YAML into a tree does not expand aliases, so a document in this shape is read without complaint and fails only when something walks it. The refusal therefore sits between the reading and the walk — and a build reads authored YAML at more than one point, so the same condition can be met at more than one. These points report it, each framing the same explanation with whatever locates the document on that surface:
 
 - **An entity file, as it is read.** The build stops before that entity is checked against its schema, so this halt names an anchor rather than a field, and carries no line and column: at that point the document has no position a diagnostic could usefully point at.
 - **A schema body, as it is compiled.** A `spec.schema:` pillar is compiled from compact form into a JSON Schema document after its file has been read, so this halt fires during that compilation rather than ahead of it, and it does carry a line. The shape an earlier read cannot catch is a `$jsonschema:` escape body: an escape body is a block scalar — plain text, carrying no anchors — while the surrounding file is read, and its anchors become anchors only when that text is itself parsed, one level down. Where the cycle sat inside such a block, the halt also names `$jsonschema` as the keyword whose body carried it.
 - **A provider Plugin's workload schema, as the Plugin loads.** `spec.provider.workloadSchema` is written as a block scalar: plain text while the Plugin file itself is read, carrying no anchors at that point, and its anchors become anchors only when that text is parsed as a document of its own, one level down. That parse and the compilation that follows both happen as the Plugin loads, so this halt fires there rather than when the file is read, and it carries a line. Where the cycle sat inside a `$jsonschema:` escape within the schema body, the halt also names `$jsonschema` as the keyword whose body carried it. See [../entities/plugin.md](../entities/plugin.md) for the field's authoring surface.
 - **A rendered CloudFormation fragment, as the provider reads it.** A cloudformation Recipe authors a fragment, and an `artifacts:` body is a template — so what the provider reads is the text that template rendered to, content that did not exist while your files were being read. This halt therefore fires while output is being rendered, after every schema check has already passed. See [../providers/cloudformation.md](../providers/cloudformation.md) for the fragment authoring surface.
+- **A rendered ARM fragment, as the provider reads it.** An `arm` Recipe authors a fragment on the same terms, so the provider reads the text its `artifacts:` template rendered to, and this halt fires while output is being rendered. See [../providers/arm.md](../providers/arm.md) for the fragment authoring surface.
 
 The refusal is of recursion, never of re-use or of depth. Anchoring shared content and referencing it from many places is a supported authoring pattern — see [../entities/aggregate.md](../entities/aggregate.md) "YAML anchor patterns (`defs:` block)" and [../entities/manifest.md](../entities/manifest.md) "YAML anchors for DRY manifests" — and a reference that expands and terminates loads normally, however many times it appears and however deeply the document nests; depth on its own is never a reason for this halt. What halts is an anchor reached while the build is still inside it, including where it is reached indirectly, through a second anchor declared beneath it. The message names the anchor the loop closes back onto, which is not necessarily the outermost anchor in the document.
 
-**Emitted messages.** All four carry the same explanation, which is deliberate: it is one condition met at four points, and an author who has learned to read it once should not have to learn it again. Only the frame that locates the document differs.
+**Emitted messages.** All carry the same explanation, which is deliberate: it is one condition met at several points, and an author who has learned to read it once should not have to learn it again. Only the frame that locates the document differs.
 
 > anchor `&<anchor>` is aliased by `*<anchor>` inside its own content, so the document expands without end; point that alias at content declared outside `&<anchor>`, or write the content out in full
 
@@ -41,6 +42,9 @@ A provider Plugin's workload schema carries that same compact-form frame; what d
 
 A rendered fragment is framed by the provider that read it:
 > cloudformation-provider: parse fragment: `<the explanation above>`
+
+An ARM fragment is framed the same way:
+> arm-provider: parse fragment: `<the explanation above>`
 
 **How to fix:** point the alias at content declared outside the anchor it currently sits inside, or write the repeated content out in full at the point of use. On an Aggregate or a Manifest, the root-level `defs:` block is the natural home for shared anchors — it sits outside every block that references it, so an anchor declared there cannot be reached from within itself. On the other entity kinds, which have no `defs:` block, anchor the shared content somewhere the referring block is not a descendant of. An anchor may be referenced from any number of places and from any depth; the one shape it cannot take is a reference that lands back inside the content the anchor covers.
 
@@ -4007,7 +4011,7 @@ A Recipe declares `capability: <name>` where `<name>` names no provider the comp
 Emitted message:
 > unknown provider: `<provider-name>`
 
-**How to fix:** confirm the provider name is spelled correctly — `cloudformation`, `compose`, `helm`, `helm-chart` and `terraform` are the names the embedded provider plugins serve. If you intended a custom enterprise provider, ensure a provider-rendering Plugin serving that name (`pluginType: provider` with the name in its `spec.provider.capabilities`) is present in the catalog workspace the build is pointed at.
+**How to fix:** confirm the provider name is spelled correctly — `arm`, `cloudformation`, `compose`, `helm`, `helm-chart` and `terraform` are the names the embedded provider plugins serve. If you intended a custom enterprise provider, ensure a provider-rendering Plugin serving that name (`pluginType: provider` with the name in its `spec.provider.capabilities`) is present in the catalog workspace the build is pointed at.
 
 ### A capability is served by more than one provider plugin
 
@@ -5589,6 +5593,56 @@ Emitted message, opening with the condition and continuing with the provider's o
 
 **How to fix:** open the fragment at the two lines the message names. Where the two bodies were meant to be one thing, remove the one that is now redundant; where they were meant to be two, rename one so each has a key of its own. The fragment is a template, so check the rendered text rather than only the source where a key is composed rather than written literally.
 
+### An ARM expression does not parse
+
+<!-- covers: internal/plugincondition.ErrPluginValueNotRepresentable -->
+
+Azure Resource Manager reads a string that starts with `[` and ends with `]` as an expression. A string in an `arm` fragment, or a value a `valuesMapping` binds to a sourced template's parameter, that has that shape but is not a well-formed expression would fail when the template deploys, so the build stops first. A bracketed word such as `"[prod]"` is the usual cause: ARM reads it as a call to nothing.
+
+Emitted message. The condition leads, then the provider's own detail:
+> a plugin has no representation for a value it was given
+> arm-provider: the text at JSON pointer `<pointer>` is read by ARM as an expression but does not parse (offset `<offset>`: `<reason>`); correct the expression, or write [[ at its start to keep it literal text
+
+**How to fix:** open the fragment at the pointer. Correct the expression, or, where the text was meant literally, open it with `[[` — ARM reads `[[` as one `[`. See [arm → Writing ARM text](../providers/arm.md#writing-arm-text).
+
+### A value is written inside an ARM expression
+
+<!-- covers: internal/plugincondition.ErrPluginValueNotRepresentable -->
+
+A component's Recipe writes a neighbour's value as text, and the provider composes it: a value written whole is carried as the producer's expression, and a value written inside literal text becomes a `format()` expression. A value written inside an expression the Recipe itself wrote cannot be composed, because the value's own brackets would sit inside the expression's, where ARM cannot read them. The build stops instead of writing text ARM would evaluate wrongly.
+
+Emitted message:
+> a plugin has no representation for a value it was given
+> arm-provider: the text at JSON pointer `<pointer>` writes a value inside an expression, at offset `<offset>`, where ARM reads brackets as an expression and not as text; compose the value in literal text instead, writing the delivered value whole inside the text around it, or write [[ to keep the text literal
+
+**How to fix:** write the value whole as the string, or inside literal text around it, such as `postgres://<value>:5432`, which the provider writes as a `format()` expression; or write the producer's own call in place of the value inside your expression. See [arm → Writing ARM text](../providers/arm.md#writing-arm-text).
+
+### An ARM reference names nothing in its template level
+
+<!-- covers: internal/plugincondition.ErrPluginRequiredInputUnresolved -->
+
+Within one assembled template, every symbolic name a `reference()` call, a `dependsOn` entry or a `list*` call names must be a resource the template declares, and every `parameters()` or `variables()` argument must be a declaration the template makes. A name that matches nothing would fail when the template deploys. The usual causes are a typo — symbolic names are case-sensitive — and a value that arrived from a component assembled into a different template, which an `arm` template cannot reach.
+
+Emitted message. The condition leads, then which name matched nothing:
+> a plugin could not resolve something it requires to exactly one value
+> arm-provider: at JSON pointer `<pointer>`, `<function or dependsOn>` names the resource `"<name>"`, which no resource in this template declares by that symbolic name; correct the name (symbolic names are case-sensitive), declare the resource in this template, or name a resource deployed elsewhere by its resource ID
+
+A parameter or variable that is not declared reports in the same shape, naming the section to declare it under.
+
+**How to fix:** correct the name, declare the resource, parameter or variable in a fragment of the same template, or keep the two components in one boundary so that they assemble into one template. See [arm → What `arm` does not do](../providers/arm.md#what-arm-does-not-do).
+
+### A sourced ARM template's required parameter is left unbound
+
+<!-- covers: internal/plugincondition.ErrPluginRequiredInputUnresolved -->
+
+A sourced template is nested inside the template its boundary assembles, and the parameters of a nested template cannot be supplied when the outer one is deployed. A parameter the template declares with no `defaultValue`, and that does not admit null, therefore needs a value from the `valuesMapping` of the Recipe or FeatureRecipe sourcing it, or ARM would refuse it when the template is deployed.
+
+Emitted message. The condition leads, then every parameter left unbound:
+> a plugin could not resolve something it requires to exactly one value
+> arm-provider: `<template>` has no value mapped to `"<parameter>"`, which declares no default and does not admit null; …, so map each one, writing `[parameters('<parameter>')]` to read a top-level parameter the Recipe's artifacts fragment declares
+
+**How to fix:** map each parameter the message lists. A value known at build time is written as a literal, an expression or a Key Vault reference object. A value known only when the template is deployed is mapped to `[parameters('<name>')]`, with that top-level parameter declared in a fragment of the Recipe's own `artifacts:`. See [arm → Sourced templates](../providers/arm.md#sourced-templates).
+
 ### A cross-boundary reference has no consuming stack to be written into
 
 <!-- covers: internal/plugincondition.ErrPluginRequiredInputUnresolved -->
@@ -6743,9 +6797,9 @@ Where one entry appears against two short codes, it covers two distinct conditio
 | `E0286` | `the version bump being published is smaller than the evolution check's classification of the change requires` | The version offered is a smaller bump than the change requires |
 | `E0287` | `the importer reported a diagnostic that stops the import, so the source was not fully turned into draft authoring files` | An import stopped partway through translating a source |
 | `E0288` | `a plugin has no expression for a construct this build declares` | A workload declares a form compose cannot express; A container declares a field compose has no primitive for; An omits entry names a kind or a namespace a compose file does not have; An omits entry names a namespace a CloudFormation template does not have; A rule reads a bound CloudFormation parameter by name; The assembled CloudFormation stack cannot carry a transform |
-| `E0289` | `a plugin could not resolve something it requires to exactly one value` | A health probe cannot be turned into a compose healthcheck; A configmap volume has no file behind it; What an omits entry left out is still named by the compose file; What an omits entry left out is still named by a CloudFormation template; A valuesMapping key names no parameter of a sourced CloudFormation template; Another component references a CloudFormation parameter a sourced template's binding filled; Two components order one pair of transforms oppositely; A cross-boundary reference has no consuming stack to be written into; A synthesized StatefulSet has no single service to govern it |
+| `E0289` | `a plugin could not resolve something it requires to exactly one value` | A health probe cannot be turned into a compose healthcheck; A configmap volume has no file behind it; What an omits entry left out is still named by the compose file; What an omits entry left out is still named by a CloudFormation template; A valuesMapping key names no parameter of a sourced CloudFormation template; Another component references a CloudFormation parameter a sourced template's binding filled; Two components order one pair of transforms oppositely; An ARM reference names nothing in its template level; A sourced ARM template's required parameter is left unbound; A cross-boundary reference has no consuming stack to be written into; A synthesized StatefulSet has no single service to govern it |
 | `E0290` | `two things a plugin produced occupy one name in its output` | An authored export name is one the build derives for a cross-stack reference; The output a cross-stack reference publishes on already carries an Export; Two entries reach one stack output name; A CloudFormation fragment writes one key twice; Two rendered resources land at one output file |
-| `E0291` | `a plugin has no representation for a value it was given` | A published port declares a transport compose cannot spell; A resources quantity cannot be converted to a compose value; A resource quantity the helm provider emits is not a quantity; A service type the helm provider cannot render; A Kubernetes version the helm provider cannot render a chart for; A value bound to a CloudFormation parameter cannot take the parameter's type; A value bound to a CloudFormation parameter is one its constraints refuse; A secret bound to a CloudFormation parameter would be written into the template; A dynamic reference is bound where CloudFormation does not resolve it; A cross-boundary reference was spliced into a longer string |
+| `E0291` | `a plugin has no representation for a value it was given` | A published port declares a transport compose cannot spell; A resources quantity cannot be converted to a compose value; A resource quantity the helm provider emits is not a quantity; A service type the helm provider cannot render; A Kubernetes version the helm provider cannot render a chart for; A value bound to a CloudFormation parameter cannot take the parameter's type; A value bound to a CloudFormation parameter is one its constraints refuse; A secret bound to a CloudFormation parameter would be written into the template; A dynamic reference is bound where CloudFormation does not resolve it; An ARM expression does not parse; A value is written inside an ARM expression; A cross-boundary reference was spliced into a longer string |
 | `E0292` | `a plugin reported a failure that none of the declared kinds names` | A plugin reported a failure it did not classify |
 | `E0293` | `wasm: guest plugin named a condition the socket does not declare` | A plugin named a condition the socket does not declare |
 | `E0294` | `components in different subsystems take the same identity: rename one of them, since a subsystem contributes nothing to a component's identity` | Two subsystems declare a component under one name |

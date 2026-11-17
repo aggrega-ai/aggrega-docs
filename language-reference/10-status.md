@@ -22,7 +22,7 @@ Status labels are evaluated against the current compiler. Surfaces under active 
 
 A Recipe composes its output from three input kinds — sourced, synthesized, and artifacts — described in [`16-recipe-input-composition.md`](../architecture/16-recipe-input-composition.md). Per-input-kind status:
 
-- **`source:` + `valuesMapping:` (sourced) — available.** The compiler resolves the `source:` URI, evaluates the `valuesMapping` template (inline, file `$import:`, or library `$import:`), and hands the result to the target provider for rendering. Consumed by the helm, helm-chart, compose, terraform, and cloudformation providers.
+- **`source:` + `valuesMapping:` (sourced) — available.** The compiler resolves the `source:` URI, evaluates the `valuesMapping` template (inline, file `$import:`, or library `$import:`), and hands the result to the target provider for rendering. Consumed by the helm, helm-chart, compose, terraform, cloudformation, and arm providers.
 
 - **`workload:` (synthesized) — available.** The Recipe declares `workload:` either inline (block scalar carrying the Workload YAML) or via `$import:` (file path). The compiler parses the templated Workload, validates it against the embedded Workload schema, and dispatches to the target provider's workload synthesizer. Consumed by the helm and compose providers. The helm-chart provider explicitly redirects authors to the helm provider for synthesized K8s manifests. A Recipe declaring `workload:` against a provider that does not implement workload synthesis halts at render with a `CATALOG_ERROR`.
 
@@ -74,13 +74,14 @@ The Aggrega compilation pipeline is documented in [`../architecture/10-compilati
 
 ## Providers
 
-The Aggrega standard library ships five rendering providers — `helm`, `helm-chart`, `compose`, `terraform`, and `cloudformation`. Per-provider status:
+The Aggrega standard library ships the rendering providers `helm`, `helm-chart`, `compose`, `terraform`, `cloudformation` and `arm`. Per-provider status:
 
 - **`helm` — available.** Sourced mode (Helm chart rendering via the Helm SDK) and synthesized mode (Workload → a controller object chosen by the Workload's `form` — Deployment, StatefulSet, DaemonSet, Job, or CronJob — plus Services and PVCs) both ship.
 - **`helm-chart` — available.** Sourced mode (umbrella-chart composition) ships. The synthesized input kind is not applicable to this provider; authors needing K8s manifest synthesis use the `helm` provider with `workload:`.
 - **`compose` — available.** Sourced mode (compose fragment overlay) and synthesized mode (Workload → compose service + volumes + networks) both ship. Per-boundary `docker-compose.yaml` output assembles via the Release-level composer.
 - **`terraform` — available.** Sourced mode and artifacts both ship; each boundary gets one root configuration, `aggrega.modules.tf`, declaring every component as a `module` block whose files sit in its own directory under `modules/`. The synthesized input kind is not applicable to this provider.
 - **`cloudformation` — available.** Sourced mode and artifacts (stack fragments) both ship; every component rendering to one output directory assembles into one stack template, emitted as pure JSON. The synthesized input kind is not applicable to this provider.
+- **`arm` — available at resource-group scope.** Sourced mode (a compiled ARM template, wrapped as a nested template) and artifacts (template fragments) both ship; every component rendering to one output directory assembles into one `arm-template.json`. The synthesized input kind is not applicable to this provider. An edge between two `arm` boundaries and subscription or management-group content halt; see [arm → What `arm` does not do](providers/arm.md#what-arm-does-not-do).
 
 Provider rendering is served by a Plugin with `pluginType: provider`; see [`entities/plugin.md`](entities/plugin.md) for the provider-rendering Plugin authoring surface and [`06-providers.md`](06-providers.md) for the per-provider reference pages.
 

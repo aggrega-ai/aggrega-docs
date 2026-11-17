@@ -20,7 +20,7 @@ The allowlist is closed by design: surfaces such as `.context.inject`, `.values`
 
 | Variable | `directory:` | `subDirectory:` | Description |
 | --- | :-: | :-: | --- |
-| `{{ .capability }}` | yes | yes | The rendering capability (`helm`, `helm-chart`, `compose`, `terraform`, `cloudformation`) the contributing component's Recipe declares, for the artifacts emitting at this path. |
+| `{{ .capability }}` | yes | yes | The rendering capability (`helm`, `helm-chart`, `compose`, `terraform`, `cloudformation`, `arm`) the contributing component's Recipe declares, for the artifacts emitting at this path. |
 | `{{ .boundary_name }}` | yes | yes | The boundary's authored name in the Release (e.g., `production`, `eu-prod`). |
 | `{{ .parameters.X }}` | yes | yes | Any typed parameter declared on the Aggregate and fulfilled by the Release. Strict access — referencing `.parameters.unknown` halts the build. |
 | `{{ .manifest.recipe_name }}` | yes | yes | The Recipe name resolved through the Manifest for the contributing component. Useful for routing per-Recipe artifacts into per-Recipe sub-folders. |
