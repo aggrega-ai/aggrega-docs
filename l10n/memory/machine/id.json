@@ -1960,6 +1960,13 @@
     "status": "machine",
     "text": "**Importer inti yang belum ada di mesin diambil satu kali, oleh impor pertama yang membutuhkannya.** Importer tersebut berasal dari registry default workspace, terikat pada modul yang diterbitkan rilis compiler dan diverifikasi sebagaimana pull memverifikasi plugin yang diambilnya — signature-nya di bawah kebijakan kepercayaan registry tersebut, serta fungsi host yang digunakannya — dan disimpan di cache konten workspace, yang merupakan satu-satunya hal yang ditulis untuknya: tanpa lockfile, dan tanpa catatan plugin tepercaya. Setiap impor berikutnya membacanya dari sana dan tidak mengakses registry. Modul yang gagal diverifikasi merupakan error yang memuat kode kondisinya, dan tidak ada yang disimpan; modul yang tidak dapat diambil — workspace sedang offline, registry-nya tidak dapat dijangkau, atau registry tidak memuatnya — merupakan error di bawah [A plugin's `.wasm` is not on this machine (File plugin tidak ada di mesin ini)](../errors/fatal-halts.md#a-plugins-wasm-is-not-on-this-machine), yang menyebutkan importer, versinya, dan cara menempatkan modulnya di mesin. Permintaan itu sendiri tidak menyebutkan registry, dan impor yang semua importer serta katalog yang dibacanya sudah ada di mesin sama sekali tidak mengakses jaringan."
   },
+  "0281439f655aae29": {
+    "at": "2026-11-17T14:16:46.822Z",
+    "job": "session-0015-20261117141646",
+    "srcHash": "0281439f655aae29",
+    "status": "machine",
+    "text": "Setiap sumber daya yang diterapkan templat membawa provenans build pada `metadata`-nya sendiri, di bawah satu kunci khusus `aggrega.ai/provenance`, digabungkan di samping `metadata` apa pun yang sudah ditulis sumber daya itu. Sumber daya yang dideklarasikan `existing: true` tidak distempel, karena templat tidak menerapkannya. Stempel templat bersumber hanya jatuh pada sumber daya penerapan bersarang, tidak pernah di dalam templat yang dibundel, yang dibawa apa adanya sebagaimana dibaca. Sumber daya yang `metadata`-nya bukan objek dibiarkan seperti yang tertulis, dan sebuah peringatan menyebutnya; fragmen yang tidak menerapkan sumber daya apa pun mendapat peringatan bahwa provenansnya tidak memiliki sumber daya untuk dideskripsikan."
+  },
   "0281c1f3544d0929": {
     "at": "2026-10-23T08:18:59.335953+00:00",
     "job": "msgbatch_01EKdV7ig6aK2QwC1Z8ktVoJ",
@@ -20982,6 +20989,17 @@
     "status": "machine",
     "text": "Tool menyimpan alamat tanpa kuncinya"
   },
+  "1c4b8ff60530a1bf": {
+    "at": "2026-11-17T14:16:46.822Z",
+    "job": "session-0015-20261117141646",
+    "revision": {
+      "from": "e683ffa728a33a28",
+      "reviewed": false
+    },
+    "srcHash": "1c4b8ff60530a1bf",
+    "status": "machine",
+    "text": "Provenans"
+  },
   "1c4c18caeb11ff54": {
     "at": "2026-10-23T06:14:07.765401+00:00",
     "job": "msgbatch_015cRR9ESj4yMdkeo5rD8Tmo",
@@ -31455,6 +31473,13 @@
     "srcHash": "2a59aefb8bd3f7ef",
     "status": "machine",
     "text": "**Resolusi tingkat pemetaan Manifest.** Mekanisme resolusi `mappings.{components,features}` yang datar pada Manifest (dengan tingkat `name` dan `type`, nama menang atas tipe, dan tipe berversi menang atas tipe tanpa versi) didokumentasikan di [`entities/manifest.md`](../entities/manifest.md). Resolver mengonsumsi pemetaan tersebut: pemilihan Recipe dan FeatureRecipe adalah pencarian langsung nilai pemetaan terhadap lockfile dan katalog, dan komponen atau lampiran yang tipenya tidak memiliki pemetaan menghentikan build. `spec.implements` tidak memilih Recipe — ini adalah pemeriksaan konsistensi saat pemuatan terhadap pemetaan yang sudah ditulis penulis, serta sumber daftar kandidat yang ditawarkan diagnostik tanpa pemetaan dan pelengkapan editor. Dispatch kapabilitas kemudian mengalir dari field `spec.capability` milik Recipe yang telah diresolusi, bukan dari bentuk struktural Manifest."
+  },
+  "2a5ae4b37a9b7cec": {
+    "at": "2026-11-17T14:16:46.822Z",
+    "job": "session-0015-20261117141646",
+    "srcHash": "2a5ae4b37a9b7cec",
+    "status": "machine",
+    "text": "Sumber daya sebuah templat bersumber adalah milik templat itu sendiri: nilai hanya sampai kepadanya melalui parameter yang dideklarasikannya. Maka, templat yang diambil dari repositori git dan mendeklarasikan sumber daya yang tidak boleh dibuat oleh Release — pengaturan diagnostik yang disediakan platform di tempat lain, sebuah key vault yang sudah dimiliki operator — tidak dapat diubah oleh sebuah nilai. Itulah fungsi entri [`omits:`](../entities/recipe.md#the-omits-field--leaving-rendered-documents-out-of-a-source) pada sebuah Recipe atau FeatureRecipe. Provider ini menghormatinya pada templat bersumber dan pada tidak ada yang lain: fragmen yang dibuat oleh entri `artifacts:` dirender tanpanya."
   },
   "2a5db71a6c7a0ea5": {
     "at": "2026-11-05T19:04:48.718Z",
@@ -56346,6 +56371,13 @@
     "status": "machine",
     "text": "Recipe `implements` does not match the mapped component type (Recipe implements tidak cocok dengan tipe komponen yang dipetakan)"
   },
+  "4ca65efb54f3c554": {
+    "at": "2026-11-17T14:16:46.822Z",
+    "job": "session-0015-20261117141646",
+    "srcHash": "4ca65efb54f3c554",
+    "status": "machine",
+    "text": "**Referensi yang masih menyebut sumber daya yang telah dihapus menghentikan build.** ARM menolak templat yang menyebut sumber daya yang tidak dideklarasikannya, sehingga setelah sumber daya milik entri dihapus, Provider membaca sisanya untuk mencari referensi ke sumber daya tersebut, lalu menghentikan build dengan menyebut templat, sumber daya, bentuk, dan penunjuk JSON-nya. Pada templat 2.x, Provider membaca entri `dependsOn` (entri `parent::child` juga melalui kepalanya) dan argumen pertama yang simbolis dari `reference`, `references`, `resourceInfo`, dan fungsi `list*`; pada templat tanpa versi bahasa, nama `dependsOn`, `reference('<name>')`, dan pemanggilan `resourceId(…)` yang tipe literal dan nama terakhirnya adalah milik sumber daya yang dihapus. String dalam templat tempat sebuah entri cocok, yang terbaca sebagai ekspresi tetapi tidak dapat diurai, juga menghentikan build, alih-alih membiarkan referensi lolos tanpa terbukti. Kecualikan juga apa pun yang menyebut sumber daya itu, atau hapus entrinya. Tidak ada hal lain pada templat yang berubah."
+  },
   "4ca9343eeb3499f9": {
     "at": "2026-10-22T07:44:28.418Z",
     "job": "session-0023-20261022074428",
@@ -74303,6 +74335,13 @@
     "status": "machine",
     "text": "**Link yang tidak mengarah ke mana pun, atau berputar dalam loop, bukanlah sesuatu yang ada.** Direktori yang memuatnya\n  yang dinilai sebagai gantinya, dan tidak ada yang diikuti untuk mengetahui ke mana link itu seharusnya mengarah. Jika link\n  semacam itu berada tepat di tempat sebuah file akan dibuat, tempat yang ditunjuknya juga diperiksa,\n  karena di sanalah file itu akan berada."
   },
+  "64ac9b9886202839": {
+    "at": "2026-11-17T14:16:46.822Z",
+    "job": "session-0015-20261117141646",
+    "srcHash": "64ac9b9886202839",
+    "status": "machine",
+    "text": "**Provenans tidak dapat dibaca kembali dari sumber daya yang telah diterapkan.** ARM menyimpan `metadata` sebuah sumber daya dalam templat yang mendeklarasikannya dan tidak mengembalikannya bersama sumber daya, sehingga `az resource show` dan portal tidak menampilkan stempel tersebut. Bacalah dalam `arm-template.json` yang dihasilkan, atau dalam keluaran build lainnya. [Label dan anotasi](../vocabulary/labels-and-annotations.md) menjelaskan apa yang dimuat provenans."
+  },
   "64ae3765169a7085": {
     "at": "2026-10-23T06:14:09.798554+00:00",
     "job": "msgbatch_0114PSvCA8TYhfY7XN2T8bxB",
@@ -76236,6 +76275,13 @@
     "srcHash": "673fb9298884faab",
     "status": "machine",
     "text": "Grup dispatch yang tidak memiliki jalur dispatch dilewati. Keluaran yang ditulis tanpa jalur adalah keluaran per node, sehingga tidak ada yang dirakit di sana untuk diatur oleh klaim tentang penggabungan."
+  },
+  "6742451f7e0a477a": {
+    "at": "2026-11-17T14:16:46.822Z",
+    "job": "session-0015-20261117141646",
+    "srcHash": "6742451f7e0a477a",
+    "status": "machine",
+    "text": "`kind` sebuah entri adalah `type` sebuah sumber daya. `name`-nya adalah nama simbolis sumber daya dalam templat dengan `languageVersion` 2.x, atau properti `name` sumber daya persis seperti yang tertulis dalam templat tanpa itu; keduanya dibandingkan secara persis. Entri yang menyebut `namespace` atau `subchart` menghentikan build, karena templat tidak memiliki keduanya. Setiap entri yang tidak cocok dengan apa pun menghentikan build, seperti omits pada setiap Provider: entri yang tidak mengecualikan apa pun adalah kesalahan yang harus diperbaiki, bukan operasi tanpa efek."
   },
   "6742c45abd57af6e": {
     "at": "2026-11-12T07:35:13.788Z",
@@ -117346,6 +117392,13 @@
     "status": "machine",
     "text": "`AGGREGA_SIGNING_KEY_PATH` — penunjuk path ke PEM kunci keyed (tidak pernah materi kunci)."
   },
+  "9f3f87c62212812f": {
+    "at": "2026-11-17T14:16:46.822Z",
+    "job": "session-0015-20261117141646",
+    "srcHash": "9f3f87c62212812f",
+    "status": "machine",
+    "text": "**Pemeriksaan dilakukan sebelum ekspansi `copy`.** Sumber daya atau keluaran yang membawa perulangan `copy` dihitung satu kali; ARM mengekspansinya saat templat diterapkan, sehingga templat yang lolos di sini masih dapat melampaui batas saat itu, dan `what-if` melaporkannya."
+  },
   "9f413dce90ac2285": {
     "at": "2026-10-23T06:14:11.003127+00:00",
     "job": "msgbatch_01GfwKPWr7pSSTBwm1CiQ1ze",
@@ -142522,6 +142575,13 @@
     "status": "machine",
     "text": "Pemisahan antara kedua fase mencerminkan pemisahan tanggung jawab: aturan tingkat Component berlaku terlepas dari Recipe mana yang terikat, sehingga aturan tersebut dijalankan sebelum pengikatan; aturan tingkat Recipe berlaku untuk pilihan Recipe tertentu, sehingga aturan tersebut dijalankan setelah pengikatan."
   },
+  "c029e06a4ca7a121": {
+    "at": "2026-11-17T14:16:46.822Z",
+    "job": "session-0015-20261117141646",
+    "srcHash": "c029e06a4ca7a121",
+    "status": "machine",
+    "text": "Dengan masukan yang sama, Provider menghasilkan templat yang identik byte demi byte di setiap eksekusi: nama simbolis, nama keluaran, isi bagian, dan entri `dependsOn` semuanya deterministik, ditulis dengan kunci terurut, indentasi dua spasi, dan satu baris baru di akhir. Sebuah `arm-template.json` dapat dibandingkan dengan bersih saat ditinjau."
+  },
   "c02be1c7846c9468": {
     "at": "2026-10-29T22:31:34.157Z",
     "job": "session-0030-20261029223134",
@@ -143490,6 +143550,13 @@
     "srcHash": "c161f8e3ba14164e",
     "status": "machine",
     "text": "`description`, deskripsi graf, jika konfigurasi memberikannya;"
+  },
+  "c163175929ca03ba": {
+    "at": "2026-11-17T14:16:46.822Z",
+    "job": "session-0015-20261117141646",
+    "srcHash": "c163175929ca03ba",
+    "status": "machine",
+    "text": "**`dependsOn` yang dibuat penulis diperluas, tidak pernah diganti.** Entri yang ditulis sebuah sumber daya tetap berada di depan, dalam urutan penulisannya, dan entri gelombang mengikutinya. Satu nama simbolis tunggal maupun sebuah daftar sama-sama dibaca, dan nilai gabungannya adalah daftar. `dependsOn` yang bukan keduanya menghentikan build dengan menyebut penunjuknya. Sumber daya yang dideklarasikan `existing: true` bukan pihak yang bergantung maupun target, karena templat tidak menerapkannya."
   },
   "c1649a54468f0f51": {
     "at": "2026-10-30T01:37:41.675Z",
@@ -149042,6 +149109,13 @@
     "status": "machine",
     "text": "Apa yang ditulis Aggregate"
   },
+  "c8bb5a7913f40899": {
+    "at": "2026-11-17T14:16:46.822Z",
+    "job": "session-0015-20261117141646",
+    "srcHash": "c8bb5a7913f40899",
+    "status": "machine",
+    "text": "**Setiap sumber daya menyebut setiap sumber daya dari gelombang tepat sebelumnya yang memilikinya, dan tidak ada gelombang yang lebih awal dari itu.** ARM merangkai sisanya: sumber daya pada gelombang `2` bergantung pada gelombang `1`, yang bergantung pada gelombang `0`. Unitnya adalah sumber daya dalam templat — sumber daya fragmen dan penerapan bersarang sama-sama — dan entrinya adalah nama simbolis, terurut. Gelombang tidak harus berurutan tanpa celah, dan nilai negatif adalah hal biasa. Gelombang terendah tidak menyebut apa pun."
+  },
   "c8bb756cdc6e3258": {
     "at": "2026-10-29T22:04:01.982Z",
     "job": "session-0026-20261029220401",
@@ -150071,6 +150145,13 @@
     "srcHash": "ca201386cf44963a",
     "status": "machine",
     "text": "Hal ini menjadikan `--release` pemeriksaan pra-build yang sesungguhnya: perintah ini menangkap apa yang akan ditolak build, sebelum build — validasi dependensi build tanpa render. Perintah ini tidak menjalankan render dan tidak memicu penarikan jaringan: closure diselesaikan dari katalog lokal (dan pin lockfile Release, bila ada); kumpulan dependensi yang dipin ke registry dan memerlukan lockfile menampilkan kesalahan referensi tak terselesaikan yang jujur alih-alih mengambilnya. Penyempitan ditampilkan sebagai saran, tidak pernah ditegakkan."
+  },
+  "ca22703387eb8725": {
+    "at": "2026-11-17T14:16:46.822Z",
+    "job": "session-0015-20261117141646",
+    "srcHash": "ca22703387eb8725",
+    "status": "machine",
+    "text": "Nilai `syncWave:` pada sebuah batas Release mengurutkan sumber daya dalam templat tempat batas itu dirakit. Setiap component dalam batas mewarisi gelombang batas tersebut, dan jika beberapa batas diselesaikan ke direktori keluaran yang sama, templat memuat lebih dari satu gelombang; Provider menyatakan urutan di antara gelombang itu sebagai `dependsOn`."
   },
   "ca25aa40758742c5": {
     "at": "2026-10-29T18:30:40.087Z",
@@ -181419,6 +181500,13 @@
     "status": "machine",
     "text": "`ResolveDependenciesParams`"
   },
+  "f33fcdca3cd30d93": {
+    "at": "2026-11-17T14:16:46.822Z",
+    "job": "session-0015-20261117141646",
+    "srcHash": "f33fcdca3cd30d93",
+    "status": "machine",
+    "text": "**Apa yang Anda kecualikan menjadi tanggung jawab Anda.** Tidak ada bagian build yang mengetahui untuk apa sebuah sumber daya digunakan. Menghapus sumber daya yang dibaca oleh bagian lain templat saat penerapan menghasilkan keluaran yang berhasil di-build tetapi gagal saat diterapkan."
+  },
   "f344d7653fb4e893": {
     "at": "2026-10-23T01:24:44.067Z",
     "job": "session-0058-20261023012444",
@@ -184067,6 +184155,13 @@
     "srcHash": "f672ff877c606cb5",
     "status": "machine",
     "text": "**Fitur yang dilampirkan ke node dinilai berdasarkan FeatureRecipe miliknya sendiri, bukan Recipe milik node.** Attachment yang menghasilkan resource-nya sendiri merendernya melalui target yang disebut oleh FeatureRecipe-nya, pada jenis input yang dideklarasikan oleh FeatureRecipe tersebut — sehingga anotasi yang diterapkan oleh target node itu sendiri mungkin tidak mencapai apa pun dalam file attachment, dan sebaliknya juga berlaku. Anda diberi tahu tentang masing-masing secara terpisah, karena keduanya adalah file yang berbeda. Hal yang sama berlaku untuk fitur yang dilampirkan ke boundary alih-alih ke komponen bernama. Attachment yang FeatureRecipe-nya tidak mendeklarasikan satu pun dari `source:`, `workload:`, dan `artifacts:` tidak merender file sendiri — attachment tersebut berkontribusi dengan menyuntikkan nilai, melalui edge `uses` yang dibawa oleh Feature-nya, atau melalui pipeline atas dokumen yang dipancarkan oleh hal lain — sehingga tidak ada output miliknya sendiri yang dapat kehilangan anotasi, dan tidak ada yang diperingatkan untuknya."
+  },
+  "f677b0db67cbb337": {
+    "at": "2026-11-17T14:16:46.822Z",
+    "job": "session-0015-20261117141646",
+    "srcHash": "f677b0db67cbb337",
+    "status": "machine",
+    "text": "Setiap templat yang dirakit diperiksa sebelum ditulis terhadap batas yang ditetapkan ARM untuk satu templat: 4 MB untuk templat, 1 MB untuk sebuah sumber daya, 256 parameter, 512 variabel, 800 sumber daya, 64 keluaran, dan 24,576 karakter untuk satu ekspresi. Templat yang melampaui batas menghentikan build dengan menyebut ukuran, batas, dan solusinya: pecah batasnya agar sumber dayanya diterapkan sebagai lebih dari satu templat."
   },
   "f678100175221212": {
     "at": "2026-10-23T08:34:04.552030+00:00",
@@ -190503,6 +190598,13 @@
     "srcHash": "ff447aa59373d0ff",
     "status": "machine",
     "text": "Diagnostik yang dimunculkan guest selama rendering. Setiap elemen memiliki bentuk diagnostik plugin Wasm bersama."
+  },
+  "ff4b111c1d52b6fd": {
+    "at": "2026-11-17T14:16:46.822Z",
+    "job": "session-0015-20261117141646",
+    "srcHash": "ff4b111c1d52b6fd",
+    "status": "machine",
+    "text": "**Ini adalah urutan penerapan, bukan kesiapan.** Templat tidak mengenal gagasan bahwa sebuah sumber daya siap melayani: `dependsOn` menunggu ARM selesai menerapkan sumber daya yang disebut. Templat yang seluruh sumber dayanya membawa satu gelombang, dan Release yang tidak mendeklarasikan `syncWave`, tidak mendapat urutan tambahan. Gelombang mengurutkan satu templat dan tidak lebih jauh; mengurutkan dua templat adalah urusan operator, dan [tautan antara dua templat](#linking-across-deployments) menyebut urutan penerapannya."
   },
   "ff4b8127c0aae236": {
     "at": "2026-10-23T06:14:09.798554+00:00",

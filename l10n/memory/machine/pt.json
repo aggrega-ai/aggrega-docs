@@ -1799,6 +1799,13 @@
     "status": "machine",
     "text": "**Um importador nuclear que a máquina ainda não tem é obtido uma vez, pela primeira importação que dele precisa.** Vem do registo predefinido do espaço de trabalho, sujeito ao módulo que a versão do compilador publica e verificado como uma obtenção verifica um plugin que obtém — a sua assinatura segundo a política de confiança desse registo, e as funções de host que usa — e é mantido na cache de conteúdos do espaço de trabalho, que é a única coisa escrita para ele: nenhum lockfile e nenhum histórico de plugins de confiança. Todas as importações posteriores o leem daí e não acedem a nenhum registo. Um módulo que não verifica é um erro com o código da sua condição, e nada é mantido; um que não pode ser obtido — o espaço de trabalho está offline, o seu registo não pode ser alcançado ou o registo não o contém — é um erro sob [A plugin's `.wasm` is not on this machine (o ficheiro de um plugin não está nesta máquina)](../errors/fatal-halts.md#a-plugins-wasm-is-not-on-this-machine), indicando o importador, a sua versão e o que coloca o seu módulo na máquina. O próprio pedido não indica nenhum registo, e uma importação com todos os importadores e o catálogo que lê na máquina não acede de todo à rede."
   },
+  "0281439f655aae29": {
+    "at": "2026-11-17T14:16:46.822Z",
+    "job": "session-0015-20261117141646",
+    "srcHash": "0281439f655aae29",
+    "status": "machine",
+    "text": "Cada recurso que o modelo implementa transporta a proveniência da compilação no seu próprio `metadata`, sob a única chave reservada `aggrega.ai/provenance`, combinada ao lado de qualquer `metadata` que o recurso já tenha escrito. Um recurso declarado `existing: true` não é carimbado, uma vez que o modelo não o implementa. O carimbo de um modelo de origem externa fica apenas no recurso da implementação aninhada, nunca dentro do modelo incorporado, que é transportado tal como foi lido. Um recurso cujo `metadata` não seja um objeto é deixado como está escrito, e um aviso nomeia-o; um fragmento que não implementa nenhum recurso recebe um aviso de que a sua proveniência não tem nenhum recurso para descrever."
+  },
   "02838b846c24bc11": {
     "at": "2026-11-03T04:27:12.724Z",
     "job": "session-0049-20261103042712",
@@ -19263,6 +19270,13 @@
     "status": "machine",
     "text": "A ferramenta guarda o endereço sem a sua chave"
   },
+  "1c4b8ff60530a1bf": {
+    "at": "2026-11-17T14:16:46.822Z",
+    "job": "session-0015-20261117141646",
+    "srcHash": "1c4b8ff60530a1bf",
+    "status": "machine",
+    "text": "Proveniência"
+  },
   "1c4c18caeb11ff54": {
     "at": "2026-10-23T02:44:41.029Z",
     "job": "session-0061-20261023024441",
@@ -28863,6 +28877,13 @@
     "srcHash": "2a59aefb8bd3f7ef",
     "status": "machine",
     "text": "**Resolução dos níveis de mapeamento do Manifest.** O mecanismo de resolução plano `mappings.{components,features}` do Manifest (com os níveis `name` e `type`, o nome a prevalecer sobre o tipo, e o tipo com versão a prevalecer sobre o tipo sem versão) está documentado em [`entities/manifest.md`](../entities/manifest.md). O resolvedor consome esses mapeamentos: a seleção de Recipe e de FeatureRecipe é uma pesquisa direta do valor de mapeamento no lockfile e no catálogo, e um componente ou um anexo cujo tipo não tenha mapeamento interrompe a compilação. `spec.implements` não seleciona uma Recipe — é a verificação de consistência no carregamento sobre um mapeamento que o autor já escreveu, e a origem da lista de candidatos que o diagnóstico de mapeamento em falta e a conclusão automática do editor oferecem. O despacho de capacidades parte então do campo `spec.capability` da Recipe resolvida, não da forma estrutural do Manifest."
+  },
+  "2a5ae4b37a9b7cec": {
+    "at": "2026-11-17T14:16:46.822Z",
+    "job": "session-0015-20261117141646",
+    "srcHash": "2a5ae4b37a9b7cec",
+    "status": "machine",
+    "text": "Os recursos de um modelo de origem externa pertencem-lhe: os valores só o alcançam através dos parâmetros que declara. Assim, um modelo obtido de um repositório git que declara um recurso que a Release não deve criar — uma definição de diagnóstico que a plataforma fornece noutro local, um cofre de chaves que o operador já possui — não pode ser alterado por um valor. É para isso que servem as entradas [`omits:`](../entities/recipe.md#the-omits-field--leaving-rendered-documents-out-of-a-source) de uma Recipe ou de uma FeatureRecipe. Este Provider respeita-as num modelo de origem externa e em nada mais: os fragmentos que uma entrada `artifacts:` redige são renderizados sem elas."
   },
   "2a5db71a6c7a0ea5": {
     "at": "2026-11-05T19:04:48.718Z",
@@ -51806,6 +51827,13 @@
     "status": "machine",
     "text": "Recipe `implements` does not match the mapped component type (A declaração de implementação da Recipe não corresponde ao tipo de componente mapeado)"
   },
+  "4ca65efb54f3c554": {
+    "at": "2026-11-17T14:16:46.822Z",
+    "job": "session-0015-20261117141646",
+    "srcHash": "4ca65efb54f3c554",
+    "status": "machine",
+    "text": "**Uma referência que ainda nomeia um recurso removido interrompe a compilação.** O ARM recusa um modelo que nomeie um recurso que não declara, pelo que, depois de removidos os recursos das entradas, o Provider examina o que resta à procura de referências a eles e interrompe a compilação, nomeando o modelo, o recurso, a forma e o ponteiro JSON. Num modelo 2.x, lê as entradas de `dependsOn` (uma entrada `parent::child` também pela sua cabeça) e o primeiro argumento simbólico de `reference`, `references`, `resourceInfo` e das funções `list*`; num modelo sem versão de linguagem, os nomes de `dependsOn`, `reference('<name>')` e uma chamada `resourceId(…)` cujo tipo literal e último nome são os do recurso removido. Uma cadeia de caracteres num modelo em que uma entrada correspondeu, que se lê como uma expressão mas não é analisada, também interrompe a compilação, em vez de deixar passar uma referência por provar. Deixe de fora também tudo o que nomeie o recurso, ou remova a entrada. Nada mais no modelo se altera."
+  },
   "4ca9343eeb3499f9": {
     "at": "2026-10-22T17:00:43.822Z",
     "job": "session-0047-20261022170043",
@@ -68191,6 +68219,13 @@
     "status": "machine",
     "text": "**Uma ligação que não conduz a lado nenhum, ou que anda em círculo, não é algo que exista.** É julgado antes o diretório que a contém, e nada é seguido para descobrir para onde a ligação devia ir. Quando uma ligação destas está exatamente onde um ficheiro está prestes a ser criado, o local para onde aponta também é verificado, uma vez que é aí que o ficheiro iria parar."
   },
+  "64ac9b9886202839": {
+    "at": "2026-11-17T14:16:46.822Z",
+    "job": "session-0015-20261117141646",
+    "srcHash": "64ac9b9886202839",
+    "status": "machine",
+    "text": "**A proveniência não pode ser lida de volta a partir de um recurso implementado.** O ARM guarda o `metadata` de um recurso no modelo que o declarou e não o devolve com o recurso, pelo que `az resource show` e o portal não mostram o carimbo. Leia-o no `arm-template.json` emitido ou nas restantes saídas da compilação. [Etiquetas e anotações](../vocabulary/labels-and-annotations.md) explica o que a proveniência contém."
+  },
   "64ae3765169a7085": {
     "at": "2026-10-23T06:35:49.623Z",
     "job": "session-0063-20261023063549",
@@ -69931,6 +69966,13 @@
     "srcHash": "673fb9298884faab",
     "status": "machine",
     "text": "Um grupo de encaminhamento sem caminho de encaminhamento é ignorado. A saída escrita em nenhum caminho é saída por nó, pelo que nada é aí montado sobre o qual uma declaração de combinação possa incidir."
+  },
+  "6742451f7e0a477a": {
+    "at": "2026-11-17T14:16:46.822Z",
+    "job": "session-0015-20261117141646",
+    "srcHash": "6742451f7e0a477a",
+    "status": "machine",
+    "text": "O `kind` de uma entrada é o `type` de um recurso. O seu `name` é o nome simbólico do recurso num modelo com `languageVersion` 2.x, ou a propriedade `name` do recurso exatamente como está escrita num modelo sem essa versão; ambos são comparados exatamente. Uma entrada que nomeie um `namespace` ou um `subchart` interrompe a compilação, porque um modelo não tem nenhum dos dois. Cada entrada que não corresponda a nada interrompe a compilação, tal como os omits de todos os Providers: uma entrada que não deixa nada de fora é um erro a corrigir, não uma operação sem efeito."
   },
   "6742c45abd57af6e": {
     "at": "2026-11-12T07:35:13.788Z",
@@ -107753,6 +107795,13 @@
     "status": "machine",
     "text": "`AGGREGA_SIGNING_KEY_PATH` — um ponteiro de caminho para um PEM de chave para assinatura com chave (nunca material de chave)."
   },
+  "9f3f87c62212812f": {
+    "at": "2026-11-17T14:16:46.822Z",
+    "job": "session-0015-20261117141646",
+    "srcHash": "9f3f87c62212812f",
+    "status": "machine",
+    "text": "**A verificação é feita antes da expansão de `copy`.** Um recurso ou uma saída com um ciclo `copy` conta uma vez; o ARM expande-o quando o modelo é implementado, pelo que um modelo que passa aqui ainda pode exceder um limite nessa altura, e `what-if` reporta-o."
+  },
   "9f413dce90ac2285": {
     "at": "2026-11-03T11:32:05.600Z",
     "job": "session-0099-20261103113205",
@@ -131110,6 +131159,13 @@
     "status": "machine",
     "text": "A separação entre as duas fases reflete a divisão de responsabilidades: as regras ao nível do Component aplicam-se independentemente da Recipe que seja associada, pelo que são acionadas antes da associação; as regras ao nível da Recipe aplicam-se dada uma escolha específica de Recipe, pelo que são acionadas depois da associação."
   },
+  "c029e06a4ca7a121": {
+    "at": "2026-11-17T14:16:46.822Z",
+    "job": "session-0015-20261117141646",
+    "srcHash": "c029e06a4ca7a121",
+    "status": "machine",
+    "text": "Dadas as mesmas entradas, o Provider emite um modelo idêntico byte a byte entre execuções: nomes simbólicos, nomes de saída, conteúdo das secções e entradas de `dependsOn` são todos deterministas, escritos com chaves ordenadas, indentação de dois espaços e uma única mudança de linha final. Um `arm-template.json` compara-se de forma limpa na revisão."
+  },
   "c02be1c7846c9468": {
     "at": "2026-11-03T04:27:15.085Z",
     "job": "session-0050-20261103042715",
@@ -132030,6 +132086,13 @@
     "srcHash": "c161f8e3ba14164e",
     "status": "machine",
     "text": "`description`, a descrição do grafo, quando a configuração fornece uma;"
+  },
+  "c163175929ca03ba": {
+    "at": "2026-11-17T14:16:46.822Z",
+    "job": "session-0015-20261117141646",
+    "srcHash": "c163175929ca03ba",
+    "status": "machine",
+    "text": "**Um `dependsOn` redigido é alargado, nunca substituído.** As entradas que um recurso escreveu mantêm-se primeiro, pela ordem em que as escreveu, e seguem-se as entradas da vaga. Tanto um único nome simbólico como uma lista são lidos, e o valor combinado é uma lista. Um `dependsOn` que não seja nenhum dos dois interrompe a compilação, nomeando o ponteiro. Um recurso declarado `existing: true` não é nem dependente nem alvo, porque o modelo não o implementa."
   },
   "c1649a54468f0f51": {
     "at": "2026-11-04T03:09:21.141Z",
@@ -137019,6 +137082,13 @@
     "status": "machine",
     "text": "O que o Aggregate escreve"
   },
+  "c8bb5a7913f40899": {
+    "at": "2026-11-17T14:16:46.822Z",
+    "job": "session-0015-20261117141646",
+    "srcHash": "c8bb5a7913f40899",
+    "status": "machine",
+    "text": "**Cada recurso nomeia todos os recursos da vaga imediatamente anterior que tenha algum, e nenhuma vaga anterior a essa.** O ARM encadeia o resto: um recurso na vaga `2` depende da vaga `1`, que depende da vaga `0`. As unidades são os recursos do modelo — recursos de fragmento e implementações aninhadas por igual — e as entradas são nomes simbólicos, ordenados. As vagas não têm de ser contíguas, e os valores negativos são normais. A vaga mais baixa não nomeia nada."
+  },
   "c8bb756cdc6e3258": {
     "at": "2026-10-30T21:21:10.109Z",
     "job": "session-0022-20261030212110",
@@ -137928,6 +137998,13 @@
     "srcHash": "ca201386cf44963a",
     "status": "machine",
     "text": "Isto faz de `--release` uma verdadeira verificação pré-compilação: deteta o que uma compilação rejeitaria, antes da compilação — a validação de dependências da compilação sem a renderização. Não executa nenhuma renderização nem desencadeia nenhum pull de rede: o fecho resolve a partir do catálogo local (e das fixações do lockfile da Release, quando presente); um conjunto de dependências fixado num registo que precisa de um lockfile apresenta um erro honesto de referência irresolúvel em vez de ir obter os dados. O estreitamento é apresentado como conselho, nunca imposto."
+  },
+  "ca22703387eb8725": {
+    "at": "2026-11-17T14:16:46.822Z",
+    "job": "session-0015-20261117141646",
+    "srcHash": "ca22703387eb8725",
+    "status": "machine",
+    "text": "O valor `syncWave:` de um limite da Release ordena os recursos do modelo em que esse limite é montado. Cada component do limite herda a vaga do limite e, onde vários limites se resolvem para o mesmo diretório de saída, o modelo contém mais do que uma vaga; o Provider exprime a ordem entre elas como `dependsOn`."
   },
   "ca25aa40758742c5": {
     "at": "2026-10-30T05:36:18.193Z",
@@ -166958,6 +167035,13 @@
     "status": "machine",
     "text": "`ResolveDependenciesParams`"
   },
+  "f33fcdca3cd30d93": {
+    "at": "2026-11-17T14:16:46.822Z",
+    "job": "session-0015-20261117141646",
+    "srcHash": "f33fcdca3cd30d93",
+    "status": "machine",
+    "text": "**O que deixa de fora fica à sua responsabilidade.** Nada na compilação sabe para que serve um recurso. Remover um que o resto do modelo lê no momento da implementação produz uma saída que compila sem problemas e falha quando é implementada."
+  },
   "f344d7653fb4e893": {
     "at": "2026-10-23T01:04:16.342Z",
     "job": "session-0057-20261023010416",
@@ -169414,6 +169498,13 @@
     "srcHash": "f672ff877c606cb5",
     "status": "machine",
     "text": "**Uma funcionalidade anexada a um nó é avaliada pela sua própria FeatureRecipe, e não pela Recipe do nó.** Um anexo que gera recursos próprios renderiza-os através do destino que a sua FeatureRecipe nomeia, nos tipos de entrada que essa FeatureRecipe declara — pelo que uma anotação que o destino próprio do nó aplica pode não chegar a nada nos ficheiros do anexo, e o inverso também se verifica. Cada um é comunicado de forma independente, porque são ficheiros diferentes. O mesmo se aplica a uma funcionalidade anexada a uma fronteira em vez de a um componente com nome. Um anexo cuja FeatureRecipe não declara nenhum de `source:`, `workload:` e `artifacts:` não renderiza ficheiros próprios — contribui injetando valores, através da aresta `uses` que a sua Feature tem, ou através de um pipeline sobre documentos que outra coisa emitiu — pelo que não existe nenhuma saída própria da qual uma anotação possa estar ausente, e nada é avisado a seu respeito."
+  },
+  "f677b0db67cbb337": {
+    "at": "2026-11-17T14:16:46.822Z",
+    "job": "session-0015-20261117141646",
+    "srcHash": "f677b0db67cbb337",
+    "status": "machine",
+    "text": "Cada modelo montado é verificado, antes de ser escrito, face aos limites que o ARM define para um modelo: 4 MB para o modelo, 1 MB para um recurso, 256 parâmetros, 512 variáveis, 800 recursos, 64 saídas e 24,576 carateres para uma expressão. Um modelo acima de um limite interrompe a compilação, nomeando a medida, o limite e o remédio: dividir o limite para que os seus recursos sejam implementados como mais do que um modelo."
   },
   "f678100175221212": {
     "at": "2026-11-04T09:43:30.291Z",
@@ -175418,6 +175509,13 @@
     "srcHash": "ff447aa59373d0ff",
     "status": "machine",
     "text": "Diagnósticos que o guest levantou durante a renderização. Cada elemento tem a forma de diagnóstico partilhada dos plugins Wasm."
+  },
+  "ff4b111c1d52b6fd": {
+    "at": "2026-11-17T14:16:46.822Z",
+    "job": "session-0015-20261117141646",
+    "srcHash": "ff4b111c1d52b6fd",
+    "status": "machine",
+    "text": "**É ordem de implementação, não prontidão.** Um modelo não exprime nenhuma noção de um recurso estar apto a servir: `dependsOn` espera que o ARM acabe de implementar o recurso nomeado. Um modelo cujos recursos tenham todos a mesma vaga, e uma Release que não declare `syncWave`, não recebem ordenação adicional. Uma vaga ordena um modelo e nada além dele; sequenciar dois modelos é da responsabilidade do operador, e [uma ligação entre dois modelos](#linking-across-deployments) nomeia a ordem em que são implementados."
   },
   "ff4b8127c0aae236": {
     "at": "2026-11-03T02:20:44.184Z",

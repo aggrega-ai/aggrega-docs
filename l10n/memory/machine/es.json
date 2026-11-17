@@ -1755,6 +1755,13 @@
     "status": "machine",
     "text": "**Un importador básico que la máquina aún no tiene se obtiene una vez, en la primera importación que lo necesita.** Procede del registro predeterminado del espacio de trabajo, ceñido al módulo que publica la versión del compilador y verificado como un pull verifica un plugin que obtiene — su firma según la política de confianza de ese registro, y las funciones de host que usa — y se guarda en la caché de contenido del espacio de trabajo, que es lo único que se escribe para él: ningún lockfile y ningún registro de plugins de confianza. Cada importación posterior lo lee de allí y no llega a ningún registro. Un módulo que no supera la verificación es un error con el código de su condición, y no se guarda nada; uno que no se puede obtener — el espacio de trabajo está sin conexión, su registro no es accesible o el registro no lo contiene — es un error bajo [A plugin's `.wasm` is not on this machine (El módulo de un plugin no está en esta máquina)](../errors/fatal-halts.md#a-plugins-wasm-is-not-on-this-machine), que nombra el importador, su versión y qué pone su módulo en la máquina. La propia solicitud no nombra ningún registro, y una importación que ya tiene en la máquina todos los importadores y el catálogo que lee no llega a ninguna red."
   },
+  "0281439f655aae29": {
+    "at": "2026-11-17T14:16:46.822Z",
+    "job": "session-0015-20261117141646",
+    "srcHash": "0281439f655aae29",
+    "status": "machine",
+    "text": "Cada recurso que despliega la plantilla lleva la procedencia de la compilación en su propio `metadata`, bajo la única clave reservada `aggrega.ai/provenance`, combinada junto a cualquier `metadata` que el recurso ya hubiera escrito. Un recurso declarado `existing: true` no se sella, ya que la plantilla no lo despliega. El sello de una plantilla de origen externo se coloca solo en el recurso del despliegue anidado, nunca dentro de la plantilla incorporada, que se transporta tal como se leyó. Un recurso cuyo `metadata` no es un objeto se deja como está escrito y una advertencia lo nombra; un fragmento que no despliega ningún recurso recibe una advertencia de que su procedencia no tiene ningún recurso que describir."
+  },
   "02838b846c24bc11": {
     "at": "2026-11-03T04:27:12.724Z",
     "job": "session-0049-20261103042712",
@@ -18999,6 +19006,13 @@
     "status": "machine",
     "text": "La herramienta guarda la dirección sin su clave"
   },
+  "1c4b8ff60530a1bf": {
+    "at": "2026-11-17T14:16:46.822Z",
+    "job": "session-0015-20261117141646",
+    "srcHash": "1c4b8ff60530a1bf",
+    "status": "machine",
+    "text": "Procedencia"
+  },
   "1c4c18caeb11ff54": {
     "at": "2026-10-30T21:44:40.955Z",
     "job": "session-0024-20261030214440",
@@ -28444,6 +28458,13 @@
     "srcHash": "2a59aefb8bd3f7ef",
     "status": "machine",
     "text": "**Resolución de niveles de mapeo del Manifest.** El mecanismo de resolución plano `mappings.{components,features}` del Manifest (con los niveles `name` y `type`, el nombre prevalece sobre el tipo, y el tipo con versión prevalece sobre el tipo sin versión) está documentado en [`entities/manifest.md`](../entities/manifest.md). El resolutor consume esos mapeos: la selección de Recipe y de FeatureRecipe es una búsqueda directa del valor de mapeo en el lockfile y el catálogo, y un componente o una vinculación cuyo tipo no tiene mapeo detiene la compilación. `spec.implements` no selecciona una Recipe — es la comprobación de coherencia en tiempo de carga sobre un mapeo que el autor ya escribió, y la fuente de la lista de candidatos que ofrecen el diagnóstico de mapeo ausente y el autocompletado del editor. El despacho de capacidades parte después del campo `spec.capability` de la Recipe resuelta, no de la forma estructural del Manifest."
+  },
+  "2a5ae4b37a9b7cec": {
+    "at": "2026-11-17T14:16:46.822Z",
+    "job": "session-0015-20261117141646",
+    "srcHash": "2a5ae4b37a9b7cec",
+    "status": "machine",
+    "text": "Los recursos de una plantilla de origen externo son propios de ella: los valores solo le llegan a través de los parámetros que declara. Por eso, una plantilla obtenida de un repositorio git que declara un recurso que la Release no debe crear —un ajuste de diagnóstico que la plataforma proporciona en otro lugar, un almacén de claves que el operador ya posee— no puede modificarse mediante un valor. Para eso sirven las entradas [`omits:`](../entities/recipe.md#the-omits-field--leaving-rendered-documents-out-of-a-source) de una Recipe o de una FeatureRecipe. Este Provider las respeta en una plantilla de origen externo y en nada más: los fragmentos que redacta una entrada `artifacts:` se renderizan sin ellas."
   },
   "2a5db71a6c7a0ea5": {
     "at": "2026-11-05T17:13:45.687Z",
@@ -51157,6 +51178,13 @@
     "status": "machine",
     "text": "Recipe `implements` does not match the mapped component type (La declaración de implementación de la Recipe no coincide con el tipo de componente mapeado)"
   },
+  "4ca65efb54f3c554": {
+    "at": "2026-11-17T14:16:46.822Z",
+    "job": "session-0015-20261117141646",
+    "srcHash": "4ca65efb54f3c554",
+    "status": "machine",
+    "text": "**Una referencia que sigue nombrando un recurso eliminado detiene la compilación.** ARM rechaza una plantilla que nombra un recurso que no declara, así que, una vez eliminados los recursos de las entradas, el Provider examina lo que queda en busca de referencias a ellos y detiene la compilación indicando la plantilla, el recurso, la forma y el puntero JSON. En una plantilla 2.x lee las entradas de `dependsOn` (una entrada `parent::child` también por su cabeza) y el primer argumento simbólico de `reference`, `references`, `resourceInfo` y las funciones `list*`; en una plantilla sin versión de lenguaje, los nombres de `dependsOn`, `reference('<name>')` y una llamada `resourceId(…)` cuyo tipo literal y último nombre son los del recurso eliminado. También detiene la compilación una cadena de una plantilla en la que una entrada ha coincidido que se lee como una expresión pero no se analiza, en lugar de dejar pasar una referencia sin comprobar. Deja fuera también todo lo que nombre el recurso, o elimina la entrada. Nada más de la plantilla cambia."
+  },
   "4ca9343eeb3499f9": {
     "at": "2026-10-22T07:44:28.418Z",
     "job": "session-0023-20261022074428",
@@ -67323,6 +67351,13 @@
     "status": "machine",
     "text": "**Un enlace que no lleva a ninguna parte, o que da vueltas en un bucle, no es algo que exista.** En su lugar se juzga el directorio que lo contiene, y no se sigue nada para averiguar adónde debía llevar el enlace. Donde un enlace así está exactamente donde se va a crear un archivo, también se comprueba el lugar al que apunta, ya que es allí donde acabaría el archivo."
   },
+  "64ac9b9886202839": {
+    "at": "2026-11-17T14:16:46.822Z",
+    "job": "session-0015-20261117141646",
+    "srcHash": "64ac9b9886202839",
+    "status": "machine",
+    "text": "**La procedencia no se puede leer de vuelta desde un recurso desplegado.** ARM conserva el `metadata` de un recurso en la plantilla que lo declaró y no lo devuelve con el recurso, por lo que `az resource show` y el portal no muestran el sello. Léelo en el `arm-template.json` emitido o en las demás salidas de la compilación. [Etiquetas y anotaciones](../vocabulary/labels-and-annotations.md) explica qué contiene la procedencia."
+  },
   "64ae3765169a7085": {
     "at": "2026-11-02T22:45:50.112Z",
     "job": "session-0016-20261102224550",
@@ -69041,6 +69076,13 @@
     "srcHash": "673fb9298884faab",
     "status": "machine",
     "text": "Un grupo de despacho sin ruta de despacho se omite. La salida escrita en ninguna ruta es salida por nodo, así que allí no se ensambla nada sobre lo que pueda regir una declaración de combinación."
+  },
+  "6742451f7e0a477a": {
+    "at": "2026-11-17T14:16:46.822Z",
+    "job": "session-0015-20261117141646",
+    "srcHash": "6742451f7e0a477a",
+    "status": "machine",
+    "text": "El `kind` de una entrada es el `type` de un recurso. Su `name` es el nombre simbólico del recurso en una plantilla con `languageVersion` 2.x, o la propiedad `name` del recurso exactamente como está escrita en una plantilla sin ella; ambos se comparan de forma exacta. Una entrada que nombra un `namespace` o un `subchart` detiene la compilación, porque una plantilla no tiene ninguno de los dos. Cada entrada que no coincide con nada detiene la compilación, como ocurre con los omits de todos los Providers: una entrada que no deja nada fuera es un error que corregir, no una operación sin efecto."
   },
   "6742c45abd57af6e": {
     "at": "2026-11-12T07:35:13.788Z",
@@ -106443,6 +106485,13 @@
     "status": "machine",
     "text": "`AGGREGA_SIGNING_KEY_PATH`: una ruta que apunta a un PEM de clave keyed (nunca el material de la clave)."
   },
+  "9f3f87c62212812f": {
+    "at": "2026-11-17T14:16:46.822Z",
+    "job": "session-0015-20261117141646",
+    "srcHash": "9f3f87c62212812f",
+    "status": "machine",
+    "text": "**La comprobación se hace antes de la expansión de `copy`.** Un recurso o una salida con un bucle `copy` cuenta una vez; ARM lo expande cuando se despliega la plantilla, así que una plantilla que pasa aquí aún puede superar un límite entonces, y `what-if` lo informa."
+  },
   "9f413dce90ac2285": {
     "at": "2026-11-03T11:32:05.600Z",
     "job": "session-0099-20261103113205",
@@ -129476,6 +129525,13 @@
     "status": "machine",
     "text": "La separación entre las dos fases refleja el reparto de responsabilidades: las reglas a nivel de Component se aplican con independencia de qué Recipe se enlace, por lo que se activan antes del enlace; las reglas a nivel de Recipe se aplican dada una elección concreta de Recipe, por lo que se activan después del enlace."
   },
+  "c029e06a4ca7a121": {
+    "at": "2026-11-17T14:16:46.822Z",
+    "job": "session-0015-20261117141646",
+    "srcHash": "c029e06a4ca7a121",
+    "status": "machine",
+    "text": "Con las mismas entradas, el Provider emite una plantilla idéntica byte a byte entre ejecuciones: los nombres simbólicos, los nombres de salida, el contenido de las secciones y las entradas de `dependsOn` son todos deterministas, escritos con claves ordenadas, sangría de dos espacios y un salto de línea final. Un `arm-template.json` se compara sin ruido en la revisión."
+  },
   "c02be1c7846c9468": {
     "at": "2026-11-03T04:27:15.085Z",
     "job": "session-0050-20261103042715",
@@ -130385,6 +130441,13 @@
     "srcHash": "c161f8e3ba14164e",
     "status": "machine",
     "text": "`description`, la descripción del grafo, donde la configuración da una;"
+  },
+  "c163175929ca03ba": {
+    "at": "2026-11-17T14:16:46.822Z",
+    "job": "session-0015-20261117141646",
+    "srcHash": "c163175929ca03ba",
+    "status": "machine",
+    "text": "**Un `dependsOn` redactado se amplía, nunca se reemplaza.** Las entradas que un recurso escribió se mantienen primero, en el orden en que las escribió, y las entradas de la oleada van después. Se leen tanto un único nombre simbólico como una lista, y el valor combinado es una lista. Un `dependsOn` que no es ninguna de las dos cosas detiene la compilación e indica el puntero. Un recurso declarado `existing: true` no es ni dependiente ni destino, porque la plantilla no lo despliega."
   },
   "c1649a54468f0f51": {
     "at": "2026-11-04T03:09:21.141Z",
@@ -135283,6 +135346,13 @@
     "status": "machine",
     "text": "Lo que escribe el Aggregate"
   },
+  "c8bb5a7913f40899": {
+    "at": "2026-11-17T14:16:46.822Z",
+    "job": "session-0015-20261117141646",
+    "srcHash": "c8bb5a7913f40899",
+    "status": "machine",
+    "text": "**Cada recurso nombra todos los recursos de la oleada inmediatamente anterior que tenga alguno, y ninguna oleada anterior a esa.** ARM encadena el resto: un recurso de la oleada `2` depende de la oleada `1`, que depende de la oleada `0`. Las unidades son los recursos de la plantilla —tanto los recursos de fragmento como los despliegues anidados— y las entradas son nombres simbólicos, ordenados. Las oleadas no tienen que ser contiguas y los valores negativos son normales. La oleada más baja no nombra nada."
+  },
   "c8bb756cdc6e3258": {
     "at": "2026-10-30T21:21:10.109Z",
     "job": "session-0022-20261030212110",
@@ -136177,6 +136247,13 @@
     "srcHash": "ca201386cf44963a",
     "status": "machine",
     "text": "Esto convierte `--release` en una verdadera comprobación previa a la compilación: detecta lo que una compilación rechazaría, antes de la compilación; es la validación de dependencias de la compilación sin el renderizado. No renderiza nada ni desencadena ningún pull de red: el cierre se resuelve desde el catálogo local (y desde los pines del lockfile de la Release, si existe); un conjunto de dependencias fijadas a un registry que necesita un lockfile muestra un error honesto de referencia irresoluble en lugar de descargar. El estrechamiento se muestra como consejo, nunca se impone."
+  },
+  "ca22703387eb8725": {
+    "at": "2026-11-17T14:16:46.822Z",
+    "job": "session-0015-20261117141646",
+    "srcHash": "ca22703387eb8725",
+    "status": "machine",
+    "text": "El valor `syncWave:` de un límite de la Release ordena los recursos de la plantilla en la que se ensambla ese límite. Cada component del límite hereda la oleada del límite y, donde varios límites se resuelven en el mismo directorio de salida, la plantilla contiene más de una oleada; el Provider expresa el orden entre ellas como `dependsOn`."
   },
   "ca25aa40758742c5": {
     "at": "2026-10-30T05:36:18.193Z",
@@ -164805,6 +164882,13 @@
     "status": "machine",
     "text": "`ResolveDependenciesParams`"
   },
+  "f33fcdca3cd30d93": {
+    "at": "2026-11-17T14:16:46.822Z",
+    "job": "session-0015-20261117141646",
+    "srcHash": "f33fcdca3cd30d93",
+    "status": "machine",
+    "text": "**Lo que dejas fuera es responsabilidad tuya.** Nada en la compilación sabe para qué sirve un recurso. Eliminar uno que el resto de la plantilla lee durante el despliegue produce una salida que se compila sin problemas y falla al desplegarse."
+  },
   "f344d7653fb4e893": {
     "at": "2026-10-23T01:24:44.067Z",
     "job": "session-0058-20261023012444",
@@ -167227,6 +167311,13 @@
     "srcHash": "f672ff877c606cb5",
     "status": "machine",
     "text": "**Una funcionalidad vinculada a un nodo se juzga por su propia FeatureRecipe, no por la Recipe del nodo.** Una vinculación que genera recursos propios los renderiza a través del destino que nombra su FeatureRecipe, en los tipos de entrada que declara esa FeatureRecipe — así que una anotación que aplica el destino propio del nodo puede no llegar a nada en los archivos de la vinculación, y lo contrario también se cumple. Se te informa de cada una de forma independiente, porque son archivos distintos. Lo mismo vale para una funcionalidad vinculada a un límite en lugar de a un componente con nombre. Una vinculación cuya FeatureRecipe no declara ninguno de `source:`, `workload:` y `artifacts:` no renderiza archivos propios — contribuye inyectando valores, mediante la arista `uses` que lleva su Feature, o mediante un pipeline sobre documentos que emitió otra cosa — así que no hay ninguna salida propia de la que una anotación pueda faltar, y no se advierte de nada por ella."
+  },
+  "f677b0db67cbb337": {
+    "at": "2026-11-17T14:16:46.822Z",
+    "job": "session-0015-20261117141646",
+    "srcHash": "f677b0db67cbb337",
+    "status": "machine",
+    "text": "Cada plantilla ensamblada se comprueba antes de escribirse frente a los límites que ARM fija para una plantilla: 4 MB para la plantilla, 1 MB para un recurso, 256 parámetros, 512 variables, 800 recursos, 64 salidas y 24,576 caracteres para una expresión. Una plantilla que supera un límite detiene la compilación indicando la medida, el límite y el remedio: dividir el límite para que sus recursos se desplieguen como más de una plantilla."
   },
   "f678100175221212": {
     "at": "2026-11-04T09:43:30.291Z",
@@ -173175,6 +173266,13 @@
     "srcHash": "ff447aa59373d0ff",
     "status": "machine",
     "text": "Diagnósticos que el guest generó durante el renderizado. Cada elemento tiene la forma de diagnóstico compartida de los plugins Wasm."
+  },
+  "ff4b111c1d52b6fd": {
+    "at": "2026-11-17T14:16:46.822Z",
+    "job": "session-0015-20261117141646",
+    "srcHash": "ff4b111c1d52b6fd",
+    "status": "machine",
+    "text": "**Es orden de despliegue, no disponibilidad.** Una plantilla no expresa ninguna noción de que un recurso esté listo para dar servicio: `dependsOn` espera a que ARM termine de desplegar el recurso nombrado. Una plantilla cuyos recursos llevan todos la misma oleada, y una Release que no declara `syncWave`, no reciben ningún orden adicional. Una oleada ordena una plantilla y nada más allá de ella; secuenciar dos plantillas es asunto del operador, y [un enlace entre dos plantillas](#linking-across-deployments) nombra el orden en que se despliegan."
   },
   "ff4b8127c0aae236": {
     "at": "2026-11-03T02:20:44.184Z",

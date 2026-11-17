@@ -1755,6 +1755,13 @@
     "status": "machine",
     "text": "**Ein Core-Importer, den die Maschine noch nicht hat, wird einmal abgerufen, durch den ersten Import, der ihn braucht.** Er stammt aus der Standard-Registry des Workspace, gebunden an das Modul, das das Release des Compilers veröffentlicht, und so verifiziert, wie ein Pull ein abgerufenes Plugin verifiziert — seine Signatur gemäß der Vertrauensrichtlinie dieser Registry und die Host-Funktionen, die er verwendet —, und er wird im Inhalts-Cache des Workspace abgelegt, was das Einzige ist, was für ihn geschrieben wird: kein Lockfile und kein Verzeichnis vertrauenswürdiger Plugins. Jeder spätere Import liest ihn von dort und erreicht keine Registry. Ein Modul, das die Verifikation nicht besteht, ist ein Fehler mit dem Code seiner Bedingung, und nichts wird abgelegt; eines, das nicht abgerufen werden kann — der Workspace ist offline, seine Registry ist nicht erreichbar oder die Registry enthält es nicht —, ist ein Fehler unter [A plugin's `.wasm` is not on this machine (Das Modul eines Plugins befindet sich nicht auf dieser Maschine)](../errors/fatal-halts.md#a-plugins-wasm-is-not-on-this-machine), der den Importer, seine Version und das nennt, was sein Modul auf die Maschine bringt. Die Anfrage selbst nennt keine Registry, und ein Import, für den jeder Importer und der Katalog, den er liest, bereits auf der Maschine liegen, erreicht überhaupt kein Netzwerk."
   },
+  "0281439f655aae29": {
+    "at": "2026-11-17T14:16:46.822Z",
+    "job": "session-0015-20261117141646",
+    "srcHash": "0281439f655aae29",
+    "status": "machine",
+    "text": "Jede Ressource, die die Vorlage bereitstellt, trägt die Provenienz des Builds in ihrem eigenen `metadata`, unter dem einen reservierten Schlüssel `aggrega.ai/provenance`, zusammengeführt neben einem `metadata`, das die Ressource bereits geschrieben hat. Eine Ressource, die als `existing: true` deklariert ist, wird nicht gestempelt, da die Vorlage sie nicht bereitstellt. Der Stempel einer bezogenen Vorlage landet nur auf der Ressource der verschachtelten Bereitstellung, nie innerhalb der eingebundenen Vorlage, die so übernommen wird, wie sie gelesen wurde. Eine Ressource, deren `metadata` kein Objekt ist, bleibt wie geschrieben, und eine Warnung nennt sie; ein Fragment, das keine Ressource bereitstellt, erhält eine Warnung, dass seine Provenienz keine Ressource hat, die sie beschreiben könnte."
+  },
   "02838b846c24bc11": {
     "at": "2026-11-03T04:27:12.724Z",
     "job": "session-0049-20261103042712",
@@ -18999,6 +19006,13 @@
     "status": "machine",
     "text": "Das Tool hält die Adresse ohne ihren Schlüssel"
   },
+  "1c4b8ff60530a1bf": {
+    "at": "2026-11-17T14:16:46.822Z",
+    "job": "session-0015-20261117141646",
+    "srcHash": "1c4b8ff60530a1bf",
+    "status": "machine",
+    "text": "Herkunft"
+  },
   "1c4c18caeb11ff54": {
     "at": "2026-10-30T21:44:40.955Z",
     "job": "session-0024-20261030214440",
@@ -28450,6 +28464,13 @@
     "srcHash": "2a59aefb8bd3f7ef",
     "status": "machine",
     "text": "**Auflösung der Mapping-Stufen des Manifest.** Der flache Auflösungsmechanismus `mappings.{components,features}` des Manifest (mit den Stufen `name` und `type`, Name vor Typ, und versionierter Typ vor unversioniertem Typ) ist unter [`entities/manifest.md`](../entities/manifest.md) dokumentiert. Der Resolver konsumiert diese Mappings: Die Auswahl von Recipe und FeatureRecipe ist ein direkter Abgleich des Mapping-Werts mit der Lockfile und dem Katalog, und eine Komponente oder Anbindung, deren Typ kein Mapping hat, bricht den Build ab. `spec.implements` wählt kein Recipe aus — es ist die Konsistenzprüfung beim Laden für ein Mapping, das der Autor bereits geschrieben hat, und die Quelle der Kandidatenliste, die die Diagnose bei fehlendem Mapping und die Editor-Vervollständigung anbieten. Der Fähigkeits-Dispatch geht dann vom Feld `spec.capability` des aufgelösten Recipe aus, nicht von der strukturellen Form des Manifest."
+  },
+  "2a5ae4b37a9b7cec": {
+    "at": "2026-11-17T14:16:46.822Z",
+    "job": "session-0015-20261117141646",
+    "srcHash": "2a5ae4b37a9b7cec",
+    "status": "machine",
+    "text": "Die Ressourcen einer bezogenen Vorlage gehören ihr selbst: Werte erreichen sie nur über die Parameter, die sie deklariert. Deklariert eine aus einem Git-Repository abgerufene Vorlage also eine Ressource, die das Release nicht erzeugen darf – eine Diagnoseeinstellung, die die Plattform an anderer Stelle bereitstellt, einen Key Vault, den der Operator bereits besitzt –, lässt sich das durch keinen Wert ändern. Dafür sind die [`omits:`](../entities/recipe.md#the-omits-field--leaving-rendered-documents-out-of-a-source)-Einträge eines Recipe oder eines FeatureRecipe da. Dieser Provider berücksichtigt sie bei einer bezogenen Vorlage und bei nichts sonst: Die Fragmente, die ein `artifacts:`-Eintrag verfasst, werden ohne sie gerendert."
   },
   "2a5db71a6c7a0ea5": {
     "at": "2026-11-05T17:13:45.687Z",
@@ -51169,6 +51190,13 @@
     "status": "machine",
     "text": "Recipe `implements` does not match the mapped component type (Die Implementierungsangabe des Recipe passt nicht zum zugeordneten Komponententyp)"
   },
+  "4ca65efb54f3c554": {
+    "at": "2026-11-17T14:16:46.822Z",
+    "job": "session-0015-20261117141646",
+    "srcHash": "4ca65efb54f3c554",
+    "status": "machine",
+    "text": "**Ein Verweis, der weiterhin eine entfernte Ressource benennt, bricht den Build ab.** ARM weist eine Vorlage zurück, die eine Ressource benennt, die sie nicht deklariert. Sobald die Ressourcen der Einträge entfernt sind, liest der Provider daher den Rest nach Verweisen auf sie und bricht den Build ab, wobei er die Vorlage, die Ressource, die Form und den JSON-Pointer nennt. In einer 2.x-Vorlage liest er die `dependsOn`-Einträge (einen `parent::child`-Eintrag auch über seinen Kopf) und das symbolische erste Argument von `reference`, `references`, `resourceInfo` und den `list*`-Funktionen; in einer Vorlage ohne Sprachversion die `dependsOn`-Namen, `reference('<name>')` und einen `resourceId(…)`-Aufruf, dessen literaler Typ und letzter Name die der entfernten Ressource sind. Auch ein String in einer Vorlage, in der ein Eintrag getroffen hat, der wie ein Ausdruck aussieht, aber nicht geparst werden kann, bricht den Build ab, statt einen Verweis ungeprüft durchzulassen. Lassen Sie alles, was die Ressource ebenfalls benennt, mit weg, oder entfernen Sie den Eintrag. Sonst ändert sich nichts an der Vorlage."
+  },
   "4ca9343eeb3499f9": {
     "at": "2026-10-22T07:44:28.418Z",
     "job": "session-0023-20261022074428",
@@ -67329,6 +67357,13 @@
     "status": "machine",
     "text": "**Ein Link, der nirgendwohin oder im Kreis führt, ist nichts, was existiert.** Stattdessen wird das Verzeichnis beurteilt, das ihn enthält, und nichts wird verfolgt, um herauszufinden, wohin der Link führen sollte. Wo ein solcher Link genau dort steht, wo gleich eine Datei angelegt werden soll, wird auch der Ort geprüft, auf den er zeigt, da die Datei dort landen würde."
   },
+  "64ac9b9886202839": {
+    "at": "2026-11-17T14:16:46.822Z",
+    "job": "session-0015-20261117141646",
+    "srcHash": "64ac9b9886202839",
+    "status": "machine",
+    "text": "**Die Provenienz lässt sich an einer bereitgestellten Ressource nicht zurücklesen.** ARM hält das `metadata` einer Ressource in der Vorlage, die sie deklariert hat, und liefert es nicht mit der Ressource zurück; daher zeigen `az resource show` und das Portal den Stempel nicht. Lesen Sie ihn in der erzeugten `arm-template.json` oder in den anderen Ausgaben des Builds. [Labels und Annotationen](../vocabulary/labels-and-annotations.md) sagt, was die Provenienz enthält."
+  },
   "64ae3765169a7085": {
     "at": "2026-11-02T22:45:50.112Z",
     "job": "session-0016-20261102224550",
@@ -69047,6 +69082,13 @@
     "srcHash": "673fb9298884faab",
     "status": "machine",
     "text": "Eine Weiterleitungsgruppe ohne Weiterleitungspfad wird übergangen. An keinem Pfad geschriebene Ausgabe ist knotenweise Ausgabe, daher wird dort nichts assembliert, worüber ein Anspruch auf Kombinieren bestimmen könnte."
+  },
+  "6742451f7e0a477a": {
+    "at": "2026-11-17T14:16:46.822Z",
+    "job": "session-0015-20261117141646",
+    "srcHash": "6742451f7e0a477a",
+    "status": "machine",
+    "text": "Das `kind` eines Eintrags ist der `type` einer Ressource. Sein `name` ist der symbolische Name der Ressource in einer Vorlage mit `languageVersion` 2.x, oder die Eigenschaft `name` der Ressource genau so, wie sie geschrieben ist, in einer Vorlage ohne diese; beide werden exakt verglichen. Ein Eintrag, der ein `namespace` oder ein `subchart` benennt, bricht den Build ab, weil eine Vorlage keines von beiden hat. Jeder Eintrag, der nichts trifft, bricht den Build ab, wie es die Omits jedes Providers tun: Ein Eintrag, der nichts auslässt, ist ein Fehler, der zu beheben ist, kein No-op."
   },
   "6742c45abd57af6e": {
     "at": "2026-11-12T07:35:13.788Z",
@@ -106447,6 +106489,13 @@
     "status": "machine",
     "text": "`AGGREGA_SIGNING_KEY_PATH` — ein Pfadverweis auf ein PEM mit dem Schlüssel für Keyed-Signieren (nie Schlüsselmaterial)."
   },
+  "9f3f87c62212812f": {
+    "at": "2026-11-17T14:16:46.822Z",
+    "job": "session-0015-20261117141646",
+    "srcHash": "9f3f87c62212812f",
+    "status": "machine",
+    "text": "**Die Prüfung erfolgt vor der `copy`-Expansion.** Eine Ressource oder Ausgabe mit einer `copy`-Schleife zählt einmal; ARM expandiert sie, wenn die Vorlage bereitgestellt wird, sodass eine Vorlage, die hier besteht, dann dennoch eine Grenze überschreiten kann, und `what-if` meldet das."
+  },
   "9f413dce90ac2285": {
     "at": "2026-11-03T11:32:05.600Z",
     "job": "session-0099-20261103113205",
@@ -129480,6 +129529,13 @@
     "status": "machine",
     "text": "Die Trennung zwischen den beiden Phasen spiegelt die Aufteilung der Verantwortung wider: Regeln auf Component-Ebene gelten unabhängig davon, welches Recipe gebunden wird, daher greifen sie vor der Bindung; Regeln auf Recipe-Ebene gelten bei einer bestimmten Recipe-Wahl, daher greifen sie nach der Bindung."
   },
+  "c029e06a4ca7a121": {
+    "at": "2026-11-17T14:16:46.822Z",
+    "job": "session-0015-20261117141646",
+    "srcHash": "c029e06a4ca7a121",
+    "status": "machine",
+    "text": "Bei gleichen Eingaben erzeugt der Provider über Läufe hinweg eine byteidentische Vorlage: Symbolische Namen, Ausgabenamen, Abschnittsinhalte und `dependsOn`-Einträge sind allesamt deterministisch, geschrieben mit sortierten Schlüsseln, zwei Leerzeichen Einrückung und einem abschließenden Zeilenumbruch. Eine `arm-template.json` lässt sich im Review sauber vergleichen."
+  },
   "c02be1c7846c9468": {
     "at": "2026-11-03T04:27:15.085Z",
     "job": "session-0050-20261103042715",
@@ -130389,6 +130445,13 @@
     "srcHash": "c161f8e3ba14164e",
     "status": "machine",
     "text": "`description`, die Beschreibung des Graphen, wo die Konfiguration eine angibt;"
+  },
+  "c163175929ca03ba": {
+    "at": "2026-11-17T14:16:46.822Z",
+    "job": "session-0015-20261117141646",
+    "srcHash": "c163175929ca03ba",
+    "status": "machine",
+    "text": "**Ein verfasstes `dependsOn` wird erweitert, nie ersetzt.** Die Einträge, die eine Ressource geschrieben hat, bleiben zuerst, in der Reihenfolge, in der sie sie geschrieben hat, und die Einträge der Welle folgen. Ein einzelner symbolischer Name und eine Liste werden beide gelesen, und der zusammengeführte Wert ist eine Liste. Ein `dependsOn`, das keins von beiden ist, bricht den Build ab und nennt den Pointer. Eine Ressource, die als `existing: true` deklariert ist, ist weder abhängig noch Ziel, weil die Vorlage sie nicht bereitstellt."
   },
   "c1649a54468f0f51": {
     "at": "2026-11-04T03:09:21.141Z",
@@ -135287,6 +135350,13 @@
     "status": "machine",
     "text": "Was das Aggregate schreibt"
   },
+  "c8bb5a7913f40899": {
+    "at": "2026-11-17T14:16:46.822Z",
+    "job": "session-0015-20261117141646",
+    "srcHash": "c8bb5a7913f40899",
+    "status": "machine",
+    "text": "**Jede Ressource nennt jede Ressource der unmittelbar vorhergehenden Welle, die überhaupt eine hat, und keine frühere Welle als diese.** ARM verkettet den Rest: Eine Ressource in Welle `2` hängt von Welle `1` ab, die von Welle `0` abhängt. Die Einheiten sind die Ressourcen der Vorlage – Fragment-Ressourcen und verschachtelte Bereitstellungen gleichermaßen –, und die Einträge sind symbolische Namen, sortiert. Wellen müssen nicht lückenlos aufeinanderfolgen, und negative Werte sind gewöhnlich. Die niedrigste Welle nennt nichts."
+  },
   "c8bb756cdc6e3258": {
     "at": "2026-10-30T21:21:10.109Z",
     "job": "session-0022-20261030212110",
@@ -136181,6 +136251,13 @@
     "srcHash": "ca201386cf44963a",
     "status": "machine",
     "text": "Das macht `--release` zu einer echten Prüfung vor dem Build: Es fängt ab, was ein Build ablehnen würde, noch vor dem Build — die Abhängigkeitsvalidierung des Builds ohne das Rendern. Es rendert nicht und löst keinen Netzwerk-Pull aus: Die Hülle wird aus dem lokalen Katalog aufgelöst (und aus den Lockfile-Pins des Release, sofern vorhanden); eine an eine Registry gepinnte Abhängigkeitsmenge, die ein Lockfile benötigt, liefert einen ehrlichen Fehler wegen nicht auflösbarer Referenz, statt etwas abzurufen. Einengung wird als Hinweis gemeldet, nie erzwungen."
+  },
+  "ca22703387eb8725": {
+    "at": "2026-11-17T14:16:46.822Z",
+    "job": "session-0015-20261117141646",
+    "srcHash": "ca22703387eb8725",
+    "status": "machine",
+    "text": "Der Wert `syncWave:` einer Release-Grenze ordnet die Ressourcen der Vorlage, in die diese Grenze zusammengesetzt wird. Jede Component in der Grenze erbt die Welle der Grenze, und wo mehrere Grenzen im selben Ausgabeverzeichnis aufgelöst werden, enthält die Vorlage mehr als eine Welle; der Provider drückt die Reihenfolge zwischen ihnen als `dependsOn` aus."
   },
   "ca25aa40758742c5": {
     "at": "2026-10-30T05:36:18.193Z",
@@ -164817,6 +164894,13 @@
     "status": "machine",
     "text": "`ResolveDependenciesParams`"
   },
+  "f33fcdca3cd30d93": {
+    "at": "2026-11-17T14:16:46.822Z",
+    "job": "session-0015-20261117141646",
+    "srcHash": "f33fcdca3cd30d93",
+    "status": "machine",
+    "text": "**Für das, was Sie weglassen, stehen Sie selbst ein.** Nichts im Build weiß, wofür eine Ressource da ist. Wird eine Ressource entfernt, die der Rest der Vorlage zur Bereitstellungszeit liest, entsteht eine Ausgabe, die sauber gebaut wird und bei der Bereitstellung fehlschlägt."
+  },
   "f344d7653fb4e893": {
     "at": "2026-10-23T01:24:44.067Z",
     "job": "session-0058-20261023012444",
@@ -167239,6 +167323,13 @@
     "srcHash": "f672ff877c606cb5",
     "status": "machine",
     "text": "**Ein an einen Knoten angebundenes Feature wird nach seinem eigenen FeatureRecipe beurteilt, nicht nach dem Recipe des Knotens.** Eine Anbindung, die eigene Ressourcen erzeugt, rendert sie über das Ziel, das ihr FeatureRecipe nennt, in den Eingabearten, die dieses FeatureRecipe deklariert — daher erreicht eine Annotation, die das eigene Ziel des Knotens anwendet, in den Dateien der Anbindung möglicherweise nichts, und umgekehrt gilt das ebenso. Sie werden über jede unabhängig informiert, weil es verschiedene Dateien sind. Dasselbe gilt für ein Feature, das an eine Boundary statt an eine benannte Komponente angebunden ist. Eine Anbindung, deren FeatureRecipe keines von `source:`, `workload:` und `artifacts:` deklariert, rendert keine eigenen Dateien — sie trägt bei, indem sie Werte injiziert, über die Kante `uses`, die ihr Feature trägt, oder über eine Pipeline über Dokumente, die etwas anderes ausgegeben hat —, daher gibt es keine eigene Ausgabe, in der eine Annotation fehlen könnte, und für sie wird nichts gewarnt."
+  },
+  "f677b0db67cbb337": {
+    "at": "2026-11-17T14:16:46.822Z",
+    "job": "session-0015-20261117141646",
+    "srcHash": "f677b0db67cbb337",
+    "status": "machine",
+    "text": "Jede zusammengesetzte Vorlage wird vor dem Schreiben gegen die Grenzen geprüft, die ARM für eine Vorlage setzt: 4 MB für die Vorlage, 1 MB für eine Ressource, 256 Parameter, 512 Variablen, 800 Ressourcen, 64 Ausgaben und 24,576 Zeichen für einen Ausdruck. Eine Vorlage über einer Grenze bricht den Build ab und nennt das Maß, die Grenze und die Abhilfe: die Grenze so aufteilen, dass ihre Ressourcen als mehrere Vorlagen bereitgestellt werden."
   },
   "f678100175221212": {
     "at": "2026-11-04T09:43:30.291Z",
@@ -173187,6 +173278,13 @@
     "srcHash": "ff447aa59373d0ff",
     "status": "machine",
     "text": "Diagnosen, die der Guest beim Rendern ausgelöst hat. Jedes Element hat die gemeinsame Diagnoseform der Wasm-Plugins."
+  },
+  "ff4b111c1d52b6fd": {
+    "at": "2026-11-17T14:16:46.822Z",
+    "job": "session-0015-20261117141646",
+    "srcHash": "ff4b111c1d52b6fd",
+    "status": "machine",
+    "text": "**Es ist die Reihenfolge der Bereitstellung, nicht Bereitschaft.** Eine Vorlage kennt keinen Begriff dafür, dass eine Ressource einsatzfähig ist: `dependsOn` wartet darauf, dass ARM die Bereitstellung der benannten Ressource abschließt. Eine Vorlage, deren Ressourcen alle dieselbe Welle tragen, und ein Release, das kein `syncWave` deklariert, erhalten keine zusätzliche Reihenfolge. Eine Welle ordnet eine Vorlage und nichts darüber hinaus; zwei Vorlagen in eine Reihenfolge zu bringen, ist Sache des Operators, und [eine Verknüpfung zwischen zwei Vorlagen](#linking-across-deployments) benennt die Reihenfolge, in der sie bereitgestellt werden."
   },
   "ff4b8127c0aae236": {
     "at": "2026-11-03T02:20:44.184Z",

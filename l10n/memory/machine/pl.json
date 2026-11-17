@@ -1960,6 +1960,13 @@
     "status": "machine",
     "text": "**Importer podstawowy, którego maszyna jeszcze nie ma, jest pobierany jeden raz, przez pierwszy import, który go potrzebuje.** Pochodzi z domyślnego rejestru obszaru roboczego, jest ograniczony do modułu publikowanego przez wydanie kompilatora i weryfikowany tak, jak pull weryfikuje pobieraną wtyczkę — jego podpis zgodnie z polityką zaufania tego rejestru oraz funkcje hosta, których używa — i jest przechowywany w pamięci podręcznej treści obszaru roboczego, która jest jedyną rzeczą zapisywaną na jego potrzeby: bez pliku lockfile i bez wpisu o zaufanych wtyczkach. Każdy kolejny import odczytuje go stamtąd i nie łączy się z żadnym rejestrem. Moduł, który nie przejdzie weryfikacji, jest błędem niosącym kod swojego warunku i nic nie zostaje zachowane; moduł, którego nie można pobrać — obszar roboczy jest offline, jego rejestr jest nieosiągalny lub rejestr go nie zawiera — jest błędem w ramach warunku [A plugin's `.wasm` is not on this machine (Pliku .wasm wtyczki nie ma na tej maszynie)](../errors/fatal-halts.md#a-plugins-wasm-is-not-on-this-machine), który podaje importer, jego wersję i to, co umieszcza jego moduł na maszynie. Samo żądanie nie wskazuje żadnego rejestru, a import, dla którego każdy importer i odczytywany katalog są już na maszynie, w ogóle nie korzysta z sieci."
   },
+  "0281439f655aae29": {
+    "at": "2026-11-17T14:16:46.822Z",
+    "job": "session-0015-20261117141646",
+    "srcHash": "0281439f655aae29",
+    "status": "machine",
+    "text": "Każdy zasób wdrażany przez szablon niesie pochodzenie kompilacji we własnym `metadata`, pod jedynym zastrzeżonym kluczem `aggrega.ai/provenance`, scalone obok każdego `metadata`, które zasób już zapisał. Zasób zadeklarowany jako `existing: true` nie jest oznaczany, ponieważ szablon go nie wdraża. Znacznik szablonu ze źródła trafia wyłącznie na zasób zagnieżdżonego wdrożenia, nigdy do wnętrza dołączonego szablonu, który jest przenoszony tak, jak został odczytany. Zasób, którego `metadata` nie jest obiektem, pozostaje taki, jak zapisano, a ostrzeżenie go wskazuje; fragment, który nie wdraża żadnego zasobu, otrzymuje ostrzeżenie, że jego pochodzenie nie ma zasobu do opisania."
+  },
   "0281c1f3544d0929": {
     "at": "2026-10-22T23:05:19.615834+00:00",
     "job": "msgbatch_01A9KTDPLLwkd6FLd7MqtM7B",
@@ -20970,6 +20977,17 @@
     "status": "machine",
     "text": "Narzędzie przechowuje adres bez klucza"
   },
+  "1c4b8ff60530a1bf": {
+    "at": "2026-11-17T14:16:46.822Z",
+    "job": "session-0015-20261117141646",
+    "revision": {
+      "from": "e683ffa728a33a28",
+      "reviewed": false
+    },
+    "srcHash": "1c4b8ff60530a1bf",
+    "status": "machine",
+    "text": "Pochodzenie"
+  },
   "1c4c18caeb11ff54": {
     "at": "2026-10-22T11:35:28.524347+00:00",
     "job": "msgbatch_017QfFdRjxsZsVHW21iWhbZY",
@@ -31437,6 +31455,13 @@
     "srcHash": "2a59aefb8bd3f7ef",
     "status": "machine",
     "text": "**Rozstrzyganie poziomów mapowań w encji Manifest.** Płaski mechanizm rozstrzygania `mappings.{components,features}` w encji Manifest (z poziomami `name` i `type`, pierwszeństwem nazwy nad typem oraz typu z wersją nad typem bez wersji) opisano w [`entities/manifest.md`](../entities/manifest.md). Resolver wykorzystuje te mapowania: wybór encji Recipe i FeatureRecipe to bezpośrednie wyszukanie wartości mapowania w pliku blokady i katalogu, a komponent lub dołączenie, którego typ nie ma mapowania, zatrzymuje build. `spec.implements` nie wybiera encji Recipe — jest testem spójności podczas ładowania, sprawdzającym mapowanie już zapisane przez autora, oraz źródłem listy kandydatów, którą oferują diagnostyka braku mapowania i podpowiedzi edytora. Przekazywanie według możliwości wynika następnie z pola `spec.capability` rozstrzygniętej encji Recipe, a nie ze struktury encji Manifest."
+  },
+  "2a5ae4b37a9b7cec": {
+    "at": "2026-11-17T14:16:46.822Z",
+    "job": "session-0015-20261117141646",
+    "srcHash": "2a5ae4b37a9b7cec",
+    "status": "machine",
+    "text": "Zasoby szablonu ze źródła należą do niego samego: wartości docierają do niego wyłącznie przez parametry, które deklaruje. Szablon pobrany z repozytorium git, który deklaruje zasób, jakiego encja Release nie może utworzyć — ustawienie diagnostyczne, które platforma zapewnia gdzie indziej, magazyn kluczy (key vault), którego operator już jest właścicielem — nie może więc zostać zmieniony żadną wartością. Temu służą wpisy [`omits:`](../entities/recipe.md#the-omits-field--leaving-rendered-documents-out-of-a-source) encji Recipe lub FeatureRecipe. Ten Provider uwzględnia je w szablonie ze źródła i nigdzie indziej: fragmenty, które tworzy wpis `artifacts:`, są renderowane bez nich."
   },
   "2a5db71a6c7a0ea5": {
     "at": "2026-11-05T17:13:45.687Z",
@@ -56322,6 +56347,13 @@
     "status": "machine",
     "text": "Recipe `implements` does not match the mapped component type (implements encji Recipe nie odpowiada zmapowanemu typowi komponentu)"
   },
+  "4ca65efb54f3c554": {
+    "at": "2026-11-17T14:16:46.822Z",
+    "job": "session-0015-20261117141646",
+    "srcHash": "4ca65efb54f3c554",
+    "status": "machine",
+    "text": "**Odwołanie, które nadal wskazuje usunięty zasób, zatrzymuje kompilację.** ARM odrzuca szablon wskazujący zasób, którego nie deklaruje, więc po usunięciu zasobów wpisów Provider przegląda to, co zostało, w poszukiwaniu odwołań do nich i zatrzymuje kompilację, wskazując szablon, zasób, formę i wskaźnik JSON. W szablonie 2.x odczytuje wpisy `dependsOn` (wpis `parent::child` także po jego początku) oraz symboliczny pierwszy argument `reference`, `references`, `resourceInfo` i funkcji `list*`; w szablonie bez wersji języka — nazwy `dependsOn`, `reference('<name>')` oraz wywołanie `resourceId(…)`, którego literalny typ i ostatnia nazwa należą do usuniętego zasobu. Zatrzymuje kompilację także ciąg znaków w szablonie, w którym wpis został dopasowany, który wygląda jak wyrażenie, ale nie daje się sparsować, zamiast przepuścić nieudowodnione odwołanie. Pomiń także wszystko, co wskazuje ten zasób, albo usuń wpis. Nic poza tym w szablonie się nie zmienia."
+  },
   "4ca9343eeb3499f9": {
     "at": "2026-10-22T07:44:28.418Z",
     "job": "session-0023-20261022074428",
@@ -74277,6 +74309,13 @@
     "status": "machine",
     "text": "**Dowiązanie, które prowadzi donikąd lub w pętlę, nie jest czymś, co istnieje.** Ocenia się wówczas katalog, który\n  je zawiera, i nie rozwija się niczego, aby ustalić, dokąd dowiązanie miało prowadzić. Gdy takie\n  dowiązanie stoi dokładnie w miejscu, w którym ma zostać utworzony plik, sprawdza się również miejsce, na które wskazuje,\n  ponieważ tam trafiłby plik."
   },
+  "64ac9b9886202839": {
+    "at": "2026-11-17T14:16:46.822Z",
+    "job": "session-0015-20261117141646",
+    "srcHash": "64ac9b9886202839",
+    "status": "machine",
+    "text": "**Pochodzenia nie da się odczytać z wdrożonego zasobu.** ARM przechowuje `metadata` zasobu w szablonie, który go zadeklarował, i nie zwraca go razem z zasobem, więc `az resource show` i portal nie pokazują znacznika. Odczytaj go w wyemitowanym `arm-template.json` lub w pozostałych wynikach kompilacji. [Etykiety i adnotacje](../vocabulary/labels-and-annotations.md) mówią, co zawiera pochodzenie."
+  },
   "64ae3765169a7085": {
     "at": "2026-10-22T11:48:02.910092+00:00",
     "job": "msgbatch_01Evd5wJaBRMEf4MnbVZuRR2",
@@ -76210,6 +76249,13 @@
     "srcHash": "673fb9298884faab",
     "status": "machine",
     "text": "Grupa dyspozycji bez ścieżki dyspozycji jest pomijana. Wynik zapisywany bez ścieżki jest wynikiem per węzeł, więc nic nie jest tam składane, czego dotyczyłaby deklaracja łączenia."
+  },
+  "6742451f7e0a477a": {
+    "at": "2026-11-17T14:16:46.822Z",
+    "job": "session-0015-20261117141646",
+    "srcHash": "6742451f7e0a477a",
+    "status": "machine",
+    "text": "`kind` wpisu to `type` zasobu. Jego `name` to nazwa symboliczna zasobu w szablonie z `languageVersion` 2.x albo właściwość `name` zasobu dokładnie tak, jak jest zapisana, w szablonie bez niego; oba porównuje się dokładnie. Wpis wskazujący `namespace` lub `subchart` zatrzymuje kompilację, ponieważ szablon nie ma żadnego z nich. Każdy wpis, który niczego nie dopasowuje, zatrzymuje kompilację, tak jak omits każdego Providera: wpis, który niczego nie pomija, jest błędem do poprawienia, a nie operacją bez skutku."
   },
   "6742c45abd57af6e": {
     "at": "2026-11-12T07:35:13.788Z",
@@ -117314,6 +117360,13 @@
     "status": "machine",
     "text": "`AGGREGA_SIGNING_KEY_PATH` — ścieżka wskazująca plik PEM z kluczem do podpisywania kluczem (nigdy sam materiał klucza)."
   },
+  "9f3f87c62212812f": {
+    "at": "2026-11-17T14:16:46.822Z",
+    "job": "session-0015-20261117141646",
+    "srcHash": "9f3f87c62212812f",
+    "status": "machine",
+    "text": "**Sprawdzenie następuje przed rozwinięciem `copy`.** Zasób lub wyjście z pętlą `copy` liczy się raz; ARM rozwija ją przy wdrażaniu szablonu, więc szablon, który tu przechodzi, może wtedy nadal przekroczyć limit, a `what-if` to zgłasza."
+  },
   "9f413dce90ac2285": {
     "at": "2026-10-22T22:51:16.626703+00:00",
     "job": "msgbatch_01MQtbUH7yWbTrGncQ2UzRnu",
@@ -142484,6 +142537,13 @@
     "status": "machine",
     "text": "Podział na dwie fazy odzwierciedla podział odpowiedzialności: reguły na poziomie encji Component obowiązują niezależnie od tego, która encja Recipe zostanie związana, dlatego są uruchamiane przed wiązaniem; reguły na poziomie encji Recipe obowiązują przy konkretnym wyborze encji Recipe, dlatego są uruchamiane po wiązaniu."
   },
+  "c029e06a4ca7a121": {
+    "at": "2026-11-17T14:16:46.822Z",
+    "job": "session-0015-20261117141646",
+    "srcHash": "c029e06a4ca7a121",
+    "status": "machine",
+    "text": "Przy tych samych danych wejściowych Provider emituje szablon identyczny bajt po bajcie przy każdym uruchomieniu: nazwy symboliczne, nazwy wyjść, zawartość sekcji i wpisy `dependsOn` są deterministyczne, zapisane z posortowanymi kluczami, wcięciem dwóch spacji i jednym końcowym znakiem nowej linii. Plik `arm-template.json` daje czysty diff w przeglądzie."
+  },
   "c02be1c7846c9468": {
     "at": "2026-10-29T22:31:34.157Z",
     "job": "session-0030-20261029223134",
@@ -143452,6 +143512,13 @@
     "srcHash": "c161f8e3ba14164e",
     "status": "machine",
     "text": "`description` — opisem grafu, jeśli konfiguracja go podaje;"
+  },
+  "c163175929ca03ba": {
+    "at": "2026-11-17T14:16:46.822Z",
+    "job": "session-0015-20261117141646",
+    "srcHash": "c163175929ca03ba",
+    "status": "machine",
+    "text": "**Napisany ręcznie `dependsOn` jest rozszerzany, nigdy zastępowany.** Wpisy, które zasób zapisał, pozostają na początku, w kolejności, w jakiej je zapisał, a wpisy fali następują po nich. Odczytywana jest zarówno pojedyncza nazwa symboliczna, jak i lista, a scalona wartość jest listą. `dependsOn`, który nie jest ani jednym, ani drugim, zatrzymuje kompilację, wskazując wskaźnik. Zasób zadeklarowany jako `existing: true` nie jest ani zależny, ani celem, ponieważ szablon go nie wdraża."
   },
   "c1649a54468f0f51": {
     "at": "2026-10-30T01:37:41.675Z",
@@ -149004,6 +149071,13 @@
     "status": "machine",
     "text": "Co zapisuje encja Aggregate"
   },
+  "c8bb5a7913f40899": {
+    "at": "2026-11-17T14:16:46.822Z",
+    "job": "session-0015-20261117141646",
+    "srcHash": "c8bb5a7913f40899",
+    "status": "machine",
+    "text": "**Każdy zasób wskazuje wszystkie zasoby bezpośrednio poprzedzającej fali, która jakieś ma, i żadnej wcześniejszej fali.** Resztę łączy ARM: zasób w fali `2` zależy od fali `1`, która zależy od fali `0`. Jednostkami są zasoby szablonu — zasoby fragmentów i zagnieżdżone wdrożenia — a wpisy to nazwy symboliczne, posortowane. Fale nie muszą być ciągłe, a wartości ujemne są zwyczajne. Najniższa fala niczego nie wskazuje."
+  },
   "c8bb756cdc6e3258": {
     "at": "2026-10-29T22:04:01.982Z",
     "job": "session-0026-20261029220401",
@@ -150033,6 +150107,13 @@
     "srcHash": "ca201386cf44963a",
     "status": "machine",
     "text": "Dzięki temu `--release` jest prawdziwą kontrolą przed kompilacją: wychwytuje to, co odrzuciłaby kompilacja, zanim do niej dojdzie — walidację zależności kompilacji bez renderowania. Nie wykonuje renderowania i nie wywołuje pobierania z sieci: domknięcie jest rozwiązywane z lokalnego katalogu (oraz z przypięć w pliku blokady encji Release, jeśli istnieje); zestaw zależności przypiętych do rejestru, który wymaga pliku blokady, zgłasza rzetelny błąd nierozwiązywalnego odwołania zamiast pobierać. Zawężanie jest zgłaszane jako porada, nigdy egzekwowane."
+  },
+  "ca22703387eb8725": {
+    "at": "2026-11-17T14:16:46.822Z",
+    "job": "session-0015-20261117141646",
+    "srcHash": "ca22703387eb8725",
+    "status": "machine",
+    "text": "Wartość `syncWave:` granicy encji Release porządkuje zasoby szablonu, w który ta granica jest składana. Każdy component w granicy dziedziczy falę granicy, a tam, gdzie kilka granic prowadzi do tego samego katalogu wyjściowego, szablon zawiera więcej niż jedną falę; Provider wyraża kolejność między nimi jako `dependsOn`."
   },
   "ca25aa40758742c5": {
     "at": "2026-10-29T18:30:40.087Z",
@@ -181363,6 +181444,13 @@
     "status": "machine",
     "text": "`ResolveDependenciesParams`"
   },
+  "f33fcdca3cd30d93": {
+    "at": "2026-11-17T14:16:46.822Z",
+    "job": "session-0015-20261117141646",
+    "srcHash": "f33fcdca3cd30d93",
+    "status": "machine",
+    "text": "**Za to, co pominiesz, odpowiadasz sam.** Nic w kompilacji nie wie, do czego służy zasób. Usunięcie zasobu, który reszta szablonu odczytuje w czasie wdrożenia, daje wynik, który kompiluje się bez zarzutu, a przy wdrażaniu kończy się błędem."
+  },
   "f344d7653fb4e893": {
     "at": "2026-10-22T09:44:21.400057+00:00",
     "job": "msgbatch_013NCKZBrFnV8MLX7L95wcHH",
@@ -184011,6 +184099,13 @@
     "srcHash": "f672ff877c606cb5",
     "status": "machine",
     "text": "**Funkcja dołączona do węzła jest oceniana według własnej encji FeatureRecipe, a nie według encji Recipe węzła.** Załącznik, który generuje własne zasoby, renderuje je przez cel wskazany przez jego FeatureRecipe, przy rodzajach wejścia deklarowanych przez tę FeatureRecipe — więc adnotacja stosowana przez własny cel węzła może nie trafić do niczego w plikach załącznika i odwrotnie. Informacja o każdym z nich przychodzi niezależnie, ponieważ są to różne pliki. To samo dotyczy funkcji dołączonej do granicy zamiast do nazwanego komponentu. Załącznik, którego FeatureRecipe nie deklaruje żadnego z `source:`, `workload:` i `artifacts:`, nie renderuje własnych plików — wnosi wkład przez wstrzykiwanie wartości, przez krawędź `uses` jego encji Feature albo przez potok działający na dokumentach wyemitowanych przez coś innego — więc nie ma własnego wyniku, w którym mogłoby brakować adnotacji, i nie jest dla niego zgłaszane żadne ostrzeżenie."
+  },
+  "f677b0db67cbb337": {
+    "at": "2026-11-17T14:16:46.822Z",
+    "job": "session-0015-20261117141646",
+    "srcHash": "f677b0db67cbb337",
+    "status": "machine",
+    "text": "Każdy złożony szablon jest sprawdzany przed zapisem pod kątem limitów, które ARM ustala dla jednego szablonu: 4 MB dla szablonu, 1 MB dla zasobu, 256 parametrów, 512 zmiennych, 800 zasobów, 64 wyjścia i 24,576 znaków dla jednego wyrażenia. Szablon przekraczający limit zatrzymuje kompilację, wskazując miarę, limit i środek zaradczy: podzielić granicę tak, aby jej zasoby były wdrażane jako więcej niż jeden szablon."
   },
   "f678100175221212": {
     "at": "2026-10-23T00:02:43.446982+00:00",
@@ -190447,6 +190542,13 @@
     "srcHash": "ff447aa59373d0ff",
     "status": "machine",
     "text": "Diagnostyka zgłoszona przez gościa podczas renderowania. Każdy element ma wspólny kształt diagnostyki pluginów Wasm."
+  },
+  "ff4b111c1d52b6fd": {
+    "at": "2026-11-17T14:16:46.822Z",
+    "job": "session-0015-20261117141646",
+    "srcHash": "ff4b111c1d52b6fd",
+    "status": "machine",
+    "text": "**To kolejność wdrażania, a nie gotowość.** Szablon nie wyraża pojęcia gotowości zasobu do obsługi: `dependsOn` czeka, aż ARM skończy wdrażać wskazany zasób. Szablon, którego wszystkie zasoby mają jedną falę, oraz encja Release, która nie deklaruje `syncWave`, nie otrzymują żadnej dodatkowej kolejności. Fala porządkuje jeden szablon i nic poza nim; ustawianie w kolejności dwóch szablonów należy do operatora, a [powiązanie dwóch szablonów](#linking-across-deployments) wskazuje kolejność, w jakiej są wdrażane."
   },
   "ff4b8127c0aae236": {
     "at": "2026-10-22T12:28:13.070114+00:00",

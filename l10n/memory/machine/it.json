@@ -1755,6 +1755,13 @@
     "status": "machine",
     "text": "**Un importer core che la macchina non possiede ancora viene scaricato una volta, dal primo import che ne ha bisogno.** Proviene dal registry predefinito del workspace, vincolato al modulo pubblicato dalla release del compilatore e verificato come una pull verifica un plugin che scarica — la sua firma secondo la policy di fiducia di quel registry e le funzioni host che usa — e viene conservato nella cache dei contenuti del workspace, che è l’unica cosa scritta per esso: nessun lockfile e nessun registro dei plugin attendibili. Ogni import successivo lo legge da lì e non contatta alcun registry. Un modulo che non supera la verifica è un errore che riporta il codice della sua condizione, e non viene conservato nulla; uno che non può essere scaricato — il workspace è offline, il suo registry non è raggiungibile, o il registry non lo contiene — è un errore con [A plugin's `.wasm` is not on this machine (Il modulo di un plugin non è su questa macchina)](../errors/fatal-halts.md#a-plugins-wasm-is-not-on-this-machine), che indica l’importer, la sua versione e che cosa mette il suo modulo sulla macchina. La richiesta stessa non indica alcun registry, e un import che ha già sulla macchina ogni importer e il catalogo che legge non contatta affatto la rete."
   },
+  "0281439f655aae29": {
+    "at": "2026-11-17T14:16:46.822Z",
+    "job": "session-0015-20261117141646",
+    "srcHash": "0281439f655aae29",
+    "status": "machine",
+    "text": "Ogni risorsa che il template distribuisce porta la provenienza della build nel proprio `metadata`, sotto l’unica chiave riservata `aggrega.ai/provenance`, unita accanto a qualsiasi `metadata` che la risorsa avesse già scritto. Una risorsa dichiarata `existing: true` non viene marcata, poiché il template non la distribuisce. Il marchio di un template di origine esterna finisce solo sulla risorsa della distribuzione annidata, mai all’interno del template incorporato, che viene riportato com’è stato letto. Una risorsa il cui `metadata` non è un oggetto viene lasciata com’è scritta e un avviso la nomina; un frammento che non distribuisce alcuna risorsa riceve un avviso che la sua provenienza non ha alcuna risorsa da descrivere."
+  },
   "02838b846c24bc11": {
     "at": "2026-11-03T04:27:12.724Z",
     "job": "session-0049-20261103042712",
@@ -19005,6 +19012,13 @@
     "status": "machine",
     "text": "Lo strumento contiene l’indirizzo senza la sua chiave"
   },
+  "1c4b8ff60530a1bf": {
+    "at": "2026-11-17T14:16:46.822Z",
+    "job": "session-0015-20261117141646",
+    "srcHash": "1c4b8ff60530a1bf",
+    "status": "machine",
+    "text": "Provenienza"
+  },
   "1c4c18caeb11ff54": {
     "at": "2026-10-30T21:44:40.955Z",
     "job": "session-0024-20261030214440",
@@ -28466,6 +28480,13 @@
     "srcHash": "2a59aefb8bd3f7ef",
     "status": "machine",
     "text": "**Risoluzione dei livelli di mappatura del Manifest.** Il meccanismo di risoluzione piatto `mappings.{components,features}` del Manifest (con i livelli `name` e `type`, il nome che prevale sul tipo, e il tipo con versione che prevale sul tipo senza versione) è documentato in [`entities/manifest.md`](../entities/manifest.md). Il resolver consuma quelle mappature: la selezione di Recipe e FeatureRecipe è una ricerca diretta del valore di mappatura nel lockfile e nel catalogo, e un componente o un’associazione il cui tipo non ha alcuna mappatura arresta la build. `spec.implements` non seleziona una Recipe — è il controllo di coerenza al caricamento su una mappatura che l’autore ha già scritto, e la fonte dell’elenco dei candidati offerto dalla diagnostica di mappatura assente e dal completamento dell’editor. Lo smistamento delle capacità procede poi dal campo `spec.capability` della Recipe risolta, non dalla forma strutturale del Manifest."
+  },
+  "2a5ae4b37a9b7cec": {
+    "at": "2026-11-17T14:16:46.822Z",
+    "job": "session-0015-20261117141646",
+    "srcHash": "2a5ae4b37a9b7cec",
+    "status": "machine",
+    "text": "Le risorse di un template di origine esterna sono sue: i valori lo raggiungono solo attraverso i parametri che dichiara. Un template recuperato da un repository git che dichiara una risorsa che la Release non deve creare — un’impostazione di diagnostica che la piattaforma fornisce altrove, un key vault che l’operatore possiede già — non può quindi essere modificato da un valore. A questo servono le voci [`omits:`](../entities/recipe.md#the-omits-field--leaving-rendered-documents-out-of-a-source) di una Recipe o di una FeatureRecipe. Questo Provider le rispetta su un template di origine esterna e su nient’altro: i frammenti che una voce `artifacts:` redige vengono resi senza di esse."
   },
   "2a5db71a6c7a0ea5": {
     "at": "2026-11-05T17:13:45.687Z",
@@ -51185,6 +51206,13 @@
     "status": "machine",
     "text": "Recipe `implements` does not match the mapped component type (La dichiarazione di implementazione della Recipe non corrisponde al tipo di componente mappato)"
   },
+  "4ca65efb54f3c554": {
+    "at": "2026-11-17T14:16:46.822Z",
+    "job": "session-0015-20261117141646",
+    "srcHash": "4ca65efb54f3c554",
+    "status": "machine",
+    "text": "**Un riferimento che nomina ancora una risorsa rimossa interrompe la build.** ARM rifiuta un template che nomina una risorsa che non dichiara; una volta rimosse le risorse delle voci, il Provider esamina quindi ciò che resta alla ricerca di riferimenti a esse e interrompe la build indicando il template, la risorsa, la forma e il puntatore JSON. In un template 2.x legge le voci di `dependsOn` (una voce `parent::child` anche tramite la sua testa) e il primo argomento simbolico di `reference`, `references`, `resourceInfo` e delle funzioni `list*`; in un template senza versione del linguaggio, i nomi di `dependsOn`, `reference('<name>')` e una chiamata `resourceId(…)` il cui tipo letterale e ultimo nome sono quelli della risorsa rimossa. Interrompe la build anche una stringa di un template in cui una voce ha trovato corrispondenza, che si legge come un’espressione ma non viene analizzata, anziché lasciar passare un riferimento non verificato. Escludi anche tutto ciò che nomina la risorsa, oppure rimuovi la voce. Nient’altro del template cambia."
+  },
   "4ca9343eeb3499f9": {
     "at": "2026-10-22T07:44:28.418Z",
     "job": "session-0023-20261022074428",
@@ -67345,6 +67373,13 @@
     "status": "machine",
     "text": "**Un link che non porta da nessuna parte, o che gira in un ciclo, non è qualcosa che esiste.** Viene invece giudicata la directory che lo contiene, e non si segue nulla per scoprire dove il link doveva portare. Dove un link del genere si trova esattamente dove un file sta per essere creato, viene controllato anche il luogo a cui punta, poiché è lì che il file finirebbe."
   },
+  "64ac9b9886202839": {
+    "at": "2026-11-17T14:16:46.822Z",
+    "job": "session-0015-20261117141646",
+    "srcHash": "64ac9b9886202839",
+    "status": "machine",
+    "text": "**La provenienza non si può rileggere da una risorsa distribuita.** ARM conserva il `metadata` di una risorsa nel template che l’ha dichiarata e non lo restituisce con la risorsa, quindi `az resource show` e il portale non mostrano il marchio. Leggilo nell’`arm-template.json` emesso, o negli altri output della build. [Etichette e annotazioni](../vocabulary/labels-and-annotations.md) spiega che cosa contiene la provenienza."
+  },
   "64ae3765169a7085": {
     "at": "2026-11-02T22:45:50.112Z",
     "job": "session-0016-20261102224550",
@@ -69063,6 +69098,13 @@
     "srcHash": "673fb9298884faab",
     "status": "machine",
     "text": "Un gruppo di inoltro privo di percorso di inoltro viene ignorato. L’output scritto senza alcun percorso è output per nodo, quindi lì non viene assemblato nulla su cui una dichiarazione di combinazione possa avere effetto."
+  },
+  "6742451f7e0a477a": {
+    "at": "2026-11-17T14:16:46.822Z",
+    "job": "session-0015-20261117141646",
+    "srcHash": "6742451f7e0a477a",
+    "status": "machine",
+    "text": "Il `kind` di una voce è il `type` di una risorsa. Il suo `name` è il nome simbolico della risorsa in un template con `languageVersion` 2.x, oppure la proprietà `name` della risorsa esattamente come scritta in un template che ne è privo; entrambi si confrontano in modo esatto. Una voce che nomina un `namespace` o un `subchart` interrompe la build, perché un template non ha né l’uno né l’altro. Ogni voce che non corrisponde a nulla interrompe la build, come fanno gli omits di ogni Provider: una voce che non esclude nulla è un errore da correggere, non un’operazione senza effetto."
   },
   "6742c45abd57af6e": {
     "at": "2026-11-12T07:35:13.788Z",
@@ -106465,6 +106507,13 @@
     "status": "machine",
     "text": "`AGGREGA_SIGNING_KEY_PATH` — un puntatore al percorso di un PEM con chiave keyed (mai il materiale della chiave)."
   },
+  "9f3f87c62212812f": {
+    "at": "2026-11-17T14:16:46.822Z",
+    "job": "session-0015-20261117141646",
+    "srcHash": "9f3f87c62212812f",
+    "status": "machine",
+    "text": "**Il controllo avviene prima dell’espansione di `copy`.** Una risorsa o un output con un ciclo `copy` conta una volta; ARM lo espande quando il template viene distribuito, quindi un template che supera il controllo qui può comunque superare un limite in quel momento, e `what-if` lo segnala."
+  },
   "9f413dce90ac2285": {
     "at": "2026-11-03T11:32:05.600Z",
     "job": "session-0099-20261103113205",
@@ -129510,6 +129559,13 @@
     "status": "machine",
     "text": "La separazione tra le due fasi riflette la ripartizione delle responsabilità: le regole a livello di Component si applicano indipendentemente da quale Recipe venga legata, quindi scattano prima del binding; le regole a livello di Recipe si applicano data una specifica scelta di Recipe, quindi scattano dopo il binding."
   },
+  "c029e06a4ca7a121": {
+    "at": "2026-11-17T14:16:46.822Z",
+    "job": "session-0015-20261117141646",
+    "srcHash": "c029e06a4ca7a121",
+    "status": "machine",
+    "text": "A parità di input il Provider emette un template identico byte per byte da un’esecuzione all’altra: nomi simbolici, nomi di output, contenuto delle sezioni e voci di `dependsOn` sono tutti deterministici, scritti con chiavi ordinate, indentazione di due spazi e un solo a capo finale. Un `arm-template.json` si confronta in modo pulito in revisione."
+  },
   "c02be1c7846c9468": {
     "at": "2026-11-03T04:27:15.085Z",
     "job": "session-0050-20261103042715",
@@ -130425,6 +130481,13 @@
     "srcHash": "c161f8e3ba14164e",
     "status": "machine",
     "text": "`description`, la descrizione del grafo, dove la configurazione ne fornisce una;"
+  },
+  "c163175929ca03ba": {
+    "at": "2026-11-17T14:16:46.822Z",
+    "job": "session-0015-20261117141646",
+    "srcHash": "c163175929ca03ba",
+    "status": "machine",
+    "text": "**Un `dependsOn` redatto viene esteso, mai sostituito.** Le voci che una risorsa ha scritto restano per prime, nell’ordine in cui le ha scritte, e seguono le voci dell’ondata. Vengono letti sia un singolo nome simbolico sia un elenco, e il valore unito è un elenco. Un `dependsOn` che non è né l’uno né l’altro interrompe la build indicando il puntatore. Una risorsa dichiarata `existing: true` non è né dipendente né destinazione, perché il template non la distribuisce."
   },
   "c1649a54468f0f51": {
     "at": "2026-11-04T03:09:21.141Z",
@@ -135323,6 +135386,13 @@
     "status": "machine",
     "text": "Che cosa scrive l’Aggregate"
   },
+  "c8bb5a7913f40899": {
+    "at": "2026-11-17T14:16:46.822Z",
+    "job": "session-0015-20261117141646",
+    "srcHash": "c8bb5a7913f40899",
+    "status": "machine",
+    "text": "**Ogni risorsa nomina tutte le risorse dell’ondata immediatamente precedente che ne ha, e nessuna ondata anteriore a quella.** ARM concatena il resto: una risorsa dell’ondata `2` dipende dall’ondata `1`, che dipende dall’ondata `0`. Le unità sono le risorse del template — risorse di frammento e distribuzioni annidate allo stesso modo — e le voci sono nomi simbolici, ordinati. Le ondate non devono essere contigue e i valori negativi sono ordinari. L’ondata più bassa non nomina nulla."
+  },
   "c8bb756cdc6e3258": {
     "at": "2026-10-30T21:21:10.109Z",
     "job": "session-0022-20261030212110",
@@ -136217,6 +136287,13 @@
     "srcHash": "ca201386cf44963a",
     "status": "machine",
     "text": "Questo rende `--release` un vero controllo pre-build: intercetta ciò che una build rifiuterebbe, prima della build — la validazione delle dipendenze della build senza il render. Non esegue alcun render e non avvia alcun pull di rete: la chiusura si risolve dal catalogo locale (e dai pin del lockfile della Release, se presente); un insieme di dipendenze fissate a un registry che richiede un lockfile fa emergere un onesto errore di riferimento irrisolvibile anziché scaricare. Il restringimento viene segnalato come consiglio, mai imposto."
+  },
+  "ca22703387eb8725": {
+    "at": "2026-11-17T14:16:46.822Z",
+    "job": "session-0015-20261117141646",
+    "srcHash": "ca22703387eb8725",
+    "status": "machine",
+    "text": "Il valore `syncWave:` di un confine della Release ordina le risorse del template in cui quel confine viene assemblato. Ogni component nel confine eredita l’ondata del confine e, dove più confini si risolvono nella stessa directory di output, il template contiene più di un’ondata; il Provider esprime l’ordine tra di esse come `dependsOn`."
   },
   "ca25aa40758742c5": {
     "at": "2026-10-30T05:36:18.193Z",
@@ -164871,6 +164948,13 @@
     "status": "machine",
     "text": "`ResolveDependenciesParams`"
   },
+  "f33fcdca3cd30d93": {
+    "at": "2026-11-17T14:16:46.822Z",
+    "job": "session-0015-20261117141646",
+    "srcHash": "f33fcdca3cd30d93",
+    "status": "machine",
+    "text": "**Ciò che escludi è di tua responsabilità.** Nulla nella build sa a cosa serva una risorsa. Rimuoverne una che il resto del template legge al momento della distribuzione produce un output che si compila senza errori e fallisce quando viene distribuito."
+  },
   "f344d7653fb4e893": {
     "at": "2026-10-23T01:24:44.067Z",
     "job": "session-0058-20261023012444",
@@ -167299,6 +167383,13 @@
     "srcHash": "f672ff877c606cb5",
     "status": "machine",
     "text": "**Una funzionalità associata a un nodo viene giudicata sulla propria FeatureRecipe, non sulla Recipe del nodo.** Un’associazione che genera risorse proprie le renderizza attraverso la destinazione indicata dalla sua FeatureRecipe, ai tipi di input che quella FeatureRecipe dichiara — quindi un’annotazione che la destinazione propria del nodo applica può non raggiungere nulla nei file dell’associazione, e vale anche il contrario. Vieni informato di ciascuna in modo indipendente, perché sono file diversi. Lo stesso vale per una funzionalità associata a un confine anziché a un componente con nome. Un’associazione la cui FeatureRecipe non dichiara nessuno tra `source:`, `workload:` e `artifacts:` non renderizza file propri — contribuisce iniettando valori, tramite l’arco `uses` che la sua Feature porta, o tramite una pipeline su documenti emessi da qualcos’altro — quindi non c’è alcun output proprio da cui un’annotazione possa mancare, e per essa non viene segnalato nulla."
+  },
+  "f677b0db67cbb337": {
+    "at": "2026-11-17T14:16:46.822Z",
+    "job": "session-0015-20261117141646",
+    "srcHash": "f677b0db67cbb337",
+    "status": "machine",
+    "text": "Ogni template assemblato viene controllato prima di essere scritto rispetto ai limiti che ARM stabilisce per un template: 4 MB per il template, 1 MB per una risorsa, 256 parametri, 512 variabili, 800 risorse, 64 output e 24,576 caratteri per un’espressione. Un template oltre un limite interrompe la build indicando la misura, il limite e il rimedio: dividere il confine in modo che le sue risorse vengano distribuite come più di un template."
   },
   "f678100175221212": {
     "at": "2026-11-04T09:43:30.291Z",
@@ -173247,6 +173338,13 @@
     "srcHash": "ff447aa59373d0ff",
     "status": "machine",
     "text": "Diagnostiche che il guest ha sollevato durante il rendering. Ogni elemento ha la forma di diagnostica condivisa dei plugin Wasm."
+  },
+  "ff4b111c1d52b6fd": {
+    "at": "2026-11-17T14:16:46.822Z",
+    "job": "session-0015-20261117141646",
+    "srcHash": "ff4b111c1d52b6fd",
+    "status": "machine",
+    "text": "**È un ordine di distribuzione, non di disponibilità.** Un template non esprime alcuna nozione di risorsa pronta a servire: `dependsOn` attende che ARM finisca di distribuire la risorsa nominata. Un template le cui risorse portano tutte la stessa ondata, e una Release che non dichiara `syncWave`, non ricevono alcun ordine aggiuntivo. Un’ondata ordina un template e nulla oltre; mettere in sequenza due template spetta all’operatore, e [un collegamento tra due template](#linking-across-deployments) nomina l’ordine in cui vengono distribuiti."
   },
   "ff4b8127c0aae236": {
     "at": "2026-11-03T02:20:44.184Z",
