@@ -16,10 +16,10 @@ Azure Container Apps app, and the database's administrator password is a Key
 Vault secret that already exists, so no password is written anywhere in the
 template.
 
-The same developer intent is built three ways: as one template, as two templates
-deployed one after the other and linked by the server's read of the database's
-host, and — deliberately — as a build that halts because two components would
-claim one name inside the template.
+The same developer intent is built as one template, as two templates deployed
+one after the other and linked by the server's read of the database's host, and —
+deliberately — as a build that halts because two components would claim one name
+inside the template.
 
 Output blocks on this page are copied from a real run, per
 [Reading the output on these pages](../reading-the-output.md).
@@ -68,7 +68,7 @@ cd arm-postgres-container-apps
 
 ## Build
 
-This example ships three releases, so name the one you want. One release builds
+This example has a release for each build, so name the one you want. One release builds
 per run. Each release's first build needs its lockfile, which the pull writes:
 
 ```bash
@@ -103,7 +103,7 @@ Both components assemble into one template, and each becomes one **nested
 deployment**: an Azure Resource Manager resource of type
 `Microsoft.Resources/deployments` that carries a vendored module's own template
 and the parameters the Release's settings map to. The template's `resources`
-section holds exactly these two entries:
+section holds these entries:
 
 | Symbolic name | Contributed by |
 | --- | --- |
@@ -274,8 +274,8 @@ Aggregate is the one the single template builds from; only the Release differs.
 
 ### The database's template publishes what the server reads
 
-The server reads four of the database's entries, so the database's template gains
-four string outputs, each named for the component and the entry. The host is the
+The server reads some of the database's entries, so the database's template gains
+a string output for each, named for the component and the entry. The host is the
 expression of the single template, passed through `string()` so every value
 crosses as text:
 
@@ -352,7 +352,7 @@ resource in a template, so the build stops:
       derived name collision: one name is derived more than once in one key space ("PaymentsDb", key space "symbolic-names", derived by component "payments-db", provider "arm", dispatch path "name-collision/arm")
 ```
 
-Three things to read out of that.
+What to read out of that:
 
 - **Both ends are named.** Each entry gives the component, so both are
   searchable in the files you wrote. Both are reported because both derive the
