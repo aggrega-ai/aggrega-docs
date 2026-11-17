@@ -446,6 +446,13 @@
     "status": "machine",
     "text": "**Configuration idiomatique du Provider.** Sur les deux cibles, la passerelle écrit au démarrage du conteneur un bloc server NGINX minimal dont le `proxy_pass` transfère vers l’upstream injecté, puis démarre nginx au premier plan. La cible Kubernetes réalise cela sous forme d’un Deployment sans état plus un Service ClusterIP, sans aucun chart Helm externe."
   },
+  "008e227464346d09": {
+    "at": "2026-11-17T13:24:33.294Z",
+    "job": "session-0008-20261117132433",
+    "srcHash": "008e227464346d09",
+    "status": "machine",
+    "text": "Le nom du déploiement fait partie de ce que lit le serveur, donc le modèle de la base de données est déployé avant celui du serveur, exactement sous le nom qu’il consigne. Rien ne lit le déploiement du serveur, donc son nom est à votre choix :"
+  },
   "008f938ca65cb18f": {
     "at": "2026-11-04T12:39:28.645Z",
     "job": "session-0243-20261104123928",
@@ -1331,6 +1338,13 @@
     "srcHash": "01d7a64b29846fbb",
     "status": "machine",
     "text": "[FeatureRecipe](entities/featurerecipe.md) — traduction écrite par Ops d’une Feature vers un provider spécifique. Utilise le même contrat à trois types d’entrée que la Recipe, plus un `injectMapping` qui intercepte le pipe d’injection pour réécrire les variables côté appelant."
+  },
+  "01d8da32926bbcd7": {
+    "at": "2026-11-17T13:24:33.294Z",
+    "job": "session-0008-20261117132433",
+    "srcHash": "01d8da32926bbcd7",
+    "status": "machine",
+    "text": "`aggregate-name-collision.yaml` déclare deux bases de données, `payments-db` et `payments--db`. Ce sont deux ids d’instance distincts, et les deux sont des noms de serveur valides, mais le provider replie un id d’instance en mots pour nommer son déploiement imbriqué, et les deux se replient en `PaymentsDb`. Un nom symbolique adresse une seule ressource dans un modèle, donc le build s’arrête :"
   },
   "01da99b81443863b": {
     "at": "2026-10-30T05:41:23.167Z",
@@ -3174,6 +3188,13 @@
     "srcHash": "049977068cd6cb44",
     "status": "machine",
     "text": "`valuesMapping:` de la Recipe, corps du Workload, templates de FeatureRecipe"
+  },
+  "049a206992dd6296": {
+    "at": "2026-11-17T13:24:33.294Z",
+    "job": "session-0008-20261117132433",
+    "srcHash": "049a206992dd6296",
+    "status": "machine",
+    "text": "`arm/worker-container-apps`, une application Azure Container Apps"
   },
   "049a67a3c6e09bd6": {
     "at": "2026-11-03T02:20:42.738Z",
@@ -5361,6 +5382,13 @@
     "status": "machine",
     "text": "**Governance** (`governance`)"
   },
+  "079d790dc88c2356": {
+    "at": "2026-11-17T13:24:33.294Z",
+    "job": "session-0008-20261117132433",
+    "srcHash": "079d790dc88c2356",
+    "status": "machine",
+    "text": "`arm/postgres-flexible-server`, un serveur flexible Azure Database for PostgreSQL"
+  },
   "07a1605d4366ddb1": {
     "at": "2026-11-04T09:43:30.291Z",
     "job": "session-0227-20261104094330",
@@ -7335,6 +7363,17 @@
     "srcHash": "0a93d3ae113c4677",
     "status": "machine",
     "text": "Restent les deux dernières pièces : où va la provenance, et l’export lui-même."
+  },
+  "0a9485113b92e242": {
+    "at": "2026-11-17T13:24:33.294Z",
+    "job": "session-0008-20261117132433",
+    "revision": {
+      "from": "438cdfa645186425",
+      "reviewed": false
+    },
+    "srcHash": "0a9485113b92e242",
+    "status": "machine",
+    "text": "[policy-render-verdict](policy-render-verdict/README.md) (`advanced`) — Une seule règle maison, rattachée au rôle `render-verdict`, juge les fichiers qu’un build écrit pour chaque cible et refuse une violation placée sur chacune."
   },
   "0a95a097b293320d": {
     "at": "2026-11-03T19:48:08.904Z",
@@ -13609,6 +13648,13 @@
     "status": "machine",
     "text": "Et, pour chaque service, chaque variable de son environnement qui n’est pas lue ainsi :"
   },
+  "142ca29c9d9ba28e": {
+    "at": "2026-11-17T13:24:33.294Z",
+    "job": "session-0008-20261117132433",
+    "srcHash": "142ca29c9d9ba28e",
+    "status": "machine",
+    "text": "**Le symbole partagé et son espace de clés sont nommés.** `PaymentsDb` est le symbole que les deux ont atteint, et `symbolic-names` est l’espace de noms des ressources du modèle."
+  },
   "1430e8c142aa32af": {
     "at": "2026-11-03T16:07:30.748Z",
     "job": "session-0127-20261103160730",
@@ -18936,6 +18982,13 @@
     "srcHash": "1c55eac3fbac102d",
     "status": "machine",
     "text": "Un seul lecteur vérifie les trois, de sorte que les refus sont les trois mêmes quel que soit le champ en faute : un mappage qui porte plus d’une clé, un mappage dont l’unique clé n’est pas `$import`, et un `$import:` dont la valeur n’est pas une simple chaîne. Une valeur qui n’est ni un scalaire ni un mappage — une liste, le plus souvent — est refusée sur sa seule forme."
+  },
+  "1c59ca592ce8191b": {
+    "at": "2026-11-17T13:24:33.294Z",
+    "job": "session-0008-20261117132433",
+    "srcHash": "1c59ca592ce8191b",
+    "status": "machine",
+    "text": "Le nom de la base de données est celui qui figure dans `metadata[\"aggrega.ai/deployment-name\"]` de son modèle. Il dérive du nom de la Release et du répertoire de sortie du périmètre ; modifier le `directory:` du périmètre de la base de données dans la Release renomme donc son déploiement, et le modèle du serveur, construit de nouveau, lit le nouveau nom. Construisez les deux modèles à partir d’une même Release et déployez la base de données comme consigné."
   },
   "1c5cb8d8a8994d63": {
     "at": "2026-11-03T15:04:41.802Z",
@@ -24827,6 +24880,13 @@
     "status": "machine",
     "text": "Générer une Recipe directement dans un fichier :"
   },
+  "24f61487be163b4e": {
+    "at": "2026-11-17T13:24:33.294Z",
+    "job": "session-0008-20261117132433",
+    "srcHash": "24f61487be163b4e",
+    "status": "machine",
+    "text": "`dist/one-deployment/` est commité à côté de la Release qui le construit, de sorte qu’un changement des Recipes apparaît comme un diff du modèle. Les deux entrées de version de chaque bloc de provenance évoluent avec le compilateur qui construit, comme le notent les extraits ci-dessus. Les fichiers `*.lock` sont générés et ne sont pas commités ; ils se régénèrent à partir des fichiers qui le sont."
+  },
   "24fb23df8aff4443": {
     "at": "2026-11-14T10:24:53.158Z",
     "job": "session-0025-20261114102453",
@@ -26891,6 +26951,13 @@
     "srcHash": "2836d603647e5a66",
     "status": "machine",
     "text": "Limites de la plateforme et anti-objectifs (ce qu’Aggrega n’est pas)"
+  },
+  "2838b124419fa5c2": {
+    "at": "2026-11-17T13:24:33.294Z",
+    "job": "session-0008-20261117132433",
+    "srcHash": "2838b124419fa5c2",
+    "status": "machine",
+    "text": "Le build Azure Resource Manager a son propre Aggregate, `aggregate-arm.yaml`, avec la même base de données et un `report` de type `core/compute/worker` qui la lit. Le provider `arm` réalise un worker et ne réalise pas `core/manual-trigger`, que porte la tâche ci-dessus, si bien que l’Aggregate partagé ne peut pas y être construit. La base de données s’appelle `orders-db` dans ce fichier, car le serveur flexible prend le nom de son Component et un nom de serveur compte au moins trois caractères."
   },
   "2839826b0528ad80": {
     "at": "2026-11-03T21:17:48.202Z",
@@ -35834,6 +35901,13 @@
     "status": "machine",
     "text": "Le fichier `aggregate.yaml` révisé, l’application étant omise ici comme ci-dessus :"
   },
+  "360fd1b585adc24a": {
+    "at": "2026-11-17T13:24:33.294Z",
+    "job": "session-0008-20261117132433",
+    "srcHash": "360fd1b585adc24a",
+    "status": "machine",
+    "text": "Le modèle de la base de données publie ce que lit le serveur"
+  },
   "36116907972fd574": {
     "at": "2026-11-08T10:48:22.903Z",
     "job": "session-0006-20261108104822",
@@ -36409,6 +36483,13 @@
     "srcHash": "36e79e67ee8a4394",
     "status": "machine",
     "text": "**Ce que fait le compilateur de votre réponse.** Les entrées proviennent de la clé `omits:` qu’un auteur écrit sur une Recipe ou une FeatureRecipe ([Recipe → Le champ `omits:`](../entities/recipe.md#the-omits-field--leaving-rendered-documents-out-of-a-source)) ; le compilateur évalue les templates de chaque entrée et remet à votre guest celles qui s’appliquent. Il lit ensuite vos décomptes, et seulement vos décomptes — il ne regarde jamais dans un fichier renvoyé pour les vérifier :"
+  },
+  "36e8daee4797e857": {
+    "at": "2026-11-17T13:24:33.294Z",
+    "job": "session-0008-20261117132433",
+    "srcHash": "36e8daee4797e857",
+    "status": "machine",
+    "text": "Déployer d’abord la base de données, sous le nom consigné"
   },
   "36eaefa61cbeb19a": {
     "at": "2026-10-22T07:44:28.418Z",
@@ -62683,6 +62764,13 @@
     "status": "machine",
     "text": "Ce que le compilateur ne fait pas"
   },
+  "5e8782856a65d3d4": {
+    "at": "2026-11-17T13:24:33.294Z",
+    "job": "session-0008-20261117132433",
+    "srcHash": "5e8782856a65d3d4",
+    "status": "machine",
+    "text": "`release-two-deployments.yaml` construit le même Aggregate avec la base de données et le serveur dans deux périmètres. Chaque périmètre écrit son propre modèle, et le modèle du serveur lit l’hôte de la base de données depuis le déploiement de la base de données :"
+  },
   "5e8ba32febe20b2b": {
     "at": "2026-10-22T12:20:05.813Z",
     "job": "session-0035-20261022122005",
@@ -70367,6 +70455,13 @@
     "status": "machine",
     "text": "Types d’entrée de la Recipe"
   },
+  "6a14c5e989ad25cf": {
+    "at": "2026-11-17T13:24:33.294Z",
+    "job": "session-0008-20261117132433",
+    "srcHash": "6a14c5e989ad25cf",
+    "status": "machine",
+    "text": "Deux modèles, déployés l’un après l’autre"
+  },
   "6a18423a8dea7f25": {
     "at": "2026-11-14T23:38:08.721Z",
     "job": "session-0005-20261114233808",
@@ -70471,6 +70566,13 @@
     "srcHash": "6a33adf361dcdd0d",
     "status": "machine",
     "text": "Lorsque vous avez terminé avec la pile, supprimez-la, avec le cache du modèle et les conversations :"
+  },
+  "6a3a2684b3a211b6": {
+    "at": "2026-11-17T13:24:33.294Z",
+    "job": "session-0008-20261117132433",
+    "srcHash": "6a3a2684b3a211b6",
+    "status": "machine",
+    "text": "Ce qu’il faut en retenir :"
   },
   "6a3e166e26bc4d26": {
     "at": "2026-10-22T13:22:28.626Z",
@@ -74595,6 +74697,13 @@
     "status": "machine",
     "text": "Dans Aggrega, la rédaction est une boucle courte et reproductible. Quelle que soit l’entité que vous écrivez — l’Aggregate d’un développeur, le Component d’un architecte, une Recipe des opérations ou la Release d’un opérateur —, les mêmes cinq étapes vous mènent d’un fichier vide à un fichier validé :"
   },
+  "702cf5fd924acc5d": {
+    "at": "2026-11-17T13:24:33.294Z",
+    "job": "session-0008-20261117132433",
+    "srcHash": "702cf5fd924acc5d",
+    "status": "machine",
+    "text": "**Rien n’est émis.** Le build s’arrête plutôt que d’écrire un modèle dans lequel un déploiement imbriqué remplace silencieusement l’autre. Renommer l’un ou l’autre des Components dans l’Aggregate règle le problème."
+  },
   "7032adee303caf4b": {
     "at": "2026-11-12T08:45:17.034Z",
     "job": "session-0006-20261112084517",
@@ -78448,6 +78557,13 @@
     "srcHash": "75fea72d4917cba8",
     "status": "machine",
     "text": "dans la stack assemblée"
+  },
+  "7600fc640cae6f68": {
+    "at": "2026-11-17T13:24:33.294Z",
+    "job": "session-0008-20261117132433",
+    "srcHash": "7600fc640cae6f68",
+    "status": "machine",
+    "text": "Construire deux fois à partir d’entrées inchangées produit des modèles identiques à l’octet près. Le compilateur ne résout aucune donnée en direct : il n’appelle jamais Azure et n’exécute jamais Azure Resource Manager, donc une reconstruction n’a rien à découvrir qui puisse déplacer les octets. C’est la propriété sur laquelle s’appuie une revue fondée sur les diffs."
   },
   "7602243bce1e250e": {
     "at": "2026-11-04T00:28:10.767Z",
@@ -84198,6 +84314,13 @@
     "status": "machine",
     "text": "Le texte d’aide d’une ligne du flag."
   },
+  "7ec7af097bddb576": {
+    "at": "2026-11-17T13:24:33.294Z",
+    "job": "session-0008-20261117132433",
+    "srcHash": "7ec7af097bddb576",
+    "status": "machine",
+    "text": "`dist/two-deployments-database/arm/arm-template.json` est le modèle de la base de données, et `dist/two-deployments-server/arm/arm-template.json` est celui du serveur. L’Aggregate est celui dont le modèle unique est construit ; seule la Release diffère."
+  },
   "7ec7f95ac9511c95": {
     "at": "2026-11-05T17:28:23.934Z",
     "job": "session-0007-20261105172823",
@@ -86565,6 +86688,17 @@
     "srcHash": "824f0f89a08c16b6",
     "status": "machine",
     "text": "Calcule la référence et affiche le <reference>:<tag> proposé ; ignore l’appel réseau"
+  },
+  "824f722139167778": {
+    "at": "2026-11-17T13:24:33.294Z",
+    "job": "session-0008-20261117132433",
+    "revision": {
+      "from": "6866b725076ebab3",
+      "reviewed": false
+    },
+    "srcHash": "824f722139167778",
+    "status": "machine",
+    "text": "Les Recipes Kubernetes, Compose, Terraform et CloudFormation rendent à partir du seul catalogue : la base de données Kubernetes est synthétisée plutôt que récupérée sous forme de chart, le corps de la base de données Terraform est écrit par sa Recipe, et le module de la tâche Terraform est conservé à côté de sa Recipe. Ces builds s’exécutent donc hors ligne. Les Recipes `arm` enveloppent des modèles Azure Verified Modules, qu’un build récupère au commit que chaque Recipe épingle, si bien que le build de cette cible a besoin du réseau."
   },
   "824fac7d95c5d799": {
     "at": "2026-11-03T13:21:01.958Z",
@@ -99296,6 +99430,17 @@
     "status": "machine",
     "text": "Tous deux se trouvent dans le namespace `velero`, le seul depuis lequel Velero lit ses plannings, et sont nommés d’après le namespace de la base de données, son nom et celui du rattachement, puisque chaque Release du cluster écrit dans cet unique namespace. Le planning sélectionne les pods de la base de données par les labels du StatefulSet que rend la base de données, dans le namespace où elle est placée, et l’agent de nœud de Velero copie les fichiers de leurs volumes dans le bucket. L’adresse du bucket est celle que publie le composant `backups`, avec son nom de Service qualifié par le namespace dans lequel il s’exécute, parce que Velero s’exécute dans un autre, et la région est aussi celle du bucket : SeaweedFS, qui l’exécute ici, n’en lit aucune et publie `us-east-1`. Les 14 jours sont la durée de vie de Velero, en heures."
   },
+  "9566942d69fbaeeb": {
+    "at": "2026-11-17T13:24:33.294Z",
+    "job": "session-0008-20261117132433",
+    "revision": {
+      "from": "a8d42ee3803b5adc",
+      "reviewed": false
+    },
+    "srcHash": "9566942d69fbaeeb",
+    "status": "machine",
+    "text": "Une politique sur la sortie rendue : une règle maison, chaque cible, deux moteurs"
+  },
   "95671e33714a72c7": {
     "at": "2026-11-03T21:17:49.829Z",
     "job": "session-0160-20261103211749",
@@ -111599,6 +111744,13 @@
     "status": "machine",
     "text": "Remplacez `governance-rego.yaml` par `governance-cel.yaml` ou `governance-opa.yaml` pour exécuter la même règle sur un autre moteur."
   },
+  "a7a906ffe426aff1": {
+    "at": "2026-11-17T13:24:33.294Z",
+    "job": "session-0008-20261117132433",
+    "srcHash": "a7a906ffe426aff1",
+    "status": "machine",
+    "text": "L’ID est construit à partir de l’abonnement et du groupe de ressources du serveur lui-même, ce qui suppose que la base de données est déployée dans le même groupe de ressources. Un périmètre qui déclare `aggrega.ai/azure-subscription` ou `aggrega.ai/azure-resource-group` dans ses `annotations` place son modèle ailleurs, et la lecture nomme alors ces valeurs sous forme de chaînes."
+  },
   "a7a93c600883a294": {
     "at": "2026-11-03T16:48:59.633Z",
     "job": "session-0130-20261103164859",
@@ -118888,6 +119040,17 @@
     "srcHash": "b21ed207eda28ba6",
     "status": "machine",
     "text": "**Les lignes `mapped`** indiquent ce que chaque service est devenu. `api` exécute une image qui lui est propre ; c’est donc une instance du serveur générique de la bibliothèque standard, `core/compute/server`. `db` et `cache` exécutent des images que les Recipes Compose de la bibliothèque standard exécutent pour `core/datastore/postgres` et `core/datastore/redis` ; chacun a correspondu à ce Component dans le niveau haut, à 0.9, et a malgré tout été ébauché comme un Component à part entière, car par défaut une importation suggère et c’est vous qui choisissez."
+  },
+  "b21ed4c6b52607a9": {
+    "at": "2026-11-17T13:24:33.294Z",
+    "job": "session-0008-20261117132433",
+    "revision": {
+      "from": "f583b49470afb41f",
+      "reviewed": false
+    },
+    "srcHash": "b21ed4c6b52607a9",
+    "status": "machine",
+    "text": "Cet espace de travail construit une base de données pour Kubernetes via Helm, Docker Compose, Terraform, CloudFormation et Azure Resource Manager (le provider `arm`). Le rôle `render-verdict` juge les fichiers qu’un build écrit, après que chaque cible les a rendus, et la règle lit la structure de sortie propre à chaque cible : les images dans les objets Kubernetes, dans un fichier Compose et dans un modèle Azure Resource Manager, l’instance RDS dans un fichier Terraform et dans un modèle CloudFormation. Chaque cible a une Release qui passe et une Release dans laquelle une violation est piégée, que la règle refuse."
   },
   "b21f56a1da8bf292": {
     "at": "2026-10-23T02:15:21.677Z",
@@ -129109,6 +129272,13 @@
     "status": "machine",
     "text": "Portée et phase d’exécution"
   },
+  "c0c4ab5ae31223a9": {
+    "at": "2026-11-17T13:24:33.294Z",
+    "job": "session-0008-20261117132433",
+    "srcHash": "c0c4ab5ae31223a9",
+    "status": "machine",
+    "text": "**Les deux extrémités sont nommées.** Chaque entrée indique le Component, de sorte que les deux sont repérables dans les fichiers que vous avez écrits. Les deux sont signalées parce que les deux dérivent le même symbole."
+  },
   "c0c4b0498223466d": {
     "at": "2026-10-30T20:43:14.394Z",
     "job": "session-0018-20261030204314",
@@ -130541,6 +130711,17 @@
     "srcHash": "c2ffda50491cf32f",
     "status": "machine",
     "text": "Le socket de parseur — sortie d’arbre canonique"
+  },
+  "c300e19a6c7bed46": {
+    "at": "2026-11-17T13:24:33.294Z",
+    "job": "session-0008-20261117132433",
+    "revision": {
+      "from": "16e446a270407bfa",
+      "reviewed": false
+    },
+    "srcHash": "c300e19a6c7bed46",
+    "status": "machine",
+    "text": "`report` lit l’adresse, le port et le nom de la base de données via sa connexion `database`, sous la forme `DB_HOST`, `DB_PORT` et `DB_NAME`. L’Aggregate est le même fichier pour chaque build, sauf celui d’Azure Resource Manager ; chaque Release nomme le Manifest qui choisit la cible :"
   },
   "c302f6365bfa0011": {
     "at": "2026-11-14T23:40:29.533Z",
@@ -133147,6 +133328,13 @@
     "srcHash": "c7463ad944819835",
     "status": "machine",
     "text": "**Un plugin qui échoue est indiqué avec son échec au lieu d’être retiré de la liste.** `resolved` dit si la référence a atteint des octets de module, et un plugin qui s’est résolu mais n’a pas pu se décrire est indiqué exactement comme tel — de sorte qu’un attachement présent et inutilisable se distingue d’un attachement qui n’a jamais été fait."
+  },
+  "c7473111c3319761": {
+    "at": "2026-11-17T13:24:33.294Z",
+    "job": "session-0008-20261117132433",
+    "srcHash": "c7473111c3319761",
+    "status": "machine",
+    "text": "[arm-postgres-container-apps](arm-postgres-container-apps/README.md) (`advanced`) — Une base de données PostgreSQL gérée et le serveur qui la lit, rédigés une seule fois comme intention du développeur et assemblés en **un seul modèle Azure Resource Manager**."
   },
   "c7486d68eff51128": {
     "at": "2026-11-03T06:09:04.816Z",
@@ -140487,6 +140675,13 @@
     "status": "machine",
     "text": "Les types d’entités à conserver. Vide, tous les types sont conservés."
   },
+  "d14f57e16c058dd1": {
+    "at": "2026-11-17T13:24:33.294Z",
+    "job": "session-0008-20261117132433",
+    "srcHash": "d14f57e16c058dd1",
+    "status": "machine",
+    "text": "Le serveur lit certaines entrées de la base de données, si bien que le modèle de la base de données gagne une sortie de type chaîne pour chacune, nommée d’après le Component et l’entrée. L’hôte est l’expression du modèle unique, passée par `string()` pour que chaque valeur transite sous forme de texte :"
+  },
   "d14fb94dd22283c4": {
     "at": "2026-11-03T09:43:52.236Z",
     "job": "session-0085-20261103094352",
@@ -141965,6 +142160,13 @@
     "srcHash": "d3789e270c4b4c7d",
     "status": "machine",
     "text": "`aggrega draft <kind>` affiche sur la sortie standard un document de départ pour un type d’entité. Le document contient exactement les champs que le schéma de ce type exige : `apiVersion` et `kind` sont remplis, car le schéma les fixe, et toute autre valeur requise est laissée sous forme d’espace réservé à remplacer."
+  },
+  "d37aef7cfa6eed03": {
+    "at": "2026-11-17T13:24:33.294Z",
+    "job": "session-0008-20261117132433",
+    "srcHash": "d37aef7cfa6eed03",
+    "status": "machine",
+    "text": "Le modèle consigne aussi le nom sous lequel il est déployé, dans ses `metadata` :"
   },
   "d37e6d40b97cc1c7": {
     "at": "2026-11-03T15:26:13.355Z",
@@ -144030,6 +144232,13 @@
     "srcHash": "d6e24a105c8bcee6",
     "status": "machine",
     "text": "un `StatefulSet` — le processus Kafka à nœud unique, avec son journal de commit sur un volume persistant monté sur `/var/lib/kafka/data` et toute la configuration KRaft fournie par des variables d’environnement,"
+  },
+  "d6e43f0638ddf366": {
+    "at": "2026-11-17T13:24:33.294Z",
+    "job": "session-0008-20261117132433",
+    "srcHash": "d6e43f0638ddf366",
+    "status": "machine",
+    "text": "Le serveur ne peut pas référencer une ressource qu’un autre modèle déclare, donc il lit le déploiement de la base de données par son ID de ressource et en prend la sortie :"
   },
   "d6e64cac72ffa5db": {
     "at": "2026-10-30T06:36:56.027Z",
@@ -154969,6 +155178,17 @@
     "status": "machine",
     "text": "Map ordonnée nom de conteneur → spécification de conteneur. Au moins une entrée est requise. L’ordre de l’auteur est préservé. Au moins 1 entrée."
   },
+  "e652c8c421674bc8": {
+    "at": "2026-11-17T13:24:33.294Z",
+    "job": "session-0008-20261117132433",
+    "revision": {
+      "from": "871841bf7b085509",
+      "reviewed": false
+    },
+    "srcHash": "e652c8c421674bc8",
+    "status": "machine",
+    "text": "Une règle maison, rattachée au rôle `render-verdict`, juge les fichiers qu’un build écrit pour chaque cible et refuse une violation piégée dans chacune. La règle a deux clauses :"
+  },
   "e653473947a5d93f": {
     "at": "2026-10-30T21:21:10.109Z",
     "job": "session-0022-20261030212110",
@@ -157864,6 +158084,13 @@
     "srcHash": "eafaf98cfe78f352",
     "status": "machine",
     "text": "la valeur du label fait partie de l’ensemble"
+  },
+  "eafe49fa338166b3": {
+    "at": "2026-11-17T13:24:33.294Z",
+    "job": "session-0008-20261117132433",
+    "srcHash": "eafe49fa338166b3",
+    "status": "machine",
+    "text": "Le build écrit deux fichiers, un par répertoire de sortie :"
   },
   "eb0244cdab61640c": {
     "at": "2026-11-02T23:32:53.197Z",
@@ -162436,6 +162663,17 @@
     "srcHash": "f15aade5f98422d0",
     "status": "machine",
     "text": "[`entities/plugin.md`](../entities/plugin.md) — taxonomie des sockets de Plugin + la forme d’URI encodée par socket `plugin/<socket>/<name>`."
+  },
+  "f15d2288ec5a1ab3": {
+    "at": "2026-11-17T13:24:33.294Z",
+    "job": "session-0008-20261117132433",
+    "revision": {
+      "from": "df40f7bf691b44b4",
+      "reviewed": false
+    },
+    "srcHash": "f15d2288ec5a1ab3",
+    "status": "machine",
+    "text": "La règle est écrite deux fois, une fois pour chaque moteur de politiques compilé dans la CLI — Rego et CEL — et les deux copies concordent sur chaque build ici. Un script à côté des Releases construit chaque Release avec les deux moteurs et vérifie chaque résultat."
   },
   "f15d2ae34b8dad08": {
     "at": "2026-11-04T09:20:00.075Z",
@@ -171286,6 +171524,13 @@
     "srcHash": "fe0f77431f8854c4",
     "status": "machine",
     "text": "un `StatefulSet` pour le serveur OpenBao,"
+  },
+  "fe107ed3b16b6e50": {
+    "at": "2026-11-17T13:24:33.294Z",
+    "job": "session-0008-20261117132433",
+    "srcHash": "fe107ed3b16b6e50",
+    "status": "machine",
+    "text": "Le modèle du serveur lit ce déploiement"
   },
   "fe15ce83ceddf6bc": {
     "at": "2026-11-04T13:45:24.314Z",
