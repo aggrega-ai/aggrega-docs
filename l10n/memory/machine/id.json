@@ -19281,6 +19281,17 @@
     "status": "machine",
     "text": "Sebuah file yang diimpor tersendiri dibaca sebagai satu agen deklaratif, apa pun namanya, dan setiap file yang\ndiserahkan `with.sources` milik importer dibaca sebagai agen lain, sehingga satu impor menyusun draf beberapa agen:"
   },
+  "19e86f289ae5c6d1": {
+    "at": "2026-11-17T15:13:42.106Z",
+    "job": "session-0023-20261117151342",
+    "revision": {
+      "from": "44c65a3a77126d66",
+      "reviewed": false
+    },
+    "srcHash": "19e86f289ae5c6d1",
+    "status": "machine",
+    "text": "Kind sumber. Menentukan adapter mana yang me-resolve artefak dan mediatype mana yang diharapkan. `terraform-module-oci` dan `bicep-module-oci` masing-masing me-resolve satu artefak dari repositori registry OCI, yang dipilih melalui tag atau digest manifest. Himpunan ini bersifat tertutup dan dibagikan dengan digest sumber pada lock entitas serta metadata slot cache. Nilai yang diizinkan: `\"helm-oci-chart\"`, `\"helm-https-chart\"`, `\"compose-https-fragment\"`, `\"git-repository\"`, `\"terraform-module-oci\"`, `\"bicep-module-oci\"`"
+  },
   "19e9678fa9051d1d": {
     "at": "2026-10-30T00:21:58.288Z",
     "job": "session-0037-20261030002158",
@@ -19733,6 +19744,17 @@
     "srcHash": "1a7a0d2274e5ff97",
     "status": "machine",
     "text": "Saat menulis aturan tata kelola baru, pertanyaan penempatannya adalah: apakah aturan itu hanya bergantung pada konten satu entitas (→ skema atau blok assertions) atau bergantung pada hubungan antara beberapa entitas atau konfigurasi tingkat workspace (→ plugin kebijakan). Pola Wasm-linter adalah mekanisme kanonis untuk kasus menyeluruh; katalog perusahaan dapat mendistribusikan plugin kebijakan khusus yang mengonsumsi antarmuka kontrak plugin yang sama dengan plugin disiplin penerbitan standar."
+  },
+  "1a7c662d316ea3b8": {
+    "at": "2026-11-17T15:13:42.106Z",
+    "job": "session-0023-20261117151342",
+    "revision": {
+      "from": "3459a06c067ecdd4",
+      "reviewed": false
+    },
+    "srcHash": "1a7c662d316ea3b8",
+    "status": "machine",
+    "text": "Digest manifest OCI dari artefak hasil resolve, dalam bentuk `sha256:` diikuti 64 karakter hex huruf kecil. Manifest adalah akar kepercayaan independen yang menjadi acuan verifikasi arsip di cache; `digest` konten di atas adalah identitas portabel yang digunakan untuk pin cache dan pemeriksaan integritas. Ada untuk setiap kind yang didistribusikan melalui OCI (`helm-oci-chart`, `bicep-module-oci`, `terraform-module-oci`). Pola: `^sha256:[a-f0-9]{64}$`."
   },
   "1a7d3c73d8054ca1": {
     "at": "2026-10-29T21:33:51.093Z",
@@ -41073,6 +41095,17 @@
     "status": "machine",
     "text": "Anotasi milik modul itu sendiri menjangkau komponen-komponennya sendiri persis seperti anotasi Aggregate menjangkau komponennya sendiri, sehingga modul dapat menempatkan komponennya di namespace yang dideklarasikannya. Aggregate yang mengimpor tidak mendeklarasikan apa pun yang menjangkau ke dalam modul; Release yang melakukannya, dan nilainya menang pada kunci yang sama."
   },
+  "377ac7fba76b9912": {
+    "at": "2026-11-17T15:13:42.106Z",
+    "job": "session-0023-20261117151342",
+    "revision": {
+      "from": "e0045eebeb18662d",
+      "reviewed": false
+    },
+    "srcHash": "377ac7fba76b9912",
+    "status": "machine",
+    "text": "Digest konten dari artefak hasil resolve, dalam bentuk `sha256:` diikuti 64 karakter hex huruf kecil: arsip `.tar.gz` untuk kind chart, fragmen, atau git, dan byte layer terpilih sebagaimana dipublikasikan untuk kind modul OCI. Verifikasi saat build membaca byte slot cache, menghitung ulang digest, dan membandingkannya dengan field ini; ketidakcocokan menghentikan build dengan melaporkan ketidakcocokan digest konten. Pola: `^sha256:[a-f0-9]{64}$`."
+  },
   "377edc7488b5b907": {
     "at": "2026-10-22T21:56:12.149Z",
     "job": "session-0050-20261022215612",
@@ -55066,6 +55099,17 @@
     "status": "machine",
     "text": "**Konten sumber lokal datang melalui host — tidak pernah dari filesystem.** Plugin render provider tidak pernah membaca sumbernya dari disk; panggilan filesystem gagal di batas panggilan. Host menyerahkan kepada guest sebuah **listing sumber** di dalam payload render — path relatif terhadap root sumber dari setiap entri dan apakah entri itu direktori, dalam urutan yang diurutkan, tanpa konten file — lalu guest menerapkan logika tata letaknya sendiri padanya, kemudian membaca kembali tepat file yang dipilihnya melalui callback sumber, yang mengembalikan byte yang dibaca host di bawah root sumber. Bentuk payload per soket dan callback-nya didokumentasikan di [`plugin-contract.md`](plugin-contract.md)."
   },
+  "4a54d8fad44d180c": {
+    "at": "2026-11-17T15:13:42.106Z",
+    "job": "session-0023-20261117151342",
+    "revision": {
+      "from": "4fc64ae3fc278bcf",
+      "reviewed": false
+    },
+    "srcHash": "4a54d8fad44d180c",
+    "status": "machine",
+    "text": "Setiap jenis entitas Aggrega — Component, Feature, Aggregate, Recipe, FeatureRecipe, Manifest, Release, Plugin, SchemaLibrary, MappingLibrary, WorkloadLibrary, ArtifactLibrary — memiliki field wajib `metadata.version` yang divalidasi terhadap regex SemVer yang sama (`MAJOR.MINOR.PATCH` menurut [`architecture/02-ecosystem-philosophy.md`](../../architecture/02-ecosystem-philosophy.md)). Versi seragam dalam *bentuk*; *konsumsi* versi berbeda menurut jenis entitas. Sebagian versi berperan aktif dalam resolusi; sebagian lainnya adalah provenans deskriptif yang tidak dicocokkan oleh compiler. Tabel di bawah mencakup jenis non-pustaka, menyebutkan apa yang dilakukan compiler terhadap field versi setiap entitas, dan menggunakan taksonomi status empat label dari [`10-status.md`](../10-status.md) untuk mengklasifikasikan setiap rezim konsumsi. Empat jenis pustaka berada di luar tabel karena rezimnya seragam dan berbeda: konsumen merujuk pustaka dengan nama polos, dapat menyatakan batas bawah versi minimum `:<version>` yang opsional, sebuah katalog dapat menyimpan beberapa versi dari satu nama pustaka, dan sebuah Release membaca satu versi per nama, yang dicatat lockfile-nya beserta digest konten file versi tersebut."
+  },
   "4a592a99efba1fe4": {
     "at": "2026-10-23T08:19:02.010279+00:00",
     "job": "msgbatch_01HBya4ZW1cPiVLxQRwKg5rx",
@@ -66272,6 +66316,17 @@
     "srcHash": "596cff4feeda8815",
     "status": "machine",
     "text": "Host yang pembaruannya tidak dapat diselesaikan."
+  },
+  "596f44e2ea3cb099": {
+    "at": "2026-11-17T15:13:42.106Z",
+    "job": "session-0023-20261117151342",
+    "revision": {
+      "from": "98249521c253165c",
+      "reviewed": false
+    },
+    "srcHash": "596f44e2ea3cb099",
+    "status": "machine",
+    "text": "Direktori yang merupakan artefak (spec.source.module_subdir milik Recipe), bagian dari identitas {kind, url, chart, module_subdir, pinned_version} sehingga dua direktori dari satu repositori pada commit yang sama, atau dari satu paket modul pada versi yang sama, di-pin ke entri yang berbeda. Menamai direktori di dalam repositori bersumber git, atau di dalam paket modul `terraform-module-oci`. Tidak ada jika seluruh repositori atau paket adalah artefak, dan untuk setiap kind lainnya."
   },
   "5974507f2a4cb45a": {
     "at": "2026-10-22T11:56:03.972Z",
@@ -144391,6 +144446,17 @@
     "status": "machine",
     "text": "Dari sebuah agen, importer membaca `role`, `goal`, dan `backstory`-nya; `allow_delegation` dan `verbose`, di tingkat atas\ndeklarasinya atau di bawah `settings`, dengan `settings` yang berlaku, sebagaimana CrewAI membacanya; `llm`-nya; dan\nnama-nama `tools`-nya. Dari sebuah tugas, importer membaca namanya dan agen yang ditugaskan untuknya. Setiap anggota lain\ndisebut dalam komentar dan tidak dibawa ke mana pun."
   },
+  "c1a0c04d7d99062e": {
+    "at": "2026-11-17T15:13:42.106Z",
+    "job": "session-0023-20261117151342",
+    "revision": {
+      "from": "830f91dc758b2e1e",
+      "reviewed": false
+    },
+    "srcHash": "c1a0c04d7d99062e",
+    "status": "machine",
+    "text": "Versi konkret yang di-pin saat pull. Untuk kind helm-*, versi chart. Untuk git-repository, commit tempat referensi yang ditulis di-resolve (BUKAN ref tag/branch asli — itu dicatat di bawah `requested_ref:` pada setiap entri `referenced_by:`, setiap kali Recipe menulis `spec.source.ref:`). Build menemukan entri ini berdasarkan apa yang ditulis Recipe: `ref:` yang ditulis jika ada, dicocokkan dengan `requested_ref:` yang dicatat, dan nilai yang di-pin ini jika tidak — sehingga Recipe yang menyebut tag di-resolve ke commit tempat tag itu di-pin, tanpa commit tersebut pernah muncul dalam Recipe. Untuk kind modul OCI, tag atau digest manifest (`sha256:` diikuti 64 karakter hex huruf kecil) yang ditulis Recipe. Dicatat sebagai satu segmen path, karena nilai ini membentuk slot cache tempat build membaca kembali artefak, sehingga tidak memuat `/`, `\\`, maupun `..`. Pola: `^([^/\\\\.]\\|\\.[^/\\\\.])*\\.?$`."
+  },
   "c1a2916251d85986": {
     "at": "2026-10-23T06:14:11.003127+00:00",
     "job": "msgbatch_01GfwKPWr7pSSTBwm1CiQ1ze",
@@ -156801,6 +156867,17 @@
     "srcHash": "d1906ab045108a1b",
     "status": "machine",
     "text": "`aggregate.yaml` — agen, yang tersambung ke modelnya dengan kunci yang disajikannya dideklarasikan pada koneksi, serta model tersebut:"
+  },
+  "d19138ac044b31a7": {
+    "at": "2026-11-17T15:13:42.106Z",
+    "job": "session-0023-20261117151342",
+    "revision": {
+      "from": "81ac57e68eecb573",
+      "reviewed": false
+    },
+    "srcHash": "d19138ac044b31a7",
+    "status": "machine",
+    "text": "URL yang ditulis — URL identitas sebagaimana ditulis dalam spec.source.url milik Recipe. Untuk helm-https-chart, ini adalah root repo (bentuk repo-root) atau .tgz langsung (bentuk langsung) persis seperti yang ditulis; build merekonstruksi URL yang sama ini secara offline, sehingga URL ini menjadi identitas stabil yang menjadi kunci pin. Untuk git-repository, URL repositori yang dapat di-clone. Untuk helm-oci-chart, referensi registry. Untuk kind modul OCI, `oci://<registry>/<repository>`. Untuk compose-https-fragment, URL HTTPS dari fragmen tersebut. Lokasi artefak hasil resolve untuk sumber helm repo-root dicatat terpisah di bawah `resolved_url:` sebagai provenans."
   },
   "d195081241f16c74": {
     "at": "2026-10-23T06:14:09.798554+00:00",
@@ -184628,6 +184705,17 @@
     "srcHash": "f6045ebd48b4465f",
     "status": "machine",
     "text": "Importer LangGraph membaca `target_namespace`, `empty_credentials`, dan `render_mode`, sebagaimana dijelaskan\n[Pengaturan](#settings), dan tidak ada pengaturan lain."
+  },
+  "f604fd31b31ef742": {
+    "at": "2026-11-17T15:13:42.106Z",
+    "job": "session-0023-20261117151342",
+    "revision": {
+      "from": "5ac5d3354bfe3605",
+      "reviewed": false
+    },
+    "srcHash": "f604fd31b31ef742",
+    "status": "machine",
+    "text": "Gelombang penerapan yang diwarisi node ini dari boundary yang memuatnya (default 0; nilai negatif diizinkan), membawa nilai yang disimpan node IR sebagai `sync_wave`. Apa yang dilakukan guest dengannya merupakan pilihan guest sendiri, dan mencatat nilai serta mengurutkan berdasarkan nilai tersebut bersifat independen, bukan alternatif — guest dapat melakukan salah satunya, keduanya, atau tidak keduanya. Di antara provider pustaka standar: `helm` dan `helm-chart` mengeluarkannya sebagai anotasi `argocd.argoproj.io/sync-wave` pada setiap resource yang dirender, dan juga sebagai `helm.sh/hook-weight` pada resource yang sudah ditandai chart sebagai hook Helm; `compose` mencatatnya sebagai label service sekaligus mengurutkan service dalam file yang direndernya, melalui `depends_on` di antara service tersebut; `cloudformation` mengurutkan provisioning stack yang dirakit, dengan mendeklarasikan setiap resource dalam suatu gelombang bergantung pada resource gelombang sebelumnya; `arm` mengurutkan penerapan template ARM tempat boundary dirakit, dengan mendeklarasikan setiap resource dan nested deployment ARM dalam suatu gelombang bergantung pada milik gelombang sebelumnya melalui `dependsOn`; `terraform` mengurutkan blok module dari konfigurasi root tempat boundary dirakit, dengan mendeklarasikan setiap module dalam suatu gelombang bergantung pada module gelombang sebelumnya, dan juga mencatatnya bersama provenance build node."
   },
   "f6096a8e9886a792": {
     "at": "2026-10-29T21:59:45.311Z",

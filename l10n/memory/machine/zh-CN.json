@@ -19269,6 +19269,17 @@
     "status": "machine",
     "text": "单独导入的文件无论名称如何，都作为一个声明式智能体读取；导入器的 `with.sources` 交给它的每个文件都作为另一个声明式智能体读取，因此一次导入可起草多个："
   },
+  "19e86f289ae5c6d1": {
+    "at": "2026-11-17T15:13:42.106Z",
+    "job": "session-0023-20261117151342",
+    "revision": {
+      "from": "44c65a3a77126d66",
+      "reviewed": false
+    },
+    "srcHash": "19e86f289ae5c6d1",
+    "status": "machine",
+    "text": "源种类。决定由哪个适配器解析该制品，以及预期的 mediatype。`terraform-module-oci` 和 `bicep-module-oci` 各自解析 OCI 注册表仓库中的一个制品，通过 tag 或 manifest 摘要选定。该集合是封闭的，并与实体锁的源摘要和缓存槽位的元数据共用。允许的值：`\"helm-oci-chart\"`、`\"helm-https-chart\"`、`\"compose-https-fragment\"`、`\"git-repository\"`、`\"terraform-module-oci\"`、`\"bicep-module-oci\"`"
+  },
   "19e9678fa9051d1d": {
     "at": "2026-10-30T00:21:58.288Z",
     "job": "session-0037-20261030002158",
@@ -19721,6 +19732,17 @@
     "srcHash": "1a7a0d2274e5ff97",
     "status": "machine",
     "text": "编写新的治理规则时，放置问题在于：该规则是否仅依赖单个实体的内容（→ schema 或 assertions 块），还是依赖多个实体之间的关系或工作区级配置（→ 策略插件）。Wasm 检查器模式是处理横切情形的标准机制；企业目录可以分发自定义策略插件，这些插件使用与标准发布纪律插件相同的插件契约接口。"
+  },
+  "1a7c662d316ea3b8": {
+    "at": "2026-11-17T15:13:42.106Z",
+    "job": "session-0023-20261117151342",
+    "revision": {
+      "from": "3459a06c067ecdd4",
+      "reviewed": false
+    },
+    "srcHash": "1a7c662d316ea3b8",
+    "status": "machine",
+    "text": "解析出的制品的 OCI manifest 摘要，格式为 `sha256:` 后跟 64 个小写十六进制字符。manifest 是校验缓存归档所依据的独立信任根；上面的内容 `digest` 是用于缓存固定和完整性检查的可移植标识。对每个通过 OCI 分发的种类（`helm-oci-chart`、`bicep-module-oci`、`terraform-module-oci`）都存在。模式：`^sha256:[a-f0-9]{64}$`。"
   },
   "1a7d3c73d8054ca1": {
     "at": "2026-10-29T21:33:51.093Z",
@@ -41062,6 +41084,17 @@
     "status": "machine",
     "text": "模块自身的注解到达其自身组件的方式，与 Aggregate 的注解到达其自身组件的方式完全相同，因此模块可以将其组件放入它声明的命名空间中。导入方 Aggregate 不声明任何能深入该模块的内容；Release 可以，并且在同一个键上以它的值为准。"
   },
+  "377ac7fba76b9912": {
+    "at": "2026-11-17T15:13:42.106Z",
+    "job": "session-0023-20261117151342",
+    "revision": {
+      "from": "e0045eebeb18662d",
+      "reviewed": false
+    },
+    "srcHash": "377ac7fba76b9912",
+    "status": "machine",
+    "text": "解析出的制品的内容摘要，格式为 `sha256:` 后跟 64 个小写十六进制字符：对于 chart、片段或 git 种类，是 `.tar.gz` 归档；对于 OCI 模块种类，是所选层按发布形式的字节。构建时校验会读取缓存槽位的字节、重新计算摘要，并将其与此字段比较；不匹配时构建中止，并报告内容摘要不匹配。模式：`^sha256:[a-f0-9]{64}$`。"
+  },
   "377edc7488b5b907": {
     "at": "2026-10-22T02:13:05.447791+00:00",
     "job": "msgbatch_01EP4VHoVp3GUUNothAVw7Eq",
@@ -55056,6 +55089,17 @@
     "status": "machine",
     "text": "**本地源内容经由宿主传入——绝不来自文件系统。** provider 渲染插件从不从磁盘读取其源；文件系统调用会在调用边界处失败。宿主在渲染载荷中交给 guest 一份**源清单**——每个条目相对于源根的路径以及它是否为目录，按排序顺序排列，不含文件内容——guest 对其应用自己的布局逻辑，然后通过源回调读回它所选择的那些文件，这些回调返回宿主在源根下读取的字节。各插槽的载荷结构和回调记录在 [`plugin-contract.md`](plugin-contract.md) 中。"
   },
+  "4a54d8fad44d180c": {
+    "at": "2026-11-17T15:13:42.106Z",
+    "job": "session-0023-20261117151342",
+    "revision": {
+      "from": "4fc64ae3fc278bcf",
+      "reviewed": false
+    },
+    "srcHash": "4a54d8fad44d180c",
+    "status": "machine",
+    "text": "每种 Aggrega 实体类型——Component、Feature、Aggregate、Recipe、FeatureRecipe、Manifest、Release、Plugin、SchemaLibrary、MappingLibrary、WorkloadLibrary、ArtifactLibrary——都带有一个必需的 `metadata.version` 字段，并按同一个 SemVer 正则表达式进行校验（`MAJOR.MINOR.PATCH`，见 [`architecture/02-ecosystem-philosophy.md`](../../architecture/02-ecosystem-philosophy.md)）。版本的*形式*是统一的；版本的*使用方式*则因实体类型而异。有些版本主动参与解析；另一些则是编译器不据以匹配的描述性来源信息。下表涵盖非库类型，说明编译器如何处理每种实体的版本字段，并使用 [`10-status.md`](../10-status.md) 中的四标签状态分类法对每种使用机制进行归类。四种库类型不在表中，因为它们的机制统一且不同：使用方按裸名称引用库，可以声明一个可选的 `:<version>` 最低版本，目录可以保存同一库名称的多个版本，而 Release 对每个名称读取一个版本，其 lockfile 会连同该版本文件的内容摘要一并记录。"
+  },
   "4a592a99efba1fe4": {
     "at": "2026-10-22T05:07:43.448651+00:00",
     "job": "msgbatch_017U8zLucNunw6USSWNfR6c8",
@@ -66260,6 +66304,17 @@
     "srcHash": "596cff4feeda8815",
     "status": "machine",
     "text": "刷新未能完成的主机。"
+  },
+  "596f44e2ea3cb099": {
+    "at": "2026-11-17T15:13:42.106Z",
+    "job": "session-0023-20261117151342",
+    "revision": {
+      "from": "98249521c253165c",
+      "reviewed": false
+    },
+    "srcHash": "596f44e2ea3cb099",
+    "status": "machine",
+    "text": "作为制品的目录（Recipe 的 spec.source.module_subdir），属于 {kind, url, chart, module_subdir, pinned_version} 标识的一部分，因此同一仓库在同一提交下的两个目录，或同一模块包在同一版本下的两个目录，会固定为不同的条目。它指明 git 来源仓库中的目录，或 `terraform-module-oci` 模块包中的目录。当整个仓库或整个包即为制品时不存在，其他所有种类也不存在。"
   },
   "5974507f2a4cb45a": {
     "at": "2026-10-22T01:50:22.319444+00:00",
@@ -144422,6 +144477,17 @@
     "status": "machine",
     "text": "对于 agent，导入器读取其 `role`、`goal` 和 `backstory`；位于声明顶层或 `settings` 下的 `allow_delegation` 和 `verbose`，两处都有时以 `settings` 为准，与 CrewAI 的读取方式一致；其 `llm`；以及其 `tools` 的名称。对于任务，读取其名称及其所分配的 agent。其他所有成员都在注释中注明，不会携带到任何地方。"
   },
+  "c1a0c04d7d99062e": {
+    "at": "2026-11-17T15:13:42.106Z",
+    "job": "session-0023-20261117151342",
+    "revision": {
+      "from": "830f91dc758b2e1e",
+      "reviewed": false
+    },
+    "srcHash": "c1a0c04d7d99062e",
+    "status": "machine",
+    "text": "拉取时固定的具体版本。对于 helm-* 种类，为 chart 版本。对于 git-repository，为编写的引用所解析到的提交（而非原始的 tag/branch 引用——只要 Recipe 编写了 `spec.source.ref:`，该引用就记录在每个 `referenced_by:` 条目的 `requested_ref:` 下）。build 根据 Recipe 所写的内容查找此条目：有编写的 `ref:` 时，将其与记录的 `requested_ref:` 匹配，否则使用此固定值——因此，指定 tag 的 Recipe 会解析到该 tag 被固定时的提交，而提交本身无需出现在 Recipe 中。对于 OCI 模块种类，为 Recipe 所写的 tag 或 manifest 摘要（`sha256:` 后跟 64 个小写十六进制字符）。记录为单个路径段，因为它用于构造 build 读回制品的缓存槽位，所以不包含 `/`、`\\` 和 `..`。模式：`^([^/\\\\.]\\|\\.[^/\\\\.])*\\.?$`。"
+  },
   "c1a2916251d85986": {
     "at": "2026-10-22T03:12:40.354254+00:00",
     "job": "msgbatch_014XaJkkEi3rvZLnLM2UmemD",
@@ -156832,6 +156898,17 @@
     "srcHash": "d1906ab045108a1b",
     "status": "machine",
     "text": "`aggregate.yaml`——连接到其模型的智能体（它出示的密钥在该连接上声明），以及该模型："
+  },
+  "d19138ac044b31a7": {
+    "at": "2026-11-17T15:13:42.106Z",
+    "job": "session-0023-20261117151342",
+    "revision": {
+      "from": "81ac57e68eecb573",
+      "reviewed": false
+    },
+    "srcHash": "d19138ac044b31a7",
+    "status": "machine",
+    "text": "编写的 URL——即 Recipe 的 spec.source.url 中所写的标识 URL。对于 helm-https-chart，它是与编写时完全一致的仓库根（repo-root 形式）或直接的 .tgz（direct 形式）；build 会离线重建同一个 URL，因此它是固定项所依据的稳定标识。对于 git-repository，它是可克隆的仓库 URL。对于 helm-oci-chart，它是注册表引用。对于 OCI 模块种类，它是 `oci://<registry>/<repository>`。对于 compose-https-fragment，它是该片段的 HTTPS URL。repo-root helm 源解析出的制品位置作为来源信息单独记录在 `resolved_url:` 下。"
   },
   "d195081241f16c74": {
     "at": "2026-10-22T03:00:38.891470+00:00",
@@ -184639,6 +184716,17 @@
     "srcHash": "f6045ebd48b4465f",
     "status": "machine",
     "text": "LangGraph 导入器读取 `target_namespace`、`empty_credentials` 和 `render_mode`（如[设置](#settings)所述），不读取其他任何设置。"
+  },
+  "f604fd31b31ef742": {
+    "at": "2026-11-17T15:13:42.106Z",
+    "job": "session-0023-20261117151342",
+    "revision": {
+      "from": "5ac5d3354bfe3605",
+      "reviewed": false
+    },
+    "srcHash": "f604fd31b31ef742",
+    "status": "machine",
+    "text": "该节点从其所在 boundary 继承的部署波次（默认 0；允许负数），承载 IR 节点中以 `sync_wave` 保存的值。guest 如何使用它由 guest 自行决定；记录该值与依据该值排序相互独立，而非二选一——guest 可以做其一、两者都做或都不做。在标准库 provider 中：`helm` 和 `helm-chart` 将其作为 `argocd.argoproj.io/sync-wave` 注解输出到每个渲染的资源上，并对 chart 已标记为 Helm hook 的资源额外输出为 `helm.sh/hook-weight`；`compose` 既将其记录为服务标签，又通过服务之间的 `depends_on` 对其渲染到的文件中的服务进行排序；`cloudformation` 对组装后 stack 的资源配置进行排序，声明某一波次中的每个资源依赖于前一波次的资源；`arm` 对 boundary 组装成的模板的部署进行排序，通过 `dependsOn` 声明某一波次中的每个资源和嵌套部署依赖于前一波次的资源和嵌套部署；`terraform` 对 boundary 组装成的根配置中的 module 块进行排序，声明某一波次中的每个 module 依赖于前一波次的 module，并将其与节点的构建来源信息一同记录。"
   },
   "f6096a8e9886a792": {
     "at": "2026-10-29T21:59:45.311Z",

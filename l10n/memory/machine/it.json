@@ -17435,6 +17435,17 @@
     "status": "machine",
     "text": "Un file importato da solo viene letto come un agente dichiarativo, qualunque sia il suo nome, e ogni file che il `with.sources` dell’importatore passa viene letto come un altro, così un’importazione ne genera in bozza diversi:"
   },
+  "19e86f289ae5c6d1": {
+    "at": "2026-11-17T15:13:42.106Z",
+    "job": "session-0023-20261117151342",
+    "revision": {
+      "from": "44c65a3a77126d66",
+      "reviewed": false
+    },
+    "srcHash": "19e86f289ae5c6d1",
+    "status": "machine",
+    "text": "Il tipo di sorgente. Determina quale adattatore ha risolto l’artefatto e quale mediatype è atteso. `terraform-module-oci` e `bicep-module-oci` risolvono ciascuno un artefatto di un repository di un registry OCI, selezionato da un tag o da un digest del manifest. L’insieme è chiuso ed è condiviso con i digest di sorgente del lock di entità e con i metadati dello slot della cache. Valori consentiti: `\"helm-oci-chart\"`, `\"helm-https-chart\"`, `\"compose-https-fragment\"`, `\"git-repository\"`, `\"terraform-module-oci\"`, `\"bicep-module-oci\"`"
+  },
   "19e9678fa9051d1d": {
     "at": "2026-11-03T17:08:26.299Z",
     "job": "session-0132-20261103170826",
@@ -17858,6 +17869,17 @@
     "srcHash": "1a7a0d2274e5ff97",
     "status": "machine",
     "text": "Quando si scrive una nuova regola di governance, la domanda sulla collocazione è: la regola dipende solo dal contenuto di una singola entità (→ schema o blocco assertions) oppure dipende dalla relazione tra più entità o dalla configurazione a livello di workspace (→ plugin di policy). Il pattern del linter Wasm è il meccanismo canonico per il caso trasversale; i cataloghi aziendali possono distribuire plugin di policy personalizzati che consumano la stessa interfaccia del contratto dei plugin usata dal plugin standard di disciplina di pubblicazione."
+  },
+  "1a7c662d316ea3b8": {
+    "at": "2026-11-17T15:13:42.106Z",
+    "job": "session-0023-20261117151342",
+    "revision": {
+      "from": "3459a06c067ecdd4",
+      "reviewed": false
+    },
+    "srcHash": "1a7c662d316ea3b8",
+    "status": "machine",
+    "text": "Digest del manifest OCI dell’artefatto risolto, nella forma `sha256:` seguito da 64 caratteri esadecimali minuscoli. Il manifest è la radice di fiducia indipendente rispetto alla quale viene verificato l’archivio in cache; il `digest` del contenuto qui sopra è l’identità portabile usata per il fissaggio nella cache e per il controllo di integrità. Presente per ogni tipo distribuito tramite OCI (`helm-oci-chart`, `bicep-module-oci`, `terraform-module-oci`). Pattern: `^sha256:[a-f0-9]{64}$`."
   },
   "1a7d3c73d8054ca1": {
     "at": "2026-10-30T06:38:31.272Z",
@@ -37207,6 +37229,17 @@
     "status": "machine",
     "text": "Le annotazioni proprie di un modulo raggiungono i suoi componenti esattamente come quelle di un Aggregate raggiungono i suoi, quindi un modulo può collocare i propri componenti in un namespace che dichiara. L’Aggregate che importa non dichiara nulla che raggiunga l’interno del modulo; la Release sì, e il suo valore prevale sulla stessa chiave."
   },
+  "377ac7fba76b9912": {
+    "at": "2026-11-17T15:13:42.106Z",
+    "job": "session-0023-20261117151342",
+    "revision": {
+      "from": "e0045eebeb18662d",
+      "reviewed": false
+    },
+    "srcHash": "377ac7fba76b9912",
+    "status": "machine",
+    "text": "Digest del contenuto dell’artefatto risolto, nella forma `sha256:` seguito da 64 caratteri esadecimali minuscoli: l’archivio `.tar.gz` per un tipo chart, frammento o git, e i byte del layer selezionato così come pubblicati per un tipo di modulo OCI. La verifica in fase di build legge i byte dello slot della cache, ricalcola il digest e lo confronta con questo campo; una mancata corrispondenza arresta la build, segnalando una mancata corrispondenza del digest del contenuto. Pattern: `^sha256:[a-f0-9]{64}$`."
+  },
   "377edc7488b5b907": {
     "at": "2026-10-22T21:56:12.149Z",
     "job": "session-0050-20261022215612",
@@ -50042,6 +50075,17 @@
     "status": "machine",
     "text": "**Il contenuto della sorgente locale arriva attraverso l’host — mai dal filesystem.** Un plugin di rendering di provider non legge mai la propria sorgente dal disco; una chiamata al filesystem fallisce al confine della chiamata. L’host consegna al guest un **elenco della sorgente** all’interno del payload di rendering — il percorso di ogni voce relativo alla radice della sorgente e se si tratta di una directory, in ordine, senza alcun contenuto dei file — e il guest vi applica la propria logica di layout, poi rilegge esattamente i file che seleziona tramite le callback della sorgente, che restituiscono i byte che l’host legge sotto la radice della sorgente. Le forme dei payload per socket e le callback sono documentate in [`plugin-contract.md`](plugin-contract.md)."
   },
+  "4a54d8fad44d180c": {
+    "at": "2026-11-17T15:13:42.106Z",
+    "job": "session-0023-20261117151342",
+    "revision": {
+      "from": "4fc64ae3fc278bcf",
+      "reviewed": false
+    },
+    "srcHash": "4a54d8fad44d180c",
+    "status": "machine",
+    "text": "Ogni tipo di entità di Aggrega — Component, Feature, Aggregate, Recipe, FeatureRecipe, Manifest, Release, Plugin, SchemaLibrary, MappingLibrary, WorkloadLibrary, ArtifactLibrary — porta un campo obbligatorio `metadata.version` validato rispetto alla stessa regex SemVer (`MAJOR.MINOR.PATCH` secondo [`architecture/02-ecosystem-philosophy.md`](../../architecture/02-ecosystem-philosophy.md)). Le versioni sono uniformi nella *forma*; il *consumo* delle versioni varia per tipo di entità. Alcune versioni partecipano attivamente alla risoluzione; altre sono provenienza descrittiva rispetto alla quale il compilatore non effettua corrispondenze. La tabella seguente copre i tipi che non sono librerie, indicando che cosa fa il compilatore con il campo versione di ciascuna entità e usando la tassonomia di stato a quattro etichette di [`10-status.md`](../10-status.md) per classificare ciascun regime di consumo. I quattro tipi di libreria sono fuori dalla tabella perché il loro regime è uniforme e diverso: un consumatore fa riferimento a una libreria per nome nudo, può indicare una versione minima facoltativa `:<version>`, un catalogo può contenere più versioni dello stesso nome di libreria, e una Release legge una versione per nome, che il suo lockfile registra con il digest del contenuto del file di quella versione."
+  },
   "4a592a99efba1fe4": {
     "at": "2026-11-04T02:11:12.148Z",
     "job": "session-0190-20261104021112",
@@ -60217,6 +60261,17 @@
     "srcHash": "596cff4feeda8815",
     "status": "machine",
     "text": "Gli host per cui l’aggiornamento non ha potuto completarsi."
+  },
+  "596f44e2ea3cb099": {
+    "at": "2026-11-17T15:13:42.106Z",
+    "job": "session-0023-20261117151342",
+    "revision": {
+      "from": "98249521c253165c",
+      "reviewed": false
+    },
+    "srcHash": "596f44e2ea3cb099",
+    "status": "machine",
+    "text": "La directory che costituisce l’artefatto (spec.source.module_subdir della Recipe), parte dell’identità {kind, url, chart, module_subdir, pinned_version}, così due directory di uno stesso repository allo stesso commit, o di uno stesso pacchetto di modulo alla stessa versione, vengono fissate in voci distinte. Indica una directory all’interno di un repository di origine git, o all’interno di un pacchetto di modulo `terraform-module-oci`. Assente quando l’intero repository o pacchetto è l’artefatto, e per ogni altro tipo."
   },
   "5974507f2a4cb45a": {
     "at": "2026-10-22T11:56:03.972Z",
@@ -131300,6 +131355,17 @@
     "status": "machine",
     "text": "Di un agente legge il suo `role`, `goal` e `backstory`; `allow_delegation` e `verbose`, al livello superiore della sua dichiarazione o sotto `settings`, dove prevale `settings`, come li legge CrewAI; il suo `llm`; e i nomi dei suoi `tools`. Di un task legge il nome e l’agente a cui è assegnato. Ogni altro membro viene nominato in un commento e non viene portato da nessuna parte."
   },
+  "c1a0c04d7d99062e": {
+    "at": "2026-11-17T15:13:42.106Z",
+    "job": "session-0023-20261117151342",
+    "revision": {
+      "from": "830f91dc758b2e1e",
+      "reviewed": false
+    },
+    "srcHash": "c1a0c04d7d99062e",
+    "status": "machine",
+    "text": "La versione concreta fissata al momento del pull. Per i tipi helm-*, la versione del chart. Per git-repository, il commit in cui si è risolto il riferimento scritto dall’autore (NON il riferimento originale di tag/branch — questo è registrato sotto `requested_ref:` su ciascuna voce `referenced_by:`, ogni volta che la Recipe ha scritto uno `spec.source.ref:`). Una build trova questa voce in base a ciò che la Recipe ha scritto: il `ref:` scritto dall’autore, dove ce n’è uno, confrontato con il `requested_ref:` registrato, e altrimenti questo valore fissato — così una Recipe che nomina un tag si risolve nel commit a cui quel tag è stato fissato, senza che il commit compaia mai nella Recipe. Per un tipo di modulo OCI, il tag o il digest del manifest (`sha256:` seguito da 64 caratteri esadecimali minuscoli) che la Recipe ha scritto. Registrata come un singolo segmento di percorso, perché costruisce lo slot della cache da cui la build rilegge l’artefatto, quindi non contiene `/`, `\\` né `..`. Pattern: `^([^/\\\\.]\\|\\.[^/\\\\.])*\\.?$`."
+  },
   "c1a2916251d85986": {
     "at": "2026-11-03T09:26:16.050Z",
     "job": "session-0083-20261103092616",
@@ -142489,6 +142555,17 @@
     "srcHash": "d1906ab045108a1b",
     "status": "machine",
     "text": "`aggregate.yaml` — l’agente, collegato al suo modello con la chiave che presenta dichiarata sulla connessione, e il modello:"
+  },
+  "d19138ac044b31a7": {
+    "at": "2026-11-17T15:13:42.106Z",
+    "job": "session-0023-20261117151342",
+    "revision": {
+      "from": "81ac57e68eecb573",
+      "reviewed": false
+    },
+    "srcHash": "d19138ac044b31a7",
+    "status": "machine",
+    "text": "L’URL scritto dall’autore — l’URL di identità così come è scritto in spec.source.url della Recipe. Per helm-https-chart è la radice del repository (forma con radice del repository) oppure il .tgz diretto (forma diretta), esattamente come scritto dall’autore; la build ricostruisce questo stesso URL offline, quindi è l’identità stabile su cui è indicizzato il fissaggio. Per git-repository, l’URL del repository clonabile. Per helm-oci-chart, il riferimento al registry. Per un tipo di modulo OCI, `oci://<registry>/<repository>`. Per compose-https-fragment, l’URL HTTPS del frammento. La posizione risolta dell’artefatto per una sorgente helm con radice del repository è registrata separatamente sotto `resolved_url:` come provenienza."
   },
   "d195081241f16c74": {
     "at": "2026-11-03T05:17:11.041Z",
@@ -167909,6 +167986,17 @@
     "srcHash": "f6045ebd48b4465f",
     "status": "machine",
     "text": "L’importatore LangGraph legge `target_namespace`, `empty_credentials` e `render_mode`, come li descrive [Impostazioni](#settings), e nessun’altra impostazione."
+  },
+  "f604fd31b31ef742": {
+    "at": "2026-11-17T15:13:42.106Z",
+    "job": "session-0023-20261117151342",
+    "revision": {
+      "from": "5ac5d3354bfe3605",
+      "reviewed": false
+    },
+    "srcHash": "f604fd31b31ef742",
+    "status": "machine",
+    "text": "L’ondata di distribuzione ereditata dal confine che contiene questo nodo (valore predefinito 0; valori negativi consentiti), che porta il valore che il nodo IR contiene come `sync_wave`. Ciò che un guest ne fa è una sua scelta, e registrare il valore e ordinare in base a esso sono indipendenti anziché alternativi — un guest può fare l’una o l’altra cosa, entrambe o nessuna. Tra i provider della libreria standard: `helm` e `helm-chart` la emettono come annotazione `argocd.argoproj.io/sync-wave` su ogni risorsa renderizzata, e in aggiunta come `helm.sh/hook-weight` su una risorsa che il chart contrassegna già come hook di Helm; `compose` la registra come etichetta del servizio e ordina i servizi del file in cui esegue il rendering, tramite `depends_on` tra di essi; `cloudformation` ordina il provisioning dello stack assemblato, dichiarando che ogni risorsa di un’ondata dipende dalle risorse dell’ondata precedente; `arm` ordina la distribuzione del template in cui un confine si assembla, dichiarando che ogni risorsa e ogni distribuzione annidata di un’ondata dipendono da quelle dell’ondata precedente tramite `dependsOn`; `terraform` ordina i blocchi di modulo della configurazione radice in cui un confine si assembla, dichiarando che ogni modulo di un’ondata dipende dai moduli dell’ondata precedente, e la registra anche con la provenienza della build del nodo."
   },
   "f6096a8e9886a792": {
     "at": "2026-11-02T22:45:50.112Z",
