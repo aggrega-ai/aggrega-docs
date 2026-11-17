@@ -32,7 +32,7 @@ Every cell in that grid carries one of three tiers:
 Two scopes, and only one of them makes input kind a meaningful axis:
 
 - **Node-scoped** — `aggrega.ai/namespace`, `aggrega.ai/image-registry`, `aggrega.ai/image-pull-secret`, `aggrega.ai/service-account` and `aggrega.ai/kubernetes-version` shape one component's own rendered output, which the path its input kind selects produces. These are the grid's columns.
-- **Assembly- and reference-scoped** — `aggrega.ai/chart-name` is resolved once when an umbrella chart is assembled, and the `aggrega.ai/aws-*` and `aggrega.ai/azure-*` keys a provider reads are resolved when a reference crosses a boundary. Input kind is not an axis for either: the value is read at the assembly or at the reference, however each contributing node was rendered. They have their own table at [Keys resolved per assembly and per reference](#keys-resolved-per-assembly-and-per-reference).
+- **Assembly- and reference-scoped** — `aggrega.ai/chart-name` is resolved once when an umbrella chart is assembled, `aggrega.ai/azure-deployment-scope` and `aggrega.ai/azure-resource-group` when an `arm` template is assembled, and the `aggrega.ai/aws-*` and `aggrega.ai/azure-*` keys a provider reads when a reference crosses a boundary. Input kind is not an axis for any of them: the value is read at the assembly or at the reference, however each contributing node was rendered. They have their own table at [Keys resolved per assembly and per reference](#keys-resolved-per-assembly-and-per-reference).
 
 ### Category 1 — Placement
 
@@ -88,9 +88,9 @@ Two scopes, and only one of them makes input kind a meaningful axis:
 | `aggrega.ai/aws-region` | `cloudformation` — per cross-boundary reference | AWS region the stack (boundary) deploys into | Same-region — a cross-stack reference resolves through a same-region stack-export import |
 | `aggrega.ai/aws-assume-role-arn` | `cloudformation` — per cross-boundary reference | IAM role ARN a cross-account stack read assumes to reach a peer stack's exported values | No role is supplied on a cross-account reference |
 | `aggrega.ai/azure-subscription` | `arm` — per cross-boundary reference | Azure subscription the boundary's template deploys into | The producer is taken to be in the consuming deployment's own subscription |
-| `aggrega.ai/azure-resource-group` | `arm` — per cross-boundary reference | Azure resource group the boundary's template deploys into | The producer is taken to be in the consuming deployment's own resource group |
+| `aggrega.ai/azure-resource-group` | `arm` — per cross-boundary reference, and per assembly at subscription scope | Azure resource group the boundary's template deploys into | The producer is taken to be in the consuming deployment's own resource group; a subscription-scope template with resource-group content halts |
 | `aggrega.ai/azure-management-group` | reserved; no provider reads it | Reserved for the Azure management group a boundary's template deploys into | — |
-| `aggrega.ai/azure-deployment-scope` | reserved; no provider reads it | Reserved for the level a boundary's template deploys at: `resourceGroup`, `subscription` or `managementGroup` | — |
+| `aggrega.ai/azure-deployment-scope` | `arm` — per assembly and per cross-boundary reference | Scope the boundary's template deploys at: `resourceGroup` or `subscription`; `managementGroup` halts | Resource-group scope |
 
 Each CloudFormation boundary renders into one stack. When a `uses` edge crosses
 from one boundary to another, the `cloudformation` provider needs to know where the
@@ -117,6 +117,16 @@ them. They resolve through the same annotation cascade and are opaque scalar str
 the provider never resolves them against live Azure state. When one is absent, the
 producer is taken to be in the consuming deployment's own subscription or resource
 group.
+
+`aggrega.ai/azure-deployment-scope` chooses the scope an `arm` boundary's template
+deploys at: `resourceGroup`, the default, or `subscription`. At subscription scope,
+the content the boundary's components write for a resource group is deployed as
+one nested deployment into the resource group `aggrega.ai/azure-resource-group`
+names, so that annotation is then required. A value naming no scope halts the build, and so
+does `managementGroup`, a scope the provider does not assemble a template for. A
+`uses` edge reads a producer deployed at resource-group scope; a producer whose
+boundary deploys at subscription scope halts the build. [The arm provider
+reference](arm.md#deploying-at-subscription-scope) documents the template.
 
 ### Support by provider and input kind
 
@@ -181,10 +191,11 @@ The assembly- and reference-scoped keys are not node-scoped, so they sit outside
 | `aggrega.ai/aws-region` | `cloudformation` | The AWS region the stack (boundary) deploys into. A cross-boundary reference reads it to decide whether a peer stack sits in the same region. | The peer is treated as same-region, and a cross-stack reference resolves through a same-region stack-export import. |
 | `aggrega.ai/aws-assume-role-arn` | `cloudformation` | The IAM role ARN a cross-account stack read assumes to reach a peer stack's exported values. | No role is supplied, and a cross-account reference carries no assume-role. |
 | `aggrega.ai/azure-subscription` | `arm` | The Azure subscription the boundary's template deploys into. A cross-boundary reference reads it to build the producing deployment's resource ID. | The producer is taken to be in the consuming deployment's own subscription. |
-| `aggrega.ai/azure-resource-group` | `arm` | The Azure resource group the boundary's template deploys into. A cross-boundary reference reads it to build the producing deployment's resource ID. | The producer is taken to be in the consuming deployment's own resource group. |
+| `aggrega.ai/azure-resource-group` | `arm` | The Azure resource group the boundary's template deploys into. A cross-boundary reference reads it to build the producing deployment's resource ID, and a boundary deployed at subscription scope deploys its resource-group content into it. | The producer is taken to be in the consuming deployment's own resource group; a boundary deployed at subscription scope with resource-group content halts naming the annotation. |
+| `aggrega.ai/azure-deployment-scope` | `arm` | The scope the boundary's template deploys at, resourceGroup or subscription; managementGroup halts the build. At subscription scope the template's resource-group content deploys as one nested deployment into the resource group aggrega.ai/azure-resource-group names, and a cross-boundary reference to a component of the boundary halts. | The template deploys at resource-group scope. |
 <!-- END GENERATED: well-known-annotation-boundary-scope -->
 
-**When each is resolved**, which the declaration itself does not carry. `aggrega.ai/chart-name` is resolved once per umbrella-chart assembly, from the boundary annotation cascade; every contributor to one assembly must resolve it to the same value, and disagreement halts the build naming the boundaries. The `aggrega.ai/aws-*` keys and the `aggrega.ai/azure-*` keys the `arm` provider reads are resolved per cross-boundary reference from the producing component's own annotation set, in which a component's Release entry wins over its boundary's and a value the Release writes wins over one the Aggregate writes; Category 6 above describes the reference each one shapes.
+**When each is resolved**, which the declaration itself does not carry. `aggrega.ai/chart-name` is resolved once per umbrella-chart assembly, from the boundary annotation cascade; every contributor to one assembly must resolve it to the same value, and disagreement halts the build naming the boundaries. The `aggrega.ai/aws-*` keys and the `aggrega.ai/azure-*` keys the `arm` provider reads are resolved per cross-boundary reference from the producing component's own annotation set, in which a component's Release entry wins over its boundary's and a value the Release writes wins over one the Aggregate writes; Category 6 above describes the reference each one shapes. `aggrega.ai/azure-deployment-scope` and `aggrega.ai/azure-resource-group` are also resolved once per `arm` template, from the annotation set of each component assembling into it: every component must resolve the scope to the same value, and every component writing resource-group content into a subscription-scope template the resource group, or the build halts naming two that disagree.
 
 ### Reserved names no provider reads
 
@@ -193,9 +204,8 @@ These keys in the matrix above are marked *reserved; no provider reads it*:
 `aggrega.ai/cluster-domain`, `aggrega.ai/ingress-class`,
 `aggrega.ai/service-mesh`, `aggrega.ai/pod-security-standard`,
 `aggrega.ai/iam-role`, `aggrega.ai/chart-version`, `aggrega.ai/stack-name`,
-`aggrega.ai/tf-backend`, `aggrega.ai/azure-management-group` (the Azure management group a
-boundary's template deploys into), and `aggrega.ai/azure-deployment-scope` (the level it deploys at:
-`resourceGroup`, `subscription` or `managementGroup`).
+`aggrega.ai/tf-backend` and `aggrega.ai/azure-management-group` (the Azure management group a
+boundary's template deploys into).
 
 Setting one of these on a Release or in an Aggregate has **no effect on rendered output**. No
 provider reads them, and no default is applied on their behalf — in
@@ -204,9 +214,9 @@ that needs a cluster domain must supply it as an ordinary value rather than rely
 on this annotation. A Recipe author who needs one of these behaviours
 expresses it as a Recipe value or a component `infra` field.
 
-**No provider declares these eleven.** A provider's `wellKnownAnnotations` lists
-only what it reads, so none of the eleven appears there — a reader opening the
-helm, helm-chart, compose or cloudformation Plugin sees the keys that work and
+**No provider declares these.** A provider's `wellKnownAnnotations` lists
+only what it reads, so none of them appears there — a reader opening the
+helm, helm-chart, compose, cloudformation or arm Plugin sees the keys that work and
 nothing else. That is the point of the narrow declaration: a declared key is a
 working key, and the scope beside it says on which path.
 
@@ -229,7 +239,7 @@ prefix is reserved: an enterprise catalog must not reuse one of these keys for i
 own meaning, because the platform holds the key for a meaning of its own. This
 matrix and the reserved-prefix set the publishing lint checks are together the
 reservation register, and the two are held to the same set of names by a check
-that reads both and fails when they diverge. Authoring one of the eleven
+that reads both and fails when they diverge. Authoring one of them
 therefore neither fails validation nor trips the "do not use the bare
 `aggrega.ai/` prefix" rule — it simply has no effect.
 
