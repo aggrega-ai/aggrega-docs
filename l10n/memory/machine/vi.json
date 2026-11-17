@@ -30911,6 +30911,13 @@
     "status": "machine",
     "text": "Ngữ cảnh template cho artifact"
   },
+  "29ba969e5c743eb6": {
+    "at": "2026-11-17T13:37:45.939Z",
+    "job": "session-0010-20261117133745",
+    "srcHash": "29ba969e5c743eb6",
+    "status": "machine",
+    "text": "Một Feature gắn vào một thành phần đóng góp tài nguyên của nó vào mẫu mà thành phần chủ được lắp ráp vào, theo cùng các điều kiện như Recipe của chính thành phần chủ. Không có mẫu riêng nào bên cạnh: mẫu đã lắp ráp là toàn bộ những gì provider này phát ra cho một thư mục đầu ra, nên tài nguyên của một Feature được gắn hoặc nằm trong mẫu đó hoặc hoàn toàn không được triển khai. Gỡ Feature ra sẽ loại bỏ đúng những tài nguyên đó và giữ nguyên tài nguyên của chính thành phần chủ."
+  },
   "29bf75072d01b697": {
     "at": "2026-11-12T09:04:23.005Z",
     "job": "session-0007-20261112090423",
@@ -32376,6 +32383,13 @@
     "srcHash": "2bd845f49d221a1f",
     "status": "machine",
     "text": "Được nhập với `--target helm` và áp dụng lên Kubernetes, chatflow trả lời cùng yêu cầu tại cùng địa chỉ khi một cổng cục bộ được chuyển tiếp tới Service của Flowise; lần chạy đã nhận được cùng sự từ chối ở đó:"
+  },
+  "2bdaa1b98290c669": {
+    "at": "2026-11-17T13:37:45.939Z",
+    "job": "session-0010-20261117133745",
+    "srcHash": "2bdaa1b98290c669",
+    "status": "machine",
+    "text": "Các đoạn được lắp ráp thành một mẫu"
   },
   "2bdec2d28825b3a6": {
     "at": "2026-11-01T15:32:08.870Z",
@@ -36814,6 +36828,13 @@
     "srcHash": "31f316577560e070",
     "status": "machine",
     "text": "Grafana — một Aggregate, hai đích, thông tin xác thực quản trị tùy chọn"
+  },
+  "31f6e14c878a6367": {
+    "at": "2026-11-17T13:37:45.939Z",
+    "job": "session-0010-20261117133745",
+    "srcHash": "31f6e14c878a6367",
+    "status": "machine",
+    "text": "Provider `arm` kết xuất Aggrega Recipes thành các mẫu Azure Resource Manager (ARM) ở phạm vi nhóm tài nguyên, hoặc ở phạm vi đăng ký khi chú thích `aggrega.ai/azure-deployment-scope` của một ranh giới chỉ định như vậy; xem [Triển khai ở phạm vi đăng ký](#deploying-at-subscription-scope). Mọi thành phần được kết xuất vào cùng một thư mục đầu ra dưới provider này đều được lắp ráp thành một mẫu duy nhất, ghi thành `arm-template.json` trong thư mục đầu ra của ranh giới: một tài liệu JSON duy nhất theo ngôn ngữ mẫu phiên bản 2.0, với các tài nguyên được đánh khóa theo tên biểu tượng. Vì vậy, trong trường hợp thông thường, một ranh giới trở thành một mẫu — và hai ranh giới có `directory:` phân giải về cùng một đường dẫn sẽ được lắp ráp cùng nhau thành một mẫu, dùng chung các tên của nó. Giống mọi provider của Aggrega, nó chạy ngoại tuyến và kín: một bản dựng Aggrega là biên dịch trước (ahead-of-time), nên provider không bao giờ gọi Azure, không bao giờ phân giải địa chỉ thực và không bao giờ chạy ARM. Các giá trị chỉ có khi chạy vẫn là biểu thức mẫu ARM (`reference()`, `resourceId()`, `parameters()`) mà ARM đánh giá khi mẫu được triển khai."
   },
   "31f8fe6c707b3671": {
     "at": "2026-10-22T23:16:12.871393+00:00",
@@ -59223,6 +59244,13 @@
     "status": "machine",
     "text": "Bản nháp mặc định mang theo luồng: instance của nền tảng nhận bản xuất làm `values.flow_definition`, được viết như [Cách luồng được viết vào bản nháp](#how-the-flow-is-written-into-the-draft)\nmô tả. Một tác giả viết luồng vào một Aggregate bằng tay — vào một bản nháp được bố trí theo từng node, hoặc\nvào một Aggregate của riêng mình — cũng viết theo cùng cách đó. Một Component chạy một luồng như khi được tạo ra\nnhận bản xuất làm một giá trị — `flow_definition` trên `core/ai-agent/langflow`\nvà `core/ai-agent/flowise` của thư viện chuẩn — và văn bản của một Aggregate được đọc như một template, nên các dấu ngoặc nhọn kép mà\nbản xuất chứa sẽ bị đọc thành các hành động template: một chatflow của Flowise viết `{{<node id>.data.instance}}`\ncho mỗi kết nối giữa hai node, một prompt của Flowise đặt tên biến là `{{question}}`, và một\nbản xuất Langflow mang theo mã nguồn của các component của nó, nơi các dấu ngoặc nhọn cũng có thể xuất hiện.\nHãy viết mỗi `{{` trong bản xuất thành `{{\"{{\"}}`, bên trong một block scalar, và phép nội suy sẽ khôi phục\nvăn bản của bản xuất trước khi các Recipes của Component đọc nó;\n[Văn bản mang theo dấu ngoặc nhọn kép của chính nó](../templates/parameters-context.md#text-that-carries-its-own-double-braces)\nmô tả lý do. Một giá trị thông tin xác thực mà bản xuất chứa thuộc về một secret mà Release gắn vào, không thuộc về\nAggregate: hãy để trống nó, như bản nháp làm khi thiết lập `empty_credentials` yêu cầu."
   },
+  "51036b30f6c8dcea": {
+    "at": "2026-11-17T13:37:45.939Z",
+    "job": "session-0010-20261117133745",
+    "srcHash": "51036b30f6c8dcea",
+    "status": "machine",
+    "text": "[`arm`](arm.md) kết xuất một ranh giới thành một mẫu Azure Resource Manager duy nhất ở phạm vi nhóm tài nguyên, đăng ký hoặc nhóm quản lý, bằng cách lắp ráp các đoạn tài nguyên do các thành phần của nó viết, hoặc bọc một mẫu đã biên dịch mà một Recipe lấy làm nguồn thành một nested deployment ARM, và đưa các `outputs` do một đoạn viết vào `outputs` của mẫu; các `provides` của một thành phần là những biểu thức mà bên tiêu thụ trong cùng mẫu đọc trực tiếp, còn bên tiêu thụ trong mẫu của một ranh giới khác đọc chúng từ đầu ra triển khai ARM của bên sản xuất. Nó hỗ trợ đầu vào nguồn và đầu vào tạo tác, và phát ra cấu hình mà không bao giờ chạy ARM; các giá trị chỉ có khi chạy vẫn là biểu thức mẫu ARM."
+  },
   "510439cf7ed294a7": {
     "at": "2026-10-23T00:02:44.489841+00:00",
     "job": "msgbatch_017Co8FT9U2dpLww3D8gVXkh",
@@ -65061,6 +65089,13 @@
     "srcHash": "58b4988a4ca2acd5",
     "status": "machine",
     "text": "Các bản ghi về thực thể catalog nào tham chiếu thư viện này và tại các fragment `<entry-name>` nào. Ghi lại fan-in: nhiều consumer trên mỗi thư viện, mỗi consumer có thể tham chiếu nhiều fragment. Mỗi bản ghi mang URI của consumer cùng tập fragment mà consumer đó kéo vào. Mặc định: `[]`"
+  },
+  "58b93506a2aef5a7": {
+    "at": "2026-11-17T13:37:45.939Z",
+    "job": "session-0010-20261117133745",
+    "srcHash": "58b93506a2aef5a7",
+    "status": "machine",
+    "text": "Provider ARM"
   },
   "58bc8766f73c43a8": {
     "at": "2026-10-23T00:02:41.868223+00:00",
@@ -77020,6 +77055,13 @@
     "srcHash": "68f0436da22bb10b",
     "status": "machine",
     "text": "Liệu provider có tôn trọng các mục omit — các mục đặt tên những đơn vị được kết xuất cần loại khỏi đầu ra của một nút — hay không: provider loại mọi đơn vị mà một mục khớp khỏi những gì nó kết xuất, và báo cáo mỗi mục đã khớp bao nhiêu đơn vị. Đây là bản ghi tại thời điểm publish của tuyên bố `omits` mà `describe()` của provider báo cáo, và một giá trị khác với báo cáo đó sẽ dừng khi tải. Khi vắng mặt (false), không khai báo hỗ trợ như vậy."
+  },
+  "68f82e53a9b4829d": {
+    "at": "2026-11-17T13:37:45.939Z",
+    "job": "session-0010-20261117133745",
+    "srcHash": "68f82e53a9b4829d",
+    "status": "machine",
+    "text": "Vì chúng nằm trong mẫu đã lắp ráp, chúng dùng chung các tên của nó. Tên biểu tượng của một tài nguyên được phát ra đúng như FeatureRecipe đã viết, trong cùng không gian với tên của thành phần chủ và của mọi phần gắn kèm khác, nên [Tên](#names) áp dụng cho chúng mà không thay đổi. Khi hai bên đóng góp gặp nhau ở một tên, việc dừng lại nêu tên cả hai, để mỗi đầu của xung đột đều có thể tìm kiếm được trong các tệp của chính bạn."
   },
   "68f8ce83335b9ed6": {
     "at": "2026-10-23T00:02:44.489841+00:00",
@@ -91743,6 +91785,17 @@
     "srcHash": "7cba816bc7a37ec6",
     "status": "machine",
     "text": "Khi bạn thay đổi một thực thể plugin và phát hành lại, quy trình phát hành sẽ phân loại thay đổi so với phiên bản đã phát hành trước đó và yêu cầu mức tăng phiên bản phải khớp. Việc phân loại tuân theo bảng tiêu chí tăng phiên bản: thay đổi chỉ về tài liệu hoặc chú thích là `PATCH`; thay đổi thuần túy bổ sung (một trường tùy chọn mới, một mục mới) là `MINOR`; việc xóa bỏ, thu hẹp kiểu, hoặc một trường trước đây tùy chọn trở thành bắt buộc là `MAJOR`. Tăng phiên bản cao hơn mức cần thiết luôn được cho phép; tăng thấp hơn mức cần thiết sẽ dừng lại với một chẩn đoán nêu rõ mức tăng bắt buộc. Lần phát hành đầu tiên của một thực thể bỏ qua bước kiểm tra mức tăng và đưa ra cảnh báo rằng không có xác minh nào được thực hiện. Chạy bước kiểm tra trước khi phát hành bằng `aggrega lint --pre-publish`; xem [`../cli/aggrega-lint.md`](../cli/aggrega-lint.md) để biết đầy đủ bảng tiêu chí và các thiết lập theo từng quy tắc."
+  },
+  "7cc7811bb51caa9d": {
+    "at": "2026-11-17T13:37:45.939Z",
+    "job": "session-0010-20261117133745",
+    "revision": {
+      "from": "9ee569e3fa537b68",
+      "reviewed": false
+    },
+    "srcHash": "7cc7811bb51caa9d",
+    "status": "machine",
+    "text": "Các provider `helm`, `helm-chart`, `compose`, `terraform`, `cloudformation` và `arm` cùng nhau tạo thành bộ provider của thư viện chuẩn. Chúng bao quát các đích phổ biến mà không đòi hỏi các nhóm doanh nghiệp phải tự viết provider của riêng mình."
   },
   "7ccb341bea7269c9": {
     "at": "2026-10-22T09:46:26.370Z",
@@ -108959,6 +109012,13 @@
     "srcHash": "9460f16ac9b5171e",
     "status": "machine",
     "text": "Khả năng"
+  },
+  "94637113550df8b3": {
+    "at": "2026-11-17T13:37:45.939Z",
+    "job": "session-0010-20261117133745",
+    "srcHash": "94637113550df8b3",
+    "status": "machine",
+    "text": "**Đầu vào nguồn.** Một Recipe tham chiếu đến một mẫu ARM đã biên dịch — một tệp `.json` duy nhất, hoặc một thư mục chứa `main.json` (tệp mà Bicep và Azure Verified Modules commit) hoặc, nếu không có, `azuredeploy.json`. Provider bọc nó thành một nested deployment ARM, điền các tham số mà nó khai báo từ `valuesMapping` của Recipe và bỏ qua mọi tài nguyên mà các mục `omits:` của Recipe nêu tên. Xem [Mẫu nguồn](#sourced-templates) và [Bỏ tài nguyên khỏi một mẫu nguồn](#leaving-resources-out-of-a-sourced-template). Một nguồn `.bicep` được biên dịch trước bằng `bicep build`; provider đọc mẫu, không đọc Bicep."
   },
   "9463b63de5e13ae2": {
     "at": "2026-10-22T23:05:22.318919+00:00",
@@ -142357,6 +142417,13 @@
     "status": "machine",
     "text": "**Một thư mục catalog mà Release đọc nhưng không thể duyệt sẽ bị từ chối trước khi bất cứ thứ gì được ghi, như [`aggrega build`](aggrega-build.md) từ chối nó.** Đó là một thư mục mà lời gọi nêu tên trong `catalog_dirs` nhưng không tồn tại, như `aggrega build` từ chối một thư mục `--catalog` không tồn tại, hoặc một thư mục có tồn tại nhưng không thể đọc. `aggrega build` tải mọi thư mục mà Release đọc trước khi phân giải Release, và dừng lại ở thư mục nó không thể duyệt; `build` duyệt cùng các thư mục đó trước tiên, không đọc tài liệu nào trong đó, trước mọi bước phân giải phụ thuộc và trước quá trình render — nên một bản build được gửi kèm `auto_pull` không ghi lockfile nào, và không có gì được render. Văn bản nêu tên thư mục như dòng lệnh báo cáo, trên một dòng: thư mục, `catalog load`, và lý do mà hệ thống tệp đưa ra. Payload nêu tên Release, với một `files` rỗng và không có phát hiện nào, vì chưa có gì chạy. Một thư mục mà cấu hình workspace liệt kê nhưng không tồn tại thì không bị từ chối: nó được đọc như không chứa gì, như `aggrega build` đọc nó, và bản build render những gì nó render như thể thư mục đó không được liệt kê. Dòng mà `aggrega build` in ra nêu tên nó được mang đúng một lần ([Nơi đọc các thực thể cục bộ](configuration.md#where-local-entities-are-read-from)): là mục đầu tiên trong `advisories`, ở mức `warn`, hoặc — khi bản build phân giải các phụ thuộc trước, vì bước phân giải đó tự ghi dòng này — trong số các `diagnostics` của `dependency_resolution`. Một thư mục catalog chứa một liên kết dẫn ra ngoài thư mục mà các lần đọc của nó phải nằm bên trong sẽ bị từ chối ở cùng thời điểm, không có gì được ghi, văn bản nêu tên liên kết và nơi nó dẫn tới — `aggrega build` từ chối nó theo cùng cách."
   },
+  "c0b4307b522882e4": {
+    "at": "2026-11-17T13:37:45.939Z",
+    "job": "session-0010-20261117133745",
+    "srcHash": "c0b4307b522882e4",
+    "status": "machine",
+    "text": "Một Recipe không khai báo `source:` lẫn `artifacts:` thì không có gì để provider này kết xuất, và `arm` không chấp nhận `workload:`: nó không tổng hợp tài nguyên tính toán từ một Workload."
+  },
   "c0b5b1c984e2d971": {
     "at": "2026-10-22T14:48:33.335041+00:00",
     "job": "msgbatch_01WywkyBWQ72dRwWQG8Gy8Jr",
@@ -152442,6 +152509,13 @@
     "status": "machine",
     "text": "Team Topologies và bốn miền"
   },
+  "ce196454878d9501": {
+    "at": "2026-11-17T13:37:45.939Z",
+    "job": "session-0010-20261117133745",
+    "srcHash": "ce196454878d9501",
+    "status": "machine",
+    "text": "Một Recipe `arm` viết một **đoạn** — các tài nguyên ARM do một thành phần đơn lẻ đóng góp — chứ không phải một mẫu hoàn chỉnh. Khi các thành phần của một ranh giới được kết xuất, provider lắp ráp mọi đoạn trong nhóm điều phối (dispatch) thành một mẫu: các tài nguyên được gộp dưới một đối tượng `resources`, các `outputs` do mỗi đoạn viết được đưa vào `outputs` của mẫu, và các phần cấp cao nhất còn lại của mẫu được xử lý từng phần một trong [Các phần cấp cao nhất trong mẫu đã lắp ráp](#top-level-sections-in-the-assembled-template). Có hai dạng viết được chấp nhận:"
+  },
   "ce1ee330672f9948": {
     "at": "2026-10-22T10:44:41.513626+00:00",
     "job": "msgbatch_01SU94FsDLwMBbtBG2UdzNK5",
@@ -160247,6 +160321,13 @@
     "status": "machine",
     "text": "**Một writer tạo ra các khối metric.** Tầng đọc phục vụ các khối; nó\n  không tạo ra chúng. Một writer — một tầng Thanos Receive hoặc một instance Prometheus với\n  sidecar Thanos — phải đẩy các khối metric vào cùng bucket đó. Cho đến khi một\n  writer đã tải lên các khối, Store Gateway trả về một tập kết quả rỗng."
   },
+  "d8a7b80e194ffc6f": {
+    "at": "2026-11-17T13:37:45.939Z",
+    "job": "session-0010-20261117133745",
+    "srcHash": "d8a7b80e194ffc6f",
+    "status": "machine",
+    "text": "**Các đầu ra của một Feature được gắn được công bố dưới tên của thành phần chủ, còn tên biểu tượng của các tài nguyên của nó thì không.** Một Feature gắn vào `payments-db` và viết một đầu ra `alarm` sẽ đạt đến cùng tên đầu ra mà nó sẽ đạt đến nếu chính thành phần chủ viết đầu ra đó; vì vậy một tên mục mà thành phần chủ cũng công bố sẽ gặp tên mục của phần gắn kèm ở một tên đầu ra, và bản dựng dừng lại. Hãy chọn tên mục đọc lên như của riêng Feature — `backup-alarm` thay vì `alarm`. Mỗi tài nguyên mà một Feature đóng góp giữ danh tính được tạo cho phần gắn kèm đó trong nguồn gốc được ghi lên nó. [Nhãn và chú thích](../vocabulary/labels-and-annotations.md) giải thích cách danh tính đó được xây dựng."
+  },
   "d8a83198bee1e4c7": {
     "at": "2026-10-22T12:16:26.328227+00:00",
     "job": "msgbatch_01AmdFteRWMHi1UpnWokTXuL",
@@ -166949,6 +167030,13 @@
     "srcHash": "e0b886c9cf7f2d2e",
     "status": "machine",
     "text": "[cross-boundary-networking](cross-boundary-networking/README.md) (`advanced`) — Một stack hai component — giao diện cơ sở dữ liệu **Adminer** và cơ sở dữ liệu **PostgreSQL** — được chia qua **hai boundary**, trong đó Adminer phải truy cập cơ sở dữ liệu xuyên qua đường nối boundary."
+  },
+  "e0b9b4f25fe68ad6": {
+    "at": "2026-11-17T13:37:45.939Z",
+    "job": "session-0010-20261117133745",
+    "srcHash": "e0b9b4f25fe68ad6",
+    "status": "machine",
+    "text": "**Đầu vào đoạn (tạo tác).** Một Recipe hoặc FeatureRecipe viết các phần của một mẫu trong `artifacts:`, bằng YAML hoặc JSON. Provider đọc từng mục, kiểm tra và gộp nó vào mẫu đã lắp ráp."
   },
   "e0ba63c68c55e684": {
     "at": "2026-10-22T10:27:55.857345+00:00",
@@ -181471,6 +181559,13 @@
     "srcHash": "f4225609f31ae882",
     "status": "machine",
     "text": "Hai điều đúng với mọi yêu cầu trong số đó, và cả hai là lý do chúng có trong danh sách: **nó truy cập một registry hoặc một URL từ xa thay cho bạn**, nên thời gian nó mất được quyết định bởi thứ gì đó bên ngoài máy; và **nó vốn đã tự ghi lời tự thuật của mình trong khi chạy** — lời tự thuật mà một người theo dõi terminal đọc. Vì vậy việc báo cáo trao cho bạn chính lời tự thuật đó chứ không phải một bản thứ hai được soạn riêng để truyền đi, và không có gì trong những việc thao tác thực hiện phải thay đổi để tạo ra nó."
+  },
+  "f423a46e01dc3c90": {
+    "at": "2026-11-17T13:37:45.939Z",
+    "job": "session-0010-20261117133745",
+    "srcHash": "f423a46e01dc3c90",
+    "status": "machine",
+    "text": "Một Feature gắn vào một thành phần đóng góp vào cùng một mẫu"
   },
   "f426c460916b52b3": {
     "at": "2026-11-15T09:28:20.698Z",

@@ -30893,6 +30893,13 @@
     "status": "machine",
     "text": "Artifacts 的模板上下文"
   },
+  "29ba969e5c743eb6": {
+    "at": "2026-11-17T13:37:45.939Z",
+    "job": "session-0010-20261117133745",
+    "srcHash": "29ba969e5c743eb6",
+    "status": "machine",
+    "text": "附加到组件的 Feature 会把自己的资源贡献给其宿主组件所组装进的模板，条件与宿主组件自身的 Recipe 相同。旁边没有单独的模板：组装后的模板就是此 provider 为一个输出目录输出的全部内容，因此被附加的 Feature 的资源要么在该模板中，要么根本不会部署。分离该 Feature 会精确移除这些资源，而宿主组件自身的资源保持不变。"
+  },
   "29bf75072d01b697": {
     "at": "2026-11-12T09:04:23.005Z",
     "job": "session-0007-20261112090423",
@@ -32365,6 +32372,13 @@
     "srcHash": "2bd845f49d221a1f",
     "status": "machine",
     "text": "使用 `--target helm` 导入并应用到 Kubernetes 后，只要将一个本地端口转发到 Flowise 的 Service，chatflow 就会在同一地址响应相同的请求；本次运行在那里得到了相同的拒绝："
+  },
+  "2bdaa1b98290c669": {
+    "at": "2026-11-17T13:37:45.939Z",
+    "job": "session-0010-20261117133745",
+    "srcHash": "2bdaa1b98290c669",
+    "status": "machine",
+    "text": "组装为模板的片段"
   },
   "2bdec2d28825b3a6": {
     "at": "2026-11-01T15:32:08.870Z",
@@ -36803,6 +36817,13 @@
     "srcHash": "31f316577560e070",
     "status": "machine",
     "text": "Grafana — 一个 Aggregate，两个目标，可选的管理员凭据"
+  },
+  "31f6e14c878a6367": {
+    "at": "2026-11-17T13:37:45.939Z",
+    "job": "session-0010-20261117133745",
+    "srcHash": "31f6e14c878a6367",
+    "status": "machine",
+    "text": "`arm` provider 将 Aggrega Recipes 渲染为资源组范围的 Azure Resource Manager (ARM) 模板；若边界的 `aggrega.ai/azure-deployment-scope` 注解有此指定，则渲染为订阅范围的模板，参见[在订阅范围部署](#deploying-at-subscription-scope)。在此 provider 下渲染到同一输出目录的所有组件会被组装为一个模板，并作为 `arm-template.json` 写入边界的输出目录：这是一个采用模板语言 2.0 版的单一 JSON 文档，资源以符号名称为键。因此在通常情况下，一个边界对应一个模板；`directory:` 解析到同一路径的两个边界会一起组装为一个模板，并共用其名称。与所有 Aggrega provider 一样，它离线且封闭：Aggrega 构建是预先（ahead-of-time）编译，因此该 provider 从不调用 Azure，从不解析实时地址，也从不运行 ARM。仅在运行时才确定的值仍保持为 ARM 模板表达式（`reference()`、`resourceId()`、`parameters()`），由 ARM 在模板部署时求值。"
   },
   "31f8fe6c707b3671": {
     "at": "2026-10-22T03:53:00.119047+00:00",
@@ -59211,6 +59232,13 @@
     "status": "machine",
     "text": "默认草稿会携带该流程：平台的实例将导出内容作为 `values.flow_definition` 接收，其写法如[流程如何写入草稿](#how-the-flow-is-written-into-the-draft)所述。手动将流程写入 Aggregate 的作者——无论是写入按节点布局的草稿，还是写入自己的 Aggregate——也以同样方式书写。按原样运行流程的 Component 将导出内容作为一个值接收——在标准库的 `core/ai-agent/langflow`\n和 `core/ai-agent/flowise` 上为 `flow_definition`——而 Aggregate 的文本会作为模板读取，因此导出内容中的双花括号会被当作模板动作读取：Flowise chatflow 会为两个节点之间的每个连接写入 `{{<node id>.data.instance}}`，\nFlowise 提示词以 `{{question}}` 命名变量，而 Langflow 导出内容携带其组件的源代码，其中也可能出现花括号。\n请在块标量中将导出内容里的每个 `{{` 写为 `{{\"{{\"}}`，插值会在该 Component 的 Recipes 读取之前还原导出内容的文本；\n[自带双花括号的文本](../templates/parameters-context.md#text-that-carries-its-own-double-braces)\n说明了原因。导出内容中包含的凭据值应放在 Release 附加的密钥中，而不是放在 Aggregate 中：将其写为空值，就像草稿在 `empty_credentials` 设置要求时所做的那样。"
   },
+  "51036b30f6c8dcea": {
+    "at": "2026-11-17T13:37:45.939Z",
+    "job": "session-0010-20261117133745",
+    "srcHash": "51036b30f6c8dcea",
+    "status": "machine",
+    "text": "[`arm`](arm.md) 将一个边界渲染为一个资源组、订阅或管理组范围的 Azure Resource Manager 模板：它汇集各组件编写的资源片段，或将 Recipe 作为来源指定的已编译模板包装为嵌套的 ARM 部署（nested deployment ARM），并把片段编写的 `outputs` 带入模板的 `outputs`；组件的 `provides` 是同一模板中的消费者直接读取的表达式，而另一个边界的模板中的消费者则从生产者的 ARM 部署输出中读取。它支持来源和制品输入，并在从不运行 ARM 的情况下输出配置；仅在运行时才确定的值仍保持为 ARM 模板表达式。"
+  },
   "510439cf7ed294a7": {
     "at": "2026-10-22T08:15:42.630087+00:00",
     "job": "msgbatch_01LUbCfEJyTdJEKDU86sBZQP",
@@ -65049,6 +65077,13 @@
     "srcHash": "58b4988a4ca2acd5",
     "status": "machine",
     "text": "记录哪个目录实体引用了该库以及引用了哪些 `<entry-name>` 片段。体现扇入关系：每个库有多个使用方，每个使用方可能引用多个片段。每条记录包含使用方 URI 以及该使用方引入的片段集合。默认值：`[]`"
+  },
+  "58b93506a2aef5a7": {
+    "at": "2026-11-17T13:37:45.939Z",
+    "job": "session-0010-20261117133745",
+    "srcHash": "58b93506a2aef5a7",
+    "status": "machine",
+    "text": "ARM Provider"
   },
   "58bc8766f73c43a8": {
     "at": "2026-10-22T08:03:58.541373+00:00",
@@ -76999,6 +77034,13 @@
     "srcHash": "68f0436da22bb10b",
     "status": "machine",
     "text": "provider 是否遵循 omit 条目（即指定要从节点输出中排除的渲染单元的条目）：它会将条目匹配到的每个单元排除在渲染结果之外，并报告每个条目匹配了多少个单元。它是 provider 的 `describe()` 所报告的 `omits` 声明在发布时的记录，与该报告不一致的值会在加载时中止。缺省（false）时表示不声明此类支持。"
+  },
+  "68f82e53a9b4829d": {
+    "at": "2026-11-17T13:37:45.939Z",
+    "job": "session-0010-20261117133745",
+    "srcHash": "68f82e53a9b4829d",
+    "status": "machine",
+    "text": "由于它们进入组装后的模板，因此共用该模板的名称。资源的符号名称会完全按照 FeatureRecipe 编写的内容输出，与宿主组件以及其他每个附加项的名称处于同一空间，所以[名称](#names)原样适用于它们。当两个贡献者在同一个名称上相遇时，停止信息会同时指出两者，这样冲突的每一端都能在你自己的文件中搜索到。"
   },
   "68f8ce83335b9ed6": {
     "at": "2026-10-22T08:15:42.630087+00:00",
@@ -91728,6 +91770,17 @@
     "srcHash": "7cba816bc7a37ec6",
     "status": "machine",
     "text": "当你修改插件实体并重新发布时，发布规程会将该变更与先前发布的版本进行比对分类，并要求版本递增与之相符。分类依据版本递增准则：仅涉及文档或注释的变更为 `PATCH`；严格增量的变更（新增可选字段、新增条目）为 `MINOR`；删除、类型收窄，或先前可选的字段变为必填，则为 `MAJOR`。超额递增始终允许；递增不足则会中止，并给出指明所需递增的诊断信息。实体的首次发布会跳过递增检查，并给出未执行任何验证的警告。发布前可使用 `aggrega lint --pre-publish` 运行该检查；完整准则和逐条规则的设置参见 [`../cli/aggrega-lint.md`](../cli/aggrega-lint.md)。"
+  },
+  "7cc7811bb51caa9d": {
+    "at": "2026-11-17T13:37:45.939Z",
+    "job": "session-0010-20261117133745",
+    "revision": {
+      "from": "9ee569e3fa537b68",
+      "reviewed": false
+    },
+    "srcHash": "7cc7811bb51caa9d",
+    "status": "machine",
+    "text": "`helm`、`helm-chart`、`compose`、`terraform`、`cloudformation` 和 `arm` 这几个 provider 共同构成标准库 provider 集。它们覆盖常见的目标，企业团队无需自行编写 provider。"
   },
   "7ccb341bea7269c9": {
     "at": "2026-10-22T01:39:34.791258+00:00",
@@ -108944,6 +108997,13 @@
     "srcHash": "9460f16ac9b5171e",
     "status": "machine",
     "text": "能力"
+  },
+  "94637113550df8b3": {
+    "at": "2026-11-17T13:37:45.939Z",
+    "job": "session-0010-20261117133745",
+    "srcHash": "94637113550df8b3",
+    "status": "machine",
+    "text": "**来源输入。** Recipe 引用一个已编译的 ARM 模板——单个 `.json` 文件，或包含 `main.json`（Bicep 和 Azure Verified Modules 提交的文件）的目录，若没有则为 `azuredeploy.json`。provider 将其包装为一个嵌套的 ARM 部署（nested deployment ARM），用 Recipe 的 `valuesMapping` 填充它声明的参数，并略去 Recipe 的 `omits:` 条目所指名的任何资源。参见[来源模板](#sourced-templates)和[从来源模板中略去资源](#leaving-resources-out-of-a-sourced-template)。`.bicep` 来源会先用 `bicep build` 编译；provider 读取的是模板，而不是 Bicep。"
   },
   "9463b63de5e13ae2": {
     "at": "2026-10-22T03:53:00.119047+00:00",
@@ -142344,6 +142404,13 @@
     "status": "machine",
     "text": "**Release 读取的目录目录若无法遍历，会在写入任何内容之前被拒绝，与 [`aggrega build`](aggrega-build.md) 拒绝它的方式相同。**这指调用在 `catalog_dirs` 中指定但不存在的目录（如同 `aggrega build` 拒绝不存在的 `--catalog` 目录），或者存在但无法读取的目录。`aggrega build` 在解析 Release 之前加载该 Release 读取的每个目录，并在遇到无法遍历的目录时停止；`build` 首先遍历相同的目录，不读取其中的任何文档，早于任何依赖解析，也早于渲染——因此传入 `auto_pull` 的构建不会写入 lockfile，也不会渲染任何内容。文本以命令行报告的方式在一行中指明该目录：目录、`catalog load`，以及文件系统给出的原因。载荷指明该 Release，带有空的 `files`，且没有任何发现，因为尚未运行任何内容。工作区配置中列出但不存在任何内容的目录不会被拒绝：它会被视为不包含任何内容，与 `aggrega build` 的读取方式相同，构建在不列出该目录的情况下渲染其所渲染的内容。`aggrega build` 为其打印的那一行只携带一次（[本地实体从何处读取](configuration.md#where-local-entities-are-read-from)）：作为 `advisories` 中的第一项，级别为 `warn`；或者——当构建先解析其依赖时，由于该解析本身会写出这一行——出现在 `dependency_resolution` 的 `diagnostics` 之中。目录目录中若包含一个指向其读取必须保持在内的目录之外的链接，会在同一时刻被拒绝，不写入任何内容，文本指明该链接及其指向——`aggrega build` 也以同样的方式拒绝它。"
   },
+  "c0b4307b522882e4": {
+    "at": "2026-11-17T13:37:45.939Z",
+    "job": "session-0010-20261117133745",
+    "srcHash": "c0b4307b522882e4",
+    "status": "machine",
+    "text": "既未声明 `source:` 也未声明 `artifacts:` 的 Recipe，对此 provider 而言没有任何可渲染的内容，并且 `arm` 不接受 `workload:`：它不会根据 Workload 合成计算资源。"
+  },
   "c0b5b1c984e2d971": {
     "at": "2026-10-22T03:06:36.769432+00:00",
     "job": "msgbatch_01LMJ2pDqXu3quNM1ykbvTtk",
@@ -152429,6 +152496,13 @@
     "status": "machine",
     "text": "团队拓扑与四个领域"
   },
+  "ce196454878d9501": {
+    "at": "2026-11-17T13:37:45.939Z",
+    "job": "session-0010-20261117133745",
+    "srcHash": "ce196454878d9501",
+    "status": "machine",
+    "text": "`arm` Recipe 编写的是一个**片段**——由单个组件贡献的 ARM 资源——而不是完整的模板。边界的组件渲染时，provider 会把分派组中的每个片段组装为一个模板：资源合并到同一个 `resources` 对象下，每个片段编写的 `outputs` 被带入模板的 `outputs`，模板其余的顶层部分则在[组装后模板中的顶层部分](#top-level-sections-in-the-assembled-template)中逐一说明。接受两种编写形式："
+  },
   "ce1ee330672f9948": {
     "at": "2026-10-22T02:24:43.656154+00:00",
     "job": "msgbatch_01LPuEFeUVjFEgXoDzuak74j",
@@ -160232,6 +160306,13 @@
     "status": "machine",
     "text": "**生成指标块的写入方。** 读取层提供块，但\n  不创建块。写入方——Thanos Receive 层或带有\n  Thanos sidecar 的 Prometheus 实例——必须将指标块传送到同一个存储桶。在\n  写入方上传块之前，Store Gateway 返回空结果集。"
   },
+  "d8a7b80e194ffc6f": {
+    "at": "2026-11-17T13:37:45.939Z",
+    "job": "session-0010-20261117133745",
+    "srcHash": "d8a7b80e194ffc6f",
+    "status": "machine",
+    "text": "**被附加的 Feature 的输出以其宿主组件的名称发布，而其资源的符号名称则不是。** 附加到 `payments-db` 的 Feature 若编写了名为 `alarm` 的输出，它得到的输出名称与宿主自己编写该输出时得到的相同；因此宿主同样发布的条目名称会与附加项的条目名称在同一个输出名称上相遇，构建随之停止。请选择读起来属于该 Feature 自身的条目名称——用 `backup-alarm` 而不是 `alarm`。Feature 贡献的每个资源，都会在写入其上的来源信息中保留为该附加项组成的标识。该标识如何构建，参见[标签和注解](../vocabulary/labels-and-annotations.md)。"
+  },
   "d8a83198bee1e4c7": {
     "at": "2026-10-22T02:48:40.419851+00:00",
     "job": "msgbatch_01GfagNcas3ixJ7ofku3W8dE",
@@ -166922,6 +167003,13 @@
     "srcHash": "e0b886c9cf7f2d2e",
     "status": "machine",
     "text": "[cross-boundary-networking](cross-boundary-networking/README.md)（`advanced`）— 一个双组件栈——**Adminer** 数据库 UI 和 **PostgreSQL** 数据库——分布在**两个边界**上，Adminer 必须跨越边界接缝访问数据库。"
+  },
+  "e0b9b4f25fe68ad6": {
+    "at": "2026-11-17T13:37:45.939Z",
+    "job": "session-0010-20261117133745",
+    "srcHash": "e0b9b4f25fe68ad6",
+    "status": "machine",
+    "text": "**片段（制品）输入。** Recipe 或 FeatureRecipe 在 `artifacts:` 下以 YAML 或 JSON 编写模板的各个部分。provider 读取每个条目，检查后将其合并到组装后的模板中。"
   },
   "e0ba63c68c55e684": {
     "at": "2026-10-22T01:56:20.260469+00:00",
@@ -181424,6 +181512,13 @@
     "srcHash": "f4225609f31ae882",
     "status": "machine",
     "text": "它们每一个都满足两点，这也正是它们列入清单的原因：**它会代表你访问注册表或远程 URL**，因此耗时由本机之外的因素决定；并且**它本来就会在执行过程中写出对自身的陈述**——即在终端前观察的人所读到的内容。因此报告交给你的就是同一份陈述，而不是为传输另行编写的第二份，操作本身的行为也无需为此做任何改变。"
+  },
+  "f423a46e01dc3c90": {
+    "at": "2026-11-17T13:37:45.939Z",
+    "job": "session-0010-20261117133745",
+    "srcHash": "f423a46e01dc3c90",
+    "status": "machine",
+    "text": "附加到组件的 Feature 会向同一个模板贡献内容"
   },
   "f426c460916b52b3": {
     "at": "2026-11-15T09:28:20.698Z",

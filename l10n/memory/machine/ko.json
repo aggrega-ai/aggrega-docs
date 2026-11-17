@@ -30899,6 +30899,13 @@
     "status": "machine",
     "text": "Artifacts의 템플릿 컨텍스트"
   },
+  "29ba969e5c743eb6": {
+    "at": "2026-11-17T13:37:45.939Z",
+    "job": "session-0010-20261117133745",
+    "srcHash": "29ba969e5c743eb6",
+    "status": "machine",
+    "text": "컴포넌트에 연결된 Feature는 호스트 컴포넌트 자체의 Recipe와 같은 조건으로, 호스트 컴포넌트가 조립되는 템플릿에 자신의 리소스를 제공합니다. 그 옆에 별도의 템플릿은 없습니다. 조립된 템플릿이 이 프로바이더가 출력 디렉터리에 대해 내보내는 전부이므로, 연결된 Feature의 리소스는 그 템플릿에 들어 있거나 아예 배포되지 않습니다. Feature의 연결을 해제하면 정확히 그 리소스만 제거되고 호스트 컴포넌트 자체의 리소스는 그대로 남습니다."
+  },
   "29bf75072d01b697": {
     "at": "2026-11-12T09:04:23.005Z",
     "job": "session-0007-20261112090423",
@@ -32371,6 +32378,13 @@
     "srcHash": "2bd845f49d221a1f",
     "status": "machine",
     "text": "`--target helm`으로 가져와 Kubernetes에 적용하면, 로컬 포트를 Flowise의 Service로 전달한 뒤 chatflow가 같은 주소에서 같은 요청에 응답합니다. 이 실행에서도 그곳에서 같은 거부를 받았습니다:"
+  },
+  "2bdaa1b98290c669": {
+    "at": "2026-11-17T13:37:45.939Z",
+    "job": "session-0010-20261117133745",
+    "srcHash": "2bdaa1b98290c669",
+    "status": "machine",
+    "text": "템플릿으로 조립되는 조각"
   },
   "2bdec2d28825b3a6": {
     "at": "2026-11-01T15:32:08.870Z",
@@ -36809,6 +36823,13 @@
     "srcHash": "31f316577560e070",
     "status": "machine",
     "text": "Grafana — 하나의 Aggregate, 두 개의 대상, 선택적 관리자 자격 증명"
+  },
+  "31f6e14c878a6367": {
+    "at": "2026-11-17T13:37:45.939Z",
+    "job": "session-0010-20261117133745",
+    "srcHash": "31f6e14c878a6367",
+    "status": "machine",
+    "text": "`arm` 프로바이더는 Aggrega Recipes를 리소스 그룹 범위의 Azure Resource Manager(ARM) 템플릿으로 렌더링하며, 경계의 `aggrega.ai/azure-deployment-scope` 어노테이션이 지정하면 구독 범위로 렌더링합니다. [구독 범위에서의 배포](#deploying-at-subscription-scope)를 참조하십시오. 이 프로바이더에서 같은 출력 디렉터리로 렌더링되는 모든 컴포넌트는 하나의 템플릿으로 조립되어 경계의 출력 디렉터리에 `arm-template.json`으로 기록됩니다. 이 템플릿은 템플릿 언어 버전 2.0의 단일 JSON 문서이며, 리소스는 심볼릭 이름을 키로 합니다. 따라서 일반적인 경우 경계 하나가 템플릿 하나가 되며, `directory:`가 같은 경로로 확인되는 두 경계는 함께 하나의 템플릿으로 조립되어 그 이름을 공유합니다. 모든 Aggrega 프로바이더와 마찬가지로 오프라인이며 밀폐되어 있습니다. Aggrega 빌드는 사전(ahead-of-time) 컴파일이므로 프로바이더는 Azure를 호출하지 않고, 실제 주소를 확인하지 않으며, ARM을 실행하지 않습니다. 런타임에만 정해지는 값은 ARM 템플릿 표현식(`reference()`, `resourceId()`, `parameters()`)으로 남아 있다가 템플릿이 배포될 때 ARM이 평가합니다."
   },
   "31f8fe6c707b3671": {
     "at": "2026-10-22T03:53:00.119047+00:00",
@@ -59229,6 +59250,13 @@
     "status": "machine",
     "text": "기본 초안은 flow를 담습니다. 플랫폼의 인스턴스는 내보낸 내용을 `values.flow_definition`으로 받으며, [How the flow is written into the draft](#how-the-flow-is-written-into-the-draft)에서 설명하는 방식으로 작성됩니다. Aggregate에 flow를 직접 작성하는 작성자도 — 노드별로 배치된 초안이든, 직접 만든 Aggregate든 — 같은 방식으로 작성합니다. 작성된 그대로 flow를 실행하는 Component는 내보낸 내용을 값으로 받습니다 — 표준 라이브러리의 `core/ai-agent/langflow`와 `core/ai-agent/flowise`에서는 `flow_definition` — 그리고 Aggregate의 텍스트는 템플릿으로 읽히므로, 내보낸 내용에 담긴 이중 중괄호는 템플릿 액션으로 읽히게 됩니다. Flowise chatflow는 두 노드 사이의 모든 연결에 대해 `{{<node id>.data.instance}}`를 기록하고, Flowise 프롬프트는 변수를 `{{question}}`으로 지칭하며, Langflow 내보내기는 구성 요소의 소스 코드를 담고 있어 그 안에도 중괄호가 나타날 수 있습니다. 내보낸 내용의 각 `{{`를 블록 스칼라 안에서 `{{\"{{\"}}`로 작성하면, Component의 Recipes가 읽기 전에 보간이 내보낸 내용의 텍스트를 복원합니다. 그 이유는 [자체 이중 중괄호를 포함하는 텍스트](../templates/parameters-context.md#text-that-carries-its-own-double-braces)에서 설명합니다. 내보낸 내용에 담긴 자격 증명 값은 Aggregate가 아니라 Release가 첨부하는 시크릿에 속합니다. `empty_credentials` 설정이 요청할 때 초안이 하듯이 비워 두고 작성합니다."
   },
+  "51036b30f6c8dcea": {
+    "at": "2026-11-17T13:37:45.939Z",
+    "job": "session-0010-20261117133745",
+    "srcHash": "51036b30f6c8dcea",
+    "status": "machine",
+    "text": "[`arm`](arm.md)은 경계 하나를 리소스 그룹, 구독 또는 관리 그룹 범위의 Azure Resource Manager 템플릿 하나로 렌더링합니다. 이를 위해 컴포넌트가 작성한 리소스 조각을 조립하거나, Recipe가 소스로 지정한 컴파일된 템플릿을 중첩된 ARM 배포로 감싸고, 조각이 작성한 `outputs`를 템플릿의 `outputs`로 가져옵니다. 컴포넌트의 `provides`는 같은 템플릿 안의 소비자가 직접 읽는 표현식이며, 다른 경계의 템플릿에 있는 소비자는 생산자의 ARM 배포 출력에서 읽습니다. 소스 입력과 아티팩트 입력을 지원하며 ARM을 실행하지 않고 구성을 출력합니다. 런타임에만 정해지는 값은 ARM 템플릿 표현식으로 남습니다."
+  },
   "510439cf7ed294a7": {
     "at": "2026-10-22T08:15:42.630087+00:00",
     "job": "msgbatch_01LUbCfEJyTdJEKDU86sBZQP",
@@ -65067,6 +65095,13 @@
     "srcHash": "58b4988a4ca2acd5",
     "status": "machine",
     "text": "어떤 카탈로그 엔터티가 이 라이브러리를 어떤 `<entry-name>` 프래그먼트에서 참조하는지에 대한 기록입니다. 팬인을 포착합니다. 라이브러리 하나에 소비자가 여럿 있고, 각 소비자는 여러 프래그먼트를 참조할 수 있습니다. 각 기록은 소비자 URI와 그 소비자가 가져오는 프래그먼트 집합을 담습니다. 기본값: `[]`"
+  },
+  "58b93506a2aef5a7": {
+    "at": "2026-11-17T13:37:45.939Z",
+    "job": "session-0010-20261117133745",
+    "srcHash": "58b93506a2aef5a7",
+    "status": "machine",
+    "text": "ARM Provider"
   },
   "58bc8766f73c43a8": {
     "at": "2026-10-22T08:03:58.541373+00:00",
@@ -77017,6 +77052,13 @@
     "srcHash": "68f0436da22bb10b",
     "status": "machine",
     "text": "provider가 omit 항목(노드의 출력에서 제외할 렌더링 단위를 지정하는 항목)을 따르는지 여부입니다. 따르는 provider는 항목과 일치하는 모든 단위를 렌더링 결과에서 제외하고, 각 항목이 일치한 단위 수를 보고합니다. 이는 provider의 `describe()`가 보고하는 `omits` 주장을 게시 시점에 기록한 것이며, 그 보고와 다른 값은 로드 시 중단됩니다. 없으면(false) 그러한 지원을 선언하지 않습니다."
+  },
+  "68f82e53a9b4829d": {
+    "at": "2026-11-17T13:37:45.939Z",
+    "job": "session-0010-20261117133745",
+    "srcHash": "68f82e53a9b4829d",
+    "status": "machine",
+    "text": "이 리소스는 조립된 템플릿에 들어가므로 그 이름을 공유합니다. 리소스의 심볼릭 이름은 FeatureRecipe가 작성한 그대로 내보내지며, 호스트 컴포넌트와 다른 모든 연결의 이름과 같은 공간에 놓이므로 [이름](#names)이 그대로 적용됩니다. 두 기여자가 하나의 이름에서 만나면 중단 메시지가 둘 다 지명하므로, 충돌의 양쪽을 직접 작성한 파일에서 검색할 수 있습니다."
   },
   "68f8ce83335b9ed6": {
     "at": "2026-10-22T08:15:42.630087+00:00",
@@ -91746,6 +91788,17 @@
     "srcHash": "7cba816bc7a37ec6",
     "status": "machine",
     "text": "플러그인 엔터티를 변경하고 다시 게시하면, 게시 규율은 이전에 게시된 버전과 비교하여 변경을 분류하고 그에 맞는 버전 증가를 요구합니다. 이 분류가 버전 증가 기준표입니다. 문서나 주석만 바뀐 변경은 `PATCH`이고, 엄격하게 추가만 하는 변경(새 선택적 필드, 새 항목)은 `MINOR`이며, 제거, 타입 축소, 또는 이전에 선택적이던 필드가 필수가 되는 변경은 `MAJOR`입니다. 필요 이상으로 버전을 올리는 것은 항상 허용되며, 필요보다 적게 올리면 필요한 버전 증가를 명시하는 진단과 함께 중단됩니다. 엔터티를 처음 게시할 때는 버전 증가 검사를 건너뛰고 검증이 수행되지 않았다는 경고를 표시합니다. 게시 전에 `aggrega lint --pre-publish`로 검사를 실행하십시오. 전체 기준표와 규칙별 설정은 [`../cli/aggrega-lint.md`](../cli/aggrega-lint.md)를 참조하십시오."
+  },
+  "7cc7811bb51caa9d": {
+    "at": "2026-11-17T13:37:45.939Z",
+    "job": "session-0010-20261117133745",
+    "revision": {
+      "from": "9ee569e3fa537b68",
+      "reviewed": false
+    },
+    "srcHash": "7cc7811bb51caa9d",
+    "status": "machine",
+    "text": "`helm`, `helm-chart`, `compose`, `terraform`, `cloudformation`, `arm` 프로바이더가 함께 표준 라이브러리 프로바이더 세트를 이룹니다. 이 프로바이더들은 엔터프라이즈 팀이 자체 프로바이더를 작성하지 않아도 일반적인 대상을 지원합니다."
   },
   "7ccb341bea7269c9": {
     "at": "2026-10-22T01:39:34.791258+00:00",
@@ -108962,6 +109015,13 @@
     "srcHash": "9460f16ac9b5171e",
     "status": "machine",
     "text": "기능"
+  },
+  "94637113550df8b3": {
+    "at": "2026-11-17T13:37:45.939Z",
+    "job": "session-0010-20261117133745",
+    "srcHash": "94637113550df8b3",
+    "status": "machine",
+    "text": "**소스 입력.** Recipe는 컴파일된 ARM 템플릿을 참조합니다. 이는 단일 `.json` 파일이거나, `main.json`(Bicep과 Azure Verified Modules가 커밋하는 파일) 또는 이것이 없으면 `azuredeploy.json`이 들어 있는 디렉터리입니다. 프로바이더는 이를 하나의 중첩된 ARM 배포로 감싸고, 선언된 매개변수를 Recipe의 `valuesMapping`에서 채우며, Recipe의 `omits:` 항목이 지정한 리소스를 제외합니다. [소스 템플릿](#sourced-templates)과 [소스 템플릿에서 리소스 제외하기](#leaving-resources-out-of-a-sourced-template)를 참조하십시오. `.bicep` 소스는 먼저 `bicep build`로 컴파일되며, 프로바이더가 읽는 것은 템플릿이지 Bicep이 아닙니다."
   },
   "9463b63de5e13ae2": {
     "at": "2026-10-22T03:53:00.119047+00:00",
@@ -142350,6 +142410,13 @@
     "status": "machine",
     "text": "**Release가 읽는 카탈로그 디렉터리를 탐색할 수 없으면, [`aggrega build`](aggrega-build.md)가 거부하는 것처럼 아무것도 기록되기 전에 거부됩니다.** 이는 호출이 `catalog_dirs`에 지정했지만 존재하지 않는 디렉터리(`aggrega build`가 존재하지 않는 `--catalog` 디렉터리를 거부하는 것과 같습니다)이거나, 존재하지만 읽을 수 없는 디렉터리입니다. `aggrega build`는 Release를 해석하기 전에 Release가 읽는 모든 디렉터리를 로드하고, 탐색할 수 없는 디렉터리에서 멈춥니다. `build`는 같은 디렉터리들을 먼저 탐색하되 그 안의 문서는 읽지 않으며, 모든 의존성 해석과 렌더보다 먼저 수행합니다. 따라서 `auto_pull`이 전달된 빌드는 lockfile을 기록하지 않으며, 아무것도 렌더링되지 않습니다. 텍스트는 명령줄이 보고하는 방식대로 한 줄에 디렉터리를 명시합니다. 디렉터리, `catalog load`, 그리고 파일 시스템이 제시한 이유입니다. 페이로드는 Release를 명시하며, 아무것도 실행되지 않았으므로 빈 `files`와 함께 발견 사항이 없습니다. 워크스페이스 구성이 나열했지만 아무것도 존재하지 않는 디렉터리는 거부되지 않습니다. `aggrega build`가 읽는 것처럼 아무것도 담고 있지 않은 것으로 읽히며, 빌드는 그 디렉터리가 나열되지 않은 상태로 렌더링할 것을 렌더링합니다. `aggrega build`가 그 디렉터리를 알리며 출력하는 줄은 한 번만 전달됩니다([로컬 엔터티를 읽는 위치](configuration.md#where-local-entities-are-read-from)). `advisories`의 첫 번째 항목으로 `warn` 수준으로 전달되거나, 빌드가 의존성을 먼저 해석하는 경우에는 그 해석이 해당 줄을 직접 기록하므로 `dependency_resolution`의 `diagnostics` 안에 전달됩니다. 읽기가 머물러야 하는 디렉터리 밖으로 이어지는 링크를 담은 카탈로그 디렉터리도 같은 시점에 거부되며, 아무것도 기록되지 않고, 텍스트는 링크와 그 링크가 이어지는 곳을 명시합니다. `aggrega build`도 같은 방식으로 이를 거부합니다."
   },
+  "c0b4307b522882e4": {
+    "at": "2026-11-17T13:37:45.939Z",
+    "job": "session-0010-20261117133745",
+    "srcHash": "c0b4307b522882e4",
+    "status": "machine",
+    "text": "`source:`도 `artifacts:`도 선언하지 않는 Recipe는 이 프로바이더가 렌더링할 것이 없으며, `arm`은 `workload:`를 받아들이지 않습니다. Workload로부터 컴퓨트를 합성하지 않습니다."
+  },
   "c0b5b1c984e2d971": {
     "at": "2026-10-22T03:06:36.769432+00:00",
     "job": "msgbatch_01LMJ2pDqXu3quNM1ykbvTtk",
@@ -152429,6 +152496,13 @@
     "status": "machine",
     "text": "팀 토폴로지와 네 가지 도메인"
   },
+  "ce196454878d9501": {
+    "at": "2026-11-17T13:37:45.939Z",
+    "job": "session-0010-20261117133745",
+    "srcHash": "ce196454878d9501",
+    "status": "machine",
+    "text": "`arm` Recipe는 전체 템플릿이 아니라 컴포넌트 하나가 제공하는 ARM 리소스인 **조각**을 작성합니다. 경계의 컴포넌트가 렌더링될 때 프로바이더는 디스패치 그룹의 모든 조각을 하나의 템플릿으로 조립합니다. 리소스는 하나의 `resources` 객체 아래로 병합되고, 각 조각이 작성한 `outputs`는 템플릿의 `outputs`로 가져오며, 템플릿의 나머지 최상위 섹션은 [조립된 템플릿의 최상위 섹션](#top-level-sections-in-the-assembled-template)에서 하나씩 다룹니다. 두 가지 작성 형태를 사용할 수 있습니다."
+  },
   "ce1ee330672f9948": {
     "at": "2026-10-22T02:24:43.656154+00:00",
     "job": "msgbatch_01LPuEFeUVjFEgXoDzuak74j",
@@ -160234,6 +160308,13 @@
     "status": "machine",
     "text": "**메트릭 블록을 생성하는 writer.** 읽기 계층은 블록을 제공할 뿐 생성하지\n  않습니다. Thanos Receive 계층이나 Thanos 사이드카가 있는 Prometheus\n  인스턴스 같은 writer가 같은 버킷으로 메트릭 블록을 전송해야 합니다.\n  writer가 블록을 업로드하기 전까지 Store Gateway는 빈 결과 집합을 제공합니다."
   },
+  "d8a7b80e194ffc6f": {
+    "at": "2026-11-17T13:37:45.939Z",
+    "job": "session-0010-20261117133745",
+    "srcHash": "d8a7b80e194ffc6f",
+    "status": "machine",
+    "text": "**연결된 Feature의 출력은 호스트 컴포넌트의 이름으로 게시되며, 리소스의 심볼릭 이름은 그렇지 않습니다.** `payments-db`에 연결된 Feature가 출력 `alarm`을 작성하면, 호스트가 그 출력을 직접 작성했을 때와 같은 출력 이름에 도달합니다. 따라서 호스트도 게시하는 항목 이름은 연결의 항목 이름과 하나의 출력 이름에서 만나고 빌드가 중단됩니다. Feature 자체의 이름으로 읽히는 항목 이름을 고르십시오. 예를 들어 `alarm` 대신 `backup-alarm`을 씁니다. Feature가 제공하는 각 리소스는 그 연결을 위해 구성된 ID를 리소스에 기록되는 출처 정보에 유지합니다. 이 ID가 어떻게 만들어지는지는 [레이블과 어노테이션](../vocabulary/labels-and-annotations.md)에서 다룹니다."
+  },
   "d8a83198bee1e4c7": {
     "at": "2026-10-22T02:48:40.419851+00:00",
     "job": "msgbatch_01GfagNcas3ixJ7ofku3W8dE",
@@ -166926,6 +167007,13 @@
     "srcHash": "e0b886c9cf7f2d2e",
     "status": "machine",
     "text": "[cross-boundary-networking](cross-boundary-networking/README.md) (`advanced`) — **Adminer** 데이터베이스 UI와 **PostgreSQL** 데이터베이스로 이루어진 두 컴포넌트 스택을 **두 경계**로 나누어, Adminer가 경계의 이음매를 넘어 데이터베이스에 도달해야 하는 구성입니다."
+  },
+  "e0b9b4f25fe68ad6": {
+    "at": "2026-11-17T13:37:45.939Z",
+    "job": "session-0010-20261117133745",
+    "srcHash": "e0b9b4f25fe68ad6",
+    "status": "machine",
+    "text": "**조각(아티팩트) 입력.** Recipe 또는 FeatureRecipe는 템플릿의 섹션을 `artifacts:` 아래에 YAML 또는 JSON으로 작성합니다. 프로바이더는 각 항목을 읽고 검사한 뒤 조립 중인 템플릿에 병합합니다."
   },
   "e0ba63c68c55e684": {
     "at": "2026-10-22T01:56:20.260469+00:00",
@@ -181438,6 +181526,13 @@
     "srcHash": "f4225609f31ae882",
     "status": "machine",
     "text": "이들 모두에 두 가지가 해당하며, 둘 다 목록에 오른 이유입니다. **사용자를 대신해 레지스트리나 원격 URL에 접근**하므로 소요 시간이 머신 외부의 무언가에 의해 정해지고, **진행하면서 이미 스스로에 대한 기록을 남깁니다** — 터미널을 지켜보는 사람이 읽는 기록입니다. 따라서 보고는 전송용으로 따로 작성한 두 번째 기록이 아니라 그 같은 기록을 전달하며, 이를 위해 작업이 하는 일을 바꿀 필요가 전혀 없었습니다."
+  },
+  "f423a46e01dc3c90": {
+    "at": "2026-11-17T13:37:45.939Z",
+    "job": "session-0010-20261117133745",
+    "srcHash": "f423a46e01dc3c90",
+    "status": "machine",
+    "text": "컴포넌트에 연결된 Feature는 같은 템플릿에 기여합니다"
   },
   "f426c460916b52b3": {
     "at": "2026-11-15T09:28:20.698Z",

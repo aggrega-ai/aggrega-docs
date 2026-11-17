@@ -27942,6 +27942,13 @@
     "status": "machine",
     "text": "Vorlagenkontext für Artefakte"
   },
+  "29ba969e5c743eb6": {
+    "at": "2026-11-17T13:37:45.939Z",
+    "job": "session-0010-20261117133745",
+    "srcHash": "29ba969e5c743eb6",
+    "status": "machine",
+    "text": "Ein an eine Komponente angehängtes Feature steuert seine Ressourcen zu dem Template bei, in das die Host-Komponente zusammengeführt wird, und zwar zu denselben Bedingungen wie das eigene Recipe der Host-Komponente. Daneben gibt es kein separates Template: Das zusammengeführte Template ist alles, was dieser Provider für ein Ausgabeverzeichnis ausgibt, daher sind die Ressourcen eines angehängten Features entweder in diesem Template enthalten oder gar nicht bereitgestellt. Wird das Feature gelöst, entfernt das genau diese Ressourcen und lässt die eigenen der Host-Komponente unberührt."
+  },
   "29bf75072d01b697": {
     "at": "2026-11-12T09:04:23.005Z",
     "job": "session-0007-20261112090423",
@@ -29289,6 +29296,13 @@
     "srcHash": "2bd845f49d221a1f",
     "status": "machine",
     "text": "Mit `--target helm` importiert und auf Kubernetes angewendet, beantwortet der Chatflow dieselbe Anfrage unter derselben Adresse, sobald ein lokaler Port an den Service von Flowise weitergeleitet ist; der Lauf erhielt dort dieselbe Ablehnung:"
+  },
+  "2bdaa1b98290c669": {
+    "at": "2026-11-17T13:37:45.939Z",
+    "job": "session-0010-20261117133745",
+    "srcHash": "2bdaa1b98290c669",
+    "status": "machine",
+    "text": "In ein Template zusammengeführte Fragmente"
   },
   "2bdec2d28825b3a6": {
     "at": "2026-11-02T19:15:09.448Z",
@@ -33389,6 +33403,13 @@
     "srcHash": "31f316577560e070",
     "status": "machine",
     "text": "Grafana — ein Aggregate, zwei Ziele, optionale Admin-Zugangsdaten"
+  },
+  "31f6e14c878a6367": {
+    "at": "2026-11-17T13:37:45.939Z",
+    "job": "session-0010-20261117133745",
+    "srcHash": "31f6e14c878a6367",
+    "status": "machine",
+    "text": "Der `arm`-Provider rendert Aggrega Recipes zu Azure-Resource-Manager-Templates (ARM) auf Ressourcengruppen-Ebene oder, wo die Annotation `aggrega.ai/azure-deployment-scope` einer Grenze es vorgibt, auf Abonnement-Ebene; siehe [Bereitstellung auf Abonnement-Ebene](#deploying-at-subscription-scope). Jede Komponente, die unter diesem Provider in dasselbe Ausgabeverzeichnis rendert, wird zu einem Template zusammengeführt, das als `arm-template.json` im Ausgabeverzeichnis der Grenze geschrieben wird: ein einzelnes JSON-Dokument in der Template-Sprachversion 2.0, dessen Ressourcen nach symbolischem Namen geschlüsselt sind. Im Normalfall wird eine Grenze daher zu einem Template — und zwei Grenzen, deren `directory:` zum selben Pfad aufgelöst wird, werden gemeinsam zu einem Template zusammengeführt und teilen sich dessen Namen. Wie jeder Aggrega-Provider arbeitet er offline und hermetisch: Ein Aggrega-Build ist eine Ahead-of-Time-Kompilierung, daher ruft der Provider Azure nie auf, löst nie eine Live-Adresse auf und führt ARM nie aus. Reine Laufzeitwerte bleiben ARM-Template-Ausdrücke (`reference()`, `resourceId()`, `parameters()`), die ARM auswertet, wenn das Template bereitgestellt wird."
   },
   "31f8fe6c707b3671": {
     "at": "2026-11-03T15:26:15.166Z",
@@ -53739,6 +53760,13 @@
     "status": "machine",
     "text": "Der Standardentwurf trägt den Flow: Die Instanz der Plattform übernimmt den Export als `values.flow_definition`, so geschrieben, wie [Wie der Flow in den Entwurf geschrieben wird](#how-the-flow-is-written-into-the-draft) beschreibt. Ein Autor, der einen Flow von Hand in ein Aggregate schreibt — in einen Knoten für Knoten angeordneten Entwurf oder in ein eigenes Aggregate —, schreibt ihn auf dieselbe Weise. Eine Component, die einen Flow so ausführt, wie er verfasst wurde, nimmt den Export als Wert entgegen — `flow_definition` bei `core/ai-agent/langflow` und `core/ai-agent/flowise` der Standardbibliothek —, und der Text eines Aggregate wird als Template gelesen, daher würden die doppelten geschweiften Klammern, die der Export enthält, als Template-Aktionen gelesen: Ein Flowise-Chatflow schreibt `{{<node id>.data.instance}}` für jede Verbindung zwischen zwei Knoten, ein Flowise-Prompt nennt eine Variable als `{{question}}`, und ein Langflow-Export trägt den Quellcode seiner Komponenten, in dem die geschweiften Klammern ebenfalls vorkommen können. Schreiben Sie jedes `{{` im Export als `{{\"{{\"}}`, innerhalb eines Block-Skalars, und die Interpolation stellt den Text des Exports wieder her, bevor die Recipes der Component ihn lesen; [Text mit eigenen doppelten geschweiften Klammern](../templates/parameters-context.md#text-that-carries-its-own-double-braces) beschreibt, warum. Ein Wert von Zugangsdaten, den der Export enthält, gehört in ein Geheimnis, das das Release anbindet, nicht in das Aggregate: Schreiben Sie ihn leer, wie es der Entwurf tut, wo die Einstellung `empty_credentials` es von ihm verlangt."
   },
+  "51036b30f6c8dcea": {
+    "at": "2026-11-17T13:37:45.939Z",
+    "job": "session-0010-20261117133745",
+    "srcHash": "51036b30f6c8dcea",
+    "status": "machine",
+    "text": "[`arm`](arm.md) rendert eine Grenze zu einem Azure-Resource-Manager-Template auf Ressourcengruppen-, Abonnement- oder Verwaltungsgruppen-Ebene, indem es die von den Komponenten verfassten Ressourcenfragmente zusammenführt oder ein kompiliertes Template, das ein Recipe als Quelle angibt, als verschachtelte ARM-Bereitstellung einhüllt, und übernimmt die `outputs`, die ein Fragment verfasst, in die `outputs` des Templates; die `provides` einer Komponente sind Ausdrücke, die ein Konsument im selben Template direkt liest, und ein Konsument im Template einer anderen Grenze liest sie aus den Bereitstellungsausgaben des Erzeugers. Es unterstützt Quell- und Artefakt-Eingaben und gibt Konfiguration aus, ohne ARM je auszuführen; reine Laufzeitwerte bleiben ARM-Template-Ausdrücke."
+  },
   "510439cf7ed294a7": {
     "at": "2026-11-04T10:33:35.877Z",
     "job": "session-0231-20261104103335",
@@ -59062,6 +59090,13 @@
     "srcHash": "58b4988a4ca2acd5",
     "status": "machine",
     "text": "Datensätze darüber, welche Katalogentität auf diese Bibliothek verweist und auf welche `<entry-name>`-Fragmente. Erfasst den Fan-in: viele Verbraucher pro Bibliothek, von denen jeder möglicherweise auf viele Fragmente verweist. Jeder Datensatz trägt den URI des Verbrauchers sowie die Menge der Fragmente, die dieser Verbraucher einbezieht. Standardwert: `[]`"
+  },
+  "58b93506a2aef5a7": {
+    "at": "2026-11-17T13:37:45.939Z",
+    "job": "session-0010-20261117133745",
+    "srcHash": "58b93506a2aef5a7",
+    "status": "machine",
+    "text": "ARM-Provider"
   },
   "58bc8766f73c43a8": {
     "at": "2026-11-04T08:39:29.762Z",
@@ -69732,6 +69767,13 @@
     "srcHash": "68ef8c1442d2e9f3",
     "status": "machine",
     "text": "Die Befehle"
+  },
+  "68f82e53a9b4829d": {
+    "at": "2026-11-17T13:37:45.939Z",
+    "job": "session-0010-20261117133745",
+    "srcHash": "68f82e53a9b4829d",
+    "status": "machine",
+    "text": "Da sie im zusammengeführten Template landen, teilen sie sich dessen Namen. Der symbolische Name einer Ressource wird genau so ausgegeben, wie ihn das FeatureRecipe verfasst hat, im selben Namensraum wie die Ressourcen der Host-Komponente und jedes anderen angehängten Features, sodass [Namen](#names) unverändert für sie gilt. Treffen zwei Beitragende auf einen Namen, nennt der Abbruch beide, sodass sich jedes Ende der Kollision in Ihren eigenen Dateien durchsuchen lässt."
   },
   "68f8ce83335b9ed6": {
     "at": "2026-11-04T10:56:32.711Z",
@@ -83129,6 +83171,17 @@
     "srcHash": "7cba816bc7a37ec6",
     "status": "machine",
     "text": "Wenn Sie eine Plugin-Entität ändern und erneut veröffentlichen, klassifiziert die Veröffentlichungsdisziplin die Änderung gegenüber der zuvor veröffentlichten Version und verlangt, dass die Versionserhöhung dazu passt. Die Klassifizierung folgt der Rubrik für Versionserhöhungen: Eine Änderung nur an Dokumentation oder Kommentaren ist `PATCH`; eine rein additive Änderung (ein neues optionales Feld, ein neuer Eintrag) ist `MINOR`; eine Entfernung, eine Typeinschränkung oder ein zuvor optionales Feld, das erforderlich wird, ist `MAJOR`. Eine zu große Erhöhung ist immer erlaubt; eine zu kleine Erhöhung bricht mit einer Diagnose ab, die die erforderliche Erhöhung nennt. Die erste Veröffentlichung einer Entität überspringt die Prüfung der Erhöhung und gibt eine Warnung aus, dass keine Verifikation durchgeführt wurde. Führen Sie die Prüfung vor der Veröffentlichung mit `aggrega lint --pre-publish` aus; die vollständige Rubrik und die Einstellungen pro Regel beschreibt [`../cli/aggrega-lint.md`](../cli/aggrega-lint.md)."
+  },
+  "7cc7811bb51caa9d": {
+    "at": "2026-11-17T13:37:45.939Z",
+    "job": "session-0010-20261117133745",
+    "revision": {
+      "from": "9ee569e3fa537b68",
+      "reviewed": false
+    },
+    "srcHash": "7cc7811bb51caa9d",
+    "status": "machine",
+    "text": "Die Provider `helm`, `helm-chart`, `compose`, `terraform`, `cloudformation` und `arm` bilden zusammen den Provider-Satz der Standardbibliothek. Sie decken die gängigen Ziele ab, ohne dass Unternehmensteams eigene Provider erstellen müssen."
   },
   "7ccb341bea7269c9": {
     "at": "2026-10-22T09:46:26.370Z",
@@ -98874,6 +98927,13 @@
     "srcHash": "9460f16ac9b5171e",
     "status": "machine",
     "text": "Fähigkeiten"
+  },
+  "94637113550df8b3": {
+    "at": "2026-11-17T13:37:45.939Z",
+    "job": "session-0010-20261117133745",
+    "srcHash": "94637113550df8b3",
+    "status": "machine",
+    "text": "**Quell-Eingabe.** Ein Recipe verweist auf ein kompiliertes ARM-Template — eine einzelne `.json`-Datei oder ein Verzeichnis mit `main.json` (der Datei, die Bicep und Azure Verified Modules einchecken) oder, falls diese fehlt, `azuredeploy.json`. Der Provider hüllt es als eine verschachtelte ARM-Bereitstellung ein, füllt die Parameter, die es deklariert, aus dem `valuesMapping` des Recipe und lässt jede Ressource aus, die die `omits:`-Einträge des Recipe nennen. Siehe [Quell-Templates](#sourced-templates) und [Ressourcen aus einem Quell-Template auslassen](#leaving-resources-out-of-a-sourced-template). Eine `.bicep`-Quelle wird zuvor mit `bicep build` kompiliert; der Provider liest Templates, kein Bicep."
   },
   "9463b63de5e13ae2": {
     "at": "2026-11-03T14:26:21.542Z",
@@ -129273,6 +129333,13 @@
     "status": "machine",
     "text": "**Ein Katalogverzeichnis, das das Release liest und das nicht durchlaufen werden kann, wird abgelehnt, bevor irgendetwas geschrieben wird, so wie [`aggrega build`](aggrega-build.md) es ablehnt.** Das ist ein Verzeichnis, das der Aufruf in `catalog_dirs` nennt und das nicht existiert, so wie `aggrega build` ein nicht existierendes `--catalog`-Verzeichnis ablehnt, oder eines, das vorhanden ist und nicht gelesen werden kann. `aggrega build` lädt jedes Verzeichnis, das das Release liest, bevor es das Release auflöst, und stoppt bei einem, das es nicht durchlaufen kann; `build` durchläuft zuerst dieselben Verzeichnisse, ohne darin ein Dokument zu lesen, vor jeder Abhängigkeitsauflösung und vor dem Rendering – sodass ein Build, dem `auto_pull` gesendet wurde, kein Lockfile schreibt und nichts gerendert wird. Der Text nennt das Verzeichnis so, wie die Befehlszeile es meldet, in einer Zeile: das Verzeichnis, `catalog load` und den Grund, den das Dateisystem angegeben hat. Die Nutzlast nennt das Release, mit einem leeren `files` und keinem Befund, weil nichts gelaufen war. Ein Verzeichnis, das die Workspace-Konfiguration auflistet, wo nichts existiert, wird nicht abgelehnt: Es wird so gelesen, als enthielte es nichts, wie `aggrega build` es liest, und der Build rendert, was er rendert, als wäre dieses Verzeichnis nicht aufgelistet. Die Zeile, die `aggrega build` ausgibt, um es zu benennen, wird einmal mitgeführt ([Woher lokale Entitäten gelesen werden](configuration.md#where-local-entities-are-read-from)): als erster der `advisories`, mit `warn`, oder – wo der Build zuerst seine Abhängigkeiten auflöst, da diese Auflösung die Zeile selbst schreibt – unter den `diagnostics` von `dependency_resolution`. Ein Katalogverzeichnis, das einen Link enthält, der aus dem Verzeichnis hinausführt, in dem seine Lesevorgänge bleiben müssen, wird im selben Moment abgelehnt, ohne dass etwas geschrieben wird, wobei der Text den Link nennt und wohin er führt – `aggrega build` lehnt es auf dieselbe Weise ab."
   },
+  "c0b4307b522882e4": {
+    "at": "2026-11-17T13:37:45.939Z",
+    "job": "session-0010-20261117133745",
+    "srcHash": "c0b4307b522882e4",
+    "status": "machine",
+    "text": "Ein Recipe, das weder `source:` noch `artifacts:` deklariert, bietet diesem Provider nichts zum Rendern, und `arm` akzeptiert kein `workload:`: Es synthetisiert keine Rechenressourcen aus einem Workload."
+  },
   "c0b5b1c984e2d971": {
     "at": "2026-11-03T06:09:06.251Z",
     "job": "session-0062-20261103060906",
@@ -138326,6 +138393,13 @@
     "status": "machine",
     "text": "Team Topologies und die vier Domänen"
   },
+  "ce196454878d9501": {
+    "at": "2026-11-17T13:37:45.939Z",
+    "job": "session-0010-20261117133745",
+    "srcHash": "ce196454878d9501",
+    "status": "machine",
+    "text": "Ein `arm`-Recipe verfasst ein **Fragment** — die ARM-Ressourcen, die eine einzelne Komponente beisteuert — und kein vollständiges Template. Wenn die Komponenten einer Grenze gerendert werden, führt der Provider alle Fragmente der Dispatch-Gruppe zu einem Template zusammen: Die Ressourcen werden unter einem `resources`-Objekt vereint, die `outputs`, die jedes Fragment verfasst, werden in die `outputs` des Templates übernommen, und die übrigen Abschnitte der obersten Ebene des Templates werden unter [Abschnitte der obersten Ebene im zusammengeführten Template](#top-level-sections-in-the-assembled-template) einzeln behandelt. Zwei Schreibweisen werden akzeptiert:"
+  },
   "ce1ee330672f9948": {
     "at": "2026-10-30T07:09:12.317Z",
     "job": "session-0074-20261030070912",
@@ -145417,6 +145491,13 @@
     "status": "machine",
     "text": "Der Grund ist die Einheitlichkeit der Verbrauchsoberfläche. Recipes und FeatureRecipes sind durchgehend Go-Template, und ihr eigener Inhalt wird von derselben Go-Template-Engine ausgewertet, die einen importierten Eintrag auflöst, sodass sich ein Eintrag genau wie der eigene Text des Recipe liest und Autoren ein einziges Auswertungsmodell lernen. Das Kompositionsvokabular von Go-Templates — `{{ define }}` und `{{ template }}` innerhalb einer Bibliothek und die `$import:`-Direktive zum Verbrauchszeitpunkt — stellt die wiederverwendbaren Blöcke und den parametrisierten Aufruf bereit, die eine Bibliothek braucht."
   },
+  "d8a7b80e194ffc6f": {
+    "at": "2026-11-17T13:37:45.939Z",
+    "job": "session-0010-20261117133745",
+    "srcHash": "d8a7b80e194ffc6f",
+    "status": "machine",
+    "text": "**Die Outputs eines angehängten Features werden unter dem Namen seiner Host-Komponente veröffentlicht, die symbolischen Namen seiner Ressourcen dagegen nicht.** Ein an `payments-db` angehängtes Feature, das einen Output `alarm` verfasst, erreicht denselben Output-Namen, den es erreichen würde, hätte die Host-Komponente diesen Output selbst verfasst; ein Eintragsname, den auch die Host-Komponente veröffentlicht, trifft daher mit dem des angehängten Features auf einen Output-Namen, und der Build bricht ab. Wählen Sie Eintragsnamen, die als die des Features erkennbar sind — `backup-alarm` statt `alarm`. Jede Ressource, die ein Feature beisteuert, behält die für diese Anhängung zusammengesetzte Identität in der Provenienz, die auf ihr vermerkt ist. [Labels und Annotationen](../vocabulary/labels-and-annotations.md) beschreibt, wie diese Identität aufgebaut wird."
+  },
   "d8a83198bee1e4c7": {
     "at": "2026-11-03T00:44:43.262Z",
     "job": "session-0028-20261103004443",
@@ -151497,6 +151578,13 @@
     "srcHash": "e0b886c9cf7f2d2e",
     "status": "machine",
     "text": "[cross-boundary-networking](cross-boundary-networking/README.md) (`advanced`) — Ein Stack aus zwei Komponenten — eine **Adminer**-Datenbankoberfläche und eine **PostgreSQL**-Datenbank — aufgeteilt auf **zwei Boundaries**, wobei Adminer die Datenbank über die Nahtstelle zwischen den Boundaries hinweg erreichen muss."
+  },
+  "e0b9b4f25fe68ad6": {
+    "at": "2026-11-17T13:37:45.939Z",
+    "job": "session-0010-20261117133745",
+    "srcHash": "e0b9b4f25fe68ad6",
+    "status": "machine",
+    "text": "**Fragment-Eingabe (Artefakte).** Ein Recipe oder FeatureRecipe verfasst die Abschnitte eines Templates unter `artifacts:`, in YAML oder JSON. Der Provider liest jeden Eintrag, prüft ihn und führt ihn in das zusammengeführte Template ein."
   },
   "e0ba63c68c55e684": {
     "at": "2026-10-22T13:03:56.798Z",
@@ -164765,6 +164853,13 @@
     "srcHash": "f4225609f31ae882",
     "status": "machine",
     "text": "Zwei Dinge gelten für jede von ihnen, und beide sind der Grund, warum sie auf der Liste steht: **Sie erreicht in Ihrem Auftrag eine Registry oder eine entfernte URL**, sodass ihre Dauer von etwas außerhalb des Rechners bestimmt wird; und **sie schreibt bereits während ihres Ablaufs ihren eigenen Bericht über sich selbst** — den Bericht, den eine Person liest, die ein Terminal beobachtet. Die Meldung übergibt Ihnen also denselben Bericht statt eines zweiten, für die Leitung verfassten, und an dem, was die Operation tut, musste nichts geändert werden, um ihn zu erzeugen."
+  },
+  "f423a46e01dc3c90": {
+    "at": "2026-11-17T13:37:45.939Z",
+    "job": "session-0010-20261117133745",
+    "srcHash": "f423a46e01dc3c90",
+    "status": "machine",
+    "text": "Ein an eine Komponente angehängtes Feature steuert zum selben Template bei"
   },
   "f426c460916b52b3": {
     "at": "2026-11-15T09:28:20.698Z",

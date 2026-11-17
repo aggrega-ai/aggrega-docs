@@ -30893,6 +30893,13 @@
     "status": "machine",
     "text": "Kontekst szablonu dla artefaktów"
   },
+  "29ba969e5c743eb6": {
+    "at": "2026-11-17T13:37:45.939Z",
+    "job": "session-0010-20261117133745",
+    "srcHash": "29ba969e5c743eb6",
+    "status": "machine",
+    "text": "Encja Feature dołączona do komponentu wnosi swoje zasoby do szablonu, w który składany jest komponent nadrzędny, na tych samych zasadach co własna encja Recipe komponentu nadrzędnego. Obok niego nie ma osobnego szablonu: złożony szablon to całość tego, co ten dostawca emituje dla katalogu wyjściowego, więc zasoby dołączonej encji Feature są albo w tym szablonie, albo w ogóle nie są wdrażane. Odłączenie encji Feature usuwa dokładnie te zasoby i pozostawia nietknięte zasoby samego komponentu nadrzędnego."
+  },
   "29bf75072d01b697": {
     "at": "2026-11-12T09:04:23.005Z",
     "job": "session-0007-20261112090423",
@@ -32358,6 +32365,13 @@
     "srcHash": "2bd845f49d221a1f",
     "status": "machine",
     "text": "Po zaimportowaniu z `--target helm` i zastosowaniu w Kubernetes chatflow odpowiada na to samo żądanie pod tym samym adresem, gdy tylko lokalny port zostanie przekierowany do Service Flowise; przebieg otrzymał tam to samo odrzucenie:"
+  },
+  "2bdaa1b98290c669": {
+    "at": "2026-11-17T13:37:45.939Z",
+    "job": "session-0010-20261117133745",
+    "srcHash": "2bdaa1b98290c669",
+    "status": "machine",
+    "text": "Fragmenty składane w szablon"
   },
   "2bdec2d28825b3a6": {
     "at": "2026-11-01T15:32:08.870Z",
@@ -36796,6 +36810,13 @@
     "srcHash": "31f316577560e070",
     "status": "machine",
     "text": "Grafana — jeden Aggregate, dwa cele, opcjonalne poświadczenie administratora"
+  },
+  "31f6e14c878a6367": {
+    "at": "2026-11-17T13:37:45.939Z",
+    "job": "session-0010-20261117133745",
+    "srcHash": "31f6e14c878a6367",
+    "status": "machine",
+    "text": "Dostawca `arm` renderuje encje Aggrega Recipes do szablonów Azure Resource Manager (ARM) na poziomie grupy zasobów lub, gdy tak wskazuje adnotacja `aggrega.ai/azure-deployment-scope` granicy, na poziomie subskrypcji; zob. [Wdrażanie na poziomie subskrypcji](#deploying-at-subscription-scope). Każdy komponent renderowany do tego samego katalogu wyjściowego przez tego dostawcę jest składany w jeden szablon, zapisywany jako `arm-template.json` w katalogu wyjściowym granicy: pojedynczy dokument JSON w wersji 2.0 języka szablonów, z zasobami indeksowanymi nazwą symboliczną. W zwykłym przypadku granica staje się więc jednym szablonem — a dwie granice, w których `directory:` wskazuje tę samą ścieżkę, są składane razem w jeden szablon i współdzielą jego nazwy. Jak każdy dostawca Aggrega, działa offline i hermetycznie: kompilacja Aggrega jest kompilacją z wyprzedzeniem (ahead-of-time), więc dostawca nigdy nie wywołuje Azure, nigdy nie rozwiązuje adresu na żywo i nigdy nie uruchamia ARM. Wartości znane dopiero w czasie działania pozostają wyrażeniami szablonu ARM (`reference()`, `resourceId()`, `parameters()`), które ARM ewaluuje podczas wdrażania szablonu."
   },
   "31f8fe6c707b3671": {
     "at": "2026-10-22T23:16:12.871393+00:00",
@@ -59197,6 +59218,13 @@
     "status": "machine",
     "text": "Domyślny szkic przenosi przepływ: instancja platformy przyjmuje eksport jako\n`values.flow_definition`, zapisany tak, jak opisuje to [Jak przepływ jest zapisywany w szkicu](#how-the-flow-is-written-into-the-draft).\nAutor, który ręcznie zapisuje przepływ w encji Aggregate — w szkicu rozpisanym węzeł po węźle albo\nwe własnej encji Aggregate — zapisuje go w ten sam sposób. Encja Component, która uruchamia przepływ w postaci, w jakiej go utworzono,\nprzyjmuje eksport jako wartość — `flow_definition` w `core/ai-agent/langflow`\ni `core/ai-agent/flowise` z biblioteki standardowej — a tekst encji Aggregate jest odczytywany jako szablon, więc podwójne nawiasy klamrowe zawarte w\neksporcie zostałyby odczytane jako akcje szablonu: chatflow Flowise zapisuje `{{<node id>.data.instance}}`\ndla każdego połączenia między dwoma węzłami, prompt Flowise nazywa zmienną jako `{{question}}`, a\neksport Langflow zawiera kod źródłowy swoich komponentów, w którym nawiasy klamrowe również mogą wystąpić.\nKażde `{{` w eksporcie należy zapisać jako `{{\"{{\"}}`, wewnątrz skalara blokowego, a interpolacja przywróci\ntekst eksportu, zanim odczytają go encje Recipes tej encji Component;\n[Tekst zawierający własne podwójne nawiasy klamrowe](../templates/parameters-context.md#text-that-carries-its-own-double-braces)\nwyjaśnia dlaczego. Wartość poświadczenia zawarta w eksporcie należy do sekretu dołączanego przez encję Release, a nie do\nencji Aggregate: należy ją zapisać jako pustą, tak jak robi to szkic, gdy wymaga tego ustawienie `empty_credentials`."
   },
+  "51036b30f6c8dcea": {
+    "at": "2026-11-17T13:37:45.939Z",
+    "job": "session-0010-20261117133745",
+    "srcHash": "51036b30f6c8dcea",
+    "status": "machine",
+    "text": "[`arm`](arm.md) renderuje granicę do jednego szablonu Azure Resource Manager na poziomie grupy zasobów, subskrypcji lub grupy zarządzania, składając fragmenty zasobów tworzone przez jej komponenty albo opakowując skompilowany szablon, który encja Recipe wskazuje jako źródło, w zagnieżdżone wdrożenie ARM, a także przenosząc `outputs` tworzone przez fragment do `outputs` szablonu; `provides` komponentu to wyrażenia, które konsument w tym samym szablonie odczytuje bezpośrednio, a konsument w szablonie innej granicy odczytuje je z wyników wdrożenia ARM producenta. Obsługuje dane wejściowe typu źródło i artefakty oraz emituje konfigurację bez uruchamiania ARM; wartości znane dopiero w czasie działania pozostają wyrażeniami szablonu ARM."
+  },
   "510439cf7ed294a7": {
     "at": "2026-10-23T00:02:44.489841+00:00",
     "job": "msgbatch_017Co8FT9U2dpLww3D8gVXkh",
@@ -65035,6 +65063,13 @@
     "srcHash": "58b4988a4ca2acd5",
     "status": "machine",
     "text": "Rekordy określające, która encja katalogu odwołuje się do tej biblioteki i do których fragmentów `<entry-name>`. Odwzorowują zbieżność: wielu konsumentów na bibliotekę, z których każdy może odwoływać się do wielu fragmentów. Każdy rekord zawiera URI konsumenta oraz zbiór fragmentów, które ten konsument pobiera. Domyślnie: `[]`"
+  },
+  "58b93506a2aef5a7": {
+    "at": "2026-11-17T13:37:45.939Z",
+    "job": "session-0010-20261117133745",
+    "srcHash": "58b93506a2aef5a7",
+    "status": "machine",
+    "text": "Provider ARM"
   },
   "58bc8766f73c43a8": {
     "at": "2026-10-23T00:02:41.868223+00:00",
@@ -76994,6 +77029,13 @@
     "srcHash": "68f0436da22bb10b",
     "status": "machine",
     "text": "Czy dostawca respektuje wpisy omit — wpisy wskazujące renderowane jednostki, które należy pominąć w wyniku węzła: pomija w tym, co renderuje, każdą jednostkę dopasowaną przez wpis i raportuje, ile jednostek dopasował każdy wpis. Jest to zapis z chwili publikacji deklaracji `omits` raportowanej przez `describe()` dostawcy, a wartość różna od tego raportu zatrzymuje ładowanie. Brak pola (false) oznacza brak takiej obsługi."
+  },
+  "68f82e53a9b4829d": {
+    "at": "2026-11-17T13:37:45.939Z",
+    "job": "session-0010-20261117133745",
+    "srcHash": "68f82e53a9b4829d",
+    "status": "machine",
+    "text": "Ponieważ trafiają do złożonego szablonu, współdzielą jego nazwy. Nazwa symboliczna zasobu jest emitowana dokładnie tak, jak zapisała ją encja FeatureRecipe, w tej samej przestrzeni co nazwy komponentu nadrzędnego i każdego innego dołączenia, więc [Nazwy](#names) mają do nich zastosowanie bez zmian. Gdy dwóch autorów wkładu trafia na jedną nazwę, komunikat o zatrzymaniu wymienia obu, dzięki czemu każdy koniec kolizji można wyszukać we własnych plikach."
   },
   "68f8ce83335b9ed6": {
     "at": "2026-10-23T00:02:44.489841+00:00",
@@ -91719,6 +91761,17 @@
     "srcHash": "7cba816bc7a37ec6",
     "status": "machine",
     "text": "Po zmianie encji pluginu i ponownej publikacji dyscyplina publikowania klasyfikuje zmianę względem poprzednio opublikowanej wersji i wymaga, aby podbicie wersji jej odpowiadało. Klasyfikację określa rubryka podbijania wersji: zmiana dotycząca wyłącznie dokumentacji lub komentarzy to `PATCH`; zmiana ściśle addytywna (nowe pole opcjonalne, nowy wpis) to `MINOR`; usunięcie, zawężenie typu lub przekształcenie wcześniej opcjonalnego pola w wymagane to `MAJOR`. Podbicie wersji ponad wymagany poziom jest zawsze dozwolone; zbyt małe podbicie kończy się zatrzymaniem z diagnostyką wskazującą wymagane podbicie. Pierwsza publikacja encji pomija sprawdzenie podbicia i zgłasza ostrzeżenie, że nie przeprowadzono weryfikacji. Sprawdzenie można uruchomić przed publikacją poleceniem `aggrega lint --pre-publish`; pełną rubrykę i ustawienia poszczególnych reguł opisuje [`../cli/aggrega-lint.md`](../cli/aggrega-lint.md)."
+  },
+  "7cc7811bb51caa9d": {
+    "at": "2026-11-17T13:37:45.939Z",
+    "job": "session-0010-20261117133745",
+    "revision": {
+      "from": "9ee569e3fa537b68",
+      "reviewed": false
+    },
+    "srcHash": "7cc7811bb51caa9d",
+    "status": "machine",
+    "text": "Dostawcy `helm`, `helm-chart`, `compose`, `terraform`, `cloudformation` i `arm` tworzą razem zestaw dostawców biblioteki standardowej. Obejmują one typowe cele, nie wymagając od zespołów w przedsiębiorstwach tworzenia własnych dostawców."
   },
   "7ccb341bea7269c9": {
     "at": "2026-10-22T08:35:14.585510+00:00",
@@ -108919,6 +108972,13 @@
     "srcHash": "9460f16ac9b5171e",
     "status": "machine",
     "text": "Możliwości"
+  },
+  "94637113550df8b3": {
+    "at": "2026-11-17T13:37:45.939Z",
+    "job": "session-0010-20261117133745",
+    "srcHash": "94637113550df8b3",
+    "status": "machine",
+    "text": "**Dane wejściowe typu źródło.** Encja Recipe odwołuje się do skompilowanego szablonu ARM — pojedynczego pliku `.json` albo katalogu zawierającego `main.json` (plik, który zatwierdzają Bicep i Azure Verified Modules) lub, gdy go brak, `azuredeploy.json`. Dostawca opakowuje go w jedno zagnieżdżone wdrożenie ARM, wypełnia deklarowane przez niego parametry z `valuesMapping` encji Recipe i pomija każdy zasób wskazany we wpisach `omits:` encji Recipe. Zob. [Szablony źródłowe](#sourced-templates) oraz [Pomijanie zasobów w szablonie źródłowym](#leaving-resources-out-of-a-sourced-template). Źródło `.bicep` jest najpierw kompilowane za pomocą `bicep build`; dostawca czyta szablony, a nie Bicep."
   },
   "9463b63de5e13ae2": {
     "at": "2026-10-22T23:05:22.318919+00:00",
@@ -142281,6 +142341,13 @@
     "status": "machine",
     "text": "**Katalog odczytywany przez Release, którego nie da się przejść, jest odrzucany, zanim cokolwiek zostanie zapisane, tak jak odrzuca go [`aggrega build`](aggrega-build.md).** Jest to katalog wskazany przez wywołanie w `catalog_dirs`, który nie istnieje — tak jak `aggrega build` odrzuca nieistniejący katalog `--catalog` — albo taki, który istnieje, ale nie da się go odczytać. `aggrega build` wczytuje każdy katalog odczytywany przez Release przed rozwiązaniem encji Release i zatrzymuje się na tym, którego nie może przejść; `build` najpierw przechodzi te same katalogi, nie odczytując w nich żadnego dokumentu, przed jakimkolwiek rozwiązywaniem zależności i przed renderowaniem — więc kompilacja z `auto_pull` nie zapisuje pliku blokady i nic nie jest renderowane. Tekst wskazuje katalog tak, jak zgłasza go wiersz poleceń, w jednym wierszu: katalog, `catalog load` i powód podany przez system plików. Ładunek wskazuje encję Release, z pustym `files` i bez ustaleń, ponieważ nic się nie wykonało. Katalog wymieniony w konfiguracji obszaru roboczego, w którym nic nie istnieje, nie jest odrzucany: jest odczytywany jako pusty, tak jak odczytuje go `aggrega build`, a kompilacja renderuje to, co renderuje, bez tego katalogu na liście. Wiersz, który `aggrega build` wypisuje, wskazując go, jest przekazywany raz ([Skąd są odczytywane encje lokalne](configuration.md#where-local-entities-are-read-from)): jako pierwszy z `advisories`, na poziomie `warn`, albo — gdy kompilacja najpierw rozwiązuje swoje zależności, ponieważ to rozwiązywanie samo zapisuje ten wiersz — wśród `diagnostics` w `dependency_resolution`. Katalog zawierający dowiązanie prowadzące poza katalog, wewnątrz którego muszą pozostać jego odczyty, jest odrzucany w tym samym momencie, bez zapisania czegokolwiek, a tekst wskazuje dowiązanie i miejsce, do którego prowadzi — `aggrega build` odrzuca go w ten sam sposób."
   },
+  "c0b4307b522882e4": {
+    "at": "2026-11-17T13:37:45.939Z",
+    "job": "session-0010-20261117133745",
+    "srcHash": "c0b4307b522882e4",
+    "status": "machine",
+    "text": "Encja Recipe, która nie deklaruje ani `source:`, ani `artifacts:`, nie ma dla tego dostawcy niczego do wyrenderowania, a `arm` nie akceptuje `workload:`: nie syntetyzuje zasobów obliczeniowych z encji Workload."
+  },
   "c0b5b1c984e2d971": {
     "at": "2026-10-22T14:48:33.335041+00:00",
     "job": "msgbatch_01WywkyBWQ72dRwWQG8Gy8Jr",
@@ -152360,6 +152427,13 @@
     "status": "machine",
     "text": "Team Topologies i cztery domeny"
   },
+  "ce196454878d9501": {
+    "at": "2026-11-17T13:37:45.939Z",
+    "job": "session-0010-20261117133745",
+    "srcHash": "ce196454878d9501",
+    "status": "machine",
+    "text": "Encja `arm` Recipe tworzy **fragment** — zasoby ARM wnoszone przez jeden komponent — a nie cały szablon. Gdy komponenty granicy są renderowane, dostawca składa wszystkie fragmenty z grupy dispatch w jeden szablon: zasoby są scalane w jednym obiekcie `resources`, `outputs` tworzone przez każdy fragment są przenoszone do `outputs` szablonu, a pozostałe sekcje najwyższego poziomu szablonu są omawiane po kolei w [Sekcje najwyższego poziomu w złożonym szablonie](#top-level-sections-in-the-assembled-template). Akceptowane są dwie postaci tworzenia:"
+  },
   "ce1ee330672f9948": {
     "at": "2026-10-22T09:56:04.106489+00:00",
     "job": "msgbatch_01B3jiAm926wn5S8SwmarTsj",
@@ -160165,6 +160239,13 @@
     "status": "machine",
     "text": "**Komponent zapisujący, który tworzy bloki metryk.** Warstwa odczytu udostępnia bloki; nie\n  tworzy ich. Komponent zapisujący — warstwa Thanos Receive lub instancja Prometheus z\n  sidecarem Thanos — musi przesyłać bloki metryk do tego samego bucketu. Dopóki\n  komponent zapisujący nie prześle bloków, Store Gateway zwraca pusty zbiór wyników."
   },
+  "d8a7b80e194ffc6f": {
+    "at": "2026-11-17T13:37:45.939Z",
+    "job": "session-0010-20261117133745",
+    "srcHash": "d8a7b80e194ffc6f",
+    "status": "machine",
+    "text": "**Wyniki dołączonej encji Feature są publikowane pod nazwą jej komponentu nadrzędnego, a nazwy symboliczne jej zasobów — nie.** Encja Feature dołączona do `payments-db`, która tworzy wynik `alarm`, trafia na tę samą nazwę wyniku, na jaką trafiłaby, gdyby komponent nadrzędny sam utworzył ten wynik; nazwa wpisu, którą publikuje także komponent nadrzędny, spotyka się zatem z nazwą z dołączenia pod jedną nazwą wyniku i kompilacja zostaje zatrzymana. Wybieraj nazwy wpisów, które brzmią jak własne nazwy encji Feature — `backup-alarm` zamiast `alarm`. Każdy zasób wnoszony przez encję Feature zachowuje tożsamość złożoną dla tego dołączenia w zapisanym na nim pochodzeniu. [Etykiety i adnotacje](../vocabulary/labels-and-annotations.md) wyjaśniają, jak ta tożsamość jest budowana."
+  },
   "d8a83198bee1e4c7": {
     "at": "2026-10-22T12:16:26.328227+00:00",
     "job": "msgbatch_01AmdFteRWMHi1UpnWokTXuL",
@@ -166859,6 +166940,13 @@
     "srcHash": "e0b886c9cf7f2d2e",
     "status": "machine",
     "text": "[cross-boundary-networking](cross-boundary-networking/README.md) (`advanced`) — Stos dwóch komponentów — interfejsu bazy danych **Adminer** i bazy danych **PostgreSQL** — podzielony na **dwie granice**, gdzie Adminer musi sięgnąć do bazy danych przez szew granicy."
+  },
+  "e0b9b4f25fe68ad6": {
+    "at": "2026-11-17T13:37:45.939Z",
+    "job": "session-0010-20261117133745",
+    "srcHash": "e0b9b4f25fe68ad6",
+    "status": "machine",
+    "text": "**Dane wejściowe typu fragment (artefakty).** Encja Recipe lub FeatureRecipe tworzy sekcje szablonu w `artifacts:`, w YAML lub JSON. Dostawca odczytuje każdy wpis, sprawdza go i scala ze składanym szablonem."
   },
   "e0ba63c68c55e684": {
     "at": "2026-10-22T09:04:02.847762+00:00",
@@ -181357,6 +181445,13 @@
     "srcHash": "f4225609f31ae882",
     "status": "machine",
     "text": "Dwie rzeczy są prawdziwe dla każdego z nich i obie są powodem, dla którego znajduje się na liście: **sięga do rejestru lub zdalnego adresu URL w imieniu klienta**, więc czas jego trwania zależy od czegoś spoza maszyny; oraz **już w trakcie działania zapisuje własną relację o sobie** — tę, którą czyta osoba obserwująca terminal. Raportowanie przekazuje więc tę samą relację, a nie drugą, złożoną specjalnie do transmisji, i nic w działaniu operacji nie musiało się zmienić, aby ją wytworzyć."
+  },
+  "f423a46e01dc3c90": {
+    "at": "2026-11-17T13:37:45.939Z",
+    "job": "session-0010-20261117133745",
+    "srcHash": "f423a46e01dc3c90",
+    "status": "machine",
+    "text": "Encja Feature dołączona do komponentu wnosi wkład do tego samego szablonu"
   },
   "f426c460916b52b3": {
     "at": "2026-11-15T09:28:20.698Z",

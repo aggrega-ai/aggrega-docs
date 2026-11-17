@@ -27936,6 +27936,13 @@
     "status": "machine",
     "text": "Contexto de plantilla para artefactos"
   },
+  "29ba969e5c743eb6": {
+    "at": "2026-11-17T13:37:45.939Z",
+    "job": "session-0010-20261117133745",
+    "srcHash": "29ba969e5c743eb6",
+    "status": "machine",
+    "text": "Una Feature asociada a un componente aporta sus recursos a la plantilla en la que se ensambla su componente anfitrión, en las mismas condiciones que la Recipe del propio componente anfitrión. No existe una plantilla aparte: la plantilla ensamblada es todo lo que este proveedor emite para un directorio de salida, así que los recursos de una Feature asociada están en esa plantilla o no se despliegan en absoluto. Desasociar la Feature elimina exactamente esos recursos y deja intactos los del propio componente anfitrión."
+  },
   "29bf75072d01b697": {
     "at": "2026-11-12T09:04:23.005Z",
     "job": "session-0007-20261112090423",
@@ -29283,6 +29290,13 @@
     "srcHash": "2bd845f49d221a1f",
     "status": "machine",
     "text": "Importado con `--target helm` y aplicado a Kubernetes, el chatflow responde a la misma solicitud en la misma dirección una vez que se reenvía un puerto local al Service de Flowise; la ejecución obtuvo allí el mismo rechazo:"
+  },
+  "2bdaa1b98290c669": {
+    "at": "2026-11-17T13:37:45.939Z",
+    "job": "session-0010-20261117133745",
+    "srcHash": "2bdaa1b98290c669",
+    "status": "machine",
+    "text": "Fragmentos ensamblados en una plantilla"
   },
   "2bdec2d28825b3a6": {
     "at": "2026-11-02T19:15:09.448Z",
@@ -33377,6 +33391,13 @@
     "srcHash": "31f316577560e070",
     "status": "machine",
     "text": "Grafana — un Aggregate, dos destinos, credencial de administrador opcional"
+  },
+  "31f6e14c878a6367": {
+    "at": "2026-11-17T13:37:45.939Z",
+    "job": "session-0010-20261117133745",
+    "srcHash": "31f6e14c878a6367",
+    "status": "machine",
+    "text": "El proveedor `arm` renderiza Aggrega Recipes en plantillas de Azure Resource Manager (ARM) con ámbito de grupo de recursos o, cuando la anotación `aggrega.ai/azure-deployment-scope` de un límite lo indica, con ámbito de suscripción; consulta [Despliegue con ámbito de suscripción](#deploying-at-subscription-scope). Todos los componentes que se renderizan en el mismo directorio de salida con este proveedor se ensamblan en una sola plantilla, escrita como `arm-template.json` en el directorio de salida del límite: un único documento JSON con la versión 2.0 del lenguaje de plantillas, con los recursos indexados por nombre simbólico. Por tanto, en el caso habitual un límite se convierte en una plantilla — y dos límites cuyo `directory:` se resuelve en la misma ruta se ensamblan juntos en una sola plantilla y comparten sus nombres. Como todo proveedor de Aggrega, funciona sin conexión y de forma hermética: una compilación de Aggrega es una compilación anticipada (ahead-of-time), así que el proveedor nunca llama a Azure, nunca resuelve una dirección real y nunca ejecuta ARM. Los valores que solo existen en tiempo de ejecución permanecen como expresiones de plantilla ARM (`reference()`, `resourceId()`, `parameters()`) que ARM evalúa cuando se despliega la plantilla."
   },
   "31f8fe6c707b3671": {
     "at": "2026-11-03T15:26:15.166Z",
@@ -53727,6 +53748,13 @@
     "status": "machine",
     "text": "El borrador predeterminado lleva el flujo: la instancia de la plataforma toma la exportación como `values.flow_definition`, escrita como describe [Cómo se escribe el flujo en el borrador](#how-the-flow-is-written-into-the-draft). Un autor que escribe un flujo a mano en un Aggregate — en un borrador dispuesto nodo por nodo, o en un Aggregate propio — lo escribe de la misma manera. Un Component que ejecuta un flujo tal como se creó toma la exportación como un valor — `flow_definition` en `core/ai-agent/langflow` y `core/ai-agent/flowise` de la biblioteca estándar — y el texto de un Aggregate se lee como una plantilla, así que las llaves dobles que contiene la exportación se leerían como acciones de plantilla: un chatflow de Flowise escribe `{{<node id>.data.instance}}` para cada conexión entre dos nodos, un prompt de Flowise nombra una variable como `{{question}}`, y una exportación de Langflow lleva el código fuente de sus componentes, donde las llaves también pueden aparecer. Escribe cada `{{` de la exportación como `{{\"{{\"}}`, dentro de un escalar de bloque, y la interpolación restaura el texto de la exportación antes de que lo lean las Recipes del Component; [Texto que contiene sus propias llaves dobles](../templates/parameters-context.md#text-that-carries-its-own-double-braces) describe por qué. Un valor de credencial que contiene la exportación corresponde a un secreto que vincula la Release, no al Aggregate: escríbelo vacío, como hace el borrador donde el ajuste `empty_credentials` se lo pide."
   },
+  "51036b30f6c8dcea": {
+    "at": "2026-11-17T13:37:45.939Z",
+    "job": "session-0010-20261117133745",
+    "srcHash": "51036b30f6c8dcea",
+    "status": "machine",
+    "text": "[`arm`](arm.md) renderiza un límite en una plantilla de Azure Resource Manager con ámbito de grupo de recursos, de suscripción o de grupo de administración, ya sea ensamblando los fragmentos de recursos que crean sus componentes o envolviendo como un nested deployment ARM una plantilla compilada que una Recipe toma como origen, y traslada los `outputs` que crea un fragmento a los `outputs` de la plantilla; los `provides` de un componente son expresiones que un consumidor de la misma plantilla lee directamente, y un consumidor de la plantilla de otro límite los lee de las salidas del despliegue ARM del productor. Admite entrada de origen y de artefactos, y emite configuración sin ejecutar nunca ARM; los valores que solo existen en tiempo de ejecución permanecen como expresiones de plantilla ARM."
+  },
   "510439cf7ed294a7": {
     "at": "2026-11-04T10:33:35.877Z",
     "job": "session-0231-20261104103335",
@@ -59050,6 +59078,13 @@
     "srcHash": "58b4988a4ca2acd5",
     "status": "machine",
     "text": "Registros de qué entidad del catálogo hace referencia a esta biblioteca y a qué fragmentos `<entry-name>`. Recoge el fan-in: muchos consumidores por biblioteca, cada uno potencialmente con referencias a muchos fragmentos. Cada registro lleva el URI del consumidor más el conjunto de fragmentos que ese consumidor incorpora. Valor predeterminado: `[]`"
+  },
+  "58b93506a2aef5a7": {
+    "at": "2026-11-17T13:37:45.939Z",
+    "job": "session-0010-20261117133745",
+    "srcHash": "58b93506a2aef5a7",
+    "status": "machine",
+    "text": "Provider ARM"
   },
   "58bc8766f73c43a8": {
     "at": "2026-11-04T08:39:29.762Z",
@@ -69726,6 +69761,13 @@
     "srcHash": "68ef8c1442d2e9f3",
     "status": "machine",
     "text": "Los comandos"
+  },
+  "68f82e53a9b4829d": {
+    "at": "2026-11-17T13:37:45.939Z",
+    "job": "session-0010-20261117133745",
+    "srcHash": "68f82e53a9b4829d",
+    "status": "machine",
+    "text": "Como acaban en la plantilla ensamblada, comparten sus nombres. El nombre simbólico de un recurso se emite exactamente como lo definió la FeatureRecipe, en el mismo espacio que los del componente anfitrión y los de cualquier otra asociación, por lo que [Nombres](#names) se aplica a ellos sin cambios. Cuando dos contribuyentes coinciden en un nombre, la parada nombra a ambos, de modo que cada extremo de la colisión se puede buscar en tus propios archivos."
   },
   "68f8ce83335b9ed6": {
     "at": "2026-11-04T10:56:32.711Z",
@@ -83117,6 +83159,17 @@
     "srcHash": "7cba816bc7a37ec6",
     "status": "machine",
     "text": "Cuando cambias una entidad de plugin y vuelves a publicarla, la disciplina de publicación clasifica el cambio respecto a la versión publicada anteriormente y exige que el incremento de versión coincida. La clasificación sigue la rúbrica de incremento de versión: un cambio solo de documentación o de comentarios es `PATCH`; un cambio estrictamente aditivo (un campo opcional nuevo, una entrada nueva) es `MINOR`; una eliminación, un estrechamiento de tipo o un campo antes opcional que pasa a ser obligatorio es `MAJOR`. Un incremento excesivo siempre está permitido; un incremento insuficiente se detiene con un diagnóstico que nombra el incremento requerido. La primera publicación de una entidad omite la comprobación del incremento y muestra una advertencia de que no se realizó ninguna verificación. Ejecuta la comprobación antes de publicar con `aggrega lint --pre-publish`; consulta [`../cli/aggrega-lint.md`](../cli/aggrega-lint.md) para la rúbrica completa y la configuración por regla."
+  },
+  "7cc7811bb51caa9d": {
+    "at": "2026-11-17T13:37:45.939Z",
+    "job": "session-0010-20261117133745",
+    "revision": {
+      "from": "9ee569e3fa537b68",
+      "reviewed": false
+    },
+    "srcHash": "7cc7811bb51caa9d",
+    "status": "machine",
+    "text": "Los proveedores `helm`, `helm-chart`, `compose`, `terraform`, `cloudformation` y `arm` forman juntos el conjunto de proveedores de la biblioteca estándar. Cubren los destinos habituales sin que los equipos empresariales tengan que crear sus propios proveedores."
   },
   "7ccb341bea7269c9": {
     "at": "2026-10-22T09:46:26.370Z",
@@ -98870,6 +98923,13 @@
     "srcHash": "9460f16ac9b5171e",
     "status": "machine",
     "text": "Capacidades"
+  },
+  "94637113550df8b3": {
+    "at": "2026-11-17T13:37:45.939Z",
+    "job": "session-0010-20261117133745",
+    "srcHash": "94637113550df8b3",
+    "status": "machine",
+    "text": "**Entrada de origen.** Una Recipe hace referencia a una plantilla ARM compilada —un único archivo `.json`, o un directorio que contiene `main.json` (el archivo que confirman Bicep y Azure Verified Modules) o, en su defecto, `azuredeploy.json`—. El proveedor la envuelve como un nested deployment ARM, rellena los parámetros que declara a partir del `valuesMapping` de la Recipe y omite cualquier recurso que nombren las entradas `omits:` de la Recipe. Consulta [Plantillas de origen](#sourced-templates) y [Omitir recursos de una plantilla de origen](#leaving-resources-out-of-a-sourced-template). Un origen `.bicep` se compila antes con `bicep build`; el proveedor lee plantillas, no Bicep."
   },
   "9463b63de5e13ae2": {
     "at": "2026-11-03T14:26:21.542Z",
@@ -129269,6 +129329,13 @@
     "status": "machine",
     "text": "**Un directorio de catálogo que lee la Release y que no se puede recorrer se rechaza antes de que se escriba nada, como lo rechaza [`aggrega build`](aggrega-build.md).** Se trata de un directorio que la llamada nombra en `catalog_dirs` y que no existe, como `aggrega build` rechaza un directorio `--catalog` que no existe, o de uno que existe y no se puede leer. `aggrega build` carga cada directorio que lee la Release antes de resolver la Release, y se detiene en uno que no puede recorrer; `build` recorre primero los mismos directorios, sin leer ningún documento en ellos, antes de cualquier resolución de dependencias y antes del renderizado — de modo que una compilación que recibió `auto_pull` no escribe ningún lockfile, y no se renderiza nada. El texto nombra el directorio como lo informa la línea de comandos, en una línea: el directorio, `catalog load` y el motivo que dio el sistema de archivos. La carga nombra la Release, con un `files` vacío y ningún hallazgo, porque no se había ejecutado nada. Un directorio que la configuración del espacio de trabajo enumera donde no existe nada no se rechaza: se lee como si no contuviera nada, como lo lee `aggrega build`, y la compilación renderiza lo que renderiza como si ese directorio no estuviera enumerado. La línea que imprime `aggrega build` para nombrarlo se lleva una sola vez ([De dónde se leen las entidades locales](configuration.md#where-local-entities-are-read-from)): como el primero de los `advisories`, con `warn`, o — cuando la compilación resuelve primero sus dependencias, ya que esa resolución escribe la línea por sí misma — entre los `diagnostics` de `dependency_resolution`. Un directorio de catálogo que contiene un enlace que lleva fuera del directorio dentro del cual deben quedarse sus lecturas se rechaza en el mismo momento, sin escribir nada, con el texto nombrando el enlace y adónde lleva — `aggrega build` lo rechaza de la misma manera."
   },
+  "c0b4307b522882e4": {
+    "at": "2026-11-17T13:37:45.939Z",
+    "job": "session-0010-20261117133745",
+    "srcHash": "c0b4307b522882e4",
+    "status": "machine",
+    "text": "Una Recipe que no declara ni `source:` ni `artifacts:` no tiene nada que este proveedor pueda renderizar, y `arm` no acepta un `workload:`: no sintetiza cómputo a partir de un Workload."
+  },
   "c0b5b1c984e2d971": {
     "at": "2026-11-03T06:09:06.251Z",
     "job": "session-0062-20261103060906",
@@ -138316,6 +138383,13 @@
     "status": "machine",
     "text": "Team Topologies y los cuatro dominios"
   },
+  "ce196454878d9501": {
+    "at": "2026-11-17T13:37:45.939Z",
+    "job": "session-0010-20261117133745",
+    "srcHash": "ce196454878d9501",
+    "status": "machine",
+    "text": "Una Recipe `arm` crea un **fragmento** —los recursos ARM que aporta un único componente— en lugar de una plantilla completa. Cuando se renderizan los componentes de un límite, el proveedor ensambla todos los fragmentos del grupo de despacho en una sola plantilla: los recursos se combinan bajo un único objeto `resources`, los `outputs` que crea cada fragmento se trasladan a los `outputs` de la plantilla, y las demás secciones de nivel superior de la plantilla se tratan una a una en [Secciones de nivel superior de la plantilla ensamblada](#top-level-sections-in-the-assembled-template). Se aceptan dos formas de autoría:"
+  },
   "ce1ee330672f9948": {
     "at": "2026-10-30T07:09:12.317Z",
     "job": "session-0074-20261030070912",
@@ -145413,6 +145487,13 @@
     "status": "machine",
     "text": "El motivo es la uniformidad de la superficie de consumo. Las Recipes y FeatureRecipes son plantillas Go de principio a fin, y su propio contenido se evalúa con el mismo motor de plantillas Go que resuelve una entrada importada, de modo que una entrada se lee exactamente como el propio texto de la Recipe y los autores aprenden un único modelo de evaluación. El vocabulario de composición de las plantillas Go — `{{ define }}` y `{{ template }}` dentro de una biblioteca, y la directiva `$import:` en el momento del consumo — proporciona los bloques reutilizables y la invocación parametrizada que una biblioteca necesita."
   },
+  "d8a7b80e194ffc6f": {
+    "at": "2026-11-17T13:37:45.939Z",
+    "job": "session-0010-20261117133745",
+    "srcHash": "d8a7b80e194ffc6f",
+    "status": "machine",
+    "text": "**Las salidas de una Feature asociada se publican con el nombre de su componente anfitrión, y los nombres simbólicos de sus recursos no.** Una Feature asociada a `payments-db` que define una salida `alarm` llega al mismo nombre de salida que alcanzaría si el anfitrión hubiera definido esa salida él mismo, de modo que un nombre de entrada que el anfitrión también publica coincide con el de la asociación en un mismo nombre de salida y la compilación se detiene. Elige nombres de entrada que se lean como propios de la Feature — `backup-alarm` en lugar de `alarm`. Cada recurso que aporta una Feature conserva la identidad compuesta para esa asociación en la procedencia escrita sobre él. [Etiquetas y anotaciones](../vocabulary/labels-and-annotations.md) explica cómo se construye esa identidad."
+  },
   "d8a83198bee1e4c7": {
     "at": "2026-11-03T00:44:43.262Z",
     "job": "session-0028-20261103004443",
@@ -151491,6 +151572,13 @@
     "srcHash": "e0b886c9cf7f2d2e",
     "status": "machine",
     "text": "[cross-boundary-networking](cross-boundary-networking/README.md) (`advanced`) — Un stack de dos componentes — una interfaz de base de datos **Adminer** y una base de datos **PostgreSQL** — repartido en **dos límites**, donde Adminer debe alcanzar la base de datos a través de la juntura entre los límites."
+  },
+  "e0b9b4f25fe68ad6": {
+    "at": "2026-11-17T13:37:45.939Z",
+    "job": "session-0010-20261117133745",
+    "srcHash": "e0b9b4f25fe68ad6",
+    "status": "machine",
+    "text": "**Entrada de fragmento (artefactos).** Una Recipe o FeatureRecipe define las secciones de una plantilla bajo `artifacts:`, en YAML o JSON. El proveedor lee cada entrada, la comprueba y la combina en la plantilla ensamblada."
   },
   "e0ba63c68c55e684": {
     "at": "2026-10-22T13:03:56.798Z",
@@ -164753,6 +164841,13 @@
     "srcHash": "f4225609f31ae882",
     "status": "machine",
     "text": "Dos cosas son ciertas de cada una de ellas, y ambas son el motivo de que esté en la lista: **alcanza un registro o una URL remota en tu nombre**, así que cuánto tarda lo determina algo fuera de la máquina; y **ya escribe su propio relato de sí misma a medida que avanza** — el relato que lee una persona que observa una terminal. Así que el informe te entrega ese mismo relato en lugar de un segundo compuesto para la transmisión, y nada de lo que hace la operación tuvo que cambiar para producirlo."
+  },
+  "f423a46e01dc3c90": {
+    "at": "2026-11-17T13:37:45.939Z",
+    "job": "session-0010-20261117133745",
+    "srcHash": "f423a46e01dc3c90",
+    "status": "machine",
+    "text": "Una Feature asociada a un componente contribuye a la misma plantilla"
   },
   "f426c460916b52b3": {
     "at": "2026-11-15T09:28:20.698Z",

@@ -30911,6 +30911,13 @@
     "status": "machine",
     "text": "Konteks template untuk artefak"
   },
+  "29ba969e5c743eb6": {
+    "at": "2026-11-17T13:37:45.939Z",
+    "job": "session-0010-20261117133745",
+    "srcHash": "29ba969e5c743eb6",
+    "status": "machine",
+    "text": "Sebuah Feature yang dilekatkan pada komponen menyumbangkan sumber dayanya ke templat tempat komponen induknya dirakit, dengan ketentuan yang sama seperti Recipe milik komponen induk itu sendiri. Tidak ada templat terpisah di sampingnya: templat yang dirakit adalah keseluruhan yang dihasilkan provider ini untuk sebuah direktori keluaran, sehingga sumber daya sebuah Feature yang dilekatkan berada di templat tersebut atau tidak diterapkan sama sekali. Melepas Feature menghapus tepat sumber daya tersebut dan membiarkan sumber daya milik komponen induk tetap utuh."
+  },
   "29bf75072d01b697": {
     "at": "2026-11-12T09:04:23.005Z",
     "job": "session-0007-20261112090423",
@@ -32376,6 +32383,13 @@
     "srcHash": "2bd845f49d221a1f",
     "status": "machine",
     "text": "Diimpor dengan `--target helm` dan diterapkan ke Kubernetes, chatflow menjawab permintaan yang sama di alamat yang sama setelah sebuah port lokal diteruskan ke Service milik Flowise; eksekusi tersebut mendapat penolakan yang sama di sana:"
+  },
+  "2bdaa1b98290c669": {
+    "at": "2026-11-17T13:37:45.939Z",
+    "job": "session-0010-20261117133745",
+    "srcHash": "2bdaa1b98290c669",
+    "status": "machine",
+    "text": "Fragmen yang dirakit menjadi sebuah templat"
   },
   "2bdec2d28825b3a6": {
     "at": "2026-11-01T15:32:08.870Z",
@@ -36814,6 +36828,13 @@
     "srcHash": "31f316577560e070",
     "status": "machine",
     "text": "Grafana — satu Aggregate, dua target, kredensial admin opsional"
+  },
+  "31f6e14c878a6367": {
+    "at": "2026-11-17T13:37:45.939Z",
+    "job": "session-0010-20261117133745",
+    "srcHash": "31f6e14c878a6367",
+    "status": "machine",
+    "text": "Provider `arm` merender Aggrega Recipes menjadi templat Azure Resource Manager (ARM) pada cakupan grup sumber daya, atau pada cakupan langganan jika anotasi `aggrega.ai/azure-deployment-scope` milik sebuah batas menyatakannya; lihat [Penerapan pada cakupan langganan](#deploying-at-subscription-scope). Setiap komponen yang dirender ke direktori keluaran yang sama di bawah provider ini dirakit menjadi satu templat, yang ditulis sebagai `arm-template.json` di direktori keluaran batas tersebut: satu dokumen JSON dalam bahasa templat versi 2.0, dengan sumber daya yang diindeks menurut nama simbolis. Dengan demikian, dalam kasus biasa sebuah batas menjadi satu templat — dan dua batas yang `directory:`-nya menunjuk ke jalur yang sama dirakit bersama menjadi satu templat dan berbagi nama-namanya. Seperti setiap provider Aggrega, provider ini bekerja luring dan hermetis: build Aggrega adalah kompilasi ahead-of-time, sehingga provider tidak pernah memanggil Azure, tidak pernah me-resolve alamat langsung, dan tidak pernah menjalankan ARM. Nilai yang hanya tersedia saat runtime tetap berupa ekspresi templat ARM (`reference()`, `resourceId()`, `parameters()`) yang dievaluasi ARM saat templat diterapkan."
   },
   "31f8fe6c707b3671": {
     "at": "2026-10-23T08:18:59.335953+00:00",
@@ -59223,6 +59244,13 @@
     "status": "machine",
     "text": "Draf bawaan membawa flow: instance platform menerima ekspor sebagai\n`values.flow_definition`, yang ditulis seperti dijelaskan dalam [Cara flow ditulis ke dalam draf](#how-the-flow-is-written-into-the-draft). Penulis yang menulis flow ke dalam sebuah Aggregate secara manual — ke dalam draf yang disusun node demi node, atau\nke dalam Aggregate miliknya sendiri — menulisnya dengan cara yang sama. Component yang menjalankan flow sebagaimana ditulis\nmenerima ekspor sebagai sebuah nilai — `flow_definition` pada `core/ai-agent/langflow`\ndan `core/ai-agent/flowise` dari pustaka standar — dan teks sebuah Aggregate dibaca sebagai templat, sehingga kurung kurawal ganda yang\ndimuat ekspor akan dibaca sebagai aksi templat: chatflow Flowise menulis `{{<node id>.data.instance}}`\nuntuk setiap koneksi antara dua node, prompt Flowise menyebut variabel sebagai `{{question}}`, dan ekspor\nLangflow membawa kode sumber komponennya, tempat kurung kurawal tersebut juga dapat muncul.\nTulis setiap `{{` dalam ekspor sebagai `{{\"{{\"}}`, di dalam block scalar, dan interpolasi memulihkan\nteks ekspor sebelum Recipes milik Component membacanya;\n[Teks yang membawa kurung kurawal gandanya sendiri](../templates/parameters-context.md#text-that-carries-its-own-double-braces)\nmenjelaskan alasannya. Nilai kredensial yang dimuat ekspor seharusnya berada dalam secret yang dilampirkan Release, bukan dalam\nAggregate: tulislah kosong, seperti yang dilakukan draf ketika pengaturan `empty_credentials` memintanya."
   },
+  "51036b30f6c8dcea": {
+    "at": "2026-11-17T13:37:45.939Z",
+    "job": "session-0010-20261117133745",
+    "srcHash": "51036b30f6c8dcea",
+    "status": "machine",
+    "text": "[`arm`](arm.md) merender sebuah batas menjadi satu templat Azure Resource Manager pada cakupan grup sumber daya, langganan, atau grup manajemen, dengan merakit fragmen sumber daya yang ditulis oleh komponen-komponennya, atau membungkus templat terkompilasi yang menjadi sumber sebuah Recipe sebagai nested deployment ARM, serta membawa `outputs` yang ditulis sebuah fragmen ke dalam `outputs` templat; `provides` sebuah komponen adalah ekspresi yang dibaca langsung oleh konsumen dalam templat yang sama, dan konsumen dalam templat batas lain membacanya dari keluaran penerapan ARM milik produsen. Provider ini mendukung masukan sumber dan artefak serta menghasilkan konfigurasi tanpa pernah menjalankan ARM; nilai yang hanya tersedia saat runtime tetap berupa ekspresi templat ARM."
+  },
   "510439cf7ed294a7": {
     "at": "2026-10-23T08:34:04.552030+00:00",
     "job": "msgbatch_01V7s7eyUrCwoDSpkeCSpVQQ",
@@ -65061,6 +65089,13 @@
     "srcHash": "58b4988a4ca2acd5",
     "status": "machine",
     "text": "Catatan tentang entitas katalog mana yang mereferensikan library ini dan pada fragmen `<entry-name>` mana. Menangkap fan-in: banyak konsumen per library, masing-masing berpotensi mereferensikan banyak fragmen. Setiap catatan memuat URI konsumen beserta himpunan fragmen yang ditarik oleh konsumen tersebut. Default: `[]`"
+  },
+  "58b93506a2aef5a7": {
+    "at": "2026-11-17T13:37:45.939Z",
+    "job": "session-0010-20261117133745",
+    "srcHash": "58b93506a2aef5a7",
+    "status": "machine",
+    "text": "Provider ARM"
   },
   "58bc8766f73c43a8": {
     "at": "2026-10-23T08:34:04.552030+00:00",
@@ -77020,6 +77055,13 @@
     "srcHash": "68f0436da22bb10b",
     "status": "machine",
     "text": "Apakah provider mematuhi entri omit — entri yang menamai unit hasil render yang harus dikeluarkan dari output sebuah node: provider mengeluarkan setiap unit yang cocok dengan suatu entri dari hasil rendernya, dan melaporkan berapa banyak unit yang cocok dengan setiap entri. Ini adalah catatan saat publikasi dari klaim `omits` yang dilaporkan `describe()` milik provider, dan nilai yang berbeda dari laporan tersebut dihentikan saat pemuatan. Jika tidak ada (false), tidak ada dukungan semacam itu yang dideklarasikan."
+  },
+  "68f82e53a9b4829d": {
+    "at": "2026-11-17T13:37:45.939Z",
+    "job": "session-0010-20261117133745",
+    "srcHash": "68f82e53a9b4829d",
+    "status": "machine",
+    "text": "Karena sumber daya itu masuk ke dalam templat yang dirakit, mereka berbagi nama-namanya. Nama simbolis sebuah sumber daya dihasilkan persis seperti yang ditulis FeatureRecipe, dalam ruang yang sama dengan sumber daya komponen induk dan setiap pelekatan lainnya, sehingga [Nama](#names) berlaku bagi mereka tanpa perubahan. Ketika dua kontributor bertemu pada satu nama, penghentian menyebut keduanya, sehingga setiap ujung benturan dapat dicari di berkas Anda sendiri."
   },
   "68f8ce83335b9ed6": {
     "at": "2026-10-23T08:34:04.552030+00:00",
@@ -91743,6 +91785,17 @@
     "srcHash": "7cba816bc7a37ec6",
     "status": "machine",
     "text": "Ketika Anda mengubah entitas plugin dan memublikasikannya ulang, disiplin publikasi mengklasifikasikan perubahan tersebut terhadap versi yang sebelumnya dipublikasikan dan mengharuskan kenaikan versi sesuai dengannya. Klasifikasinya adalah rubrik kenaikan versi: perubahan yang hanya menyangkut dokumentasi atau komentar adalah `PATCH`; perubahan yang murni bersifat tambahan (field opsional baru, entri baru) adalah `MINOR`; penghapusan, penyempitan tipe, atau field yang sebelumnya opsional menjadi wajib adalah `MAJOR`. Kenaikan versi yang berlebih selalu diizinkan; kenaikan versi yang kurang akan berhenti dengan diagnostik yang menyebutkan kenaikan yang diperlukan. Publikasi pertama sebuah entitas melewati pemeriksaan kenaikan versi dan menampilkan peringatan bahwa tidak ada verifikasi yang dilakukan. Jalankan pemeriksaan sebelum memublikasikan dengan `aggrega lint --pre-publish`; lihat [`../cli/aggrega-lint.md`](../cli/aggrega-lint.md) untuk rubrik lengkap dan pengaturan per aturan."
+  },
+  "7cc7811bb51caa9d": {
+    "at": "2026-11-17T13:37:45.939Z",
+    "job": "session-0010-20261117133745",
+    "revision": {
+      "from": "9ee569e3fa537b68",
+      "reviewed": false
+    },
+    "srcHash": "7cc7811bb51caa9d",
+    "status": "machine",
+    "text": "Provider `helm`, `helm-chart`, `compose`, `terraform`, `cloudformation`, dan `arm` bersama-sama membentuk himpunan provider pustaka standar. Provider tersebut mencakup target umum tanpa mengharuskan tim perusahaan menulis provider mereka sendiri."
   },
   "7ccb341bea7269c9": {
     "at": "2026-10-22T09:46:26.370Z",
@@ -108951,6 +109004,13 @@
     "srcHash": "9460f16ac9b5171e",
     "status": "machine",
     "text": "Kapabilitas"
+  },
+  "94637113550df8b3": {
+    "at": "2026-11-17T13:37:45.939Z",
+    "job": "session-0010-20261117133745",
+    "srcHash": "94637113550df8b3",
+    "status": "machine",
+    "text": "**Masukan sumber.** Sebuah Recipe merujuk ke templat ARM terkompilasi — satu berkas `.json`, atau direktori yang berisi `main.json` (berkas yang di-commit oleh Bicep dan Azure Verified Modules) atau, jika tidak ada, `azuredeploy.json`. Provider membungkusnya sebagai satu nested deployment ARM, mengisi parameter yang dideklarasikannya dari `valuesMapping` milik Recipe, dan mengecualikan setiap sumber daya yang disebut oleh entri `omits:` milik Recipe. Lihat [Templat sumber](#sourced-templates) dan [Mengecualikan sumber daya dari templat sumber](#leaving-resources-out-of-a-sourced-template). Sumber `.bicep` dikompilasi terlebih dahulu dengan `bicep build`; provider membaca templat, bukan Bicep."
   },
   "9463b63de5e13ae2": {
     "at": "2026-10-23T08:18:59.335953+00:00",
@@ -142319,6 +142379,13 @@
     "status": "machine",
     "text": "**Direktori katalog yang dibaca Release dan tidak dapat ditelusuri ditolak sebelum apa pun ditulis, sebagaimana [`aggrega build`](aggrega-build.md) menolaknya.** Itu adalah direktori yang disebutkan panggilan dalam `catalog_dirs` dan tidak ada, sebagaimana `aggrega build` menolak direktori `--catalog` yang tidak ada, atau direktori yang ada tetapi tidak dapat dibaca. `aggrega build` memuat setiap direktori yang dibaca Release sebelum me-resolve Release tersebut, dan berhenti pada direktori yang tidak dapat ditelusurinya; `build` menelusuri direktori yang sama terlebih dahulu, tanpa membaca dokumen apa pun di dalamnya, sebelum resolusi dependensi apa pun dan sebelum render — sehingga build yang dikirimi `auto_pull` tidak menulis lockfile, dan tidak ada yang dirender. Teksnya menyebutkan direktori tersebut sebagaimana baris perintah melaporkannya, dalam satu baris: direktori, `catalog load`, dan alasan yang diberikan sistem file. Payload-nya menyebutkan Release, dengan `files` yang kosong dan tanpa temuan, karena belum ada yang berjalan. Direktori yang dicantumkan konfigurasi ruang kerja di tempat yang tidak ada apa-apanya tidak ditolak: direktori itu dibaca seolah tidak memuat apa pun, sebagaimana `aggrega build` membacanya, dan build merender apa yang direndernya seolah direktori itu tidak dicantumkan. Baris yang dicetak `aggrega build` untuk menyebutkannya dibawa satu kali ([Dari mana entitas lokal dibaca](configuration.md#where-local-entities-are-read-from)): sebagai yang pertama dari `advisories`, pada `warn`, atau — jika build me-resolve dependensinya terlebih dahulu, karena resolusi itu menulis baris tersebut sendiri — di antara `diagnostics` dari `dependency_resolution`. Direktori katalog yang memuat tautan yang mengarah ke luar direktori tempat pembacaannya harus tetap berada ditolak pada saat yang sama, tanpa ada yang ditulis, dengan teks yang menyebutkan tautan tersebut dan ke mana arahnya — `aggrega build` menolaknya dengan cara yang sama."
   },
+  "c0b4307b522882e4": {
+    "at": "2026-11-17T13:37:45.939Z",
+    "job": "session-0010-20261117133745",
+    "srcHash": "c0b4307b522882e4",
+    "status": "machine",
+    "text": "Sebuah Recipe yang tidak mendeklarasikan `source:` maupun `artifacts:` tidak memiliki apa pun untuk dirender oleh provider ini, dan `arm` tidak menerima `workload:`: provider ini tidak mensintesis komputasi dari sebuah Workload."
+  },
   "c0b5b1c984e2d971": {
     "at": "2026-10-23T06:14:11.003127+00:00",
     "job": "msgbatch_01GfwKPWr7pSSTBwm1CiQ1ze",
@@ -152398,6 +152465,13 @@
     "status": "machine",
     "text": "Team Topologies dan empat domain"
   },
+  "ce196454878d9501": {
+    "at": "2026-11-17T13:37:45.939Z",
+    "job": "session-0010-20261117133745",
+    "srcHash": "ce196454878d9501",
+    "status": "machine",
+    "text": "Sebuah Recipe `arm` menulis sebuah **fragmen** — sumber daya ARM yang disumbangkan oleh satu komponen — dan bukan templat utuh. Ketika komponen-komponen sebuah batas dirender, provider merakit setiap fragmen dalam grup dispatch menjadi satu templat: sumber daya digabung di bawah satu objek `resources`, `outputs` yang ditulis setiap fragmen dibawa ke dalam `outputs` templat, dan bagian tingkat atas templat lainnya dibahas satu per satu di [Bagian tingkat atas pada templat yang dirakit](#top-level-sections-in-the-assembled-template). Dua bentuk penulisan diterima:"
+  },
   "ce1ee330672f9948": {
     "at": "2026-10-23T06:14:07.765401+00:00",
     "job": "msgbatch_015cRR9ESj4yMdkeo5rD8Tmo",
@@ -160203,6 +160277,13 @@
     "status": "machine",
     "text": "**Penulis yang menghasilkan blok metrik.** Tingkat baca menyajikan blok; ia tidak\n  membuatnya. Sebuah penulis — tingkat Thanos Receive atau instans Prometheus dengan\n  sidecar Thanos — harus mengirimkan blok metrik ke bucket yang sama. Sampai\n  penulis mengunggah blok, Store Gateway menyajikan himpunan hasil kosong."
   },
+  "d8a7b80e194ffc6f": {
+    "at": "2026-11-17T13:37:45.939Z",
+    "job": "session-0010-20261117133745",
+    "srcHash": "d8a7b80e194ffc6f",
+    "status": "machine",
+    "text": "**Keluaran sebuah Feature yang dilekatkan dipublikasikan dengan nama komponen induknya, sedangkan nama simbolis sumber dayanya tidak.** Sebuah Feature yang dilekatkan pada `payments-db` dan menulis keluaran `alarm` mencapai nama keluaran yang sama dengan yang akan dicapainya seandainya induk menulis keluaran itu sendiri, sehingga nama entri yang juga dipublikasikan induk bertemu dengan nama dari pelekatan pada satu nama keluaran, dan build dihentikan. Pilih nama entri yang terbaca sebagai milik Feature — `backup-alarm` alih-alih `alarm`. Setiap sumber daya yang disumbangkan sebuah Feature mempertahankan identitas yang disusun untuk pelekatan tersebut dalam provenans yang dituliskan padanya. [Label dan anotasi](../vocabulary/labels-and-annotations.md) menjelaskan bagaimana identitas itu dibangun."
+  },
   "d8a83198bee1e4c7": {
     "at": "2026-10-23T06:14:09.798554+00:00",
     "job": "msgbatch_0114PSvCA8TYhfY7XN2T8bxB",
@@ -166897,6 +166978,13 @@
     "srcHash": "e0b886c9cf7f2d2e",
     "status": "machine",
     "text": "[cross-boundary-networking](cross-boundary-networking/README.md) (`advanced`) — Stack dua komponen — UI basis data **Adminer** dan basis data **PostgreSQL** — yang dibagi ke **dua boundary**, tempat Adminer harus menjangkau basis data melintasi sambungan boundary."
+  },
+  "e0b9b4f25fe68ad6": {
+    "at": "2026-11-17T13:37:45.939Z",
+    "job": "session-0010-20261117133745",
+    "srcHash": "e0b9b4f25fe68ad6",
+    "status": "machine",
+    "text": "**Masukan fragmen (artefak).** Sebuah Recipe atau FeatureRecipe menulis bagian-bagian templat di bawah `artifacts:`, dalam YAML atau JSON. Provider membaca setiap entri, memeriksanya, dan menggabungkannya ke dalam templat yang dirakit."
   },
   "e0ba63c68c55e684": {
     "at": "2026-10-22T13:03:56.798Z",
@@ -181413,6 +181501,13 @@
     "srcHash": "f4225609f31ae882",
     "status": "machine",
     "text": "Dua hal berlaku untuk setiap permintaan tersebut, dan keduanya menjadi alasan permintaan itu ada dalam daftar: **permintaan itu menjangkau registry atau URL jarak jauh atas nama Anda**, sehingga lamanya ditentukan oleh sesuatu di luar mesin; dan **permintaan itu sudah menulis catatannya sendiri sambil berjalan** — catatan yang dibaca oleh orang yang memantau terminal. Jadi, pelaporan memberikan catatan yang sama itu kepada Anda, bukan catatan kedua yang disusun untuk jalur komunikasi, dan tidak ada yang perlu diubah dari apa yang dilakukan operasi untuk menghasilkannya."
+  },
+  "f423a46e01dc3c90": {
+    "at": "2026-11-17T13:37:45.939Z",
+    "job": "session-0010-20261117133745",
+    "srcHash": "f423a46e01dc3c90",
+    "status": "machine",
+    "text": "Sebuah Feature yang dilekatkan pada komponen berkontribusi ke templat yang sama"
   },
   "f426c460916b52b3": {
     "at": "2026-11-15T09:28:20.698Z",
