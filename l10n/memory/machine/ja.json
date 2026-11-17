@@ -18549,6 +18549,17 @@
     "status": "machine",
     "text": "**事前解決済みマップ。** レンダリング中、コンパイラはあらゆる inject ソース（セルフ注入のリテラルとコンポーネント自身の `provides` に対する `from:` 参照、`uses[].inject` を通じたコンポーネント間参照、FeatureRecipe の `injectMapping` による介入）を、`.context.inject` にある単一のフラットな辞書へ解決します。ベース Recipe の `valuesMapping` テンプレートが実行される時点で、すべての inject キーは最終的な文字列値を保持しています。Recipes は解決チェーンをたどることなく、マップを直接反復処理します（`{{ range $k, $v := .context.inject.env }}`）。"
   },
+  "193c86d60db7cf7f": {
+    "at": "2026-11-17T11:32:31.177Z",
+    "job": "session-0002-20261117113231",
+    "revision": {
+      "from": "fe4b0b86d4fa3966",
+      "reviewed": false
+    },
+    "srcHash": "193c86d60db7cf7f",
+    "status": "machine",
+    "text": "**`source:` + `valuesMapping:`（sourced）— available。** コンパイラは `source:` の URI を解決し、`valuesMapping` テンプレート（インライン、ファイルの `$import:`、またはライブラリの `$import:`）を評価して、その結果をレンダリングのために対象の provider に渡します。helm、helm-chart、compose、terraform、cloudformation、arm の各 provider が使用します。"
+  },
   "193ee0657575e13f": {
     "at": "2026-10-30T00:50:28.131Z",
     "job": "session-0041-20261030005028",
@@ -21794,6 +21805,17 @@
     "srcHash": "1dc5be5cb6b5738a",
     "status": "machine",
     "text": "フラグに名前があり、同じコマンドの他のどのフラグもその名前を持たない。"
+  },
+  "1dc5e27fa3545beb": {
+    "at": "2026-11-17T11:32:31.177Z",
+    "job": "session-0002-20261117113231",
+    "revision": {
+      "from": "77a08689dc95e508",
+      "reviewed": false
+    },
+    "srcHash": "1dc5e27fa3545beb",
+    "status": "machine",
+    "text": "プロバイダは、Recipe の入力種別をプロバイダネイティブのマニフェストファイルにレンダリングします。Provider レンダリングは `pluginType: provider` を持つ Plugin が担います。この Plugin は、レンダリングするプロバイダ名を `spec.provider.capabilities` に列挙し、プロバイダソケットのメタデータを同じ `spec.provider` ブロックに保持します。Aggrega の標準ライブラリはプロバイダー `helm`、`helm-chart`、`compose`、`terraform`、`cloudformation`、`arm` を同梱しており、それぞれが独自の契約を宣言します。すなわち、どの入力種別を受け付けるか、どの出力ファイルを生成するか、どの境界アノテーションを読み取るか、そして合成された入力種別が使われる場合に Workload 種別がそのネイティブな形にどう変換されるか、です。この章群では、これらの契約を Recipe 作成者の視点から扱います。"
   },
   "1dc835525591a6c9": {
     "at": "2026-10-22T05:25:45.661574+00:00",
@@ -34638,6 +34660,13 @@
     "status": "machine",
     "text": "`template-context.inject`"
   },
+  "2f525bfe88ec90c4": {
+    "at": "2026-11-17T11:32:31.177Z",
+    "job": "session-0002-20261117113231",
+    "srcHash": "2f525bfe88ec90c4",
+    "status": "machine",
+    "text": "[`arm`](providers/arm.md) — Azure Resource Manager プロバイダーです。境界ごとに 1 つのテンプレートを、リソースグループ、サブスクリプション、または管理グループのスコープで JSON として出力します。"
+  },
   "2f52d0d21043f2eb": {
     "at": "2026-10-22T03:06:36.769432+00:00",
     "job": "msgbatch_01LMJ2pDqXu3quNM1ykbvTtk",
@@ -40797,6 +40826,17 @@
     "status": "machine",
     "text": "**`locals:` はプライベート面です。** すべてのキーは、Recipe 自身の後続テンプレート内でのみ参照できる Recipe 内部の状態です。Recipe の locals を読み取れる呼び出し側は存在せず、`locals:` 内の名前はいかなる公開インターフェースにも含まれないため、名前の変更は下流に影響しない Recipe 内部のリファクタリングです。"
   },
+  "38171495f5d07ea7": {
+    "at": "2026-11-17T11:32:31.177Z",
+    "job": "session-0002-20261117113231",
+    "revision": {
+      "from": "88ba43da49300de0",
+      "reviewed": false
+    },
+    "srcHash": "38171495f5d07ea7",
+    "status": "machine",
+    "text": "一部のプロバイダーは、アセンブリパスごとにコントリビューターを単一のドキュメントにマージします。`compose` は 1 つの `docker-compose.yaml` に、`cloudformation` は 1 つのスタックテンプレートに、`arm` は 1 つの `arm-template.json` にマージします。マージされたドキュメントが引き継げるのは、そのアセンブラーがモデル化しているセクションだけです。そのため `artifacts:` のチェックは、フラグメントの内容が*配置される*場所を示すものであり、フラグメント内のすべてのキーが残ることを示すものではありません。"
+  },
   "3817bacb478dd6ac": {
     "at": "2026-10-22T08:23:20.000561+00:00",
     "job": "msgbatch_01HzD7wD8iu4mXKJLFLJkdaf",
@@ -45858,6 +45898,17 @@
     "status": "machine",
     "text": "**クラスタ側でのテンプレート処理。** 認証情報の FeatureRecipe は、vault オペレーター自身のテンプレート機能を使って文字列を*クラスタ内で*書式化するリソースを出力します。アプリケーションは生成されたプラットフォームの Secret を名前で参照し、コンパイラはマテリアルを一度も保持することなくその関係を配線します。"
   },
+  "3f241bf53330381f": {
+    "at": "2026-11-17T11:32:31.177Z",
+    "job": "session-0002-20261117113231",
+    "revision": {
+      "from": "0b0e8a0c1805330f",
+      "reviewed": false
+    },
+    "srcHash": "3f241bf53330381f",
+    "status": "machine",
+    "text": "プラグイン開発キット——`github.com/aggrega-ai/aggrega-pdk/go`、`aggrega-pdk-rust`、`@aggrega-ai/aggrega-pdk-typescript`——と、それらが再エクスポートする `aggrega-abi` コーデックは、`0.9.0` からセマンティックバージョニングに従います。3 言語のキットは 1 つのバージョン番号を共有し、3 言語のコーデックは別のバージョン番号を共有します。Go のキットとコーデックは Go モジュールであり、Rust のものは crates.io（`aggrega-pdk-rust`、`aggrega-abi`）で、TypeScript のものは npm（`@aggrega-ai/aggrega-pdk-typescript`、`@aggrega-ai/aggrega-abi`）で公開されています。"
+  },
   "3f24da8adb25930c": {
     "at": "2026-10-22T04:31:59.273856+00:00",
     "job": "msgbatch_01V4iinZ1EB2Yt7N23KCFLbG",
@@ -49897,6 +49948,17 @@
     "srcHash": "44bd8ed1ef91d00a",
     "status": "machine",
     "text": "各エッジは指し示す側の端に矢じりを持ちます。エッジは利用側のコンポーネントからそのターゲットへ向かい、矢じりはエッジ自身の色と破線パターンで描画されます。ノードのボックスは、描画するテキスト（ノード名とその下のコンポーネントの両方）を測定してサイズが決まるため、コンポーネント名がどれほど長くても、どちらも枠線からはみ出しません。"
+  },
+  "44bea4a7f3317a83": {
+    "at": "2026-11-17T11:32:31.177Z",
+    "job": "session-0002-20261117113231",
+    "revision": {
+      "from": "68a35ca57ba3bdb4",
+      "reviewed": false
+    },
+    "srcHash": "44bea4a7f3317a83",
+    "status": "machine",
+    "text": "Aggrega 標準ライブラリには、レンダリングプロバイダー（`helm`、`helm-chart`、`compose`、`terraform`、`cloudformation`、`arm`）が含まれています。プロバイダーごとのステータス:"
   },
   "44bf57299a9ed46e": {
     "at": "2026-10-29T19:15:25.530Z",
@@ -69189,6 +69251,13 @@
     "srcHash": "5f0f0813d59d0b85",
     "status": "machine",
     "text": "🔴 **マウントパスはディレクトリではなく単一ファイルのパスです。** Compose は config の内容をちょうどそのターゲットパスに書き込みますが、Kubernetes ターゲットで ConfigMap をパスにマウントすると、キーごとに 1 つのファイルを持つ*ディレクトリ*が生成されます。そのため、同じ記述の `path:` がここではファイルを、あちらではディレクトリを表します。`configmap` ボリュームのマウントは、それを含むディレクトリではなく、コンテナが読むべきファイル名（`/seed/config.json`）に向けてください。両方のターゲット向けに記述された Recipe は、ターゲットごとに異なるパスを持ちます。もう一方のターゲットの形に合わせて書かれたパスをビルドで検出する手段はありません。パスはコンパイラがそのまま通す不透明な文字列であり、出力はどちらの場合も有効だからです。参照は、Kubernetes ターゲットが ConfigMap リソースを参照するのとまったく同じく **名前** によるもので、config の内容を読むものは何もありません。対応するトップレベルの `configs:` エントリは Recipe の `artifacts:` 入力から来ており、その compose フラグメントがインラインの `content:` で宣言します。そのようなエントリのない参照はビルドを停止させます（[Artifacts が出力する compose フラグメント](#artifacts-emitted-compose-fragments)を参照）。`configs:` 参照は config 名とマウントパスのみを持つため、マウントの `readOnly` には個別の表現がありません"
+  },
+  "5f0f6660445613e6": {
+    "at": "2026-11-17T11:32:31.177Z",
+    "job": "session-0002-20261117113231",
+    "srcHash": "5f0f6660445613e6",
+    "status": "machine",
+    "text": "**arm プロバイダー**：アーティファクトはテンプレートのフラグメントです。1 つのコンポーネントが提供するリソースを、Azure Resource Manager テンプレートのセクションごとに記述したものです。プロバイダーは各フラグメントを読み取り、その出力ディレクトリ向けに組み立てられる単一のリソースグループテンプレートにマージします。リソースはシンボリック名をキーとする 1 つの `resources` オブジェクトに統合され、フラグメントが記述した `outputs` はテンプレートの `outputs` に統合されます。[arm プロバイダー](../language-reference/providers/arm.md)を参照してください。"
   },
   "5f1067559e88ff5e": {
     "at": "2026-10-29T23:51:32.697Z",
@@ -91106,6 +91175,13 @@
     "srcHash": "7cb20e64c8e5ccd7",
     "status": "machine",
     "text": "ビルドは `1` で終了します。チャートが毎回異なる鍵と証明書を生成したため、コントローラーの 2 回のレンダリングが一致しません。pull も、固定する必要のある外部入力を見つけるために Release をレンダリングし、そこで同じ停止に遭遇します。省略した pull の行にこの文がもう一度現れるのはそのためです。ロックファイルはそれでも書き出されます。"
+  },
+  "7cb8dd973d431475": {
+    "at": "2026-11-17T11:32:31.177Z",
+    "job": "session-0002-20261117113231",
+    "srcHash": "7cb8dd973d431475",
+    "status": "machine",
+    "text": "**`arm` は `resources`、`parameters`、`variables`、`definitions`、`functions`、`outputs`、`metadata` を引き継ぎ、`$schema`、`languageVersion`、`contentVersion` は自身で書き込みます。** フラグメントが `apiProfile`、`2.0` 以外の `languageVersion`、またはリソースグループより広いスコープの `$schema` を書き込むと、ビルドはキー名を示して停止します。それ以外のトップレベルのキーは引き継がれず、警告でキー名が示されます。[arm プロバイダーのページ](../language-reference/providers/arm.md#top-level-sections-in-the-assembled-template)で各キーについて説明しています。"
   },
   "7cb96264413d0b91": {
     "at": "2026-10-22T08:23:20.000561+00:00",
@@ -116985,6 +117061,17 @@
     "status": "machine",
     "text": "**Docker Compose では**、シークレットは、それ自身のアタッチメントが配信したキー `values.key` の下で\n  エージェントの inject パイプに届き、Recipe がその値を\n  サービスの環境に書き込みます。"
   },
+  "a07a423c012e27ce": {
+    "at": "2026-11-17T11:32:31.177Z",
+    "job": "session-0002-20261117113231",
+    "revision": {
+      "from": "cdcf84923c030f87",
+      "reviewed": false
+    },
+    "srcHash": "a07a423c012e27ce",
+    "status": "machine",
+    "text": "**`workspace.catalog_dirs` に列挙したディレクトリも読み込まれ、しかも先に読み込まれます。** このリストは順序付きの検索スタックです。ある ID を最初に宣言したディレクトリがその ID を所有し、後のディレクトリにある同じ ID はシャドウされます。ライブラリ名(SchemaLibrary、MappingLibrary、WorkloadLibrary、ArtifactLibrary)は全体として所有されます。そのいずれかのバージョンを持つ最初のディレクトリがそれを所有し、後のディレクトリにあるコピーは、どのバージョンであってもすべてシャドウされます。`catalog` は列挙したすべてのディレクトリの後に読み込まれます。ただし、列挙したディレクトリがすでにそれを含む場合は、そのディレクトリの一部として読み込まれます。したがって、ディレクトリを列挙すると既存の内容を置き換えるのではなく追加することになります。コマンドラインで繰り返し指定できる `--catalog <dir>`はその両方より先に読み込まれ、そこで指定した相対パスは、どの設定ファイルも宣言していないため、コマンドを実行したディレクトリを基準に解決されます。複数回指定されたディレクトリ(コマンドラインとリストの両方、またはリストに 2 回)は、最初に指定された位置で 1 回だけ読み込まれるため、その中の何かが自分自身によってシャドウされたと報告されることはありません。シャドウは常に、異なる 2 つのファイルが 1 つの ID を宣言することを指します。1 つのディレクトリの 2 通りの表記、リンクを経由したパス、そして大文字小文字を区別しないファイルシステムでの大文字小文字が異なる表記は、いずれも同じ 1 つのディレクトリを指します。列挙した別のディレクトリの内側にあるディレクトリも、独立したエントリとして読み込まれます。Release ごとにカタログのバリアントを持つプロジェクトでは、代わりに各 Release に独自のリストを与えることができます。[Release に独自のカタログディレクトリを与える](#giving-a-release-its-own-catalog-directories)を参照してください。"
+  },
   "a07bb74dd6eff8cc": {
     "at": "2026-11-05T21:03:25.752Z",
     "job": "session-0023-20261105210325",
@@ -132142,6 +132229,13 @@
     "status": "machine",
     "text": "**ターゲットの選択:** `core/target-selection` は、同じリクエストを処理できる複数のターゲットの中からゲートウェイがどのように選択するかを宣言します。`strategy` には `latency`（応答が最も速いと観測されたターゲット）または `cost`（呼び出しが最も安価なターゲット）を指定します。この戦略はアプリケーションがゲートウェイに求める内容の一部であるため、開発者が Aggregate でアタッチします。AI ゲートウェイでは、ターゲットは同じエイリアスを公開する `values.models` のエントリです。接続されたモデルは接続のエイリアスで提供され、そのエイリアスを他のエントリが公開することはできません。標準ライブラリは、ゲートウェイの Recipe がレンダリングするルーティング設定にプロキシの `latency-based-routing` を書き込むことで `latency` を実現します。プロキシは、直近 10 回の応答の平均所要時間が最も短いエントリに各リクエストを送ります。この時間は、応答がトークン数を報告する場合は出力トークンあたり、ストリーミングリクエストの場合は最初のトークンまでの時間で計測され、まだ試されていないエントリは最速とみなされます。アタッチメントがない場合、設定には戦略が指定されず、プロキシはそれらのエントリからランダムに選択します。そこでは `cost` は名前を示して拒否されます。プロキシはエントリのターゲットを記述どおりに価格表で検索して価格を決めますが、その価格表はゲートウェイのターゲットが持つプロバイダー接頭辞なしで OpenAI と Anthropic のモデルを記載しており、見つからないエントリには固定のフォールバック価格を付けます。そのため、エイリアスを共有するエントリは同じ価格となり、順序によって選ばれてしまいます。`core/gateway/kong-enterprise` ではすべてのアタッチメントが停止します。接続された各モデルはそのモデルだけを扱う専用のルートで提供されるため、選択の対象が残らないからです。`core/gateway/agentgateway` でもすべてのアタッチメントが理由を示して停止します。agentgateway はモデル名のターゲットから 2 つをランダムに選び、ヘルスを応答にかかった時間で割ったスコアが高い方を採用するため、最速のターゲットは選ばれた場合にのみ採用され、またコストによってターゲットを選ぶことはありません。`core/gateway/higress` でもすべてのアタッチメントが理由を示して停止します。Higress はサービスのレイテンシーを測定できますが、そのロードバランサープラグインは AI プロキシの後に実行されます。AI プロキシはすでにルートが解決した候補に対してリクエストのモデル、アドレス、資格情報を設定しており、プラグインは選択結果をリクエストヘッダーに書き込みますが、このカタログがレンダリングしない Envoy フィルターがなければ、そのヘッダーでルーティングするものはありません。そのため選択は反映されず、またコストによってターゲットを選ぶこともありません。`core/gateway/traefik-hub` でもすべてのアタッチメントが理由を示して停止します。Traefik が最短応答時間で選択するのは 1 つの Service のサーバー間に限られ、その Service は 1 つのモデル名と 1 つの資格情報で扱われます。Service 間では重みまたはクライアントアドレスのハッシュで分散し、レイテンシーで分散することはなく、どの戦略もコストでターゲットを選びません。さらに、ゲートウェイに接続された各モデルはそのモデルだけを扱う専用のルートで提供されるため、選択の対象が残りません。その他のゲートウェイでは、アタッチメントがビルドを停止します。"
   },
+  "b416c34846dcfb25": {
+    "at": "2026-11-17T11:32:31.177Z",
+    "job": "session-0002-20261117113231",
+    "srcHash": "b416c34846dcfb25",
+    "status": "machine",
+    "text": "**`arm` — リソースグループ、サブスクリプション、管理グループの各スコープで利用できます。** ソースモード(コンパイル済みの ARM テンプレートを入れ子のデプロイメントとしてラップするもの)とアーティファクト(テンプレートのフラグメント)の両方が提供されています。1 つの出力ディレクトリにレンダリングされるすべてのコンポーネントは、1 つの `arm-template.json` に組み立てられます。合成された入力種別は、このプロバイダーには適用されません。カタログの `arm` Recipes は、FeatureRecipe `arm/key-vault-secret` とともに、PostgreSQL、Redis、Azure OpenAI、API Management、Container Apps のサーバーとワーカーをデプロイします。[arm → カタログの `arm` Recipes](providers/arm.md#the-arm-recipes-in-the-catalog)を参照してください。2 つの `arm` 境界の間の `uses` エッジは 2 つのテンプレートをリンクし、それぞれが独自のデプロイメントとしてデプロイされます。[arm → デプロイメント間のリンク](providers/arm.md#linking-across-deployments)を参照してください。`aggrega.ai/azure-deployment-scope: subscription` を付与した境界は、そのテンプレートをサブスクリプションスコープでデプロイし、リソースグループの内容は 1 つの入れ子のデプロイメントにまとめます。[arm → サブスクリプションスコープでのデプロイ](providers/arm.md#deploying-at-subscription-scope)を参照してください。`aggrega.ai/azure-deployment-scope: managementGroup` を付与した境界は、そのテンプレートを管理グループスコープでデプロイし、サブスクリプションとリソースグループの内容は 2 つの入れ子のデプロイメントにまとめます。[arm → 管理グループスコープでのデプロイ](providers/arm.md#deploying-at-management-group-scope)を参照してください。サブスクリプションまたは管理グループのスコープでデプロイされるプロデューサーへのリンクは、ビルドを停止します。[arm → デプロイメント間のリンク](providers/arm.md#linking-across-deployments)を参照してください。"
+  },
   "b41b19500b5c57f8": {
     "at": "2026-10-22T08:03:58.541373+00:00",
     "job": "msgbatch_01JG3MCod2kUphSC2Zwegw3H",
@@ -134896,6 +134990,13 @@
     "srcHash": "b7e6b02c394307b1",
     "status": "machine",
     "text": "**`assemble_boundary`**: 複数の component の出力を 1 つのドキュメントにまとめます。\n  `BoundaryAssembly` で宣言します。"
+  },
+  "b7e90e388341390d": {
+    "at": "2026-11-17T11:32:31.177Z",
+    "job": "session-0002-20261117113231",
+    "srcHash": "b7e90e388341390d",
+    "status": "machine",
+    "text": "OCI モジュール種別の `bicep-module-oci` と `terraform-module-oci` も、同じ Docker 認証情報の設定で認証します。保存された認証情報がないまま 401 または 403 を返すレジストリがあると、pull は認可されていない取得として停止します。Azure Container Registry では、Docker CLI がインストールされていれば `az acr login` が認証情報を書き込み、そうでない場合は `az acr login --expose-token` の出力を `aggrega login <name>.azurecr.io --username 00000000-0000-0000-0000-000000000000 --password-stdin` にパイプします。[公開された Bicep モジュールをソースにする](../providers/arm.md#sourcing-a-published-bicep-module)に両方の方法を示しています。トークンの有効期間は 3 時間で、必要とするのは pull だけです。"
   },
   "b7ec0287e98403de": {
     "at": "2026-10-22T03:06:36.769432+00:00",
@@ -154614,6 +154715,17 @@
     "status": "machine",
     "text": "Component は、透過的な認証情報スロット `app_credentials`\n(`inject: [env]`)を 1 つ宣言します。Aggregate はこれを `core/referenced-secret-set` で埋めます。\nこれはマルチキーの参照可能な認証情報で、呼び出し側が指定したデータキーのセットを持つ Kubernetes\nSecret を **1 つ**生成し、その\nSecret のロケーター(`provides.name`)のみを公開します。ここでは呼び出し側が 2 つのキーを指定します。"
   },
+  "d21e84151120ef64": {
+    "at": "2026-11-17T11:32:31.177Z",
+    "job": "session-0002-20261117113231",
+    "revision": {
+      "from": "ad97e32f07306c9c",
+      "reviewed": false
+    },
+    "srcHash": "d21e84151120ef64",
+    "status": "machine",
+    "text": "既存の型に追加されたフィールドやメンバーが追加として扱われるかどうかは、言語によって異なります。各キットの README には、その言語の場合が「Compatibility」の項に記載されています。README は crate と npm パッケージに同梱されており、Go キットの README は pkg.go.dev で確認できます。"
+  },
   "d222878ce38bf02f": {
     "at": "2026-10-17T20:18:43.436Z",
     "job": "8d592c9c4a6c",
@@ -163400,6 +163512,13 @@
     "srcHash": "ddef4e51f0567d81",
     "status": "machine",
     "text": "フィールドが現れる場所"
+  },
+  "ddf7ff5ebd9d66ce": {
+    "at": "2026-11-17T11:32:31.177Z",
+    "job": "session-0002-20261117113231",
+    "srcHash": "ddf7ff5ebd9d66ce",
+    "status": "machine",
+    "text": "arm"
   },
   "ddfabe1b2c4290e4": {
     "at": "2026-10-22T03:18:41.939034+00:00",

@@ -18549,6 +18549,17 @@
     "status": "machine",
     "text": "**预解析映射。** 渲染期间，编译器会解析每一个注入源——自注入字面量和针对组件自身 `provides` 的 `from:` 引用、通过 `uses[].inject` 的跨组件引用、FeatureRecipe 的 `injectMapping` 拦截——并将其合并为位于 `.context.inject` 的单一扁平字典。当基础 Recipe 的 `valuesMapping` 模板运行时，每个注入键都已携带其最终字符串值。Recipes 直接遍历该映射（`{{ range $k, $v := .context.inject.env }}`），无需遍历解析链。"
   },
+  "193c86d60db7cf7f": {
+    "at": "2026-11-17T11:32:31.177Z",
+    "job": "session-0002-20261117113231",
+    "revision": {
+      "from": "fe4b0b86d4fa3966",
+      "reviewed": false
+    },
+    "srcHash": "193c86d60db7cf7f",
+    "status": "machine",
+    "text": "**`source:` + `valuesMapping:`（来源型）——available。** 编译器解析 `source:` URI，求值 `valuesMapping` 模板（内联、文件 `$import:` 或库 `$import:`），并将结果交给目标 provider 进行渲染。由 helm、helm-chart、compose、terraform、cloudformation 和 arm provider 使用。"
+  },
   "193ee0657575e13f": {
     "at": "2026-10-30T00:50:28.131Z",
     "job": "session-0041-20261030005028",
@@ -21794,6 +21805,17 @@
     "srcHash": "1dc5be5cb6b5738a",
     "status": "machine",
     "text": "该标志有名称，且同一命令的其他标志都不使用该名称；"
+  },
+  "1dc5e27fa3545beb": {
+    "at": "2026-11-17T11:32:31.177Z",
+    "job": "session-0002-20261117113231",
+    "revision": {
+      "from": "77a08689dc95e508",
+      "reviewed": false
+    },
+    "srcHash": "1dc5e27fa3545beb",
+    "status": "machine",
+    "text": "提供程序（provider）将 Recipe 的输入种类渲染为提供程序原生的清单文件。Provider 渲染由 `pluginType: provider` 的 Plugin 提供：该 Plugin 在 `spec.provider.capabilities` 中列出它所渲染的提供程序名称，并在同一个 `spec.provider` 块中携带其提供程序插槽元数据。Aggrega 的标准库附带提供程序 `helm`、`helm-chart`、`compose`、`terraform`、`cloudformation` 和 `arm`，每个提供程序都声明了自己的契约：它接受哪些输入种类、输出哪些文件、使用哪些边界注解，以及在使用合成输入种类时 Workload 种类如何转换为其原生形态。本组章节从 Recipe 作者的角度介绍这些契约。"
   },
   "1dc835525591a6c9": {
     "at": "2026-10-22T05:25:45.661574+00:00",
@@ -34638,6 +34660,13 @@
     "status": "machine",
     "text": "`template-context.inject`"
   },
+  "2f525bfe88ec90c4": {
+    "at": "2026-11-17T11:32:31.177Z",
+    "job": "session-0002-20261117113231",
+    "srcHash": "2f525bfe88ec90c4",
+    "status": "machine",
+    "text": "[`arm`](providers/arm.md) —— Azure Resource Manager provider。每个边界一个模板，范围可以是资源组、订阅或管理组，以 JSON 形式输出。"
+  },
   "2f52d0d21043f2eb": {
     "at": "2026-10-22T03:06:36.769432+00:00",
     "job": "msgbatch_01LMJ2pDqXu3quNM1ykbvTtk",
@@ -40797,6 +40826,17 @@
     "status": "machine",
     "text": "**`locals:` 是私有面。** 每个键都是 Recipe 内部状态，仅在该 Recipe 自身的后续模板中可见。任何调用方都无法读取 Recipe 的 locals；`locals:` 中的名称不属于任何已发布的接口，重命名它们只是 Recipe 内部的重构，对下游没有影响。"
   },
+  "38171495f5d07ea7": {
+    "at": "2026-11-17T11:32:31.177Z",
+    "job": "session-0002-20261117113231",
+    "revision": {
+      "from": "88ba43da49300de0",
+      "reviewed": false
+    },
+    "srcHash": "38171495f5d07ea7",
+    "status": "machine",
+    "text": "部分 provider 会将各自的贡献者按每个组装路径合并为单个文档：`compose` 合并为一个 `docker-compose.yaml`，`cloudformation` 合并为一个堆栈模板，`arm` 合并为一个 `arm-template.json`。合并后的文档只能携带其组装器所建模的节，因此 `artifacts:` 一栏打勾表示的是片段内容被*放置*在何处，而不是片段中的每个键都会保留下来。"
+  },
   "3817bacb478dd6ac": {
     "at": "2026-10-22T08:23:20.000561+00:00",
     "job": "msgbatch_01HzD7wD8iu4mXKJLFLJkdaf",
@@ -45858,6 +45898,17 @@
     "status": "machine",
     "text": "**集群端模板化。** 凭据 FeatureRecipe 生成一个资源，利用 vault operator 自身的模板功能*在集群中*格式化该字符串。随后应用按名称引用由此生成的平台 Secret，而编译器在从未持有凭据材料的情况下完成了这一关联："
   },
+  "3f241bf53330381f": {
+    "at": "2026-11-17T11:32:31.177Z",
+    "job": "session-0002-20261117113231",
+    "revision": {
+      "from": "0b0e8a0c1805330f",
+      "reviewed": false
+    },
+    "srcHash": "3f241bf53330381f",
+    "status": "machine",
+    "text": "插件开发包——`github.com/aggrega-ai/aggrega-pdk/go`、`aggrega-pdk-rust` 和 `@aggrega-ai/aggrega-pdk-typescript`——以及它们重新导出的 `aggrega-abi` 编解码器，从 `0.9.0` 起遵循语义化版本。三种语言的开发包共享一个版本号，三种语言的编解码器共享另一个版本号。Go 开发包和编解码器是 Go 模块，Rust 的发布在 crates.io 上（`aggrega-pdk-rust`、`aggrega-abi`），TypeScript 的发布在 npm 上（`@aggrega-ai/aggrega-pdk-typescript`、`@aggrega-ai/aggrega-abi`）。"
+  },
   "3f24da8adb25930c": {
     "at": "2026-10-22T04:31:59.273856+00:00",
     "job": "msgbatch_01V4iinZ1EB2Yt7N23KCFLbG",
@@ -49897,6 +49948,17 @@
     "srcHash": "44bd8ed1ef91d00a",
     "status": "machine",
     "text": "每条边在其指向的一端带有箭头：边从消费方组件指向其目标，箭头以该边自身的颜色和虚线样式绘制。节点方框的大小通过测量其绘制的文本来确定，包括节点名称及其下方的组件，因此无论组件名称有多长，两者都不会超出边框。"
+  },
+  "44bea4a7f3317a83": {
+    "at": "2026-11-17T11:32:31.177Z",
+    "job": "session-0002-20261117113231",
+    "revision": {
+      "from": "68a35ca57ba3bdb4",
+      "reviewed": false
+    },
+    "srcHash": "44bea4a7f3317a83",
+    "status": "machine",
+    "text": "Aggrega 标准库提供渲染 provider `helm`、`helm-chart`、`compose`、`terraform`、`cloudformation` 和 `arm`。各 provider 的状态："
   },
   "44bf57299a9ed46e": {
     "at": "2026-10-29T19:15:25.530Z",
@@ -69183,6 +69245,13 @@
     "srcHash": "5f0f0813d59d0b85",
     "status": "machine",
     "text": "🔴 **挂载路径是单个文件的路径，而不是目录的路径。** Compose 将 config 的内容恰好写入目标路径，而 Kubernetes 目标在某个路径挂载 ConfigMap 时，会生成一个*目录*，每个键对应其中一个文件。因此，同样编写的 `path:` 在这里表示文件，在那里表示目录：应将 `configmap` 卷的挂载指向容器要读取的文件名（`/seed/config.json`），而不是包含该文件的目录；为两种目标编写的 Recipe 需要为每个目标使用不同的路径。构建过程无法发现为另一种目标形态编写的路径——该路径是编译器原样传递的不透明字符串，而且无论哪种情况，生成的输出都是有效的。引用按**名称**进行，与 Kubernetes 目标引用 ConfigMap 资源的方式完全一致——不会读取 config 的内容。对应的顶层 `configs:` 条目来自 Recipe 的 `artifacts:` 输入，其 compose 片段使用内联 `content:` 声明该条目；没有此类条目的引用会使构建中止（参见 [Artifacts 生成的 compose 片段](#artifacts-emitted-compose-fragments)）。`configs:` 引用只携带 config 名称和挂载路径，因此挂载的 `readOnly` 没有单独的表达方式"
+  },
+  "5f0f6660445613e6": {
+    "at": "2026-11-17T11:32:31.177Z",
+    "job": "session-0002-20261117113231",
+    "srcHash": "5f0f6660445613e6",
+    "status": "machine",
+    "text": "**arm provider**：制品是模板片段——一个组件贡献的资源，位于 Azure Resource Manager 模板的各个节之下。provider 会读取每个片段，并将其合并到为该输出目录组装的单个资源组模板中，其中资源汇入一个以符号名称为键的 `resources` 对象，片段所写的 `outputs` 汇入模板的 `outputs`。参见 [arm provider](../language-reference/providers/arm.md)。"
   },
   "5f1067559e88ff5e": {
     "at": "2026-10-29T23:51:32.697Z",
@@ -91102,6 +91171,13 @@
     "srcHash": "7cb20e64c8e5ccd7",
     "status": "machine",
     "text": "构建以 `1` 退出。控制器的两次渲染结果不同，因为 chart\n每次都生成了不同的密钥和证书。拉取过程也会渲染该\nRelease，以找出需要固定的外部输入，并在那里遇到同样的中止；这就是被省略的拉取输出行中第二次出现这句话的原因。lockfile 仍会被写入。"
+  },
+  "7cb8dd973d431475": {
+    "at": "2026-11-17T11:32:31.177Z",
+    "job": "session-0002-20261117113231",
+    "srcHash": "7cb8dd973d431475",
+    "status": "machine",
+    "text": "**`arm` 携带 `resources`、`parameters`、`variables`、`definitions`、`functions`、`outputs` 和 `metadata`，并自行写入 `$schema`、`languageVersion` 和 `contentVersion`。** 如果片段写入 `apiProfile`、不是 `2.0` 的 `languageVersion`，或范围大于资源组的 `$schema`，构建会中止并指出该键；任何其他顶层键都不会被携带，并会有警告指出它。[arm provider 页面](../language-reference/providers/arm.md#top-level-sections-in-the-assembled-template)逐一说明了每个键。"
   },
   "7cb96264413d0b91": {
     "at": "2026-10-22T08:23:20.000561+00:00",
@@ -116977,6 +117053,17 @@
     "status": "machine",
     "text": "**在 Docker Compose 上**，secret 通过 agent 的 inject 管道到达，所用的键是其自身 attachment 传递它时所用的键 `values.key`，Recipe 再将该值写入服务的环境中。"
   },
+  "a07a423c012e27ce": {
+    "at": "2026-11-17T11:32:31.177Z",
+    "job": "session-0002-20261117113231",
+    "revision": {
+      "from": "cdcf84923c030f87",
+      "reviewed": false
+    },
+    "srcHash": "a07a423c012e27ce",
+    "status": "machine",
+    "text": "**`workspace.catalog_dirs` 下列出的目录也会被读取，并且先被读取。** 该列表是一个有序的搜索栈：第一个声明某个标识的目录拥有它，后续目录中的同一标识被遮蔽。库名（SchemaLibrary、MappingLibrary、WorkloadLibrary、ArtifactLibrary）作为一个整体被拥有：第一个包含其任意版本的目录拥有它，后续目录中的每个副本，无论版本如何，都被遮蔽。`catalog` 在所有列出的目录之后读取——除非某个列出的目录已包含它，此时它作为该目录的一部分被读取——因此列出目录是在原有内容之上添加，而非替换。命令行上可重复的 `--catalog <dir>` 先于两者读取，在此给出的相对路径相对于你运行命令的目录解析，因为没有配置文件声明它。被多次指定的目录——在命令行和列表中，或在列表中出现两次——只读取一次，位于首次被指定的位置，因此其中的内容不会被报告为被自身遮蔽：遮蔽总是指两个不同文件声明同一标识。同一目录的两种写法、经由链接指向它的路径，以及——在忽略大小写的文件系统上——不同大小写的写法，都指同一个目录。位于另一个列出目录内部的目录仍作为独立条目读取。为每个 Release 保留一个目录变体的项目，可以改为给每个 Release 一个自己的列表——参见[为 Release 指定其自己的目录](#giving-a-release-its-own-catalog-directories)。"
+  },
   "a07bb74dd6eff8cc": {
     "at": "2026-11-05T21:03:25.752Z",
     "job": "session-0023-20261105210325",
@@ -132134,6 +132221,13 @@
     "status": "machine",
     "text": "**在目标之间选择：**`core/target-selection` 声明网关如何在能够处理同一请求的多个目标之间进行选择，其 `strategy` 为 `latency`（观测到响应最快的目标）或 `cost`（调用成本最低的目标）。该策略是应用对其网关的要求的一部分，因此由开发者在 Aggregate 中附加。在 AI 网关上，这些目标是其 `values.models` 中发布同一别名的条目——已连接的模型以其连接的别名提供服务，其他条目不得发布该别名——标准库通过将代理的 `latency-based-routing` 写入网关的 Recipe 所渲染的路由配置来实现 `latency`：代理将每个请求发送到最近十次回复平均耗时最少的条目，若回复报告了令牌数则按每个输出令牌计算，流式请求则按到达首个令牌的时间计算，尚未尝试过的条目视为最快。未附加时，配置不指定策略，代理在这些条目中随机选择。`cost` 在此处会被按名称拒绝：代理按条目的目标原样在价格表中查找来定价，而该价格表列出的 OpenAI 和 Anthropic 模型不带网关目标所携带的 provider 前缀，且对查不到的条目使用固定的后备价格，因此共享同一别名的条目会被定为相同价格，并按其顺序被选中。在 `core/gateway/kong-enterprise` 上，每次附加都会中止，因为连接到它的每个模型都在各自独立的路由上提供服务，每条路由只承载该模型，因此没有可供选择的对象。在 `core/gateway/agentgateway` 上，每次附加同样会中止并说明原因：agentgateway 从一个模型名称的目标中随机抽取两个，取健康度除以响应耗时得分更高的那个，因此只有在最快的目标被抽中时才会选用它，而且它不按成本选择目标。在 `core/gateway/higress` 上，每次附加同样会中止并说明原因：Higress 能够测量服务的延迟，但其负载均衡插件在 AI 代理之后运行——此时 AI 代理已为路由解析出的候选目标设置了请求的模型、地址和凭据——并将其选择写入一个请求头，而若没有本目录不渲染的 Envoy 过滤器，就没有任何路由依据该请求头，因此该选择不会生效，而且它不按成本选择目标。在 `core/gateway/traefik-hub` 上，每次附加同样会中止并说明原因：Traefik 仅在一个 Service 的服务器之间按最低响应时间选择，而一个 Service 只覆盖一个模型名称和一个凭据；在 Service 之间则按权重或客户端地址的哈希进行均衡，从不按延迟，它的任何策略都不按成本选择目标；并且连接到该网关的每个模型都在各自独立的路由上提供服务，每条路由只承载该模型，因此没有可供选择的对象。在任何其他网关上，附加会中止构建。"
   },
+  "b416c34846dcfb25": {
+    "at": "2026-11-17T11:32:31.177Z",
+    "job": "session-0002-20261117113231",
+    "srcHash": "b416c34846dcfb25",
+    "status": "machine",
+    "text": "**`arm` —— 在资源组、订阅和管理组范围内可用。** 来源模式（编译后的 ARM 模板，包装为嵌套部署）和制品（模板片段）均已提供；所有渲染到同一个输出目录的组件会组装为一个 `arm-template.json`。合成输入种类不适用于此 provider。目录中的 `arm` Recipes 连同 `arm/key-vault-secret` FeatureRecipe，用于部署 PostgreSQL、Redis、Azure OpenAI、API Management 和 Container Apps 的服务器与 worker；参见 [arm → 目录中的 `arm` Recipes](providers/arm.md#the-arm-recipes-in-the-catalog)。两个 `arm` 边界之间的 `uses` 边会链接这两个模板，每个模板作为各自独立的部署进行部署；参见 [arm → 跨部署链接](providers/arm.md#linking-across-deployments)。带有 `aggrega.ai/azure-deployment-scope: subscription` 注解的边界会在订阅范围部署其模板，其资源组内容放在一个嵌套部署中；参见 [arm → 在订阅范围部署](providers/arm.md#deploying-at-subscription-scope)。带有 `aggrega.ai/azure-deployment-scope: managementGroup` 注解的边界会在管理组范围部署其模板，其订阅和资源组内容放在两个嵌套部署中；参见 [arm → 在管理组范围部署](providers/arm.md#deploying-at-management-group-scope)。指向部署在订阅或管理组范围的生产方的链接会使构建中止；参见 [arm → 跨部署链接](providers/arm.md#linking-across-deployments)。"
+  },
   "b41b19500b5c57f8": {
     "at": "2026-10-22T08:03:58.541373+00:00",
     "job": "msgbatch_01JG3MCod2kUphSC2Zwegw3H",
@@ -134888,6 +134982,13 @@
     "srcHash": "b7e6b02c394307b1",
     "status": "machine",
     "text": "**`assemble_boundary`**，用于将多个 component 的输出合并为一个\n  文档，通过 `BoundaryAssembly` 声明。"
+  },
+  "b7e90e388341390d": {
+    "at": "2026-11-17T11:32:31.177Z",
+    "job": "session-0002-20261117113231",
+    "srcHash": "b7e90e388341390d",
+    "status": "machine",
+    "text": "OCI 模块种类 `bicep-module-oci` 和 `terraform-module-oci` 通过同一个 Docker 凭据配置进行认证，如果注册表在没有已存储凭据的情况下返回 401 或 403，拉取会作为未授权获取而中止。对于 Azure Container Registry，安装了 Docker CLI 时由 `az acr login` 写入凭据，否则将 `az acr login --expose-token` 的输出通过管道传给 `aggrega login <name>.azurecr.io --username 00000000-0000-0000-0000-000000000000 --password-stdin`；[获取已发布的 Bicep 模块](../providers/arm.md#sourcing-a-published-bicep-module)展示了这两种方式。令牌的有效期为 3 小时，只有拉取需要它。"
   },
   "b7ec0287e98403de": {
     "at": "2026-10-22T03:06:36.769432+00:00",
@@ -154606,6 +154707,17 @@
     "status": "machine",
     "text": "该 Component 声明一个透明凭据槽位 `app_credentials`\n（`inject: [env]`）。Aggregate 使用 `core/referenced-secret-set` 填充它——\n这是一个多键可引用凭据，它物化出**一个** Kubernetes\nSecret，其中携带由调用方提供的一组数据键，并且只发布该\nSecret 的定位符（`provides.name`）。这里调用方提供了两个键："
   },
+  "d21e84151120ef64": {
+    "at": "2026-11-17T11:32:31.177Z",
+    "job": "session-0002-20261117113231",
+    "revision": {
+      "from": "ad97e32f07306c9c",
+      "reviewed": false
+    },
+    "srcHash": "d21e84151120ef64",
+    "status": "machine",
+    "text": "向现有类型添加的字段或成员是否算作新增，取决于语言。每个开发包的 README 会在 “Compatibility” 下说明其语言的情况；README 包含在 crate 和 npm 包中，pkg.go.dev 则展示 Go 开发包的 README。"
+  },
   "d222878ce38bf02f": {
     "at": "2026-10-17T20:18:43.436Z",
     "job": "8d592c9c4a6c",
@@ -163390,6 +163502,13 @@
     "srcHash": "ddef4e51f0567d81",
     "status": "machine",
     "text": "该字段出现的位置"
+  },
+  "ddf7ff5ebd9d66ce": {
+    "at": "2026-11-17T11:32:31.177Z",
+    "job": "session-0002-20261117113231",
+    "srcHash": "ddf7ff5ebd9d66ce",
+    "status": "machine",
+    "text": "arm"
   },
   "ddfabe1b2c4290e4": {
     "at": "2026-10-22T03:18:41.939034+00:00",

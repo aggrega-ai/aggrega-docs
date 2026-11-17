@@ -16754,6 +16754,17 @@
     "status": "machine",
     "text": "**La mappa pre-risolta.** Durante il rendering, il compilatore risolve ogni sorgente di inject — i letterali di self-inject e i riferimenti `from:` rispetto ai `provides` del componente stesso, i riferimenti tra componenti tramite `uses[].inject`, le intercettazioni `injectMapping` della FeatureRecipe — in un unico dizionario appiattito in `.context.inject`. Quando viene eseguito il template `valuesMapping` della Recipe di base, ogni chiave di inject ha già il suo valore stringa finale. Le Recipes iterano direttamente sulla mappa (`{{ range $k, $v := .context.inject.env }}`) senza percorrere la catena di risoluzione."
   },
+  "193c86d60db7cf7f": {
+    "at": "2026-11-17T11:32:31.177Z",
+    "job": "session-0002-20261117113231",
+    "revision": {
+      "from": "fe4b0b86d4fa3966",
+      "reviewed": false
+    },
+    "srcHash": "193c86d60db7cf7f",
+    "status": "machine",
+    "text": "**`source:` + `valuesMapping:` (da sorgente) — disponibile.** Il compilatore risolve l’URI `source:`, valuta il template `valuesMapping` (inline, `$import:` da file o `$import:` da libreria) e passa il risultato al provider di destinazione per il rendering. Consumato dai provider helm, helm-chart, compose, terraform, cloudformation e arm."
+  },
   "193ee0657575e13f": {
     "at": "2026-11-03T22:09:07.585Z",
     "job": "session-0166-20261103220907",
@@ -19692,6 +19703,17 @@
     "srcHash": "1dc5be5cb6b5738a",
     "status": "machine",
     "text": "il flag ha un nome, e nessun altro flag dello stesso comando lo ha;"
+  },
+  "1dc5e27fa3545beb": {
+    "at": "2026-11-17T11:32:31.177Z",
+    "job": "session-0002-20261117113231",
+    "revision": {
+      "from": "77a08689dc95e508",
+      "reviewed": false
+    },
+    "srcHash": "1dc5e27fa3545beb",
+    "status": "machine",
+    "text": "Un provider esegue il rendering dei tipi di input di una Recipe in file manifest nativi del provider. Il rendering del Provider è servito da un Plugin con `pluginType: provider`: il Plugin elenca il nome o i nomi dei provider di cui esegue il rendering in `spec.provider.capabilities` e porta i metadati del provider-socket nello stesso blocco `spec.provider`. La libreria standard di Aggrega include i provider `helm`, `helm-chart`, `compose`, `terraform`, `cloudformation` e `arm`, e ciascuno dichiara il proprio contratto: quali tipi di input accetta, quali file di output emette, quali annotazioni di boundary consuma e come il tipo Workload si traduce nella sua forma nativa quando si usa il tipo di input sintetizzato. Questo insieme di capitoli tratta tali contratti dal punto di vista dell’autore di Recipe."
   },
   "1dc835525591a6c9": {
     "at": "2026-11-04T07:09:44.037Z",
@@ -31386,6 +31408,13 @@
     "status": "machine",
     "text": "`template-context.inject`"
   },
+  "2f525bfe88ec90c4": {
+    "at": "2026-11-17T11:32:31.177Z",
+    "job": "session-0002-20261117113231",
+    "srcHash": "2f525bfe88ec90c4",
+    "status": "machine",
+    "text": "[`arm`](providers/arm.md) — il provider Azure Resource Manager. Un template per boundary a livello di gruppo di risorse, sottoscrizione o gruppo di gestione, emesso come JSON."
+  },
   "2f52d0d21043f2eb": {
     "at": "2026-11-03T07:17:26.700Z",
     "job": "session-0069-20261103071726",
@@ -36904,6 +36933,17 @@
     "status": "machine",
     "text": "**`locals:` è il volto privato.** Ogni chiave è stato interno alla Recipe, visibile solo all’interno dei template successivi propri della Recipe. Nessun chiamante può leggere i locals di una Recipe; i nomi in `locals:` non fanno parte di alcuna interfaccia pubblicata e rinominarli è un refactoring interno alla Recipe senza effetti a valle."
   },
+  "38171495f5d07ea7": {
+    "at": "2026-11-17T11:32:31.177Z",
+    "job": "session-0002-20261117113231",
+    "revision": {
+      "from": "88ba43da49300de0",
+      "reviewed": false
+    },
+    "srcHash": "38171495f5d07ea7",
+    "status": "machine",
+    "text": "Alcuni provider uniscono i propri contributori in un unico documento per percorso di assemblaggio: `compose` in un unico `docker-compose.yaml`, `cloudformation` in un unico template di stack, `arm` in un unico `arm-template.json`. Un documento unito può portare solo le sezioni che il suo assemblatore modella, quindi una spunta su `artifacts:` dice dove viene *collocato* il contenuto di un frammento, non che ogni chiave all’interno del frammento sopravviva."
+  },
   "381a23296bc5ce9f": {
     "at": "2026-11-12T08:45:17.034Z",
     "job": "session-0006-20261112084517",
@@ -41567,6 +41607,17 @@
     "status": "machine",
     "text": "**Templating lato cluster.** La FeatureRecipe della credenziale emette una risorsa che formatta la stringa *nel cluster*, usando il templating proprio dell’operatore del vault. L’applicazione fa poi riferimento per nome al Secret di piattaforma risultante, e il compilatore ha collegato la relazione senza mai detenere il materiale:"
   },
+  "3f241bf53330381f": {
+    "at": "2026-11-17T11:32:31.177Z",
+    "job": "session-0002-20261117113231",
+    "revision": {
+      "from": "0b0e8a0c1805330f",
+      "reviewed": false
+    },
+    "srcHash": "3f241bf53330381f",
+    "status": "machine",
+    "text": "I kit di sviluppo per plugin — `github.com/aggrega-ai/aggrega-pdk/go`, `aggrega-pdk-rust` e `@aggrega-ai/aggrega-pdk-typescript` — e i codec `aggrega-abi` che essi riesportano seguono il versionamento semantico a partire da `0.9.0`. I tre linguaggi dei kit condividono un unico numero di versione, e i tre linguaggi dei codec ne condividono un altro. Il kit e il codec Go sono moduli Go, quelli Rust sono pubblicati su crates.io (`aggrega-pdk-rust`, `aggrega-abi`) e quelli TypeScript su npm (`@aggrega-ai/aggrega-pdk-typescript`, `@aggrega-ai/aggrega-abi`)."
+  },
   "3f24da8adb25930c": {
     "at": "2026-11-03T19:06:07.164Z",
     "job": "session-0145-20261103190607",
@@ -45193,6 +45244,17 @@
     "srcHash": "44bd8ed1ef91d00a",
     "status": "machine",
     "text": "Ogni arco porta una punta di freccia all’estremità verso cui punta: un arco va dal componente consumatore al suo target, e la punta di freccia è disegnata con il colore e il tratteggio dell’arco stesso. Il riquadro di un nodo è dimensionato misurando il testo che disegna, sia il nome del nodo sia il componente sotto di esso, così nessuno dei due supera il bordo, per quanto lungo sia il nome del componente."
+  },
+  "44bea4a7f3317a83": {
+    "at": "2026-11-17T11:32:31.177Z",
+    "job": "session-0002-20261117113231",
+    "revision": {
+      "from": "68a35ca57ba3bdb4",
+      "reviewed": false
+    },
+    "srcHash": "44bea4a7f3317a83",
+    "status": "machine",
+    "text": "La libreria standard di Aggrega include i provider di rendering `helm`, `helm-chart`, `compose`, `terraform`, `cloudformation` e `arm`. Stato per provider:"
   },
   "44bf57299a9ed46e": {
     "at": "2026-10-30T06:04:18.554Z",
@@ -62737,6 +62799,13 @@
     "srcHash": "5f0f0813d59d0b85",
     "status": "machine",
     "text": "🔴 **Il percorso di montaggio è il percorso di un singolo file, non di una directory.** Compose scrive il contenuto della config esattamente nel percorso di destinazione, mentre una destinazione Kubernetes che monta una ConfigMap in un percorso produce una *directory* che contiene un file per chiave. Così lo stesso `path:` scritto dall’autore indica qui un file e là una directory: punta il montaggio di un volume `configmap` al nome del file che il container deve leggere (`/seed/config.json`), non alla directory che lo conterrebbe, e una Recipe scritta per entrambe le destinazioni riporta un percorso diverso per ciascuna destinazione. Nulla nella build può intercettare un percorso scritto per la forma dell’altra destinazione — il percorso è una stringa opaca che il compilatore fa passare così com’è, e l’output emesso è valido in entrambi i casi. Il riferimento è per **nome**, esattamente come una destinazione Kubernetes fa riferimento a una risorsa ConfigMap — nulla legge il contenuto della config. La voce `configs:` di primo livello corrispondente proviene dall’input `artifacts:` della Recipe, il cui frammento compose la dichiara con `content:` inline; un riferimento senza una tale voce arresta la build (vedi [Frammenti compose emessi come artefatti](#artifacts-emitted-compose-fragments)). Un riferimento `configs:` porta il nome della config e il percorso di montaggio e nient’altro, quindi il `readOnly` del montaggio non ha un’espressione separata"
+  },
+  "5f0f6660445613e6": {
+    "at": "2026-11-17T11:32:31.177Z",
+    "job": "session-0002-20261117113231",
+    "srcHash": "5f0f6660445613e6",
+    "status": "machine",
+    "text": "**Provider arm:** gli artefatti sono frammenti di template — le risorse che un componente contribuisce, sotto le sezioni di un template Azure Resource Manager. Il provider legge ogni frammento e lo unisce nell’unico template di gruppo di risorse assemblato per quella directory di output, dove le risorse confluiscono in un solo oggetto `resources` indicizzato per nome simbolico e gli `outputs` che un frammento scrive confluiscono negli `outputs` del template. Vedi [il provider arm](../language-reference/providers/arm.md)."
   },
   "5f1067559e88ff5e": {
     "at": "2026-11-03T15:47:38.665Z",
@@ -82507,6 +82576,13 @@
     "srcHash": "7cb20e64c8e5ccd7",
     "status": "machine",
     "text": "Il build esce con codice `1`. I due rendering del controller differiscono, perché il chart ha generato ogni volta una chiave e un certificato diversi. Anche il pull renderizza la Release, per trovare eventuali input esterni di cui ha bisogno fissati, e incontra lì lo stesso arresto; è per questo che le righe del pull omesse riportano la frase una seconda volta. Il lockfile viene comunque scritto."
+  },
+  "7cb8dd973d431475": {
+    "at": "2026-11-17T11:32:31.177Z",
+    "job": "session-0002-20261117113231",
+    "srcHash": "7cb8dd973d431475",
+    "status": "machine",
+    "text": "**`arm` porta `resources`, `parameters`, `variables`, `definitions`, `functions`, `outputs` e `metadata`, e scrive da sé `$schema`, `languageVersion` e `contentVersion`.** Un frammento che scrive `apiProfile`, una `languageVersion` diversa da `2.0` o un `$schema` per un ambito più ampio di un gruppo di risorse interrompe la build, indicando la chiave; qualsiasi altra chiave di primo livello non viene portata, e un avviso la nomina. [La pagina del provider arm](../language-reference/providers/arm.md#top-level-sections-in-the-assembled-template) spiega ogni chiave."
   },
   "7cb96264413d0b91": {
     "at": "2026-11-04T11:53:53.173Z",
@@ -106042,6 +106118,17 @@
     "status": "machine",
     "text": "**Su Docker Compose** il segreto arriva sul canale di iniezione dell’agente sotto la chiave con cui la sua associazione lo ha consegnato, `values.key`, e la Recipe scrive quel valore nell’ambiente del servizio."
   },
+  "a07a423c012e27ce": {
+    "at": "2026-11-17T11:32:31.177Z",
+    "job": "session-0002-20261117113231",
+    "revision": {
+      "from": "cdcf84923c030f87",
+      "reviewed": false
+    },
+    "srcHash": "a07a423c012e27ce",
+    "status": "machine",
+    "text": "**Vengono lette anche le directory elencate sotto `workspace.catalog_dirs`, e vengono lette per prime.** L’elenco è uno stack di ricerca ordinato: la prima directory che dichiara un’identità la possiede, e la stessa identità in una directory successiva viene oscurata. Il nome di una libreria (SchemaLibrary, MappingLibrary, WorkloadLibrary, ArtifactLibrary) è posseduto nel suo insieme: la prima directory che ne contiene una versione qualsiasi la possiede, e ogni copia in una directory successiva, a qualsiasi versione, viene oscurata. `catalog` viene letta dopo tutto ciò che è elencato — a meno che una directory elencata non la contenga già, nel qual caso viene letta come parte di quella directory — quindi elencare una directory si aggiunge a ciò che avevi anziché sostituirlo. Un `--catalog <dir>` ripetibile sulla riga di comando viene letto prima di entrambi, e un percorso relativo fornito lì si risolve rispetto alla directory da cui hai eseguito il comando, poiché nessun file di configurazione lo ha dichiarato. Una directory nominata più di una volta — sulla riga di comando e nell’elenco, o due volte nell’elenco — viene letta una volta, nel punto in cui è stata nominata per la prima volta, così nulla al suo interno viene segnalato come oscurato da sé stesso: un oscuramento è sempre due file diversi che dichiarano una stessa identità. Due grafie di una stessa directory, un percorso verso di essa attraverso un link e — su un file system che ignora le maiuscole — una grafia con maiuscole diverse nominano tutti quell’unica directory. Una directory all’interno di un’altra directory elencata viene comunque letta come voce a sé. Un progetto che mantiene una variante di catalogo per Release può invece dare a ciascuna Release un proprio elenco — vedi [Dare a una Release le proprie directory di catalogo](#giving-a-release-its-own-catalog-directories)."
+  },
   "a07bb74dd6eff8cc": {
     "at": "2026-11-05T17:28:23.934Z",
     "job": "session-0007-20261105172823",
@@ -119786,6 +119873,13 @@
     "status": "machine",
     "text": "**Scegliere tra i target:** `core/target-selection` dichiara come un gateway sceglie tra più target in grado di servire la stessa richiesta, con una `strategy` di `latency` (il target che si osserva rispondere più rapidamente) o `cost` (il target meno costoso da chiamare). La strategia fa parte di ciò che l’applicazione chiede al suo gateway, quindi lo sviluppatore la associa nell’Aggregate. Sull’AI gateway i target sono le voci del suo `values.models` che pubblicano lo stesso alias — un modello collegato è servito sotto l’alias della sua connessione, che nessun’altra voce può pubblicare — e la libreria standard realizza `latency` scrivendo il `latency-based-routing` del proxy nella configurazione di routing che la Recipe del gateway renderizza: il proxy invia ogni richiesta alla voce le cui ultime dieci risposte hanno impiegato in media meno tempo, per token di output dove una risposta riporta i propri token, o fino al primo token per una richiesta in streaming, e una voce non ancora provata conta come la più rapida. Senza l’associazione la configurazione non nomina alcuna strategia, e il proxy sceglie a caso tra quelle voci. `cost` vi è rifiutato per nome: il proxy stabilisce il prezzo di una voce cercandone il target, esattamente come scritto, in una tabella dei prezzi che nomina i modelli di OpenAI e di Anthropic senza il prefisso del provider che i target del gateway portano, e assegna a una voce che non trova un prezzo di fallback fisso, quindi le voci che condividono un alias avrebbero lo stesso prezzo e verrebbero scelte in base al loro ordine. Su `core/gateway/kong-enterprise` ogni associazione arresta la build, perché ogni modello collegato è servito su route proprie che portano quel solo modello, il che non lascia nulla tra cui scegliere. Anche su `core/gateway/agentgateway` ogni associazione arresta la build, indicando il motivo: agentgateway estrae a caso due dei target di un nome di modello e prende quello la cui salute, divisa per il tempo impiegato a rispondere, ottiene il punteggio più alto, quindi il target più rapido viene preso solo quando viene estratto, e non sceglie alcun target in base al costo. Anche su `core/gateway/higress` ogni associazione arresta la build, indicando il motivo: Higress può misurare la latenza di un servizio, ma il suo plugin di load balancing viene eseguito dopo l’AI proxy — che ha già impostato il modello, l’indirizzo e la credenziale della richiesta per il candidato risolto dalla route — e scrive la sua scelta in un header della richiesta in base al quale nulla instrada senza un filtro Envoy che questo catalogo non renderizza, quindi la scelta non ha effetto, e non sceglie alcun target in base al costo. Anche su `core/gateway/traefik-hub` ogni associazione arresta la build, indicando il motivo: Traefik sceglie in base al tempo di risposta più basso solo tra i server di un Service, che un solo nome di modello e una sola credenziale coprono, e tra i Service bilancia in base al peso o a un hash dell’indirizzo del client, mai in base alla latenza, e nessuna delle sue strategie sceglie un target in base al costo; inoltre ogni modello collegato al gateway è servito su una route propria che porta quel solo modello, il che non lascia nulla tra cui scegliere. Su qualsiasi altro gateway un’associazione arresta la build."
   },
+  "b416c34846dcfb25": {
+    "at": "2026-11-17T11:32:31.177Z",
+    "job": "session-0002-20261117113231",
+    "srcHash": "b416c34846dcfb25",
+    "status": "machine",
+    "text": "**`arm` — disponibile negli ambiti di gruppo di risorse, sottoscrizione e gruppo di gestione.** La modalità da sorgente (un template ARM compilato, incapsulato come deployment annidato) e gli artefatti (frammenti di template) sono entrambi inclusi; ogni componente di cui si esegue il rendering in una directory di output viene assemblato in un unico `arm-template.json`. Il tipo di input sintetizzato non è applicabile a questo provider. Le Recipes `arm` del catalogo, con la FeatureRecipe `arm/key-vault-secret`, distribuiscono server e worker PostgreSQL, Redis, Azure OpenAI, API Management e Container Apps; vedi [arm → Le Recipes `arm` nel catalogo](providers/arm.md#the-arm-recipes-in-the-catalog). Un arco `uses` tra due boundary `arm` collega i due template, ciascuno distribuito come proprio deployment; vedi [arm → Collegare più deployment](providers/arm.md#linking-across-deployments). Un boundary annotato `aggrega.ai/azure-deployment-scope: subscription` distribuisce il proprio template nell’ambito della sottoscrizione, con il contenuto di gruppo di risorse in un deployment annidato; vedi [arm → Distribuire nell’ambito della sottoscrizione](providers/arm.md#deploying-at-subscription-scope). Un boundary annotato `aggrega.ai/azure-deployment-scope: managementGroup` distribuisce il proprio template nell’ambito del gruppo di gestione, con il contenuto di sottoscrizione e di gruppo di risorse in due deployment annidati; vedi [arm → Distribuire nell’ambito del gruppo di gestione](providers/arm.md#deploying-at-management-group-scope). Un link a un producer distribuito nell’ambito di una sottoscrizione o di un gruppo di gestione interrompe la build; vedi [arm → Collegare più deployment](providers/arm.md#linking-across-deployments)."
+  },
   "b421f8679fe9bd0a": {
     "at": "2026-11-04T03:09:22.872Z",
     "job": "session-0196-20261104030922",
@@ -122305,6 +122399,13 @@
     "srcHash": "b7e6b02c394307b1",
     "status": "machine",
     "text": "**`assemble_boundary`**, per riunire l’output di più componenti in un unico documento, dichiarato tramite `BoundaryAssembly`."
+  },
+  "b7e90e388341390d": {
+    "at": "2026-11-17T11:32:31.177Z",
+    "job": "session-0002-20261117113231",
+    "srcHash": "b7e90e388341390d",
+    "status": "machine",
+    "text": "I tipi di modulo OCI, `bicep-module-oci` e `terraform-module-oci`, si autenticano tramite la stessa configurazione delle credenziali Docker, e un registry che risponde 401 o 403 senza alcuna credenziale memorizzata interrompe il pull come un recupero non autorizzato. Per Azure Container Registry, `az acr login` scrive la credenziale quando la CLI di Docker è installata, e in caso contrario `az acr login --expose-token` viene inviato in pipe a `aggrega login <name>.azurecr.io --username 00000000-0000-0000-0000-000000000000 --password-stdin`; [Ottenere un modulo Bicep pubblicato](../providers/arm.md#sourcing-a-published-bicep-module) mostra entrambi. Il token dura 3 ore e solo un pull ne ha bisogno."
   },
   "b7ec0287e98403de": {
     "at": "2026-11-03T06:57:39.508Z",
@@ -140250,6 +140351,17 @@
     "status": "machine",
     "text": "Il Component dichiara uno slot di credenziale trasparente, `app_credentials` (`inject: [env]`). L’Aggregate lo riempie con `core/referenced-secret-set` — una credenziale referenziabile a più chiavi che materializza **un unico** Secret Kubernetes contenente un insieme di chiavi di dati fornito dal chiamante e pubblica solo il localizzatore del Secret (`provides.name`). Qui il chiamante fornisce due chiavi:"
   },
+  "d21e84151120ef64": {
+    "at": "2026-11-17T11:32:31.177Z",
+    "job": "session-0002-20261117113231",
+    "revision": {
+      "from": "ad97e32f07306c9c",
+      "reviewed": false
+    },
+    "srcHash": "d21e84151120ef64",
+    "status": "machine",
+    "text": "Se un campo o un membro aggiunto a un tipo esistente conti come un’aggiunta dipende dal linguaggio. Il README di ciascun kit indica il caso del suo linguaggio nella sezione «Compatibility»; il README è incluso nel crate e nel pacchetto npm, e pkg.go.dev mostra quello del kit Go."
+  },
   "d222878ce38bf02f": {
     "at": "2026-10-17T20:18:43.436Z",
     "job": "8d592c9c4a6c",
@@ -148221,6 +148333,13 @@
     "srcHash": "ddef4e51f0567d81",
     "status": "machine",
     "text": "Dove compare il campo"
+  },
+  "ddf7ff5ebd9d66ce": {
+    "at": "2026-11-17T11:32:31.177Z",
+    "job": "session-0002-20261117113231",
+    "srcHash": "ddf7ff5ebd9d66ce",
+    "status": "machine",
+    "text": "arm"
   },
   "ddfabe1b2c4290e4": {
     "at": "2026-11-03T11:32:02.259Z",
