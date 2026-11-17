@@ -1153,9 +1153,9 @@ them, two reference render-stage adapters ship as worked examples among the plug
 development kit's Rust examples, one per common output shape.
 
 [`../examples/policy-render-verdict/`](../examples/policy-render-verdict/README.md)
-attaches one rule at `render-verdict` over the output of four targets — Kubernetes
-objects, a Docker Compose file, a Terraform root configuration and a
-CloudFormation template — written once for each engine in the compiler, and
+attaches one rule at `render-verdict` over the output of every target — Kubernetes
+objects, a Docker Compose file, a Terraform root configuration, a
+CloudFormation template and an Azure Resource Manager template — written once for each engine in the compiler, and
 checks that each target's planted violation halts and its control passes.
 
 To write an adapter of your own, at this role or any other, start from the

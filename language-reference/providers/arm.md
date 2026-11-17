@@ -130,7 +130,7 @@ valuesMapping: |
 
 ## The `arm` Recipes in the catalog
 
-The catalog's `arm` Recipes wrap Microsoft's Azure Verified Modules at a pinned tag, each fetched from its git repository at the commit `entity.lock` records, and each binds `enableTelemetry: false`. Each reads the Release's `infra.overrides` for the operator's own resources, names a value it cannot realize and halts on it by name.
+Six of the catalog's `arm` Recipes wrap one of Microsoft's Azure Verified Modules at a pinned tag, each fetched from its git repository at the commit `entity.lock` records, and each binds `enableTelemetry: false`; `arm/azure-api-management` authors its resources itself and `arm/key-vault-secret` renders none. A Recipe reads the Release's `infra.overrides` for the operator's own resources, and halts by name on a value it cannot realize.
 
 | Recipe | Implements | What it wraps or authors | Notable refusals |
 | --- | --- | --- | --- |
