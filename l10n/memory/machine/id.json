@@ -15911,6 +15911,13 @@
     "status": "machine",
     "text": "Mesin airgapped yang menyimpan salinan lokal katalog dan artefaknya adalah kasus yang membuat pembagian ini ada agar tetap berfungsi: workspace semacam itu offline, dan hampir semua yang dilakukannya masih dapat dipenuhi."
   },
+  "154055b6b4503573": {
+    "at": "2026-11-17T14:28:10.966Z",
+    "job": "session-0016-20261117142810",
+    "srcHash": "154055b6b4503573",
+    "status": "machine",
+    "text": "Jika tidak ada"
+  },
   "1540d8e378132e18": {
     "at": "2026-10-23T08:34:04.552030+00:00",
     "job": "msgbatch_01V7s7eyUrCwoDSpkeCSpVQQ",
@@ -23654,6 +23661,13 @@
     "status": "machine",
     "text": "**Yang dibawa pustaka standar.** `core/ai-tool/mcp` membawa `http`. Komponen ini melampirkan server Model Context Protocol ke agen, dan Manifest memilih bagaimana server itu direalisasikan: `helm/mcp` menjalankan image yang menyajikan protokol melalui HTTP; `helm/mcp-stdio-bridge` dan `compose/mcp-stdio-bridge` menjalankan paket yang hanya berbicara stdio di balik bridge yang dipin yang menyajikannya melalui HTTP; `helm/mcp-remote` dan `compose/mcp-remote` menjangkau server yang dijalankan pihak lain, dan tidak menjalankan apa pun. Setiap realisasi memublikasikan `host`, `port`, `endpoint`, `protocol`, dan `credential_header` yang sama, sehingga pengkabelan konsumen tidak berubah mengikuti realisasinya. Kredensial server yang dijembatani adalah variabel lingkungan, disimpan di slot `server_env` milik alat dan diserahkan ke bridge melalui referensi di Kubernetes; kredensial server jarak jauh disimpan oleh konsumen pada koneksinya sendiri ke alat dan diserahkan di bawah header yang disebutkan oleh `credential_header`, yaitu `Authorization` kecuali Release menyebutkan yang lain. Jika server jarak jauh membaca kuncinya dari alamatnya sendiri, konsumen juga menyimpan seluruh alamat pada koneksi tersebut, dalam slot `endpoint` yang diisi di Kubernetes dengan referensi ke Secret dan di Docker Compose dengan referensi variabel Compose, sehingga kunci tidak sampai ke file hasil render mana pun, sementara `infra.endpoint` milik alat menyimpan alamat tanpa bagian yang membawa kunci; [examples/mcp-address-from-secret](../language-reference/examples/mcp-address-from-secret/README.md) membangun keduanya. `core/ai-agent/openai-agents-sdk`, `core/ai-agent/claude-agent-sdk`, `core/ai-agent/agent-framework`, `core/ai-agent/google-adk`, dan `core/ai-agent/mastra`, serta platform alur `core/ai-agent/flowise` dan `core/ai-agent/n8n`, mendeklarasikan soket alat dengan bentuk ini, `tools`, dan menyerahkan alamat setiap alat yang terhubung, serta kredensial koneksi melalui referensi, di bawah variabel yang dinamai menurut alias koneksi, sementara koneksi yang menulis blok `inject:` menerima apa yang ditentukan blok tersebut sebagai pengganti variabel yang diturunkan dari apa yang dipublikasikan alat, dengan isi slot `credential` dan `endpoint` miliknya tetap berada di bawah nama alias; konsumen buatan sendiri mendeklarasikannya dengan cara yang sama. Masing-masing dari ketiga platform alur membawa alur yang ditulis di dalam Aggregate ke dalam platform saat deploy, pada kedua target: Langflow memuat definisi yang dibawa dari direktori alurnya pada setiap start, chatflow Flowise diisi oleh langkah sekali jalan yang masuk sebagai akun pemilik yang disebutkan oleh Release, dan workflow n8n diimpor oleh langkah init sebelum platform dimulai. `core/ai-agent/langflow` mendeklarasikan soket `tools` dengan bentuk yang sama, yang tidak menerima blok `inject:`, dan sebagai gantinya menyerahkan setiap koneksi melalui alur tersebut, karena komponen MCP Tools milik Langflow mengambil alamat server hanya dari pengaturan Langflow sendiri atau dari alur, tidak pernah dari variabel: Recipes miliknya menulis alamat alat ke node MCP Tools yang servernya dinamai menurut alias koneksi, menyerahkan kredensial koneksi melalui referensi sebagai variabel yang disebutkan oleh header node tersebut — di bawah `Authorization`, sebuah variabel yang menyimpan `Bearer` dan kredensial — dan meloloskan host dari alat dan penyimpanan yang terhubung melalui pelindung Langflow terhadap alamat privat. Ketiga platform juga mendeklarasikan soket `vector_store` yang memilih `datastore.aggrega.ai/engine in (vector, semantic-memory, search)`, yang dengan cara yang sama menyerahkan alamat setiap penyimpanan yang terhubung — `endpoint` yang dipublikasikannya, untuk `core/datastore/pgvector` URI koneksi tanpa kata sandi, atau alamat yang disusun dari protokol, host, dan port-nya — serta kredensial koneksi melalui referensi; penyimpanan yang juga memublikasikan basis data dan penggunanya, seperti yang dilakukan `core/datastore/pgvector`, sampai ke Flowise dan n8n juga dalam bagian-bagian tersebut, karena node vektor PostgreSQL milik kedua platform itu tidak menerima string koneksi; Langflow, yang komponen PGVector-nya menerima satu string, menerima penyimpanan seperti itu sebagai `AGGREGA_VECTOR_STORE_<ALIAS>_CONNECTION_STRING`, dengan kredensial koneksi sebagai kata sandinya, melalui referensi di Kubernetes dan sebagaimana diserahkan di Docker Compose. Chatflow Flowise membaca variabel yang diserahkan melalui variabel Runtime dengan nama yang sama yang dibuat di halaman Variables milik Flowise, dan workflow n8n membacanya melalui `$env` hanya jika Aggregate menetapkan nilai `allow_env_access_in_nodes` milik platform, karena secara default Recipes miliknya mempertahankan blokir n8n atas akses lingkungan di dalam node."
   },
+  "1fbb883236ef4756": {
+    "at": "2026-11-17T14:28:10.966Z",
+    "job": "session-0016-20261117142810",
+    "srcHash": "1fbb883236ef4756",
+    "status": "machine",
+    "text": "**Template konsumen membaca penerapan produsen melalui ID resource-nya.** Nilai yang dihubungkan ke konsumen menjadi `reference(format('/subscriptions/{0}/resourceGroups/{1}/providers/Microsoft.Resources/deployments/{2}', <subscription>, <resource group>, '<name>'), '2025-04-01').outputs.<output>.value`, yang ditulis dalam `properties` sebuah resource, `value` sebuah output, atau input dari loop `copy` sebuah output, yaitu tempat-tempat ARM mengevaluasi `reference()`. Compiler tidak menghubungi apa pun: ID tersebut adalah string yang dibangunnya dari nama, dan ARM membaca penerapan saat konsumen diterapkan."
+  },
   "1fc3aa265dd980d1": {
     "at": "2026-11-14T10:22:53.079Z",
     "job": "session-0004-20261114102253",
@@ -24317,6 +24331,13 @@
     "srcHash": "20a32ab1e06f01a3",
     "status": "machine",
     "text": "**Bentuk struktural: map di akar, array di payload.** Blok topologi akar — `components`, `features`, `aggregates`, `subsystems`, `boundaries` — adalah map YAML dengan kunci yang ditulis pengguna yang berfungsi sebagai ID instans yang stabil. Array tidak valid di posisi-posisi ini; kunci map adalah identitas yang digunakan compiler untuk referensi silang (`target: my-db`), konstruksi node graf, dan resolusi Manifest. Di dalam blok payload yang buram (`values`, `infra`, `parameters`), array sepenuhnya diizinkan — pengembang dapat menulis `tools_allowed: [\"sql\", \"web\"]` atau `hostnames: [\"stripe.com\", \"twilio.com\"]` di dalam `values` sebuah Component. Skema Aggregate mendeklarasikan blok payload ini sebagai `additionalProperties: true`, sehingga blok tersebut buram bagi compiler Go dan divalidasi sepenuhnya oleh deklarasi `schema:` yang tertanam di katalog. Hal ini menempatkan volatilitas framework (bentuk API AI baru, format payload cloud-native baru) di dalam domain katalog tempat ia dapat berkembang secara independen, sementara compiler Go tetap hanya menggunakan kunci yang dapat dialamatkan di akar struktural."
+  },
+  "20a81bca5a5b730a": {
+    "at": "2026-11-17T14:28:10.966Z",
+    "job": "session-0016-20261117142810",
+    "srcHash": "20a81bca5a5b730a",
+    "status": "machine",
+    "text": "Sebuah Recipe memublikasikan nilai yang disediakan sebagai satu ekspresi utuh atau sebagai literal biasa. Dalam satu template, teks di sekitar sebuah nilai tetap disusun menjadi `format()` seperti dijelaskan pada [Menulis teks ARM](#writing-arm-text)."
   },
   "20a88f45a13e32fb": {
     "at": "2026-11-12T21:38:06.030Z",
@@ -28766,6 +28787,13 @@
     "srcHash": "26935db762215379",
     "status": "machine",
     "text": "*Pengiriman berbasis Vault saat ini tersedia melalui rute yang dirender oleh chart: `k8s-external-secret` merender `ExternalSecret` dari External Secrets. Array `pipeline:` milik FeatureRecipe merangkai plugin Wasm, dan kontrak `provides`-nya memublikasikan apa yang diwujudkannya.*"
+  },
+  "269ac827bd5cf9f4": {
+    "at": "2026-11-17T14:28:10.966Z",
+    "job": "session-0016-20261117142810",
+    "srcHash": "269ac827bd5cf9f4",
+    "status": "machine",
+    "text": "**Kunci CanNotDelete menghentikan pemangkasan.** Di bawah kunci tidak ada yang dihapus, dan setelah riwayat mencapai 800 entri, penerapan berikutnya gagal sampai entri dihapus."
   },
   "269d6e8f272f12ac": {
     "at": "2026-10-22T02:44:28.692Z",
@@ -37469,6 +37497,13 @@
     "srcHash": "32a793ec748c982b",
     "status": "machine",
     "text": "**Namespace yang dicadangkan.** Namespace `aggrega.ai/` dan `app.kubernetes.io/` dicadangkan untuk provenance bawaan platform, dan kunci yang dipromosikan di bawah salah satu prefiks tersebut ditolak saat pemuatan dengan galat katalog yang menyebutkan kunci tersebut dan field tempat kunci itu muncul. Yang diuji adalah prefiks dasarnya: kunci seperti `component.aggrega.ai/hosting` berada dalam namespace tersendiri, bukan di bawah root yang dicadangkan, dan dapat dipromosikan."
+  },
+  "32a7ba8b64d1b125": {
+    "at": "2026-11-17T14:28:10.966Z",
+    "job": "session-0016-20261117142810",
+    "srcHash": "32a7ba8b64d1b125",
+    "status": "machine",
+    "text": "Dua anotasi pada batas produsen menentukan tempat penerapannya, dan keduanya dibaca sebagai string opak:"
   },
   "32ac1450b7deff04": {
     "at": "2026-11-15T00:31:19.686Z",
@@ -46722,6 +46757,13 @@
     "srcHash": "3f6dc166f9945e01",
     "status": "machine",
     "text": "Tiga jenis input"
+  },
+  "3f6e6367ee0d581a": {
+    "at": "2026-11-17T14:28:10.966Z",
+    "job": "session-0016-20261117142810",
+    "srcHash": "3f6e6367ee0d581a",
+    "status": "machine",
+    "text": "**Nilai yang dibaca dari penerapan lain ditulis di tempat yang tidak dievaluasi ARM.** Di luar `properties` sebuah resource, `value` sebuah output, atau input `copy` sebuah output. Lihat [A value read from another deployment is written where ARM does not evaluate it (Nilai yang dibaca dari penerapan lain ditulis di tempat yang tidak dievaluasi ARM)](../errors/fatal-halts.md#a-value-read-from-another-deployment-is-written-where-arm-does-not-evaluate-it)."
   },
   "3f7180faaddfd3cb": {
     "at": "2026-10-22T09:04:04.145Z",
@@ -58967,6 +59009,13 @@
     "status": "machine",
     "text": "PluginRetraction"
   },
+  "503379c38ad4725e": {
+    "at": "2026-11-17T14:28:10.966Z",
+    "job": "session-0016-20261117142810",
+    "srcHash": "503379c38ad4725e",
+    "status": "machine",
+    "text": "Tempat produsen diterapkan"
+  },
   "5036f0c48e8509a2": {
     "at": "2026-10-29T23:55:51.039Z",
     "job": "session-0034-20261029235551",
@@ -60496,6 +60545,13 @@
     "srcHash": "52315d70df8b99c6",
     "status": "machine",
     "text": "Jika Anda memasang plugin, Anda sudah terhubung ke server MCP Aggrega. Jika tidak, hubungkan diri Anda ke server MCP Aggrega, yaitu perintah `aggrega mcp`, dengan cara Anda menambahkan server MCP, seperti yang dijelaskan `https://aggrega.ai/docs/ai-assistants/mcp-server/` untuk Anda. Jika Anda memerlukan mulai ulang atau muat ulang untuk memuat plugin atau server, beri tahu saya apa yang harus dilakukan."
+  },
+  "523321d6e487de28": {
+    "at": "2026-11-17T14:28:10.966Z",
+    "job": "session-0016-20261117142810",
+    "srcHash": "523321d6e487de28",
+    "status": "machine",
+    "text": "Resource group milik konsumen sendiri"
   },
   "523c4de5c0df6e64": {
     "at": "2026-10-23T08:34:04.552030+00:00",
@@ -67279,6 +67335,13 @@
     "status": "machine",
     "text": "**Sebutkan image yang dijalankan setiap agen.** Program kru berjalan dalam image yang Anda bangun dari proyek; di sini kedua agen menjalankan image yang sama, `ghcr.io/example/support-brief:1.0.0`."
   },
+  "5b34cfa3324e4d9a": {
+    "at": "2026-11-17T14:28:10.966Z",
+    "job": "session-0016-20261117142810",
+    "srcHash": "5b34cfa3324e4d9a",
+    "status": "machine",
+    "text": "`arm` menautkan ke produsen yang diterapkan pada cakupan resource group: ID resource di atas adalah ID sebuah penerapan ke resource group. Tautan ke produsen yang batasnya diterapkan pada cakupan subscription atau management group akan menghentikan build dengan menyebutkan tautan tersebut. Konsumen boleh diterapkan pada cakupan subscription atau management group. Nilai yang dibaca oleh konten resource group-nya dibaca di dalam penerapan `_resourceGroup`, tempat resource group milik konsumen adalah resource group penerapan itu. Nilai yang dibaca oleh konten subscription-nya mengharuskan batas produsen menyebutkan `aggrega.ai/azure-resource-group`, karena template berlingkup subscription tidak memiliki resource group sendiri; tanpanya build berhenti dengan menyebutkan anotasi tersebut. Pada cakupan management group hal yang sama berlaku untuk penerapan `_subscription`, dan nilai yang dibaca oleh konten management group itu sendiri mengharuskan batas produsen juga menyebutkan `aggrega.ai/azure-subscription`, karena template berlingkup management group tidak memiliki subscription sendiri."
+  },
   "5b36702024804bad": {
     "at": "2026-11-12T20:26:44.164Z",
     "job": "session-0001-20261112202644",
@@ -68593,6 +68656,13 @@
     "srcHash": "5d25d8cf90203597",
     "status": "machine",
     "text": "Cara penulisan path yang dilaporkan"
+  },
+  "5d262018e21383fc": {
+    "at": "2026-11-17T14:28:10.966Z",
+    "job": "session-0016-20261117142810",
+    "srcHash": "5d262018e21383fc",
+    "status": "machine",
+    "text": "**Template produsen mengekspos apa yang dibaca konsumen sebagai output.** Untuk setiap nilai yang disediakan yang dibaca komponen konsumen, template produsen mendapat satu output string yang dinamai menurut komponen dan kuncinya, seperti pada [output yang ditulis provider](#top-level-sections-in-the-assembled-template) mana pun. Nilai yang disediakan yang berupa ekspresi dilewatkan sebagai `[string(<expression>)]`, sehingga setiap nilai sampai ke konsumen sebagai teks; literal biasa dilewatkan apa adanya. Beberapa konsumen dari satu nilai berbagi satu output."
   },
   "5d2a14f0822bc88d": {
     "at": "2026-10-22T02:44:28.692Z",
@@ -70032,6 +70102,13 @@
     "srcHash": "5f0e49f976ed2605",
     "status": "machine",
     "text": "Memetakan tipe penyimpanan objek, Store Gateway, dan Query ke Recipes helm sintesisnya, serta Feature kredensial yang dilampirkan modul ke realisasi yang menghasilkan Secret dari parameter kredensial modul."
+  },
+  "5f0ef7945a4abcb0": {
+    "at": "2026-11-17T14:28:10.966Z",
+    "job": "session-0016-20261117142810",
+    "srcHash": "5f0ef7945a4abcb0",
+    "status": "machine",
+    "text": "Yang menghentikan build"
   },
   "5f0f0813d59d0b85": {
     "at": "2026-10-23T08:19:02.010279+00:00",
@@ -73130,6 +73207,13 @@
     "status": "machine",
     "text": "tanpa socket jaringan;"
   },
+  "630593e492503235": {
+    "at": "2026-11-17T14:28:10.966Z",
+    "job": "session-0016-20261117142810",
+    "srcHash": "630593e492503235",
+    "status": "machine",
+    "text": "Menerapkan pada cakupan resource group"
+  },
   "630b6c5346ba6035": {
     "at": "2026-10-22T11:34:20.013Z",
     "job": "session-0033-20261022113420",
@@ -74496,6 +74580,13 @@
     "srcHash": "64db664b5c3d453e",
     "status": "machine",
     "text": "signing: signing: signature bundle does not verify: its cryptographic check holds, but it does not name `<manifest-digest>` as the artifact it was made for (penandatanganan: penandatanganan: bundle tanda tangan tidak lolos verifikasi: pemeriksaan kriptografisnya berhasil, tetapi tidak menyebut digest manifest sebagai artefak sasarannya)"
+  },
+  "64e395751be3bcd2": {
+    "at": "2026-11-17T14:28:10.966Z",
+    "job": "session-0016-20261117142810",
+    "srcHash": "64e395751be3bcd2",
+    "status": "machine",
+    "text": "**Secret dibaca lintas penerapan.** Nilai yang disediakan yang membaca sebuah secret (fungsi `list*`, `listOutputsWithSecureValues`, atau nilai parameter `securestring` atau `secureObject`) akan tercatat dalam riwayat penerapan produsen. Simpan secret di Key Vault dan lampirkan `core/referenced-secret` di kedua ujung. Lihat [A secret is read across deployments (Secret dibaca lintas penerapan)](../errors/fatal-halts.md#a-secret-is-read-across-deployments)."
   },
   "64f18b5971e46ec3": {
     "at": "2026-10-29T21:34:59.076Z",
@@ -77498,6 +77589,13 @@
     "srcHash": "69111e968482ab1c",
     "status": "machine",
     "text": "Kebijakan ini membaca Release di **`input.compilation_context`**: `release_name` dan `environment`. Itulah yang memungkinkan satu kebijakan memutuskan secara berbeda per lingkungan."
+  },
+  "6915004a301cfa07": {
+    "at": "2026-11-17T14:28:10.966Z",
+    "job": "session-0016-20261117142810",
+    "srcHash": "6915004a301cfa07",
+    "status": "machine",
+    "text": "**Terapkan setiap produsen terlebih dahulu, dengan `-n` diatur ke nama yang tercatat,** lalu konsumennya, yang namanya dapat Anda pilih sendiri karena tidak ada yang membacanya:"
   },
   "6915da756415cd33": {
     "at": "2026-10-23T08:19:02.010279+00:00",
@@ -83003,6 +83101,13 @@
     "status": "machine",
     "text": "`ImportResult`"
   },
+  "703a30ee0bf4e937": {
+    "at": "2026-11-17T14:28:10.966Z",
+    "job": "session-0016-20261117142810",
+    "srcHash": "703a30ee0bf4e937",
+    "status": "machine",
+    "text": "Hanya template produsen yang mencatat nama tempat template itu harus diterapkan, dalam `metadata`-nya:"
+  },
   "703bdfaa682b8112": {
     "at": "2026-10-23T06:14:11.003127+00:00",
     "job": "msgbatch_01GfwKPWr7pSSTBwm1CiQ1ze",
@@ -83628,6 +83733,13 @@
     "srcHash": "712bd726d8c030e7",
     "status": "machine",
     "text": "Nama yang tidak dapat diresolusi oleh tumpukan Release itu ditolak, dan keterangan tentang tempat entitas lokal dibaca menyebutkan entri Release itu di bawah `workspace.releases`, karena entri itulah yang dibaca pencarian. `--release` memilih tumpukan tempat sebuah nama dicari, sehingga hanya berlaku untuk nama yang diberikan sendiri: jalur berkas dan referensi registry dibaca apa adanya dan menolaknya. `--release` yang menyebutkan berkas yang tidak ada, atau menyebutkan direktori, ditolak sebelum apa pun dicari."
+  },
+  "712cdc607bf1d74c": {
+    "at": "2026-11-17T14:28:10.966Z",
+    "job": "session-0016-20261117142810",
+    "srcHash": "712cdc607bf1d74c",
+    "status": "machine",
+    "text": "Di dalam Release, nilai milik sebuah komponen mengalahkan nilai milik sebuah batas, dan nilai yang ditulis Release mengalahkan nilai yang ditulis Aggregate; lihat [Anotasi yang dikenal](well-known-annotations.md). Karena compiler tidak mencari tahu penempatannya, anotasi harus sesuai dengan tempat operator menerapkan produsen."
   },
   "713166971d730f81": {
     "at": "2026-10-22T10:50:19.225Z",
@@ -86506,6 +86618,13 @@
     "status": "machine",
     "text": "**Satu bentuk lagi dilaporkan di sini, dan itu bukan kesalahan ejaan.** Isi file milik bundle ArtifactLibrary tidak boleh berupa `$import:` dari bundle lain: satu slot file tidak dapat diperluas menjadi banyak file, sehingga impor bersarang ditolak alih-alih diselesaikan menjadi sesuatu yang tidak ditulis oleh penulisnya. Sebagai gantinya, gabungkan bundle-bundle tersebut di titik tempat bundle itu dikonsumsi."
   },
+  "751d22296612a235": {
+    "at": "2026-11-17T14:28:10.966Z",
+    "job": "session-0016-20261117142810",
+    "srcHash": "751d22296612a235",
+    "status": "machine",
+    "text": "Template yang dirakit adalah template resource group, dan provider tidak menulis file parameter: `parameters`-nya persis yang dideklarasikan para kontributor, dan disediakan saat template diterapkan. Secret saat penerapan adalah parameter `securestring` tingkat atas, yang disediakan dengan `--parameters` atau file parameter yang Anda tulis, yang juga menjadi tempat referensi Key Vault statis diletakkan."
+  },
   "75239700e2644177": {
     "at": "2026-11-14T09:58:36.040Z",
     "job": "session-0006-20261114095836",
@@ -87829,6 +87948,13 @@
     "srcHash": "76be4d63e71edfa1",
     "status": "machine",
     "text": "**Proses menghentikan TLS sendiri.** Tetapkan `mcp.tls.cert_file` ke rantai sertifikat PEM dan `mcp.tls.key_file` ke kunci privatnya, dan listener melayani HTTPS langsung pada alamat apa pun yang Anda berikan. Kedua file dibaca saat proses dimulai, sehingga sertifikat yang diganti diterapkan dengan me-restart proses. Menetapkan salah satu tanpa yang lain ditolak saat startup alih-alih beralih ke hal lain: sertifikat tanpa kunci tidak dapat disajikan, kunci tanpa sertifikat tidak menyebutkan apa pun, dan salah ketik pada satu path bukan alasan untuk mulai melayani lalu lintas tanpa enkripsi."
+  },
+  "76bfcfec38e003f4": {
+    "at": "2026-11-17T14:28:10.966Z",
+    "job": "session-0016-20261117142810",
+    "srcHash": "76bfcfec38e003f4",
+    "status": "machine",
+    "text": "**Riwayat penerapan dibatasi hingga 800 entri per cakupan.** Di atas 700, Azure menghapus yang tertua hingga tersisa 600. Entri produsen yang terpangkas membuat penerapan konsumen gagal. Menerapkan ulang produsen dengan namanya yang tercatat memindahkan entrinya ke posisi terbaru, jadi terapkan ulang produsen sebelum konsumennya ketika cakupannya sibuk."
   },
   "76c3635079fd6da5": {
     "at": "2026-10-23T08:34:05.283963+00:00",
@@ -96957,6 +97083,13 @@
     "srcHash": "83442317c456cb11",
     "status": "machine",
     "text": "`LinkPatch`"
+  },
+  "83466b921c63ae67": {
+    "at": "2026-11-17T14:28:10.966Z",
+    "job": "session-0016-20261117142810",
+    "srcHash": "83466b921c63ae67",
+    "status": "machine",
+    "text": "**Nilai yang disediakan yang menyisipkan pemanggilan ke dalam teks literal.** Tulis nilai yang disediakan sebagai satu ekspresi, `[format('postgres://{0}:5432', reference('Db').outputs.fqdn.value)]`. Lihat [A provided value splices a call into literal text across deployments (Nilai yang disediakan menyisipkan pemanggilan ke dalam teks literal lintas penerapan)](../errors/fatal-halts.md#a-provided-value-splices-a-call-into-literal-text-across-deployments)."
   },
   "83480954ecc2c904": {
     "at": "2026-10-23T06:14:09.798554+00:00",
@@ -111533,6 +111666,13 @@
     "status": "machine",
     "text": "Interpolasi parameter dalam Aggregate juga melaporkan baris yang sama di bawah kode kondisi ini. Entri `provides:` melaporkan kegagalan templat di bawah “A `provides:` template could not be evaluated (Templat tidak dapat dievaluasi)”, sehingga di sana bagian kepala membawa kode kondisi tersebut dan baris di atas adalah alasan yang dibawanya, termasuk jalurnya."
   },
+  "973f775fa521ecb8": {
+    "at": "2026-11-17T14:28:10.966Z",
+    "job": "session-0016-20261117142810",
+    "srcHash": "973f775fa521ecb8",
+    "status": "machine",
+    "text": "Menautkan lintas penerapan"
+  },
   "9742f86f0518fbeb": {
     "at": "2026-10-23T08:34:04.552030+00:00",
     "job": "msgbatch_01V7s7eyUrCwoDSpkeCSpVQQ",
@@ -112844,6 +112984,13 @@
     "srcHash": "990429e30c5c3ed7",
     "status": "machine",
     "text": "Penghentian dimunculkan atas anotasi sebagaimana ditulis, sebelum anotasi itu diekspansi menjadi lampiran Feature, sama seperti kondisi-kondisi di sampingnya, sehingga diagnostik menyebutkan dokumen dan tempat nilai itu ditulis. Pemeriksaan dilakukan sekali per anotasi yang Anda tulis: nilai yang ditulis pada boundary atau subsistem ditolak di sana, sekali, terlepas dari apakah ada komponen di dalamnya yang mengambilnya. Setiap nilai semacam itu dalam build dilaporkan, bukan hanya yang pertama. Build melaporkan anotasi di sisi Release dengan tag `OPS_ERROR` dan anotasi di sisi Aggregate dengan tag `DEVELOPER_ERROR`, mengikuti dokumen yang menulisnya. Kondisinya adalah `a scalar annotation value does not route to exactly one path of its binding`, yang dicetak oleh [`aggrega explain`](../cli/aggrega-explain.md) untuk kodenya."
+  },
+  "9905e110167c39ef": {
+    "at": "2026-11-17T14:28:10.966Z",
+    "job": "session-0016-20261117142810",
+    "srcHash": "9905e110167c39ef",
+    "status": "machine",
+    "text": "Subscription milik konsumen sendiri"
   },
   "990a270af7804a26": {
     "at": "2026-11-13T18:50:20.840Z",
@@ -123270,6 +123417,13 @@
     "status": "machine",
     "text": "**Tanda tangan tercatat yang tidak diterima build.** Jika baris mencatat tanda tangan yang bundel tanda tangannya di cache telah dihapus atau diubah setelah pull yang menyimpannya ke cache — atau `signature` yang disalin dari baris lain, yang bundelnya utuh tetapi dibuat untuk artefak lain — build menolak baris tersebut apa pun bunyi persyaratan tanda tangannya ([A cached signature bundle does not match the digest recorded for it (Bundel tanda tangan dalam cache tidak cocok dengan digest yang tercatat untuknya)](../errors/fatal-halts.md#a-cached-signature-bundle-does-not-match-the-digest-recorded-for-it), [A recorded signature was made for a different artifact (Tanda tangan yang tercatat dibuat untuk artefak yang berbeda)](../errors/fatal-halts.md#a-recorded-signature-was-made-for-a-different-artifact)). Jadi pull ulang menanyakan lagi tanda tangan dependensi tersebut kepada registry-nya, apa pun bunyi persyaratannya, melalui verifikasi yang sama dengan yang dijalani dependensi yang diambilnya: apa yang diverifikasi menggantikan tanda tangan baris tersebut, dan bundel yang disebutnya disimpan lagi ke cache, dengan salinan di cache yang tidak lagi cocok dengan digest-nya ditulis ulang — sehingga baris dan cache berisi apa yang ditinggalkan pull yang mengambil dependensi tersebut. Tanda tangan yang tidak diterima konfigurasi kepercayaan menghentikan pull ulang sebagaimana ia menghentikan pull yang mengambil dependensi tersebut, begitu pula registry yang tidak melampirkan tanda tangan di tempat tanda tangan diwajibkan. Jika verifikasi tidak mencatat apa pun — `skip_signature_verification` di tempat ia berlaku, yang tidak menanyakan apa pun, registry yang tidak melampirkan tanda tangan di tempat tidak ada yang diwajibkan, atau registry `advisory` di tempat tidak ada yang terverifikasi — tanda tangan baris tersebut dihapus, yang diterima build dengan pengaturan yang sama."
   },
+  "a696a165d8f4ca23": {
+    "at": "2026-11-17T14:28:10.966Z",
+    "job": "session-0016-20261117142810",
+    "srcHash": "a696a165d8f4ca23",
+    "status": "machine",
+    "text": "**Nama penerapan mempertahankan lokasinya.** Pada cakupan yang perintah penerapannya menerima lokasi, nama yang dipakai ulang dengan lokasi lain akan ditolak oleh Azure."
+  },
   "a69e1e25b3803f27": {
     "at": "2026-10-23T06:14:07.765401+00:00",
     "job": "msgbatch_015cRR9ESj4yMdkeo5rD8Tmo",
@@ -129548,6 +129702,13 @@
     "status": "machine",
     "text": "**Kata kunci ini tidak menjamin bahwa output hasil render bebas dari materi.** Apakah sebuah artefak membawa materi bergantung pada fill mana yang dilampirkan penulis dan apa yang ditulis penulis dalam `values`-nya — lihat [architecture/08-credential-model.md](../../architecture/08-credential-model.md) “Apa yang dijamin dan tidak dijamin compiler”. Nilai yang dideklarasikan sensitif yang diberikan penulis secara inline di-render persis seperti nilai yang tidak dideklarasikan, di mana pun build me-render-nya."
   },
+  "af1e09d7e222d27d": {
+    "at": "2026-11-17T14:28:10.966Z",
+    "job": "session-0016-20261117142810",
+    "srcHash": "af1e09d7e222d27d",
+    "status": "machine",
+    "text": "**Produsen yang diterapkan pada cakupan subscription atau management group.** Tempatkan produsen dalam batas yang diterapkan pada cakupan resource group."
+  },
   "af1e65fe088cd179": {
     "at": "2026-10-23T08:34:04.552030+00:00",
     "job": "msgbatch_01V7s7eyUrCwoDSpkeCSpVQQ",
@@ -133820,6 +133981,13 @@
     "srcHash": "b459c3c5ef51cb7a",
     "status": "machine",
     "text": "Apakah entri tersebut merupakan direktori. Guest yang menentukan akar chart atau satu file sumber di antara daftar membaca nilai ini untuk membedakan direktori dari file tanpa menyentuh sistem file."
+  },
+  "b459dcc2d22368d6": {
+    "at": "2026-11-17T14:28:10.966Z",
+    "job": "session-0016-20261117142810",
+    "srcHash": "b459dcc2d22368d6",
+    "status": "machine",
+    "text": "**Nilai yang dibaca pada cakupan subscription atau management group dari produsen yang batasnya tidak menyebutkan resource group, atau pada cakupan management group tidak menyebutkan subscription.** Beri anotasi pada batas produsen dengan `aggrega.ai/azure-resource-group`, dan `aggrega.ai/azure-subscription` jika pembacaan terjadi pada cakupan management group."
   },
   "b45a7372501dfa54": {
     "at": "2026-10-22T06:52:21.462Z",
@@ -141428,6 +141596,13 @@
     "status": "machine",
     "text": "**Tempat kondisi ini muncul.** Bundel dokumentasi diperoleh ke dalam cache yang dipakai bersama oleh setiap proyek di mesin, dari registry yang dikonfigurasi workspace di bawah namespace `docs` yang dicadangkan: oleh server yang melayani asisten sekali, saat dimulai dan sebelum menjawab apa pun, dan oleh `aggrega explain` serta penjelasan kode oleh editor saat pertama kali salah satunya memerlukannya — dalam setiap kasus hanya jika mesin tidak menyimpan salinan yang diterima oleh pemeriksaan tanda tangan workspace. Inilah pemeriksaan yang dijalankan setiap pengambilan atas apa yang diterima."
   },
+  "beb4c4371a7d6c30": {
+    "at": "2026-11-17T14:28:10.966Z",
+    "job": "session-0016-20261117142810",
+    "srcHash": "beb4c4371a7d6c30",
+    "status": "machine",
+    "text": "**Produsen yang diterapkan sebagai stack penerapan tidak dapat dijangkau.** Sebuah stack menamai penerapannya sendiri, sehingga tidak ada nama yang dicatat template yang dapat dijangkau; terapkan produsen dengan `az deployment group create`. Konsumen boleh diterapkan dengan cara mana pun."
+  },
   "beb5728e75def163": {
     "at": "2026-10-23T06:14:11.003127+00:00",
     "job": "msgbatch_01GfwKPWr7pSSTBwm1CiQ1ze",
@@ -141723,6 +141898,13 @@
     "srcHash": "bf1e7c825efccc9c",
     "status": "machine",
     "text": "Ketika sebuah FeatureRecipe mengimplementasikan Feature kredensial (yang berlabel `feature.aggrega.ai/kind: secret`), FeatureRecipe tersebut mengikuti Prinsip Plugin Dua Bagian: `pipeline` merangkaikan plugin Fetcher (yang menghasilkan CRD khusus vault) diikuti oleh plugin Injector (yang memasang secret ke kontainer target). Lihat [examples/05-credential-features](../examples/05-credential-features.md) untuk contoh lengkap yang dikerjakan."
+  },
+  "bf1f7f71f8d39aff": {
+    "at": "2026-11-17T14:28:10.966Z",
+    "job": "session-0016-20261117142810",
+    "srcHash": "bf1f7f71f8d39aff",
+    "status": "machine",
+    "text": "Sebuah edge `uses` antara dua batas `arm` yang diselesaikan ke direktori output yang berbeda menggabungkan dua template, masing-masing diterapkan sebagai penerapannya sendiri. Edge tersebut dihubungkan di kedua template. Sebuah batas pada cakupan resource group dapat menjadi produsen: template dari komponen yang ditunjuk oleh sebuah edge `uses`."
   },
   "bf1fa943c3116a02": {
     "at": "2026-11-01T18:36:36.216Z",
@@ -143816,6 +143998,13 @@
     "status": "machine",
     "text": "Pasangan ini muncul dari penulisan yang sah pada masing-masing permukaan secara terpisah: entri milik komponen sendiri dan entri lampiran pada satu socket dan alias; daftar yang menyebut satu target dua kali (`models: [llama, llama]`); satu alias ditulis pada dua socket (`models: { local: … }` di samping `databases: { local: … }`); dua lampiran yang menghubungkan satu alias; atau entri Release yang menggambar koneksi pada socket yang dibiarkan tidak terikat oleh Aggregate, dengan alias yang sudah digunakan Aggregate pada socket lain. Dua bentuk serupa tidak pernah mencapai penghentian ini: satu kunci yang ditulis dua kali dalam satu blok entri berkunci membuat dokumen gagal dimuat, dan entri Release pada socket dan alias yang sudah digambar oleh blok lain mengonfigurasi koneksi tersebut — atau, jika menyebut target yang berbeda, berhenti sebagai retarget — alih-alih menggambar koneksi kedua."
   },
+  "c1c23a28e5018754": {
+    "at": "2026-11-17T14:28:10.966Z",
+    "job": "session-0016-20261117142810",
+    "srcHash": "c1c23a28e5018754",
+    "status": "machine",
+    "text": "Resource group tempat template produsen diterapkan"
+  },
   "c1c2c1099fed68e2": {
     "at": "2026-10-23T08:34:05.283963+00:00",
     "job": "msgbatch_01GsGKCRYFgTUDQoLeTpbyfe",
@@ -145840,6 +146029,13 @@
     "srcHash": "c461bfced37330d4",
     "status": "machine",
     "text": "berkas yang ditulis oleh `aggrega import . --target compose`, tanpa diubah, dan apa yang dicetaknya: `stdout.txt` pada keluaran standar, `import.txt` pada galat standar"
+  },
+  "c4664205ed93df19": {
+    "at": "2026-11-17T14:28:10.966Z",
+    "job": "session-0016-20261117142810",
+    "srcHash": "c4664205ed93df19",
+    "status": "machine",
+    "text": "`--action-on-unmanage detachAll` membiarkan sebuah resource apa adanya ketika template berikutnya tidak lagi mendeklarasikannya, dan `--deny-settings-mode none` tidak menempatkan deny assignment pada apa yang dikelola stack; pilih nilai lain jika stack harus menegakkan lebih banyak. Provider tidak memutuskan apa pun dari ini — perintah-perintah itu milik operator."
   },
   "c47202a3e7083104": {
     "at": "2026-11-15T00:01:27.771Z",
@@ -152087,6 +152283,13 @@
     "status": "machine",
     "text": "Posisinya adalah jalur kunci yang ditulis penulis. Di Aggregate, `.spec.components.<component>.inject.<mechanism>` untuk blok milik komponen itu sendiri, `.spec.components.<component>.uses.<socket>.<alias>.inject.<mechanism>` untuk blok pada salah satu koneksinya, dan `.spec.components.<component>.features.<attachment>…` untuk blok lampiran, dengan `.subsystems.<name>` untuk setiap subsistem tempat komponen atau lampiran dideklarasikan. Di Release, blok pada koneksi yang digambar lampiran, melalui lampiran tersebut — `.spec.boundaries.<boundary>.features.<attachment>.uses.<socket>.<alias>.inject.<mechanism>` untuk lampiran yang dipasang di seluruh boundary, `.spec.boundaries.<boundary>.components.<component>.features.<attachment>…` untuk lampiran pada komponen, dengan `.boundaries.<name>` untuk setiap boundary bersarang dan `.aggregates.<module>` untuk setiap entri perutean yang menjadi jalur penyebutan komponen."
   },
+  "ccbd34f041a0eb3a": {
+    "at": "2026-11-17T14:28:10.966Z",
+    "job": "session-0016-20261117142810",
+    "srcHash": "ccbd34f041a0eb3a",
+    "status": "machine",
+    "text": "ID subscription tempat template produsen diterapkan"
+  },
   "ccc2957015f4d3d1": {
     "at": "2026-11-05T17:54:21.977Z",
     "job": "session-0009-20261105175421",
@@ -153544,6 +153747,13 @@
     "srcHash": "ce9522eb8a7b4674",
     "status": "machine",
     "text": "**Setiap perintah yang membaca dependensi Release melakukan pemeriksaan ini; yang berbeda adalah apa yang dilakukan masing-masing terhadap hasilnya.** `aggrega build` dan `aggrega pull` berhenti, karena keduanya menghasilkan sesuatu yang akan Anda gunakan selanjutnya — artefak hasil render dan lockfile. `aggrega validate` dan `aggrega lint` melaporkan temuan tersebut bersama setiap diagnostik lain yang ditemukan, lalu keluar dengan kode bukan nol: tugasnya adalah memberi tahu Anda semua yang salah pada workspace, sehingga satu kesalahan tidak memotong laporan. Di editor, temuan diterbitkan sebagai diagnostik di samping yang lain, dan apa pun yang harus dilaporkan dokumen tersebut tidak terpengaruh. Perhatikan di mana temuan muncul: editor melekatkan diagnostik tingkat dependensi Release pada Aggregate, sehingga temuan muncul saat Aggregate terbuka, bukan saat Anda mengedit Manifest tempat pemetaan ditulis. Menjalankan `aggrega validate` melaporkannya dokumen mana pun yang sedang Anda buka."
+  },
+  "ce959817b4cbae66": {
+    "at": "2026-11-17T14:28:10.966Z",
+    "job": "session-0016-20261117142810",
+    "srcHash": "ce959817b4cbae66",
+    "status": "machine",
+    "text": "Nama penerapan"
   },
   "ce97a5a035346a19": {
     "at": "2026-10-23T08:18:59.335953+00:00",
@@ -158564,6 +158774,13 @@
     "srcHash": "d5020edd50066ccf",
     "status": "machine",
     "text": "**Ini adalah sifat `index` semata, dan kebijakan kunci-hilang dari permukaan mana pun tidak mengubahnya.** Pembacaan titik atas kunci yang tidak diatur di bawah pilar terbuka tetap tidak merender apa pun pada templat nilai, seperti yang dijelaskan “Missing template key — asymmetric policy (Kunci templat hilang — kebijakan asimetris)” di atas, dan templat yang menguji apakah penulis menyediakan kunci semacam itu tidak terpengaruh. Yang berhenti adalah meminta `index` sebuah kunci yang tidak dimiliki map. `index` adalah cara templat menjangkau kunci yang namanya ia hitung — misalnya kredensial yang dibaca dengan nama variabel yang dipilih Recipe konsumen — dan tanpa penghentian ini, pembacaan itu akan memasukkan teks placeholder mesin templat `<no value>` ke dalam artefak sementara build berhasil: sebuah server dijalankan dengan teks itu sebagai kuncinya. Setiap jawaban lain yang diberikan `index` adalah milik mesin templat sendiri: posisi dalam list atau string, posisi di luar rentang, kunci yang dimiliki map — termasuk kunci yang nilainya null, yang mencetak `<no value>`."
+  },
+  "d503ead5b10c67d6": {
+    "at": "2026-11-17T14:28:10.966Z",
+    "job": "session-0016-20261117142810",
+    "srcHash": "d503ead5b10c67d6",
+    "status": "machine",
+    "text": "Yang menjadi tanggung jawab operator"
   },
   "d5042d12098ba66d": {
     "at": "2026-10-23T08:19:02.010279+00:00",
@@ -164321,6 +164538,13 @@
     "srcHash": "dcbc67813a278532",
     "status": "machine",
     "text": "Kirim permintaan yang ditolak oleh penjaga pola pada percakapan tersendiri, lalu pertanyaan biasa pada percakapan yang sama, dan baca kembali percakapan itu. Giliran yang gagal membiarkan percakapannya seperti sebelum giliran itu, sehingga pesan yang ditolak tidak disimpan, giliran berikutnya pada percakapan itu dijawab, dan percakapan hanya memuat giliran yang dijawab:"
+  },
+  "dcbf0d146192a49d": {
+    "at": "2026-11-17T14:28:10.966Z",
+    "job": "session-0016-20261117142810",
+    "srcHash": "dcbf0d146192a49d",
+    "status": "machine",
+    "text": "Tautan-tautan itu bertumpu pada penerapan yang sudah ada di Azure, sehingga hal-hal berikut menjadi tanggung jawab operator:"
   },
   "dcc0581d670b780b": {
     "at": "2026-10-23T06:14:09.798554+00:00",
@@ -187002,6 +187226,13 @@
     "srcHash": "fa446b67eb6bacdf",
     "status": "machine",
     "text": "Mengimpor konfigurasi klien MCP — tiga server yang digunakan asisten pemrograman"
+  },
+  "fa47585be868cfa5": {
+    "at": "2026-11-17T14:28:10.966Z",
+    "job": "session-0016-20261117142810",
+    "srcHash": "fa47585be868cfa5",
+    "status": "machine",
+    "text": "Nama tersebut diturunkan dari nama Release dan direktori output batas, sehingga mengubah `directory:` pada batas di dalam Release akan mengganti namanya, dan konsumen, setelah dibangun ulang, membaca nama yang baru. Fragmen yang sudah menulis nilai lain pada kunci metadata tersebut akan menghentikan build."
   },
   "fa4a68af580d7008": {
     "at": "2026-10-23T06:14:11.003127+00:00",

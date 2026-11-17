@@ -14390,6 +14390,13 @@
     "status": "machine",
     "text": "Una macchina airgapped che conserva una copia locale del proprio catalogo e dei propri artifact è il caso che questa distinzione esiste per mantenere funzionante: un workspace del genere è offline, e quasi tutto ciò che fa è ancora soddisfacibile."
   },
+  "154055b6b4503573": {
+    "at": "2026-11-17T14:28:10.966Z",
+    "job": "session-0016-20261117142810",
+    "srcHash": "154055b6b4503573",
+    "status": "machine",
+    "text": "Se assente"
+  },
   "1540d8e378132e18": {
     "at": "2026-11-04T06:30:15.892Z",
     "job": "session-0209-20261104063015",
@@ -21384,6 +21391,13 @@
     "status": "machine",
     "text": "**Cosa contiene la libreria standard.** `core/ai-tool/mcp` porta `http`. Collega un server Model Context Protocol a un agente, e il Manifest sceglie come quel server viene realizzato: `helm/mcp` esegue un’immagine che serve il protocollo via HTTP; `helm/mcp-stdio-bridge` e `compose/mcp-stdio-bridge` eseguono un pacchetto che parla solo stdio dietro un bridge fissato a una versione che lo serve via HTTP; `helm/mcp-remote` e `compose/mcp-remote` raggiungono un server gestito da qualcun altro e non eseguono nulla. Ogni realizzazione pubblica gli stessi `host`, `port`, `endpoint`, `protocol` e `credential_header`, quindi il cablaggio di un consumatore non cambia con la realizzazione. Le credenziali di un server con bridge sono variabili d’ambiente, conservate nello slot `server_env` dello strumento e consegnate al bridge per riferimento su Kubernetes; la credenziale di un server remoto è conservata dal consumatore sulla propria connessione allo strumento e presentata sotto l’header indicato da `credential_header`, `Authorization` a meno che la Release ne indichi un altro. Dove un server remoto legge la propria chiave dal proprio indirizzo, il consumatore conserva anche l’intero indirizzo su quella connessione, in uno slot `endpoint` riempito su Kubernetes da un riferimento a un Secret e su Docker Compose da un riferimento a una variabile di Compose, così la chiave non raggiunge alcun file renderizzato, mentre l’`infra.endpoint` dello strumento contiene l’indirizzo senza la parte che porta la chiave; [examples/mcp-address-from-secret](../language-reference/examples/mcp-address-from-secret/README.md) costruisce entrambi. `core/ai-agent/openai-agents-sdk`, `core/ai-agent/claude-agent-sdk`, `core/ai-agent/agent-framework`, `core/ai-agent/google-adk` e `core/ai-agent/mastra`, e le piattaforme di flussi `core/ai-agent/flowise` e `core/ai-agent/n8n`, dichiarano un socket per gli strumenti di questa forma, `tools`, e consegnano l’indirizzo di ogni strumento collegato, e la credenziale della connessione per riferimento, sotto variabili nominate secondo l’alias della connessione, mentre una connessione che scrive un blocco `inject:` riceve ciò che quel blocco stabilisce al posto delle variabili derivate da ciò che lo strumento pubblica, e ciò che contengono i suoi slot `credential` e `endpoint` resta sotto il nome dell’alias; un consumatore proprio ne dichiara uno allo stesso modo. Ciascuna delle tre piattaforme di flussi porta nella piattaforma, al deploy, un flusso scritto nell’Aggregate, su entrambi i target: Langflow carica la definizione trasportata dalla propria directory dei flussi a ogni avvio, il chatflow di Flowise viene inizializzato da un passo una tantum che accede come l’account proprietario indicato dalla Release, e il workflow di n8n viene importato da un passo di init prima dell’avvio della piattaforma. `core/ai-agent/langflow` dichiara un socket `tools` della stessa forma, che non ammette alcun blocco `inject:`, e consegna invece ogni connessione attraverso quel flusso, perché il componente MCP Tools di Langflow accetta l’indirizzo di un server soltanto dalle impostazioni di Langflow stesso o dal flusso, mai da una variabile: le sue Recipes scrivono l’indirizzo dello strumento nel nodo MCP Tools il cui server porta il nome dell’alias della connessione, consegnano la credenziale della connessione per riferimento come una variabile indicata dall’header di quel nodo — sotto `Authorization`, una variabile che contiene `Bearer` e la credenziale — e lasciano passare gli host degli strumenti e degli store collegati attraverso la protezione di Langflow contro gli indirizzi privati. Tutte e tre le piattaforme dichiarano inoltre un socket `vector_store` che seleziona `datastore.aggrega.ai/engine in (vector, semantic-memory, search)`, che consegna allo stesso modo l’indirizzo di ogni store collegato — l’`endpoint` che pubblica, per `core/datastore/pgvector` un URI di connessione senza password, oppure uno composto dal suo protocollo, host e porta — e la credenziale della connessione per riferimento; uno store che pubblica anche il proprio database e utente, come fa `core/datastore/pgvector`, raggiunge Flowise e n8n anche in quelle parti, poiché il nodo vettoriale PostgreSQL di nessuna delle due piattaforme accetta una stringa di connessione; Langflow, il cui componente PGVector accetta un’unica stringa, riceve un tale store come `AGGREGA_VECTOR_STORE_<ALIAS>_CONNECTION_STRING`, con la credenziale della connessione come password, per riferimento su Kubernetes e così come viene consegnata su Docker Compose. Un chatflow di Flowise legge una variabile consegnata tramite una variabile Runtime con lo stesso nome creata nella pagina Variables di Flowise, e un workflow di n8n ne legge una tramite `$env` solo dove l’Aggregate imposta il valore `allow_env_access_in_nodes` della piattaforma, poiché per impostazione predefinita le sue Recipes mantengono il blocco di n8n sull’accesso all’ambiente nei nodi."
   },
+  "1fbb883236ef4756": {
+    "at": "2026-11-17T14:28:10.966Z",
+    "job": "session-0016-20261117142810",
+    "srcHash": "1fbb883236ef4756",
+    "status": "machine",
+    "text": "**Il template consumatore legge la distribuzione del produttore tramite il suo ID risorsa.** Un valore cablato al consumatore diventa `reference(format('/subscriptions/{0}/resourceGroups/{1}/providers/Microsoft.Resources/deployments/{2}', <subscription>, <resource group>, '<name>'), '2025-04-01').outputs.<output>.value`, scritto nelle `properties` di una risorsa, nel `value` di un output o nell’input del ciclo `copy` di un output, i punti in cui ARM valuta `reference()`. Il compilatore non contatta nulla: l’ID è una stringa che costruisce a partire dai nomi, e ARM legge la distribuzione quando il consumatore viene distribuito."
+  },
   "1fc3aa265dd980d1": {
     "at": "2026-11-14T10:22:53.079Z",
     "job": "session-0004-20261114102253",
@@ -21997,6 +22011,13 @@
     "srcHash": "20a32ab1e06f01a3",
     "status": "machine",
     "text": "**Forme strutturali: mappe alla radice, array nei payload.** I blocchi di topologia radice — `components`, `features`, `aggregates`, `subsystems`, `boundaries` — sono mappe YAML le cui chiavi, scritte dall’utente, fungono da ID di istanza stabili. Gli array non sono validi in queste posizioni; la chiave della mappa è l’identità che il compilatore usa per i riferimenti incrociati (`target: my-db`), la costruzione dei nodi del grafo e la risoluzione del Manifest. All’interno dei blocchi di payload opachi (`values`, `infra`, `parameters`), gli array sono pienamente consentiti — gli sviluppatori possono scrivere `tools_allowed: [\"sql\", \"web\"]` o `hostnames: [\"stripe.com\", \"twilio.com\"]` nei `values` di un Component. Lo schema dell’Aggregate dichiara questi blocchi di payload come `additionalProperties: true`, quindi sono opachi per il compilatore Go e validati interamente dalla dichiarazione `schema:` incorporata nel catalogo. Questo colloca la volatilità dei framework (nuove forme di API di IA, nuovi formati di payload cloud-native) nel dominio del catalogo, dove può evolvere in modo indipendente, mentre il compilatore Go resta limitato a chiavi indirizzabili alla radice strutturale."
+  },
+  "20a81bca5a5b730a": {
+    "at": "2026-11-17T14:28:10.966Z",
+    "job": "session-0016-20261117142810",
+    "srcHash": "20a81bca5a5b730a",
+    "status": "machine",
+    "text": "Una Recipe pubblica un valore fornito come un’unica espressione intera o come un semplice letterale. All’interno di un singolo template, il testo attorno a un valore continua a comporsi in `format()` come descritto in [Scrittura del testo ARM](#writing-arm-text)."
   },
   "20a88f45a13e32fb": {
     "at": "2026-11-12T21:38:06.030Z",
@@ -25999,6 +26020,13 @@
     "srcHash": "268f14bbfe119c1e",
     "status": "machine",
     "text": "Diagnostica"
+  },
+  "269ac827bd5cf9f4": {
+    "at": "2026-11-17T14:28:10.966Z",
+    "job": "session-0016-20261117142810",
+    "srcHash": "269ac827bd5cf9f4",
+    "status": "machine",
+    "text": "**Un blocco CanNotDelete ferma la pulizia.** Con un blocco non viene eliminato nulla, e quando la cronologia raggiunge le 800 voci, le distribuzioni successive falliscono finché non vengono rimosse delle voci."
   },
   "269d6e8f272f12ac": {
     "at": "2026-10-22T02:44:28.692Z",
@@ -34023,6 +34051,13 @@
     "srcHash": "32a793ec748c982b",
     "status": "machine",
     "text": "**Namespace riservati.** I namespace `aggrega.ai/` e `app.kubernetes.io/` sono riservati alla provenienza nativa della piattaforma, e una chiave promossa sotto uno dei due prefissi viene rifiutata al caricamento con un errore di catalogo che nomina la chiave e il campo in cui compare. Il criterio è il prefisso nudo: una chiave come `component.aggrega.ai/hosting` si trova in un namespace proprio anziché sotto la radice riservata, ed è promuovibile."
+  },
+  "32a7ba8b64d1b125": {
+    "at": "2026-11-17T14:28:10.966Z",
+    "job": "session-0016-20261117142810",
+    "srcHash": "32a7ba8b64d1b125",
+    "status": "machine",
+    "text": "Due annotazioni sul confine del produttore ne stabiliscono la posizione di distribuzione e vengono lette come stringhe opache:"
   },
   "32ac1450b7deff04": {
     "at": "2026-11-15T00:31:19.686Z",
@@ -42379,6 +42414,13 @@
     "srcHash": "3f6dc166f9945e01",
     "status": "machine",
     "text": "I tre tipi di input"
+  },
+  "3f6e6367ee0d581a": {
+    "at": "2026-11-17T14:28:10.966Z",
+    "job": "session-0016-20261117142810",
+    "srcHash": "3f6e6367ee0d581a",
+    "status": "machine",
+    "text": "**Un valore letto da un’altra distribuzione scritto dove ARM non lo valuta.** Al di fuori delle `properties` di una risorsa, del `value` di un output o dell’input `copy` di un output. Vedi [A value read from another deployment is written where ARM does not evaluate it (Un valore letto da un’altra distribuzione viene scritto dove ARM non lo valuta)](../errors/fatal-halts.md#a-value-read-from-another-deployment-is-written-where-arm-does-not-evaluate-it)."
   },
   "3f7180faaddfd3cb": {
     "at": "2026-10-22T09:04:04.145Z",
@@ -53536,6 +53578,13 @@
     "status": "machine",
     "text": "PluginRetraction"
   },
+  "503379c38ad4725e": {
+    "at": "2026-11-17T14:28:10.966Z",
+    "job": "session-0016-20261117142810",
+    "srcHash": "503379c38ad4725e",
+    "status": "machine",
+    "text": "Dove viene distribuito il produttore"
+  },
   "5036f0c48e8509a2": {
     "at": "2026-11-03T13:44:12.861Z",
     "job": "session-0113-20261103134412",
@@ -54924,6 +54973,13 @@
     "srcHash": "52315d70df8b99c6",
     "status": "machine",
     "text": "Se hai installato il plugin, sei già collegato al server MCP di Aggrega. Altrimenti, collegati al server MCP di Aggrega, che è il comando `aggrega mcp`, nel modo in cui aggiungi un server MCP, come descrive per te `https://aggrega.ai/docs/ai-assistants/mcp-server/`. Se ti serve un riavvio o un ricaricamento per caricare il plugin o il server, dimmi cosa fare."
+  },
+  "523321d6e487de28": {
+    "at": "2026-11-17T14:28:10.966Z",
+    "job": "session-0016-20261117142810",
+    "srcHash": "523321d6e487de28",
+    "status": "machine",
+    "text": "Il gruppo di risorse del consumatore stesso"
   },
   "523c4de5c0df6e64": {
     "at": "2026-11-04T06:30:15.892Z",
@@ -61087,6 +61143,13 @@
     "status": "machine",
     "text": "**Indica l’immagine che ogni agente esegue.** Il programma della crew gira in un’immagine che costruisci dal progetto; qui entrambi gli agenti eseguono la stessa, `ghcr.io/example/support-brief:1.0.0`."
   },
+  "5b34cfa3324e4d9a": {
+    "at": "2026-11-17T14:28:10.966Z",
+    "job": "session-0016-20261117142810",
+    "srcHash": "5b34cfa3324e4d9a",
+    "status": "machine",
+    "text": "`arm` si collega a un produttore distribuito a livello di gruppo di risorse: l’ID risorsa indicato sopra è l’ID di una distribuzione in un gruppo di risorse. Un collegamento a un produttore il cui confine viene distribuito a livello di sottoscrizione o di gruppo di gestione interrompe la build, indicando il collegamento. Un consumatore può essere distribuito a livello di sottoscrizione o di gruppo di gestione. Un valore letto dal suo contenuto di gruppo di risorse viene letto all’interno della distribuzione `_resourceGroup`, dove il gruppo di risorse del consumatore è quello di tale distribuzione. Un valore letto dal suo contenuto di sottoscrizione richiede che il confine del produttore indichi `aggrega.ai/azure-resource-group`, perché un template a livello di sottoscrizione non ha un gruppo di risorse proprio; senza di esso la build si interrompe indicando l’annotazione. A livello di gruppo di gestione vale lo stesso per la distribuzione `_subscription`, e un valore letto dal contenuto del gruppo di gestione stesso richiede che il confine del produttore indichi anche `aggrega.ai/azure-subscription`, perché un template a livello di gruppo di gestione non ha una sottoscrizione propria."
+  },
   "5b36702024804bad": {
     "at": "2026-11-12T20:26:44.164Z",
     "job": "session-0001-20261112202644",
@@ -62261,6 +62324,13 @@
     "srcHash": "5d25d8cf90203597",
     "status": "machine",
     "text": "Come viene scritto un percorso riportato"
+  },
+  "5d262018e21383fc": {
+    "at": "2026-11-17T14:28:10.966Z",
+    "job": "session-0016-20261117142810",
+    "srcHash": "5d262018e21383fc",
+    "status": "machine",
+    "text": "**Il template produttore espone come output ciò che il consumatore legge.** Per ogni valore fornito che il componente consumatore legge, il template produttore acquisisce un output di tipo stringa denominato in base al componente e alla chiave, come per qualsiasi [output che il provider scrive](#top-level-sections-in-the-assembled-template). Un valore fornito che è un’espressione viene passato come `[string(<expression>)]`, così ogni valore raggiunge il consumatore come testo; un semplice letterale viene passato così com’è. Più consumatori dello stesso valore condividono un solo output."
   },
   "5d2a14f0822bc88d": {
     "at": "2026-10-22T02:44:28.692Z",
@@ -63558,6 +63628,13 @@
     "srcHash": "5f0cd8b5c00cba88",
     "status": "machine",
     "text": "La pipe `.context.inject` è il punto di unione di tre sorgenti che attraversano i pilastri:"
+  },
+  "5f0ef7945a4abcb0": {
+    "at": "2026-11-17T14:28:10.966Z",
+    "job": "session-0016-20261117142810",
+    "srcHash": "5f0ef7945a4abcb0",
+    "status": "machine",
+    "text": "Cosa interrompe la build"
   },
   "5f0f0813d59d0b85": {
     "at": "2026-11-03T23:30:44.700Z",
@@ -66258,6 +66335,13 @@
     "status": "machine",
     "text": "nessun socket di rete;"
   },
+  "630593e492503235": {
+    "at": "2026-11-17T14:28:10.966Z",
+    "job": "session-0016-20261117142810",
+    "srcHash": "630593e492503235",
+    "status": "machine",
+    "text": "Distribuzione a livello di gruppo di risorse"
+  },
   "630b6c5346ba6035": {
     "at": "2026-10-22T11:34:20.013Z",
     "job": "session-0033-20261022113420",
@@ -67523,6 +67607,13 @@
     "srcHash": "64d2a6d1d2ceea7a",
     "status": "machine",
     "text": "L’esempio organizza il contenuto del catalogo in directory per entità, sotto una radice del workspace:"
+  },
+  "64e395751be3bcd2": {
+    "at": "2026-11-17T14:28:10.966Z",
+    "job": "session-0016-20261117142810",
+    "srcHash": "64e395751be3bcd2",
+    "status": "machine",
+    "text": "**Un segreto letto tra distribuzioni.** Un valore fornito che legge un segreto (una funzione `list*`, `listOutputsWithSecureValues`, o il valore di un parametro `securestring` o `secureObject`) verrebbe registrato nella cronologia di distribuzione del produttore. Archivia il segreto in Key Vault e collega `core/referenced-secret` a entrambe le estremità. Vedi [A secret is read across deployments (Un segreto viene letto tra distribuzioni)](../errors/fatal-halts.md#a-secret-is-read-across-deployments)."
   },
   "64f18b5971e46ec3": {
     "at": "2026-10-30T07:09:12.317Z",
@@ -70214,6 +70305,13 @@
     "srcHash": "69111e968482ab1c",
     "status": "machine",
     "text": "Legge la Release in **`input.compilation_context`**: `release_name` e `environment`. È questo che permette a una sola policy di decidere in modo diverso per ambiente."
+  },
+  "6915004a301cfa07": {
+    "at": "2026-11-17T14:28:10.966Z",
+    "job": "session-0016-20261117142810",
+    "srcHash": "6915004a301cfa07",
+    "status": "machine",
+    "text": "**Distribuisci prima ogni produttore, con `-n` impostato sul nome registrato,** e poi i suoi consumatori, i cui nomi sono a tua scelta, dato che nessuno li legge:"
   },
   "6915da756415cd33": {
     "at": "2026-11-03T23:11:53.486Z",
@@ -75221,6 +75319,13 @@
     "status": "machine",
     "text": "`ImportResult`"
   },
+  "703a30ee0bf4e937": {
+    "at": "2026-11-17T14:28:10.966Z",
+    "job": "session-0016-20261117142810",
+    "srcHash": "703a30ee0bf4e937",
+    "status": "machine",
+    "text": "Solo un template produttore registra il nome con cui deve essere distribuito, nei suoi `metadata`:"
+  },
   "703bdfaa682b8112": {
     "at": "2026-11-03T07:45:16.882Z",
     "job": "session-0072-20261103074516",
@@ -75795,6 +75900,13 @@
     "srcHash": "712bd726d8c030e7",
     "status": "machine",
     "text": "Un nome che lo stack di quella Release non risolve viene rifiutato, e il resoconto di dove vengono lette le entità locali indica la voce di quella Release sotto `workspace.releases`, poiché è quella voce che la ricerca ha letto. `--release` sceglie lo stack in cui viene cercato un nome, quindi si applica solo a un nome: un percorso di file e un riferimento a un registry vengono letti così come sono e lo rifiutano. Un `--release` che indica un file inesistente, o una directory, viene rifiutato prima di cercare qualsiasi cosa."
+  },
+  "712cdc607bf1d74c": {
+    "at": "2026-11-17T14:28:10.966Z",
+    "job": "session-0016-20261117142810",
+    "srcHash": "712cdc607bf1d74c",
+    "status": "machine",
+    "text": "All’interno della Release, il valore proprio di un componente prevale su quello di un confine, e un valore scritto dalla Release prevale su uno scritto dall’Aggregate; vedi [Annotazioni note](well-known-annotations.md). Poiché il compilatore non cerca la posizione, le annotazioni devono corrispondere a dove l’operatore distribuisce il produttore."
   },
   "713166971d730f81": {
     "at": "2026-10-22T10:50:19.225Z",
@@ -78417,6 +78529,13 @@
     "status": "machine",
     "text": "**Un’ulteriore forma viene segnalata qui, e non è un errore di scrittura.** Il corpo proprio di un file di un bundle di un’ArtifactLibrary non può essere a sua volta un `$import:` di un altro bundle: uno slot di file non può espandersi in molti file, quindi un’importazione annidata viene rifiutata anziché risolta in qualcosa che l’autore non ha scritto. Componi invece i bundle nel punto in cui vengono consumati."
   },
+  "751d22296612a235": {
+    "at": "2026-11-17T14:28:10.966Z",
+    "job": "session-0016-20261117142810",
+    "srcHash": "751d22296612a235",
+    "status": "machine",
+    "text": "Il template assemblato è un template di gruppo di risorse, e il provider non scrive alcun file di parametri: i suoi `parameters` sono esattamente quelli dichiarati dai contributori, forniti quando il template viene distribuito. Un segreto al momento della distribuzione è un parametro `securestring` di primo livello, fornito con `--parameters` o con un file di parametri che scrivi tu, che è anche il posto in cui va un riferimento statico a Key Vault."
+  },
   "75239700e2644177": {
     "at": "2026-11-14T09:58:36.040Z",
     "job": "session-0006-20261114095836",
@@ -79592,6 +79711,13 @@
     "srcHash": "76be4d63e71edfa1",
     "status": "machine",
     "text": "**Il processo termina TLS da sé.** Imposta `mcp.tls.cert_file` su una catena di certificati PEM e `mcp.tls.key_file` sulla relativa chiave privata, e il listener serve HTTPS direttamente su qualunque indirizzo tu gli abbia dato. Entrambi i file vengono letti all’avvio del processo, quindi un certificato sostituito viene recepito riavviando il processo. Impostarne uno senza l’altro viene rifiutato all’avvio anziché ripiegare su altro: un certificato senza chiave non può essere presentato, una chiave senza certificato non identifica nulla, e un errore di battitura in un percorso non è un motivo per iniziare a servire traffico non cifrato."
+  },
+  "76bfcfec38e003f4": {
+    "at": "2026-11-17T14:28:10.966Z",
+    "job": "session-0016-20261117142810",
+    "srcHash": "76bfcfec38e003f4",
+    "status": "machine",
+    "text": "**La cronologia delle distribuzioni è limitata a 800 voci per livello.** Oltre 700, Azure elimina le più vecchie fino a 600. La voce di un produttore eliminata in questo modo fa fallire la distribuzione del consumatore. Ridistribuire il produttore con il nome registrato sposta la sua voce al posto più recente, quindi ridistribuiscilo prima dei suoi consumatori quando il suo livello è molto usato."
   },
   "76c3635079fd6da5": {
     "at": "2026-11-04T12:39:30.717Z",
@@ -87919,6 +88045,13 @@
     "srcHash": "83442317c456cb11",
     "status": "machine",
     "text": "`LinkPatch`"
+  },
+  "83466b921c63ae67": {
+    "at": "2026-11-17T14:28:10.966Z",
+    "job": "session-0016-20261117142810",
+    "srcHash": "83466b921c63ae67",
+    "status": "machine",
+    "text": "**Un valore fornito che inserisce una chiamata in testo letterale.** Scrivi il valore fornito come un’unica espressione, `[format('postgres://{0}:5432', reference('Db').outputs.fqdn.value)]`. Vedi [A provided value splices a call into literal text across deployments (Un valore fornito inserisce una chiamata in testo letterale tra distribuzioni)](../errors/fatal-halts.md#a-provided-value-splices-a-call-into-literal-text-across-deployments)."
   },
   "8348eed00a69c318": {
     "at": "2026-11-03T23:30:44.700Z",
@@ -101197,6 +101330,13 @@
     "status": "machine",
     "text": "Anche l’interpolazione dei parametri in un Aggregate segnala la stessa riga sotto il codice di questa condizione. Una voce `provides:` segnala un errore di template sotto «A `provides:` template could not be evaluated (Un template di provides non può essere valutato)», quindi lì l’intestazione porta il codice di quella condizione e la riga sopra è il motivo che porta, percorso incluso."
   },
+  "973f775fa521ecb8": {
+    "at": "2026-11-17T14:28:10.966Z",
+    "job": "session-0016-20261117142810",
+    "srcHash": "973f775fa521ecb8",
+    "status": "machine",
+    "text": "Collegamento tra distribuzioni"
+  },
   "9742f86f0518fbeb": {
     "at": "2026-11-04T10:56:32.711Z",
     "job": "session-0233-20261104105632",
@@ -102393,6 +102533,13 @@
     "srcHash": "990429e30c5c3ed7",
     "status": "machine",
     "text": "L’arresto viene sollevato sull’annotazione così come è scritta, prima che venga espansa in un’associazione di Feature, come accade per le condizioni accanto, quindi la diagnostica nomina il documento e il punto in cui il valore è stato scritto. La verifica avviene una volta per ogni annotazione che hai scritto: un valore scritto su un confine o su un sottosistema viene rifiutato lì, una volta sola, che un componente al suo interno lo raccolga o meno. Ogni valore di questo tipo nella build viene segnalato, non solo il primo. La build segnala un’annotazione lato Release sotto un tag `OPS_ERROR` e una lato Aggregate sotto un tag `DEVELOPER_ERROR`, secondo il documento che l’ha scritta. La condizione è `a scalar annotation value does not route to exactly one path of its binding`, che è ciò che [`aggrega explain`](../cli/aggrega-explain.md) stampa per il suo codice."
+  },
+  "9905e110167c39ef": {
+    "at": "2026-11-17T14:28:10.966Z",
+    "job": "session-0016-20261117142810",
+    "srcHash": "9905e110167c39ef",
+    "status": "machine",
+    "text": "La sottoscrizione del consumatore stesso"
   },
   "990a270af7804a26": {
     "at": "2026-11-13T18:55:17.634Z",
@@ -111812,6 +111959,13 @@
     "status": "machine",
     "text": "**Una firma registrata che una build non accetta.** Dove la riga registra una firma il cui bundle di firma in cache è stato rimosso o alterato dopo il pull che l’ha messo in cache — o una `signature` copiata da un’altra riga, il cui bundle è intatto ma è stato creato per un altro artefatto — una build rifiuta la riga qualunque cosa dica il requisito di firma ([A cached signature bundle does not match the digest recorded for it (Un bundle di firma in cache non corrisponde al digest registrato per esso)](../errors/fatal-halts.md#a-cached-signature-bundle-does-not-match-the-digest-recorded-for-it), [A recorded signature was made for a different artifact (Una firma registrata è stata creata per un artefatto diverso)](../errors/fatal-halts.md#a-recorded-signature-was-made-for-a-different-artifact)). Così il nuovo pull interroga di nuovo il registry di quella dipendenza sulla sua firma, qualunque cosa dica il requisito, tramite la stessa verifica che riceve una dipendenza che scarica: ciò che quella verifica conferma sostituisce la firma della riga, e il bundle che essa indica viene rimesso in cache, riscrivendo una copia in cache che non corrisponde più al suo digest — così la riga e la cache contengono ciò che ha lasciato il pull che ha scaricato la dipendenza. Una firma che la configurazione di fiducia non accetta arresta il nuovo pull come arresta un pull che ha scaricato la dipendenza, e lo stesso fa un registry che non ne allega alcuna dove una firma è richiesta. Dove la verifica non registra alcuna firma — `skip_signature_verification` dove si applica, che non chiede nulla, un registry che non allega alcuna firma dove nessuna è richiesta, o un registry `advisory` dove nulla viene verificato — la firma della riga viene cancellata, cosa che una build ammette con le stesse impostazioni."
   },
+  "a696a165d8f4ca23": {
+    "at": "2026-11-17T14:28:10.966Z",
+    "job": "session-0016-20261117142810",
+    "srcHash": "a696a165d8f4ca23",
+    "status": "machine",
+    "text": "**Il nome di una distribuzione mantiene la sua posizione.** A un livello il cui comando di distribuzione accetta una posizione, Azure rifiuta un nome riutilizzato con un’altra posizione."
+  },
   "a69e1e25b3803f27": {
     "at": "2026-10-30T06:56:58.054Z",
     "job": "session-0072-20261030065658",
@@ -117571,6 +117725,13 @@
     "status": "machine",
     "text": "**Non garantisce che l’output renderizzato sia privo di materiale.** Che un artefatto contenga materiale dipende da quale riempimento un autore ha associato e da ciò che l’autore ha scritto nei suoi `values` — vedi [architecture/08-credential-model.md](../../architecture/08-credential-model.md) «What the compiler does and does not guarantee (Cosa il compilatore garantisce e cosa no)». Un valore dichiarato sensibile che un autore ha fornito inline viene renderizzato esattamente come uno non dichiarato, ovunque la build lo renderizzi."
   },
+  "af1e09d7e222d27d": {
+    "at": "2026-11-17T14:28:10.966Z",
+    "job": "session-0016-20261117142810",
+    "srcHash": "af1e09d7e222d27d",
+    "status": "machine",
+    "text": "**Un produttore distribuito a livello di sottoscrizione o di gruppo di gestione.** Colloca il produttore in un confine distribuito a livello di gruppo di risorse."
+  },
   "af1e65fe088cd179": {
     "at": "2026-11-04T10:56:32.711Z",
     "job": "session-0233-20261104105632",
@@ -121464,6 +121625,13 @@
     "srcHash": "b459c3c5ef51cb7a",
     "status": "machine",
     "text": "Se la voce è una directory. Un guest che risolve la radice di un chart o un singolo file sorgente all’interno dell’elenco legge questo campo per distinguere le directory dai file senza toccare il filesystem."
+  },
+  "b459dcc2d22368d6": {
+    "at": "2026-11-17T14:28:10.966Z",
+    "job": "session-0016-20261117142810",
+    "srcHash": "b459dcc2d22368d6",
+    "status": "machine",
+    "text": "**Un valore letto a livello di sottoscrizione o di gruppo di gestione da un produttore il cui confine non indica alcun gruppo di risorse, o, a livello di gruppo di gestione, alcuna sottoscrizione.** Annota il confine del produttore con `aggrega.ai/azure-resource-group`, e con `aggrega.ai/azure-subscription` dove la lettura avviene a livello di gruppo di gestione."
   },
   "b45a7372501dfa54": {
     "at": "2026-10-22T06:52:21.462Z",
@@ -128478,6 +128646,13 @@
     "status": "machine",
     "text": "Il namespace sotto cui sono nominate le entità generate in bozza: `<target_namespace>/<category>/<name>` per un Component e `<target_namespace>/<name>` per l’Aggregate e la Release, dove `<name>` è il nome proprio della sorgente, altrimenti il nome della sua directory o il nome del suo file senza l’estensione, altrimenti `flow`, scritto in minuscolo con ogni sequenza di caratteri diversi da lettere e cifre ASCII resa come un solo trattino, come descrive [Come viene nominata una bozza](#how-a-draft-is-named)."
   },
+  "beb4c4371a7d6c30": {
+    "at": "2026-11-17T14:28:10.966Z",
+    "job": "session-0016-20261117142810",
+    "srcHash": "beb4c4371a7d6c30",
+    "status": "machine",
+    "text": "**Un produttore distribuito come stack di distribuzione non è raggiungibile.** Uno stack assegna da sé i nomi alle proprie distribuzioni, quindi nessun nome registrato dal template può essere raggiunto; distribuisci un produttore con `az deployment group create`. Un consumatore può essere distribuito in entrambi i modi."
+  },
   "beb5728e75def163": {
     "at": "2026-11-03T10:16:19.100Z",
     "job": "session-0089-20261103101619",
@@ -128748,6 +128923,13 @@
     "srcHash": "bf1e7c825efccc9c",
     "status": "machine",
     "text": "Quando una FeatureRecipe implementa una Feature di credenziali (una etichettata `feature.aggrega.ai/kind: secret`), segue il principio del Plugin in due parti: la `pipeline` concatena un plugin Fetcher (che genera la CRD specifica del vault) seguito da un plugin Injector (che monta il secret nel container di destinazione). Consulta [examples/05-credential-features](../examples/05-credential-features.md) per l’esempio completo."
+  },
+  "bf1f7f71f8d39aff": {
+    "at": "2026-11-17T14:28:10.966Z",
+    "job": "session-0016-20261117142810",
+    "srcHash": "bf1f7f71f8d39aff",
+    "status": "machine",
+    "text": "Un arco `uses` tra due confini `arm` che si risolvono in directory di output diverse unisce due template, ciascuno distribuito come una propria distribuzione. L’arco è cablato in entrambi i template. Un confine a livello di gruppo di risorse può essere un produttore: il template del componente a cui punta un arco `uses`."
   },
   "bf1fa943c3116a02": {
     "at": "2026-11-02T18:47:12.619Z",
@@ -130729,6 +130911,13 @@
     "status": "machine",
     "text": "La coppia nasce da una scrittura che è legittima su ciascuna superficie presa da sola: la voce propria di un componente e quella di un’associazione sullo stesso socket e alias; un elenco che nomina due volte la stessa destinazione (`models: [llama, llama]`); un alias scritto su due socket (`models: { local: … }` accanto a `databases: { local: … }`); due associazioni che cablano lo stesso alias; oppure una voce di Release che traccia una connessione su un socket che l’Aggregate ha lasciato non legato, sotto un alias che l’Aggregate ha già usato su un altro socket. Due strutture vicine non raggiungono mai questo arresto: una chiave scritta due volte in uno stesso blocco di voci con chiave fa fallire il caricamento del documento, e una voce di Release su un socket e un alias che un altro blocco ha già tracciato configura quella connessione — oppure, se nomina una destinazione diversa, si arresta come cambio di destinazione — anziché tracciarne una seconda."
   },
+  "c1c23a28e5018754": {
+    "at": "2026-11-17T14:28:10.966Z",
+    "job": "session-0016-20261117142810",
+    "srcHash": "c1c23a28e5018754",
+    "status": "machine",
+    "text": "Il gruppo di risorse in cui viene distribuito il template produttore"
+  },
   "c1c2c1099fed68e2": {
     "at": "2026-11-04T13:45:24.314Z",
     "job": "session-0249-20261104134524",
@@ -132495,6 +132684,13 @@
     "srcHash": "c461bfced37330d4",
     "status": "machine",
     "text": "i file che `aggrega import . --target compose` ha scritto, invariati, e ciò che ha stampato: `stdout.txt` sullo standard output, `import.txt` sullo standard error"
+  },
+  "c4664205ed93df19": {
+    "at": "2026-11-17T14:28:10.966Z",
+    "job": "session-0016-20261117142810",
+    "srcHash": "c4664205ed93df19",
+    "status": "machine",
+    "text": "`--action-on-unmanage detachAll` lascia intatta una risorsa quando un template successivo smette di dichiararla, e `--deny-settings-mode none` non applica alcuna deny assignment a ciò che lo stack gestisce; scegli altri valori dove lo stack deve imporre di più. Il provider non decide nulla di tutto ciò — i comandi spettano all’operatore."
   },
   "c47202a3e7083104": {
     "at": "2026-11-15T00:01:27.771Z",
@@ -138088,6 +138284,13 @@
     "status": "machine",
     "text": "La posizione è il percorso di chiavi scritto dall’autore. Nell’Aggregate, `.spec.components.<component>.inject.<mechanism>` per il blocco proprio di un componente, `.spec.components.<component>.uses.<socket>.<alias>.inject.<mechanism>` per un blocco su una delle sue connessioni e `.spec.components.<component>.features.<attachment>…` per quello di un’associazione, con `.subsystems.<name>` per ogni sottosistema in cui è dichiarato un componente o un’associazione. Nella Release, il blocco su una connessione tracciata da un’associazione, attraverso quell’associazione — `.spec.boundaries.<boundary>.features.<attachment>.uses.<socket>.<alias>.inject.<mechanism>` per una associata a livello dell’intero confine, `.spec.boundaries.<boundary>.components.<component>.features.<attachment>…` per una su un componente, con `.boundaries.<name>` per ogni confine annidato e `.aggregates.<module>` per ogni voce di instradamento attraverso cui è nominato un componente."
   },
+  "ccbd34f041a0eb3a": {
+    "at": "2026-11-17T14:28:10.966Z",
+    "job": "session-0016-20261117142810",
+    "srcHash": "ccbd34f041a0eb3a",
+    "status": "machine",
+    "text": "L’ID della sottoscrizione in cui viene distribuito il template produttore"
+  },
   "ccc2957015f4d3d1": {
     "at": "2026-11-05T16:02:28.456Z",
     "job": "session-0001-20261105160228",
@@ -139465,6 +139668,13 @@
     "srcHash": "ce9522eb8a7b4674",
     "status": "machine",
     "text": "**Ogni comando che legge le dipendenze di una Release esegue questo controllo; ciò che cambia è ciò che ciascuno fa con il risultato.** `aggrega build` e `aggrega pull` si arrestano, perché entrambi producono qualcosa che poi useresti — artefatti renderizzati e un lockfile. `aggrega validate` e `aggrega lint` segnalano il rilievo insieme a ogni altra diagnostica trovata e poi escono con un codice diverso da zero: il loro compito è dirti tutto ciò che non va nel workspace, quindi un singolo errore non interrompe il resoconto. Nell’editor il rilievo viene pubblicato come diagnostica accanto alle altre, e qualunque altra cosa quel documento dovesse segnalare non ne è influenzata. Nota dove compare: l’editor associa le diagnostiche a livello di dipendenze di una Release all’Aggregate, quindi il rilievo emerge mentre l’Aggregate è aperto anziché mentre modifichi il Manifest in cui è scritta la mappatura. Eseguire `aggrega validate` lo segnala qualunque documento tu abbia aperto."
+  },
+  "ce959817b4cbae66": {
+    "at": "2026-11-17T14:28:10.966Z",
+    "job": "session-0016-20261117142810",
+    "srcHash": "ce959817b4cbae66",
+    "status": "machine",
+    "text": "Il nome della distribuzione"
   },
   "ce97a5a035346a19": {
     "at": "2026-11-03T14:05:29.072Z",
@@ -143991,6 +144201,13 @@
     "srcHash": "d5020edd50066ccf",
     "status": "machine",
     "text": "**Questa è una proprietà del solo `index`, e la politica delle chiavi mancanti di nessuna superficie la modifica.** Una lettura con il punto di una chiave non impostata sotto un pilastro aperto continua a non produrre nulla su un template di valore, come descrive «Missing template key — asymmetric policy (Chiave di template mancante — politica asimmetrica)» più sopra, e un template che verifica se l’autore ha fornito una tale chiave non ne è toccato. Ciò che provoca un arresto è chiedere a `index` una chiave che la mappa non contiene. `index` è il modo in cui un template raggiunge una chiave il cui nome calcola — una credenziale letta sotto il nome di variabile scelto dalla Recipe consumatrice, per esempio — e senza l’arresto quella lettura metterebbe nell’artefatto il testo segnaposto del motore di template `<no value>` mentre il build riesce: un server avviato con quel testo come chiave. Ogni altra risposta che `index` dà è quella propria del motore di template: una posizione in una lista o in una stringa, una posizione fuori intervallo, una chiave che la mappa contiene — compresa una il cui valore è null, che stampa `<no value>`."
+  },
+  "d503ead5b10c67d6": {
+    "at": "2026-11-17T14:28:10.966Z",
+    "job": "session-0016-20261117142810",
+    "srcHash": "d503ead5b10c67d6",
+    "status": "machine",
+    "text": "Ciò che spetta all’operatore"
   },
   "d5042d12098ba66d": {
     "at": "2026-11-04T01:29:35.126Z",
@@ -149227,6 +149444,13 @@
     "srcHash": "dcbc67813a278532",
     "status": "machine",
     "text": "Invia una richiesta che la guardia dei pattern rifiuta su una conversazione a sé, poi una domanda normale sulla stessa conversazione, e rileggi la conversazione. Un turno che fallisce lascia la sua conversazione com’era prima del turno, quindi il messaggio rifiutato non viene conservato, il turno successivo su quella conversazione riceve risposta, e la conversazione contiene solo i turni che hanno ricevuto risposta:"
+  },
+  "dcbf0d146192a49d": {
+    "at": "2026-11-17T14:28:10.966Z",
+    "job": "session-0016-20261117142810",
+    "srcHash": "dcbf0d146192a49d",
+    "status": "machine",
+    "text": "I collegamenti si basano su distribuzioni già esistenti in Azure, quindi spetta all’operatore mantenere quanto segue:"
   },
   "dcc0581d670b780b": {
     "at": "2026-11-02T23:32:54.656Z",
@@ -169992,6 +170216,13 @@
     "srcHash": "fa446b67eb6bacdf",
     "status": "machine",
     "text": "Importare una configurazione client MCP — tre server usati da un assistente di programmazione"
+  },
+  "fa47585be868cfa5": {
+    "at": "2026-11-17T14:28:10.966Z",
+    "job": "session-0016-20261117142810",
+    "srcHash": "fa47585be868cfa5",
+    "status": "machine",
+    "text": "Il nome deriva dal nome della Release e dalla directory di output del confine, quindi modificare il `directory:` del confine nella Release lo rinomina, e il consumatore, ricostruito, legge il nuovo nome. Un frammento che scrive già un altro valore sotto quella chiave di metadati interrompe la build."
   },
   "fa4a68af580d7008": {
     "at": "2026-11-03T11:51:14.962Z",

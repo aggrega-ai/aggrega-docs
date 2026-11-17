@@ -14384,6 +14384,13 @@
     "status": "machine",
     "text": "Ein vom Netzwerk getrennter Rechner mit einer lokalen Kopie seines Katalogs und seiner Artefakte ist der Fall, für dessen Funktionieren diese Aufteilung existiert: Ein solcher Workspace ist offline, und fast alles, was er tut, ist weiterhin erfüllbar."
   },
+  "154055b6b4503573": {
+    "at": "2026-11-17T14:28:10.966Z",
+    "job": "session-0016-20261117142810",
+    "srcHash": "154055b6b4503573",
+    "status": "machine",
+    "text": "Wenn nicht vorhanden"
+  },
   "1540d8e378132e18": {
     "at": "2026-11-04T06:30:15.892Z",
     "job": "session-0209-20261104063015",
@@ -21378,6 +21385,13 @@
     "status": "machine",
     "text": "**Was die Standardbibliothek enthält.** `core/ai-tool/mcp` trägt `http`. Es bindet einen Model-Context-Protocol-Server an einen Agenten an, und das Manifest wählt, wie dieser Server realisiert wird: `helm/mcp` führt ein Image aus, das das Protokoll über HTTP bereitstellt; `helm/mcp-stdio-bridge` und `compose/mcp-stdio-bridge` führen ein Paket, das nur stdio spricht, hinter einer versionsfixierten Bridge aus, die es über HTTP bereitstellt; `helm/mcp-remote` und `compose/mcp-remote` erreichen einen Server, den jemand anderes betreibt, und führen nichts aus. Jede Realisierung veröffentlicht dieselben `host`, `port`, `endpoint`, `protocol` und `credential_header`, sodass sich die Verdrahtung eines Konsumenten mit der Realisierung nicht ändert. Die Anmeldedaten eines über eine Bridge angebundenen Servers sind Umgebungsvariablen, die im Slot `server_env` des Tools gehalten und auf Kubernetes per Referenz an die Bridge geliefert werden; die Anmeldedaten eines entfernten Servers hält der Konsument an seiner eigenen Verbindung zum Tool und legt sie unter dem Header vor, den `credential_header` nennt, `Authorization`, sofern das Release keinen anderen nennt. Wo ein entfernter Server seinen Schlüssel aus seiner eigenen Adresse liest, hält der Konsument auch die gesamte Adresse an dieser Verbindung, in einem `endpoint`-Slot, der auf Kubernetes durch eine Referenz auf ein Secret und auf Docker Compose durch eine Compose-Variablenreferenz gefüllt wird, sodass der Schlüssel in keine gerenderte Datei gelangt, während `infra.endpoint` des Tools die Adresse ohne den Teil enthält, der den Schlüssel trägt; [examples/mcp-address-from-secret](../language-reference/examples/mcp-address-from-secret/README.md) baut beides. `core/ai-agent/openai-agents-sdk`, `core/ai-agent/claude-agent-sdk`, `core/ai-agent/agent-framework`, `core/ai-agent/google-adk` und `core/ai-agent/mastra` sowie die Flow-Plattformen `core/ai-agent/flowise` und `core/ai-agent/n8n` deklarieren einen Tool-Socket dieser Form, `tools`, und liefern die Adresse jedes verdrahteten Tools sowie die Anmeldedaten der Verbindung per Referenz unter Variablen, die nach dem Alias der Verbindung benannt sind, während eine Verbindung, die einen `inject:`-Block schreibt, anstelle der aus den Veröffentlichungen des Tools abgeleiteten Variablen das erhält, was dieser Block vorgibt, wobei der Inhalt ihrer Slots `credential` und `endpoint` unter dem Namen des Alias bleibt; ein eigener Konsument deklariert einen auf die gleiche Weise. Jede der drei Flow-Plattformen bringt beim Deployment einen im Aggregate verfassten Flow in die Plattform, auf beiden Zielen: Langflow lädt die mitgeführte Definition bei jedem Start aus seinem Flows-Verzeichnis, der Chatflow von Flowise wird durch einen einmaligen Schritt angelegt, der sich als das Owner-Konto anmeldet, das das Release nennt, und der Workflow von n8n wird durch einen Init-Schritt importiert, bevor die Plattform startet. `core/ai-agent/langflow` deklariert einen `tools`-Socket derselben Form, der keinen `inject:`-Block zulässt, und liefert jede Verbindung stattdessen über diesen Flow, weil die MCP-Tools-Komponente von Langflow die Adresse eines Servers nur aus den eigenen Einstellungen von Langflow oder aus dem Flow übernimmt, niemals aus einer Variablen: Seine Recipes schreiben die Adresse des Tools in den MCP-Tools-Knoten, dessen Server nach dem Alias der Verbindung benannt ist, liefern die Anmeldedaten der Verbindung per Referenz als Variable, die der Header dieses Knotens nennt — unter `Authorization` eine Variable, die `Bearer` und die Anmeldedaten enthält —, und lassen die Hosts der verdrahteten Tools und Stores durch Langflows Schutz vor privaten Adressen. Alle drei Plattformen deklarieren außerdem einen `vector_store`-Socket, der `datastore.aggrega.ai/engine in (vector, semantic-memory, search)` selektiert und auf die gleiche Weise die Adresse jedes verdrahteten Stores liefert — den `endpoint`, den er veröffentlicht, für `core/datastore/pgvector` eine Verbindungs-URI ohne Passwort, oder eine aus seinem Protokoll, Host und Port zusammengesetzte — sowie die Anmeldedaten der Verbindung per Referenz; ein Store, der außerdem seine Datenbank und seinen Benutzer veröffentlicht, wie es `core/datastore/pgvector` tut, erreicht Flowise und n8n auch in diesen Teilen, da der PostgreSQL-Vektorknoten keiner der beiden Plattformen einen Verbindungsstring annimmt; Langflow, dessen PGVector-Komponente einen einzigen String annimmt, erhält einen solchen Store als `AGGREGA_VECTOR_STORE_<ALIAS>_CONNECTION_STRING`, mit den Anmeldedaten der Verbindung als Passwort, per Referenz auf Kubernetes und so, wie sie geliefert werden, auf Docker Compose. Ein Flowise-Chatflow liest eine gelieferte Variable über eine gleichnamige Runtime-Variable, die auf der Variables-Seite von Flowise angelegt wird, und ein n8n-Workflow liest eine über `$env` nur dort, wo das Aggregate den Wert `allow_env_access_in_nodes` der Plattform setzt, da ihre Recipes standardmäßig die Sperre von n8n für den Umgebungszugriff in Knoten beibehalten."
   },
+  "1fbb883236ef4756": {
+    "at": "2026-11-17T14:28:10.966Z",
+    "job": "session-0016-20261117142810",
+    "srcHash": "1fbb883236ef4756",
+    "status": "machine",
+    "text": "**Das konsumierende Template liest die Bereitstellung des Produzenten über deren Ressourcen-ID.** Ein an den Konsumenten verdrahteter Wert wird zu `reference(format('/subscriptions/{0}/resourceGroups/{1}/providers/Microsoft.Resources/deployments/{2}', <subscription>, <resource group>, '<name>'), '2025-04-01').outputs.<output>.value`, geschrieben in die `properties` einer Ressource, den `value` einer Ausgabe oder die Eingabe der `copy`-Schleife einer Ausgabe, also an die Stellen, an denen ARM `reference()` auswertet. Der Compiler nimmt mit nichts Kontakt auf: Die ID ist ein String, den er aus Namen aufbaut, und ARM liest die Bereitstellung, wenn der Konsument bereitgestellt wird."
+  },
   "1fc3aa265dd980d1": {
     "at": "2026-11-14T10:22:53.079Z",
     "job": "session-0004-20261114102253",
@@ -21993,6 +22007,13 @@
     "srcHash": "20a32ab1e06f01a3",
     "status": "machine",
     "text": "**Strukturelle Formen: Maps an der Wurzel, Arrays in Payloads.** Wurzel-Topologieblöcke — `components`, `features`, `aggregates`, `subsystems`, `boundaries` — sind YAML-Maps, deren vom Benutzer verfasste Schlüssel als stabile Instanz-IDs dienen. Arrays sind an diesen Positionen nicht gültig; der Map-Schlüssel ist die Identität, die der Compiler für Querverweise (`target: my-db`), den Aufbau von Graphknoten und die Manifest-Auflösung verwendet. Innerhalb der undurchsichtigen Payload-Blöcke (`values`, `infra`, `parameters`) sind Arrays uneingeschränkt erlaubt — Entwickler können `tools_allowed: [\"sql\", \"web\"]` oder `hostnames: [\"stripe.com\", \"twilio.com\"]` in die `values` einer Component schreiben. Das Aggregate-Schema deklariert diese Payload-Blöcke als `additionalProperties: true`, sodass sie für den Go-Compiler undurchsichtig sind und vollständig durch die eingebettete `schema:`-Deklaration des Katalogs validiert werden. Damit liegt die Volatilität der Frameworks (neue Formen von KI-APIs, neue Cloud-native Payload-Formate) in der Katalogdomäne, wo sie sich unabhängig entwickeln kann, während der Go-Compiler an der strukturellen Wurzel auf adressierbare Schlüssel beschränkt bleibt."
+  },
+  "20a81bca5a5b730a": {
+    "at": "2026-11-17T14:28:10.966Z",
+    "job": "session-0016-20261117142810",
+    "srcHash": "20a81bca5a5b730a",
+    "status": "machine",
+    "text": "Ein Recipe veröffentlicht einen bereitgestellten Wert als einen vollständigen Ausdruck oder als einfaches Literal. Innerhalb eines Templates wird Text um einen Wert herum weiterhin zu `format()` zusammengesetzt, wie unter [ARM-Text schreiben](#writing-arm-text) beschrieben."
   },
   "20a88f45a13e32fb": {
     "at": "2026-11-12T21:38:06.030Z",
@@ -25995,6 +26016,13 @@
     "srcHash": "268f14bbfe119c1e",
     "status": "machine",
     "text": "Diagnose"
+  },
+  "269ac827bd5cf9f4": {
+    "at": "2026-11-17T14:28:10.966Z",
+    "job": "session-0016-20261117142810",
+    "srcHash": "269ac827bd5cf9f4",
+    "status": "machine",
+    "text": "**Eine CanNotDelete-Sperre stoppt das Aufräumen.** Unter einer Sperre wird nichts gelöscht, und sobald der Verlauf 800 Einträge erreicht, schlagen weitere Bereitstellungen fehl, bis Einträge entfernt werden."
   },
   "269d6e8f272f12ac": {
     "at": "2026-10-22T02:44:28.692Z",
@@ -34007,6 +34035,13 @@
     "srcHash": "32a793ec748c982b",
     "status": "machine",
     "text": "**Reservierte Namespaces.** Die Namespaces `aggrega.ai/` und `app.kubernetes.io/` sind für plattformeigene Provenienz reserviert, und ein hochgestufter Schlüssel unter einem der beiden Präfixe wird beim Laden mit einem Katalogfehler abgelehnt, der den Schlüssel und das Feld nennt, in dem er steht. Maßgeblich ist das bloße Präfix: Ein Schlüssel wie `component.aggrega.ai/hosting` liegt in einem eigenen Namespace statt unter der reservierten Wurzel und kann hochgestuft werden."
+  },
+  "32a7ba8b64d1b125": {
+    "at": "2026-11-17T14:28:10.966Z",
+    "job": "session-0016-20261117142810",
+    "srcHash": "32a7ba8b64d1b125",
+    "status": "machine",
+    "text": "Zwei Annotationen an der Grenze des Produzenten legen fest, wo seine Bereitstellung liegt, und sie werden als opake Strings gelesen:"
   },
   "32ac1450b7deff04": {
     "at": "2026-11-15T00:31:19.686Z",
@@ -42363,6 +42398,13 @@
     "srcHash": "3f6dc166f9945e01",
     "status": "machine",
     "text": "Die drei Eingabearten"
+  },
+  "3f6e6367ee0d581a": {
+    "at": "2026-11-17T14:28:10.966Z",
+    "job": "session-0016-20261117142810",
+    "srcHash": "3f6e6367ee0d581a",
+    "status": "machine",
+    "text": "**Ein aus einer anderen Bereitstellung gelesener Wert, der dort geschrieben wird, wo ARM ihn nicht auswertet.** Außerhalb der `properties` einer Ressource, des `value` einer Ausgabe oder der `copy`-Eingabe einer Ausgabe. Siehe [A value read from another deployment is written where ARM does not evaluate it (Ein aus einer anderen Bereitstellung gelesener Wert wird dort geschrieben, wo ARM ihn nicht auswertet)](../errors/fatal-halts.md#a-value-read-from-another-deployment-is-written-where-arm-does-not-evaluate-it)."
   },
   "3f7180faaddfd3cb": {
     "at": "2026-10-22T09:04:04.145Z",
@@ -53520,6 +53562,13 @@
     "status": "machine",
     "text": "PluginRetraction"
   },
+  "503379c38ad4725e": {
+    "at": "2026-11-17T14:28:10.966Z",
+    "job": "session-0016-20261117142810",
+    "srcHash": "503379c38ad4725e",
+    "status": "machine",
+    "text": "Wo der Produzent bereitgestellt wird"
+  },
   "5036f0c48e8509a2": {
     "at": "2026-11-03T13:44:12.861Z",
     "job": "session-0113-20261103134412",
@@ -54908,6 +54957,13 @@
     "srcHash": "52315d70df8b99c6",
     "status": "machine",
     "text": "Wenn Sie das Plugin installiert haben, sind Sie bereits mit dem Aggrega-MCP-Server verbunden. Andernfalls verbinden Sie sich mit dem Aggrega-MCP-Server, also dem Befehl `aggrega mcp`, auf die Art, wie Sie einen MCP-Server hinzufügen, wie `https://aggrega.ai/docs/ai-assistants/mcp-server/` es für Sie beschreibt. Wenn Sie einen Neustart oder ein Neuladen brauchen, um das Plugin oder den Server zu laden, sagen Sie mir, was ich tun soll."
+  },
+  "523321d6e487de28": {
+    "at": "2026-11-17T14:28:10.966Z",
+    "job": "session-0016-20261117142810",
+    "srcHash": "523321d6e487de28",
+    "status": "machine",
+    "text": "Die eigene Ressourcengruppe des Konsumenten"
   },
   "523c4de5c0df6e64": {
     "at": "2026-11-04T06:30:15.892Z",
@@ -61077,6 +61133,13 @@
     "status": "machine",
     "text": "**Nennen Sie das Image, das jeder Agent ausführt.** Das Programm der Crew läuft in einem Image, das Sie aus dem Projekt bauen; beide Agenten führen hier dasselbe aus, `ghcr.io/example/support-brief:1.0.0`."
   },
+  "5b34cfa3324e4d9a": {
+    "at": "2026-11-17T14:28:10.966Z",
+    "job": "session-0016-20261117142810",
+    "srcHash": "5b34cfa3324e4d9a",
+    "status": "machine",
+    "text": "`arm` verknüpft mit einem Produzenten, der im Geltungsbereich einer Ressourcengruppe bereitgestellt wird: Die oben genannte Ressourcen-ID ist die ID einer Bereitstellung in eine Ressourcengruppe. Eine Verknüpfung mit einem Produzenten, dessen Grenze im Geltungsbereich eines Abonnements oder einer Verwaltungsgruppe bereitgestellt wird, bricht den Build ab und nennt die Verknüpfung. Ein Konsument darf im Geltungsbereich eines Abonnements oder einer Verwaltungsgruppe bereitgestellt werden. Ein Wert, den sein Ressourcengruppen-Inhalt liest, wird innerhalb der `_resourceGroup`-Bereitstellung gelesen, in der die eigene Ressourcengruppe des Konsumenten die dieser Bereitstellung ist. Ein Wert, den sein Abonnement-Inhalt liest, setzt voraus, dass die Grenze des Produzenten `aggrega.ai/azure-resource-group` nennt, weil ein Template im Geltungsbereich eines Abonnements keine eigene Ressourcengruppe hat; ohne sie bricht der Build ab und nennt die Annotation. Im Geltungsbereich einer Verwaltungsgruppe gilt dasselbe für die `_subscription`-Bereitstellung, und ein Wert, den der Inhalt der Verwaltungsgruppe selbst liest, setzt voraus, dass die Grenze des Produzenten auch `aggrega.ai/azure-subscription` nennt, weil ein Template im Geltungsbereich einer Verwaltungsgruppe kein eigenes Abonnement hat."
+  },
   "5b36702024804bad": {
     "at": "2026-11-12T20:26:44.164Z",
     "job": "session-0001-20261112202644",
@@ -62251,6 +62314,13 @@
     "srcHash": "5d25d8cf90203597",
     "status": "machine",
     "text": "Wie ein gemeldeter Pfad geschrieben wird"
+  },
+  "5d262018e21383fc": {
+    "at": "2026-11-17T14:28:10.966Z",
+    "job": "session-0016-20261117142810",
+    "srcHash": "5d262018e21383fc",
+    "status": "machine",
+    "text": "**Das produzierende Template stellt das, was der Konsument liest, als Ausgaben bereit.** Für jeden bereitgestellten Wert, den die konsumierende Komponente liest, erhält das produzierende Template eine String-Ausgabe, die nach der Komponente und dem Schlüssel benannt ist, wie bei jeder [Ausgabe, die der Provider schreibt](#top-level-sections-in-the-assembled-template). Ein bereitgestellter Wert, der ein Ausdruck ist, wird als `[string(<expression>)]` übergeben, sodass jeder Wert den Konsumenten als Text erreicht; ein einfaches Literal wird unverändert übergeben. Mehrere Konsumenten eines Werts teilen sich eine Ausgabe."
   },
   "5d2a14f0822bc88d": {
     "at": "2026-10-22T02:44:28.692Z",
@@ -63548,6 +63618,13 @@
     "srcHash": "5f0cd8b5c00cba88",
     "status": "machine",
     "text": "Die `.context.inject`-Pipe ist der Zusammenführungspunkt von drei säulenübergreifenden Quellen:"
+  },
+  "5f0ef7945a4abcb0": {
+    "at": "2026-11-17T14:28:10.966Z",
+    "job": "session-0016-20261117142810",
+    "srcHash": "5f0ef7945a4abcb0",
+    "status": "machine",
+    "text": "Was den Build abbricht"
   },
   "5f0f0813d59d0b85": {
     "at": "2026-11-03T23:30:44.700Z",
@@ -66242,6 +66319,13 @@
     "status": "machine",
     "text": "keine Netzwerk-Sockets;"
   },
+  "630593e492503235": {
+    "at": "2026-11-17T14:28:10.966Z",
+    "job": "session-0016-20261117142810",
+    "srcHash": "630593e492503235",
+    "status": "machine",
+    "text": "Bereitstellung im Geltungsbereich einer Ressourcengruppe"
+  },
   "630b6c5346ba6035": {
     "at": "2026-10-22T11:34:20.013Z",
     "job": "session-0033-20261022113420",
@@ -67507,6 +67591,13 @@
     "srcHash": "64d2a6d1d2ceea7a",
     "status": "machine",
     "text": "Das Beispiel organisiert die Kataloginhalte in Verzeichnissen pro Entität unterhalb eines Workspace-Stammverzeichnisses:"
+  },
+  "64e395751be3bcd2": {
+    "at": "2026-11-17T14:28:10.966Z",
+    "job": "session-0016-20261117142810",
+    "srcHash": "64e395751be3bcd2",
+    "status": "machine",
+    "text": "**Ein Secret, das über Bereitstellungen hinweg gelesen wird.** Ein bereitgestellter Wert, der ein Secret liest (eine `list*`-Funktion, `listOutputsWithSecureValues` oder der Wert eines `securestring`- oder `secureObject`-Parameters), würde im Bereitstellungsverlauf des Produzenten festgehalten. Legen Sie das Secret in Key Vault ab und hängen Sie `core/referenced-secret` an beiden Enden an. Siehe [A secret is read across deployments (Ein Secret wird über Bereitstellungen hinweg gelesen)](../errors/fatal-halts.md#a-secret-is-read-across-deployments)."
   },
   "64f18b5971e46ec3": {
     "at": "2026-10-30T07:09:12.317Z",
@@ -70198,6 +70289,13 @@
     "srcHash": "69111e968482ab1c",
     "status": "machine",
     "text": "Sie liest das Release unter **`input.compilation_context`**: `release_name` und `environment`. Das ist es, was eine Richtlinie pro Umgebung anders entscheiden lässt."
+  },
+  "6915004a301cfa07": {
+    "at": "2026-11-17T14:28:10.966Z",
+    "job": "session-0016-20261117142810",
+    "srcHash": "6915004a301cfa07",
+    "status": "machine",
+    "text": "**Stellen Sie jeden Produzenten zuerst bereit, mit `-n` auf den festgehaltenen Namen gesetzt,** und danach seine Konsumenten, deren eigene Namen Sie frei wählen können, da sie nirgends gelesen werden:"
   },
   "6915da756415cd33": {
     "at": "2026-11-03T23:11:53.486Z",
@@ -75205,6 +75303,13 @@
     "status": "machine",
     "text": "`ImportResult`"
   },
+  "703a30ee0bf4e937": {
+    "at": "2026-11-17T14:28:10.966Z",
+    "job": "session-0016-20261117142810",
+    "srcHash": "703a30ee0bf4e937",
+    "status": "machine",
+    "text": "Nur ein produzierendes Template hält den Namen fest, unter dem es bereitgestellt werden muss, in seinen `metadata`:"
+  },
   "703bdfaa682b8112": {
     "at": "2026-11-03T07:45:16.882Z",
     "job": "session-0072-20261103074516",
@@ -75785,6 +75890,13 @@
     "srcHash": "712bd726d8c030e7",
     "status": "machine",
     "text": "Ein Name, den der Stapel dieses Release nicht auflöst, wird abgelehnt, und die Angabe, woher lokale Entitäten gelesen werden, nennt den Eintrag dieses Release unter `workspace.releases`, da diesen Eintrag die Suche gelesen hat. `--release` wählt den Stapel, in dem ein Name nachgeschlagen wird, und gilt daher nur für einen Namen allein: Ein Dateipfad und eine Registry-Referenz werden so gelesen, wie sie sind, und lehnen es ab. Ein `--release`, das eine nicht existierende Datei oder ein Verzeichnis angibt, wird abgelehnt, bevor irgendetwas nachgeschlagen wird."
+  },
+  "712cdc607bf1d74c": {
+    "at": "2026-11-17T14:28:10.966Z",
+    "job": "session-0016-20261117142810",
+    "srcHash": "712cdc607bf1d74c",
+    "status": "machine",
+    "text": "Innerhalb des Release hat der eigene Wert einer Komponente Vorrang vor dem einer Grenze, und ein Wert, den das Release schreibt, hat Vorrang vor einem, den das Aggregate schreibt; siehe [Bekannte Annotationen](well-known-annotations.md). Da der Compiler die Platzierung nicht nachschlägt, müssen die Annotationen dazu passen, wo der Operator den Produzenten bereitstellt."
   },
   "713166971d730f81": {
     "at": "2026-10-22T10:50:19.225Z",
@@ -78413,6 +78525,13 @@
     "status": "machine",
     "text": "**Eine weitere Form wird hier gemeldet, und sie ist kein Schreibfehler.** Der eigene Dateiinhalt eines ArtifactLibrary-Bundles darf selbst kein `$import:` eines anderen Bundles sein: Ein Dateiplatz kann sich nicht in viele Dateien entfalten, daher wird ein verschachtelter Import zurückgewiesen, statt in etwas aufgelöst zu werden, das der Autor nicht geschrieben hat. Setzen Sie die Bundles stattdessen an der Stelle zusammen, an der sie konsumiert werden."
   },
+  "751d22296612a235": {
+    "at": "2026-11-17T14:28:10.966Z",
+    "job": "session-0016-20261117142810",
+    "srcHash": "751d22296612a235",
+    "status": "machine",
+    "text": "Das zusammengesetzte Template ist ein Template für eine Ressourcengruppe, und der Provider schreibt keine Parameterdatei: Seine `parameters` sind genau die, die die Beitragenden deklariert haben, und werden bei der Bereitstellung des Templates angegeben. Ein Secret zur Bereitstellungszeit ist ein `securestring`-Parameter auf oberster Ebene, der mit `--parameters` oder einer von Ihnen geschriebenen Parameterdatei angegeben wird; dorthin gehört auch eine statische Key-Vault-Referenz."
+  },
   "75239700e2644177": {
     "at": "2026-11-14T09:58:36.040Z",
     "job": "session-0006-20261114095836",
@@ -79588,6 +79707,13 @@
     "srcHash": "76be4d63e71edfa1",
     "status": "machine",
     "text": "**Der Prozess terminiert TLS selbst.** Setzen Sie `mcp.tls.cert_file` auf eine PEM-Zertifikatskette und `mcp.tls.key_file` auf deren privaten Schlüssel, und der Listener stellt HTTPS direkt auf der Adresse bereit, die Sie ihm gegeben haben. Beide Dateien werden beim Start des Prozesses gelesen, ein ersetztes Zertifikat wird also durch einen Neustart des Prozesses übernommen. Nur eine der beiden zu setzen wird beim Start abgewiesen, statt auf etwas anderes zurückzufallen: Ein Zertifikat ohne Schlüssel kann nicht vorgelegt werden, ein Schlüssel ohne Zertifikat benennt nichts, und ein Tippfehler in einem Pfad ist kein Grund, unverschlüsselten Datenverkehr zu bedienen."
+  },
+  "76bfcfec38e003f4": {
+    "at": "2026-11-17T14:28:10.966Z",
+    "job": "session-0016-20261117142810",
+    "srcHash": "76bfcfec38e003f4",
+    "status": "machine",
+    "text": "**Der Bereitstellungsverlauf ist auf 800 Einträge pro Geltungsbereich begrenzt.** Ab 700 löscht Azure die ältesten bis auf 600. Ein Eintrag eines Produzenten, der so entfernt wurde, lässt die Bereitstellung des Konsumenten fehlschlagen. Wird der Produzent unter seinem festgehaltenen Namen erneut bereitgestellt, rückt sein Eintrag an die neueste Stelle; stellen Sie ihn daher vor seinen Konsumenten erneut bereit, wenn sein Geltungsbereich stark ausgelastet ist."
   },
   "76c3635079fd6da5": {
     "at": "2026-11-04T12:39:30.717Z",
@@ -87913,6 +88039,13 @@
     "srcHash": "83442317c456cb11",
     "status": "machine",
     "text": "`LinkPatch`"
+  },
+  "83466b921c63ae67": {
+    "at": "2026-11-17T14:28:10.966Z",
+    "job": "session-0016-20261117142810",
+    "srcHash": "83466b921c63ae67",
+    "status": "machine",
+    "text": "**Ein bereitgestellter Wert, der einen Aufruf in Literaltext einfügt.** Schreiben Sie den bereitgestellten Wert als einen einzigen Ausdruck, `[format('postgres://{0}:5432', reference('Db').outputs.fqdn.value)]`. Siehe [A provided value splices a call into literal text across deployments (Ein bereitgestellter Wert fügt über Bereitstellungen hinweg einen Aufruf in Literaltext ein)](../errors/fatal-halts.md#a-provided-value-splices-a-call-into-literal-text-across-deployments)."
   },
   "8348eed00a69c318": {
     "at": "2026-11-03T23:30:44.700Z",
@@ -101179,6 +101312,13 @@
     "status": "machine",
     "text": "Die Parameter-Interpolation in einem Aggregate meldet dieselbe Zeile ebenfalls unter dem Code dieser Bedingung. Ein Eintrag `provides:` meldet einen Template-Fehler unter „A `provides:` template could not be evaluated (Ein provides-Template kann nicht ausgewertet werden)“, daher trägt der Kopf dort den Code dieser Bedingung, und die Zeile darüber ist der Grund, den er trägt, einschließlich des Pfads."
   },
+  "973f775fa521ecb8": {
+    "at": "2026-11-17T14:28:10.966Z",
+    "job": "session-0016-20261117142810",
+    "srcHash": "973f775fa521ecb8",
+    "status": "machine",
+    "text": "Verknüpfung über Bereitstellungen hinweg"
+  },
   "9742f86f0518fbeb": {
     "at": "2026-11-04T10:56:32.711Z",
     "job": "session-0233-20261104105632",
@@ -102375,6 +102515,13 @@
     "srcHash": "990429e30c5c3ed7",
     "status": "machine",
     "text": "Der Abbruch wird an der Annotation in ihrer geschriebenen Form ausgelöst, bevor sie zu einer Feature-Anbindung erweitert wird, wie bei den benachbarten Bedingungen, daher nennt die Diagnose das Dokument und die Stelle, an der der Wert geschrieben wurde. Die Prüfung erfolgt einmal pro Annotation, die Sie geschrieben haben: Ein auf einer Boundary oder einem Subsystem geschriebener Wert wird dort zurückgewiesen, einmal, unabhängig davon, ob eine Komponente darin ihn übernimmt. Jeder solche Wert im Build wird gemeldet, nicht nur der erste. Der Build meldet eine Release-seitige Annotation unter einem `OPS_ERROR`-Tag und eine Aggregate-seitige unter einem `DEVELOPER_ERROR`-Tag, je nach dem Dokument, das sie geschrieben hat. Die Bedingung lautet `a scalar annotation value does not route to exactly one path of its binding`; das gibt [`aggrega explain`](../cli/aggrega-explain.md) für ihren Code aus."
+  },
+  "9905e110167c39ef": {
+    "at": "2026-11-17T14:28:10.966Z",
+    "job": "session-0016-20261117142810",
+    "srcHash": "9905e110167c39ef",
+    "status": "machine",
+    "text": "Das eigene Abonnement des Konsumenten"
   },
   "990a270af7804a26": {
     "at": "2026-11-13T18:50:20.840Z",
@@ -111794,6 +111941,13 @@
     "status": "machine",
     "text": "**Eine erfasste Signatur, die ein Build nicht akzeptiert.** Wo die Zeile eine Signatur erfasst, deren zwischengespeichertes Signaturbündel nach dem Pull, der es zwischengespeichert hat, entfernt oder verändert wurde — oder eine aus einer anderen Zeile kopierte `signature`, deren Bündel intakt ist, aber für ein anderes Artefakt erstellt wurde —, lehnt ein Build die Zeile ab, unabhängig davon, was die Signaturanforderung besagt ([A cached signature bundle does not match the digest recorded for it (Ein zwischengespeichertes Signaturbündel stimmt nicht mit dem dafür erfassten Digest überein)](../errors/fatal-halts.md#a-cached-signature-bundle-does-not-match-the-digest-recorded-for-it), [A recorded signature was made for a different artifact (Eine erfasste Signatur wurde für ein anderes Artefakt erstellt)](../errors/fatal-halts.md#a-recorded-signature-was-made-for-a-different-artifact)). Deshalb fragt der erneute Pull die Registry dieser Abhängigkeit erneut nach ihrer Signatur, unabhängig von der Anforderung, über dieselbe Verifizierung, die eine abgerufene Abhängigkeit durchläuft: Was diese verifiziert, ersetzt die Signatur der Zeile, und das darin genannte Bündel wird erneut zwischengespeichert, wobei eine zwischengespeicherte Kopie, die nicht mehr zu ihrem Digest passt, neu geschrieben wird — sodass Zeile und Cache das enthalten, was der Pull hinterlassen hat, der die Abhängigkeit abgerufen hat. Eine Signatur, die die Vertrauenskonfiguration nicht akzeptiert, bricht den erneuten Pull ab, so wie sie einen Pull abbricht, der die Abhängigkeit abgerufen hat, und ebenso eine Registry, die keine anhängt, wo eine Signatur verlangt wird. Wo die Verifizierung keine erfasst — `skip_signature_verification`, wo es gilt und nichts fragt, eine Registry, die keine Signatur anhängt, wo keine verlangt wird, oder eine `advisory`-Registry, wo nichts verifiziert wird —, wird die Signatur der Zeile gelöscht, was ein Build unter denselben Einstellungen zulässt."
   },
+  "a696a165d8f4ca23": {
+    "at": "2026-11-17T14:28:10.966Z",
+    "job": "session-0016-20261117142810",
+    "srcHash": "a696a165d8f4ca23",
+    "status": "machine",
+    "text": "**Ein Bereitstellungsname behält seinen Speicherort.** In einem Geltungsbereich, dessen Bereitstellungsbefehl einen Speicherort verlangt, wird ein mit einem anderen Speicherort wiederverwendeter Name von Azure abgelehnt."
+  },
   "a69e1e25b3803f27": {
     "at": "2026-10-30T06:56:58.054Z",
     "job": "session-0072-20261030065658",
@@ -117559,6 +117713,13 @@
     "status": "machine",
     "text": "**Es garantiert nicht, dass die gerenderte Ausgabe frei von Material ist.** Ob ein Artefakt Material trägt, hängt davon ab, welche Füllung ein Autor angebunden hat und was der Autor in ihre `values` geschrieben hat — siehe [architecture/08-credential-model.md](../../architecture/08-credential-model.md) „What the compiler does and does not guarantee (Was der Compiler garantiert und was nicht)“. Ein als sensibel deklarierter Wert, den ein Autor inline angegeben hat, wird genau so gerendert wie ein nicht deklarierter, wo immer der Build ihn überhaupt rendert."
   },
+  "af1e09d7e222d27d": {
+    "at": "2026-11-17T14:28:10.966Z",
+    "job": "session-0016-20261117142810",
+    "srcHash": "af1e09d7e222d27d",
+    "status": "machine",
+    "text": "**Ein Produzent, der im Geltungsbereich eines Abonnements oder einer Verwaltungsgruppe bereitgestellt wird.** Platzieren Sie den Produzenten in einer Grenze, die im Geltungsbereich einer Ressourcengruppe bereitgestellt wird."
+  },
   "af1e65fe088cd179": {
     "at": "2026-11-04T10:56:32.711Z",
     "job": "session-0233-20261104105632",
@@ -121446,6 +121607,13 @@
     "srcHash": "b459c3c5ef51cb7a",
     "status": "machine",
     "text": "Ob der Eintrag ein Verzeichnis ist. Ein Guest, der in der Auflistung eine Chart-Wurzel oder eine einzelne Quelldatei auflöst, liest dies, um Verzeichnisse von Dateien zu unterscheiden, ohne das Dateisystem zu berühren."
+  },
+  "b459dcc2d22368d6": {
+    "at": "2026-11-17T14:28:10.966Z",
+    "job": "session-0016-20261117142810",
+    "srcHash": "b459dcc2d22368d6",
+    "status": "machine",
+    "text": "**Ein Wert, der im Geltungsbereich eines Abonnements oder einer Verwaltungsgruppe von einem Produzenten gelesen wird, dessen Grenze keine Ressourcengruppe nennt, oder im Geltungsbereich einer Verwaltungsgruppe kein Abonnement.** Annotieren Sie die Grenze des Produzenten mit `aggrega.ai/azure-resource-group` und mit `aggrega.ai/azure-subscription`, wo das Lesen im Geltungsbereich einer Verwaltungsgruppe erfolgt."
   },
   "b45a7372501dfa54": {
     "at": "2026-10-22T06:52:21.462Z",
@@ -128448,6 +128616,13 @@
     "status": "machine",
     "text": "Der Namespace, unter dem entworfene Entitäten benannt werden: `<target_namespace>/<category>/<name>` für eine Component und `<target_namespace>/<name>` für das Aggregate und das Release, wobei `<name>` der eigene Name der Quelle ist, andernfalls der Name ihres Verzeichnisses oder der Name ihrer Datei ohne die Erweiterung, andernfalls `flow`, in Kleinbuchstaben geschrieben, wobei jede Folge anderer Zeichen als ASCII-Buchstaben und -Ziffern zu einem einzigen Bindestrich wird, wie [Wie ein Entwurf benannt wird](#how-a-draft-is-named) beschreibt."
   },
+  "beb4c4371a7d6c30": {
+    "at": "2026-11-17T14:28:10.966Z",
+    "job": "session-0016-20261117142810",
+    "srcHash": "beb4c4371a7d6c30",
+    "status": "machine",
+    "text": "**Ein als ARM-Bereitstellungsstapel bereitgestellter Produzent ist nicht erreichbar.** Ein Stapel benennt seine Bereitstellungen selbst, sodass kein vom Template festgehaltener Name erreichbar ist; stellen Sie einen Produzenten mit `az deployment group create` bereit. Ein Konsument darf auf beide Arten bereitgestellt werden."
+  },
   "beb5728e75def163": {
     "at": "2026-11-03T10:16:19.100Z",
     "job": "session-0089-20261103101619",
@@ -128718,6 +128893,13 @@
     "srcHash": "bf1e7c825efccc9c",
     "status": "machine",
     "text": "Wenn ein FeatureRecipe ein Zugangsdaten-Feature implementiert (eines mit dem Label `feature.aggrega.ai/kind: secret`), folgt es dem Zwei-Teile-Plugin-Prinzip: Die `pipeline` verkettet ein Fetcher-Plugin (das die vault-spezifische CRD erzeugt), gefolgt von einem Injector-Plugin (das das Secret in den Zielcontainer einhängt). Das vollständige ausgearbeitete Beispiel finden Sie unter [examples/05-credential-features](../examples/05-credential-features.md)."
+  },
+  "bf1f7f71f8d39aff": {
+    "at": "2026-11-17T14:28:10.966Z",
+    "job": "session-0016-20261117142810",
+    "srcHash": "bf1f7f71f8d39aff",
+    "status": "machine",
+    "text": "Eine `uses`-Kante zwischen zwei `arm`-Grenzen, die zu unterschiedlichen Ausgabeverzeichnissen aufgelöst werden, verbindet zwei Templates, von denen jedes als eigene Bereitstellung bereitgestellt wird. Die Kante wird in beiden Templates verdrahtet. Eine Grenze im Geltungsbereich einer Ressourcengruppe kann Produzent sein: das Template der Komponente, auf die eine `uses`-Kante zeigt."
   },
   "bf1fa943c3116a02": {
     "at": "2026-11-02T18:47:12.619Z",
@@ -130693,6 +130875,13 @@
     "status": "machine",
     "text": "Das Paar entsteht aus Verfassen, das auf jeder Oberfläche für sich zulässig ist: der eigene Eintrag einer Komponente und der einer Anbindung auf demselben Socket und Alias; eine Liste, die ein Ziel zweimal nennt (`models: [llama, llama]`); ein Alias, der auf zwei Sockets geschrieben ist (`models: { local: … }` neben `databases: { local: … }`); zwei Anbindungen, die denselben Alias verdrahten; oder ein Release-Eintrag, der eine Verbindung auf einem Socket zieht, den das Aggregate ungebunden gelassen hat, unter einem Alias, den das Aggregate bereits auf einem anderen Socket verwendet hat. Zwei benachbarte Strukturen erreichen diesen Abbruch nie: Ein Schlüssel, der in einem Block von Einträgen mit Schlüssel zweimal geschrieben ist, lässt das Laden des Dokuments fehlschlagen, und ein Release-Eintrag an einem Socket und Alias, die ein anderer Block bereits gezogen hat, konfiguriert diese Verbindung — oder bricht, wenn er ein anderes Ziel nennt, als Zieländerung ab —, statt eine zweite zu ziehen."
   },
+  "c1c23a28e5018754": {
+    "at": "2026-11-17T14:28:10.966Z",
+    "job": "session-0016-20261117142810",
+    "srcHash": "c1c23a28e5018754",
+    "status": "machine",
+    "text": "Die Ressourcengruppe, in die das produzierende Template bereitgestellt wird"
+  },
   "c1c2c1099fed68e2": {
     "at": "2026-11-04T13:45:24.314Z",
     "job": "session-0249-20261104134524",
@@ -132459,6 +132648,13 @@
     "srcHash": "c461bfced37330d4",
     "status": "machine",
     "text": "die Dateien, die `aggrega import . --target compose` geschrieben hat, unverändert, und was der Befehl ausgegeben hat: `stdout.txt` auf der Standardausgabe, `import.txt` auf der Standardfehlerausgabe"
+  },
+  "c4664205ed93df19": {
+    "at": "2026-11-17T14:28:10.966Z",
+    "job": "session-0016-20261117142810",
+    "srcHash": "c4664205ed93df19",
+    "status": "machine",
+    "text": "`--action-on-unmanage detachAll` lässt eine Ressource unangetastet, wenn ein späteres Template sie nicht mehr deklariert, und `--deny-settings-mode none` setzt keine Deny-Zuweisung auf das, was der Stapel verwaltet; wählen Sie andere Werte, wenn der Stapel mehr durchsetzen soll. Der Provider entscheidet nichts davon — die Befehle sind Sache des Operators."
   },
   "c47202a3e7083104": {
     "at": "2026-11-15T00:01:27.771Z",
@@ -138058,6 +138254,13 @@
     "status": "machine",
     "text": "Die Position ist der Schlüsselpfad, den der Autor geschrieben hat. Im Aggregate `.spec.components.<component>.inject.<mechanism>` für den eigenen Block einer Komponente, `.spec.components.<component>.uses.<socket>.<alias>.inject.<mechanism>` für einen Block an einer ihrer Verbindungen und `.spec.components.<component>.features.<attachment>…` für den einer Anbindung, mit `.subsystems.<name>` für jedes Subsystem, in dem eine Komponente oder eine Anbindung deklariert ist. Im Release der Block an einer Verbindung, die eine Anbindung zieht, über diese Anbindung — `.spec.boundaries.<boundary>.features.<attachment>.uses.<socket>.<alias>.inject.<mechanism>` für eine, die für die ganze Boundary angebunden ist, `.spec.boundaries.<boundary>.components.<component>.features.<attachment>…` für eine an einer Komponente, mit `.boundaries.<name>` für jede verschachtelte Boundary und `.aggregates.<module>` für jeden Routing-Eintrag, über den eine Komponente benannt wird."
   },
+  "ccbd34f041a0eb3a": {
+    "at": "2026-11-17T14:28:10.966Z",
+    "job": "session-0016-20261117142810",
+    "srcHash": "ccbd34f041a0eb3a",
+    "status": "machine",
+    "text": "Die Abonnement-ID, in die das produzierende Template bereitgestellt wird"
+  },
   "ccc2957015f4d3d1": {
     "at": "2026-11-05T16:02:28.456Z",
     "job": "session-0001-20261105160228",
@@ -139435,6 +139638,13 @@
     "srcHash": "ce9522eb8a7b4674",
     "status": "machine",
     "text": "**Jeder Befehl, der die Abhängigkeiten eines Release liest, führt diese Prüfung durch; unterschiedlich ist, was jeder mit dem Ergebnis macht.** `aggrega build` und `aggrega pull` brechen ab, weil beide etwas erzeugen, das Sie anschließend verwenden würden — gerenderte Artefakte und ein Lockfile. `aggrega validate` und `aggrega lint` melden den Befund zusammen mit jeder anderen gefundenen Diagnose und beenden sich dann mit einem Exit-Code ungleich null: Deren Aufgabe ist es, Ihnen alles zu sagen, was am Workspace falsch ist, sodass ein einzelner Fehler den Bericht nicht abkürzt. Im Editor wird der Befund als Diagnose neben den anderen veröffentlicht, und alles andere, was dieses Dokument zu melden hatte, bleibt unberührt. Beachten Sie, wo er erscheint: Der Editor hängt die Diagnosen eines Release auf Abhängigkeitsebene an das Aggregate an, sodass der Befund erscheint, während das Aggregate geöffnet ist, und nicht, während Sie das Manifest bearbeiten, in dem das Mapping steht. `aggrega validate` meldet ihn, welches Dokument Sie auch geöffnet haben."
+  },
+  "ce959817b4cbae66": {
+    "at": "2026-11-17T14:28:10.966Z",
+    "job": "session-0016-20261117142810",
+    "srcHash": "ce959817b4cbae66",
+    "status": "machine",
+    "text": "Der Bereitstellungsname"
   },
   "ce97a5a035346a19": {
     "at": "2026-11-03T14:05:29.072Z",
@@ -143953,6 +144163,13 @@
     "srcHash": "d5020edd50066ccf",
     "status": "machine",
     "text": "**Dies ist eine Eigenschaft allein von `index`, und keine Richtlinie für fehlende Schlüssel einer Oberfläche ändert sie.** Ein Punkt-Lesezugriff auf einen nicht gesetzten Schlüssel unter einer offenen Säule rendert auf einem Werte-Template weiterhin nichts, wie „Missing template key — asymmetric policy (Fehlender Template-Schlüssel — asymmetrische Richtlinie)“ weiter oben beschreibt, und ein Template, das prüft, ob der Autor einen solchen Schlüssel geliefert hat, ist nicht betroffen. Was abbricht, ist, `index` nach einem Schlüssel zu fragen, den die Map nicht enthält. `index` ist der Weg, auf dem ein Template einen Schlüssel erreicht, dessen Namen es berechnet — etwa eine Zugangsberechtigung, die unter dem Variablennamen gelesen wird, den das konsumierende Recipe gewählt hat —, und ohne den Abbruch würde dieser Lesezugriff den Platzhaltertext der Template-Engine `<no value>` in das Artefakt schreiben, während der Build erfolgreich wäre: ein Server, der mit diesem Text als Schlüssel gestartet wird. Jede andere Antwort, die `index` gibt, ist die eigene der Template-Engine: eine Position in einer Liste oder einer Zeichenkette, eine Position außerhalb des Bereichs, ein Schlüssel, den die Map enthält — einschließlich eines, dessen Wert null ist, was `<no value>` ausgibt."
+  },
+  "d503ead5b10c67d6": {
+    "at": "2026-11-17T14:28:10.966Z",
+    "job": "session-0016-20261117142810",
+    "srcHash": "d503ead5b10c67d6",
+    "status": "machine",
+    "text": "Was beim Operator liegt"
   },
   "d5042d12098ba66d": {
     "at": "2026-11-04T01:29:35.126Z",
@@ -149185,6 +149402,13 @@
     "srcHash": "dcbc67813a278532",
     "status": "machine",
     "text": "Senden Sie eine Anfrage, die der Muster-Wächter zurückweist, in einer eigenen Konversation, dann eine gewöhnliche Frage in derselben Konversation, und lesen Sie die Konversation anschließend aus. Eine fehlgeschlagene Runde lässt ihre Konversation so, wie sie vor der Runde war; daher wird die zurückgewiesene Nachricht nicht aufbewahrt, die nächste Runde in dieser Konversation wird beantwortet, und die Konversation enthält nur die beantworteten Runden:"
+  },
+  "dcbf0d146192a49d": {
+    "at": "2026-11-17T14:28:10.966Z",
+    "job": "session-0016-20261117142810",
+    "srcHash": "dcbf0d146192a49d",
+    "status": "machine",
+    "text": "Die Verknüpfungen beruhen auf Bereitstellungen, die in Azure bereits existieren; daher liegt Folgendes beim Operator:"
   },
   "dcc0581d670b780b": {
     "at": "2026-11-02T23:32:54.656Z",
@@ -169938,6 +170162,13 @@
     "srcHash": "fa446b67eb6bacdf",
     "status": "machine",
     "text": "Eine MCP-Client-Konfiguration importieren — drei Server, die ein Coding-Assistent nutzt"
+  },
+  "fa47585be868cfa5": {
+    "at": "2026-11-17T14:28:10.966Z",
+    "job": "session-0016-20261117142810",
+    "srcHash": "fa47585be868cfa5",
+    "status": "machine",
+    "text": "Der Name leitet sich vom Namen des Release und vom Ausgabeverzeichnis der Grenze ab. Wer das `directory:` der Grenze im Release ändert, benennt ihn also um, und der neu gebaute Konsument liest den neuen Namen. Ein Fragment, das unter diesem Metadatenschlüssel bereits einen anderen Wert schreibt, bricht den Build ab."
   },
   "fa4a68af580d7008": {
     "at": "2026-11-03T11:51:14.962Z",

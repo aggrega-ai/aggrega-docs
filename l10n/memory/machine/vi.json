@@ -15911,6 +15911,13 @@
     "status": "machine",
     "text": "Một máy cách ly mạng giữ bản sao cục bộ của catalog và các artifact của nó chính là trường hợp mà sự phân chia này tồn tại để duy trì hoạt động: một workspace như vậy ở trạng thái ngoại tuyến, và hầu như mọi việc nó làm vẫn có thể được đáp ứng."
   },
+  "154055b6b4503573": {
+    "at": "2026-11-17T14:28:10.966Z",
+    "job": "session-0016-20261117142810",
+    "srcHash": "154055b6b4503573",
+    "status": "machine",
+    "text": "Khi vắng mặt"
+  },
   "1540d8e378132e18": {
     "at": "2026-10-22T23:53:38.624924+00:00",
     "job": "msgbatch_011k5XEXAWyemaJqwBb86oM4",
@@ -23654,6 +23661,13 @@
     "status": "machine",
     "text": "**Thư viện chuẩn mang những gì.** `core/ai-tool/mcp` mang `http`. Nó gắn một máy chủ Model Context Protocol vào một agent, và Manifest chọn cách hiện thực máy chủ đó: `helm/mcp` chạy một image phục vụ giao thức qua HTTP; `helm/mcp-stdio-bridge` và `compose/mcp-stdio-bridge` chạy một gói chỉ dùng stdio phía sau một bridge được ghim phiên bản phục vụ nó qua HTTP; `helm/mcp-remote` và `compose/mcp-remote` truy cập một máy chủ do người khác vận hành, và không chạy gì. Mọi hiện thực đều công bố cùng `host`, `port`, `endpoint`, `protocol` và `credential_header`, nên cách nối của bên tiêu thụ không thay đổi theo hiện thực. Thông tin xác thực của một máy chủ qua bridge là các biến môi trường, được giữ trong slot `server_env` của công cụ và chuyển tới bridge theo tham chiếu trên Kubernetes; thông tin xác thực của một máy chủ từ xa được bên tiêu thụ giữ trên kết nối riêng của nó tới công cụ và xuất trình dưới header mà `credential_header` nêu tên, là `Authorization` trừ khi Release nêu một header khác. Khi một máy chủ từ xa đọc khóa của nó từ chính địa chỉ của nó, bên tiêu thụ cũng giữ toàn bộ địa chỉ trên kết nối đó, trong một slot `endpoint` được điền trên Kubernetes bằng một tham chiếu tới một Secret và trên Docker Compose bằng một tham chiếu biến Compose, nên khóa không đến được tệp nào được render, trong khi `infra.endpoint` của công cụ giữ địa chỉ không có phần mang khóa; [examples/mcp-address-from-secret](../language-reference/examples/mcp-address-from-secret/README.md) xây dựng cả hai. `core/ai-agent/openai-agents-sdk`, `core/ai-agent/claude-agent-sdk`, `core/ai-agent/agent-framework`, `core/ai-agent/google-adk` và `core/ai-agent/mastra`, cùng các nền tảng luồng `core/ai-agent/flowise` và `core/ai-agent/n8n`, khai báo một socket công cụ dạng này, `tools`, và chuyển địa chỉ của từng công cụ được nối, cùng thông tin xác thực của kết nối theo tham chiếu, dưới các biến được đặt tên theo bí danh của kết nối, trong khi một kết nối viết một khối `inject:` nhận những gì khối đó quy định thay cho các biến được suy ra từ những gì công cụ công bố, còn nội dung trong các slot `credential` và `endpoint` của nó vẫn nằm dưới tên của bí danh; một bên tiêu thụ của riêng bạn cũng khai báo socket như vậy theo cùng cách. Mỗi nền tảng trong ba nền tảng luồng mang một luồng được viết trong Aggregate vào nền tảng khi triển khai, trên cả hai đích: Langflow nạp định nghĩa được mang theo từ thư mục luồng của nó ở mỗi lần khởi động, chatflow của Flowise được khởi tạo bởi một bước chạy một lần đăng nhập bằng tài khoản chủ sở hữu mà Release nêu tên, và workflow của n8n được nhập bởi một bước init trước khi nền tảng khởi động. `core/ai-agent/langflow` khai báo một socket `tools` cùng dạng, không chấp nhận khối `inject:`, và thay vào đó chuyển từng kết nối qua luồng đó, vì thành phần MCP Tools của Langflow chỉ lấy địa chỉ máy chủ từ cài đặt riêng của Langflow hoặc từ luồng, không bao giờ từ một biến: các Recipes của nó viết địa chỉ của công cụ vào nút MCP Tools có máy chủ được đặt tên theo bí danh của kết nối, chuyển thông tin xác thực của kết nối theo tham chiếu dưới dạng một biến mà header của nút đó nêu tên — dưới `Authorization`, một biến chứa `Bearer` và thông tin xác thực — và cho các host của công cụ và kho lưu trữ được nối đi qua cơ chế bảo vệ của Langflow chống lại địa chỉ riêng. Cả ba nền tảng cũng khai báo một socket `vector_store` chọn `datastore.aggrega.ai/engine in (vector, semantic-memory, search)`, socket này theo cùng cách chuyển địa chỉ của từng kho lưu trữ được nối — `endpoint` mà nó công bố, với `core/datastore/pgvector` là một URI kết nối không chứa mật khẩu, hoặc một địa chỉ ghép từ giao thức, host và cổng của nó — và thông tin xác thực của kết nối theo tham chiếu; một kho lưu trữ cũng công bố cơ sở dữ liệu và người dùng của nó, như `core/datastore/pgvector`, đến Flowise và n8n cả ở các phần đó, vì nút vector PostgreSQL của cả hai nền tảng đều không nhận chuỗi kết nối; Langflow, có thành phần PGVector nhận một chuỗi duy nhất, nhận kho lưu trữ như vậy dưới dạng `AGGREGA_VECTOR_STORE_<ALIAS>_CONNECTION_STRING`, với thông tin xác thực của kết nối làm mật khẩu, theo tham chiếu trên Kubernetes và nguyên dạng được chuyển trên Docker Compose. Một chatflow của Flowise đọc một biến được chuyển tới thông qua một biến Runtime cùng tên được tạo trên trang Variables của Flowise, và một workflow của n8n đọc biến đó qua `$env` chỉ khi Aggregate đặt giá trị `allow_env_access_in_nodes` của nền tảng, vì theo mặc định các Recipes của nó giữ cơ chế chặn của n8n đối với việc truy cập môi trường trong các nút."
   },
+  "1fbb883236ef4756": {
+    "at": "2026-11-17T14:28:10.966Z",
+    "job": "session-0016-20261117142810",
+    "srcHash": "1fbb883236ef4756",
+    "status": "machine",
+    "text": "**Template bên tiêu thụ đọc bản triển khai của bên sản xuất bằng ID tài nguyên của nó.** Một giá trị được nối với bên tiêu thụ trở thành `reference(format('/subscriptions/{0}/resourceGroups/{1}/providers/Microsoft.Resources/deployments/{2}', <subscription>, <resource group>, '<name>'), '2025-04-01').outputs.<output>.value`, được ghi trong `properties` của một tài nguyên, `value` của một đầu ra hoặc đầu vào của vòng lặp `copy` của một đầu ra, là những nơi ARM đánh giá `reference()`. Trình biên dịch không liên hệ với bất cứ thứ gì: ID là một chuỗi do nó dựng từ các tên, và ARM đọc bản triển khai khi bên tiêu thụ được triển khai."
+  },
   "1fc3aa265dd980d1": {
     "at": "2026-11-14T10:22:53.079Z",
     "job": "session-0004-20261114102253",
@@ -24317,6 +24331,13 @@
     "srcHash": "20a32ab1e06f01a3",
     "status": "machine",
     "text": "**Hình dạng cấu trúc: map ở gốc, mảng trong payload.** Các khối cấu trúc liên kết gốc — `components`, `features`, `aggregates`, `subsystems`, `boundaries` — là các map YAML với khóa do người dùng soạn đóng vai trò ID thể hiện ổn định. Mảng không hợp lệ tại các vị trí này; khóa map là danh tính mà trình biên dịch dùng cho tham chiếu chéo (`target: my-db`), xây dựng nút đồ thị và phân giải Manifest. Bên trong các khối payload mờ đục (`values`, `infra`, `parameters`), mảng được cho phép hoàn toàn — nhà phát triển có thể viết `tools_allowed: [\"sql\", \"web\"]` hoặc `hostnames: [\"stripe.com\", \"twilio.com\"]` bên trong `values` của một Component. Lược đồ Aggregate khai báo các khối payload này là `additionalProperties: true`, nên chúng mờ đục đối với trình biên dịch Go và được xác thực hoàn toàn bởi khai báo `schema:` nhúng trong danh mục. Điều này đặt sự biến động của framework (hình dạng API AI mới, định dạng payload cloud-native mới) vào trong miền danh mục, nơi nó có thể phát triển độc lập, trong khi trình biên dịch Go chỉ làm việc với các khóa có thể định địa chỉ ở gốc cấu trúc."
+  },
+  "20a81bca5a5b730a": {
+    "at": "2026-11-17T14:28:10.966Z",
+    "job": "session-0016-20261117142810",
+    "srcHash": "20a81bca5a5b730a",
+    "status": "machine",
+    "text": "Một Recipe công bố giá trị được cung cấp dưới dạng một biểu thức trọn vẹn hoặc một literal thuần. Trong một template, văn bản xung quanh một giá trị vẫn được ghép thành `format()` như mô tả ở [Viết văn bản ARM](#writing-arm-text)."
   },
   "20a88f45a13e32fb": {
     "at": "2026-11-12T21:38:06.030Z",
@@ -28766,6 +28787,13 @@
     "srcHash": "26935db762215379",
     "status": "machine",
     "text": "*Việc phân phối dựa trên Vault hiện đã khả dụng thông qua lộ trình kết xuất bằng chart: `k8s-external-secret` kết xuất một `ExternalSecret` của External Secrets. Mảng `pipeline:` của một FeatureRecipe nối chuỗi các Plugins Wasm, và hợp đồng `provides` của nó công bố những gì nó hiện thực hóa.*"
+  },
+  "269ac827bd5cf9f4": {
+    "at": "2026-11-17T14:28:10.966Z",
+    "job": "session-0016-20261117142810",
+    "srcHash": "269ac827bd5cf9f4",
+    "status": "machine",
+    "text": "**Khóa CanNotDelete chặn việc dọn dẹp.** Dưới khóa, không gì bị xóa, và khi lịch sử đạt 800 mục, các lần triển khai tiếp theo thất bại cho đến khi các mục được gỡ bỏ."
   },
   "269d6e8f272f12ac": {
     "at": "2026-10-22T02:44:28.692Z",
@@ -37469,6 +37497,13 @@
     "srcHash": "32a793ec748c982b",
     "status": "machine",
     "text": "**Các namespace dành riêng.** Các namespace `aggrega.ai/` và `app.kubernetes.io/` được dành riêng cho provenance gốc của nền tảng, và một khóa được nâng lên nằm dưới một trong hai tiền tố đó sẽ bị từ chối khi nạp, kèm một lỗi catalog nêu tên khóa và trường chứa nó. Phép kiểm tra dựa trên tiền tố trần: một khóa như `component.aggrega.ai/hosting` nằm trong một namespace riêng chứ không nằm dưới gốc dành riêng, nên có thể được nâng lên."
+  },
+  "32a7ba8b64d1b125": {
+    "at": "2026-11-17T14:28:10.966Z",
+    "job": "session-0016-20261117142810",
+    "srcHash": "32a7ba8b64d1b125",
+    "status": "machine",
+    "text": "Hai annotation trên ranh giới của bên sản xuất xác định nơi triển khai nó, và chúng được đọc như các chuỗi opaque:"
   },
   "32ac1450b7deff04": {
     "at": "2026-11-15T00:31:19.686Z",
@@ -46722,6 +46757,13 @@
     "srcHash": "3f6dc166f9945e01",
     "status": "machine",
     "text": "Ba loại đầu vào"
+  },
+  "3f6e6367ee0d581a": {
+    "at": "2026-11-17T14:28:10.966Z",
+    "job": "session-0016-20261117142810",
+    "srcHash": "3f6e6367ee0d581a",
+    "status": "machine",
+    "text": "**Một giá trị đọc từ bản triển khai khác được ghi ở nơi ARM không đánh giá.** Bên ngoài `properties` của một tài nguyên, `value` của một đầu ra hoặc đầu vào `copy` của một đầu ra. Xem [A value read from another deployment is written where ARM does not evaluate it (Một giá trị đọc từ bản triển khai khác được ghi ở nơi ARM không đánh giá)](../errors/fatal-halts.md#a-value-read-from-another-deployment-is-written-where-arm-does-not-evaluate-it)."
   },
   "3f7180faaddfd3cb": {
     "at": "2026-10-22T09:04:04.145Z",
@@ -58967,6 +59009,13 @@
     "status": "machine",
     "text": "PluginRetraction"
   },
+  "503379c38ad4725e": {
+    "at": "2026-11-17T14:28:10.966Z",
+    "job": "session-0016-20261117142810",
+    "srcHash": "503379c38ad4725e",
+    "status": "machine",
+    "text": "Nơi bên sản xuất được triển khai"
+  },
   "5036f0c48e8509a2": {
     "at": "2026-10-29T23:55:51.039Z",
     "job": "session-0034-20261029235551",
@@ -60496,6 +60545,13 @@
     "srcHash": "52315d70df8b99c6",
     "status": "machine",
     "text": "Nếu bạn đã cài đặt plugin, bạn đã được kết nối với máy chủ MCP của Aggrega. Nếu không, hãy tự kết nối với máy chủ MCP của Aggrega, tức là lệnh `aggrega mcp`, theo cách bạn thêm một máy chủ MCP, như `https://aggrega.ai/docs/ai-assistants/mcp-server/` mô tả dành cho bạn. Nếu bạn cần khởi động lại hoặc tải lại để nạp plugin hoặc máy chủ, hãy cho tôi biết cần làm gì."
+  },
+  "523321d6e487de28": {
+    "at": "2026-11-17T14:28:10.966Z",
+    "job": "session-0016-20261117142810",
+    "srcHash": "523321d6e487de28",
+    "status": "machine",
+    "text": "Nhóm tài nguyên riêng của bên tiêu thụ"
   },
   "523c4de5c0df6e64": {
     "at": "2026-10-22T23:53:38.624924+00:00",
@@ -67279,6 +67335,13 @@
     "status": "machine",
     "text": "**Nêu tên image mà mỗi agent chạy.** Chương trình của nhóm chạy trong một image mà bạn xây dựng từ dự án; ở đây cả hai agent chạy cùng một image, `ghcr.io/example/support-brief:1.0.0`."
   },
+  "5b34cfa3324e4d9a": {
+    "at": "2026-11-17T14:28:10.966Z",
+    "job": "session-0016-20261117142810",
+    "srcHash": "5b34cfa3324e4d9a",
+    "status": "machine",
+    "text": "`arm` liên kết tới một bên sản xuất được triển khai ở phạm vi nhóm tài nguyên: ID tài nguyên ở trên là ID của một bản triển khai vào một nhóm tài nguyên. Một liên kết tới bên sản xuất mà ranh giới của nó triển khai ở phạm vi subscription hoặc nhóm quản lý sẽ làm build dừng lại, nêu tên liên kết đó. Một bên tiêu thụ có thể triển khai ở phạm vi subscription hoặc nhóm quản lý. Một giá trị mà nội dung nhóm tài nguyên của nó đọc được đọc bên trong bản triển khai `_resourceGroup`, nơi nhóm tài nguyên riêng của bên tiêu thụ là nhóm của bản triển khai đó. Một giá trị mà nội dung subscription của nó đọc đòi hỏi ranh giới của bên sản xuất nêu `aggrega.ai/azure-resource-group`, vì template ở phạm vi subscription không có nhóm tài nguyên riêng; nếu thiếu, build dừng lại và nêu tên annotation. Ở phạm vi nhóm quản lý, điều tương tự áp dụng cho bản triển khai `_subscription`, và một giá trị mà chính nội dung nhóm quản lý đọc đòi hỏi ranh giới của bên sản xuất nêu thêm `aggrega.ai/azure-subscription`, vì template ở phạm vi nhóm quản lý không có subscription riêng."
+  },
   "5b36702024804bad": {
     "at": "2026-11-12T20:26:44.164Z",
     "job": "session-0001-20261112202644",
@@ -68593,6 +68656,13 @@
     "srcHash": "5d25d8cf90203597",
     "status": "machine",
     "text": "Cách viết một đường dẫn được báo cáo"
+  },
+  "5d262018e21383fc": {
+    "at": "2026-11-17T14:28:10.966Z",
+    "job": "session-0016-20261117142810",
+    "srcHash": "5d262018e21383fc",
+    "status": "machine",
+    "text": "**Template bên sản xuất cung cấp những gì bên tiêu thụ đọc dưới dạng đầu ra.** Với mỗi giá trị được cung cấp mà thành phần bên tiêu thụ đọc, template bên sản xuất có thêm một đầu ra kiểu chuỗi được đặt tên theo thành phần và khóa, giống như với bất kỳ [đầu ra nào provider ghi](#top-level-sections-in-the-assembled-template). Một giá trị được cung cấp là biểu thức được chuyển dưới dạng `[string(<expression>)]`, nên mọi giá trị đến bên tiêu thụ dưới dạng văn bản; một literal thuần được chuyển đúng như đã viết. Nhiều bên tiêu thụ của cùng một giá trị dùng chung một đầu ra."
   },
   "5d2a14f0822bc88d": {
     "at": "2026-10-22T02:44:28.692Z",
@@ -70032,6 +70102,13 @@
     "srcHash": "5f0e49f976ed2605",
     "status": "machine",
     "text": "Ánh xạ các kiểu kho đối tượng, Store Gateway và Query tới các Recipes synth helm của chúng, và Feature thông tin xác thực mà module gắn vào realization, phát ra một Secret từ tham số thông tin xác thực của module."
+  },
+  "5f0ef7945a4abcb0": {
+    "at": "2026-11-17T14:28:10.966Z",
+    "job": "session-0016-20261117142810",
+    "srcHash": "5f0ef7945a4abcb0",
+    "status": "machine",
+    "text": "Điều gì làm build dừng lại"
   },
   "5f0f0813d59d0b85": {
     "at": "2026-10-22T23:34:49.752518+00:00",
@@ -73130,6 +73207,13 @@
     "status": "machine",
     "text": "không có socket mạng;"
   },
+  "630593e492503235": {
+    "at": "2026-11-17T14:28:10.966Z",
+    "job": "session-0016-20261117142810",
+    "srcHash": "630593e492503235",
+    "status": "machine",
+    "text": "Triển khai ở phạm vi nhóm tài nguyên"
+  },
   "630b6c5346ba6035": {
     "at": "2026-10-22T10:27:55.857345+00:00",
     "job": "msgbatch_01St5AJWD4JFUsFvC38dR1rN",
@@ -74496,6 +74580,13 @@
     "srcHash": "64db664b5c3d453e",
     "status": "machine",
     "text": "signing: signing: signature bundle does not verify: its cryptographic check holds, but it does not name `<manifest-digest>` as the artifact it was made for (signing: signing: signature bundle không xác minh được: kiểm tra mật mã của nó đạt, nhưng nó không nêu `<manifest-digest>` là artifact mà nó được tạo cho)"
+  },
+  "64e395751be3bcd2": {
+    "at": "2026-11-17T14:28:10.966Z",
+    "job": "session-0016-20261117142810",
+    "srcHash": "64e395751be3bcd2",
+    "status": "machine",
+    "text": "**Một secret được đọc giữa các bản triển khai.** Một giá trị được cung cấp đọc một secret (một hàm `list*`, `listOutputsWithSecureValues`, hoặc giá trị của tham số `securestring` hay `secureObject`) sẽ bị ghi vào lịch sử triển khai của bên sản xuất. Hãy lưu secret trong Key Vault và gắn `core/referenced-secret` ở cả hai đầu. Xem [A secret is read across deployments (Một secret được đọc giữa các bản triển khai)](../errors/fatal-halts.md#a-secret-is-read-across-deployments)."
   },
   "64f18b5971e46ec3": {
     "at": "2026-10-29T21:34:59.076Z",
@@ -77498,6 +77589,13 @@
     "srcHash": "69111e968482ab1c",
     "status": "machine",
     "text": "Nó đọc Release tại **`input.compilation_context`**: `release_name` và `environment`. Chính điều đó cho phép một chính sách quyết định khác nhau theo từng môi trường."
+  },
+  "6915004a301cfa07": {
+    "at": "2026-11-17T14:28:10.966Z",
+    "job": "session-0016-20261117142810",
+    "srcHash": "6915004a301cfa07",
+    "status": "machine",
+    "text": "**Triển khai từng bên sản xuất trước, đặt `-n` thành tên đã ghi,** rồi đến các bên tiêu thụ của nó, tên riêng của chúng bạn tự chọn vì không có gì đọc chúng:"
   },
   "6915da756415cd33": {
     "at": "2026-10-22T23:34:48.466793+00:00",
@@ -83003,6 +83101,13 @@
     "status": "machine",
     "text": "`ImportResult`"
   },
+  "703a30ee0bf4e937": {
+    "at": "2026-11-17T14:28:10.966Z",
+    "job": "session-0016-20261117142810",
+    "srcHash": "703a30ee0bf4e937",
+    "status": "machine",
+    "text": "Chỉ template bên sản xuất ghi lại tên mà nó phải được triển khai với, trong `metadata` của nó:"
+  },
   "703bdfaa682b8112": {
     "at": "2026-10-22T21:42:39.864359+00:00",
     "job": "msgbatch_01PqbJsVmEBt5689iaQGF8jy",
@@ -83628,6 +83733,13 @@
     "srcHash": "712bd726d8c030e7",
     "status": "machine",
     "text": "Một tên mà ngăn xếp của Release đó không phân giải được sẽ bị từ chối, và phần giải thích về nơi đọc các thực thể cục bộ sẽ nêu mục của Release đó dưới `workspace.releases`, vì mục đó là thứ mà lần tra cứu đã đọc. `--release` chọn ngăn xếp để tra cứu một tên, nên nó chỉ áp dụng cho một tên riêng lẻ: một đường dẫn tệp và một tham chiếu registry được đọc nguyên trạng và từ chối nó. Một `--release` trỏ tới một tệp không tồn tại, hoặc trỏ tới một thư mục, sẽ bị từ chối trước khi bất kỳ thứ gì được tra cứu."
+  },
+  "712cdc607bf1d74c": {
+    "at": "2026-11-17T14:28:10.966Z",
+    "job": "session-0016-20261117142810",
+    "srcHash": "712cdc607bf1d74c",
+    "status": "machine",
+    "text": "Trong Release, giá trị riêng của một thành phần thắng giá trị của một ranh giới, và giá trị mà Release ghi thắng giá trị mà Aggregate ghi; xem [Annotation đã biết](well-known-annotations.md). Vì trình biên dịch không tra cứu vị trí đặt, các annotation phải khớp với nơi operator triển khai bên sản xuất."
   },
   "713166971d730f81": {
     "at": "2026-10-22T10:27:55.857345+00:00",
@@ -86506,6 +86618,13 @@
     "status": "machine",
     "text": "**Còn một dạng nữa được báo ở đây, và đó không phải lỗi chính tả.** Phần thân tệp riêng của một bundle ArtifactLibrary không được tự nó là một `$import:` của bundle khác: một vị trí tệp không thể mở rộng thành nhiều tệp, nên lệnh import lồng nhau bị từ chối thay vì được phân giải thành thứ mà tác giả không viết. Thay vào đó, hãy kết hợp các bundle tại nơi chúng được sử dụng."
   },
+  "751d22296612a235": {
+    "at": "2026-11-17T14:28:10.966Z",
+    "job": "session-0016-20261117142810",
+    "srcHash": "751d22296612a235",
+    "status": "machine",
+    "text": "Template được lắp ráp là một template nhóm tài nguyên, và provider không ghi tệp tham số: `parameters` của nó đúng là những tham số mà các bên đóng góp đã khai báo, được cung cấp khi template được triển khai. Một secret tại thời điểm triển khai là tham số `securestring` ở cấp cao nhất, được cung cấp bằng `--parameters` hoặc một tệp tham số bạn tự viết, đó cũng là nơi đặt một tham chiếu Key Vault tĩnh."
+  },
   "75239700e2644177": {
     "at": "2026-11-14T09:58:36.040Z",
     "job": "session-0006-20261114095836",
@@ -87829,6 +87948,13 @@
     "srcHash": "76be4d63e71edfa1",
     "status": "machine",
     "text": "**Tiến trình tự kết thúc TLS.** Đặt `mcp.tls.cert_file` thành một chuỗi chứng chỉ PEM và `mcp.tls.key_file` thành khóa riêng của nó, và listener phục vụ HTTPS trực tiếp trên bất kỳ địa chỉ nào bạn đã cho nó. Cả hai tệp được đọc khi tiến trình khởi động, vì vậy một chứng chỉ được thay thế sẽ được nạp bằng cách khởi động lại tiến trình. Việc đặt một khóa mà không đặt khóa kia bị từ chối khi khởi động thay vì chuyển sang phương án dự phòng: một chứng chỉ không có khóa thì không thể trình ra và một khóa không có chứng chỉ thì không chỉ định gì, và một lỗi gõ trong một đường dẫn không phải là lý do để bắt đầu phục vụ lưu lượng không mã hóa."
+  },
+  "76bfcfec38e003f4": {
+    "at": "2026-11-17T14:28:10.966Z",
+    "job": "session-0016-20261117142810",
+    "srcHash": "76bfcfec38e003f4",
+    "status": "machine",
+    "text": "**Lịch sử triển khai bị giới hạn ở 800 mục cho mỗi phạm vi.** Trên 700, Azure xóa các mục cũ nhất cho đến còn 600. Mục của bên sản xuất bị dọn đi sẽ làm việc triển khai của bên tiêu thụ thất bại. Triển khai lại bên sản xuất với tên đã ghi sẽ chuyển mục của nó lên vị trí mới nhất, vì vậy hãy triển khai lại nó trước các bên tiêu thụ khi phạm vi của nó bận."
   },
   "76c3635079fd6da5": {
     "at": "2026-10-23T00:18:01.108465+00:00",
@@ -96959,6 +97085,13 @@
     "srcHash": "83442317c456cb11",
     "status": "machine",
     "text": "`LinkPatch`"
+  },
+  "83466b921c63ae67": {
+    "at": "2026-11-17T14:28:10.966Z",
+    "job": "session-0016-20261117142810",
+    "srcHash": "83466b921c63ae67",
+    "status": "machine",
+    "text": "**Một giá trị được cung cấp chèn một lời gọi vào văn bản literal.** Hãy ghi giá trị được cung cấp thành một biểu thức duy nhất, `[format('postgres://{0}:5432', reference('Db').outputs.fqdn.value)]`. Xem [A provided value splices a call into literal text across deployments (Một giá trị được cung cấp chèn một lời gọi vào văn bản literal giữa các bản triển khai)](../errors/fatal-halts.md#a-provided-value-splices-a-call-into-literal-text-across-deployments)."
   },
   "83480954ecc2c904": {
     "at": "2026-10-22T12:39:32.286242+00:00",
@@ -111541,6 +111674,13 @@
     "status": "machine",
     "text": "Phép nội suy tham số trong một Aggregate cũng báo cáo cùng dòng đó dưới mã của điều kiện này. Một mục `provides:` báo cáo lỗi template dưới “A `provides:` template could not be evaluated (Không thể đánh giá template)”, nên ở đó phần đầu mang mã của điều kiện đó và dòng ở trên là lý do mà nó mang, bao gồm cả đường dẫn."
   },
+  "973f775fa521ecb8": {
+    "at": "2026-11-17T14:28:10.966Z",
+    "job": "session-0016-20261117142810",
+    "srcHash": "973f775fa521ecb8",
+    "status": "machine",
+    "text": "Liên kết giữa các bản triển khai"
+  },
   "9742f86f0518fbeb": {
     "at": "2026-10-23T00:02:44.489841+00:00",
     "job": "msgbatch_017Co8FT9U2dpLww3D8gVXkh",
@@ -112852,6 +112992,13 @@
     "srcHash": "990429e30c5c3ed7",
     "status": "machine",
     "text": "Việc dừng được đưa ra trên annotation đúng như khi được viết, trước khi nó được mở rộng thành một attachment Feature, giống như các điều kiện bên cạnh, nên chẩn đoán nêu tên tài liệu và vị trí giá trị được viết. Việc kiểm tra diễn ra một lần cho mỗi annotation bạn viết: một giá trị được viết trên một boundary hoặc một subsystem bị từ chối tại đó, một lần, bất kể một component bên trong có tiếp nhận nó hay không. Mọi giá trị như vậy trong build đều được báo cáo, không chỉ giá trị đầu tiên. Build báo cáo một annotation phía Release dưới thẻ `OPS_ERROR` và một annotation phía Aggregate dưới thẻ `DEVELOPER_ERROR`, theo tài liệu đã viết ra nó. Điều kiện là `a scalar annotation value does not route to exactly one path of its binding`, chính là nội dung mà [`aggrega explain`](../cli/aggrega-explain.md) in ra cho mã của nó."
+  },
+  "9905e110167c39ef": {
+    "at": "2026-11-17T14:28:10.966Z",
+    "job": "session-0016-20261117142810",
+    "srcHash": "9905e110167c39ef",
+    "status": "machine",
+    "text": "Subscription riêng của bên tiêu thụ"
   },
   "990a270af7804a26": {
     "at": "2026-11-13T18:50:20.840Z",
@@ -123278,6 +123425,13 @@
     "status": "machine",
     "text": "**Một chữ ký đã ghi nhận mà bản build không chấp nhận.** Khi hàng ghi nhận một chữ ký có gói chữ ký trong cache đã bị xóa hoặc thay đổi sau lần pull đã lưu nó vào cache — hoặc một `signature` được sao chép từ hàng khác, có gói còn nguyên nhưng được tạo cho một artifact khác — bản build sẽ từ chối hàng đó bất kể yêu cầu ký nói gì ([A cached signature bundle does not match the digest recorded for it (Gói chữ ký trong cache không khớp với digest được ghi nhận cho nó)](../errors/fatal-halts.md#a-cached-signature-bundle-does-not-match-the-digest-recorded-for-it), [A recorded signature was made for a different artifact (Chữ ký đã ghi nhận được tạo cho một artifact khác)](../errors/fatal-halts.md#a-recorded-signature-was-made-for-a-different-artifact)). Vì vậy, lần pull lại hỏi lại registry của phụ thuộc đó về chữ ký, bất kể yêu cầu nói gì, qua cùng quá trình xác minh mà một phụ thuộc được tải về trải qua: kết quả xác minh thay thế chữ ký của hàng, và gói mà nó chỉ đến được lưu lại vào cache, bản sao trong cache không còn khớp digest sẽ được ghi đè — nhờ đó hàng và cache giữ đúng những gì lần pull đã tải phụ thuộc để lại. Một chữ ký mà cấu hình tin cậy không chấp nhận sẽ dừng lần pull lại giống như nó dừng một lần pull đã tải phụ thuộc đó, và một registry không đính kèm chữ ký nào khi chữ ký là bắt buộc cũng vậy. Khi quá trình xác minh không ghi nhận chữ ký nào — `skip_signature_verification` ở nơi nó áp dụng, vốn không hỏi gì, một registry không đính kèm chữ ký khi không bắt buộc, hoặc một registry `advisory` khi không có gì được xác minh — chữ ký của hàng bị xóa, điều mà bản build chấp nhận dưới cùng các thiết lập đó."
   },
+  "a696a165d8f4ca23": {
+    "at": "2026-11-17T14:28:10.966Z",
+    "job": "session-0016-20261117142810",
+    "srcHash": "a696a165d8f4ca23",
+    "status": "machine",
+    "text": "**Tên bản triển khai giữ nguyên vị trí của nó.** Ở phạm vi mà lệnh triển khai nhận một vị trí, Azure từ chối một tên được dùng lại với vị trí khác."
+  },
   "a69e1e25b3803f27": {
     "at": "2026-10-22T10:44:41.513626+00:00",
     "job": "msgbatch_01SU94FsDLwMBbtBG2UdzNK5",
@@ -129568,6 +129722,13 @@
     "status": "machine",
     "text": "**Nó không đảm bảo rằng đầu ra được kết xuất không chứa tài liệu nhạy cảm.** Việc một artifact có mang tài liệu nhạy cảm hay không phụ thuộc vào phần điền nào tác giả đã gắn và tác giả đã viết gì trong `values` của nó — xem [architecture/08-credential-model.md](../../architecture/08-credential-model.md) “What the compiler does and does not guarantee”. Một giá trị được khai báo là nhạy cảm mà tác giả cung cấp trực tiếp sẽ được kết xuất giống hệt như một giá trị không khai báo, ở bất cứ nơi nào build có kết xuất nó."
   },
+  "af1e09d7e222d27d": {
+    "at": "2026-11-17T14:28:10.966Z",
+    "job": "session-0016-20261117142810",
+    "srcHash": "af1e09d7e222d27d",
+    "status": "machine",
+    "text": "**Một bên sản xuất được triển khai ở phạm vi subscription hoặc nhóm quản lý.** Hãy đặt bên sản xuất vào một ranh giới được triển khai ở phạm vi nhóm tài nguyên."
+  },
   "af1e65fe088cd179": {
     "at": "2026-10-23T00:02:44.489841+00:00",
     "job": "msgbatch_017Co8FT9U2dpLww3D8gVXkh",
@@ -133840,6 +134001,13 @@
     "srcHash": "b459c3c5ef51cb7a",
     "status": "machine",
     "text": "Mục có phải là thư mục hay không. Một guest xác định gốc chart hoặc một tệp nguồn đơn lẻ trong danh sách sẽ đọc giá trị này để phân biệt thư mục với tệp mà không chạm vào hệ thống tệp."
+  },
+  "b459dcc2d22368d6": {
+    "at": "2026-11-17T14:28:10.966Z",
+    "job": "session-0016-20261117142810",
+    "srcHash": "b459dcc2d22368d6",
+    "status": "machine",
+    "text": "**Một giá trị đọc ở phạm vi subscription hoặc nhóm quản lý từ một bên sản xuất mà ranh giới không nêu nhóm tài nguyên, hoặc ở phạm vi nhóm quản lý không nêu subscription.** Hãy gắn annotation `aggrega.ai/azure-resource-group` cho ranh giới của bên sản xuất, và `aggrega.ai/azure-subscription` khi việc đọc diễn ra ở phạm vi nhóm quản lý."
   },
   "b45a7372501dfa54": {
     "at": "2026-10-22T06:52:21.462Z",
@@ -141454,6 +141622,13 @@
     "status": "machine",
     "text": "**Nơi nó phát sinh.** Bundle tài liệu được tải vào bộ nhớ đệm dùng chung cho mọi dự án trên máy, từ registry đã cấu hình của workspace dưới namespace dành riêng `docs`: bởi máy chủ dành cho trợ lý một lần, khi nó khởi động và trước khi nó trả lời bất cứ điều gì, và bởi `aggrega explain` cùng phần giải thích một mã của trình soạn thảo vào lần đầu tiên một trong hai cần đến nó — trong mỗi trường hợp chỉ khi máy không giữ bản sao nào mà bước kiểm tra chữ ký của workspace chấp nhận. Đây là bước kiểm tra mà mọi lần tải đều chạy trên những gì nhận về."
   },
+  "beb4c4371a7d6c30": {
+    "at": "2026-11-17T14:28:10.966Z",
+    "job": "session-0016-20261117142810",
+    "srcHash": "beb4c4371a7d6c30",
+    "status": "machine",
+    "text": "**Bên sản xuất được triển khai dưới dạng ngăn xếp triển khai thì không thể truy cập.** Một ngăn xếp tự đặt tên cho các bản triển khai của nó, nên không thể truy cập tên nào mà template ghi lại; hãy triển khai bên sản xuất bằng `az deployment group create`. Một bên tiêu thụ có thể được triển khai theo cách nào cũng được."
+  },
   "beb5728e75def163": {
     "at": "2026-10-22T22:51:15.481474+00:00",
     "job": "msgbatch_01RMZgtQpp1YGjgFqybBRdBA",
@@ -141749,6 +141924,13 @@
     "srcHash": "bf1e7c825efccc9c",
     "status": "machine",
     "text": "Khi một FeatureRecipe hiện thực một Feature thông tin xác thực (một Feature được gắn nhãn `feature.aggrega.ai/kind: secret`), nó tuân theo Nguyên tắc Plugin hai phần: `pipeline` nối một plugin Fetcher (tạo CRD dành riêng cho vault) rồi đến một plugin Injector (gắn secret vào container đích). Xem [examples/05-credential-features](../examples/05-credential-features.md) để có ví dụ hoàn chỉnh."
+  },
+  "bf1f7f71f8d39aff": {
+    "at": "2026-11-17T14:28:10.966Z",
+    "job": "session-0016-20261117142810",
+    "srcHash": "bf1f7f71f8d39aff",
+    "status": "machine",
+    "text": "Một cạnh `uses` giữa hai ranh giới `arm` được phân giải đến các thư mục đầu ra khác nhau sẽ nối hai template, mỗi template được triển khai thành một bản triển khai riêng. Cạnh được nối dây ở cả hai template. Một ranh giới ở phạm vi nhóm tài nguyên có thể là bên sản xuất: template của thành phần mà một cạnh `uses` trỏ tới."
   },
   "bf1fa943c3116a02": {
     "at": "2026-11-01T18:36:36.216Z",
@@ -143860,6 +144042,13 @@
     "status": "machine",
     "text": "Cặp này nảy sinh từ cách viết hợp lệ trên từng bề mặt riêng lẻ: mục riêng của một component và mục của một attachment trên cùng một socket và alias; một danh sách nêu một đích hai lần (`models: [llama, llama]`); một alias được viết trên hai socket (`models: { local: … }` bên cạnh `databases: { local: … }`); hai attachment nối cùng một alias; hoặc một mục Release vẽ một kết nối trên một socket mà Aggregate để chưa gắn, dưới một alias mà Aggregate đã dùng trên một socket khác. Hai dạng lân cận không bao giờ chạm tới điểm dừng này: một khóa được viết hai lần trong một khối các mục có khóa làm tài liệu không tải được, và một mục Release tại một socket và alias mà một khối khác đã vẽ sẽ cấu hình kết nối đó — hoặc, nếu nêu một đích khác, sẽ dừng như một retarget — thay vì vẽ một kết nối thứ hai."
   },
+  "c1c23a28e5018754": {
+    "at": "2026-11-17T14:28:10.966Z",
+    "job": "session-0016-20261117142810",
+    "srcHash": "c1c23a28e5018754",
+    "status": "machine",
+    "text": "Nhóm tài nguyên mà template bên sản xuất được triển khai vào"
+  },
   "c1c2c1099fed68e2": {
     "at": "2026-10-23T00:18:02.017487+00:00",
     "job": "msgbatch_01WWSdKvrWpurqxfMfC3PmVX",
@@ -145884,6 +146073,13 @@
     "srcHash": "c461bfced37330d4",
     "status": "machine",
     "text": "các tệp mà `aggrega import . --target compose` đã ghi, không thay đổi, và những gì nó đã in ra: `stdout.txt` trên đầu ra chuẩn, `import.txt` trên đầu ra lỗi chuẩn"
+  },
+  "c4664205ed93df19": {
+    "at": "2026-11-17T14:28:10.966Z",
+    "job": "session-0016-20261117142810",
+    "srcHash": "c4664205ed93df19",
+    "status": "machine",
+    "text": "`--action-on-unmanage detachAll` để yên một tài nguyên khi một template sau đó không còn khai báo nó, và `--deny-settings-mode none` không đặt phép gán từ chối nào lên những gì ngăn xếp quản lý; hãy chọn giá trị khác khi ngăn xếp cần thực thi nhiều hơn. Provider không quyết định điều nào trong số này — các lệnh thuộc về operator."
   },
   "c47202a3e7083104": {
     "at": "2026-11-15T00:01:27.771Z",
@@ -152131,6 +152327,13 @@
     "status": "machine",
     "text": "Vị trí là đường dẫn khóa mà tác giả đã viết. Trong Aggregate, `.spec.components.<component>.inject.<mechanism>` cho khối riêng của một component, `.spec.components.<component>.uses.<socket>.<alias>.inject.<mechanism>` cho một khối trên một trong các kết nối của nó, và `.spec.components.<component>.features.<attachment>…` cho khối của một attachment, với `.subsystems.<name>` cho mỗi subsystem mà một component hoặc một attachment được khai báo trong đó. Trong Release, là khối trên một kết nối mà một attachment vẽ, thông qua attachment đó — `.spec.boundaries.<boundary>.features.<attachment>.uses.<socket>.<alias>.inject.<mechanism>` cho attachment gắn trên toàn boundary, `.spec.boundaries.<boundary>.components.<component>.features.<attachment>…` cho attachment trên một component, với `.boundaries.<name>` cho mỗi boundary lồng nhau và `.aggregates.<module>` cho mỗi mục định tuyến mà một component được nêu tên qua đó."
   },
+  "ccbd34f041a0eb3a": {
+    "at": "2026-11-17T14:28:10.966Z",
+    "job": "session-0016-20261117142810",
+    "srcHash": "ccbd34f041a0eb3a",
+    "status": "machine",
+    "text": "ID subscription mà template bên sản xuất được triển khai vào"
+  },
   "ccc2957015f4d3d1": {
     "at": "2026-11-05T17:54:21.977Z",
     "job": "session-0009-20261105175421",
@@ -153588,6 +153791,13 @@
     "srcHash": "ce9522eb8a7b4674",
     "status": "machine",
     "text": "**Mọi lệnh đọc các phụ thuộc của một Release đều thực hiện kiểm tra này; điều khác nhau là mỗi lệnh làm gì với kết quả.** `aggrega build` và `aggrega pull` dừng lại, vì cả hai đều tạo ra thứ mà bạn sẽ dùng tiếp — các artifact đã kết xuất và một lockfile. `aggrega validate` và `aggrega lint` báo cáo phát hiện cùng với mọi chẩn đoán khác mà chúng tìm thấy rồi thoát với mã khác không: nhiệm vụ của chúng là cho bạn biết mọi điều sai trong workspace, nên một lỗi đơn lẻ không cắt ngắn báo cáo. Trong trình soạn thảo, phát hiện được công bố như một chẩn đoán bên cạnh các chẩn đoán khác, và mọi điều khác mà tài liệu đó cần báo cáo không bị ảnh hưởng. Hãy lưu ý nơi nó xuất hiện: trình soạn thảo gắn các chẩn đoán cấp phụ thuộc của một Release vào Aggregate, nên phát hiện hiện ra khi Aggregate đang mở chứ không phải khi bạn đang chỉnh sửa Manifest chứa ánh xạ. Chạy `aggrega validate` sẽ báo cáo nó bất kể bạn đang mở tài liệu nào."
+  },
+  "ce959817b4cbae66": {
+    "at": "2026-11-17T14:28:10.966Z",
+    "job": "session-0016-20261117142810",
+    "srcHash": "ce959817b4cbae66",
+    "status": "machine",
+    "text": "Tên bản triển khai"
   },
   "ce97a5a035346a19": {
     "at": "2026-10-22T23:05:22.318919+00:00",
@@ -158608,6 +158818,13 @@
     "srcHash": "d5020edd50066ccf",
     "status": "machine",
     "text": "**Đây là thuộc tính của riêng `index`, và chính sách khóa thiếu của không bề mặt nào thay đổi nó.** Một phép đọc bằng dấu chấm đối với một khóa chưa được đặt dưới một pillar mở vẫn không hiển thị gì trên một value template, như “Missing template key — asymmetric policy (Thiếu khóa template — chính sách bất đối xứng)” ở trên mô tả, và một template kiểm tra xem tác giả có cung cấp khóa như vậy hay không không bị ảnh hưởng. Thứ dừng lại là việc yêu cầu `index` lấy một khóa mà map không chứa. `index` là cách một template truy cập một khóa có tên do nó tính ra — chẳng hạn một thông tin xác thực được đọc theo tên biến mà Recipe sử dụng đã chọn — và nếu không dừng, phép đọc đó sẽ đưa văn bản giữ chỗ `<no value>` của template engine vào artifact trong khi bản build vẫn thành công: một máy chủ khởi động với văn bản đó làm khóa. Mọi câu trả lời khác mà `index` đưa ra đều là của chính template engine: một vị trí trong danh sách hoặc chuỗi, một vị trí ngoài phạm vi, một khóa mà map chứa — kể cả một khóa có giá trị null, khi đó in ra `<no value>`."
+  },
+  "d503ead5b10c67d6": {
+    "at": "2026-11-17T14:28:10.966Z",
+    "job": "session-0016-20261117142810",
+    "srcHash": "d503ead5b10c67d6",
+    "status": "machine",
+    "text": "Những gì operator phải đảm nhiệm"
   },
   "d5042d12098ba66d": {
     "at": "2026-10-22T23:44:16.479857+00:00",
@@ -164373,6 +164590,13 @@
     "srcHash": "dcbc67813a278532",
     "status": "machine",
     "text": "Hãy gửi một yêu cầu mà bộ chặn theo mẫu từ chối trên một cuộc hội thoại riêng, rồi một câu hỏi thông thường trên cùng cuộc hội thoại đó, và đọc lại cuộc hội thoại. Một lượt thất bại để lại cuộc hội thoại của nó như trước lượt đó, nên tin nhắn bị từ chối không được giữ lại, lượt tiếp theo trên cuộc hội thoại ấy được trả lời, và cuộc hội thoại chỉ chứa những lượt đã được trả lời:"
+  },
+  "dcbf0d146192a49d": {
+    "at": "2026-11-17T14:28:10.966Z",
+    "job": "session-0016-20261117142810",
+    "srcHash": "dcbf0d146192a49d",
+    "status": "machine",
+    "text": "Các liên kết dựa trên những bản triển khai đã tồn tại trong Azure, nên operator cần duy trì những điều sau:"
   },
   "dcc0581d670b780b": {
     "at": "2026-10-22T11:59:38.351715+00:00",
@@ -187060,6 +187284,13 @@
     "srcHash": "fa446b67eb6bacdf",
     "status": "machine",
     "text": "Nhập một cấu hình client MCP — ba máy chủ mà một trợ lý lập trình sử dụng"
+  },
+  "fa47585be868cfa5": {
+    "at": "2026-11-17T14:28:10.966Z",
+    "job": "session-0016-20261117142810",
+    "srcHash": "fa47585be868cfa5",
+    "status": "machine",
+    "text": "Tên được suy ra từ tên của Release và thư mục đầu ra của ranh giới, nên việc đổi `directory:` của ranh giới trong Release sẽ đổi tên đó, và bên tiêu thụ, khi được build lại, đọc tên mới. Một đoạn đã ghi một giá trị khác dưới khóa metadata đó sẽ làm build dừng lại."
   },
   "fa4a68af580d7008": {
     "at": "2026-10-22T22:51:17.853388+00:00",

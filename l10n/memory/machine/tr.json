@@ -15905,6 +15905,13 @@
     "status": "machine",
     "text": "Kataloğunun ve yapıtlarının yerel bir kopyasını tutan, ağdan yalıtılmış bir makine, bu ayrımın çalışır tutmak için var olduğu durumdur: böyle bir çalışma alanı çevrimdışıdır ve yaptığı neredeyse her şey hâlâ karşılanabilir."
   },
+  "154055b6b4503573": {
+    "at": "2026-11-17T14:28:10.966Z",
+    "job": "session-0016-20261117142810",
+    "srcHash": "154055b6b4503573",
+    "status": "machine",
+    "text": "Yoksa"
+  },
   "1540d8e378132e18": {
     "at": "2026-10-22T23:53:38.624924+00:00",
     "job": "msgbatch_011k5XEXAWyemaJqwBb86oM4",
@@ -23642,6 +23649,13 @@
     "status": "machine",
     "text": "**Standart kütüphanenin taşıdıkları.** `core/ai-tool/mcp` `http` taşır. Bir Model Context Protocol sunucusunu bir ajana bağlar ve o sunucunun nasıl gerçekleştirileceğini Manifest seçer: `helm/mcp`, protokolü HTTP üzerinden sunan bir imaj çalıştırır; `helm/mcp-stdio-bridge` ve `compose/mcp-stdio-bridge`, yalnızca stdio konuşan bir paketi, onu HTTP üzerinden sunan sabitlenmiş bir köprünün arkasında çalıştırır; `helm/mcp-remote` ve `compose/mcp-remote` başkasının işlettiği bir sunucuya ulaşır ve hiçbir şey çalıştırmaz. Her gerçekleştirme aynı `host`, `port`, `endpoint`, `protocol` ve `credential_header` değerlerini yayımlar; böylece bir tüketicinin bağlantı düzeni gerçekleştirmeyle değişmez. Köprülü bir sunucunun kimlik bilgileri ortam değişkenleridir; aracın `server_env` yuvasında tutulur ve Kubernetes'te köprüye referansla teslim edilir; uzak bir sunucunun kimlik bilgisi ise tüketici tarafından araca olan kendi bağlantısında tutulur ve `credential_header` değerinin adlandırdığı başlık altında sunulur; Release başka bir başlık adlandırmadıkça bu `Authorization` olur. Uzak bir sunucunun anahtarını kendi adresinden okuduğu durumlarda tüketici adresin tamamını da o bağlantıda, Kubernetes'te bir Secret'a referansla, Docker Compose'da ise bir Compose değişken referansıyla doldurulan bir `endpoint` yuvasında tutar; böylece anahtar hiçbir işlenmiş dosyaya ulaşmaz, aracın `infra.endpoint` değeri ise adresi anahtarı taşıyan kısım olmadan tutar; [examples/mcp-address-from-secret](../language-reference/examples/mcp-address-from-secret/README.md) her ikisini de oluşturur. `core/ai-agent/openai-agents-sdk`, `core/ai-agent/claude-agent-sdk`, `core/ai-agent/agent-framework`, `core/ai-agent/google-adk` ve `core/ai-agent/mastra` ile akış platformları `core/ai-agent/flowise` ve `core/ai-agent/n8n`, bu biçimde bir araç soketi, `tools`, bildirir ve bağlı her aracın adresini ve bağlantının kimlik bilgisini referansla, bağlantının takma adına göre adlandırılmış değişkenler altında teslim eder; `inject:` bloğu yazan bir bağlantı ise aracın yayımladıklarından türetilen değişkenlerin yerine o bloğun belirlediğini alır, `credential` ve `endpoint` yuvalarının tuttukları ise takma adın adı altında kalır; size ait bir tüketici de aynı şekilde bir soket bildirir. Üç akış platformunun her biri, Aggregate içinde yazılmış bir akışı dağıtım sırasında her iki hedefte de platforma taşır: Langflow taşınan tanımı her başlangıçta kendi akış dizininden yükler, Flowise'ın chatflow'u Release'in adlandırdığı sahip hesabı olarak oturum açan tek seferlik bir adımla oluşturulur ve n8n'in workflow'u platform başlamadan önce bir init adımıyla içe aktarılır. `core/ai-agent/langflow`, `inject:` bloğuna izin vermeyen aynı biçimde bir `tools` soketi bildirir ve her bağlantıyı bunun yerine o akış üzerinden teslim eder, çünkü Langflow'un MCP Tools bileşeni bir sunucunun adresini yalnızca Langflow'un kendi ayarlarından veya akıştan alır, asla bir değişkenden almaz: Recipes'i aracın adresini, sunucusu bağlantının takma adıyla adlandırılmış MCP Tools düğümüne yazar, bağlantının kimlik bilgisini referansla o düğümün başlığının adlandırdığı bir değişken olarak teslim eder — `Authorization` altında, `Bearer` ve kimlik bilgisini tutan bir değişken — ve bağlı araçların ve depoların ana bilgisayarlarının Langflow'un özel adreslere karşı korumasından geçmesine izin verir. Üç platformun tümü ayrıca `datastore.aggrega.ai/engine in (vector, semantic-memory, search)` seçen bir `vector_store` soketi bildirir; bu soket bağlı her deponun adresini — yayımladığı `endpoint`, `core/datastore/pgvector` için parola taşımayan bir bağlantı URI'si ya da protokolünden, ana bilgisayarından ve portundan oluşturulan bir adres — ve bağlantının kimlik bilgisini referansla aynı şekilde teslim eder; `core/datastore/pgvector` gibi veritabanını ve kullanıcısını da yayımlayan bir depo, Flowise ve n8n'e bu parçalarla da ulaşır, çünkü iki platformun PostgreSQL vektör düğümlerinden hiçbiri bağlantı dizesi almaz; PGVector bileşeni tek bir dize alan Langflow ise böyle bir depoyu, parolası bağlantının kimlik bilgisi olmak üzere, Kubernetes'te referansla ve Docker Compose'da teslim edildiği şekliyle `AGGREGA_VECTOR_STORE_<ALIAS>_CONNECTION_STRING` olarak alır. Bir Flowise chatflow'u teslim edilen bir değişkeni, Flowise'ın Variables sayfasında oluşturulan aynı adlı bir Runtime değişkeni üzerinden okur; bir n8n workflow'u ise birini `$env` üzerinden yalnızca Aggregate platformun `allow_env_access_in_nodes` değerini ayarladığında okur, çünkü varsayılan olarak Recipes'i n8n'in düğümlerde ortam erişimine yönelik engelini korur."
   },
+  "1fbb883236ef4756": {
+    "at": "2026-11-17T14:28:10.966Z",
+    "job": "session-0016-20261117142810",
+    "srcHash": "1fbb883236ef4756",
+    "status": "machine",
+    "text": "**Tüketici şablon, üreticinin dağıtımını kaynak kimliğiyle okur.** Tüketiciye bağlanan bir değer, bir kaynağın `properties` alanına, bir çıktının `value` alanına veya bir çıktının `copy` döngüsünün girdisine yazılan `reference(format('/subscriptions/{0}/resourceGroups/{1}/providers/Microsoft.Resources/deployments/{2}', <subscription>, <resource group>, '<name>'), '2025-04-01').outputs.<output>.value` olur; bunlar ARM'nin `reference()` değerlendirdiği yerlerdir. Derleyici hiçbir şeyle iletişim kurmaz: kimlik, adlardan kurduğu bir dizedir ve ARM, tüketici dağıtıldığında dağıtımı okur."
+  },
   "1fc3aa265dd980d1": {
     "at": "2026-11-14T10:22:53.079Z",
     "job": "session-0004-20261114102253",
@@ -24305,6 +24319,13 @@
     "srcHash": "20a32ab1e06f01a3",
     "status": "machine",
     "text": "**Yapısal biçimler: kökte eşlemeler, yüklerde diziler.** Kök topoloji blokları — `components`, `features`, `aggregates`, `subsystems`, `boundaries` — kullanıcının yazdığı anahtarların kararlı örnek kimlikleri olarak hizmet ettiği YAML eşlemeleridir. Bu konumlarda diziler geçerli değildir; eşleme anahtarı, derleyicinin çapraz başvurular (`target: my-db`), grafik düğümü oluşturma ve Manifest çözümlemesi için kullandığı kimliktir. Opak yük bloklarının (`values`, `infra`, `parameters`) içinde diziler tamamen serbesttir — geliştiriciler bir Component'in `values` alanına `tools_allowed: [\"sql\", \"web\"]` veya `hostnames: [\"stripe.com\", \"twilio.com\"]` yazabilir. Aggregate şeması bu yük bloklarını `additionalProperties: true` olarak bildirir; böylece bunlar Go derleyicisi için opaktır ve tamamen kataloğun gömülü `schema:` bildirimi tarafından doğrulanır. Bu, çerçeve oynaklığını (yeni yapay zekâ API biçimleri, yeni bulut yerel yük biçimleri) bağımsız olarak gelişebileceği Katalog alanına yerleştirirken Go derleyicisinin yapısal kökte yalnızca adreslenebilir anahtarlarla kalmasını sağlar."
+  },
+  "20a81bca5a5b730a": {
+    "at": "2026-11-17T14:28:10.966Z",
+    "job": "session-0016-20261117142810",
+    "srcHash": "20a81bca5a5b730a",
+    "status": "machine",
+    "text": "Bir Recipe, sağlanan değeri tek bir bütün ifade veya düz bir sabit değer olarak yayımlar. Tek bir şablon içinde, bir değerin çevresindeki metin, [ARM metni yazma](#writing-arm-text) başlığı altında açıklandığı gibi yine `format()` içinde birleştirilir."
   },
   "20a88f45a13e32fb": {
     "at": "2026-11-12T21:38:06.030Z",
@@ -28754,6 +28775,13 @@
     "srcHash": "26935db762215379",
     "status": "machine",
     "text": "*Vault destekli teslim, bugün chart ile oluşturulan yol üzerinden kullanılabilir: `k8s-external-secret` bir External Secrets `ExternalSecret`'ı oluşturur. Bir FeatureRecipe'in `pipeline:` dizisi Wasm eklentilerini zincirler ve `provides` sözleşmesi, somutlaştırdığı şeyi yayımlar.*"
+  },
+  "269ac827bd5cf9f4": {
+    "at": "2026-11-17T14:28:10.966Z",
+    "job": "session-0016-20261117142810",
+    "srcHash": "269ac827bd5cf9f4",
+    "status": "machine",
+    "text": "**CanNotDelete kilidi temizlemeyi durdurur.** Bir kilit altında hiçbir şey silinmez ve geçmiş 800 girdiye ulaştığında, girdiler kaldırılana kadar sonraki dağıtımlar başarısız olur."
   },
   "269d6e8f272f12ac": {
     "at": "2026-10-22T02:44:28.692Z",
@@ -37451,6 +37479,13 @@
     "srcHash": "32a793ec748c982b",
     "status": "machine",
     "text": "**Ayrılmış ad alanları.** `aggrega.ai/` ve `app.kubernetes.io/` ad alanları platforma özgü köken bilgisi için ayrılmıştır ve bu öneklerden birinin altındaki öne çıkarılmış bir anahtar, yükleme sırasında anahtarı ve içinde bulunduğu alanı adlandıran bir katalog hatasıyla reddedilir. Sınama yalnızca öneke bakar: `component.aggrega.ai/hosting` gibi bir anahtar ayrılmış kökün altında değil, kendine ait bir ad alanında yer alır ve öne çıkarılabilir."
+  },
+  "32a7ba8b64d1b125": {
+    "at": "2026-11-17T14:28:10.966Z",
+    "job": "session-0016-20261117142810",
+    "srcHash": "32a7ba8b64d1b125",
+    "status": "machine",
+    "text": "Üreticinin sınırındaki iki ek açıklama dağıtımının yerini belirler ve opak dizeler olarak okunur:"
   },
   "32ac1450b7deff04": {
     "at": "2026-11-15T00:31:19.686Z",
@@ -46704,6 +46739,13 @@
     "srcHash": "3f6dc166f9945e01",
     "status": "machine",
     "text": "Üç girdi türü"
+  },
+  "3f6e6367ee0d581a": {
+    "at": "2026-11-17T14:28:10.966Z",
+    "job": "session-0016-20261117142810",
+    "srcHash": "3f6e6367ee0d581a",
+    "status": "machine",
+    "text": "**ARM'nin değerlendirmediği bir yere yazılmış, başka bir dağıtımdan okunan değer.** Bir kaynağın `properties` alanının, bir çıktının `value` alanının veya bir çıktının `copy` girdisinin dışında. Bkz. [A value read from another deployment is written where ARM does not evaluate it (Başka bir dağıtımdan okunan değer, ARM'nin değerlendirmediği bir yere yazılmış)](../errors/fatal-halts.md#a-value-read-from-another-deployment-is-written-where-arm-does-not-evaluate-it)."
   },
   "3f7180faaddfd3cb": {
     "at": "2026-10-22T08:35:14.585510+00:00",
@@ -58941,6 +58983,13 @@
     "status": "machine",
     "text": "PluginRetraction"
   },
+  "503379c38ad4725e": {
+    "at": "2026-11-17T14:28:10.966Z",
+    "job": "session-0016-20261117142810",
+    "srcHash": "503379c38ad4725e",
+    "status": "machine",
+    "text": "Üreticinin dağıtıldığı yer"
+  },
   "5036f0c48e8509a2": {
     "at": "2026-10-29T23:55:51.039Z",
     "job": "session-0034-20261029235551",
@@ -60470,6 +60519,13 @@
     "srcHash": "52315d70df8b99c6",
     "status": "machine",
     "text": "Eklentiyi yüklediyseniz Aggrega MCP sunucusuna zaten bağlısınız. Aksi halde kendinizi, `aggrega mcp` komutu olan Aggrega MCP sunucusuna, bir MCP sunucusu eklediğiniz şekilde, `https://aggrega.ai/docs/ai-assistants/mcp-server/` adresinin sizin için açıkladığı gibi bağlayın. Eklentiyi veya sunucuyu yüklemek için yeniden başlatma veya yeniden yükleme gerekiyorsa ne yapmam gerektiğini bana söyleyin."
+  },
+  "523321d6e487de28": {
+    "at": "2026-11-17T14:28:10.966Z",
+    "job": "session-0016-20261117142810",
+    "srcHash": "523321d6e487de28",
+    "status": "machine",
+    "text": "Tüketicinin kendi kaynak grubu"
   },
   "523c4de5c0df6e64": {
     "at": "2026-10-22T23:53:38.624924+00:00",
@@ -67253,6 +67309,13 @@
     "status": "machine",
     "text": "**Her ajanın çalıştırdığı imajı belirtin.** Ekibin programı, projeden derlediğiniz bir imajda çalışır; burada her iki ajan da aynı imajı çalıştırır: `ghcr.io/example/support-brief:1.0.0`."
   },
+  "5b34cfa3324e4d9a": {
+    "at": "2026-11-17T14:28:10.966Z",
+    "job": "session-0016-20261117142810",
+    "srcHash": "5b34cfa3324e4d9a",
+    "status": "machine",
+    "text": "`arm`, kaynak grubu kapsamında dağıtılan bir üreticiye bağlanır: yukarıdaki kaynak kimliği, bir kaynak grubuna yapılan dağıtımın kimliğidir. Sınırı abonelik veya yönetim grubu kapsamında dağıtılan bir üreticiye bağlantı, bağlantıyı belirterek derlemeyi durdurur. Bir tüketici abonelik veya yönetim grubu kapsamında dağıtılabilir. Kaynak grubu içeriğinin okuduğu bir değer `_resourceGroup` dağıtımının içinde okunur; orada tüketicinin kendi kaynak grubu o dağıtımın kaynak grubudur. Abonelik içeriğinin okuduğu bir değer, üreticinin sınırının `aggrega.ai/azure-resource-group` adını vermesini gerektirir, çünkü abonelik kapsamındaki bir şablonun kendi kaynak grubu yoktur; bu olmadan derleme, ek açıklamayı belirterek durur. Yönetim grubu kapsamında aynısı `_subscription` dağıtımı için geçerlidir ve yönetim grubu içeriğinin kendisinin okuduğu bir değer, üreticinin sınırının ayrıca `aggrega.ai/azure-subscription` adını vermesini gerektirir, çünkü yönetim grubu kapsamındaki bir şablonun kendi aboneliği yoktur."
+  },
   "5b36702024804bad": {
     "at": "2026-11-12T20:26:44.164Z",
     "job": "session-0001-20261112202644",
@@ -68567,6 +68630,13 @@
     "srcHash": "5d25d8cf90203597",
     "status": "machine",
     "text": "Raporlanan bir yolun yazımı"
+  },
+  "5d262018e21383fc": {
+    "at": "2026-11-17T14:28:10.966Z",
+    "job": "session-0016-20261117142810",
+    "srcHash": "5d262018e21383fc",
+    "status": "machine",
+    "text": "**Üretici şablon, tüketicinin okuduklarını çıktı olarak sunar.** Tüketici bileşenin okuduğu her sağlanan değer için üretici şablon, bileşenin ve anahtarın adıyla adlandırılmış bir dize çıktısı kazanır; bu, [provider'ın yazdığı herhangi bir çıktıda](#top-level-sections-in-the-assembled-template) olduğu gibidir. İfade olan bir sağlanan değer `[string(<expression>)]` olarak aktarılır, böylece her değer tüketiciye metin olarak ulaşır; düz bir sabit değer yazıldığı gibi aktarılır. Bir değerin birden çok tüketicisi tek bir çıktıyı paylaşır."
   },
   "5d2a14f0822bc88d": {
     "at": "2026-10-22T02:44:28.692Z",
@@ -70006,6 +70076,13 @@
     "srcHash": "5f0e49f976ed2605",
     "status": "machine",
     "text": "Nesne deposu, Store Gateway ve Query türlerini synth helm Recipes'e, modülün bağladığı kimlik bilgisi Feature'ını da modülün kimlik bilgisi parametresinden bir Secret üreten gerçekleştirmeye eşler."
+  },
+  "5f0ef7945a4abcb0": {
+    "at": "2026-11-17T14:28:10.966Z",
+    "job": "session-0016-20261117142810",
+    "srcHash": "5f0ef7945a4abcb0",
+    "status": "machine",
+    "text": "Neyin derlemeyi durdurduğu"
   },
   "5f0f0813d59d0b85": {
     "at": "2026-10-22T23:34:49.752518+00:00",
@@ -73104,6 +73181,13 @@
     "status": "machine",
     "text": "ağ soketi yok;"
   },
+  "630593e492503235": {
+    "at": "2026-11-17T14:28:10.966Z",
+    "job": "session-0016-20261117142810",
+    "srcHash": "630593e492503235",
+    "status": "machine",
+    "text": "Kaynak grubu kapsamında dağıtım"
+  },
   "630b6c5346ba6035": {
     "at": "2026-10-22T08:52:36.046409+00:00",
     "job": "msgbatch_01RQPKmPhqEGHToRpY4PpQXJ",
@@ -74470,6 +74554,13 @@
     "srcHash": "64db664b5c3d453e",
     "status": "machine",
     "text": "signing: signing: signature bundle does not verify: its cryptographic check holds, but it does not name `<manifest-digest>` as the artifact it was made for (signing: signing: imza paketi doğrulanmıyor: kriptografik denetimi geçiyor, ancak `<manifest-digest>` değerini atıldığı yapıt olarak adlandırmıyor)"
+  },
+  "64e395751be3bcd2": {
+    "at": "2026-11-17T14:28:10.966Z",
+    "job": "session-0016-20261117142810",
+    "srcHash": "64e395751be3bcd2",
+    "status": "machine",
+    "text": "**Dağıtımlar arasında okunan bir gizli bilgi.** Bir gizli bilgiyi okuyan sağlanan değer (bir `list*` işlevi, `listOutputsWithSecureValues` veya bir `securestring` ya da `secureObject` parametresinin değeri) üreticinin dağıtım geçmişine kaydedilirdi. Gizli bilgiyi Key Vault'ta saklayın ve her iki uçta `core/referenced-secret` ekleyin. Bkz. [A secret is read across deployments (Gizli bilgi dağıtımlar arasında okunur)](../errors/fatal-halts.md#a-secret-is-read-across-deployments)."
   },
   "64f18b5971e46ec3": {
     "at": "2026-10-29T21:34:59.076Z",
@@ -77472,6 +77563,13 @@
     "srcHash": "69111e968482ab1c",
     "status": "machine",
     "text": "Release'i **`input.compilation_context`** konumunda okur: `release_name` ve `environment`. Tek bir politikanın ortama göre farklı karar vermesini sağlayan budur."
+  },
+  "6915004a301cfa07": {
+    "at": "2026-11-17T14:28:10.966Z",
+    "job": "session-0016-20261117142810",
+    "srcHash": "6915004a301cfa07",
+    "status": "machine",
+    "text": "**Önce her üreticiyi, `-n` kaydedilen ada ayarlanmış olarak dağıtın,** ardından tüketicilerini dağıtın; tüketicilerin kendi adlarını siz seçersiniz, çünkü hiçbir şey onları okumaz:"
   },
   "6915da756415cd33": {
     "at": "2026-10-22T23:34:48.466793+00:00",
@@ -82977,6 +83075,13 @@
     "status": "machine",
     "text": "`ImportResult`"
   },
+  "703a30ee0bf4e937": {
+    "at": "2026-11-17T14:28:10.966Z",
+    "job": "session-0016-20261117142810",
+    "srcHash": "703a30ee0bf4e937",
+    "status": "machine",
+    "text": "Yalnızca üretici şablon, hangi adla dağıtılması gerektiğini `metadata` içinde kaydeder:"
+  },
   "703bdfaa682b8112": {
     "at": "2026-10-22T21:42:39.864359+00:00",
     "job": "msgbatch_01PqbJsVmEBt5689iaQGF8jy",
@@ -83602,6 +83707,13 @@
     "srcHash": "712bd726d8c030e7",
     "status": "machine",
     "text": "O Release'in yığınının çözümlemediği bir ad reddedilir ve yerel varlıkların nereden okunduğuna ilişkin açıklama, o Release'in `workspace.releases` altındaki girdisini adlandırır, çünkü aramanın okuduğu şey o girdidir. `--release`, bir adın arandığı yığını seçer; bu nedenle yalnızca tek başına bir ada uygulanır: bir dosya yolu ve bir kayıt defteri başvurusu oldukları gibi okunur ve bu bayrağı reddeder. Var olmayan bir dosyayı veya bir dizini adlandıran bir `--release`, herhangi bir arama yapılmadan önce reddedilir."
+  },
+  "712cdc607bf1d74c": {
+    "at": "2026-11-17T14:28:10.966Z",
+    "job": "session-0016-20261117142810",
+    "srcHash": "712cdc607bf1d74c",
+    "status": "machine",
+    "text": "Release içinde bir bileşenin kendi değeri bir sınırınkine, Release'in yazdığı değer ise Aggregate'in yazdığına üstün gelir; bkz. [Bilinen ek açıklamalar](well-known-annotations.md). Derleyici yerleşimi aramadığı için ek açıklamalar, operatörün üreticiyi dağıttığı yerle eşleşmelidir."
   },
   "713166971d730f81": {
     "at": "2026-10-22T08:46:18.120972+00:00",
@@ -86480,6 +86592,13 @@
     "status": "machine",
     "text": "**Burada bir biçim daha bildirilir ve bu bir yazım hatası değildir.** Bir ArtifactLibrary paketinin kendi dosya gövdesi, başka bir paketin `$import:` ifadesi olamaz: tek bir dosya yuvası birden çok dosyaya genişleyemez; bu nedenle iç içe bir içe aktarım, yazarın yazmadığı bir şeye çözümlenmek yerine reddedilir. Bunun yerine paketleri tüketildikleri noktada birleştirin."
   },
+  "751d22296612a235": {
+    "at": "2026-11-17T14:28:10.966Z",
+    "job": "session-0016-20261117142810",
+    "srcHash": "751d22296612a235",
+    "status": "machine",
+    "text": "Birleştirilmiş şablon bir kaynak grubu şablonudur ve provider bir parametre dosyası yazmaz: `parameters` alanı, katkıda bulunanların bildirdiklerinin tam olarak kendisidir ve şablon dağıtılırken sağlanır. Dağıtım zamanı gizli bilgisi, `--parameters` ile veya sizin yazdığınız bir parametre dosyasıyla sağlanan, en üst düzey bir `securestring` parametresidir; statik bir Key Vault başvurusu da buraya gider."
+  },
   "75239700e2644177": {
     "at": "2026-11-14T09:58:36.040Z",
     "job": "session-0006-20261114095836",
@@ -87803,6 +87922,13 @@
     "srcHash": "76be4d63e71edfa1",
     "status": "machine",
     "text": "**Süreç TLS'i kendisi sonlandırır.** `mcp.tls.cert_file` anahtarını bir PEM sertifika zincirine, `mcp.tls.key_file` anahtarını da onun özel anahtarına ayarlayın; dinleyici, verdiğiniz adres her neyse orada doğrudan HTTPS sunar. Her iki dosya da süreç başladığında okunur; bu nedenle değiştirilen bir sertifika, süreç yeniden başlatılarak devreye alınır. Birini diğeri olmadan ayarlamak, bir geri dönüşe başvurmak yerine başlangıçta reddedilir: anahtarı olmayan bir sertifika sunulamaz, sertifikası olmayan bir anahtar hiçbir şeyi belirtmez ve bir yoldaki yazım hatası, şifrelenmemiş trafik sunmaya başlamak için bir gerekçe değildir."
+  },
+  "76bfcfec38e003f4": {
+    "at": "2026-11-17T14:28:10.966Z",
+    "job": "session-0016-20261117142810",
+    "srcHash": "76bfcfec38e003f4",
+    "status": "machine",
+    "text": "**Dağıtım geçmişi kapsam başına 800 girdiyle sınırlıdır.** 700'ün üzerinde Azure, en eskileri 600'e inene kadar siler. Temizlenen bir üretici girdisi, tüketicinin dağıtımını başarısız kılar. Üreticiyi kaydedilen adıyla yeniden dağıtmak girdisini en yeni yere taşır; bu nedenle kapsamı yoğunsa üreticiyi tüketicilerinden önce yeniden dağıtın."
   },
   "76c3635079fd6da5": {
     "at": "2026-10-23T00:18:01.108465+00:00",
@@ -96929,6 +97055,13 @@
     "srcHash": "83442317c456cb11",
     "status": "machine",
     "text": "`LinkPatch`"
+  },
+  "83466b921c63ae67": {
+    "at": "2026-11-17T14:28:10.966Z",
+    "job": "session-0016-20261117142810",
+    "srcHash": "83466b921c63ae67",
+    "status": "machine",
+    "text": "**Bir çağrıyı sabit metne ekleyen sağlanan değer.** Sağlanan değeri tek bir ifade olarak yazın, `[format('postgres://{0}:5432', reference('Db').outputs.fqdn.value)]`. Bkz. [A provided value splices a call into literal text across deployments (Sağlanan değer, dağıtımlar arasında bir çağrıyı sabit metne ekler)](../errors/fatal-halts.md#a-provided-value-splices-a-call-into-literal-text-across-deployments)."
   },
   "83480954ecc2c904": {
     "at": "2026-10-22T12:39:32.286242+00:00",
@@ -111505,6 +111638,13 @@
     "status": "machine",
     "text": "Bir Aggregate'teki parametre enterpolasyonu da aynı satırı bu koşulun koduyla bildirir. Bir `provides:` girdisi şablon başarısızlığını “A `provides:` template could not be evaluated (Şablon değerlendirilemedi)” altında bildirir; dolayısıyla orada başlık o koşulun kodunu taşır ve yukarıdaki satır, yol da dahil olmak üzere, onun taşıdığı gerekçedir."
   },
+  "973f775fa521ecb8": {
+    "at": "2026-11-17T14:28:10.966Z",
+    "job": "session-0016-20261117142810",
+    "srcHash": "973f775fa521ecb8",
+    "status": "machine",
+    "text": "Dağıtımlar arasında bağlama"
+  },
   "9742f86f0518fbeb": {
     "at": "2026-10-23T00:02:44.489841+00:00",
     "job": "msgbatch_017Co8FT9U2dpLww3D8gVXkh",
@@ -112816,6 +112956,13 @@
     "srcHash": "990429e30c5c3ed7",
     "status": "machine",
     "text": "Durdurma, yanındaki koşullarda olduğu gibi, ek açıklama bir Feature ekine genişletilmeden önce yazıldığı haliyle ek açıklama üzerinde verilir; bu nedenle tanılama, belgeyi ve değerin yazıldığı yeri belirtir. Denetim, yazdığınız her ek açıklama için bir kez yapılır: bir sınıra ya da bir alt sisteme yazılmış bir değer, içindeki bir bileşen onu alsa da almasa da orada bir kez reddedilir. Derlemedeki bu tür her değer raporlanır, yalnızca ilki değil. Derleme, onu yazan belgeye göre, Release tarafındaki bir ek açıklamayı `OPS_ERROR` etiketiyle, Aggregate tarafındakini ise `DEVELOPER_ERROR` etiketiyle raporlar. Koşul `a scalar annotation value does not route to exactly one path of its binding` olup [`aggrega explain`](../cli/aggrega-explain.md) komutunun kodu için yazdırdığı da budur."
+  },
+  "9905e110167c39ef": {
+    "at": "2026-11-17T14:28:10.966Z",
+    "job": "session-0016-20261117142810",
+    "srcHash": "9905e110167c39ef",
+    "status": "machine",
+    "text": "Tüketicinin kendi aboneliği"
   },
   "990a270af7804a26": {
     "at": "2026-11-13T18:50:20.840Z",
@@ -123242,6 +123389,13 @@
     "status": "machine",
     "text": "**Bir derlemenin kabul etmediği kayıtlı bir imza.** Satır, önbelleğe alınmış imza paketi onu önbelleğe alan çekmeden sonra kaldırılmış ya da değiştirilmiş bir imzayı ya da başka bir satırdan kopyalanmış, paketi sağlam ama başka bir yapıt için oluşturulmuş bir `signature` değerini kaydettiğinde, bir derleme imzalama gereksinimi ne derse desin satırı reddeder ([A cached signature bundle does not match the digest recorded for it (Önbelleğe alınmış bir imza paketi onun için kaydedilen özetle eşleşmiyor)](../errors/fatal-halts.md#a-cached-signature-bundle-does-not-match-the-digest-recorded-for-it), [A recorded signature was made for a different artifact (Kayıtlı bir imza farklı bir yapıt için oluşturulmuş)](../errors/fatal-halts.md#a-recorded-signature-was-made-for-a-different-artifact)). Bu yüzden yeniden çekme, gereksinim ne derse desin, o bağımlılığın kayıt defterine imzasını yeniden sorar ve bunu getirdiği bir bağımlılığın geçtiği aynı doğrulamayla yapar: doğrulanan, satırın imzasının yerini alır ve adlandırdığı paket yeniden önbelleğe alınır, özetiyle artık eşleşmeyen önbellekteki kopya yeniden yazılır; böylece satır ve önbellek, bağımlılığı getiren çekmenin bıraktığını tutar. Güven yapılandırmasının kabul etmediği bir imza, bağımlılığı getiren bir çekmeyi durdurduğu gibi yeniden çekmeyi de durdurur; imza gerektiği yerde hiç imza eklemeyen bir kayıt defteri de öyle. Doğrulama hiçbir şey kaydetmediğinde (uygulandığı yerde hiçbir şey sormayan `skip_signature_verification`, imza gerekmediği yerde imza eklemeyen bir kayıt defteri ya da hiçbir şeyin doğrulanmadığı bir `advisory` kayıt defteri), satırın imzası temizlenir ve bir derleme bunu aynı ayarlar altında kabul eder."
   },
+  "a696a165d8f4ca23": {
+    "at": "2026-11-17T14:28:10.966Z",
+    "job": "session-0016-20261117142810",
+    "srcHash": "a696a165d8f4ca23",
+    "status": "machine",
+    "text": "**Bir dağıtım adı konumunu korur.** Dağıtım komutunun bir konum aldığı bir kapsamda, başka bir konumla yeniden kullanılan ad Azure tarafından reddedilir."
+  },
   "a69e1e25b3803f27": {
     "at": "2026-10-22T09:56:04.106489+00:00",
     "job": "msgbatch_01B3jiAm926wn5S8SwmarTsj",
@@ -129520,6 +129674,13 @@
     "status": "machine",
     "text": "**İşlenmiş çıktının malzemeden arınmış olduğunu garanti etmez.** Bir yapıtın malzeme taşıyıp taşımadığı, yazarın hangi dolguyu eklediğine ve yazarın onun `values` alanına ne yazdığına bağlıdır — bkz. [architecture/08-credential-model.md](../../architecture/08-credential-model.md) “What the compiler does and does not guarantee”. Yazarın satır içi sağladığı, hassas olarak bildirilmiş bir değer, derleme onu nerede işliyorsa orada, bildirilmemiş bir değerle tam olarak aynı şekilde işlenir."
   },
+  "af1e09d7e222d27d": {
+    "at": "2026-11-17T14:28:10.966Z",
+    "job": "session-0016-20261117142810",
+    "srcHash": "af1e09d7e222d27d",
+    "status": "machine",
+    "text": "**Abonelik veya yönetim grubu kapsamında dağıtılan bir üretici.** Üreticiyi, kaynak grubu kapsamında dağıtılan bir sınıra yerleştirin."
+  },
   "af1e65fe088cd179": {
     "at": "2026-10-23T00:02:44.489841+00:00",
     "job": "msgbatch_017Co8FT9U2dpLww3D8gVXkh",
@@ -133792,6 +133953,13 @@
     "srcHash": "b459c3c5ef51cb7a",
     "status": "machine",
     "text": "Girdinin bir dizin olup olmadığı. Liste içinde bir chart kökünü veya tek bir kaynak dosyasını çözümleyen bir konuk, dosya sistemine dokunmadan dizinleri dosyalardan ayırt etmek için bunu okur."
+  },
+  "b459dcc2d22368d6": {
+    "at": "2026-11-17T14:28:10.966Z",
+    "job": "session-0016-20261117142810",
+    "srcHash": "b459dcc2d22368d6",
+    "status": "machine",
+    "text": "**Sınırı kaynak grubu belirtmeyen bir üreticiden, ya da yönetim grubu kapsamında abonelik belirtmeyen bir üreticiden, abonelik veya yönetim grubu kapsamında okunan değer.** Üreticinin sınırına `aggrega.ai/azure-resource-group` ek açıklamasını ve okuma yönetim grubu kapsamında yapılıyorsa `aggrega.ai/azure-subscription` ek açıklamasını ekleyin."
   },
   "b45a7372501dfa54": {
     "at": "2026-10-22T06:52:21.462Z",
@@ -141394,6 +141562,13 @@
     "status": "machine",
     "text": "**Nerede ortaya çıkar.** Belge paketi, makinedeki her projenin paylaştığı önbelleğe, çalışma alanının yapılandırılmış kayıt defterinden ayrılmış `docs` ad alanı altında edinilir: asistana yönelik sunucu tarafından bir kez, başladığında ve herhangi bir şeye yanıt vermeden önce; `aggrega explain` ve bir düzenleyicinin bir koda ilişkin açıklaması tarafından ise ikisinden biri ona ilk kez ihtiyaç duyduğunda; her durumda yalnızca makinede çalışma alanının imza denetiminin kabul ettiği bir kopya bulunmadığında. Bu, her edinmenin geri gelen üzerinde çalıştırdığı denetimdir."
   },
+  "beb4c4371a7d6c30": {
+    "at": "2026-11-17T14:28:10.966Z",
+    "job": "session-0016-20261117142810",
+    "srcHash": "beb4c4371a7d6c30",
+    "status": "machine",
+    "text": "**ARM dağıtım yığını olarak dağıtılan bir üreticiye erişilemez.** Bir yığın kendi dağıtımlarını kendisi adlandırır, bu nedenle şablonun kaydettiği hiçbir ada erişilemez; bir üreticiyi `az deployment group create` ile dağıtın. Bir tüketici iki yoldan biriyle dağıtılabilir."
+  },
   "beb5728e75def163": {
     "at": "2026-10-22T22:51:15.481474+00:00",
     "job": "msgbatch_01RMZgtQpp1YGjgFqybBRdBA",
@@ -141689,6 +141864,13 @@
     "srcHash": "bf1e7c825efccc9c",
     "status": "machine",
     "text": "Bir FeatureRecipe bir kimlik bilgisi Feature'ını (`feature.aggrega.ai/kind: secret` etiketli bir Feature) uyguladığında İki Parçalı Plugin İlkesi'ni izler: `pipeline`, bir Fetcher plugin'ini (kasaya özgü CRD'yi üretir) ve ardından bir Injector plugin'ini (secret'ı hedef konteynere bağlar) zincirler. Eksiksiz çalışılmış örnek için [examples/05-credential-features](../examples/05-credential-features.md) sayfasına bakın."
+  },
+  "bf1f7f71f8d39aff": {
+    "at": "2026-11-17T14:28:10.966Z",
+    "job": "session-0016-20261117142810",
+    "srcHash": "bf1f7f71f8d39aff",
+    "status": "machine",
+    "text": "Farklı çıktı dizinlerine çözülen iki `arm` sınırı arasındaki bir `uses` kenarı, her biri kendi dağıtımı olarak dağıtılan iki şablonu birleştirir. Kenar her iki şablonda da bağlanır. Kaynak grubu kapsamındaki bir sınır üretici olabilir: bir `uses` kenarının işaret ettiği bileşenin şablonu."
   },
   "bf1fa943c3116a02": {
     "at": "2026-11-01T18:36:36.216Z",
@@ -143782,6 +143964,13 @@
     "status": "machine",
     "text": "Çift, her yüzeyde tek başına geçerli olan yazımdan doğar: bir bileşenin kendi girdisi ile bir ekin girdisinin tek bir soket ve takma adda olması; bir hedefi iki kez adlandıran bir liste (`models: [llama, llama]`); iki sokette yazılmış tek bir takma ad (`databases: { local: … }` yanında `models: { local: … }`); tek bir takma adı bağlayan iki ek; ya da Aggregate'in bağlanmamış bıraktığı bir sokette, Aggregate'in başka bir sokette zaten kullandığı bir takma ad altında bağlantı çizen bir Release girdisi. Komşu iki biçim bu durdurmaya hiç ulaşmaz: anahtarlı girdilerden oluşan tek bir blokta iki kez yazılmış tek bir anahtar belgenin yüklenmesini başarısız kılar; başka bir bloğun zaten çizdiği bir soket ve takma addaki bir Release girdisi ise ikinci bir bağlantı çizmek yerine o bağlantıyı yapılandırır ya da farklı bir hedef adlandırıyorsa yeniden hedefleme olarak durdurur."
   },
+  "c1c23a28e5018754": {
+    "at": "2026-11-17T14:28:10.966Z",
+    "job": "session-0016-20261117142810",
+    "srcHash": "c1c23a28e5018754",
+    "status": "machine",
+    "text": "Üretici şablonun dağıtıldığı kaynak grubu"
+  },
   "c1c2c1099fed68e2": {
     "at": "2026-10-23T00:18:02.017487+00:00",
     "job": "msgbatch_01WWSdKvrWpurqxfMfC3PmVX",
@@ -145806,6 +145995,13 @@
     "srcHash": "c461bfced37330d4",
     "status": "machine",
     "text": "`aggrega import . --target compose` komutunun yazdığı dosyalar, değiştirilmemiş haliyle, ve komutun yazdırdıkları: standart çıktıya `stdout.txt`, standart hataya `import.txt`"
+  },
+  "c4664205ed93df19": {
+    "at": "2026-11-17T14:28:10.966Z",
+    "job": "session-0016-20261117142810",
+    "srcHash": "c4664205ed93df19",
+    "status": "machine",
+    "text": "`--action-on-unmanage detachAll`, sonraki bir şablon bir kaynağı bildirmeyi bıraktığında o kaynağa dokunmaz ve `--deny-settings-mode none`, yığının yönettiği şeylere reddetme ataması koymaz; yığının daha fazlasını zorunlu kılması gerekiyorsa başka değerler seçin. Provider bunların hiçbirine karar vermez — komutlar operatöre aittir."
   },
   "c47202a3e7083104": {
     "at": "2026-11-15T00:01:27.771Z",
@@ -152053,6 +152249,13 @@
     "status": "machine",
     "text": "Konum, yazarın yazdığı anahtar yoludur. Aggregate'te bir bileşenin kendi bloğu için `.spec.components.<component>.inject.<mechanism>`, bağlantılarından birindeki blok için `.spec.components.<component>.uses.<socket>.<alias>.inject.<mechanism>` ve bir ekin bloğu için `.spec.components.<component>.features.<attachment>…` kullanılır; bir bileşenin veya ekin bildirildiği her alt sistem için `.subsystems.<name>` eklenir. Release'te, bir ekin çizdiği bağlantıdaki blok o ek üzerinden gösterilir — sınır genelinde eklenmiş bir ek için `.spec.boundaries.<boundary>.features.<attachment>.uses.<socket>.<alias>.inject.<mechanism>`, bir bileşene eklenmiş bir ek için `.spec.boundaries.<boundary>.components.<component>.features.<attachment>…`; her iç içe sınır için `.boundaries.<name>` ve bir bileşenin üzerinden adlandırıldığı her yönlendirme girdisi için `.aggregates.<module>` eklenir."
   },
+  "ccbd34f041a0eb3a": {
+    "at": "2026-11-17T14:28:10.966Z",
+    "job": "session-0016-20261117142810",
+    "srcHash": "ccbd34f041a0eb3a",
+    "status": "machine",
+    "text": "Üretici şablonun dağıtıldığı abonelik kimliği"
+  },
   "ccc2957015f4d3d1": {
     "at": "2026-11-05T17:54:21.977Z",
     "job": "session-0009-20261105175421",
@@ -153510,6 +153713,13 @@
     "srcHash": "ce9522eb8a7b4674",
     "status": "machine",
     "text": "**Bir Release'in bağımlılıklarını okuyan her komut bu denetimi yapar; farklı olan, her birinin sonuçla ne yaptığıdır.** `aggrega build` ve `aggrega pull` durur, çünkü ikisi de sizin kullanmaya devam edeceğiniz bir şey üretir: işlenmiş yapıtlar ve bir kilit dosyası. `aggrega validate` ve `aggrega lint` bulguyu buldukları diğer tüm tanılamalarla birlikte raporlar ve sıfır dışı bir kodla çıkar: görevleri çalışma alanında yanlış olan her şeyi size söylemektir, bu nedenle tek bir hata raporu yarıda kesmez. Düzenleyicide bulgu diğerlerinin yanında bir tanılama olarak yayımlanır ve o belgenin raporlayacağı diğer her şey etkilenmez. Nerede göründüğüne dikkat edin: düzenleyici, bir Release'in bağımlılık düzeyindeki tanılamalarını Aggregate'e ekler; bu nedenle bulgu, eşlemenin yazıldığı Manifest'i düzenlerken değil, Aggregate açıkken ortaya çıkar. `aggrega validate` çalıştırmak, hangi belge açık olursa olsun bulguyu raporlar."
+  },
+  "ce959817b4cbae66": {
+    "at": "2026-11-17T14:28:10.966Z",
+    "job": "session-0016-20261117142810",
+    "srcHash": "ce959817b4cbae66",
+    "status": "machine",
+    "text": "Dağıtım adı"
   },
   "ce97a5a035346a19": {
     "at": "2026-10-22T23:05:22.318919+00:00",
@@ -158528,6 +158738,13 @@
     "srcHash": "d5020edd50066ccf",
     "status": "machine",
     "text": "**Bu yalnızca `index`'in bir özelliğidir ve hiçbir yüzeyin eksik anahtar politikası bunu değiştirmez.** Açık bir sütun altında ayarlanmamış bir anahtarın nokta ile okunması, yukarıda “Missing template key — asymmetric policy (Eksik şablon anahtarı — asimetrik ilke)” bölümünün anlattığı gibi bir değer şablonunda hâlâ hiçbir şey üretmez ve yazarın böyle bir anahtarı sağlayıp sağlamadığını sınayan bir şablon bundan etkilenmez. Durduran, `index`'ten eşlemenin içermediği bir anahtarı istemektir. `index`, bir şablonun adını kendisinin hesapladığı bir anahtara ulaşma yoludur — örneğin tüketen Recipe'in seçtiği değişken adı altında okunan bir kimlik bilgisi — ve bu durdurma olmasaydı o okuma, derleme başarılı olurken şablon motorunun yer tutucu metni `<no value>`'yu yapıta koyardı: anahtarı bu metin olan bir sunucu başlatılırdı. `index`'in verdiği diğer her yanıt şablon motorunun kendisine aittir: bir listedeki ya da dizgedeki bir konum, aralık dışı bir konum, eşlemenin içerdiği bir anahtar — değeri null olan ve `<no value>` yazdıran bir anahtar da dahil."
+  },
+  "d503ead5b10c67d6": {
+    "at": "2026-11-17T14:28:10.966Z",
+    "job": "session-0016-20261117142810",
+    "srcHash": "d503ead5b10c67d6",
+    "status": "machine",
+    "text": "Operatörün sahip olduğu şeyler"
   },
   "d5042d12098ba66d": {
     "at": "2026-10-22T23:44:16.479857+00:00",
@@ -164285,6 +164502,13 @@
     "srcHash": "dcbc67813a278532",
     "status": "machine",
     "text": "Kalıp korumasının reddettiği bir isteği kendine ait bir konuşmada gönderin, ardından aynı konuşmada sıradan bir soru sorun ve konuşmayı geri okuyun. Başarısız olan bir tur, konuşmasını turdan önceki hâliyle bırakır; bu nedenle reddedilen mesaj saklanmaz, o konuşmadaki sonraki tur yanıtlanır ve konuşma yalnızca yanıtlanan turları içerir:"
+  },
+  "dcbf0d146192a49d": {
+    "at": "2026-11-17T14:28:10.966Z",
+    "job": "session-0016-20261117142810",
+    "srcHash": "dcbf0d146192a49d",
+    "status": "machine",
+    "text": "Bağlantılar Azure'da zaten var olan dağıtımlara dayanır; bu nedenle aşağıdakileri korumak operatöre aittir:"
   },
   "dcc0581d670b780b": {
     "at": "2026-10-22T11:59:38.351715+00:00",
@@ -186946,6 +187170,13 @@
     "srcHash": "fa446b67eb6bacdf",
     "status": "machine",
     "text": "Bir MCP istemci yapılandırmasını içe aktarma — bir kodlama asistanının kullandığı üç sunucu"
+  },
+  "fa47585be868cfa5": {
+    "at": "2026-11-17T14:28:10.966Z",
+    "job": "session-0016-20261117142810",
+    "srcHash": "fa47585be868cfa5",
+    "status": "machine",
+    "text": "Ad, Release'in adından ve sınırın çıktı dizininden türetilir; bu nedenle Release içinde sınırın `directory:` değerini değiştirmek adı değiştirir ve yeniden derlenen tüketici yeni adı okur. Bu meta veri anahtarı altına zaten başka bir değer yazan bir parça, derlemeyi durdurur."
   },
   "fa4a68af580d7008": {
     "at": "2026-10-22T22:51:17.853388+00:00",

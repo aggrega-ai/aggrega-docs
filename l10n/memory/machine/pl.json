@@ -15905,6 +15905,13 @@
     "status": "machine",
     "text": "Maszyna odizolowana od sieci, przechowująca lokalną kopię swojego katalogu i artefaktów, to przypadek, dla którego istnieje ten podział: taki obszar roboczy jest w trybie offline, a niemal wszystko, co robi, nadal da się spełnić."
   },
+  "154055b6b4503573": {
+    "at": "2026-11-17T14:28:10.966Z",
+    "job": "session-0016-20261117142810",
+    "srcHash": "154055b6b4503573",
+    "status": "machine",
+    "text": "Gdy jej brak"
+  },
   "1540d8e378132e18": {
     "at": "2026-10-22T23:53:38.624924+00:00",
     "job": "msgbatch_011k5XEXAWyemaJqwBb86oM4",
@@ -23642,6 +23649,13 @@
     "status": "machine",
     "text": "**Co zawiera biblioteka standardowa.** `core/ai-tool/mcp` nosi `http`. Dołącza on serwer Model Context Protocol do agenta, a encja Manifest wybiera, jak ten serwer jest realizowany: `helm/mcp` uruchamia obraz udostępniający protokół przez HTTP; `helm/mcp-stdio-bridge` i `compose/mcp-stdio-bridge` uruchamiają pakiet obsługujący tylko stdio za przypiętym mostem, który udostępnia go przez HTTP; `helm/mcp-remote` i `compose/mcp-remote` docierają do serwera prowadzonego przez kogoś innego i niczego nie uruchamiają. Każda realizacja publikuje te same `host`, `port`, `endpoint`, `protocol` i `credential_header`, więc okablowanie konsumenta nie zmienia się wraz z realizacją. Poświadczenia serwera za mostem są zmiennymi środowiskowymi, przechowywanymi w slocie `server_env` narzędzia i dostarczanymi do mostu przez referencję na Kubernetes; poświadczenia serwera zdalnego przechowuje konsument na własnym połączeniu z narzędziem i przedstawia je w nagłówku wskazanym przez `credential_header`, czyli `Authorization`, chyba że encja Release wskaże inny. Gdy serwer zdalny odczytuje swój klucz z własnego adresu, konsument przechowuje na tym połączeniu również cały adres, w slocie `endpoint` wypełnianym na Kubernetes referencją do obiektu Secret, a na Docker Compose referencją do zmiennej Compose, więc klucz nie trafia do żadnego wyrenderowanego pliku, podczas gdy `infra.endpoint` narzędzia zawiera adres bez części niosącej klucz; [examples/mcp-address-from-secret](../language-reference/examples/mcp-address-from-secret/README.md) buduje oba warianty. `core/ai-agent/openai-agents-sdk`, `core/ai-agent/claude-agent-sdk`, `core/ai-agent/agent-framework`, `core/ai-agent/google-adk` i `core/ai-agent/mastra` oraz platformy przepływów `core/ai-agent/flowise` i `core/ai-agent/n8n` deklarują gniazdo narzędzi tej postaci, `tools`, i dostarczają adres każdego podłączonego narzędzia oraz poświadczenia połączenia przez referencję w zmiennych nazwanych według aliasu połączenia, podczas gdy połączenie zapisujące blok `inject:` otrzymuje to, co dyktuje ten blok, zamiast zmiennych wyprowadzonych z tego, co publikuje narzędzie, a zawartość jego slotów `credential` i `endpoint` pozostaje pod nazwą aliasu; własny konsument deklaruje takie gniazdo w ten sam sposób. Każda z trzech platform przepływów przenosi do platformy podczas wdrożenia przepływ napisany w encji Aggregate, na obu celach: Langflow ładuje przeniesioną definicję ze swojego katalogu przepływów przy każdym uruchomieniu, chatflow Flowise jest zasilany przez jednorazowy krok zalogowany jako konto właściciela wskazane przez encję Release, a workflow n8n jest importowany przez krok init przed uruchomieniem platformy. `core/ai-agent/langflow` deklaruje gniazdo `tools` tej samej postaci, które nie dopuszcza bloku `inject:`, i zamiast tego dostarcza każde połączenie przez ten przepływ, ponieważ komponent MCP Tools w Langflow przyjmuje adres serwera wyłącznie z ustawień samego Langflow lub z przepływu, nigdy ze zmiennej: jego Recipes zapisują adres narzędzia w węźle MCP Tools, którego serwer nosi nazwę aliasu połączenia, dostarczają poświadczenia połączenia przez referencję jako zmienną wskazaną przez nagłówek tego węzła — w `Authorization` zmienną zawierającą `Bearer` i poświadczenia — i przepuszczają hosty podłączonych narzędzi i magazynów przez zabezpieczenie Langflow przed adresami prywatnymi. Wszystkie trzy platformy deklarują też gniazdo `vector_store` wybierające `datastore.aggrega.ai/engine in (vector, semantic-memory, search)`, które w ten sam sposób dostarcza adres każdego podłączonego magazynu — publikowany przez niego `endpoint`, dla `core/datastore/pgvector` URI połączenia bez hasła, albo adres złożony z jego protokołu, hosta i portu — oraz poświadczenia połączenia przez referencję; magazyn, który publikuje także swoją bazę danych i użytkownika, jak robi to `core/datastore/pgvector`, trafia do Flowise i n8n również w tych częściach, ponieważ węzeł wektorowy PostgreSQL żadnej z tych platform nie przyjmuje ciągu połączenia; Langflow, którego komponent PGVector przyjmuje jeden ciąg, otrzymuje taki magazyn jako `AGGREGA_VECTOR_STORE_<ALIAS>_CONNECTION_STRING`, z poświadczeniami połączenia jako hasłem, przez referencję na Kubernetes i w postaci dostarczonej na Docker Compose. Chatflow Flowise odczytuje dostarczoną zmienną przez zmienną Runtime o tej samej nazwie utworzoną na stronie Variables w Flowise, a workflow n8n odczytuje ją przez `$env` tylko tam, gdzie encja Aggregate ustawia wartość `allow_env_access_in_nodes` platformy, ponieważ domyślnie Recipes tej platformy utrzymują blokadę n8n dla dostępu do środowiska w węzłach."
   },
+  "1fbb883236ef4756": {
+    "at": "2026-11-17T14:28:10.966Z",
+    "job": "session-0016-20261117142810",
+    "srcHash": "1fbb883236ef4756",
+    "status": "machine",
+    "text": "**Szablon konsumenta czyta wdrożenie producenta przez jego identyfikator zasobu.** Wartość podłączona do konsumenta przyjmuje postać `reference(format('/subscriptions/{0}/resourceGroups/{1}/providers/Microsoft.Resources/deployments/{2}', <subscription>, <resource group>, '<name>'), '2025-04-01').outputs.<output>.value` i jest zapisywana we `properties` zasobu, w `value` wyjścia lub w danych wejściowych pętli `copy` wyjścia, czyli w miejscach, w których ARM ocenia `reference()`. Kompilator z niczym się nie kontaktuje: identyfikator to string budowany z nazw, a ARM czyta wdrożenie, gdy wdrażany jest konsument."
+  },
   "1fc3aa265dd980d1": {
     "at": "2026-11-14T10:22:53.079Z",
     "job": "session-0004-20261114102253",
@@ -24305,6 +24319,13 @@
     "srcHash": "20a32ab1e06f01a3",
     "status": "machine",
     "text": "**Kształty strukturalne: mapy w korzeniu, tablice w ładunkach.** Główne bloki topologii — `components`, `features`, `aggregates`, `subsystems`, `boundaries` — to mapy YAML, których klucze, tworzone przez użytkownika, służą jako stabilne identyfikatory instancji. Tablice nie są w tych miejscach dozwolone; klucz mapy jest tożsamością, której kompilator używa do odwołań krzyżowych (`target: my-db`), budowy węzłów grafu i rozwiązywania encji Manifest. Wewnątrz nieprzezroczystych bloków ładunku (`values`, `infra`, `parameters`) tablice są w pełni dozwolone — deweloperzy mogą pisać `tools_allowed: [\"sql\", \"web\"]` lub `hostnames: [\"stripe.com\", \"twilio.com\"]` w `values` encji Component. Schemat encji Aggregate deklaruje te bloki ładunku jako `additionalProperties: true`, więc są one nieprzezroczyste dla kompilatora Go i walidowane w całości przez osadzoną w katalogu deklarację `schema:`. Dzięki temu zmienność frameworków (nowe kształty API AI, nowe natywne dla chmury formaty ładunków) trafia do domeny katalogu, gdzie może ewoluować niezależnie, a kompilator Go w korzeniu strukturalnym operuje wyłącznie na adresowalnych kluczach."
+  },
+  "20a81bca5a5b730a": {
+    "at": "2026-11-17T14:28:10.966Z",
+    "job": "session-0016-20261117142810",
+    "srcHash": "20a81bca5a5b730a",
+    "status": "machine",
+    "text": "Encja Recipe publikuje udostępnianą wartość jako jedno całe wyrażenie lub jako zwykły literał. W obrębie jednego szablonu tekst wokół wartości nadal składa się w `format()`, jak opisano w [Zapisywanie tekstu ARM](#writing-arm-text)."
   },
   "20a88f45a13e32fb": {
     "at": "2026-11-12T21:38:06.030Z",
@@ -28754,6 +28775,13 @@
     "srcHash": "26935db762215379",
     "status": "machine",
     "text": "*Dostarczanie oparte na Vault jest dostępne już dziś poprzez ścieżkę renderowaną przez chart: `k8s-external-secret` renderuje `ExternalSecret` z External Secrets. Tablica `pipeline:` encji FeatureRecipe łączy w łańcuch wtyczki Wasm, a jej kontrakt `provides` publikuje to, co materializuje.*"
+  },
+  "269ac827bd5cf9f4": {
+    "at": "2026-11-17T14:28:10.966Z",
+    "job": "session-0016-20261117142810",
+    "srcHash": "269ac827bd5cf9f4",
+    "status": "machine",
+    "text": "**Blokada CanNotDelete wstrzymuje usuwanie.** Pod blokadą nic nie jest usuwane, a gdy historia osiągnie 800 wpisów, kolejne wdrożenia kończą się niepowodzeniem, dopóki wpisy nie zostaną usunięte."
   },
   "269d6e8f272f12ac": {
     "at": "2026-10-22T02:44:28.692Z",
@@ -37451,6 +37479,13 @@
     "srcHash": "32a793ec748c982b",
     "status": "machine",
     "text": "**Zarezerwowane przestrzenie nazw.** Przestrzenie nazw `aggrega.ai/` i `app.kubernetes.io/` są zarezerwowane dla natywnej dla platformy informacji o pochodzeniu, a promowany klucz z którymkolwiek z tych prefiksów jest odrzucany przy wczytywaniu z błędem katalogu wskazującym klucz i pole, w którym występuje. Sprawdzany jest sam prefiks: klucz taki jak `component.aggrega.ai/hosting` należy do własnej przestrzeni nazw, a nie do zarezerwowanego korzenia, i może być promowany."
+  },
+  "32a7ba8b64d1b125": {
+    "at": "2026-11-17T14:28:10.966Z",
+    "job": "session-0016-20261117142810",
+    "srcHash": "32a7ba8b64d1b125",
+    "status": "machine",
+    "text": "Dwie adnotacje na granicy producenta wskazują miejsce jego wdrożenia i są odczytywane jako nieprzezroczyste stringi:"
   },
   "32ac1450b7deff04": {
     "at": "2026-11-15T00:31:19.686Z",
@@ -46704,6 +46739,13 @@
     "srcHash": "3f6dc166f9945e01",
     "status": "machine",
     "text": "Trzy rodzaje wejść"
+  },
+  "3f6e6367ee0d581a": {
+    "at": "2026-11-17T14:28:10.966Z",
+    "job": "session-0016-20261117142810",
+    "srcHash": "3f6e6367ee0d581a",
+    "status": "machine",
+    "text": "**Wartość odczytana z innego wdrożenia zapisana tam, gdzie ARM jej nie ocenia.** Poza `properties` zasobu, `value` wyjścia lub danymi wejściowymi `copy` wyjścia. Zobacz [A value read from another deployment is written where ARM does not evaluate it (Wartość odczytana z innego wdrożenia jest zapisana tam, gdzie ARM jej nie ocenia)](../errors/fatal-halts.md#a-value-read-from-another-deployment-is-written-where-arm-does-not-evaluate-it)."
   },
   "3f7180faaddfd3cb": {
     "at": "2026-10-22T08:35:14.585510+00:00",
@@ -58941,6 +58983,13 @@
     "status": "machine",
     "text": "PluginRetraction"
   },
+  "503379c38ad4725e": {
+    "at": "2026-11-17T14:28:10.966Z",
+    "job": "session-0016-20261117142810",
+    "srcHash": "503379c38ad4725e",
+    "status": "machine",
+    "text": "Gdzie wdrażany jest producent"
+  },
   "5036f0c48e8509a2": {
     "at": "2026-10-29T23:55:51.039Z",
     "job": "session-0034-20261029235551",
@@ -60470,6 +60519,13 @@
     "srcHash": "52315d70df8b99c6",
     "status": "machine",
     "text": "Jeśli wtyczka została zainstalowana, połączenie z serwerem MCP Aggrega już istnieje. W przeciwnym razie połącz się z serwerem MCP Aggrega, czyli z poleceniem `aggrega mcp`, w taki sposób, w jaki dodajesz serwer MCP, zgodnie z opisem przeznaczonym dla ciebie na `https://aggrega.ai/docs/ai-assistants/mcp-server/`. Jeśli do wczytania wtyczki lub serwera potrzebny jest restart lub ponowne wczytanie, powiedz mi, co mam zrobić."
+  },
+  "523321d6e487de28": {
+    "at": "2026-11-17T14:28:10.966Z",
+    "job": "session-0016-20261117142810",
+    "srcHash": "523321d6e487de28",
+    "status": "machine",
+    "text": "Własna grupa zasobów konsumenta"
   },
   "523c4de5c0df6e64": {
     "at": "2026-10-22T23:53:38.624924+00:00",
@@ -67253,6 +67309,13 @@
     "status": "machine",
     "text": "**Wskazanie obrazu, który uruchamia każdy agent.** Program zespołu działa w obrazie budowanym z projektu; tutaj obaj agenci uruchamiają ten sam, `ghcr.io/example/support-brief:1.0.0`."
   },
+  "5b34cfa3324e4d9a": {
+    "at": "2026-11-17T14:28:10.966Z",
+    "job": "session-0016-20261117142810",
+    "srcHash": "5b34cfa3324e4d9a",
+    "status": "machine",
+    "text": "`arm` łączy się z producentem wdrożonym w zakresie grupy zasobów: powyższy identyfikator zasobu jest identyfikatorem wdrożenia do grupy zasobów. Połączenie z producentem, którego granica jest wdrażana w zakresie subskrypcji lub grupy zarządzania, przerywa budowanie, wskazując to połączenie. Konsument może być wdrażany w zakresie subskrypcji lub grupy zarządzania. Wartość odczytywana przez jego zawartość na poziomie grupy zasobów jest odczytywana wewnątrz wdrożenia `_resourceGroup`, w którym własna grupa zasobów konsumenta jest grupą tego wdrożenia. Wartość odczytywana przez jego zawartość na poziomie subskrypcji wymaga, aby granica producenta wskazywała `aggrega.ai/azure-resource-group`, ponieważ szablon w zakresie subskrypcji nie ma własnej grupy zasobów; bez tego budowanie przerywa się, wskazując adnotację. W zakresie grupy zarządzania to samo dotyczy wdrożenia `_subscription`, a wartość odczytywana przez samą zawartość grupy zarządzania wymaga, aby granica producenta wskazywała także `aggrega.ai/azure-subscription`, ponieważ szablon w zakresie grupy zarządzania nie ma własnej subskrypcji."
+  },
   "5b36702024804bad": {
     "at": "2026-11-12T20:26:44.164Z",
     "job": "session-0001-20261112202644",
@@ -68567,6 +68630,13 @@
     "srcHash": "5d25d8cf90203597",
     "status": "machine",
     "text": "Jak zapisywana jest zgłaszana ścieżka"
+  },
+  "5d262018e21383fc": {
+    "at": "2026-11-17T14:28:10.966Z",
+    "job": "session-0016-20261117142810",
+    "srcHash": "5d262018e21383fc",
+    "status": "machine",
+    "text": "**Szablon producenta udostępnia jako wyjścia to, co czyta konsument.** Dla każdej udostępnianej wartości, którą czyta komponent konsumenta, szablon producenta zyskuje wyjście typu string, nazwane od komponentu i klucza, tak jak dla każdego [wyjścia zapisywanego przez providera](#top-level-sections-in-the-assembled-template). Udostępniana wartość będąca wyrażeniem jest przekazywana jako `[string(<expression>)]`, więc każda wartość dociera do konsumenta jako tekst; zwykły literał jest przekazywany tak, jak zapisano. Kilku konsumentów jednej wartości współdzieli jedno wyjście."
   },
   "5d2a14f0822bc88d": {
     "at": "2026-10-22T02:44:28.692Z",
@@ -70006,6 +70076,13 @@
     "srcHash": "5f0e49f976ed2605",
     "status": "machine",
     "text": "Mapuje typy magazynu obiektów, Store Gateway i Query na odpowiadające im syntetyczne encje Recipes helm, a encję Feature poświadczeń, którą moduł dołącza, na realizację emitującą Secret z parametru poświadczeń modułu."
+  },
+  "5f0ef7945a4abcb0": {
+    "at": "2026-11-17T14:28:10.966Z",
+    "job": "session-0016-20261117142810",
+    "srcHash": "5f0ef7945a4abcb0",
+    "status": "machine",
+    "text": "Co przerywa budowanie"
   },
   "5f0f0813d59d0b85": {
     "at": "2026-10-22T23:34:49.752518+00:00",
@@ -73104,6 +73181,13 @@
     "status": "machine",
     "text": "brak gniazd sieciowych;"
   },
+  "630593e492503235": {
+    "at": "2026-11-17T14:28:10.966Z",
+    "job": "session-0016-20261117142810",
+    "srcHash": "630593e492503235",
+    "status": "machine",
+    "text": "Wdrażanie w zakresie grupy zasobów"
+  },
   "630b6c5346ba6035": {
     "at": "2026-10-22T08:52:36.046409+00:00",
     "job": "msgbatch_01RQPKmPhqEGHToRpY4PpQXJ",
@@ -74470,6 +74554,13 @@
     "srcHash": "64db664b5c3d453e",
     "status": "machine",
     "text": "signing: signing: signature bundle does not verify: its cryptographic check holds, but it does not name `<manifest-digest>` as the artifact it was made for (signing: signing: pakiet podpisu nie przechodzi weryfikacji: jego sprawdzenie kryptograficzne się powiodło, ale nie wskazuje on `<manifest-digest>` jako artefaktu, dla którego go złożono)"
+  },
+  "64e395751be3bcd2": {
+    "at": "2026-11-17T14:28:10.966Z",
+    "job": "session-0016-20261117142810",
+    "srcHash": "64e395751be3bcd2",
+    "status": "machine",
+    "text": "**Sekret odczytywany między wdrożeniami.** Udostępniana wartość, która odczytuje sekret (funkcja `list*`, `listOutputsWithSecureValues` albo wartość parametru `securestring` lub `secureObject`), zostałaby zapisana w historii wdrożeń producenta. Sekret należy przechowywać w Key Vault i dołączyć `core/referenced-secret` na obu końcach. Zobacz [A secret is read across deployments (Sekret jest odczytywany między wdrożeniami)](../errors/fatal-halts.md#a-secret-is-read-across-deployments)."
   },
   "64f18b5971e46ec3": {
     "at": "2026-10-29T21:34:59.076Z",
@@ -77472,6 +77563,13 @@
     "srcHash": "69111e968482ab1c",
     "status": "machine",
     "text": "Encję Release odczytuje w **`input.compilation_context`**: `release_name` i `environment`. To właśnie pozwala jednej polityce decydować inaczej dla każdego środowiska."
+  },
+  "6915004a301cfa07": {
+    "at": "2026-11-17T14:28:10.966Z",
+    "job": "session-0016-20261117142810",
+    "srcHash": "6915004a301cfa07",
+    "status": "machine",
+    "text": "**Najpierw należy wdrożyć każdego producenta, z `-n` ustawionym na zapisaną nazwę,** a potem jego konsumentów, których własne nazwy można wybrać dowolnie, ponieważ nic ich nie czyta:"
   },
   "6915da756415cd33": {
     "at": "2026-10-22T23:34:48.466793+00:00",
@@ -82977,6 +83075,13 @@
     "status": "machine",
     "text": "`ImportResult`"
   },
+  "703a30ee0bf4e937": {
+    "at": "2026-11-17T14:28:10.966Z",
+    "job": "session-0016-20261117142810",
+    "srcHash": "703a30ee0bf4e937",
+    "status": "machine",
+    "text": "Tylko szablon producenta zapisuje nazwę, pod którą musi zostać wdrożony, w swoich `metadata`:"
+  },
   "703bdfaa682b8112": {
     "at": "2026-10-22T21:42:39.864359+00:00",
     "job": "msgbatch_01PqbJsVmEBt5689iaQGF8jy",
@@ -83602,6 +83707,13 @@
     "srcHash": "712bd726d8c030e7",
     "status": "machine",
     "text": "Nazwa, której stos tej encji Release nie rozwiązuje, zostaje odrzucona, a informacja o tym, skąd odczytywane są encje lokalne, wskazuje wpis tej encji Release w `workspace.releases`, ponieważ to właśnie ten wpis odczytało wyszukiwanie. `--release` wybiera stos, w którym wyszukiwana jest nazwa, więc dotyczy wyłącznie samej nazwy: ścieżka pliku i odwołanie do rejestru są odczytywane takie, jakie są, i odrzucają tę flagę. `--release` wskazujące nieistniejący plik lub katalog zostaje odrzucone, zanim cokolwiek zostanie wyszukane."
+  },
+  "712cdc607bf1d74c": {
+    "at": "2026-11-17T14:28:10.966Z",
+    "job": "session-0016-20261117142810",
+    "srcHash": "712cdc607bf1d74c",
+    "status": "machine",
+    "text": "W obrębie encji Release własna wartość komponentu ma pierwszeństwo przed wartością granicy, a wartość zapisana przez encję Release ma pierwszeństwo przed wartością zapisaną przez encję Aggregate; zobacz [Znane adnotacje](well-known-annotations.md). Ponieważ kompilator nie sprawdza umiejscowienia, adnotacje muszą odpowiadać miejscu, w którym operator wdraża producenta."
   },
   "713166971d730f81": {
     "at": "2026-10-22T08:46:18.120972+00:00",
@@ -86480,6 +86592,13 @@
     "status": "machine",
     "text": "**Zgłaszany jest tu jeszcze jeden przypadek i nie jest to błąd pisowni.** Treść własnego pliku pakietu w encji ArtifactLibrary nie może sama być wyrażeniem `$import:` innego pakietu: jedno miejsce na plik nie może rozwinąć się w wiele plików, więc zagnieżdżony import jest odrzucany, a nie rozwiązywany w coś, czego autor nie napisał. Zamiast tego należy złożyć pakiety w miejscu, w którym są używane."
   },
+  "751d22296612a235": {
+    "at": "2026-11-17T14:28:10.966Z",
+    "job": "session-0016-20261117142810",
+    "srcHash": "751d22296612a235",
+    "status": "machine",
+    "text": "Złożony szablon jest szablonem grupy zasobów, a provider nie zapisuje pliku parametrów: jego `parameters` to dokładnie te, które zadeklarowali współtwórcy, podawane przy wdrażaniu szablonu. Sekret czasu wdrożenia to parametr `securestring` najwyższego poziomu, podawany przez `--parameters` lub plik parametrów napisany samodzielnie, a tam też trafia statyczne odwołanie do Key Vault."
+  },
   "75239700e2644177": {
     "at": "2026-11-14T09:58:36.040Z",
     "job": "session-0006-20261114095836",
@@ -87803,6 +87922,13 @@
     "srcHash": "76be4d63e71edfa1",
     "status": "machine",
     "text": "**Proces sam terminuje TLS.** Należy ustawić `mcp.tls.cert_file` na łańcuch certyfikatów PEM, a `mcp.tls.key_file` na jego klucz prywatny, a listener będzie udostępniał HTTPS bezpośrednio pod podanym adresem. Oba pliki są odczytywane przy starcie procesu, więc wymieniony certyfikat zostaje wczytany po ponownym uruchomieniu procesu. Ustawienie jednego bez drugiego jest odrzucane przy starcie, zamiast przejścia na tryb zastępczy: certyfikatu bez klucza nie można przedstawić, klucz bez certyfikatu niczego nie identyfikuje, a literówka w jednej ścieżce nie jest powodem, by zacząć udostępniać nieszyfrowany ruch."
+  },
+  "76bfcfec38e003f4": {
+    "at": "2026-11-17T14:28:10.966Z",
+    "job": "session-0016-20261117142810",
+    "srcHash": "76bfcfec38e003f4",
+    "status": "machine",
+    "text": "**Historia wdrożeń jest ograniczona do 800 wpisów na zakres.** Powyżej 700 Azure usuwa najstarsze do 600. Wpis producenta usunięty w ten sposób powoduje niepowodzenie wdrożenia konsumenta. Ponowne wdrożenie producenta pod zapisaną nazwą przesuwa jego wpis na najnowsze miejsce, więc gdy zakres jest mocno obciążony, należy ponownie wdrożyć producenta przed jego konsumentami."
   },
   "76c3635079fd6da5": {
     "at": "2026-10-23T00:18:01.108465+00:00",
@@ -96931,6 +97057,13 @@
     "srcHash": "83442317c456cb11",
     "status": "machine",
     "text": "`LinkPatch`"
+  },
+  "83466b921c63ae67": {
+    "at": "2026-11-17T14:28:10.966Z",
+    "job": "session-0016-20261117142810",
+    "srcHash": "83466b921c63ae67",
+    "status": "machine",
+    "text": "**Udostępniana wartość, która wplata wywołanie w tekst literalny.** Udostępnianą wartość należy zapisać jako jedno wyrażenie, `[format('postgres://{0}:5432', reference('Db').outputs.fqdn.value)]`. Zobacz [A provided value splices a call into literal text across deployments (Udostępniana wartość wplata wywołanie w tekst literalny między wdrożeniami)](../errors/fatal-halts.md#a-provided-value-splices-a-call-into-literal-text-across-deployments)."
   },
   "83480954ecc2c904": {
     "at": "2026-10-22T12:39:32.286242+00:00",
@@ -111501,6 +111634,13 @@
     "status": "machine",
     "text": "Interpolacja parametrów w encji Aggregate również zgłasza ten sam wiersz pod kodem tego warunku. Wpis `provides:` zgłasza błąd szablonu w ramach „A `provides:` template could not be evaluated (Nie można było ewaluować szablonu)”, więc tam nagłówek zawiera kod tamtego warunku, a powyższy wiersz jest podawaną przez niego przyczyną, łącznie ze ścieżką."
   },
+  "973f775fa521ecb8": {
+    "at": "2026-11-17T14:28:10.966Z",
+    "job": "session-0016-20261117142810",
+    "srcHash": "973f775fa521ecb8",
+    "status": "machine",
+    "text": "Łączenie między wdrożeniami"
+  },
   "9742f86f0518fbeb": {
     "at": "2026-10-23T00:02:44.489841+00:00",
     "job": "msgbatch_017Co8FT9U2dpLww3D8gVXkh",
@@ -112812,6 +112952,13 @@
     "srcHash": "990429e30c5c3ed7",
     "status": "machine",
     "text": "Zatrzymanie jest zgłaszane dla adnotacji w postaci, w jakiej ją zapisano, zanim zostanie rozwinięta w dołączenie encji Feature, tak jak w przypadku sąsiednich warunków, więc diagnostyka wskazuje dokument i miejsce, w którym zapisano wartość. Sprawdzenie odbywa się raz dla każdej zapisanej adnotacji: wartość zapisana na granicy lub w podsystemie jest odrzucana tam, jeden raz, niezależnie od tego, czy przejmuje ją jakiś komponent wewnątrz. Zgłaszana jest każda taka wartość w kompilacji, nie tylko pierwsza. Kompilacja zgłasza adnotację po stronie encji Release ze znacznikiem `OPS_ERROR`, a adnotację po stronie encji Aggregate ze znacznikiem `DEVELOPER_ERROR`, zgodnie z dokumentem, który ją zapisał. Warunek to `a scalar annotation value does not route to exactly one path of its binding` i właśnie to [`aggrega explain`](../cli/aggrega-explain.md) wypisuje dla jego kodu."
+  },
+  "9905e110167c39ef": {
+    "at": "2026-11-17T14:28:10.966Z",
+    "job": "session-0016-20261117142810",
+    "srcHash": "9905e110167c39ef",
+    "status": "machine",
+    "text": "Własna subskrypcja konsumenta"
   },
   "990a270af7804a26": {
     "at": "2026-11-13T18:50:20.840Z",
@@ -123238,6 +123385,13 @@
     "status": "machine",
     "text": "**Zapisany podpis, którego kompilacja nie akceptuje.** Gdy wiersz zapisuje podpis, którego zbuforowany pakiet podpisu usunięto lub zmieniono po pobraniu, które go zbuforowało — albo `signature` skopiowany z innego wiersza, którego pakiet jest nienaruszony, ale został utworzony dla innego artefaktu — kompilacja odrzuca wiersz niezależnie od wymagania podpisywania ([A cached signature bundle does not match the digest recorded for it (Zbuforowany pakiet podpisu nie odpowiada zapisanemu dla niego skrótowi)](../errors/fatal-halts.md#a-cached-signature-bundle-does-not-match-the-digest-recorded-for-it), [A recorded signature was made for a different artifact (Zapisany podpis utworzono dla innego artefaktu)](../errors/fatal-halts.md#a-recorded-signature-was-made-for-a-different-artifact)). Dlatego ponowne pobranie ponownie pyta rejestr tej zależności o jej podpis, niezależnie od wymagania, przez tę samą weryfikację, jaką przechodzi ściągana zależność: to, co ona zweryfikuje, zastępuje podpis wiersza, a wskazany przez nią pakiet jest ponownie buforowany, przy czym zbuforowana kopia, która nie odpowiada już swojemu skrótowi, zostaje nadpisana — tak że wiersz i pamięć podręczna zawierają to, co pozostawiło pobranie, które ściągnęło zależność. Podpis nieakceptowany przez konfigurację zaufania zatrzymuje ponowne pobranie tak, jak zatrzymuje pobranie, które ściągnęło zależność, i tak samo działa rejestr niedołączający podpisu tam, gdzie podpis jest wymagany. Gdy weryfikacja niczego nie zapisuje — `skip_signature_verification` tam, gdzie ma zastosowanie, co o nic nie pyta, rejestr niedołączający podpisu tam, gdzie nie jest on wymagany, lub rejestr `advisory`, w którym nic się nie weryfikuje — podpis wiersza zostaje wyczyszczony, co kompilacja przyjmuje przy tych samych ustawieniach."
   },
+  "a696a165d8f4ca23": {
+    "at": "2026-11-17T14:28:10.966Z",
+    "job": "session-0016-20261117142810",
+    "srcHash": "a696a165d8f4ca23",
+    "status": "machine",
+    "text": "**Nazwa wdrożenia zachowuje swoją lokalizację.** W zakresie, w którym polecenie wdrożenia przyjmuje lokalizację, nazwa użyta ponownie z inną lokalizacją jest odrzucana przez Azure."
+  },
   "a69e1e25b3803f27": {
     "at": "2026-10-22T09:56:04.106489+00:00",
     "job": "msgbatch_01B3jiAm926wn5S8SwmarTsj",
@@ -129516,6 +129670,13 @@
     "status": "machine",
     "text": "**Nie gwarantuje, że renderowany wynik jest wolny od materiału.** To, czy artefakt zawiera materiał, zależy od tego, które wypełnienie autor dołączył i co zapisał w jego `values` — zob. [architecture/08-credential-model.md](../../architecture/08-credential-model.md) „What the compiler does and does not guarantee”. Wartość zadeklarowana jako wrażliwa, którą autor podał bezpośrednio, jest renderowana dokładnie tak samo jak niezadeklarowana, wszędzie tam, gdzie budowanie w ogóle ją renderuje."
   },
+  "af1e09d7e222d27d": {
+    "at": "2026-11-17T14:28:10.966Z",
+    "job": "session-0016-20261117142810",
+    "srcHash": "af1e09d7e222d27d",
+    "status": "machine",
+    "text": "**Producent wdrażany w zakresie subskrypcji lub grupy zarządzania.** Producenta należy umieścić w granicy wdrażanej w zakresie grupy zasobów."
+  },
   "af1e65fe088cd179": {
     "at": "2026-10-23T00:02:44.489841+00:00",
     "job": "msgbatch_017Co8FT9U2dpLww3D8gVXkh",
@@ -133788,6 +133949,13 @@
     "srcHash": "b459c3c5ef51cb7a",
     "status": "machine",
     "text": "Czy wpis jest katalogiem. Gość, który ustala w listingu katalog główny chartu lub pojedynczy plik źródłowy, odczytuje tę wartość, aby odróżnić katalogi od plików bez dotykania systemu plików."
+  },
+  "b459dcc2d22368d6": {
+    "at": "2026-11-17T14:28:10.966Z",
+    "job": "session-0016-20261117142810",
+    "srcHash": "b459dcc2d22368d6",
+    "status": "machine",
+    "text": "**Wartość odczytywana w zakresie subskrypcji lub grupy zarządzania od producenta, którego granica nie wskazuje grupy zasobów, albo w zakresie grupy zarządzania nie wskazuje subskrypcji.** Granicę producenta należy opatrzyć adnotacją `aggrega.ai/azure-resource-group` oraz `aggrega.ai/azure-subscription` tam, gdzie odczyt następuje w zakresie grupy zarządzania."
   },
   "b45a7372501dfa54": {
     "at": "2026-10-22T06:52:21.462Z",
@@ -141390,6 +141558,13 @@
     "status": "machine",
     "text": "**Gdzie występuje.** Pakiet dokumentacji jest pobierany do pamięci podręcznej współdzielonej przez wszystkie projekty na maszynie, ze skonfigurowanego rejestru przestrzeni roboczej, w zarezerwowanej przestrzeni nazw `docs`: przez serwer dla asystentów jeden raz, przy starcie i zanim na cokolwiek odpowie, oraz przez `aggrega explain` i objaśnienie kodu w edytorze przy pierwszej potrzebie — w każdym przypadku tylko wtedy, gdy maszyna nie ma kopii dopuszczanej przez sprawdzenie podpisu przestrzeni roboczej. Jest to sprawdzenie, które każde pobranie wykonuje na tym, co otrzymało."
   },
+  "beb4c4371a7d6c30": {
+    "at": "2026-11-17T14:28:10.966Z",
+    "job": "session-0016-20261117142810",
+    "srcHash": "beb4c4371a7d6c30",
+    "status": "machine",
+    "text": "**Producent wdrożony jako stos wdrożeń ARM jest nieosiągalny.** Stos sam nadaje nazwy swoim wdrożeniom, więc żadna nazwa zapisana przez szablon nie jest osiągalna; producenta należy wdrażać poleceniem `az deployment group create`. Konsument może być wdrażany w obu trybach."
+  },
   "beb5728e75def163": {
     "at": "2026-10-22T22:51:15.481474+00:00",
     "job": "msgbatch_01RMZgtQpp1YGjgFqybBRdBA",
@@ -141685,6 +141860,13 @@
     "srcHash": "bf1e7c825efccc9c",
     "status": "machine",
     "text": "Gdy FeatureRecipe implementuje Feature poświadczeń (oznaczoną etykietą `feature.aggrega.ai/kind: secret`), stosuje zasadę dwuczęściowego Plugin: `pipeline` łączy w łańcuch plugin Fetcher (generujący CRD specyficzny dla danego sejfu), a po nim plugin Injector (montujący sekret w kontenerze docelowym). Pełny przykład można znaleźć w [examples/05-credential-features](../examples/05-credential-features.md)."
+  },
+  "bf1f7f71f8d39aff": {
+    "at": "2026-11-17T14:28:10.966Z",
+    "job": "session-0016-20261117142810",
+    "srcHash": "bf1f7f71f8d39aff",
+    "status": "machine",
+    "text": "Krawędź `uses` między dwiema granicami `arm`, które rozwiązują się do różnych katalogów wyjściowych, łączy dwa szablony, z których każdy jest wdrażany jako osobne wdrożenie. Krawędź jest połączona w obu szablonach. Granica w zakresie grupy zasobów może być producentem: szablonem komponentu, na który wskazuje krawędź `uses`."
   },
   "bf1fa943c3116a02": {
     "at": "2026-11-01T18:36:36.216Z",
@@ -143778,6 +143960,13 @@
     "status": "machine",
     "text": "Para powstaje z zapisów, które same w sobie są poprawne na każdej powierzchni: własny wpis komponentu i wpis dołączenia na jednym gnieździe i aliasie; lista wymieniająca jeden cel dwukrotnie (`models: [llama, llama]`); jeden alias zapisany na dwóch gniazdach (`models: { local: … }` obok `databases: { local: … }`); dwa dołączenia podłączające jeden alias; albo wpis Release tworzący połączenie na gnieździe, którego Aggregate nie powiązał, pod aliasem, którego Aggregate użył już na innym gnieździe. Dwa sąsiednie kształty nigdy nie prowadzą do tego zatrzymania: jeden klucz zapisany dwa razy w jednym bloku wpisów z kluczami powoduje, że dokumentu nie da się wczytać, a wpis Release na gnieździe i aliasie, które inny blok już utworzył, konfiguruje to połączenie — albo, wskazując inny cel, zatrzymuje kompilację jako zmiana celu — zamiast tworzyć drugie."
   },
+  "c1c23a28e5018754": {
+    "at": "2026-11-17T14:28:10.966Z",
+    "job": "session-0016-20261117142810",
+    "srcHash": "c1c23a28e5018754",
+    "status": "machine",
+    "text": "Grupa zasobów, do której wdrażany jest szablon producenta"
+  },
   "c1c2c1099fed68e2": {
     "at": "2026-10-23T00:18:02.017487+00:00",
     "job": "msgbatch_01WWSdKvrWpurqxfMfC3PmVX",
@@ -145802,6 +145991,13 @@
     "srcHash": "c461bfced37330d4",
     "status": "machine",
     "text": "pliki zapisane przez `aggrega import . --target compose`, bez zmian, oraz to, co polecenie wypisało: `stdout.txt` na standardowe wyjście, `import.txt` na standardowe wyjście błędów"
+  },
+  "c4664205ed93df19": {
+    "at": "2026-11-17T14:28:10.966Z",
+    "job": "session-0016-20261117142810",
+    "srcHash": "c4664205ed93df19",
+    "status": "machine",
+    "text": "`--action-on-unmanage detachAll` pozostawia zasób nietknięty, gdy późniejszy szablon przestaje go deklarować, a `--deny-settings-mode none` nie nakłada żadnego przypisania odmowy na to, czym zarządza stos; należy wybrać inne wartości, gdy stos ma wymuszać więcej. Provider niczego z tego nie rozstrzyga — polecenia należą do operatora."
   },
   "c47202a3e7083104": {
     "at": "2026-11-15T00:01:27.771Z",
@@ -152049,6 +152245,13 @@
     "status": "machine",
     "text": "Pozycja to ścieżka kluczy zapisana przez autora. W encji Aggregate: `.spec.components.<component>.inject.<mechanism>` dla własnego bloku komponentu, `.spec.components.<component>.uses.<socket>.<alias>.inject.<mechanism>` dla bloku w jednym z jego połączeń oraz `.spec.components.<component>.features.<attachment>…` dla bloku dołączenia, z `.subsystems.<name>` dla każdego podsystemu, w którym zadeklarowano komponent lub dołączenie. W encji Release blok w połączeniu wyznaczonym przez dołączenie, poprzez to dołączenie — `.spec.boundaries.<boundary>.features.<attachment>.uses.<socket>.<alias>.inject.<mechanism>` dla dołączenia na całą granicę, `.spec.boundaries.<boundary>.components.<component>.features.<attachment>…` dla dołączenia do komponentu, z `.boundaries.<name>` dla każdej zagnieżdżonej granicy i `.aggregates.<module>` dla każdego wpisu routingu, przez który wskazany jest komponent."
   },
+  "ccbd34f041a0eb3a": {
+    "at": "2026-11-17T14:28:10.966Z",
+    "job": "session-0016-20261117142810",
+    "srcHash": "ccbd34f041a0eb3a",
+    "status": "machine",
+    "text": "Identyfikator subskrypcji, do której wdrażany jest szablon producenta"
+  },
   "ccc2957015f4d3d1": {
     "at": "2026-11-05T16:02:28.456Z",
     "job": "session-0001-20261105160228",
@@ -153506,6 +153709,13 @@
     "srcHash": "ce9522eb8a7b4674",
     "status": "machine",
     "text": "**Każde polecenie odczytujące zależności encji Release wykonuje to sprawdzenie; różni się tylko to, co każde z nich robi z wynikiem.** `aggrega build` i `aggrega pull` zatrzymują się, ponieważ oba wytwarzają coś, czego będzie się dalej używać — wyrenderowane artefakty i plik lockfile. `aggrega validate` i `aggrega lint` zgłaszają ten wynik obok wszystkich innych znalezionych diagnostyk, a następnie kończą działanie z kodem niezerowym: ich zadaniem jest wskazanie wszystkiego, co jest nie tak z przestrzenią roboczą, więc pojedynczy błąd nie przerywa raportu. W edytorze wynik jest publikowany jako diagnostyka obok pozostałych, a wszystko inne, co dany dokument miał do zgłoszenia, pozostaje bez zmian. Należy zwrócić uwagę, gdzie się pojawia: edytor przypina diagnostyki encji Release dotyczące zależności do encji Aggregate, więc wynik ujawnia się przy otwartej encji Aggregate, a nie podczas edycji encji Manifest, w której zapisano mapowanie. Uruchomienie `aggrega validate` zgłasza go niezależnie od tego, który dokument jest otwarty."
+  },
+  "ce959817b4cbae66": {
+    "at": "2026-11-17T14:28:10.966Z",
+    "job": "session-0016-20261117142810",
+    "srcHash": "ce959817b4cbae66",
+    "status": "machine",
+    "text": "Nazwa wdrożenia"
   },
   "ce97a5a035346a19": {
     "at": "2026-10-22T23:05:22.318919+00:00",
@@ -158526,6 +158736,13 @@
     "srcHash": "d5020edd50066ccf",
     "status": "machine",
     "text": "**Jest to właściwość wyłącznie `index` i żadna polityka brakujących kluczy danej powierzchni jej nie zmienia.** Odczyt kropkowy nieustawionego klucza w otwartym filarze nadal nie renderuje niczego w szablonie wartości, jak opisuje to wyżej „Missing template key — asymmetric policy (Brakujący klucz szablonu — polityka asymetryczna)”, a szablon sprawdzający, czy autor podał taki klucz, pozostaje nienaruszony. Zatrzymanie następuje przy żądaniu od `index` klucza, którego mapa nie zawiera. `index` to sposób, w jaki szablon sięga po klucz o obliczanej nazwie — na przykład poświadczenie odczytywane pod nazwą zmiennej wybraną przez konsumującą encję Recipe — i bez zatrzymania taki odczyt wstawiłby do artefaktu tekst zastępczy silnika szablonów `<no value>`, a kompilacja zakończyłaby się sukcesem: serwer uruchomiony z tym tekstem jako kluczem. Każda inna odpowiedź `index` pochodzi od samego silnika szablonów: pozycja na liście lub w ciągu znaków, pozycja spoza zakresu, klucz, który mapa zawiera — również taki o wartości null, co wypisuje `<no value>`."
+  },
+  "d503ead5b10c67d6": {
+    "at": "2026-11-17T14:28:10.966Z",
+    "job": "session-0016-20261117142810",
+    "srcHash": "d503ead5b10c67d6",
+    "status": "machine",
+    "text": "Za co odpowiada operator"
   },
   "d5042d12098ba66d": {
     "at": "2026-10-22T23:44:16.479857+00:00",
@@ -164283,6 +164500,13 @@
     "srcHash": "dcbc67813a278532",
     "status": "machine",
     "text": "Należy wysłać w osobnej rozmowie żądanie, które strażnik wzorców odrzuca, następnie zwykłe pytanie w tej samej rozmowie, a potem odczytać rozmowę. Tura zakończona niepowodzeniem pozostawia swoją rozmowę w stanie sprzed tej tury, więc odrzucona wiadomość nie jest zachowywana, na następną turę w tej rozmowie pada odpowiedź, a rozmowa zawiera tylko tury, na które udzielono odpowiedzi:"
+  },
+  "dcbf0d146192a49d": {
+    "at": "2026-11-17T14:28:10.966Z",
+    "job": "session-0016-20261117142810",
+    "srcHash": "dcbf0d146192a49d",
+    "status": "machine",
+    "text": "Połączenia opierają się na wdrożeniach, które już istnieją w Azure, więc operator odpowiada za następujące kwestie:"
   },
   "dcc0581d670b780b": {
     "at": "2026-10-22T11:59:38.351715+00:00",
@@ -186946,6 +187170,13 @@
     "srcHash": "fa446b67eb6bacdf",
     "status": "machine",
     "text": "Import konfiguracji klienta MCP — trzy serwery używane przez asystenta programowania"
+  },
+  "fa47585be868cfa5": {
+    "at": "2026-11-17T14:28:10.966Z",
+    "job": "session-0016-20261117142810",
+    "srcHash": "fa47585be868cfa5",
+    "status": "machine",
+    "text": "Nazwa wywodzi się z nazwy encji Release i katalogu wyjściowego granicy, więc zmiana `directory:` granicy w encji Release zmienia tę nazwę, a konsument, zbudowany ponownie, czyta nową nazwę. Fragment, który pod tym kluczem metadanych zapisuje już inną wartość, przerywa budowanie."
   },
   "fa4a68af580d7008": {
     "at": "2026-10-22T22:51:17.853388+00:00",

@@ -15905,6 +15905,13 @@
     "status": "machine",
     "text": "一台持有其目录和制品本地副本的隔离网络机器，正是这种划分要确保能继续工作的情形：这样的工作区处于离线状态，而它所做的几乎所有事情仍然可以满足。"
   },
+  "154055b6b4503573": {
+    "at": "2026-11-17T14:28:10.966Z",
+    "job": "session-0016-20261117142810",
+    "srcHash": "154055b6b4503573",
+    "status": "machine",
+    "text": "缺省时"
+  },
   "1540d8e378132e18": {
     "at": "2026-10-22T05:14:14.914265+00:00",
     "job": "msgbatch_01SJr5F7Uh6g5vmdkzNw4vuV",
@@ -23642,6 +23649,13 @@
     "status": "machine",
     "text": "**标准库的承载情况。** `core/ai-tool/mcp` 带有 `http`。它将一个 Model Context Protocol 服务器挂接到智能体上，由 Manifest 决定该服务器如何实现：`helm/mcp` 运行一个通过 HTTP 提供该协议的镜像；`helm/mcp-stdio-bridge` 和 `compose/mcp-stdio-bridge` 运行一个只支持 stdio 的软件包，并在其前面放置一个固定版本的桥接器，通过 HTTP 对外提供服务；`helm/mcp-remote` 和 `compose/mcp-remote` 访问由他人运行的服务器，自身不运行任何内容。每种实现都发布相同的 `host`、`port`、`endpoint`、`protocol` 和 `credential_header`，因此消费者的连线不随实现方式而改变。桥接服务器的凭据是环境变量，保存在该工具的 `server_env` 槽位中，并在 Kubernetes 上以引用方式传递给桥接器；远程服务器的凭据由消费者保存在其自身到该工具的连接上，并在 `credential_header` 指定的请求头下出示，除非 Release 指定了其他请求头，否则为 `Authorization`。如果远程服务器从自身地址中读取密钥，消费者也在该连接上保存完整地址，放在一个 `endpoint` 槽位中：在 Kubernetes 上由对 Secret 的引用填充，在 Docker Compose 上由 Compose 变量引用填充，因此密钥不会出现在任何渲染文件中，而该工具的 `infra.endpoint` 保存不含密钥部分的地址；[examples/mcp-address-from-secret](../language-reference/examples/mcp-address-from-secret/README.md) 同时构建了这两者。`core/ai-agent/openai-agents-sdk`、`core/ai-agent/claude-agent-sdk`、`core/ai-agent/agent-framework`、`core/ai-agent/google-adk` 和 `core/ai-agent/mastra`，以及流程平台 `core/ai-agent/flowise` 和 `core/ai-agent/n8n`，都声明了这种形式的工具 socket `tools`，并以按连接别名命名的变量传递每个已连接工具的地址，以及以引用方式传递该连接的凭据，而写有 `inject:` 块的连接则接收该块所规定的内容，取代由工具发布的内容派生出的变量，其 `credential` 和 `endpoint` 槽位中保存的内容仍沿用别名的名称；自定义的消费者也以同样方式声明。这三个流程平台都会在部署时将 Aggregate 中编写的流程带入平台，两种目标上均是如此：Langflow 在每次启动时从其 flows 目录加载所携带的定义，Flowise 的 chatflow 由一个一次性步骤写入，该步骤以 Release 指定的所有者账户登录，n8n 的 workflow 则由平台启动前的一个 init 步骤导入。`core/ai-agent/langflow` 声明了相同形式的 `tools` socket（该 socket 不接受 `inject:` 块），但改为通过该流程传递每个连接，因为 Langflow 的 MCP Tools 组件只从 Langflow 自身的设置或流程中获取服务器地址，从不从变量中获取：其 Recipes 将工具地址写入服务器名称与连接别名相同的 MCP Tools 节点，以引用方式将连接的凭据作为该节点请求头所指定的变量传递——在 `Authorization` 下，变量中保存 `Bearer` 和凭据——并让已连接的工具和存储的主机通过 Langflow 针对私有地址的防护。这三个平台还都声明了一个选择 `datastore.aggrega.ai/engine in (vector, semantic-memory, search)` 的 `vector_store` socket，以同样方式传递每个已连接存储的地址——即其发布的 `endpoint`（对于 `core/datastore/pgvector`，是一个不含密码的连接 URI），或由其协议、主机和端口组合而成的地址——以及以引用方式传递连接的凭据；如果某个存储还发布了其数据库和用户（如 `core/datastore/pgvector`），这些部分也会分别传递给 Flowise 和 n8n，因为这两个平台的 PostgreSQL 向量节点都不接受连接字符串；Langflow 的 PGVector 组件接受单个字符串，因此它以 `AGGREGA_VECTOR_STORE_<ALIAS>_CONNECTION_STRING` 接收这样的存储，连接的凭据即其密码，在 Kubernetes 上以引用方式传递，在 Docker Compose 上按传递方式提供。Flowise chatflow 通过在 Flowise 的 Variables 页面上创建的同名 Runtime 变量读取传递的变量；n8n workflow 只有在 Aggregate 设置了平台的 `allow_env_access_in_nodes` 值时才能通过 `$env` 读取变量，因为其 Recipes 默认保留 n8n 对节点内访问环境变量的限制。"
   },
+  "1fbb883236ef4756": {
+    "at": "2026-11-17T14:28:10.966Z",
+    "job": "session-0016-20261117142810",
+    "srcHash": "1fbb883236ef4756",
+    "status": "machine",
+    "text": "**消费方模板通过资源 ID 读取生产方的部署。** 连接到消费方的值会变成 `reference(format('/subscriptions/{0}/resourceGroups/{1}/providers/Microsoft.Resources/deployments/{2}', <subscription>, <resource group>, '<name>'), '2025-04-01').outputs.<output>.value`，写在资源的 `properties`、输出的 `value` 或输出的 `copy` 循环的输入中，这些都是 ARM 对 `reference()` 求值的位置。编译器不会联系任何外部服务：该 ID 是它根据名称构造的字符串，ARM 在部署消费方时读取该部署。"
+  },
   "1fc3aa265dd980d1": {
     "at": "2026-11-14T10:22:53.079Z",
     "job": "session-0004-20261114102253",
@@ -24305,6 +24319,13 @@
     "srcHash": "20a32ab1e06f01a3",
     "status": "machine",
     "text": "**结构形态：根部用映射，载荷中用数组。** 根拓扑块——`components`、`features`、`aggregates`、`subsystems`、`boundaries`——是 YAML 映射，其由用户编写的键作为稳定的实例 ID。这些位置不允许使用数组；映射键是编译器用于交叉引用（`target: my-db`）、图节点构建和 Manifest 解析的标识。在不透明的载荷块（`values`、`infra`、`parameters`）内部，完全允许使用数组——开发者可以在 Component 的 `values` 中写 `tools_allowed: [\"sql\", \"web\"]` 或 `hostnames: [\"stripe.com\", \"twilio.com\"]`。Aggregate 模式把这些载荷块声明为 `additionalProperties: true`，因此它们对 Go 编译器不透明，完全由目录内嵌的 `schema:` 声明校验。这样就把框架的易变性（新的 AI API 形态、新的云原生载荷格式）放在可以独立演进的目录领域内，而 Go 编译器在结构根部只处理可寻址的键。"
+  },
+  "20a81bca5a5b730a": {
+    "at": "2026-11-17T14:28:10.966Z",
+    "job": "session-0016-20261117142810",
+    "srcHash": "20a81bca5a5b730a",
+    "status": "machine",
+    "text": "Recipe 把提供值作为一个完整的表达式或普通字面量发布。在同一个模板内，值周围的文本仍会组合成 `format()`，如 [编写 ARM 文本](#writing-arm-text) 中所述。"
   },
   "20a88f45a13e32fb": {
     "at": "2026-11-12T21:38:06.030Z",
@@ -28754,6 +28775,13 @@
     "srcHash": "26935db762215379",
     "status": "machine",
     "text": "*目前可通过 chart 渲染路径实现基于 Vault 的交付：`k8s-external-secret` 会渲染一个 External Secrets `ExternalSecret`。FeatureRecipe 的 `pipeline:` 数组将 Wasm 插件串联起来，其 `provides` 契约则发布它所生成的内容。*"
+  },
+  "269ac827bd5cf9f4": {
+    "at": "2026-11-17T14:28:10.966Z",
+    "job": "session-0016-20261117142810",
+    "srcHash": "269ac827bd5cf9f4",
+    "status": "machine",
+    "text": "**CanNotDelete 锁会阻止清理。** 在锁之下不会删除任何内容，一旦历史达到 800 条，后续部署就会失败，直到条目被移除。"
   },
   "269d6e8f272f12ac": {
     "at": "2026-10-22T01:28:14.340357+00:00",
@@ -37458,6 +37486,13 @@
     "srcHash": "32a793ec748c982b",
     "status": "machine",
     "text": "**保留命名空间。**`aggrega.ai/` 和 `app.kubernetes.io/` 命名空间保留给平台原生的来源信息，位于其中任一前缀下的被提升键会在加载时被拒绝，并给出一个指明该键及其所在字段的目录错误。判断依据是裸前缀：诸如 `component.aggrega.ai/hosting` 这样的键位于自己的命名空间中，而不在保留的根之下，因此可以被提升。"
+  },
+  "32a7ba8b64d1b125": {
+    "at": "2026-11-17T14:28:10.966Z",
+    "job": "session-0016-20261117142810",
+    "srcHash": "32a7ba8b64d1b125",
+    "status": "machine",
+    "text": "生产方边界上的两个注解决定其部署位置，它们被当作不透明字符串读取："
   },
   "32ac1450b7deff04": {
     "at": "2026-11-15T00:31:19.686Z",
@@ -46718,6 +46753,13 @@
     "srcHash": "3f6dc166f9945e01",
     "status": "machine",
     "text": "三种输入类型"
+  },
+  "3f6e6367ee0d581a": {
+    "at": "2026-11-17T14:28:10.966Z",
+    "job": "session-0016-20261117142810",
+    "srcHash": "3f6e6367ee0d581a",
+    "status": "machine",
+    "text": "**从另一个部署读取的值被写在 ARM 不求值的位置。** 即在资源的 `properties`、输出的 `value` 或输出的 `copy` 输入之外。参见 [A value read from another deployment is written where ARM does not evaluate it（从另一个部署读取的值被写在 ARM 不求值的位置）](../errors/fatal-halts.md#a-value-read-from-another-deployment-is-written-where-arm-does-not-evaluate-it)。"
   },
   "3f7180faaddfd3cb": {
     "at": "2026-10-22T01:39:34.791258+00:00",
@@ -58955,6 +58997,13 @@
     "status": "machine",
     "text": "PluginRetraction"
   },
+  "503379c38ad4725e": {
+    "at": "2026-11-17T14:28:10.966Z",
+    "job": "session-0016-20261117142810",
+    "srcHash": "503379c38ad4725e",
+    "status": "machine",
+    "text": "生产方的部署位置"
+  },
   "5036f0c48e8509a2": {
     "at": "2026-10-29T23:55:51.039Z",
     "job": "session-0034-20261029235551",
@@ -60484,6 +60533,13 @@
     "srcHash": "52315d70df8b99c6",
     "status": "machine",
     "text": "如果你已安装插件，你就已经连接到 Aggrega MCP 服务器。否则，按照你添加 MCP 服务器的方式，将自身连接到 Aggrega MCP 服务器（即命令 `aggrega mcp`），具体方法见 `https://aggrega.ai/docs/ai-assistants/mcp-server/` 中针对你的说明。如果需要重启或重新加载才能加载插件或服务器，请告诉我该怎么做。"
+  },
+  "523321d6e487de28": {
+    "at": "2026-11-17T14:28:10.966Z",
+    "job": "session-0016-20261117142810",
+    "srcHash": "523321d6e487de28",
+    "status": "machine",
+    "text": "消费方自己的资源组"
   },
   "523c4de5c0df6e64": {
     "at": "2026-10-22T05:14:14.914265+00:00",
@@ -67256,6 +67312,13 @@
     "status": "machine",
     "text": "**指定每个智能体运行的镜像**。团队的程序运行在你从项目构建的镜像中；这里两个智能体运行同一个镜像 `ghcr.io/example/support-brief:1.0.0`。"
   },
+  "5b34cfa3324e4d9a": {
+    "at": "2026-11-17T14:28:10.966Z",
+    "job": "session-0016-20261117142810",
+    "srcHash": "5b34cfa3324e4d9a",
+    "status": "machine",
+    "text": "`arm` 链接到部署在资源组范围的生产方：上面的资源 ID 就是部署到资源组的部署 ID。链接到边界部署在订阅或管理组范围的生产方时，构建会停止并指出该链接。消费方可以部署在订阅或管理组范围。其资源组内容所读取的值在 `_resourceGroup` 部署内部读取，在那里消费方自己的资源组就是该部署的资源组。其订阅内容所读取的值要求生产方的边界指明 `aggrega.ai/azure-resource-group`，因为订阅范围的模板没有自己的资源组；缺少它时，构建会停止并指出该注解。在管理组范围，`_subscription` 部署同样适用，而管理组内容本身所读取的值要求生产方的边界还要指明 `aggrega.ai/azure-subscription`，因为管理组范围的模板没有自己的订阅。"
+  },
   "5b36702024804bad": {
     "at": "2026-11-12T20:26:44.164Z",
     "job": "session-0001-20261112202644",
@@ -68570,6 +68633,13 @@
     "srcHash": "5d25d8cf90203597",
     "status": "machine",
     "text": "报告的路径如何书写"
+  },
+  "5d262018e21383fc": {
+    "at": "2026-11-17T14:28:10.966Z",
+    "job": "session-0016-20261117142810",
+    "srcHash": "5d262018e21383fc",
+    "status": "machine",
+    "text": "**生产方模板把消费方读取的内容作为输出公开。** 对于消费方组件读取的每个提供值，生产方模板都会新增一个以组件和键命名的字符串输出，与任何 [provider 写入的输出](#top-level-sections-in-the-assembled-template) 相同。属于表达式的提供值以 `[string(<expression>)]` 的形式传递，因此每个值都以文本形式到达消费方；普通字面量则按原样传递。同一个值的多个消费方共用一个输出。"
   },
   "5d2a14f0822bc88d": {
     "at": "2026-10-22T01:28:14.340357+00:00",
@@ -70016,6 +70086,13 @@
     "srcHash": "5f0e49f976ed2605",
     "status": "machine",
     "text": "将对象存储、Store Gateway 和 Query 类型映射到各自的 synth helm Recipes，并将模块附加的凭据 Feature 映射到一个从模块凭据参数生成 Secret 的实现。"
+  },
+  "5f0ef7945a4abcb0": {
+    "at": "2026-11-17T14:28:10.966Z",
+    "job": "session-0016-20261117142810",
+    "srcHash": "5f0ef7945a4abcb0",
+    "status": "machine",
+    "text": "构建停止的情形"
   },
   "5f0f0813d59d0b85": {
     "at": "2026-10-22T04:49:50.527667+00:00",
@@ -73114,6 +73191,13 @@
     "status": "machine",
     "text": "没有网络套接字；"
   },
+  "630593e492503235": {
+    "at": "2026-11-17T14:28:10.966Z",
+    "job": "session-0016-20261117142810",
+    "srcHash": "630593e492503235",
+    "status": "machine",
+    "text": "在资源组范围部署"
+  },
   "630b6c5346ba6035": {
     "at": "2026-10-22T01:50:22.319444+00:00",
     "job": "msgbatch_01VwQyd4vfmNKqBKVTg2vP5W",
@@ -74480,6 +74564,13 @@
     "srcHash": "64db664b5c3d453e",
     "status": "machine",
     "text": "signing: signing: signature bundle does not verify: its cryptographic check holds, but it does not name `<manifest-digest>` as the artifact it was made for（signing：signing：签名包未通过验证：其密码学检查成立，但它未将该清单摘要指明为其签名所针对的制品）"
+  },
+  "64e395751be3bcd2": {
+    "at": "2026-11-17T14:28:10.966Z",
+    "job": "session-0016-20261117142810",
+    "srcHash": "64e395751be3bcd2",
+    "status": "machine",
+    "text": "**跨部署读取的机密。** 读取机密的提供值（`list*` 函数、`listOutputsWithSecureValues`，或 `securestring` 或 `secureObject` 参数的值）会被记录在生产方的部署历史中。请将机密存放在 Key Vault 中，并在两端附加 `core/referenced-secret`。参见 [A secret is read across deployments（机密跨部署被读取）](../errors/fatal-halts.md#a-secret-is-read-across-deployments)。"
   },
   "64f18b5971e46ec3": {
     "at": "2026-10-29T21:34:59.076Z",
@@ -77477,6 +77568,13 @@
     "srcHash": "69111e968482ab1c",
     "status": "machine",
     "text": "它在 **`input.compilation_context`** 处读取 Release：`release_name` 和 `environment`。正是这一点让同一个策略可以针对不同环境做出不同决定。"
+  },
+  "6915004a301cfa07": {
+    "at": "2026-11-17T14:28:10.966Z",
+    "job": "session-0016-20261117142810",
+    "srcHash": "6915004a301cfa07",
+    "status": "machine",
+    "text": "**先部署每个生产方，将 `-n` 设置为所记录的名称，** 再部署其消费方；消费方自己的名称可以自行选择，因为没有任何东西会读取它们："
   },
   "6915da756415cd33": {
     "at": "2026-10-22T04:49:50.527667+00:00",
@@ -82986,6 +83084,13 @@
     "status": "machine",
     "text": "`ImportResult`"
   },
+  "703a30ee0bf4e937": {
+    "at": "2026-11-17T14:28:10.966Z",
+    "job": "session-0016-20261117142810",
+    "srcHash": "703a30ee0bf4e937",
+    "status": "machine",
+    "text": "只有生产方模板会在其 `metadata` 中记录它必须使用的部署名称："
+  },
   "703bdfaa682b8112": {
     "at": "2026-10-22T21:42:39.864359+00:00",
     "job": "msgbatch_01PqbJsVmEBt5689iaQGF8jy",
@@ -83611,6 +83716,13 @@
     "srcHash": "712bd726d8c030e7",
     "status": "machine",
     "text": "该 Release 的栈无法解析的名称会被拒绝，关于本地实体读取位置的说明会指出该 Release 在 `workspace.releases` 下的条目，因为查找读取的正是该条目。`--release` 选择查找名称所用的栈，因此它只适用于单独的名称：文件路径和注册表引用按原样读取，并会拒绝该标志。指向不存在的文件或指向目录的 `--release` 会在任何查找之前被拒绝。"
+  },
+  "712cdc607bf1d74c": {
+    "at": "2026-11-17T14:28:10.966Z",
+    "job": "session-0016-20261117142810",
+    "srcHash": "712cdc607bf1d74c",
+    "status": "machine",
+    "text": "在 Release 内，组件自己的值优先于边界的值，Release 写入的值优先于 Aggregate 写入的值；参见 [已知注解](well-known-annotations.md)。由于编译器不查找放置位置，这些注解必须与运维人员部署生产方的位置一致。"
   },
   "713166971d730f81": {
     "at": "2026-10-22T01:50:22.319444+00:00",
@@ -86489,6 +86601,13 @@
     "status": "machine",
     "text": "**还有一种情形也在此报告，而它并非拼写错误。** ArtifactLibrary bundle 自身的文件主体不能本身是对另一个 bundle 的 `$import:`：一个文件槽位无法展开为多个文件，因此嵌套导入会被拒绝，而不会被解析成作者未曾书写的内容。请改为在使用这些 bundle 的位置组合它们。"
   },
+  "751d22296612a235": {
+    "at": "2026-11-17T14:28:10.966Z",
+    "job": "session-0016-20261117142810",
+    "srcHash": "751d22296612a235",
+    "status": "machine",
+    "text": "组装后的模板是资源组模板，provider 不会写入参数文件：其 `parameters` 恰好就是各贡献方声明的那些参数，在部署模板时提供。部署时的机密是顶层的 `securestring` 参数，通过 `--parameters` 或你自己编写的参数文件提供，静态 Key Vault 引用也放在这里。"
+  },
   "75239700e2644177": {
     "at": "2026-11-14T09:58:36.040Z",
     "job": "session-0006-20261114095836",
@@ -87812,6 +87931,13 @@
     "srcHash": "76be4d63e71edfa1",
     "status": "machine",
     "text": "**进程自行终止 TLS。** 将 `mcp.tls.cert_file` 设为 PEM 证书链，将 `mcp.tls.key_file` 设为其私钥，监听器即在你给出的任何地址上直接提供 HTTPS 服务。两个文件都在进程启动时读取，因此替换证书后需重启进程才能生效。只设置其中一个会在启动时被拒绝，而不是回退：没有私钥的证书无法出示，没有证书的私钥毫无指向，而某个路径中的拼写错误不应成为开始提供未加密流量的理由。"
+  },
+  "76bfcfec38e003f4": {
+    "at": "2026-11-17T14:28:10.966Z",
+    "job": "session-0016-20261117142810",
+    "srcHash": "76bfcfec38e003f4",
+    "status": "machine",
+    "text": "**部署历史每个范围限制为 800 条。** 超过 700 条时，Azure 会删除最旧的条目，直到剩下 600 条。生产方的条目一旦被清理，消费方的部署就会失败。以所记录的名称重新部署生产方会把它的条目移到最新位置，因此当范围较繁忙时，请在重新部署消费方之前先重新部署生产方。"
   },
   "76c3635079fd6da5": {
     "at": "2026-10-22T08:23:20.000561+00:00",
@@ -96942,6 +97068,13 @@
     "srcHash": "83442317c456cb11",
     "status": "machine",
     "text": "`LinkPatch`"
+  },
+  "83466b921c63ae67": {
+    "at": "2026-11-17T14:28:10.966Z",
+    "job": "session-0016-20261117142810",
+    "srcHash": "83466b921c63ae67",
+    "status": "machine",
+    "text": "**把调用拼接进字面文本的提供值。** 请把提供值写成一个表达式，`[format('postgres://{0}:5432', reference('Db').outputs.fqdn.value)]`。参见 [A provided value splices a call into literal text across deployments（提供值跨部署把调用拼接进字面文本）](../errors/fatal-halts.md#a-provided-value-splices-a-call-into-literal-text-across-deployments)。"
   },
   "83480954ecc2c904": {
     "at": "2026-10-22T02:54:42.494843+00:00",
@@ -111526,6 +111659,13 @@
     "status": "machine",
     "text": "Aggregate 中的参数插值同样以本条件的代码报告同一行。`provides:` 条目在“A `provides:` template could not be evaluated（该模板无法求值）”下报告模板失败，因此在那里消息头带有该条件的代码，而上面这一行是它所带的原因，其中包含路径。"
   },
+  "973f775fa521ecb8": {
+    "at": "2026-11-17T14:28:10.966Z",
+    "job": "session-0016-20261117142810",
+    "srcHash": "973f775fa521ecb8",
+    "status": "machine",
+    "text": "跨部署链接"
+  },
   "9742f86f0518fbeb": {
     "at": "2026-10-22T08:15:42.630087+00:00",
     "job": "msgbatch_01LUbCfEJyTdJEKDU86sBZQP",
@@ -112837,6 +112977,13 @@
     "srcHash": "990429e30c5c3ed7",
     "status": "machine",
     "text": "与相邻的几个条件一样，该中止针对按原样编写的注解引发，发生在它被展开为 Feature 附件之前，因此诊断信息会指明该值所在的文档和编写位置。每个你编写的注解只检查一次：写在边界或子系统上的值会在那里被拒绝一次，无论其中的组件是否采用它。构建中每一个这样的值都会被报告，而不仅是第一个。构建会依据编写注解的文档，将 Release 一侧的注解报告在 `OPS_ERROR` 标签下，将 Aggregate 一侧的注解报告在 `DEVELOPER_ERROR` 标签下。该条件为 `a scalar annotation value does not route to exactly one path of its binding`，这正是 [`aggrega explain`](../cli/aggrega-explain.md) 针对其代码打印的内容。"
+  },
+  "9905e110167c39ef": {
+    "at": "2026-11-17T14:28:10.966Z",
+    "job": "session-0016-20261117142810",
+    "srcHash": "9905e110167c39ef",
+    "status": "machine",
+    "text": "消费方自己的订阅"
   },
   "990a270af7804a26": {
     "at": "2026-11-13T18:50:20.840Z",
@@ -123270,6 +123417,13 @@
     "status": "machine",
     "text": "**构建不接受的已记录签名。**当该行记录的签名所对应的缓存签名包在缓存它的拉取之后被删除或修改——或者是从另一行复制而来的 `signature`，其签名包完好但是为另一个制品生成的——无论签名要求如何，构建都会拒绝该行（[A cached signature bundle does not match the digest recorded for it（缓存的签名包与为其记录的摘要不匹配）](../errors/fatal-halts.md#a-cached-signature-bundle-does-not-match-the-digest-recorded-for-it)、[A recorded signature was made for a different artifact（记录的签名是为另一个制品生成的）](../errors/fatal-halts.md#a-recorded-signature-was-made-for-a-different-artifact)）。因此，无论要求如何，重新拉取都会再次向该依赖的注册表查询其签名，经过与所获取依赖相同的验证：验证结果替换该行的签名，其指向的签名包重新缓存，不再与其摘要匹配的缓存副本被改写——这样该行和缓存保存的就是获取该依赖的拉取所留下的内容。信任配置不接受的签名会使重新拉取像获取该依赖的拉取一样中止，在需要签名时注册表未附加签名也是如此。当验证未记录任何签名时——适用情况下的 `skip_signature_verification`（它不做任何查询）、在不需要签名时未附加签名的注册表，或没有任何可验证内容的 `advisory` 注册表——该行的签名会被清除，构建在相同设置下会接纳这一结果。"
   },
+  "a696a165d8f4ca23": {
+    "at": "2026-11-17T14:28:10.966Z",
+    "job": "session-0016-20261117142810",
+    "srcHash": "a696a165d8f4ca23",
+    "status": "machine",
+    "text": "**部署名称保持其位置。** 在部署命令需要指定位置的范围内，Azure 会拒绝以另一个位置重用的名称。"
+  },
   "a69e1e25b3803f27": {
     "at": "2026-10-22T02:18:58.122887+00:00",
     "job": "msgbatch_01Qnt7WmfHvXi9HMixh1GQvp",
@@ -129567,6 +129721,13 @@
     "status": "machine",
     "text": "**它不保证渲染输出中不含材料。**制品是否携带材料，取决于作者附加了哪个填充以及作者在其 `values` 中写了什么——参见 [architecture/08-credential-model.md](../../architecture/08-credential-model.md) “What the compiler does and does not guarantee”。作者内联提供的、已声明为敏感的值，只要构建会渲染它，其渲染方式就与未声明的值完全相同。"
   },
+  "af1e09d7e222d27d": {
+    "at": "2026-11-17T14:28:10.966Z",
+    "job": "session-0016-20261117142810",
+    "srcHash": "af1e09d7e222d27d",
+    "status": "machine",
+    "text": "**部署在订阅或管理组范围的生产方。** 请把生产方放在部署于资源组范围的边界中。"
+  },
   "af1e65fe088cd179": {
     "at": "2026-10-22T08:15:42.630087+00:00",
     "job": "msgbatch_01LUbCfEJyTdJEKDU86sBZQP",
@@ -133839,6 +134000,13 @@
     "srcHash": "b459c3c5ef51cb7a",
     "status": "machine",
     "text": "该条目是否为目录。在列表中解析 chart 根或单个源文件的 guest 读取此字段，以在不接触文件系统的情况下区分目录和文件。"
+  },
+  "b459dcc2d22368d6": {
+    "at": "2026-11-17T14:28:10.966Z",
+    "job": "session-0016-20261117142810",
+    "srcHash": "b459dcc2d22368d6",
+    "status": "machine",
+    "text": "**在订阅或管理组范围，从边界未指明资源组的生产方读取值，或在管理组范围，从边界未指明订阅的生产方读取值。** 请在生产方的边界上添加注解 `aggrega.ai/azure-resource-group`；当读取发生在管理组范围时，还要添加 `aggrega.ai/azure-subscription`。"
   },
   "b45a7372501dfa54": {
     "at": "2026-10-22T01:33:54.654983+00:00",
@@ -141441,6 +141609,13 @@
     "status": "machine",
     "text": "**出现位置。** 文档包从工作区所配置的注册表中保留的 `docs` 命名空间下获取，存入机器上所有项目共享的缓存：面向助手的服务器在启动时、回答任何请求之前获取一次；`aggrega explain` 和编辑器对代码的解释则在首次需要时获取——每种情况都仅在机器上没有工作区签名检查所接受的副本时才获取。这是每次获取都会对返回内容执行的检查。"
   },
+  "beb4c4371a7d6c30": {
+    "at": "2026-11-17T14:28:10.966Z",
+    "job": "session-0016-20261117142810",
+    "srcHash": "beb4c4371a7d6c30",
+    "status": "machine",
+    "text": "**作为 ARM 部署堆栈部署的生产方无法访问。** 堆栈会自行命名其部署，因此模板所记录的任何名称都无法访问；请使用 `az deployment group create` 部署生产方。消费方可以用任一方式部署。"
+  },
   "beb5728e75def163": {
     "at": "2026-10-22T03:18:41.939034+00:00",
     "job": "msgbatch_01WVZNy6gZ7XHn9XMQG1UFc9",
@@ -141736,6 +141911,13 @@
     "srcHash": "bf1e7c825efccc9c",
     "status": "machine",
     "text": "当一个 FeatureRecipe 实现凭据类 Feature（即带有 `feature.aggrega.ai/kind: secret` 标签的 Feature）时，它遵循 Two-Part Plugin Principle（两段式插件原则）：`pipeline` 先串联一个 Fetcher 插件（生成特定于 vault 的 CRD），再串联一个 Injector 插件（将 secret 挂载到目标容器）。完整示例参见 [examples/05-credential-features](../examples/05-credential-features.md)。"
+  },
+  "bf1f7f71f8d39aff": {
+    "at": "2026-11-17T14:28:10.966Z",
+    "job": "session-0016-20261117142810",
+    "srcHash": "bf1f7f71f8d39aff",
+    "status": "machine",
+    "text": "两个解析到不同输出目录的 `arm` 边界之间的 `uses` 边会连接两个模板，每个模板作为各自独立的部署进行部署。这条边在两个模板中都会连接。资源组范围的边界可以作为生产方：即 `uses` 边所指向的组件的模板。"
   },
   "bf1fa943c3116a02": {
     "at": "2026-11-01T18:36:36.216Z",
@@ -143847,6 +144029,13 @@
     "status": "machine",
     "text": "这样的一对连接源于在各个层面单独看都合法的编写：组件自身的条目与附件的条目位于同一 socket 和别名上；一个列表两次列出同一目标（`models: [llama, llama]`）；同一别名写在两个 socket 上（`models: { local: … }` 与 `databases: { local: … }` 并列）；两个附件连接同一别名；或者 Release 条目在 Aggregate 未绑定的 socket 上绘制连接，而所用别名 Aggregate 已在另一个 socket 上使用。有两种相近的形式不会触发此中止：在同一个键控条目块中两次写同一个键会导致文档加载失败；而 Release 条目若位于另一个块已绘制的 socket 和别名上，则会配置该连接——或者在指向不同目标时作为重定向而中止——而不是绘制第二个连接。"
   },
+  "c1c23a28e5018754": {
+    "at": "2026-11-17T14:28:10.966Z",
+    "job": "session-0016-20261117142810",
+    "srcHash": "c1c23a28e5018754",
+    "status": "machine",
+    "text": "生产方模板所部署到的资源组"
+  },
   "c1c2c1099fed68e2": {
     "at": "2026-10-23T00:18:02.017487+00:00",
     "job": "msgbatch_01WWSdKvrWpurqxfMfC3PmVX",
@@ -145871,6 +146060,13 @@
     "srcHash": "c461bfced37330d4",
     "status": "machine",
     "text": "`aggrega import . --target compose` 写入的文件（未经修改），以及它打印的内容：`stdout.txt` 为标准输出，`import.txt` 为标准错误"
+  },
+  "c4664205ed93df19": {
+    "at": "2026-11-17T14:28:10.966Z",
+    "job": "session-0016-20261117142810",
+    "srcHash": "c4664205ed93df19",
+    "status": "machine",
+    "text": "`--action-on-unmanage detachAll` 会在后续模板不再声明某个资源时保持该资源不动，`--deny-settings-mode none` 不会对堆栈所管理的内容设置拒绝分配；如果堆栈需要强制执行更多内容，请选择其他值。provider 不决定其中任何一项——这些命令由运维人员负责。"
   },
   "c47202a3e7083104": {
     "at": "2026-11-15T00:01:27.771Z",
@@ -152118,6 +152314,13 @@
     "status": "machine",
     "text": "位置是作者所写的键路径。在 Aggregate 中，组件自身的块为 `.spec.components.<component>.inject.<mechanism>`，其某个连接上的块为 `.spec.components.<component>.uses.<socket>.<alias>.inject.<mechanism>`，挂载的块为 `.spec.components.<component>.features.<attachment>…`，组件或挂载声明所在的每个子系统都会加上 `.subsystems.<name>`。在 Release 中，是挂载所绘制的连接上的块，经由该挂载表示——在整个边界范围挂载的为 `.spec.boundaries.<boundary>.features.<attachment>.uses.<socket>.<alias>.inject.<mechanism>`，挂载在组件上的为 `.spec.boundaries.<boundary>.components.<component>.features.<attachment>…`，每个嵌套边界加上 `.boundaries.<name>`，组件所经由的每个路由条目加上 `.aggregates.<module>`。"
   },
+  "ccbd34f041a0eb3a": {
+    "at": "2026-11-17T14:28:10.966Z",
+    "job": "session-0016-20261117142810",
+    "srcHash": "ccbd34f041a0eb3a",
+    "status": "machine",
+    "text": "生产方模板所部署到的订阅 ID"
+  },
   "ccc2957015f4d3d1": {
     "at": "2026-11-05T19:43:13.706Z",
     "job": "session-0017-20261105194313",
@@ -153575,6 +153778,13 @@
     "srcHash": "ce9522eb8a7b4674",
     "status": "machine",
     "text": "**每个读取 Release 依赖项的命令都会执行此检查；不同之处在于各命令如何处理结果。**`aggrega build` 和 `aggrega pull` 会停止，因为两者产出的东西你接下来会使用——渲染产物和 lockfile。`aggrega validate` 和 `aggrega lint` 会将该发现与它们找到的其他所有诊断一并报告，然后以非零状态退出：它们的任务是告诉你工作区中所有的问题，因此单个错误不会使报告中断。在编辑器中，该发现作为诊断与其他诊断一起发布，该文档需要报告的其他内容不受影响。注意它出现的位置：编辑器将 Release 的依赖级诊断附加到 Aggregate 上，因此该发现会在打开 Aggregate 时出现，而不是在你编辑写有该映射的 Manifest 时出现。运行 `aggrega validate` 则无论打开哪个文档都会报告它。"
+  },
+  "ce959817b4cbae66": {
+    "at": "2026-11-17T14:28:10.966Z",
+    "job": "session-0016-20261117142810",
+    "srcHash": "ce959817b4cbae66",
+    "status": "machine",
+    "text": "部署名称"
   },
   "ce97a5a035346a19": {
     "at": "2026-10-22T03:31:15.615761+00:00",
@@ -158593,6 +158803,13 @@
     "srcHash": "d5020edd50066ccf",
     "status": "machine",
     "text": "**这只是 `index` 自身的特性，任何表面的缺失键策略都不会改变它。**在开放 pillar 下用点号读取未设置的键，在值模板上仍然渲染为空，如上文“Missing template key — asymmetric policy（缺失模板键——非对称策略）”所述；测试作者是否提供了此类键的模板也不受影响。会停止的是向 `index` 请求映射中不存在的键。`index` 是模板访问名称由其计算得出的键的方式——例如按使用方 Recipe 选定的变量名读取凭据——如果没有这次停止，该读取会把模板引擎的占位文本 `<no value>` 写入产物，而构建却成功了：服务器以这段文本作为其密钥启动。`index` 给出的其他所有结果都是模板引擎自身的行为：列表或字符串中的位置、越界位置、映射中存在的键——包括值为 null 的键，它会输出 `<no value>`。"
+  },
+  "d503ead5b10c67d6": {
+    "at": "2026-11-17T14:28:10.966Z",
+    "job": "session-0016-20261117142810",
+    "srcHash": "d503ead5b10c67d6",
+    "status": "machine",
+    "text": "运维人员负责的内容"
   },
   "d5042d12098ba66d": {
     "at": "2026-10-22T04:56:15.693842+00:00",
@@ -164346,6 +164563,13 @@
     "srcHash": "dcbc67813a278532",
     "status": "machine",
     "text": "在一个单独的对话上发送一个会被模式防护拒绝的请求，然后在同一对话上提出一个普通问题，再读回该对话。失败的一轮会让其对话保持在该轮之前的状态，因此被拒绝的消息不会被保留，该对话上的下一轮会得到回答，而对话中只包含得到回答的轮次："
+  },
+  "dcbf0d146192a49d": {
+    "at": "2026-11-17T14:28:10.966Z",
+    "job": "session-0016-20261117142810",
+    "srcHash": "dcbf0d146192a49d",
+    "status": "machine",
+    "text": "这些链接依赖于 Azure 中已经存在的部署，因此以下事项由运维人员负责维护："
   },
   "dcc0581d670b780b": {
     "at": "2026-10-22T02:42:41.008096+00:00",
@@ -187015,6 +187239,13 @@
     "srcHash": "fa446b67eb6bacdf",
     "status": "machine",
     "text": "导入 MCP 客户端配置 — 编码助手使用的三个服务器"
+  },
+  "fa47585be868cfa5": {
+    "at": "2026-11-17T14:28:10.966Z",
+    "job": "session-0016-20261117142810",
+    "srcHash": "fa47585be868cfa5",
+    "status": "machine",
+    "text": "该名称由 Release 的名称和边界的输出目录派生，因此在 Release 中更改边界的 `directory:` 会使其改名，重新构建后的消费方会读取新名称。如果某个片段已经在该元数据键下写入了其他值，构建会停止。"
   },
   "fa4a68af580d7008": {
     "at": "2026-10-22T03:24:54.319294+00:00",
