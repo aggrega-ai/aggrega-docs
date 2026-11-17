@@ -7541,6 +7541,13 @@
     "status": "machine",
     "text": "Thực thể dùng để đánh giá các ứng viên, theo tên, được đọc từ những gì các tài liệu của workspace khai báo."
   },
+  "09dc0b3c7aaad490": {
+    "at": "2026-11-17T11:23:31.919Z",
+    "job": "session-0001-20261117112331",
+    "srcHash": "09dc0b3c7aaad490",
+    "status": "machine",
+    "text": "**Trên `arm`, các dạng tạo secret làm build dừng lại.** ARM không có bộ tạo secret, vì vậy một build ràng buộc `core/random-password` hoặc `core/generated-secret` trên `arm` sẽ dừng với E0099 do thiếu Recipe, giống như trên compose. Một secret được cung cấp đi qua dưới dạng tham số `securestring` được cung cấp khi template được triển khai, hoặc dưới dạng tham chiếu Key Vault mà Recipe tiêu thụ ghi vào tham số của một template lấy từ source; template không bao giờ mang giá trị dưới dạng văn bản. Các tuyến Key Vault của catalog là `arm/key-vault-secret`, tuyến công bố ID tài nguyên của secret cho `core/referenced-secret`, và, trên một server hoặc worker Container Apps, `infra.overrides.secrets`, tuyến ghi một secret ứng dụng được Key Vault hậu thuẫn mà biến container gọi tên bằng `secretRef`; cả hai được mô tả trong [trang provider `arm`](../language-reference/providers/arm.md#key-vault-routes)."
+  },
   "09dea8d83c40678f": {
     "at": "2026-10-23T00:02:44.489841+00:00",
     "job": "msgbatch_017Co8FT9U2dpLww3D8gVXkh",
@@ -35862,6 +35869,17 @@
     "status": "machine",
     "text": "Câu hỏi tường ngăn hay biển chỉ dẫn giữa các trụ cột được giải quyết bằng **biển chỉ dẫn**: template engine cho phép đọc chéo trụ cột tại mọi vị trí trừ khi bị cấm rõ ràng bởi các quy tắc tự chứa (khối `provides:` của Recipe và khối `source:` của Recipe đọc `.context.inject` / `.context.uses`; được mô tả tại [`templates/expansion-matrix.md`](../templates/expansion-matrix.md)). Ranh giới trụ cột là kỷ luật soạn thảo, không phải sự cưỡng chế của ngôn ngữ."
   },
+  "30d172de8811b88d": {
+    "at": "2026-11-17T11:23:31.919Z",
+    "job": "session-0001-20261117112331",
+    "revision": {
+      "from": "00a01cb20d8a18ce",
+      "reviewed": false
+    },
+    "srcHash": "30d172de8811b88d",
+    "status": "machine",
+    "text": "**Tính không phụ thuộc lược đồ (từ điển mã nguồn mở):** Trình biên dịch lõi không phụ thuộc vào các lớp thực thi vật lý. Nó không có lược đồ mã hóa cứng nào cho Helm, Terraform hay Docker Compose. Thay vào đó, khối `source` của một Recipe Ops là một từ điển mở có các khóa do provider định nghĩa và xuất hiện trong các template của Recipe dưới dạng `.source.*`. Lõi phân giải một source *được truy xuất* bằng dạng tích hợp sẵn `{ kind, url, version }` (các kind: `helm-oci-chart`, `helm-https-chart`, `compose-https-fragment`, `git-repository`, `bicep-module-oci`, `terraform-module-oci`), điều này vốn đã tách trình biên dịch khỏi các ngôn ngữ cloud mà nó thao tác. Xem [tài liệu tham chiếu `source` của Recipe](../language-reference/entities/recipe.md#a-wasm-driven-source-schemas) để biết mô hình truy xuất."
+  },
   "30d1c81828e5fa9f": {
     "at": "2026-10-22T11:59:38.351715+00:00",
     "job": "msgbatch_01JciMUysQvZRBY7XtfGAzJm",
@@ -39664,6 +39682,17 @@
     "srcHash": "36696866adbf4e62",
     "status": "machine",
     "text": "PluginDescriptorMeta"
+  },
+  "366a0212b3411070": {
+    "at": "2026-11-17T11:23:31.919Z",
+    "job": "session-0001-20261117112331",
+    "revision": {
+      "from": "f1066bc9c9e27fb1",
+      "reviewed": false
+    },
+    "srcHash": "366a0212b3411070",
+    "status": "machine",
+    "text": "Gốc `artifact_cache_dir` mang ba cây con song song mà một lần gọi `aggrega pull` điền đồng nhất, mỗi cây cho một loại phụ thuộc được ghim: `<artifact_cache_dir>/entities/<encoded-kind>/<encoded-reference>/<encoded-version>/` cho các thực thể catalog (Components, Features, Recipes, FeatureRecipes, Aggregates, các thư viện, và Plugins cùng các tệp thực thi mà chúng xuất bản), trong đó loại là loại mà thực thể được xuất bản theo, nên hai thực thể thuộc các loại khác nhau có chung một tham chiếu và một phiên bản — một Component và một Recipe cùng tên — là hai slot; `<artifact_cache_dir>/source-artifacts/<kind>/<host>/<path>/<version>/<digest-prefix>/` cho các tạo phẩm nguồn được kéo từ các trường `spec.source` của Recipe / FeatureRecipe (chart Helm, đoạn compose, kho Git, mô-đun Bicep, gói mô-đun OpenTofu); và `<artifact_cache_dir>/inputs/sha256/<hex-digest>` cho các đầu vào bên ngoài — các tài liệu từ xa mà một provider yêu cầu host cung cấp trong khi render, chẳng hạn một `$ref` trong `values.schema.json` của một chart trỏ tới một URL. Mỗi slot bộ nhớ đệm của tạo phẩm nguồn mang kho lưu trữ có thẩm quyền dưới dạng `blob.tgz`, bất kể loại nào — một tar nén gzip cho chart, đoạn compose hoặc kho Git, và lớp được chọn như đã xuất bản cho một loại mô-đun OCI (lớp template ARM của một source `bicep-module-oci`, gói `archive/zip` của một source `terraform-module-oci`) —, một thư mục dẫn xuất `extracted/` được tạo lại ở mỗi lần build đọc, và một tệp `metadata.yaml` ghi lại danh tính `{kind, url, version, digest, mediatype, pulled_at}` của tạo phẩm; với một loại mô-đun OCI, `mediatype` là kiểu media của lớp mà slot chứa. Mỗi slot bộ nhớ đệm của thực thể mang tạo phẩm đã xuất bản đúng như khi được tìm nạp và manifest OCI dùng để xác minh nó. Slot của mỗi loại mà tài liệu có thể đặt tên một tệp bên cạnh nó — một Recipe, một FeatureRecipe, một Component, một Feature — còn mang một thư mục dẫn xuất `extracted/` chứa các tệp mà tạo phẩm đó mang theo, trong một thư mục được đặt tên theo digest nội dung của tạo phẩm: tài liệu và các tệp mà thực thể đã khai báo nếu nó được xuất bản dưới dạng kho lưu trữ, và chỉ tài liệu nếu nó được xuất bản dưới dạng tài liệu của nó (§6). Thư mục của thực thể được bày ra ở đó từ tạo phẩm đã xác minh ở mỗi lần đọc, giống như các tệp của một tạo phẩm nguồn: mọi tệp đều được kiểm tra đối chiếu với tạo phẩm, một tệp bị thay đổi hoặc thêm thủ công trong thư mục đó sẽ bị loại bỏ thay vì được đọc, không có gì khác dưới `extracted/` được đọc, và một tạo phẩm không qua được xác minh sẽ bị từ chối trước khi bất cứ thứ gì được bày ra. Một lần đọc chỉ ghi lại những gì khác với tạo phẩm, nên các bản build đọc cùng một bộ nhớ đệm cùng lúc — các yêu cầu mà `aggrega serve` xử lý song song, hoặc hai lệnh trên cùng một workspace — đều tìm thấy nguyên vẹn các tệp đã được giao cho mình. Đoạn `<digest-prefix>` dài 12 ký tự tách cùng một `{kind, url, version}` được gắn thẻ lại ở các digest upstream khác nhau vào các slot riêng biệt. Một đầu vào bên ngoài không cần slot như vậy: nó được lưu dưới dạng một tệp đơn được đặt tên theo digest nội dung mà lockfile ghim nó vào, nên những gì một bản build sau đọc được định địa chỉ bởi phần ghim chứ không phải bởi URL mà các byte đến từ đó — đó là điều cho phép bản build ấy phục vụ đầu vào khi mạng bị chặn."
   },
   "366b3145b5fbf6f6": {
     "at": "2026-10-22T23:16:14.159554+00:00",
@@ -92370,6 +92399,17 @@
     "status": "machine",
     "text": "Nếu không gian làm việc không cung cấp Release nào — không có cấu hình, không có tệp đánh dấu, và không có đúng một tệp để dự phòng — chỉ báo sẽ cho biết điều đó, và cho biết trường hợp nào trong hai trường hợp là đúng. Nó hiển thị **Release: none selected** (Release: chưa chọn) khi có các Releases để chọn nhưng bạn không ở trên Release nào trong số đó, và **Release: none available** (Release: không có Release nào khả dụng) khi không gian làm việc Aggrega hoàn toàn không cung cấp Release nào. Trường hợp thứ hai không phải là trạng thái bạn có thể giải quyết bằng cách chọn, nên chú giải công cụ của nó nêu các cách thoát khỏi nó — làm việc trong một không gian làm việc Aggrega khác, hoặc tạo một Release — thay vì đưa bạn tới một danh sách chỉ có thể trả về trống rỗng. Khi chưa có gì đọc không gian làm việc, chú giải công cụ cho biết điều đó thay vì báo cáo một con số mà không ai đếm. Mỗi cách hiển thị đó đều mang theo những gì đã được tìm kiếm, và bản giải thích đầy đủ được ghi vào kênh đầu ra Aggrega. Việc xác thực vẫn chạy trong trạng thái đó: bạn nhận được những phát hiện mà một tài liệu tự trả lời được — nó có phân tích cú pháp được không, và hình dạng của chính nó có chấp nhận được không — còn các kiểm tra cần một Release sẽ bị bỏ qua cho đến khi bạn chọn một Release."
   },
+  "7e940a05d1974214": {
+    "at": "2026-11-17T11:23:31.919Z",
+    "job": "session-0001-20261117112331",
+    "revision": {
+      "from": "882d5958fcd53997",
+      "reviewed": false
+    },
+    "srcHash": "7e940a05d1974214",
+    "status": "machine",
+    "text": "**AWS CloudFormation**, **Azure Resource Manager (ARM) / Bicep** và **Google Cloud Deployment Manager** là các định dạng cấp phát khai báo gốc của từng đám mây tương ứng. Aggrega đi kèm một [renderer CloudFormation](../language-reference/providers/cloudformation.md) xuất ra các template stack, và một [renderer ARM](../language-reference/providers/arm.md) xuất ra các template nhóm tài nguyên; Deployment Manager là một đích artifact tĩnh mà tác giả có thể kết xuất tới qua socket mở, và một source Bicep được biên dịch thành template ARM bằng `bicep build` trước khi renderer ARM đọc nó."
+  },
   "7e942d3d53271e04": {
     "at": "2026-10-22T22:51:17.853388+00:00",
     "job": "msgbatch_01TQWjohL4SQN2SRjSV4rs3v",
@@ -106266,6 +106306,13 @@
     "srcHash": "91b33db5b9dc3a0f",
     "status": "machine",
     "text": "**Một khóa quyết định thu thập các thông điệp, không phải danh sách các thông điệp.** Một biểu thức tạo ra một\n  danh sách thông điệp cho mỗi tuyến sẽ bị từ chối dưới một khóa quyết định — lỗi nói rằng nó\n  đã thu thập một giá trị kiểu list thay vì một thông điệp — nên một quy tắc tạo một\n  bản ghi cho mỗi tuyến và xây dựng thông điệp từ đó. Và một thông điệp mà biểu thức\n  tạo ra hai lần sẽ được báo cáo hai lần: phép sắp xếp mô tả bên dưới sắp thứ tự những gì một khóa\n  đã thu thập, và không loại bỏ bản lặp."
+  },
+  "91b7f02021d0d080": {
+    "at": "2026-11-17T11:23:31.919Z",
+    "job": "session-0001-20261117112331",
+    "srcHash": "91b7f02021d0d080",
+    "status": "machine",
+    "text": "Trên `arm` không có tài nguyên như vậy, như đoạn nói về nơi nó không thể được dùng đã nêu."
   },
   "91b854a090c62ca4": {
     "at": "2026-10-22T10:27:55.857345+00:00",
@@ -136319,6 +136366,17 @@
     "status": "machine",
     "text": "**Những gì bị giữ lại.** Từ `config-show`: `value` của một thiết lập khi giá trị của chính thiết lập đó là một vị trí — một địa chỉ phục vụ hoặc kiểm tra sức khỏe, có thể là một tệp socket; một tệp chứng chỉ, khóa riêng hoặc tập khóa; một thư mục catalog, và các thư mục catalog riêng của một Release trong `workspace.releases`, mà mọi mục đều được khóa theo một tệp Release; một tham chiếu plugin; một Release dùng để soạn thảo. Ngoài ra còn `source` của một thiết lập khi lớp quyết định nó là một tệp cấu hình, vì lớp như vậy được đặt tên theo chính đường dẫn của tệp đó — và, cùng cách viết và cùng lý do, các mục tệp cấu hình của `layers`. Từ `plugin-list`: `uri` của một plugin khi chính tham chiếu đó là một đường dẫn hệ thống tệp, và văn bản của một lỗi phân giải hoặc mô tả, vốn được tạo từ các vị trí đã thử và do đó nêu những vị trí mà chính tham chiếu không nêu. Từ cả hai: `workspace_root`."
   },
+  "ba027cdca5d8f1f9": {
+    "at": "2026-11-17T11:23:31.919Z",
+    "job": "session-0001-20261117112331",
+    "revision": {
+      "from": "729ea6932f6ba2f9",
+      "reviewed": false
+    },
+    "srcHash": "ba027cdca5d8f1f9",
+    "status": "machine",
+    "text": "Socket kết xuất WebAssembly (Wasm) có thể cắm thêm của Aggrega nghĩa là cộng đồng có thể viết một plugin renderer cho bất kỳ công cụ đích nào. Dự án lõi đi kèm các plugin kết xuất cho Helm, Helm-chart, Compose, Terraform, CloudFormation và Azure Resource Manager — bao quát GitOps trên Kubernetes, phân phối chart có thể tái phân phối, phát triển cục bộ và tài nguyên đám mây khai báo — trong khi socket mở cho phép các đội nhắm tới những bề mặt artifact tĩnh khác mà không động vào lõi. Các đội đánh giá Aggrega thường đến từ những hệ sinh thái xây dựng quanh các công cụ nằm ở những phần gần nhưng khác biệt của stack. Các công cụ dưới đây được nhóm theo quan hệ của chúng với Aggrega: các định dạng artifact mà nó kết xuất ra, không gian trình biên dịch AOT mà nó chia sẻ, các control plane tiêu thụ đầu ra của nó, và miền quản lý cấu hình lân cận mà nó không nhắm tới."
+  },
   "ba03976208b46b67": {
     "at": "2026-10-22T23:34:49.752518+00:00",
     "job": "msgbatch_01TcV2pobuFt4qNmD9rzSXon",
@@ -156839,6 +156897,17 @@
     "status": "machine",
     "text": "Bản ghi của operator cho đích Kubernetes. Đặt tên Secret chứa khóa Admin API, và định cỡ các component nội bộ của module theo ID trong phạm vi module của chúng; mọi thứ khác được để cho giá trị mặc định của schema."
   },
+  "d55c34b785c54f79": {
+    "at": "2026-11-17T11:23:31.919Z",
+    "job": "session-0001-20261117112331",
+    "revision": {
+      "from": "4b602600847e0c91",
+      "reviewed": false
+    },
+    "srcHash": "d55c34b785c54f79",
+    "status": "machine",
+    "text": "**Các định dạng artifact mà Aggrega kết xuất ra.** Đây là đầu ra cho Kubernetes và phát triển cục bộ do các plugin renderer đi kèm tạo ra; các renderer Terraform, CloudFormation và ARM đi kèm xuất hiện bên cạnh các công cụ đó trong nhóm tiếp theo."
+  },
   "d55dc238b13b8ffc": {
     "at": "2026-10-22T07:22:08.562Z",
     "job": "session-0022-20261022072208",
@@ -162341,6 +162410,17 @@
     "srcHash": "dcbb5844e1d3e7e6",
     "status": "machine",
     "text": "**Về các khối trên trang này.** Mọi khối hiển thị đầu ra đều được sao chép từ một lần chạy thật các bước bên dưới, theo thứ tự xuất hiện, tuân theo [quy ước về đầu ra](../examples/reading-the-output.md): một khối hoặc là đầy đủ, hoặc là một đoạn trích có đánh dấu chỗ các dòng bị lược bỏ. Hai placeholder thay cho các đường dẫn tuyệt đối khác nhau trên mỗi máy: `<guest>` là thư mục bản sao bộ khung của bạn, và `<workspace>` là thư mục của workspace nơi plugin được gắn kết."
+  },
+  "dcbc1d0f2a410a77": {
+    "at": "2026-11-17T11:23:31.919Z",
+    "job": "session-0001-20261117112331",
+    "revision": {
+      "from": "c3a2b0dd031a7302",
+      "reviewed": false
+    },
+    "srcHash": "dcbc1d0f2a410a77",
+    "status": "machine",
+    "text": "Đó là một secret hay hai tùy thuộc vào nơi hai đầu phân giải secret. Một provider phân giải một secret bằng tham chiếu trong một **phạm vi secret**: một namespace Kubernetes trên `helm`, một dự án Compose trên `compose`, cấu hình gốc của một ranh giới trên `terraform`, trên `cloudformation` là một stack, trong tài khoản và vùng AWS mà nó triển khai vào, và trên `arm` là template, trong nhóm tài nguyên mà nó triển khai vào. Khi cả hai đầu nằm trong một phạm vi, chúng tham chiếu một tài nguyên secret duy nhất. Khi chúng nằm ở các phạm vi khác nhau, mỗi đầu giữ một tài nguyên secret riêng, được hiện thực từ cùng một mục kho. Manifest chọn cách hiện thực của mỗi đầu — theo loại Feature, hoặc với một phần đính kèm cụ thể là theo tên của nó, mà với phần đính kèm của một kết nối là `<alias>.<slot>` (`local.credential` ở trên). Vì một tham số cấp cho cả hai, hai cách hiện thực đọc `origin` như cùng một loại bộ định vị: cả hai là tên của một Secret, cả hai là khóa của một mục kho, hoặc cả hai là chính giá trị."
   },
   "dcbc67813a278532": {
     "at": "2026-11-12T21:38:06.030Z",

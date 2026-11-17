@@ -6859,6 +6859,13 @@
     "status": "machine",
     "text": "Die Entität, anhand derer die Kandidaten beurteilt werden, nach Namen, gelesen aus dem, was die Dokumente des Workspace deklarieren."
   },
+  "09dc0b3c7aaad490": {
+    "at": "2026-11-17T11:23:31.919Z",
+    "job": "session-0001-20261117112331",
+    "srcHash": "09dc0b3c7aaad490",
+    "status": "machine",
+    "text": "**Bei `arm` halten die erzeugenden Formen den Build an.** ARM hat keinen Secret-Generator, daher bricht ein Build, der `core/random-password` oder `core/generated-secret` bei `arm` bindet, mangels eines Recipe mit E0099 ab, wie bei Compose. Ein bereitgestelltes Secret wird als `securestring`-Parameter übergeben, der beim Deployment des Templates angegeben wird, oder als Key-Vault-Referenz, die das konsumierende Recipe in den Parameter eines aus einer Source bezogenen Templates schreibt; das Template trägt den Wert nie als Text. Die Key-Vault-Routen des Katalogs sind `arm/key-vault-secret`, das die Ressourcen-ID des Secrets für `core/referenced-secret` veröffentlicht, und bei einem Container-Apps-Server oder -Worker `infra.overrides.secrets`, das ein Key-Vault-gestütztes App-Secret schreibt, das die Container-Variable mit `secretRef` benennt; beide sind auf [der Seite zum Provider `arm`](../language-reference/providers/arm.md#key-vault-routes) beschrieben."
+  },
   "09dea8d83c40678f": {
     "at": "2026-11-04T10:56:34.629Z",
     "job": "session-0234-20261104105634",
@@ -32508,6 +32515,17 @@
     "status": "machine",
     "text": "**Erweiterbarkeit.** Die Disziplin der reservierten Präfixe (Gesellschaftsvertrag 3) beschreibt das Vokabular der Standardbibliothek, nicht die Gesamtheit des gültigen Vokabulars. Unternehmenskataloge verfassen eigene Präfixe und Label-Schlüssel, um die Standardbibliothek zu erweitern; die Präfixkonvention per Schema durchzusetzen, würde „die Disziplin der Standardbibliothek“ in „die einzige zulässige Form der Sprache“ verwandeln — das ist die Mauer, die die Architektur bewusst vermeidet. Die Achse des operativen Typs (Gesellschaftsvertrag 1) bewahrt dieselbe Erweiterbarkeit auf einer anderen Oberfläche: Der reservierte Schlüssel, den Aggrega definiert, trägt eine geschlossene, durch das Schema durchgesetzte Menge, und ein Katalog erweitert, indem er einen eigenen Label-Schlüssel daneben hinzufügt statt eines Werts innerhalb des Schlüssels von Aggrega. Was das Schema prüft, ist die Wertemenge eines Schlüssels, der ihm gehört; offen bleibt jeder andere Schlüssel, und dort lebt das eigene Vokabular eines Katalogs."
   },
+  "30d172de8811b88d": {
+    "at": "2026-11-17T11:23:31.919Z",
+    "job": "session-0001-20261117112331",
+    "revision": {
+      "from": "00a01cb20d8a18ce",
+      "reviewed": false
+    },
+    "srcHash": "30d172de8811b88d",
+    "status": "machine",
+    "text": "**Schema-Agnostizismus (Open-Source-Wörterbuch):** Der Kern-Compiler ist agnostisch gegenüber physischen Ausführungsschichten. Er besitzt keine fest codierten Schemas für Helm, Terraform oder Docker Compose. Stattdessen ist der `source`-Block eines Ops-Recipe ein offenes Wörterbuch, dessen Schlüssel vom Provider definiert werden und in den Templates des Recipe als `.source.*` erscheinen. Der Kern löst eine *abgerufene* Source über eine integrierte `{ kind, url, version }`-Form auf (Arten: `helm-oci-chart`, `helm-https-chart`, `compose-https-fragment`, `git-repository`, `bicep-module-oci`, `terraform-module-oci`), was den Compiler bereits von den Cloud-Sprachen entkoppelt, die er manipuliert. Das Abrufmodell finden Sie in der [Referenz zu `source` des Recipe](../language-reference/entities/recipe.md#a-wasm-driven-source-schemas)."
+  },
   "30d1c81828e5fa9f": {
     "at": "2026-11-03T00:27:34.341Z",
     "job": "session-0025-20261103002734",
@@ -35902,6 +35920,17 @@
     "srcHash": "36696866adbf4e62",
     "status": "machine",
     "text": "PluginDescriptorMeta"
+  },
+  "366a0212b3411070": {
+    "at": "2026-11-17T11:23:31.919Z",
+    "job": "session-0001-20261117112331",
+    "revision": {
+      "from": "f1066bc9c9e27fb1",
+      "reviewed": false
+    },
+    "srcHash": "366a0212b3411070",
+    "status": "machine",
+    "text": "Das Stammverzeichnis `artifact_cache_dir` enthält drei parallele Unterbäume, die ein einziger Aufruf von `aggrega pull` einheitlich befüllt, einen pro Klasse festgelegter Abhängigkeiten: `<artifact_cache_dir>/entities/<encoded-kind>/<encoded-reference>/<encoded-version>/` für Katalogentitäten (Components, Features, Recipes, FeatureRecipes, Aggregates, die Bibliotheken und Plugins mit den ausführbaren Dateien, die sie veröffentlichen), wobei die Art diejenige ist, unter der die Entität veröffentlicht wird, sodass zwei Entitäten unterschiedlicher Art, die eine Referenz und eine Version gemeinsam haben — eine Component und ein Recipe desselben Namens —, zwei Slots belegen; `<artifact_cache_dir>/source-artifacts/<kind>/<host>/<path>/<version>/<digest-prefix>/` für Quellartefakte, die aus den `spec.source`-Feldern von Recipe / FeatureRecipe geholt werden (Helm-Charts, Compose-Fragmente, Git-Repositories, Bicep-Module, OpenTofu-Modulpakete); und `<artifact_cache_dir>/inputs/sha256/<hex-digest>` für externe Eingaben — die entfernten Dokumente, die ein Provider beim Rendern vom Host anfordert, etwa ein `$ref` in der `values.schema.json` eines Charts, das auf eine URL zeigt. Jeder Cache-Slot eines Quellartefakts enthält das maßgebliche Archiv als `blob.tgz`, gleich welcher Art — ein gzip-komprimiertes Tar bei einem Chart, einem Compose-Fragment oder einem Git-Repository, und die gewählte Schicht, wie veröffentlicht, bei einer OCI-Modul-Art (die ARM-Template-Schicht einer Source vom Typ `bicep-module-oci`, das `archive/zip`-Paket einer Source vom Typ `terraform-module-oci`) —, ein abgeleitetes Verzeichnis `extracted/`, das bei jedem Lesen durch einen Build neu erzeugt wird, und eine Datei `metadata.yaml`, die die Identität `{kind, url, version, digest, mediatype, pulled_at}` des Artefakts festhält; bei einer OCI-Modul-Art ist `mediatype` der Medientyp der Schicht, die der Slot enthält. Jeder Cache-Slot einer Entität enthält das veröffentlichte Artefakt so, wie es geholt wurde, und das OCI-Manifest, gegen das es verifiziert wird. Der Slot jeder Art, deren Dokument eine Datei neben sich benennen kann — ein Recipe, ein FeatureRecipe, eine Component, ein Feature —, enthält außerdem ein abgeleitetes Verzeichnis `extracted/` mit den Dateien, die dieses Artefakt mitführt, in einem nach dem Inhalts-Digest des Artefakts benannten Verzeichnis: das Dokument und die Dateien, die die Entität deklariert hat, wenn sie als Archiv veröffentlicht wurde, und nur das Dokument, wenn sie als ihr Dokument veröffentlicht wurde (§6). Das Verzeichnis der Entität wird dort bei jedem Lesen aus dem verifizierten Artefakt angelegt, genauso wie die Dateien eines Quellartefakts: Jede Datei wird gegen das Artefakt geprüft, eine in diesem Verzeichnis von Hand geänderte oder hinzugefügte Datei wird verworfen statt gelesen, nichts anderes unter `extracted/` wird gelesen, und ein Artefakt, das die Verifizierung nicht besteht, wird abgelehnt, bevor irgendetwas angelegt wird. Ein Lesevorgang schreibt nur das neu, was vom Artefakt abweicht, sodass Builds, die gleichzeitig denselben Cache lesen — Anfragen, die `aggrega serve` nebeneinander bearbeitet, oder zwei Befehle über einem Workspace —, die ihnen übergebenen Dateien jeweils vollständig vorfinden. Das 12-stellige Segment `<digest-prefix>` trennt dasselbe `{kind, url, version}`, das bei unterschiedlichen Upstream-Digests neu getaggt wurde, in verschiedene Slots. Eine externe Eingabe braucht keinen solchen Slot: Sie wird als einzelne Datei gespeichert, die nach dem Inhalts-Digest benannt ist, auf den die Lockfile sie festlegt, sodass das, was ein späterer Build liest, über die Festlegung adressiert wird und nicht über die URL, von der die Bytes kamen — und genau das ermöglicht es diesem Build, die Eingabe bei gesperrtem Netzwerk bereitzustellen."
   },
   "366b3145b5fbf6f6": {
     "at": "2026-11-03T16:49:01.800Z",
@@ -83623,6 +83652,17 @@
     "status": "machine",
     "text": "Bietet der Workspace kein Release an — keines konfiguriert, keine Markierung und nicht genau eine Datei als Rückfall —, sagt der Indikator das, und er sagt, welcher von zwei Fällen zutrifft. Er zeigt **Release: none selected**, wo es Releases zur Auswahl gibt und Sie auf keinem davon sind, und **Release: none available**, wo der Aggrega-Workspace überhaupt keines angeboten hat. Der zweite Zustand lässt sich nicht durch eine Auswahl beheben, daher nennt sein Tooltip die Auswege daraus — in einem anderen Aggrega-Workspace arbeiten oder ein Release anlegen —, statt Sie zu einer Liste zu schicken, die nur leer sein kann. Wo noch nichts den Workspace gelesen hat, sagt der Tooltip genau das, statt eine Zählung zu melden, die niemand vorgenommen hat. Jede dieser Anzeigen nennt, wonach gesucht wurde, und der vollständige Bericht wird in den Aggrega-Ausgabekanal geschrieben. Die Validierung läuft auch in diesem Zustand: Sie erhalten die Befunde, die ein Dokument für sich allein beantwortet — ob es sich parsen lässt und ob seine eigene Form zulässig ist —, und die Prüfungen, die ein Release benötigen, werden übersprungen, bis Sie eines auswählen."
   },
+  "7e940a05d1974214": {
+    "at": "2026-11-17T11:23:31.919Z",
+    "job": "session-0001-20261117112331",
+    "revision": {
+      "from": "882d5958fcd53997",
+      "reviewed": false
+    },
+    "srcHash": "7e940a05d1974214",
+    "status": "machine",
+    "text": "**AWS CloudFormation**, **Azure Resource Manager (ARM) / Bicep** und **Google Cloud Deployment Manager** sind die nativen deklarativen Bereitstellungsformate ihrer jeweiligen Clouds. Aggrega liefert einen [CloudFormation-Renderer](../language-reference/providers/cloudformation.md) mit, der Stack-Templates ausgibt, und einen [ARM-Renderer](../language-reference/providers/arm.md), der Templates für Ressourcengruppen ausgibt; Deployment Manager ist ein Ziel für statische Artefakte, in das ein Autor über den offenen Socket rendern kann, und eine Bicep-Quelle wird mit `bicep build` in ein ARM-Template kompiliert, bevor der ARM-Renderer sie liest."
+  },
   "7e942d3d53271e04": {
     "at": "2026-11-03T12:09:20.360Z",
     "job": "session-0103-20261103120920",
@@ -96357,6 +96397,13 @@
     "srcHash": "91b33db5b9dc3a0f",
     "status": "machine",
     "text": "**Ein Entscheidungsschlüssel sammelt Meldungen, keine Listen davon.** Ein Ausdruck, der pro Route eine Liste von Meldungen erzeugt, wird unter einem Entscheidungsschlüssel abgelehnt — der Fehler besagt, dass er einen Wert vom Typ Liste statt einer Meldung gesammelt hat —, sodass eine Regel einen Datensatz pro Route erzeugt und die Meldung daraus aufbaut. Und eine Meldung, die der Ausdruck zweimal erzeugt, wird zweimal gemeldet: Die weiter unten beschriebene Sortierung ordnet, was ein Schlüssel gesammelt hat, und entfernt keine Wiederholung."
+  },
+  "91b7f02021d0d080": {
+    "at": "2026-11-17T11:23:31.919Z",
+    "job": "session-0001-20261117112331",
+    "srcHash": "91b7f02021d0d080",
+    "status": "machine",
+    "text": "Bei `arm` gibt es keine solche Ressource, wie der Absatz dazu, wo sie nicht verwendet werden kann, ausführt."
   },
   "91b854a090c62ca4": {
     "at": "2026-10-22T10:50:19.225Z",
@@ -123567,6 +123614,17 @@
     "status": "machine",
     "text": "**Was zurückgehalten wird.** Aus `config-show`: der `value` einer Einstellung, wo der eigene Wert dieser Einstellung ein Ort ist – eine Bereitstellungs- oder Health-Adresse, die eine Socket-Datei sein kann; eine Zertifikats-, Private-Key- oder Key-Set-Datei; ein Katalogverzeichnis sowie die eigenen Katalogverzeichnisse eines Release unter `workspace.releases`, deren Einträge jeweils durch eine Release-Datei verschlüsselt sind; eine Plugin-Referenz; ein Authoring-Release. Außerdem die `source` einer Einstellung, wo die Ebene, die sie entschieden hat, eine Konfigurationsdatei ist, da eine solche Ebene durch den eigenen Pfad dieser Datei benannt wird – und in derselben Schreibweise und aus demselben Grund die Konfigurationsdatei-Einträge von `layers`. Aus `plugin-list`: die `uri` eines Plugins, wo diese Referenz selbst ein Dateisystempfad ist, und der Text eines Auflösungs- oder Beschreibungsfehlers, der aus den versuchten Orten zusammengesetzt ist und daher Orte nennt, die die Referenz selbst nicht nennt. Aus beiden: `workspace_root`."
   },
+  "ba027cdca5d8f1f9": {
+    "at": "2026-11-17T11:23:31.919Z",
+    "job": "session-0001-20261117112331",
+    "revision": {
+      "from": "729ea6932f6ba2f9",
+      "reviewed": false
+    },
+    "srcHash": "ba027cdca5d8f1f9",
+    "status": "machine",
+    "text": "Der einsteckbare WebAssembly-Rendering-Socket (Wasm) von Aggrega bedeutet, dass die Community für jedes Zielwerkzeug ein Renderer-Plugin verfassen kann. Das Kernprojekt liefert Rendering-Plugins für Helm, Helm-chart, Compose, Terraform, CloudFormation und Azure Resource Manager — sie decken Kubernetes-GitOps, die Verteilung weiterverteilbarer Charts, die lokale Entwicklung und deklarative Cloud-Ressourcen ab —, während der offene Socket es Teams erlaubt, andere Oberflächen für statische Artefakte anzusteuern, ohne den Kern anzufassen. Teams, die Aggrega evaluieren, kommen oft aus Ökosystemen, die um Werkzeuge herum aufgebaut sind, die in benachbarten, aber unterschiedlichen Teilen des Stacks angesiedelt sind. Die folgenden Werkzeuge sind danach gruppiert, wie sie sich zu Aggrega verhalten: die Artefaktformate, in die es rendert, der AOT-Compiler-Bereich, den es teilt, die Control Planes, die seine Ausgabe konsumieren, und der benachbarte Bereich des Konfigurationsmanagements, den es nicht anvisiert."
+  },
   "ba03976208b46b67": {
     "at": "2026-11-03T23:48:32.946Z",
     "job": "session-0175-20261103234832",
@@ -142204,6 +142262,17 @@
     "status": "machine",
     "text": "Betreiber-Datensatz für das Kubernetes-Ziel. Nennt das Secret, das den Admin-API-Schlüssel enthält, und dimensioniert die internen Komponenten des Moduls über ihre modulbezogenen IDs; alles andere bleibt den Schema-Voreinstellungen überlassen."
   },
+  "d55c34b785c54f79": {
+    "at": "2026-11-17T11:23:31.919Z",
+    "job": "session-0001-20261117112331",
+    "revision": {
+      "from": "4b602600847e0c91",
+      "reviewed": false
+    },
+    "srcHash": "d55c34b785c54f79",
+    "status": "machine",
+    "text": "**Artefaktformate, in die Aggrega rendert.** Das sind die Kubernetes- und Lokalentwicklungs-Ausgaben, die die mitgelieferten Renderer-Plugins erzeugen; die mitgelieferten Terraform-, CloudFormation- und ARM-Renderer erscheinen in der nächsten Gruppe neben diesen Werkzeugen."
+  },
   "d55dc238b13b8ffc": {
     "at": "2026-10-22T07:22:08.562Z",
     "job": "session-0022-20261022072208",
@@ -147177,6 +147246,17 @@
     "srcHash": "dcbb5844e1d3e7e6",
     "status": "machine",
     "text": "**Zu den Blöcken auf dieser Seite.** Jeder Block, der eine Ausgabe zeigt, wurde aus einem echten Durchlauf der folgenden Schritte kopiert, in der Reihenfolge, in der sie erscheinen, gemäß der [Ausgabekonvention](../examples/reading-the-output.md): Ein Block ist entweder vollständig oder ein Auszug, der markiert, wo Zeilen ausgelassen wurden. Zwei Platzhalter stehen für absolute Pfade, die sich auf jedem Rechner unterscheiden: `<guest>` ist das Verzeichnis Ihrer Kopie des Gerüsts und `<workspace>` das Verzeichnis des Workspace, in dem das Plugin angebunden ist."
+  },
+  "dcbc1d0f2a410a77": {
+    "at": "2026-11-17T11:23:31.919Z",
+    "job": "session-0001-20261117112331",
+    "revision": {
+      "from": "c3a2b0dd031a7302",
+      "reviewed": false
+    },
+    "srcHash": "dcbc1d0f2a410a77",
+    "status": "machine",
+    "text": "Ob das ein Secret oder zwei sind, ergibt sich daraus, wo die beiden Enden Secrets auflösen. Ein Provider löst ein Secret per Referenz innerhalb eines **Secret-Geltungsbereichs** auf: ein Kubernetes-Namespace bei `helm`, ein Compose-Projekt bei `compose`, die Root-Konfiguration einer Boundary bei `terraform`, bei `cloudformation` ein Stack, im AWS-Konto und in der Region, in die er deployt wird, und bei `arm` das Template, in der Ressourcengruppe, in die es deployt wird. Wo beide Enden in einem Geltungsbereich liegen, verweisen sie auf eine einzige Secret-Ressource. Wo sie in verschiedenen Geltungsbereichen liegen, hält jedes Ende eine eigene Secret-Ressource, realisiert aus demselben Store-Eintrag. Das Manifest wählt die Realisierung jedes Endes — nach Feature-Typ oder, für ein einzelnes Attachment, nach dessen Namen, der für das Attachment einer Verbindung `<alias>.<slot>` ist (`local.credential` oben). Da ein Parameter beide speist, lesen die beiden Realisierungen `origin` als dieselbe Art von Locator: beide den Namen eines Secret, beide den Schlüssel eines Store-Eintrags oder beide den Wert selbst."
   },
   "dcbc67813a278532": {
     "at": "2026-11-12T21:38:06.030Z",

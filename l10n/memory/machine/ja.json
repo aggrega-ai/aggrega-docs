@@ -7541,6 +7541,13 @@
     "status": "machine",
     "text": "候補の判定対象となるエンティティです。名前で指定し、ワークスペースのドキュメントが宣言する内容から読み取ります。"
   },
+  "09dc0b3c7aaad490": {
+    "at": "2026-11-17T11:23:31.919Z",
+    "job": "session-0001-20261117112331",
+    "srcHash": "09dc0b3c7aaad490",
+    "status": "machine",
+    "text": "**`arm` では、生成する形式はビルドを停止します。** ARM にはシークレットジェネレーターがないため、`arm` で `core/random-password` または `core/generated-secret` をバインドするビルドは、Recipe がないために E0099 で停止します。compose の場合と同じです。供給されるシークレットは、テンプレートのデプロイ時に渡される `securestring` パラメーターとして、または、利用側の Recipe が source から取得したテンプレートのパラメーターに書き込む Key Vault 参照として渡されます。テンプレートが値をテキストとして保持することはありません。カタログの Key Vault ルートは、`core/referenced-secret` のためにシークレットのリソース ID を公開する `arm/key-vault-secret` と、Container Apps の server または worker で、Key Vault を基盤とするアプリシークレットを書き込み、コンテナー変数が `secretRef` で名指しする `infra.overrides.secrets` です。どちらも [`arm` プロバイダーのページ](../language-reference/providers/arm.md#key-vault-routes)で説明しています。"
+  },
   "09dea8d83c40678f": {
     "at": "2026-10-22T08:15:42.630087+00:00",
     "job": "msgbatch_01LUbCfEJyTdJEKDU86sBZQP",
@@ -35851,6 +35858,17 @@
     "status": "machine",
     "text": "ピラーは壁か道標かという問いは、**道標**として解決されます。テンプレートエンジンは、自己完結性のルールで明示的に禁止されている場合（Recipe の `provides:` および Recipe の `source:` ブロックが `.context.inject` / `.context.uses` を読む場合。[`templates/expansion-matrix.md`](../templates/expansion-matrix.md) に記載）を除き、すべての箇所でピラーをまたぐ読み取りを許可します。ピラーの境界は記述上の規律であり、言語による強制ではありません。"
   },
+  "30d172de8811b88d": {
+    "at": "2026-11-17T11:23:31.919Z",
+    "job": "session-0001-20261117112331",
+    "revision": {
+      "from": "00a01cb20d8a18ce",
+      "reviewed": false
+    },
+    "srcHash": "30d172de8811b88d",
+    "status": "machine",
+    "text": "**スキーマ非依存性（オープンソースの辞書）**：コアコンパイラは物理的な実行レイヤーに依存しません。Helm、Terraform、Docker Compose 用のハードコードされたスキーマは持っていません。代わりに、Ops Recipe の `source` ブロックはオープンな辞書であり、そのキーはプロバイダーが定義し、Recipe のテンプレートに `.source.*` として渡されます。コアは*取得される* source を組み込みの `{ kind, url, version }` 形式で解決します（kind：`helm-oci-chart`、`helm-https-chart`、`compose-https-fragment`、`git-repository`, `bicep-module-oci`, `terraform-module-oci`）。これにより、コンパイラは操作対象のクラウド言語からすでに切り離されています。取得モデルについては、[Recipe の `source` リファレンス](../language-reference/entities/recipe.md#a-wasm-driven-source-schemas)を参照してください。"
+  },
   "30d1c81828e5fa9f": {
     "at": "2026-10-22T02:42:41.008096+00:00",
     "job": "msgbatch_01EVa3HgqoCo1GqPpjD6nota",
@@ -39653,6 +39671,17 @@
     "srcHash": "36696866adbf4e62",
     "status": "machine",
     "text": "PluginDescriptorMeta"
+  },
+  "366a0212b3411070": {
+    "at": "2026-11-17T11:23:31.919Z",
+    "job": "session-0001-20261117112331",
+    "revision": {
+      "from": "f1066bc9c9e27fb1",
+      "reviewed": false
+    },
+    "srcHash": "366a0212b3411070",
+    "status": "machine",
+    "text": "`artifact_cache_dir` のルートには 3 つの並列なサブツリーがあり、1 回の `aggrega pull` の呼び出しがそれらを一様に作成します。ピン留めされた依存関係のクラスごとに 1 つです。カタログエンティティ（Components、Features、Recipes、FeatureRecipes、Aggregates、各ライブラリ、および公開する実行可能ファイルを伴う Plugins）用の `<artifact_cache_dir>/entities/<encoded-kind>/<encoded-reference>/<encoded-version>/`（ここでの種類はエンティティが公開されるときの種類であるため、参照とバージョンを共有する異なる種類の 2 つのエンティティ、つまり同じ名前の Component と Recipe は 2 つのスロットになります）、Recipe / FeatureRecipe の `spec.source` フィールドから取得したソースアーティファクト（Helm チャート、compose フラグメント、Git リポジトリ、Bicep モジュール、OpenTofu モジュールパッケージ）用の `<artifact_cache_dir>/source-artifacts/<kind>/<host>/<path>/<version>/<digest-prefix>/`、そして外部入力用の `<artifact_cache_dir>/inputs/sha256/<hex-digest>` です。外部入力とは、provider がレンダリング中にホストに要求するリモートドキュメントであり、たとえばチャートの `values.schema.json` 内で URL を指す `$ref` がこれにあたります。各ソースアーティファクトのキャッシュスロットには、`blob.tgz` という名前の正となるアーカイブ（種類を問わず、チャート、compose フラグメント、Git リポジトリでは gzip 圧縮された tar、OCI モジュール種別では公開されたとおりに選択されたレイヤーで、`bicep-module-oci` の source では ARM テンプレートのレイヤー、`terraform-module-oci` の source では `archive/zip` パッケージ）、ビルドで読み取るたびに再生成される派生ディレクトリ `extracted/`、そしてアーティファクトの `{kind, url, version, digest, mediatype, pulled_at}` という識別情報を記録する `metadata.yaml` ファイルが含まれます。OCI モジュール種別では、`mediatype` はスロットが保持するレイヤーのメディアタイプです。各エンティティのキャッシュスロットには、取得されたままの公開アーティファクトと、その検証に使われる OCI マニフェストが含まれます。ドキュメントが隣にファイルを指定できる種類のスロット（Recipe、FeatureRecipe、Component、Feature）には、さらに派生ディレクトリ `extracted/` も含まれます。ここには、アーティファクトのコンテンツダイジェストで名付けられたディレクトリに、そのアーティファクトが持つファイルが置かれます。アーカイブとして公開された場合はドキュメントとエンティティが宣言したファイル、ドキュメントとして公開された場合はドキュメントのみです（§6）。エンティティのディレクトリは、ソースアーティファクトのファイルと同じく、読み取りのたびに検証済みのアーティファクトからそこに展開されます。すべてのファイルはアーティファクトと照合され、そのディレクトリで手作業により変更または追加されたファイルは読み取られずに破棄され、`extracted/` 配下のそれ以外のものは読み取られず、検証に失敗したアーティファクトは何かが展開される前に拒否されます。読み取りはアーティファクトと異なる部分だけを書き換えるため、同時に 1 つのキャッシュを読むビルド（`aggrega serve` が並行して処理するリクエストや、1 つのワークスペースに対する 2 つのコマンド）は、それぞれ渡されたファイルを完全な状態で見つけます。12 文字の `<digest-prefix>` セグメントは、上流で異なるダイジェストに再タグ付けされた同じ `{kind, url, version}` を別々のスロットに名前空間分けします。外部入力にはこのようなスロットは不要です。lockfile がピン留めしたコンテンツダイジェストで名付けられた単一のファイルとして保存されるため、後のビルドが読むものはバイト列の取得元 URL ではなくピンによってアドレス指定されます。これにより、そのビルドはネットワークを拒否した状態でも入力を提供できます。"
   },
   "366b3145b5fbf6f6": {
     "at": "2026-10-22T04:05:10.557953+00:00",
@@ -92359,6 +92388,17 @@
     "status": "machine",
     "text": "ワークスペースが Release を何も提供しない場合 — 設定もマーカーもなく、フォールバック先となるファイルがちょうど 1 つあるわけでもない場合 — インジケーターはその旨を示し、2 つのうちどちらに該当するかを示します。選択できる Releases があるのにそのどれも選んでいない場合は **Release: none selected**（Release: 未選択）と表示され、Aggrega ワークスペースが Release をまったく提供しなかった場合は **Release: none available**（Release: 利用可能なものなし）と表示されます。後者は選択によって解消できる状態ではないため、そのツールチップは、空で返ってくるしかないリストに誘導するのではなく、そこから抜け出す方法 — 別の Aggrega ワークスペースで作業する、または Release を作成する — を示します。まだ何もワークスペースを読み込んでいない場合、ツールチップは誰も数えていない件数を報告するのではなく、その旨を示します。これらの表示にはいずれも何を探したかが含まれ、詳しい説明は Aggrega 出力チャネルに書き込まれます。この状態でも検証は実行されます。ドキュメントが単独で答えられる検出結果 — パースできるかどうか、それ自体の形が許容されるかどうか — が得られ、Release を必要とするチェックは Release を選択するまでスキップされます。"
   },
+  "7e940a05d1974214": {
+    "at": "2026-11-17T11:23:31.919Z",
+    "job": "session-0001-20261117112331",
+    "revision": {
+      "from": "882d5958fcd53997",
+      "reviewed": false
+    },
+    "srcHash": "7e940a05d1974214",
+    "status": "machine",
+    "text": "**AWS CloudFormation**、**Azure Resource Manager（ARM）/ Bicep**、**Google Cloud Deployment Manager** は、それぞれのクラウドのネイティブな宣言的プロビジョニング形式です。Aggrega にはスタックテンプレートを出力する [CloudFormation レンダラー](../language-reference/providers/cloudformation.md)と、リソースグループテンプレートを出力する [ARM レンダラー](../language-reference/providers/arm.md)が同梱されています。Deployment Manager は、作成者がオープンなソケットを通じてレンダリングできる静的成果物の対象です。Bicep のソースは、ARM レンダラーが読み取る前に `bicep build` で ARM テンプレートにコンパイルされます。"
+  },
   "7e942d3d53271e04": {
     "at": "2026-10-22T03:24:54.319294+00:00",
     "job": "msgbatch_01Quwt1bUbFp43kX3BAncRfN",
@@ -106255,6 +106295,13 @@
     "srcHash": "91b33db5b9dc3a0f",
     "status": "machine",
     "text": "**決定キーが収集するのはメッセージであり、メッセージのリストではありません。** ルートごとに 1 つのメッセージのリストを生成する式は決定キーの下では拒否されます（フォールトは、メッセージではなくリスト型の値を収集したことを示します）。そのため、ルールはルートごとに 1 つのレコードを生成し、そこからメッセージを組み立てます。また、式が 2 回生成したメッセージは 2 回報告されます。後述のソートはキーが収集したものを並べるだけで、重複は取り除きません。"
+  },
+  "91b7f02021d0d080": {
+    "at": "2026-11-17T11:23:31.919Z",
+    "job": "session-0001-20261117112331",
+    "srcHash": "91b7f02021d0d080",
+    "status": "machine",
+    "text": "`arm` には、そのようなリソースはありません。利用できない場所についての段落が述べているとおりです。"
   },
   "91b854a090c62ca4": {
     "at": "2026-10-22T01:50:22.319444+00:00",
@@ -136314,6 +136361,17 @@
     "status": "machine",
     "text": "**伏せられるもの。** `config-show` からは、設定自体の値が場所である場合の設定の `value`。つまり、サービングアドレスやヘルスアドレス（ソケットファイルの場合があります）、証明書、秘密鍵、キーセットのファイル、カタログディレクトリ、そして `workspace.releases` 配下の Release 固有のカタログディレクトリ（各エントリが Release ファイルをキーとします）、プラグイン参照、オーサリング用の Release です。また、設定を決定したレイヤーが設定ファイルである場合の設定の `source`。そのようなレイヤーはそのファイル自身のパスで示されるからです。同じ表記で同じ理由により、`layers` の設定ファイルのエントリも伏せられます。`plugin-list` からは、参照自体がファイルシステムパスである場合のプラグインの `uri`、そして解決または記述の失敗のテキスト。これは試行された場所から構成されるため、参照自体が示さない場所を示すからです。両方からは `workspace_root` です。"
   },
+  "ba027cdca5d8f1f9": {
+    "at": "2026-11-17T11:23:31.919Z",
+    "job": "session-0001-20261117112331",
+    "revision": {
+      "from": "729ea6932f6ba2f9",
+      "reviewed": false
+    },
+    "srcHash": "ba027cdca5d8f1f9",
+    "status": "machine",
+    "text": "Aggrega の差し替え可能な WebAssembly（Wasm）レンダリングソケットにより、コミュニティはあらゆる対象ツール向けのレンダラープラグインを作成できます。コアプロジェクトには Helm、Helm-chart、Compose、Terraform、CloudFormation、Azure Resource Manager 向けのレンダリングプラグインが同梱されており、Kubernetes の GitOps、再配布可能なチャートの配布、ローカル開発、宣言的なクラウドリソースをカバーします。一方、オープンなソケットにより、チームはコアに手を加えずに他の静的成果物の対象を狙えます。Aggrega を評価するチームは、スタックの近いが別の部分に位置するツールを中心に築かれたエコシステムから来ることが多くあります。以下のツールは、Aggrega との関係によって分類されています。レンダリング先としている成果物の形式、共有している AOT コンパイラの領域、その出力を利用するコントロールプレーン、そして対象としない隣接の構成管理の領域です。"
+  },
   "ba03976208b46b67": {
     "at": "2026-10-22T04:56:15.693842+00:00",
     "job": "msgbatch_01WhSSFNVABxaLkxubBM2sHx",
@@ -156832,6 +156890,17 @@
     "status": "machine",
     "text": "Kubernetes ターゲット用のオペレーターレコードです。Admin API キーを保持する Secret を指定し、モジュールの内部コンポーネントをモジュールスコープの ID でサイズ指定します。それ以外はスキーマのデフォルトに任せます。"
   },
+  "d55c34b785c54f79": {
+    "at": "2026-11-17T11:23:31.919Z",
+    "job": "session-0001-20261117112331",
+    "revision": {
+      "from": "4b602600847e0c91",
+      "reviewed": false
+    },
+    "srcHash": "d55c34b785c54f79",
+    "status": "machine",
+    "text": "**Aggrega がレンダリング先とする成果物の形式。** 同梱のレンダラープラグインが生成する Kubernetes とローカル開発向けの出力です。同梱の Terraform、CloudFormation、ARM のレンダラーは、次のグループでそれらのツールと並べて紹介します。"
+  },
   "d55dc238b13b8ffc": {
     "at": "2026-10-22T01:33:54.654983+00:00",
     "job": "msgbatch_01LUPrwrVc3dPv7pYcgEkmHm",
@@ -162324,6 +162393,17 @@
     "srcHash": "dcbb5844e1d3e7e6",
     "status": "machine",
     "text": "**このページのブロックについて。** 出力を示すブロックはすべて、以下の手順を記載順に実際に実行した結果からコピーしたもので、[出力の慣例](../examples/reading-the-output.md)に従っています。ブロックは完全なものか、省略した行の位置を示した抜粋のどちらかです。マシンごとに異なる絶対パスを 2 つのプレースホルダーで表します。`<guest>` はスケルトンのコピーのディレクトリ、`<workspace>` はプラグインをアタッチするワークスペースのディレクトリです。"
+  },
+  "dcbc1d0f2a410a77": {
+    "at": "2026-11-17T11:23:31.919Z",
+    "job": "session-0001-20261117112331",
+    "revision": {
+      "from": "c3a2b0dd031a7302",
+      "reviewed": false
+    },
+    "srcHash": "dcbc1d0f2a410a77",
+    "status": "machine",
+    "text": "それが 1 つのシークレットになるか 2 つになるかは、両端がシークレットを解決する場所によって決まります。プロバイダーは、**シークレットスコープ**内で参照によってシークレットを解決します。`helm` では Kubernetes の名前空間、`compose` では Compose プロジェクト、`terraform` ではバウンダリのルート構成、`cloudformation` ではデプロイ先の AWS アカウントとリージョンにあるスタック、`arm` ではデプロイ先のリソースグループにあるテンプレートです。両端が 1 つのスコープにある場合、両者は 1 つのシークレットリソースを参照します。異なるスコープにある場合、各端は同じストアエントリから実現された独自のシークレットリソースを保持します。各端の実現は Manifest が選択します。Feature の型によって、または 1 つのアタッチメントに対してはその名前によって選択し、接続のアタッチメントの場合その名前は `<alias>.<slot>`(上記では `local.credential`)です。1 つのパラメーターが両方に供給するため、2 つの実現は `origin` を同じ種類のロケーターとして読み取ります。両方とも Secret の名前、両方ともストアエントリのキー、または両方とも値そのものです。"
   },
   "dcbc67813a278532": {
     "at": "2026-11-12T21:38:06.030Z",

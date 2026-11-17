@@ -7541,6 +7541,13 @@
     "status": "machine",
     "text": "用于判断候选项的实体，按名称指定，从工作区文档的声明中读取。"
   },
+  "09dc0b3c7aaad490": {
+    "at": "2026-11-17T11:23:31.919Z",
+    "job": "session-0001-20261117112331",
+    "srcHash": "09dc0b3c7aaad490",
+    "status": "machine",
+    "text": "**在 `arm` 上，生成式形式会中止构建。**ARM 没有 secret 生成器，因此在 `arm` 上绑定 `core/random-password` 或 `core/generated-secret` 的构建会因缺少 Recipe 而以 E0099 中止，与 compose 上相同。提供的 secret 以模板部署时提供的 `securestring` 参数传递，或者以使用方 Recipe 写入由 source 获取的模板参数中的 Key Vault 引用传递；模板从不以文本形式携带该值。目录中的 Key Vault 路由是 `arm/key-vault-secret`，它为 `core/referenced-secret` 发布 secret 的资源 ID；以及在 Container Apps 的 server 或 worker 上的 `infra.overrides.secrets`，它写入一个由 Key Vault 支撑的应用 secret，容器变量通过 `secretRef` 指名它；两者都在 [`arm` provider 页面](../language-reference/providers/arm.md#key-vault-routes)中说明。"
+  },
   "09dea8d83c40678f": {
     "at": "2026-10-22T08:15:42.630087+00:00",
     "job": "msgbatch_01LUbCfEJyTdJEKDU86sBZQP",
@@ -35851,6 +35858,17 @@
     "status": "machine",
     "text": "支柱是“墙”还是“路标”的问题，答案是**路标**：模板引擎在每个位置都允许跨支柱读取，除非自包含规则明确禁止（Recipe `provides:` 和 Recipe `source:` 块读取 `.context.inject` / `.context.uses`；见 [`templates/expansion-matrix.md`](../templates/expansion-matrix.md)）。支柱边界是编写纪律，而非语言强制。"
   },
+  "30d172de8811b88d": {
+    "at": "2026-11-17T11:23:31.919Z",
+    "job": "session-0001-20261117112331",
+    "revision": {
+      "from": "00a01cb20d8a18ce",
+      "reviewed": false
+    },
+    "srcHash": "30d172de8811b88d",
+    "status": "machine",
+    "text": "**模式无关性（开源字典）**：核心编译器与物理执行层无关。它没有为 Helm、Terraform 或 Docker Compose 硬编码任何模式。相反，Ops Recipe 的 `source` 块是一个开放字典，其键由 provider 定义，并以 `.source.*` 的形式提供给该 Recipe 的模板。核心通过内置的 `{ kind, url, version }` 形式解析*获取的* source（kind：`helm-oci-chart`、`helm-https-chart`、`compose-https-fragment`、`git-repository`, `bicep-module-oci`, `terraform-module-oci`），这已经使编译器与其所操作的云语言解耦。有关获取模型，请参阅 [Recipe 的 `source` 参考](../language-reference/entities/recipe.md#a-wasm-driven-source-schemas)。"
+  },
   "30d1c81828e5fa9f": {
     "at": "2026-10-22T02:42:41.008096+00:00",
     "job": "msgbatch_01EVa3HgqoCo1GqPpjD6nota",
@@ -39653,6 +39671,17 @@
     "srcHash": "36696866adbf4e62",
     "status": "machine",
     "text": "PluginDescriptorMeta"
+  },
+  "366a0212b3411070": {
+    "at": "2026-11-17T11:23:31.919Z",
+    "job": "session-0001-20261117112331",
+    "revision": {
+      "from": "f1066bc9c9e27fb1",
+      "reviewed": false
+    },
+    "srcHash": "366a0212b3411070",
+    "status": "machine",
+    "text": "`artifact_cache_dir` 根目录包含三个并列的子树，由一次 `aggrega pull` 调用统一填充，每类固定依赖各对应一个：`<artifact_cache_dir>/entities/<encoded-kind>/<encoded-reference>/<encoded-version>/` 用于目录实体（Components、Features、Recipes、FeatureRecipes、Aggregates、各类库，以及 Plugins 及其发布的可执行文件），其中的类型是实体发布时所属的类型，因此共享同一引用和版本的两个不同类型的实体——同名的一个 Component 和一个 Recipe——占用两个槽；`<artifact_cache_dir>/source-artifacts/<kind>/<host>/<path>/<version>/<digest-prefix>/` 用于从 Recipe / FeatureRecipe 的 `spec.source` 字段拉取的源制品（Helm chart、compose 片段、Git 仓库、Bicep 模块、OpenTofu 模块包）；`<artifact_cache_dir>/inputs/sha256/<hex-digest>` 用于外部输入，即 provider 在渲染时向宿主请求的远程文档，例如 chart 的 `values.schema.json` 中指向某个 URL 的 `$ref`。每个源制品缓存槽包含以 `blob.tgz` 保存的权威归档（无论哪种类型：chart、compose 片段或 Git 仓库为 gzip 压缩的 tar；OCI 模块类型为按发布时原样选取的层，`bicep-module-oci` source 为 ARM 模板层，`terraform-module-oci` source 为 `archive/zip` 包）、一个在每次构建读取时重新生成的派生 `extracted/` 目录，以及一个记录制品 `{kind, url, version, digest, mediatype, pulled_at}` 标识的 `metadata.yaml` 文件；对于 OCI 模块类型，`mediatype` 是该槽所存放层的媒体类型。每个实体缓存槽包含获取时的已发布制品，以及用于校验它的 OCI manifest。对于文档可以引用其旁边文件的那几类实体（Recipe、FeatureRecipe、Component、Feature），其缓存槽还包含一个派生的 `extracted/` 目录，存放该制品携带的文件，位于以制品内容摘要命名的目录中：若实体以归档形式发布，则为文档及实体声明的文件；若以文档本身发布，则仅为文档（§6）。实体的目录在每次读取时都会从已校验的制品中重新铺设，与源制品的文件相同：每个文件都会与制品比对，手动在该目录中修改或添加的文件会被丢弃而不会被读取，`extracted/` 下的其他内容均不会被读取，未通过校验的制品会在铺设任何内容之前被拒绝。一次读取只重写与制品不同的部分，因此同时读取同一缓存的构建（`aggrega serve` 并行处理的请求，或针对同一工作区的两条命令）各自都能得到完整的文件。12 个字符的 `<digest-prefix>` 段将在不同上游摘要下重新打标签的同一 `{kind, url, version}` 区分到不同的槽中。外部输入不需要这样的槽：它存储为单个文件，以 lockfile 固定的内容摘要命名，因此之后的构建读取的内容由固定值寻址，而不是由字节来源的 URL 寻址，这使得该构建在禁止网络访问时仍能提供该输入。"
   },
   "366b3145b5fbf6f6": {
     "at": "2026-10-22T04:05:10.557953+00:00",
@@ -92355,6 +92384,17 @@
     "status": "machine",
     "text": "如果工作区不提供任何 Release——没有配置、没有标记，也没有恰好一个可回退的文件——指示器会如实说明，并说明两种情况中的哪一种成立。当存在可供选择的 Releases 而你未处于其中任何一个时，它显示 **Release: none selected**（Release：未选择）；当 Aggrega 工作区根本没有提供任何 Release 时，它显示 **Release: none available**（Release：无可用项）。后者不是你能通过选择来解决的状态，因此其工具提示会列出摆脱它的方法——在另一个 Aggrega 工作区中工作，或创建一个 Release——而不是把你引向一个只会返回空结果的列表。当尚无任何东西读取过工作区时，工具提示会如实说明，而不是报告一个没有人统计过的数量。每一种显示都附带所查找的内容，完整说明会写入 Aggrega 输出通道。在该状态下验证仍会运行：你会得到文档自身即可给出的检查结果——它能否解析，以及其自身结构是否可接受——而需要 Release 的检查会被跳过，直到你选择一个为止。"
   },
+  "7e940a05d1974214": {
+    "at": "2026-11-17T11:23:31.919Z",
+    "job": "session-0001-20261117112331",
+    "revision": {
+      "from": "882d5958fcd53997",
+      "reviewed": false
+    },
+    "srcHash": "7e940a05d1974214",
+    "status": "machine",
+    "text": "**AWS CloudFormation**、**Azure Resource Manager（ARM）/ Bicep** 和 **Google Cloud Deployment Manager** 是各自云平台的原生声明式预配格式。Aggrega 随附一个输出栈模板的 [CloudFormation 渲染器](../language-reference/providers/cloudformation.md)和一个输出资源组模板的 [ARM 渲染器](../language-reference/providers/arm.md)；Deployment Manager 是作者可以通过开放插槽渲染到的静态制品目标，Bicep 源会先用 `bicep build` 编译为 ARM 模板，再由 ARM 渲染器读取。"
+  },
   "7e942d3d53271e04": {
     "at": "2026-10-22T03:24:54.319294+00:00",
     "job": "msgbatch_01Quwt1bUbFp43kX3BAncRfN",
@@ -106247,6 +106287,13 @@
     "srcHash": "91b33db5b9dc3a0f",
     "status": "machine",
     "text": "**决策键归集的是消息，而不是消息列表。** 为每条路由产生一个消息列表的表达式在决策键下会被拒绝——错误会说明它归集了一个列表类型的值而不是消息——因此规则应为每条路由产生一条记录，并由其构造消息。此外，表达式产生两次的消息会被报告两次：下文描述的排序只对键所归集的内容排序，不会去除重复项。"
+  },
+  "91b7f02021d0d080": {
+    "at": "2026-11-17T11:23:31.919Z",
+    "job": "session-0001-20261117112331",
+    "srcHash": "91b7f02021d0d080",
+    "status": "machine",
+    "text": "在 `arm` 上没有这样的资源，正如关于其不能使用之处的那一段所说。"
   },
   "91b854a090c62ca4": {
     "at": "2026-10-22T01:50:22.319444+00:00",
@@ -136306,6 +136353,17 @@
     "status": "machine",
     "text": "**哪些内容会被保留不报。**来自 `config-show`：自身值为位置的设置的 `value`——服务或健康检查地址（可能是套接字文件）；证书、私钥或密钥集文件；catalog 目录，以及 `workspace.releases` 下各 Release 自己的 catalog 目录（其每个条目都以 Release 文件为键）；插件引用；创作用 Release。此外还有决定该设置的层为配置文件时的 `source`，因为这样的层以该文件自身路径命名——出于同样原因、以同样写法，还有 `layers` 中的配置文件条目。来自 `plugin-list`：引用本身为文件系统路径时插件的 `uri`，以及解析或描述失败的文本，因为它由尝试过的位置组成，会指出引用本身未指出的位置。来自两者：`workspace_root`。"
   },
+  "ba027cdca5d8f1f9": {
+    "at": "2026-11-17T11:23:31.919Z",
+    "job": "session-0001-20261117112331",
+    "revision": {
+      "from": "729ea6932f6ba2f9",
+      "reviewed": false
+    },
+    "srcHash": "ba027cdca5d8f1f9",
+    "status": "machine",
+    "text": "Aggrega 可插拔的 WebAssembly（Wasm）渲染插槽意味着社区可以为任何目标工具编写渲染插件。核心项目随附 Helm、Helm-chart、Compose、Terraform、CloudFormation 和 Azure Resource Manager 的渲染插件——覆盖 Kubernetes GitOps、可再分发的 chart 分发、本地开发以及声明式云资源——而开放的插槽让团队无需改动核心即可面向其他静态制品界面。评估 Aggrega 的团队往往来自围绕某些工具构建的生态系统，这些工具位于技术栈中相邻但不同的部分。下面的工具按它们与 Aggrega 的关系分组：它渲染到的制品格式、它所共享的 AOT 编译器领域、消费其输出的控制平面，以及它不针对的相邻配置管理领域。"
+  },
   "ba03976208b46b67": {
     "at": "2026-10-22T04:56:15.693842+00:00",
     "job": "msgbatch_01WhSSFNVABxaLkxubBM2sHx",
@@ -156824,6 +156882,17 @@
     "status": "machine",
     "text": "Kubernetes 目标的运维记录。指定保存 Admin API 密钥的 Secret，并按模块作用域 ID 为模块的内部组件设定规格；其余均使用 schema 默认值。"
   },
+  "d55c34b785c54f79": {
+    "at": "2026-11-17T11:23:31.919Z",
+    "job": "session-0001-20261117112331",
+    "revision": {
+      "from": "4b602600847e0c91",
+      "reviewed": false
+    },
+    "srcHash": "d55c34b785c54f79",
+    "status": "machine",
+    "text": "**Aggrega 渲染到的制品格式。**这些是随附的渲染插件所产生的 Kubernetes 和本地开发输出；随附的 Terraform、CloudFormation 和 ARM 渲染器出现在下一组中，与这些工具并列。"
+  },
   "d55dc238b13b8ffc": {
     "at": "2026-10-22T01:33:54.654983+00:00",
     "job": "msgbatch_01LUPrwrVc3dPv7pYcgEkmHm",
@@ -162314,6 +162383,17 @@
     "srcHash": "dcbb5844e1d3e7e6",
     "status": "machine",
     "text": "**关于本页的代码块。** 每个显示输出的代码块都复制自按出现顺序真实运行下列步骤的结果，并遵循[输出约定](../examples/reading-the-output.md)：一个代码块要么是完整的，要么是标出了省略行位置的摘录。两个占位符代表在每台机器上都不同的绝对路径：`<guest>` 是你复制的骨架所在的目录，`<workspace>` 是挂接该插件的工作区所在的目录。"
+  },
+  "dcbc1d0f2a410a77": {
+    "at": "2026-11-17T11:23:31.919Z",
+    "job": "session-0001-20261117112331",
+    "revision": {
+      "from": "c3a2b0dd031a7302",
+      "reviewed": false
+    },
+    "srcHash": "dcbc1d0f2a410a77",
+    "status": "machine",
+    "text": "这是一个 secret 还是两个，取决于两端在何处解析 secret。provider 在一个 **secret 作用域**内按引用解析 secret：在 `helm` 上是 Kubernetes 命名空间，在 `compose` 上是 Compose 项目，在 `terraform` 上是边界的根配置，在 `cloudformation` 上是部署到某个 AWS 账户和区域中的堆栈，在 `arm` 上是部署到某个资源组中的模板。两端位于同一作用域时，它们引用同一个 secret 资源。位于不同作用域时，每一端各持有一个自己的 secret 资源，由同一个存储条目实现。Manifest 为每一端选择实现——按 Feature 类型，或者针对单个附件按其名称，连接附件的名称为 `<alias>.<slot>`（上例中为 `local.credential`）。由于同一个参数为两者提供输入，两个实现会把 `origin` 读作同一种定位符：都是 Secret 的名称，都是存储条目的键，或都是值本身。"
   },
   "dcbc67813a278532": {
     "at": "2026-11-12T21:38:06.030Z",

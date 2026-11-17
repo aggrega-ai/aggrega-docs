@@ -7541,6 +7541,13 @@
     "status": "machine",
     "text": "Entitas yang menjadi dasar penilaian kandidat, berdasarkan nama, dibaca dari apa yang dideklarasikan oleh dokumen workspace."
   },
+  "09dc0b3c7aaad490": {
+    "at": "2026-11-17T11:23:31.919Z",
+    "job": "session-0001-20261117112331",
+    "srcHash": "09dc0b3c7aaad490",
+    "status": "machine",
+    "text": "**Pada `arm`, bentuk yang membangkitkan secret menghentikan build.** ARM tidak memiliki generator secret, sehingga build yang mengikat `core/random-password` atau `core/generated-secret` pada `arm` berhenti dengan E0099 karena tidak ada Recipe, seperti pada compose. Secret yang disediakan berpindah sebagai parameter `securestring` yang diberikan saat template di-deploy, atau sebagai rujukan Key Vault yang ditulis Recipe konsumen pada parameter template yang diambil dari source; template tidak pernah membawa nilainya sebagai teks. Rute Key Vault katalog adalah `arm/key-vault-secret`, yang memublikasikan ID sumber daya secret untuk `core/referenced-secret`, dan, pada server atau worker Container Apps, `infra.overrides.secrets`, yang menulis secret aplikasi berbasis Key Vault yang dinamai variabel kontainer dengan `secretRef`; keduanya dijelaskan di [halaman provider `arm`](../language-reference/providers/arm.md#key-vault-routes)."
+  },
   "09dea8d83c40678f": {
     "at": "2026-10-23T08:34:04.552030+00:00",
     "job": "msgbatch_01V7s7eyUrCwoDSpkeCSpVQQ",
@@ -35862,6 +35869,17 @@
     "status": "machine",
     "text": "Pertanyaan dinding-pilar-vs-penanda dijawab dengan **penanda**: mesin templat mengizinkan pembacaan lintas pilar di setiap situs kecuali secara eksplisit dilarang oleh aturan kemandirian (blok `provides:` Recipe dan blok `source:` Recipe yang membaca `.context.inject` / `.context.uses`; didokumentasikan di [`templates/expansion-matrix.md`](../templates/expansion-matrix.md)). Batas pilar adalah disiplin penulisan, bukan penegakan oleh bahasa."
   },
+  "30d172de8811b88d": {
+    "at": "2026-11-17T11:23:31.919Z",
+    "job": "session-0001-20261117112331",
+    "revision": {
+      "from": "00a01cb20d8a18ce",
+      "reviewed": false
+    },
+    "srcHash": "30d172de8811b88d",
+    "status": "machine",
+    "text": "**Agnostisisme skema (kamus sumber terbuka):** Kompiler inti bersifat agnostik terhadap lapisan eksekusi fisik. Kompiler tidak memiliki skema hardcode untuk Helm, Terraform, atau Docker Compose. Sebagai gantinya, blok `source` dari Recipe Ops adalah kamus terbuka yang kuncinya ditentukan oleh provider dan muncul di templat Recipe sebagai `.source.*`. Inti menyelesaikan source yang *diambil* melalui bentuk bawaan `{ kind, url, version }` (kind: `helm-oci-chart`, `helm-https-chart`, `compose-https-fragment`, `git-repository`, `bicep-module-oci`, `terraform-module-oci`), yang sudah memisahkan kompiler dari bahasa cloud yang dimanipulasinya. Lihat [referensi `source` Recipe](../language-reference/entities/recipe.md#a-wasm-driven-source-schemas) untuk model pengambilan."
+  },
   "30d1c81828e5fa9f": {
     "at": "2026-10-23T06:14:09.798554+00:00",
     "job": "msgbatch_0114PSvCA8TYhfY7XN2T8bxB",
@@ -39664,6 +39682,17 @@
     "srcHash": "36696866adbf4e62",
     "status": "machine",
     "text": "PluginDescriptorMeta"
+  },
+  "366a0212b3411070": {
+    "at": "2026-11-17T11:23:31.919Z",
+    "job": "session-0001-20261117112331",
+    "revision": {
+      "from": "f1066bc9c9e27fb1",
+      "reviewed": false
+    },
+    "srcHash": "366a0212b3411070",
+    "status": "machine",
+    "text": "Root `artifact_cache_dir` membawa tiga subpohon paralel yang diisi secara seragam oleh satu pemanggilan `aggrega pull`, satu per kelas dependensi yang disematkan: `<artifact_cache_dir>/entities/<encoded-kind>/<encoded-reference>/<encoded-version>/` untuk entitas katalog (Components, Features, Recipes, FeatureRecipes, Aggregates, pustaka, dan Plugins beserta file eksekusi yang dipublikasikannya), dengan jenis berupa jenis yang dipakai entitas saat dipublikasikan, sehingga dua entitas dengan jenis berbeda yang berbagi referensi dan versi yang sama — sebuah Component dan sebuah Recipe dengan nama yang sama — menempati dua slot; `<artifact_cache_dir>/source-artifacts/<kind>/<host>/<path>/<version>/<digest-prefix>/` untuk artefak sumber yang ditarik dari field `spec.source` Recipe / FeatureRecipe (chart Helm, fragmen compose, repositori Git, modul Bicep, paket modul OpenTofu); dan `<artifact_cache_dir>/inputs/sha256/<hex-digest>` untuk input eksternal — dokumen jarak jauh yang diminta provider dari host saat merender, seperti `$ref` di `values.schema.json` sebuah chart yang menunjuk ke URL. Setiap slot cache artefak sumber membawa arsip yang otoritatif sebagai `blob.tgz`, apa pun jenisnya — tar terkompresi gzip untuk chart, fragmen compose, atau repositori Git, dan layer terpilih sebagaimana dipublikasikan untuk jenis modul OCI (layer template ARM dari source `bicep-module-oci`, paket `archive/zip` dari source `terraform-module-oci`) —, direktori turunan `extracted/` yang dibuat ulang pada setiap pembacaan build, dan file `metadata.yaml` yang mencatat identitas `{kind, url, version, digest, mediatype, pulled_at}` artefak; untuk jenis modul OCI, `mediatype` adalah tipe media dari layer yang dimuat slot. Setiap slot cache entitas membawa artefak yang dipublikasikan sebagaimana diambil dan manifes OCI yang menjadi acuan verifikasinya. Slot dari setiap jenis yang dokumennya dapat menamai file di sampingnya — Recipe, FeatureRecipe, Component, Feature — juga membawa direktori turunan `extracted/` yang memuat file-file yang dibawa artefak tersebut, dalam direktori yang dinamai berdasarkan digest konten artefak: dokumen dan file yang dideklarasikan entitas jika dipublikasikan sebagai arsip, dan dokumen saja jika dipublikasikan sebagai dokumennya (§6). Direktori entitas disusun di sana dari artefak yang terverifikasi pada setiap pembacaan, dengan cara yang sama seperti file artefak sumber: setiap file diperiksa terhadap artefak, file yang diubah atau ditambahkan secara manual di direktori tersebut dibuang alih-alih dibaca, tidak ada hal lain di bawah `extracted/` yang dibaca, dan artefak yang gagal verifikasi ditolak sebelum apa pun disusun. Pembacaan hanya menulis ulang apa yang berbeda dari artefak, sehingga build yang membaca satu cache pada saat yang sama — permintaan yang ditangani `aggrega serve` secara berdampingan, atau dua perintah atas satu workspace — masing-masing menemukan file yang diserahkan kepadanya dalam keadaan utuh. Segmen `<digest-prefix>` 12 karakter memisahkan `{kind, url, version}` yang sama yang diberi tag ulang pada digest upstream berbeda ke dalam slot yang berbeda. Input eksternal tidak memerlukan slot seperti itu: input disimpan sebagai satu file yang dinamai berdasarkan digest konten tempat lockfile menyematkannya, sehingga apa yang dibaca build berikutnya dialamatkan oleh sematan, bukan oleh URL asal byte tersebut — itulah yang memungkinkan build tersebut menyajikan input dengan jaringan ditolak."
   },
   "366b3145b5fbf6f6": {
     "at": "2026-10-23T08:19:00.586906+00:00",
@@ -92370,6 +92399,17 @@
     "status": "machine",
     "text": "Jika ruang kerja tidak menawarkan Release apa pun — tidak ada yang dikonfigurasi, tidak ada penanda, dan tidak ada tepat satu file untuk dijadikan cadangan — indikator menyatakannya, dan menyatakan mana dari dua hal yang benar. Indikator menampilkan **Release: none selected** (Release: tidak ada yang dipilih) jika ada Releases untuk dipilih dan Anda tidak berada di salah satunya, dan **Release: none available** (Release: tidak ada yang tersedia) jika ruang kerja Aggrega sama sekali tidak menawarkan satu pun. Yang kedua bukan keadaan yang dapat Anda jawab dengan memilih, sehingga tooltip-nya menyebut cara keluar darinya — bekerja di ruang kerja Aggrega lain, atau membuat Release — alih-alih mengarahkan Anda ke daftar yang hanya bisa kembali kosong. Jika belum ada yang membaca ruang kerja, tooltip menyatakan hal itu alih-alih melaporkan jumlah yang tidak dihitung siapa pun. Setiap tampilan tersebut memuat apa yang dicari, dan penjelasan lengkapnya ditulis ke saluran output Aggrega. Validasi tetap berjalan dalam keadaan itu: Anda mendapatkan temuan yang dapat dijawab sebuah dokumen sendiri — apakah dokumen itu dapat di-parse, dan apakah bentuknya sendiri dapat diterima — dan pemeriksaan yang memerlukan Release dilewati sampai Anda memilihnya."
   },
+  "7e940a05d1974214": {
+    "at": "2026-11-17T11:23:31.919Z",
+    "job": "session-0001-20261117112331",
+    "revision": {
+      "from": "882d5958fcd53997",
+      "reviewed": false
+    },
+    "srcHash": "7e940a05d1974214",
+    "status": "machine",
+    "text": "**AWS CloudFormation**, **Azure Resource Manager (ARM) / Bicep**, dan **Google Cloud Deployment Manager** adalah format provisioning deklaratif bawaan untuk cloud masing-masing. Aggrega menyertakan [renderer CloudFormation](../language-reference/providers/cloudformation.md) yang menghasilkan template stack, dan [renderer ARM](../language-reference/providers/arm.md) yang menghasilkan template grup sumber daya; Deployment Manager adalah target artefak statis yang dapat dirender penulis melalui soket terbuka, dan sumber Bicep dikompilasi menjadi template ARM dengan `bicep build` sebelum dibaca oleh renderer ARM."
+  },
   "7e942d3d53271e04": {
     "at": "2026-10-23T08:18:59.335953+00:00",
     "job": "msgbatch_01EKdV7ig6aK2QwC1Z8ktVoJ",
@@ -106258,6 +106298,13 @@
     "srcHash": "91b33db5b9dc3a0f",
     "status": "machine",
     "text": "**Kunci keputusan mengumpulkan pesan, bukan list pesan.** Ekspresi yang menghasilkan satu\n  list pesan per rute ditolak di bawah kunci keputusan — kesalahannya menyatakan bahwa kunci itu\n  mengumpulkan nilai bertipe list alih-alih pesan — sehingga aturan menghasilkan satu\n  record per rute dan menyusun pesan darinya. Dan pesan yang dihasilkan ekspresi\n  dua kali dilaporkan dua kali: pengurutan yang dijelaskan di bawah mengurutkan apa yang dikumpulkan\n  sebuah kunci, dan tidak menghapus pengulangan."
+  },
+  "91b7f02021d0d080": {
+    "at": "2026-11-17T11:23:31.919Z",
+    "job": "session-0001-20261117112331",
+    "srcHash": "91b7f02021d0d080",
+    "status": "machine",
+    "text": "Pada `arm` tidak ada sumber daya semacam itu, sebagaimana dijelaskan paragraf tentang di mana sumber daya itu tidak dapat digunakan."
   },
   "91b854a090c62ca4": {
     "at": "2026-10-22T11:13:35.211Z",
@@ -136293,6 +136340,17 @@
     "status": "machine",
     "text": "**Apa yang ditahan.** Dari `config-show`: `value` sebuah pengaturan jika nilai pengaturan itu sendiri adalah lokasi — alamat penyajian atau health, yang dapat berupa file socket; file sertifikat, kunci privat, atau set kunci; direktori katalog, serta direktori katalog milik sebuah Release di bawah `workspace.releases`, yang setiap entrinya berkunci file Release; referensi plugin; Release authoring. Juga `source` sebuah pengaturan jika lapisan yang menentukannya adalah file konfigurasi, karena lapisan semacam itu dinamai dengan path file itu sendiri — dan, dengan ejaan yang sama dan untuk alasan yang sama, entri file konfigurasi dalam `layers`. Dari `plugin-list`: `uri` sebuah plugin jika referensi tersebut sendiri merupakan path sistem file, dan teks kegagalan resolusi atau deskripsi, yang disusun dari tempat-tempat yang dicoba sehingga menyebutkan lokasi yang tidak disebutkan oleh referensi itu sendiri. Dari keduanya: `workspace_root`."
   },
+  "ba027cdca5d8f1f9": {
+    "at": "2026-11-17T11:23:31.919Z",
+    "job": "session-0001-20261117112331",
+    "revision": {
+      "from": "729ea6932f6ba2f9",
+      "reviewed": false
+    },
+    "srcHash": "ba027cdca5d8f1f9",
+    "status": "machine",
+    "text": "Soket rendering WebAssembly (Wasm) Aggrega yang dapat dipasang berarti komunitas dapat menulis plugin renderer untuk alat target apa pun. Proyek inti menyertakan plugin rendering untuk Helm, Helm-chart, Compose, Terraform, CloudFormation, dan Azure Resource Manager — mencakup GitOps Kubernetes, distribusi chart yang dapat didistribusikan ulang, pengembangan lokal, dan sumber daya cloud deklaratif — sementara soket yang terbuka memungkinkan tim menargetkan permukaan artefak statis lain tanpa menyentuh inti. Tim yang mengevaluasi Aggrega sering berasal dari ekosistem yang dibangun di sekitar alat-alat yang berada di bagian stack yang berdekatan tetapi berbeda. Alat-alat di bawah ini dikelompokkan berdasarkan hubungannya dengan Aggrega: format artefak yang dirender Aggrega, ruang compiler AOT yang dibagikannya, control plane yang mengonsumsi output-nya, dan domain manajemen konfigurasi berdekatan yang tidak ditargetkannya."
+  },
   "ba03976208b46b67": {
     "at": "2026-10-23T08:19:02.010279+00:00",
     "job": "msgbatch_01HBya4ZW1cPiVLxQRwKg5rx",
@@ -156795,6 +156853,17 @@
     "status": "machine",
     "text": "Catatan operator untuk target Kubernetes. Menyebutkan Secret yang menyimpan kunci Admin API, dan menentukan ukuran komponen internal modul berdasarkan ID yang berlingkup modul; selebihnya diserahkan pada nilai default schema."
   },
+  "d55c34b785c54f79": {
+    "at": "2026-11-17T11:23:31.919Z",
+    "job": "session-0001-20261117112331",
+    "revision": {
+      "from": "4b602600847e0c91",
+      "reviewed": false
+    },
+    "srcHash": "d55c34b785c54f79",
+    "status": "machine",
+    "text": "**Format artefak yang dirender Aggrega.** Ini adalah output Kubernetes dan pengembangan lokal yang dihasilkan plugin renderer bawaan; renderer Terraform, CloudFormation, dan ARM bawaan muncul di samping alat-alat tersebut pada kelompok berikutnya."
+  },
   "d55dc238b13b8ffc": {
     "at": "2026-10-22T07:22:08.562Z",
     "job": "session-0022-20261022072208",
@@ -162289,6 +162358,17 @@
     "srcHash": "dcbb5844e1d3e7e6",
     "status": "machine",
     "text": "**Tentang blok di halaman ini.** Setiap blok yang menampilkan output disalin dari eksekusi nyata langkah-langkah di bawah, sesuai urutan kemunculannya, mengikuti [konvensi output](../examples/reading-the-output.md): sebuah blok bisa lengkap, atau berupa kutipan yang menandai tempat baris dihilangkan. Dua placeholder mewakili path absolut yang berbeda di setiap mesin: `<guest>` adalah direktori salinan kerangka Anda, dan `<workspace>` adalah direktori workspace tempat plugin dipasang."
+  },
+  "dcbc1d0f2a410a77": {
+    "at": "2026-11-17T11:23:31.919Z",
+    "job": "session-0001-20261117112331",
+    "revision": {
+      "from": "c3a2b0dd031a7302",
+      "reviewed": false
+    },
+    "srcHash": "dcbc1d0f2a410a77",
+    "status": "machine",
+    "text": "Apakah itu satu secret atau dua bergantung pada tempat kedua ujung me-resolve secret. Sebuah provider me-resolve secret berdasarkan rujukan di dalam **cakupan secret**: namespace Kubernetes pada `helm`, proyek Compose pada `compose`, konfigurasi root sebuah batas pada `terraform`, pada `cloudformation` sebuah stack, di akun dan region AWS tempat stack itu di-deploy, dan pada `arm` template, di grup sumber daya tempat template itu di-deploy. Jika kedua ujung berada dalam satu cakupan, keduanya merujuk satu sumber daya secret. Jika berada di cakupan berbeda, setiap ujung memegang sumber daya secret miliknya sendiri, yang direalisasikan dari entri penyimpanan yang sama. Manifest memilih realisasi setiap ujung — berdasarkan tipe Feature, atau untuk satu lampiran berdasarkan namanya, yang untuk lampiran koneksi adalah `<alias>.<slot>` (`local.credential` di atas). Karena satu parameter mengisi keduanya, kedua realisasi membaca `origin` sebagai jenis lokator yang sama: keduanya nama sebuah Secret, keduanya kunci entri penyimpanan, atau keduanya nilai itu sendiri."
   },
   "dcbc67813a278532": {
     "at": "2026-11-12T21:38:06.030Z",

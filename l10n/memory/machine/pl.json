@@ -7541,6 +7541,13 @@
     "status": "machine",
     "text": "Encja, względem której oceniani są kandydaci, podana z nazwy i odczytana z tego, co deklarują dokumenty obszaru roboczego."
   },
+  "09dc0b3c7aaad490": {
+    "at": "2026-11-17T11:23:31.919Z",
+    "job": "session-0001-20261117112331",
+    "srcHash": "09dc0b3c7aaad490",
+    "status": "machine",
+    "text": "**W `arm` formy generujące zatrzymują build.** ARM nie ma generatora sekretów, więc build wiążący `core/random-password` lub `core/generated-secret` w `arm` zatrzymuje się z błędem E0099 z braku encji Recipe, tak jak w compose. Dostarczony sekret jest przekazywany jako parametr `securestring` podawany przy wdrażaniu szablonu albo jako odwołanie do Key Vault, które konsumująca encja Recipe zapisuje w parametrze szablonu pobranego ze źródła; szablon nigdy nie niesie wartości jako tekstu. Trasy Key Vault katalogu to `arm/key-vault-secret`, który publikuje identyfikator zasobu sekretu dla `core/referenced-secret`, oraz — na serwerze lub workerze Container Apps — `infra.overrides.secrets`, który zapisuje sekret aplikacji oparty na Key Vault, nazywany przez zmienną kontenera za pomocą `secretRef`; obie opisano na [stronie dostawcy `arm`](../language-reference/providers/arm.md#key-vault-routes)."
+  },
   "09dea8d83c40678f": {
     "at": "2026-10-23T00:02:44.489841+00:00",
     "job": "msgbatch_017Co8FT9U2dpLww3D8gVXkh",
@@ -35844,6 +35851,17 @@
     "status": "machine",
     "text": "Kwestia „mury czy drogowskazy” między filarami rozstrzyga się na rzecz **drogowskazów**: silnik szablonów pozwala na odczyty między filarami w każdym miejscu, chyba że wprost zabraniają tego reguły samowystarczalności (blok `provides:` encji Recipe i blok `source:` encji Recipe odczytujące `.context.inject` / `.context.uses`; opisane w [`templates/expansion-matrix.md`](../templates/expansion-matrix.md)). Granice filarów to dyscyplina tworzenia, a nie wymuszenie przez język."
   },
+  "30d172de8811b88d": {
+    "at": "2026-11-17T11:23:31.919Z",
+    "job": "session-0001-20261117112331",
+    "revision": {
+      "from": "00a01cb20d8a18ce",
+      "reviewed": false
+    },
+    "srcHash": "30d172de8811b88d",
+    "status": "machine",
+    "text": "**Agnostycyzm wobec schematów (słownik open source):** Główny kompilator jest agnostyczny wobec fizycznych warstw wykonawczych. Nie ma zakodowanych na sztywno schematów dla Helm, Terraform ani Docker Compose. Zamiast tego blok `source` encji Recipe dla Ops jest otwartym słownikiem, którego klucze definiuje dostawca i które trafiają do szablonów encji Recipe jako `.source.*`. Rdzeń rozwiązuje *pobierane* źródło za pomocą wbudowanej formy `{ kind, url, version }` (rodzaje: `helm-oci-chart`, `helm-https-chart`, `compose-https-fragment`, `git-repository`, `bicep-module-oci`, `terraform-module-oci`), co już oddziela kompilator od języków chmurowych, którymi manipuluje. Model pobierania opisuje [dokumentacja `source` encji Recipe](../language-reference/entities/recipe.md#a-wasm-driven-source-schemas)."
+  },
   "30d1c81828e5fa9f": {
     "at": "2026-10-22T11:59:38.351715+00:00",
     "job": "msgbatch_01JciMUysQvZRBY7XtfGAzJm",
@@ -39646,6 +39664,17 @@
     "srcHash": "36696866adbf4e62",
     "status": "machine",
     "text": "PluginDescriptorMeta"
+  },
+  "366a0212b3411070": {
+    "at": "2026-11-17T11:23:31.919Z",
+    "job": "session-0001-20261117112331",
+    "revision": {
+      "from": "f1066bc9c9e27fb1",
+      "reviewed": false
+    },
+    "srcHash": "366a0212b3411070",
+    "status": "machine",
+    "text": "Katalog główny `artifact_cache_dir` zawiera trzy równoległe poddrzewa, które jedno wywołanie `aggrega pull` wypełnia jednolicie, po jednym na każdą klasę przypiętych zależności: `<artifact_cache_dir>/entities/<encoded-kind>/<encoded-reference>/<encoded-version>/` dla encji katalogu (Components, Features, Recipes, FeatureRecipes, Aggregates, biblioteki oraz Plugins wraz z publikowanymi przez nie plikami wykonywalnymi), gdzie rodzaj jest tym, pod którym encja jest publikowana, więc dwie encje różnych rodzajów, które mają wspólne odwołanie i wersję — encja Component i encja Recipe o tej samej nazwie — zajmują dwa sloty; `<artifact_cache_dir>/source-artifacts/<kind>/<host>/<path>/<version>/<digest-prefix>/` dla artefaktów źródłowych pobranych z pól `spec.source` encji Recipe / FeatureRecipe (charty Helm, fragmenty compose, repozytoria Git, moduły Bicep, pakiety modułów OpenTofu); oraz `<artifact_cache_dir>/inputs/sha256/<hex-digest>` dla wejść zewnętrznych — zdalnych dokumentów, o które provider prosi hosta podczas renderowania, takich jak `$ref` w pliku `values.schema.json` chartu, wskazujący na URL. Każdy slot pamięci podręcznej artefaktu źródłowego zawiera wiarygodne archiwum jako `blob.tgz`, bez względu na rodzaj — gzipowany tar dla chartu, fragmentu compose lub repozytorium Git oraz wybraną warstwę w postaci opublikowanej dla rodzaju modułu OCI (warstwę szablonu ARM źródła `bicep-module-oci`, pakiet `archive/zip` źródła `terraform-module-oci`) —, pochodny katalog `extracted/` generowany od nowa przy każdym odczycie przez build oraz plik `metadata.yaml` zapisujący tożsamość `{kind, url, version, digest, mediatype, pulled_at}` artefaktu; dla rodzaju modułu OCI `mediatype` jest typem nośnika warstwy, którą zawiera slot. Każdy slot pamięci podręcznej encji zawiera opublikowany artefakt w postaci, w jakiej został pobrany, oraz manifest OCI, względem którego jest weryfikowany. Slot każdego rodzaju, którego dokument może nazwać plik obok siebie — Recipe, FeatureRecipe, Component, Feature — zawiera również pochodny katalog `extracted/` z plikami, które niesie dany artefakt, w katalogu nazwanym od skrótu treści artefaktu: dokument i pliki zadeklarowane przez encję, jeśli została opublikowana jako archiwum, oraz sam dokument, jeśli została opublikowana jako swój dokument (§6). Katalog encji jest tam rozkładany z zweryfikowanego artefaktu przy każdym odczycie, tak samo jak pliki artefaktu źródłowego: każdy plik jest sprawdzany względem artefaktu, plik zmieniony lub dodany ręcznie w tym katalogu jest odrzucany zamiast odczytywany, nic innego pod `extracted/` nie jest odczytywane, a artefakt, który nie przejdzie weryfikacji, jest odrzucany, zanim cokolwiek zostanie rozłożone. Odczyt przepisuje tylko to, co różni się od artefaktu, więc buildy odczytujące jedną pamięć podręczną w tym samym czasie — żądania obsługiwane równolegle przez `aggrega serve` lub dwa polecenia na jednym obszarze roboczym — znajdują każdy w całości pliki, które otrzymały. 12-znakowy segment `<digest-prefix>` rozdziela do odrębnych slotów to samo `{kind, url, version}` ponownie otagowane przy różnych skrótach upstream. Wejście zewnętrzne nie potrzebuje takiego slotu: jest przechowywane jako pojedynczy plik nazwany od skrótu treści, do którego przypina je plik blokady, więc to, co odczytuje późniejszy build, jest adresowane przez przypięcie, a nie przez URL, z którego przyszły bajty — i właśnie to pozwala temu buildowi serwować wejście przy zablokowanej sieci."
   },
   "366b3145b5fbf6f6": {
     "at": "2026-10-22T23:16:14.159554+00:00",
@@ -92346,6 +92375,17 @@
     "status": "machine",
     "text": "Jeśli obszar roboczy nie oferuje żadnej encji Release — nic nie jest skonfigurowane, nie ma znacznika ani dokładnie jednego pliku, do którego można się odwołać — wskaźnik to sygnalizuje i mówi, która z dwóch sytuacji zachodzi. Pokazuje **Release: none selected** (Release: nie wybrano), gdy są encje Releases do wyboru, a nie jest wybrana żadna z nich, oraz **Release: none available** (Release: brak dostępnych), gdy obszar roboczy Aggrega nie zaoferował żadnej. Drugi stan nie jest czymś, na co można odpowiedzieć wyborem, więc jego podpowiedź wymienia sposoby wyjścia z niego — pracę w innym obszarze roboczym Aggrega lub utworzenie encji Release — zamiast kierować do listy, która może wrócić tylko pusta. Gdy nic jeszcze nie odczytało obszaru roboczego, podpowiedź to mówi, zamiast podawać liczbę, której nikt nie policzył. Każdy z tych odczytów zawiera to, czego szukano, a pełny opis jest zapisywany w kanale wyjściowym Aggrega. Walidacja nadal działa w tym stanie: otrzymuje się wyniki, na które dokument odpowiada sam — czy się parsuje i czy jego własny kształt jest dopuszczalny — a sprawdzenia wymagające encji Release są pomijane, dopóki nie zostanie ona wybrana."
   },
+  "7e940a05d1974214": {
+    "at": "2026-11-17T11:23:31.919Z",
+    "job": "session-0001-20261117112331",
+    "revision": {
+      "from": "882d5958fcd53997",
+      "reviewed": false
+    },
+    "srcHash": "7e940a05d1974214",
+    "status": "machine",
+    "text": "**AWS CloudFormation**, **Azure Resource Manager (ARM) / Bicep** i **Google Cloud Deployment Manager** to natywne formaty deklaratywnej aprowizacji w swoich chmurach. Aggrega dostarcza [renderer CloudFormation](../language-reference/providers/cloudformation.md), który emituje szablony stosów, oraz [renderer ARM](../language-reference/providers/arm.md), który emituje szablony grup zasobów; Deployment Manager to cel artefaktów statycznych, do którego autor może renderować przez otwarte gniazdo, a źródło Bicep jest kompilowane do szablonu ARM poleceniem `bicep build`, zanim odczyta je renderer ARM."
+  },
   "7e942d3d53271e04": {
     "at": "2026-10-22T22:51:17.853388+00:00",
     "job": "msgbatch_01TQWjohL4SQN2SRjSV4rs3v",
@@ -106226,6 +106266,13 @@
     "srcHash": "91b33db5b9dc3a0f",
     "status": "machine",
     "text": "**Klucz decyzji zbiera komunikaty, a nie ich listy.** Wyrażenie tworzące jedną\n  listę komunikatów na trasę jest odrzucane pod kluczem decyzji — błąd informuje, że\n  zebrano wartość typu lista zamiast komunikatu — więc reguła tworzy jeden\n  rekord na trasę i z niego buduje komunikat. Komunikat, który wyrażenie\n  utworzy dwukrotnie, jest zgłaszany dwukrotnie: opisane poniżej sortowanie porządkuje to, co klucz\n  zebrał, i nie usuwa powtórzeń."
+  },
+  "91b7f02021d0d080": {
+    "at": "2026-11-17T11:23:31.919Z",
+    "job": "session-0001-20261117112331",
+    "srcHash": "91b7f02021d0d080",
+    "status": "machine",
+    "text": "W `arm` nie ma takiego zasobu, jak mówi akapit o tym, gdzie nie można go użyć."
   },
   "91b854a090c62ca4": {
     "at": "2026-10-22T08:46:18.120972+00:00",
@@ -136255,6 +136302,17 @@
     "status": "machine",
     "text": "**Co jest zatrzymywane.** Z `config-show`: `value` ustawienia, jeśli wartością tego ustawienia jest lokalizacja — adres serwowania lub kontroli stanu, który może być plikiem gniazda; plik certyfikatu, klucza prywatnego lub zestawu kluczy; katalog katalogu encji oraz własne katalogi encji Release w `workspace.releases`, których każdy wpis jest kluczowany plikiem encji Release; odwołanie do wtyczki; autorski Release. Także `source` ustawienia, jeśli warstwą, która je rozstrzygnęła, jest plik konfiguracyjny, ponieważ taka warstwa jest nazywana własną ścieżką tego pliku — oraz, w tej samej pisowni i z tego samego powodu, wpisy plików konfiguracyjnych w `layers`. Z `plugin-list`: `uri` wtyczki, jeśli to odwołanie samo jest ścieżką w systemie plików, oraz tekst błędu rozwiązania lub opisu, który powstaje z miejsc, które sprawdzono, i dlatego wskazuje lokalizacje, których samo odwołanie nie wskazuje. Z obu: `workspace_root`."
   },
+  "ba027cdca5d8f1f9": {
+    "at": "2026-11-17T11:23:31.919Z",
+    "job": "session-0001-20261117112331",
+    "revision": {
+      "from": "729ea6932f6ba2f9",
+      "reviewed": false
+    },
+    "srcHash": "ba027cdca5d8f1f9",
+    "status": "machine",
+    "text": "Wymienne gniazdo renderowania WebAssembly (Wasm) w Aggrega sprawia, że społeczność może napisać wtyczkę renderującą dla dowolnego narzędzia docelowego. Główny projekt dostarcza wtyczki renderujące dla Helm, Helm-chart, Compose, Terraform, CloudFormation i Azure Resource Manager — obejmujące GitOps w Kubernetes, dystrybucję redystrybuowalnych chartów, rozwój lokalny i deklaratywne zasoby chmurowe — a otwarte gniazdo pozwala zespołom celować w inne powierzchnie artefaktów statycznych bez ingerencji w rdzeń. Zespoły oceniające Aggrega często wywodzą się z ekosystemów zbudowanych wokół narzędzi umieszczonych w pobliskich, ale odrębnych częściach stosu. Poniższe narzędzia pogrupowano według ich relacji z Aggrega: formaty artefaktów, do których renderuje, przestrzeń kompilatorów AOT, którą współdzieli, płaszczyzny sterowania, które konsumują jej wynik, oraz sąsiednią dziedzinę zarządzania konfiguracją, w którą nie celuje."
+  },
   "ba03976208b46b67": {
     "at": "2026-10-22T23:34:49.752518+00:00",
     "job": "msgbatch_01TcV2pobuFt4qNmD9rzSXon",
@@ -156757,6 +156815,17 @@
     "status": "machine",
     "text": "Rekord operatora dla celu Kubernetes. Wskazuje Secret zawierający klucz Admin API i określa rozmiar wewnętrznych komponentów modułu według ich identyfikatorów w zakresie modułu; wszystko inne pozostaje przy wartościach domyślnych schematu."
   },
+  "d55c34b785c54f79": {
+    "at": "2026-11-17T11:23:31.919Z",
+    "job": "session-0001-20261117112331",
+    "revision": {
+      "from": "4b602600847e0c91",
+      "reviewed": false
+    },
+    "srcHash": "d55c34b785c54f79",
+    "status": "machine",
+    "text": "**Formaty artefaktów, do których renderuje Aggrega.** To wyniki dla Kubernetes i rozwoju lokalnego wytwarzane przez dostarczane wtyczki renderujące; dostarczane renderery Terraform, CloudFormation i ARM pojawiają się obok tych narzędzi w następnej grupie."
+  },
   "d55dc238b13b8ffc": {
     "at": "2026-10-22T07:22:08.562Z",
     "job": "session-0022-20261022072208",
@@ -162251,6 +162320,17 @@
     "srcHash": "dcbb5844e1d3e7e6",
     "status": "machine",
     "text": "**O blokach na tej stronie.** Każdy blok z wyjściem został skopiowany z rzeczywistego wykonania poniższych kroków w kolejności, w jakiej występują, zgodnie z [konwencją dotyczącą wyjścia](../examples/reading-the-output.md): blok jest albo kompletny, albo jest fragmentem oznaczającym miejsca pominięcia wierszy. Dwa symbole zastępcze oznaczają ścieżki bezwzględne, które różnią się na każdej maszynie: `<guest>` to katalog kopii szkieletu, a `<workspace>` to katalog obszaru roboczego, w którym podłączono plugin."
+  },
+  "dcbc1d0f2a410a77": {
+    "at": "2026-11-17T11:23:31.919Z",
+    "job": "session-0001-20261117112331",
+    "revision": {
+      "from": "c3a2b0dd031a7302",
+      "reviewed": false
+    },
+    "srcHash": "dcbc1d0f2a410a77",
+    "status": "machine",
+    "text": "To, czy jest to jeden sekret, czy dwa, wynika z tego, gdzie oba końce rozwiązują sekrety. Dostawca rozwiązuje sekret przez odwołanie w obrębie **zakresu sekretów**: przestrzeni nazw Kubernetes w `helm`, projektu Compose w `compose`, konfiguracji głównej granicy w `terraform`, w `cloudformation` stosu, na koncie i w regionie AWS, w których jest wdrażany, a w `arm` szablonu, w grupie zasobów, w której jest wdrażany. Gdy oba końce znajdują się w jednym zakresie, odwołują się do jednego zasobu sekretu. Gdy znajdują się w różnych zakresach, każdy koniec przechowuje własny zasób sekretu, zrealizowany z tego samego wpisu magazynu. Encja Manifest wybiera realizację każdego końca — według typu Feature albo, dla pojedynczego załącznika, według jego nazwy, która dla załącznika połączenia ma postać `<alias>.<slot>` (`local.credential` powyżej). Ponieważ oba zasila jeden parametr, obie realizacje odczytują `origin` jako ten sam rodzaj lokalizatora: obie jako nazwę obiektu Secret, obie jako klucz wpisu magazynu albo obie jako samą wartość."
   },
   "dcbc67813a278532": {
     "at": "2026-11-12T21:38:06.030Z",

@@ -7541,6 +7541,13 @@
     "status": "machine",
     "text": "Adaylarla karşılaştırılacak varlık; adıyla belirtilir ve çalışma alanı belgelerinin bildirdiklerinden okunur."
   },
+  "09dc0b3c7aaad490": {
+    "at": "2026-11-17T11:23:31.919Z",
+    "job": "session-0001-20261117112331",
+    "srcHash": "09dc0b3c7aaad490",
+    "status": "machine",
+    "text": "**`arm` üzerinde, üreten biçimler derlemeyi durdurur.** ARM'de sır üreticisi yoktur; bu nedenle `arm` üzerinde `core/random-password` veya `core/generated-secret` bağlayan bir derleme, compose'ta olduğu gibi bir Recipe bulunmadığı için E0099 ile durur. Sağlanan bir sır, şablon dağıtılırken verilen bir `securestring` parametresi olarak ya da tüketen Recipe'nin bir source'tan alınan şablonun parametresine yazdığı bir Key Vault başvurusu olarak taşınır; şablon değeri hiçbir zaman metin olarak taşımaz. Kataloğun Key Vault yolları, `core/referenced-secret` için sırrın kaynak kimliğini yayımlayan `arm/key-vault-secret` ile bir Container Apps sunucusunda veya işçisinde, kap değişkeninin `secretRef` ile adlandırdığı, Key Vault destekli bir uygulama sırrı yazan `infra.overrides.secrets` yollarıdır; ikisi de [`arm` sağlayıcı sayfasında](../language-reference/providers/arm.md#key-vault-routes) açıklanmıştır."
+  },
   "09dea8d83c40678f": {
     "at": "2026-10-23T00:02:44.489841+00:00",
     "job": "msgbatch_017Co8FT9U2dpLww3D8gVXkh",
@@ -35844,6 +35851,17 @@
     "status": "machine",
     "text": "Sütun duvarları mı yoksa yol işaretleri mi sorusu **yol işaretleri** ile yanıtlanır: şablon motoru, kendi kendine yeterlilik kurallarınca açıkça yasaklanmadıkça (`.context.inject` / `.context.uses` okuyan Recipe `provides:` ve Recipe `source:` bloğu; [`templates/expansion-matrix.md`](../templates/expansion-matrix.md) sayfasında belgelenmiştir) her konumda sütunlar arası okumaya izin verir. Sütun sınırları dil tarafından uygulanan bir zorlama değil, yazım disiplinidir."
   },
+  "30d172de8811b88d": {
+    "at": "2026-11-17T11:23:31.919Z",
+    "job": "session-0001-20261117112331",
+    "revision": {
+      "from": "00a01cb20d8a18ce",
+      "reviewed": false
+    },
+    "srcHash": "30d172de8811b88d",
+    "status": "machine",
+    "text": "**Şemadan bağımsızlık (açık kaynak sözlük):** Çekirdek derleyici fiziksel yürütme katmanlarından bağımsızdır. Helm, Terraform veya Docker Compose için sabit kodlanmış şemalara sahip değildir. Bunun yerine bir Ops Recipe'nin `source` bloğu, anahtarları sağlayıcı tarafından tanımlanan ve Recipe'nin şablonlarına `.source.*` olarak yansıyan açık bir sözlüktür. Çekirdek, *çekilen* bir source'u yerleşik bir `{ kind, url, version }` biçimiyle çözümler (türler: `helm-oci-chart`, `helm-https-chart`, `compose-https-fragment`, `git-repository`, `bicep-module-oci`, `terraform-module-oci`); bu, derleyiciyi işlediği bulut dillerinden zaten ayırır. Çekme modeli için [Recipe `source` başvurusuna](../language-reference/entities/recipe.md#a-wasm-driven-source-schemas) bakın."
+  },
   "30d1c81828e5fa9f": {
     "at": "2026-10-22T11:59:38.351715+00:00",
     "job": "msgbatch_01JciMUysQvZRBY7XtfGAzJm",
@@ -39646,6 +39664,17 @@
     "srcHash": "36696866adbf4e62",
     "status": "machine",
     "text": "PluginDescriptorMeta"
+  },
+  "366a0212b3411070": {
+    "at": "2026-11-17T11:23:31.919Z",
+    "job": "session-0001-20261117112331",
+    "revision": {
+      "from": "f1066bc9c9e27fb1",
+      "reviewed": false
+    },
+    "srcHash": "366a0212b3411070",
+    "status": "machine",
+    "text": "`artifact_cache_dir` kökü, tek bir `aggrega pull` çağrısının tek tip biçimde doldurduğu, sabitlenmiş bağımlılığın her sınıfı için bir tane olmak üzere üç paralel alt ağaç taşır: katalog varlıkları (Components, Features, Recipes, FeatureRecipes, Aggregates, kütüphaneler ve yayımladıkları yürütülebilir dosyalarla birlikte Plugins) için `<artifact_cache_dir>/entities/<encoded-kind>/<encoded-reference>/<encoded-version>/`, burada tür varlığın yayımlandığı türdür, bu yüzden bir başvuruyu ve bir sürümü paylaşan farklı türlerden iki varlık — aynı adı taşıyan bir Component ile bir Recipe — iki ayrı yuvadır; Recipe / FeatureRecipe `spec.source` alanlarından çekilen kaynak yapıtları (Helm chart'ları, compose parçaları, Git depoları, Bicep modülleri, OpenTofu modül paketleri) için `<artifact_cache_dir>/source-artifacts/<kind>/<host>/<path>/<version>/<digest-prefix>/`; ve harici girdiler için `<artifact_cache_dir>/inputs/sha256/<hex-digest>` — bir provider'ın işleme sırasında ana bilgisayardan istediği uzak belgeler, örneğin bir chart'ın `values.schema.json` dosyasında bir URL'yi gösteren bir `$ref`. Her kaynak yapıt önbellek yuvası, yetkili arşivi `blob.tgz` olarak, türü ne olursa olsun — chart, compose parçası veya Git deposu için gzip ile sıkıştırılmış bir tar, bir OCI modül türü için ise yayımlandığı hâliyle seçilen katman (bir `bicep-module-oci` source'unun ARM şablonu katmanı, bir `terraform-module-oci` source'unun `archive/zip` paketi) —, her derleme okumasında yeniden üretilen türetilmiş bir `extracted/` dizinini ve yapıtın `{kind, url, version, digest, mediatype, pulled_at}` kimliğini kaydeden bir `metadata.yaml` dosyasını taşır; bir OCI modül türünde `mediatype`, yuvanın tuttuğu katmanın ortam türüdür. Her varlık önbellek yuvası, yayımlanan yapıtı getirildiği hâliyle ve doğrulandığı OCI manifestini taşır. Belgesi yanında bir dosyayı adlandırabilen her türün yuvası — bir Recipe, bir FeatureRecipe, bir Component, bir Feature — ayrıca o yapıtın taşıdığı dosyaları, yapıtın içerik özetiyle adlandırılmış bir dizinde tutan türetilmiş bir `extracted/` dizini taşır: varlık arşiv olarak yayımlandıysa belge ve varlığın bildirdiği dosyalar, belge olarak yayımlandıysa yalnızca belge (§6). Varlığın dizini, bir kaynak yapıtın dosyalarında olduğu gibi, her okumada doğrulanmış yapıttan oraya yerleştirilir: her dosya yapıta karşı denetlenir, o dizinde elle değiştirilen veya eklenen bir dosya okunmak yerine atılır, `extracted/` altındaki başka hiçbir şey okunmaz ve doğrulamayı geçemeyen bir yapıt, herhangi bir şey yerleştirilmeden önce reddedilir. Bir okuma yalnızca yapıttan farklı olanı yeniden yazar; böylece aynı anda tek bir önbelleği okuyan derlemeler — `aggrega serve`'ün yan yana işlediği istekler ya da tek bir çalışma alanı üzerindeki iki komut — kendilerine verilen dosyaları her biri eksiksiz bulur. 12 karakterlik `<digest-prefix>` kesimi, farklı upstream özetlerinde yeniden etiketlenmiş aynı `{kind, url, version}` değerini ayrı yuvalara ayırır. Harici bir girdinin böyle bir yuvaya ihtiyacı yoktur: kilit dosyasının onu sabitlediği içerik özetiyle adlandırılmış tek bir dosya olarak saklanır; böylece sonraki bir derlemenin okuduğu şey, baytların geldiği URL ile değil, sabitlemeyle adreslenir — o derlemenin girdiyi ağ engellenmişken sunabilmesini sağlayan da budur."
   },
   "366b3145b5fbf6f6": {
     "at": "2026-10-22T23:16:14.159554+00:00",
@@ -92344,6 +92373,17 @@
     "status": "machine",
     "text": "Çalışma alanı hiçbir Release sunmuyorsa — hiçbiri yapılandırılmamış, işaret yok ve geri dönülecek tam olarak bir dosya da yok — gösterge bunu söyler ve iki durumdan hangisinin geçerli olduğunu belirtir. Aralarından seçim yapılacak Releases olup hiçbirinde değilseniz **Release: none selected** (Release: seçili değil), Aggrega çalışma alanı hiç sunmadıysa **Release: none available** (Release: kullanılabilir yok) gösterir. İkincisi seçim yaparak yanıtlayabileceğiniz bir durum değildir, bu nedenle araç ipucu, yalnızca boş dönebilecek bir listeye göndermek yerine ondan çıkış yollarını — farklı bir Aggrega çalışma alanında çalışmak ya da bir Release oluşturmak — adlandırır. Henüz hiçbir şey çalışma alanını okumamışsa araç ipucu, kimsenin saymadığı bir sayıyı bildirmek yerine bunu söyler. Bu gösterimlerin her biri neyin arandığını taşır ve tam açıklama Aggrega çıktı kanalına yazılır. Doğrulama bu durumda da çalışır: bir belgenin kendi başına yanıtladığı bulguları — ayrıştırılıp ayrıştırılmadığını ve kendi biçiminin kabul edilebilir olup olmadığını — alırsınız; bir Release gerektiren denetimler siz birini seçene kadar atlanır."
   },
+  "7e940a05d1974214": {
+    "at": "2026-11-17T11:23:31.919Z",
+    "job": "session-0001-20261117112331",
+    "revision": {
+      "from": "882d5958fcd53997",
+      "reviewed": false
+    },
+    "srcHash": "7e940a05d1974214",
+    "status": "machine",
+    "text": "**AWS CloudFormation**, **Azure Resource Manager (ARM) / Bicep** ve **Google Cloud Deployment Manager**, kendi bulutlarının yerel bildirimsel sağlama biçimleridir. Aggrega, yığın şablonları üreten bir [CloudFormation işleyicisi](../language-reference/providers/cloudformation.md) ve kaynak grubu şablonları üreten bir [ARM işleyicisi](../language-reference/providers/arm.md) ile gelir; Deployment Manager, bir yazarın açık soket aracılığıyla işleyebileceği bir statik yapıt hedefidir ve bir Bicep kaynağı, ARM işleyicisi okumadan önce `bicep build` ile bir ARM şablonuna derlenir."
+  },
   "7e942d3d53271e04": {
     "at": "2026-10-22T22:51:17.853388+00:00",
     "job": "msgbatch_01TQWjohL4SQN2SRjSV4rs3v",
@@ -106230,6 +106270,13 @@
     "srcHash": "91b33db5b9dc3a0f",
     "status": "machine",
     "text": "**Bir karar anahtarı iletileri toplar, ileti listelerini değil.** Rota başına bir\n  ileti listesi üreten bir ifade bir karar anahtarı altında reddedilir (hata, bir ileti yerine\n  liste türünde bir değer topladığını söyler); bu yüzden bir kural rota başına bir\n  kayıt üretir ve iletiyi ondan oluşturur. Ayrıca ifadenin iki kez ürettiği bir ileti\n  iki kez raporlanır: aşağıda açıklanan sıralama bir anahtarın topladıklarını sıralar ve tekrarı kaldırmaz."
+  },
+  "91b7f02021d0d080": {
+    "at": "2026-11-17T11:23:31.919Z",
+    "job": "session-0001-20261117112331",
+    "srcHash": "91b7f02021d0d080",
+    "status": "machine",
+    "text": "`arm` üzerinde böyle bir kaynak yoktur; bunu, kaynağın kullanılamadığı yerleri anlatan paragraf belirtir."
   },
   "91b854a090c62ca4": {
     "at": "2026-10-22T08:46:18.120972+00:00",
@@ -136259,6 +136306,17 @@
     "status": "machine",
     "text": "**Neler saklanır.** `config-show` içinden: kendi değeri bir konum olan bir ayarın `value` değeri; yani bir soket dosyası olabilecek bir sunum ya da sağlık adresi; bir sertifika, özel anahtar ya da anahtar kümesi dosyası; bir katalog dizini ve her girdisi bir Release dosyasıyla anahtarlanan, `workspace.releases` altındaki bir Release'in kendi katalog dizinleri; bir eklenti başvurusu; bir yazım Release'i. Ayrıca, onu belirleyen katman bir yapılandırma dosyası olduğunda bir ayarın `source` değeri, çünkü böyle bir katman o dosyanın kendi yoluyla adlandırılır; aynı yazımla ve aynı nedenle `layers` içindeki yapılandırma dosyası girdileri de. `plugin-list` içinden: başvurunun kendisi bir dosya sistemi yolu olduğunda bir eklentinin `uri` değeri ve denenen yerlerden oluşturulduğu için başvurunun kendisinin adlandırmadığı konumları adlandıran çözümleme ya da tanımlama hatasının metni. Her ikisinden: `workspace_root`."
   },
+  "ba027cdca5d8f1f9": {
+    "at": "2026-11-17T11:23:31.919Z",
+    "job": "session-0001-20261117112331",
+    "revision": {
+      "from": "729ea6932f6ba2f9",
+      "reviewed": false
+    },
+    "srcHash": "ba027cdca5d8f1f9",
+    "status": "machine",
+    "text": "Aggrega'nın takılabilir WebAssembly (Wasm) işleme soketi, topluluğun herhangi bir hedef araç için bir işleyici eklentisi yazabileceği anlamına gelir. Çekirdek proje Helm, Helm-chart, Compose, Terraform, CloudFormation ve Azure Resource Manager için işleme eklentileriyle gelir — Kubernetes GitOps'u, yeniden dağıtılabilir chart dağıtımını, yerel geliştirmeyi ve bildirimsel bulut kaynaklarını kapsar — açık soket ise ekiplerin çekirdeğe dokunmadan başka statik yapıt yüzeylerini hedeflemesine olanak tanır. Aggrega'yı değerlendiren ekipler genellikle yığının yakın ama farklı bölümlerinde yer alan araçlar etrafında kurulmuş ekosistemlerden gelir. Aşağıdaki araçlar Aggrega ile ilişkilerine göre gruplanmıştır: işlediği yapıt biçimleri, paylaştığı AOT derleyici alanı, çıktısını tüketen denetim düzlemleri ve hedeflemediği komşu yapılandırma yönetimi alanı."
+  },
   "ba03976208b46b67": {
     "at": "2026-10-22T23:34:49.752518+00:00",
     "job": "msgbatch_01TcV2pobuFt4qNmD9rzSXon",
@@ -156759,6 +156817,17 @@
     "status": "machine",
     "text": "Kubernetes hedefi için operatör kaydı. Admin API anahtarını tutan Secret'ı adlandırır ve modülün iç bileşenlerini modül kapsamlı kimlikleriyle boyutlandırır; geri kalan her şey şema varsayılanlarına bırakılır."
   },
+  "d55c34b785c54f79": {
+    "at": "2026-11-17T11:23:31.919Z",
+    "job": "session-0001-20261117112331",
+    "revision": {
+      "from": "4b602600847e0c91",
+      "reviewed": false
+    },
+    "srcHash": "d55c34b785c54f79",
+    "status": "machine",
+    "text": "**Aggrega'nın işlediği yapıt biçimleri.** Bunlar, birlikte gelen işleyici eklentilerinin ürettiği Kubernetes ve yerel geliştirme çıktılarıdır; birlikte gelen Terraform, CloudFormation ve ARM işleyicileri, sonraki grupta bu araçların yanında yer alır."
+  },
   "d55dc238b13b8ffc": {
     "at": "2026-10-22T07:22:08.562Z",
     "job": "session-0022-20261022072208",
@@ -162253,6 +162322,17 @@
     "srcHash": "dcbb5844e1d3e7e6",
     "status": "machine",
     "text": "**Bu sayfadaki bloklar hakkında.** Çıktı gösteren her blok, aşağıdaki adımların göründükleri sırayla gerçek bir çalıştırmasından kopyalanmıştır ve [çıktı uzlaşımına](../examples/reading-the-output.md) uyar: bir blok ya eksiksizdir ya da satırların atlandığı yerleri işaretleyen bir alıntıdır. İki yer tutucu, her makinede farklı olan mutlak yolların yerini tutar: `<guest>`, iskelet kopyanızın dizinidir; `<workspace>` ise eklentinin bağlandığı çalışma alanının dizinidir."
+  },
+  "dcbc1d0f2a410a77": {
+    "at": "2026-11-17T11:23:31.919Z",
+    "job": "session-0001-20261117112331",
+    "revision": {
+      "from": "c3a2b0dd031a7302",
+      "reviewed": false
+    },
+    "srcHash": "dcbc1d0f2a410a77",
+    "status": "machine",
+    "text": "Bunun tek bir sır mı yoksa iki sır mı olduğu, iki ucun sırları nerede çözdüğünden kaynaklanır. Bir sağlayıcı bir sırrı bir **sır kapsamı** içinde başvuruyla çözer: `helm` üzerinde bir Kubernetes ad alanı, `compose` üzerinde bir Compose projesi, `terraform` üzerinde bir sınırın kök yapılandırması, `cloudformation` üzerinde, dağıtıldığı AWS hesabı ve bölgesinde bir yığın ve `arm` üzerinde, dağıtıldığı kaynak grubunda bir şablon. İki uç tek bir kapsamdaysa tek bir sır kaynağına başvururlar. Farklı kapsamlardaysa her uç, aynı depo girdisinden gerçekleştirilen kendine ait bir sır kaynağı tutar. Her ucun gerçekleştirmesini Manifest seçer — Feature türüne göre ya da tek bir ek için adına göre; bir bağlantının eki için bu ad `<alias>.<slot>` biçimindedir (yukarıdaki `local.credential`). Tek bir parametre ikisini de beslediğinden, iki gerçekleştirme `origin` değerini aynı türden bir konumlayıcı olarak okur: ikisi de bir Secret'ın adı, ikisi de bir depo girdisinin anahtarı ya da ikisi de değerin kendisi."
   },
   "dcbc67813a278532": {
     "at": "2026-11-12T21:38:06.030Z",
