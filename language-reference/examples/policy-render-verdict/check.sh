@@ -4,8 +4,8 @@
 #
 # Builds every Release of this example under both policy engines and checks each
 # outcome against the one the README describes: two engines -- the files
-# governance-rego.yaml and governance-cel.yaml, each named with --config -- by
-# eight Releases, a control and a planted violation for each of four targets.
+# governance-rego.yaml and governance-cel.yaml, each named with --config -- over
+# every Release, a control and a planted violation for each target.
 #
 #   - A planted violation must exit non-zero with a policy refusal,
 #     [POLICY_ERROR E0005], whose message is the sentence written below for it,
@@ -19,7 +19,9 @@
 # same sentence, so an engine that reads the rule differently fails here.
 #
 # Every build runs through ./build-release.sh, so the aggrega binary is the one
-# that helper resolves -- AGGREGA_BIN, when it is set. Each build passes
+# that helper resolves -- AGGREGA_BIN, when it is set. The arm Recipes read from
+# a catalog checkout beside the documentation repository when one is there, and
+# from the registry otherwise. Each build passes
 # --auto-pull, because lockfiles are not shipped, and --no-color, so the output
 # is read as plain text.
 #
@@ -42,7 +44,7 @@ while [ "$#" -gt 0 ]; do
     --) shift; EXTRA=("$@"); break ;;
     -h|--help)
       printf 'Usage: ./check.sh [-- EXTRA aggrega build args]\n'
-      printf '  Builds the eight Releases under the two engines and checks each outcome:\n'
+      printf '  Builds every Release under the two engines and checks each outcome:\n'
       printf '  a planted violation must halt with E0005 and the expected sentence; a\n'
       printf '  control must match, byte for byte, the same Release built with no policy.\n'
       printf '  Exits 1 on any mismatch. The binary is the one ./build-release.sh\n'
@@ -53,7 +55,7 @@ while [ "$#" -gt 0 ]; do
 done
 
 ENGINES="rego cel"
-RELEASES="helm helm-unpinned compose compose-unpinned terraform terraform-unencrypted cloudformation cloudformation-unencrypted"
+RELEASES="helm helm-unpinned compose compose-unpinned terraform terraform-unencrypted cloudformation cloudformation-unencrypted arm arm-unpinned"
 
 # What each Release does under both engines: pass, or halt with this sentence.
 expectation() {
@@ -68,6 +70,7 @@ sentence() {
     compose-unpinned) printf '%s' 'compose/docker-compose.yaml: service report runs registry.example.com/orders-report, an image with no tag or the tag latest' ;;
     terraform-unencrypted) printf '%s' 'terraform/modules/db/main.tf: the RDS instance db stores its data unencrypted' ;;
     cloudformation-unencrypted) printf '%s' 'cloudformation/cloudformation-stack.json: the RDS instance Db stores its data unencrypted' ;;
+    arm-unpinned) printf '%s' 'arm/arm-template.json: container main runs registry.example.com/orders-report, an image with no tag or the tag latest' ;;
   esac
 }
 
@@ -77,11 +80,25 @@ WORK="$(mktemp -d)"
 trap 'rm -rf "$WORK" "$HERE/dist"' EXIT
 printf '# A --config file that attaches nothing: the reference build.\n' > "$WORK/no-policy.yaml"
 
+# The catalog checkout the arm Releases build against, when it sits beside the
+# documentation repository; every other Release resolves from the registry.
+ARM_CATALOG="$HERE/../../../../aggrega-hub/aggrega-catalog"
+
+# catalog_args <release>: the --catalog argument a Release needs, if any.
+catalog_args() {
+  case "$1" in
+    arm|arm-unpinned) [ -d "$ARM_CATALOG" ] && printf '%s\n%s\n' --catalog "$ARM_CATALOG" ;;
+  esac
+  return 0
+}
+
 # build <label> <release> <config file>: one build, its output to $WORK/<label>.log
 # and its tree to $WORK/<label>.dist; prints its exit status.
 build() {
-  local status=0
-  "$HERE/build-release.sh" "$2" -- --config "$3" --auto-pull --no-color ${EXTRA[@]+"${EXTRA[@]}"} \
+  local status=0 line
+  local -a cat=()
+  while IFS= read -r line; do cat+=("$line"); done < <(catalog_args "$2")
+  "$HERE/build-release.sh" "$2" -- --config "$3" --auto-pull --no-color ${cat[@]+"${cat[@]}"} ${EXTRA[@]+"${EXTRA[@]}"} \
     > "$WORK/$1.log" 2>&1 || status=$?
   if [ -d "$HERE/dist" ]; then mv "$HERE/dist" "$WORK/$1.dist"; fi
   printf '%s' "$status"

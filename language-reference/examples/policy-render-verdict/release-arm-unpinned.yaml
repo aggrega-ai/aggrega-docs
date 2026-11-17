@@ -1,0 +1,37 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Cognitio s.r.l.
+
+apiVersion: aggrega.ai/v1beta1
+kind: Release
+metadata:
+  name: orders-arm-unpinned
+  environment: production
+  version: "1.0.0"
+spec:
+  aggregate: policy-render-verdict-arm
+  manifest: manifest-arm
+  components:
+    orders-db:
+      features:
+        password:
+          type: core/referenced-secret
+          infra:
+            origin: /subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/orders-security/providers/Microsoft.KeyVault/vaults/orders-vault/secrets/orders-db-password
+      infra:
+        engine_version: "16"
+        storage:
+          size: 64Gi
+          type: Premium_LRS
+        ha:
+          enabled: false
+          read_replicas: 0
+        overrides:
+          delegated_subnet_id: /subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/orders-network/providers/Microsoft.Network/virtualNetworks/orders-vnet/subnets/postgres
+          private_dns_zone_id: /subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/orders-network/providers/Microsoft.Network/privateDnsZones/orders.postgres.database.azure.com
+    report:
+      infra:
+        # The planted violation: an image named with no tag runs as latest.
+        # The house rule refuses it.
+        image: registry.example.com/orders-report
+        overrides:
+          container_app_environment_id: /subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/orders-apps/providers/Microsoft.App/managedEnvironments/orders-environment

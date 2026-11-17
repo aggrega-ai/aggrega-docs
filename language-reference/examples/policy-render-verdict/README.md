@@ -7,26 +7,27 @@ example:
   shows: [policy, multi-target, guardrails, cloud-infrastructure]
 ---
 
-# A policy over the rendered output: one house rule, four targets, two engines
+# A policy over the rendered output: one house rule, every target, two engines
 
 One house rule, attached at the `render-verdict` role, judges the files a build
-writes for four targets and refuses a violation planted on each. The rule has
+writes for each target and refuses a violation planted on each. The rule has
 two clauses:
 
 > Every container image names a fixed version — a tag other than `latest`, or a
 > digest. Every database instance stores its data encrypted.
 
-This workspace builds one Aggregate for four targets — Kubernetes through Helm,
-Docker Compose, Terraform and CloudFormation. The `render-verdict` role judges
-the files a build writes, after every target has rendered them, and the rule
-reads each target's own output shape: the images in
-Kubernetes objects and in a Compose file, the RDS instance in a Terraform file
-and in a CloudFormation template. Each target has a Release that passes and a
-Release with a violation planted in it, which the rule refuses.
+This workspace builds one database for Kubernetes through Helm, Docker Compose,
+Terraform, CloudFormation and Azure Resource Manager (the `arm` provider). The
+`render-verdict` role judges the files a build writes, after every target has
+rendered them, and the rule reads each target's own output shape: the images in
+Kubernetes objects, in a Compose file and in an Azure Resource Manager template,
+the RDS instance in a Terraform file and in a CloudFormation template. Each
+target has a Release that passes and a Release with a violation planted in it,
+which the rule refuses.
 
 The rule is written twice, once for each policy engine compiled into the CLI —
 Rego and CEL — and the two copies agree on every build here. A script beside the
-Releases builds all sixteen combinations and checks each outcome.
+Releases builds every Release under both engines and checks each outcome.
 
 <!-- The home page at aggrega.ai draws this diagram too, from its own content: a label changed here is changed there. -->
 <figure class="diagram not-content">
@@ -95,9 +96,18 @@ A policy can stop a build and say what to fix. It never changes your files to ma
 | `db` | `core/datastore/postgres` | the orders database |
 | `report` | `core/compute/task` | a report job that reads `db`, started by hand: it carries `core/manual-trigger`, so no run starts when the Release deploys |
 
+The Azure Resource Manager build has its own Aggregate, `aggregate-arm.yaml`,
+with the same database and a `report` of type `core/compute/worker` that reads
+it. The `arm` provider realizes a worker and does not realize
+`core/manual-trigger`, which the task above carries, so the shared Aggregate
+cannot build there. The database is named `orders-db` in that file, because the
+flexible server takes its component's name and a server name holds at least
+three characters.
+
 `report` reads the database's address, port and name through its `database`
 connection, as `DB_HOST`, `DB_PORT` and `DB_NAME`. The Aggregate is the same file
-for every build; each Release names the Manifest that chooses the target:
+for every build but the Azure Resource Manager one; each Release names the
+Manifest that chooses the target:
 
 | Manifest | `db` | `report` |
 |---|---|---|
@@ -105,13 +115,16 @@ for every build; each Release names the Manifest that chooses the target:
 | `manifest-compose.yaml` | `compose/postgres`, a service | `compose/task`, a service behind a profile |
 | `manifest-terraform.yaml` | `terraform/postgres-rds`, an RDS instance | `terraform/task-ecs`, an Amazon ECS task definition |
 | `manifest-cloudformation.yaml` | `cloudformation/postgres-rds`, an RDS instance | `cloudformation/task-ecs`, an Amazon ECS task definition |
+| `manifest-arm.yaml` | `arm/postgres-flexible-server`, an Azure Database for PostgreSQL flexible server | `arm/worker-container-apps`, an Azure Container Apps app |
 
-Every Recipe here renders from the catalog alone: the Kubernetes database is
-synthesized rather than fetched as a chart, the Terraform database body is
-written by its Recipe, and the Terraform task's module is kept beside its Recipe.
-So every build runs offline.
+The Kubernetes, Compose, Terraform and CloudFormation Recipes render from the
+catalog alone: the Kubernetes database is synthesized rather than fetched as a
+chart, the Terraform database body is written by its Recipe, and the Terraform
+task's module is kept beside its Recipe. So those builds run offline. The `arm`
+Recipes wrap Azure Verified Modules templates, which a build fetches at the
+commit each Recipe pins, so that target's build needs the network.
 
-## The eight Releases
+## The Releases
 
 | Release | target | what the rule finds | the build |
 |---|---|---|---|
@@ -123,15 +136,23 @@ So every build runs offline.
 | `release-terraform-unencrypted.yaml` | Terraform | the Release names no key, so the instance is not encrypted | halts |
 | `release-cloudformation.yaml` | CloudFormation | the Release turns `StorageEncrypted` on | completes |
 | `release-cloudformation-unencrypted.yaml` | CloudFormation | the Release leaves it off | halts |
+| `release-arm.yaml` | Azure Resource Manager | `report` runs `registry.example.com/orders-report:1.4.2` | completes |
+| `release-arm-unpinned.yaml` | Azure Resource Manager | `report` runs the image with no tag | halts |
 
-The image is the Release's: `core/compute/task` packages no software, so the
-Release names the image a run executes under `infra.image`, tag included. On the
+The image is the Release's: `core/compute/task` and `core/compute/worker` package
+no software, so the Release names the image a run executes under `infra.image`,
+tag included. On the
 two AWS targets the database's encryption is the Release's too. The Terraform
 Recipe reads `infra.overrides.kms_key_id` and, when it is set, renders
 `storage_encrypted = true` beside the key; the CloudFormation Recipe reads
 `infra.overrides.StorageEncrypted` and `KmsKeyId` under the resource properties'
 own names. A Release that sets neither renders an instance with no encryption
 attribute at all, which is what the planted Releases do.
+
+The Azure Resource Manager target has no encryption violation to plant: a flexible
+server always encrypts its data at rest, so the template carries no setting
+for the rule to find missing. The planted violation there is the unpinned image, and the rule's
+encryption clause reads nothing in that template.
 
 The Kubernetes and Compose databases run the image `postgres:16`, a fixed tag, so
 the rule judges them and lets them pass in every Release.
@@ -283,6 +304,30 @@ deny contains msg if {
 An instance with no `StorageEncrypted` property, or with it set to anything but
 `true`, is refused: `not … == true` holds for both.
 
+**Azure Resource Manager** writes one template whose `resources` is an object
+keyed by symbolic name. A container app is a resource of type
+`Microsoft.App/containerApps` with its containers under `properties.template`;
+a Recipe that wraps a module writes a nested deployment, a resource of type
+`Microsoft.Resources/deployments` that receives its containers in the
+`containers` parameter. The `worker-container-apps` output here is the second
+form, and the rule reads both:
+
+```rego
+deny contains msg if {
+    some artifact in input.artifacts
+    some doc in artifact.documents
+    is_object(doc.resources)
+    some resource in doc.resources
+    resource.type == "Microsoft.Resources/deployments"
+    some container in resource.properties.parameters.containers.value
+    unpinned(container.image)
+    msg := sprintf("%v: container %v runs %v, an image with no tag or the tag latest", [artifact.path, container.name, container.image])
+}
+```
+
+`is_object` keeps the clause off a template whose `resources` is a list, the
+form a template without symbolic names has.
+
 ## Why the CEL rule is written differently
 
 `policies/house-rule.cel` states the same two clauses and reaches the same
@@ -366,14 +411,15 @@ aggrega build --release release-terraform-unencrypted.yaml --config governance-r
 
 Swap `governance-rego.yaml` for `governance-cel.yaml` to run the same rule on the
 CEL engine, and `terraform` in the Release's file name for `helm`, `compose` or
-`cloudformation`, with their planted Releases `release-helm-unpinned.yaml`,
-`release-compose-unpinned.yaml` and `release-cloudformation-unencrypted.yaml`.
+`cloudformation` or `arm`, with their planted Releases
+`release-helm-unpinned.yaml`, `release-compose-unpinned.yaml`,
+`release-cloudformation-unencrypted.yaml` and `release-arm-unpinned.yaml`.
 
 **The standard-library catalog supplies every Component, Recipe, Feature and
 FeatureRecipe here and carries both engines' Plugin entities.** They resolve
 from `hub.aggrega.ai`, the default registry `.aggrega-config.yaml` names. With a
 checkout of the catalog ([where to get one](../../../authoring/import/README.md#how-an-import-runs)) named with `--catalog`, nothing is fetched from a
-registry, so the builds run offline. `--auto-pull` fills each Release's
+registry, so the builds that need nothing else run offline. `--auto-pull` fills each Release's
 lockfile during the build; lockfiles and the rendered output are generated, not
 shipped.
 
@@ -393,10 +439,11 @@ offender in it. The other planted Releases halt the same way:
 policy plugin "rego" rejected the build: helm/report-cronjob.yaml: container main runs registry.example.com/orders-report:latest, an image with no tag or the tag latest
 policy plugin "cel" rejected the build: compose/docker-compose.yaml: service report runs registry.example.com/orders-report, an image with no tag or the tag latest
 policy plugin "cel" rejected the build: cloudformation/cloudformation-stack.json: the RDS instance Db stores its data unencrypted
+policy plugin "rego" rejected the build: arm/arm-template.json: container main runs registry.example.com/orders-report, an image with no tag or the tag latest
 ```
 
 Each line is the one after `[POLICY_ERROR E0005]` in its build's output, shown
-from the left margin. The first comes from the Rego engine and the other two
+from the left margin. The first and the last come from the Rego engine and the other two
 from the CEL engine, each naming the engine that reported it; the other engine
 prints the same message under its own name.
 
@@ -420,7 +467,7 @@ does not carry that helper.
 ```
 
 `check.sh` builds each control once with no policy attached, as the reference,
-and then all eight Releases under each engine, through the build-release helper.
+and then every Release under each engine, through the build-release helper.
 A control must complete and write the same files, byte for byte, as its
 reference; a planted Release must halt with `E0005` and the message expected for
 it, and no other refusal beside it, and write no `dist/`. Both engines are held
@@ -434,6 +481,7 @@ none   release-helm.yaml                        0     reference OK
 none   release-compose.yaml                     0     reference OK
 none   release-terraform.yaml                   0     reference OK
 none   release-cloudformation.yaml              0     reference OK
+none   release-arm.yaml                         0     reference OK
 rego   release-helm.yaml                        0     pass      OK: completed, byte-identical to the build with no policy
 rego   release-helm-unpinned.yaml               1     halt      OK: E0005, the expected sentence
 rego   release-compose.yaml                     0     pass      OK: completed, byte-identical to the build with no policy
@@ -442,6 +490,8 @@ rego   release-terraform.yaml                   0     pass      OK: completed, b
 rego   release-terraform-unencrypted.yaml       1     halt      OK: E0005, the expected sentence
 rego   release-cloudformation.yaml              0     pass      OK: completed, byte-identical to the build with no policy
 rego   release-cloudformation-unencrypted.yaml  1     halt      OK: E0005, the expected sentence
+rego   release-arm.yaml                         0     pass      OK: completed, byte-identical to the build with no policy
+rego   release-arm-unpinned.yaml                1     halt      OK: E0005, the expected sentence
 cel    release-helm.yaml                        0     pass      OK: completed, byte-identical to the build with no policy
 cel    release-helm-unpinned.yaml               1     halt      OK: E0005, the expected sentence
 cel    release-compose.yaml                     0     pass      OK: completed, byte-identical to the build with no policy
@@ -450,6 +500,8 @@ cel    release-terraform.yaml                   0     pass      OK: completed, b
 cel    release-terraform-unencrypted.yaml       1     halt      OK: E0005, the expected sentence
 cel    release-cloudformation.yaml              0     pass      OK: completed, byte-identical to the build with no policy
 cel    release-cloudformation-unencrypted.yaml  1     halt      OK: E0005, the expected sentence
+cel    release-arm.yaml                         0     pass      OK: completed, byte-identical to the build with no policy
+cel    release-arm-unpinned.yaml                1     halt      OK: E0005, the expected sentence
 
 check: every build ended as expected.
 ```
@@ -472,9 +524,11 @@ roles, the payloads and the decision keys, see
 ## Files
 
 - `aggregate.yaml` — the database and the report job wired to it.
+- `aggregate-arm.yaml` — the same database and a report worker, for the Azure
+  Resource Manager build.
 - `manifest-helm.yaml`, `manifest-compose.yaml`, `manifest-terraform.yaml`,
-  `manifest-cloudformation.yaml` — bind each component type and the manual
-  trigger Feature to their Recipes on one target.
+  `manifest-cloudformation.yaml`, `manifest-arm.yaml` — bind each component type
+  and the Features to their Recipes on one target.
 - `release-<target>.yaml`, `release-<target>-unpinned.yaml`,
   `release-<target>-unencrypted.yaml` — a control and a planted violation per
   target.
@@ -485,4 +539,4 @@ roles, the payloads and the decision keys, see
   engine.
 - `build-release.sh` — builds one Release, echoing the equivalent `aggrega build`
   command.
-- `check.sh` — makes the twenty builds and checks each outcome.
+- `check.sh` — builds every Release under each engine and checks each outcome.

@@ -1,0 +1,38 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Cognitio s.r.l.
+
+apiVersion: aggrega.ai/v1beta1
+kind: Aggregate
+metadata:
+  name: policy-render-verdict-arm
+  version: "1.0.0"
+  description: >
+    A PostgreSQL database and a report worker that reads it, assembled from
+    standard-library catalog entities, for the Azure Resource Manager build of
+    this example. It is the same database as aggregate.yaml, with a worker in
+    place of the manual-trigger task: the Azure Resource Manager provider
+    realizes a worker, and a task started by hand has no realization there.
+    The database's name becomes its flexible server's name, which holds at
+    least three characters. Nothing here names a policy or a target.
+spec:
+  components:
+    orders-db:
+      type: core/datastore/postgres
+      values:
+        database: orders
+        user: orders_admin
+
+    report:
+      type: core/compute/worker
+      uses:
+        database:
+          db:
+            target: orders-db
+            inject:
+              env:
+                - in: DB_HOST
+                  from: host
+                - in: DB_PORT
+                  from: port
+                - in: DB_NAME
+                  from: database

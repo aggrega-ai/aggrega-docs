@@ -4,8 +4,9 @@
 // A house rule over the files a build writes, in two clauses:
 //
 //   - every container image names a fixed version: a tag other than latest, or a
-//     digest. Read from each Docker Compose service, and from each container in a
-//     Kubernetes workload's pod template;
+//     digest. Read from each Docker Compose service, from each container in a
+//     Kubernetes workload's pod template, and from each container of an Azure
+//     Resource Manager template;
 //   - every RDS database instance stores its data encrypted. Read from each
 //     aws_db_instance block of a Terraform file in native HCL, and from each
 //     AWS::RDS::DBInstance resource of a CloudFormation template.
@@ -124,5 +125,88 @@
               && has(d.Resources[q].Type) && d.Resources[q].Type == "AWS::RDS::DBInstance"
               && !(has(d.Resources[q].Properties) && has(d.Resources[q].Properties.StorageEncrypted)
                    && d.Resources[q].Properties.StorageEncrypted == true)))
-          .map(r, a.path + ": the RDS instance " + r + " stores its data unencrypted")[0])[0]),
+          .map(r, a.path + ": the RDS instance " + r + " stores its data unencrypted")[0])[0])
+
+    // Azure Resource Manager, a container app: a container of a Microsoft.App/containerApps
+    // resource whose image names no fixed version. Read from a document whose
+    // resources is an object keyed by symbolic name, which the Azure Resource Manager
+    // provider writes.
+    + input.artifacts
+      .filter(a, has(a.documents) && a.documents.exists(d,
+          has(d.resources)
+          && d.resources.exists(r, has(d.resources[r].type)
+            && d.resources[r].type == "Microsoft.App/containerApps" && has(d.resources[r].properties)
+          && has(d.resources[r].properties.template)
+            && has(d.resources[r].properties.template.containers)
+            && d.resources[r].properties.template.containers.exists(c, has(c.image)
+            && !c.image.contains("@") && (c.image.endsWith(":latest") || !c.image.matches(":[^/]+$"))))))
+      .map(a, a.documents
+        .filter(d, has(d.resources)
+          && d.resources.exists(r, has(d.resources[r].type)
+            && d.resources[r].type == "Microsoft.App/containerApps" && has(d.resources[r].properties)
+          && has(d.resources[r].properties.template)
+            && has(d.resources[r].properties.template.containers)
+            && d.resources[r].properties.template.containers.exists(c, has(c.image)
+            && !c.image.contains("@") && (c.image.endsWith(":latest") || !c.image.matches(":[^/]+$")))))
+        .map(d, d.resources
+          .filter(r,
+            has(d.resources[r].type) && d.resources[r].type == "Microsoft.App/containerApps"
+              && has(d.resources[r].properties)
+          && has(d.resources[r].properties.template)
+            && has(d.resources[r].properties.template.containers)
+            && d.resources[r].properties.template.containers.exists(c, has(c.image)
+            && !c.image.contains("@") && (c.image.endsWith(":latest") || !c.image.matches(":[^/]+$")))
+            && !d.resources.exists(q, q < r
+              && has(d.resources[q].type) && d.resources[q].type == "Microsoft.App/containerApps"
+                && has(d.resources[q].properties)
+          && has(d.resources[q].properties.template)
+            && has(d.resources[q].properties.template.containers)
+            && d.resources[q].properties.template.containers.exists(c, has(c.image)
+            && !c.image.contains("@") && (c.image.endsWith(":latest") || !c.image.matches(":[^/]+$")))))
+          .map(r, d.resources[r].properties.template.containers
+            .filter(c, has(c.image) && !c.image.contains("@")
+              && (c.image.endsWith(":latest") || !c.image.matches(":[^/]+$")))
+            .map(c, a.path + ": container " + c.name + " runs " + c.image
+                    + ", an image with no tag or the tag latest")[0])[0])[0])
+
+    // Azure Resource Manager, a nested deployment: a container named in the
+    // containers parameter of a Microsoft.Resources/deployments resource, which
+    // is where the template of a container-app module receives its containers.
+    + input.artifacts
+      .filter(a, has(a.documents) && a.documents.exists(d,
+          has(d.resources)
+          && d.resources.exists(r, has(d.resources[r].type)
+            && d.resources[r].type == "Microsoft.Resources/deployments" && has(d.resources[r].properties)
+          && has(d.resources[r].properties.parameters) && has(d.resources[r].properties.parameters.containers)
+          && has(d.resources[r].properties.parameters.containers.value)
+            && d.resources[r].properties.parameters.containers.value.exists(c, has(c.image)
+            && !c.image.contains("@") && (c.image.endsWith(":latest") || !c.image.matches(":[^/]+$"))))))
+      .map(a, a.documents
+        .filter(d, has(d.resources)
+          && d.resources.exists(r, has(d.resources[r].type)
+            && d.resources[r].type == "Microsoft.Resources/deployments" && has(d.resources[r].properties)
+          && has(d.resources[r].properties.parameters) && has(d.resources[r].properties.parameters.containers)
+          && has(d.resources[r].properties.parameters.containers.value)
+            && d.resources[r].properties.parameters.containers.value.exists(c, has(c.image)
+            && !c.image.contains("@") && (c.image.endsWith(":latest") || !c.image.matches(":[^/]+$")))))
+        .map(d, d.resources
+          .filter(r,
+            has(d.resources[r].type) && d.resources[r].type == "Microsoft.Resources/deployments"
+              && has(d.resources[r].properties)
+          && has(d.resources[r].properties.parameters) && has(d.resources[r].properties.parameters.containers)
+          && has(d.resources[r].properties.parameters.containers.value)
+            && d.resources[r].properties.parameters.containers.value.exists(c, has(c.image)
+            && !c.image.contains("@") && (c.image.endsWith(":latest") || !c.image.matches(":[^/]+$")))
+            && !d.resources.exists(q, q < r
+              && has(d.resources[q].type) && d.resources[q].type == "Microsoft.Resources/deployments"
+                && has(d.resources[q].properties)
+          && has(d.resources[q].properties.parameters) && has(d.resources[q].properties.parameters.containers)
+          && has(d.resources[q].properties.parameters.containers.value)
+            && d.resources[q].properties.parameters.containers.value.exists(c, has(c.image)
+            && !c.image.contains("@") && (c.image.endsWith(":latest") || !c.image.matches(":[^/]+$")))))
+          .map(r, d.resources[r].properties.parameters.containers.value
+            .filter(c, has(c.image) && !c.image.contains("@")
+              && (c.image.endsWith(":latest") || !c.image.matches(":[^/]+$")))
+            .map(c, a.path + ": container " + c.name + " runs " + c.image
+                    + ", an image with no tag or the tag latest")[0])[0])[0]),
 }

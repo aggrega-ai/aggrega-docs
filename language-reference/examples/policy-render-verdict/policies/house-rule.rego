@@ -4,8 +4,9 @@
 # A house rule over the files a build writes, in two clauses:
 #
 #   - every container image names a fixed version: a tag other than latest, or a
-#     digest. Read from each Docker Compose service, and from each container in a
-#     Kubernetes workload's pod template;
+#     digest. Read from each Docker Compose service, from each container in a
+#     Kubernetes workload's pod template, and from each container of an Azure
+#     Resource Manager template;
 #   - every RDS database instance stores its data encrypted. Read from each
 #     aws_db_instance block of a Terraform file in native HCL, and from each
 #     AWS::RDS::DBInstance resource of a CloudFormation template.
@@ -84,4 +85,30 @@ deny contains msg if {
     resource.Type == "AWS::RDS::DBInstance"
     not resource.Properties.StorageEncrypted == true
     msg := sprintf("%v: the RDS instance %v stores its data unencrypted", [artifact.path, id])
+}
+
+# An Azure Resource Manager template is a document whose resources is an object.
+# Its containers are those of each Microsoft.App/containerApps resource, under
+# properties.template, and those of each nested Microsoft.Resources/deployments
+# resource, in its containers parameter.
+deny contains msg if {
+    some artifact in input.artifacts
+    some doc in artifact.documents
+    is_object(doc.resources)
+    some resource in doc.resources
+    resource.type == "Microsoft.App/containerApps"
+    some container in resource.properties.template.containers
+    unpinned(container.image)
+    msg := sprintf("%v: container %v runs %v, an image with no tag or the tag latest", [artifact.path, container.name, container.image])
+}
+
+deny contains msg if {
+    some artifact in input.artifacts
+    some doc in artifact.documents
+    is_object(doc.resources)
+    some resource in doc.resources
+    resource.type == "Microsoft.Resources/deployments"
+    some container in resource.properties.parameters.containers.value
+    unpinned(container.image)
+    msg := sprintf("%v: container %v runs %v, an image with no tag or the tag latest", [artifact.path, container.name, container.image])
 }
