@@ -116,10 +116,7 @@ producing deployment lives, and the provider builds that deployment's resource I
 them. They resolve through the same annotation cascade and are opaque scalar strings;
 the provider never resolves them against live Azure state. When one is absent, the
 producer is taken to be in the consuming deployment's own subscription or resource
-group. `aggrega.ai/azure-management-group` names a management group and
-`aggrega.ai/azure-deployment-scope` names the level a template deploys at
-(`resourceGroup`, `subscription` or `managementGroup`); both are reserved and no provider
-reads them.
+group.
 
 ### Support by provider and input kind
 
@@ -187,16 +184,18 @@ The assembly- and reference-scoped keys are not node-scoped, so they sit outside
 | `aggrega.ai/azure-resource-group` | `arm` | The Azure resource group the boundary's template deploys into. A cross-boundary reference reads it to build the producing deployment's resource ID. | The producer is taken to be in the consuming deployment's own resource group. |
 <!-- END GENERATED: well-known-annotation-boundary-scope -->
 
-**When each is resolved**, which the declaration itself does not carry. `aggrega.ai/chart-name` is resolved once per umbrella-chart assembly, from the boundary annotation cascade; every contributor to one assembly must resolve it to the same value, and disagreement halts the build naming the boundaries. The `aggrega.ai/aws-*` keys and the two `aggrega.ai/azure-*` keys the `arm` provider reads are resolved per cross-boundary reference under component-over-boundary precedence, so a component value wins over a boundary value; Category 6 above describes the reference each one shapes.
+**When each is resolved**, which the declaration itself does not carry. `aggrega.ai/chart-name` is resolved once per umbrella-chart assembly, from the boundary annotation cascade; every contributor to one assembly must resolve it to the same value, and disagreement halts the build naming the boundaries. The `aggrega.ai/aws-*` keys and the `aggrega.ai/azure-*` keys the `arm` provider reads are resolved per cross-boundary reference under component-over-boundary precedence, so a component value wins over a boundary value; Category 6 above describes the reference each one shapes.
 
 ### Reserved names no provider reads
 
-Eleven keys in the matrix above are marked *reserved; no provider reads it*:
+These keys in the matrix above are marked *reserved; no provider reads it*:
 `aggrega.ai/project-name`, `aggrega.ai/region`, `aggrega.ai/account-id`,
 `aggrega.ai/cluster-domain`, `aggrega.ai/ingress-class`,
 `aggrega.ai/service-mesh`, `aggrega.ai/pod-security-standard`,
 `aggrega.ai/iam-role`, `aggrega.ai/chart-version`, `aggrega.ai/stack-name`,
-and `aggrega.ai/tf-backend`.
+`aggrega.ai/tf-backend`, `aggrega.ai/azure-management-group` (the Azure management group a
+boundary's template deploys into), and `aggrega.ai/azure-deployment-scope` (the level it deploys at:
+`resourceGroup`, `subscription` or `managementGroup`).
 
 Setting one of these on a Release or in an Aggregate has **no effect on rendered output**. No
 provider reads them, and no default is applied on their behalf — in
