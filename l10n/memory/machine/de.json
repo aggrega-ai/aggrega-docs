@@ -16205,6 +16205,17 @@
     "status": "machine",
     "text": "Die Vorgabe wird durch eine Anbindung in jedem Gültigkeitsbereich erfüllt — einen Block `features:` auf Komponenten- oder Subsystemebene, einen Block des Release auf Boundary- oder Komponentenebene oder eine annotationsgesteuerte Expansion —, weil sie die endgültige Anbindungsmenge der Instanz prüft und nicht, woher jede Anbindung stammt. Eine unerfüllte Vorgabe bricht den Build ab und nennt das Label und den erforderlichen Typ; ein Wert, der keine Feature-Typ-URI ist, oder ein Schlüssel ohne Label nach dem Präfix bricht mit einer eigenen Diagnose für eine fehlerhafte Deklaration ab. Die vollständige Behandlung des Verfassens und wie sich eine Vorgabe von einem Slot `featuresSchema` unterscheidet, steht unter [`entities/component.md`](../entities/component.md) „Präsenzpflichten“."
   },
+  "17fa8a09270a7b9f": {
+    "at": "2026-11-17T15:02:07.286Z",
+    "job": "session-0021-20261117150207",
+    "revision": {
+      "from": "36d688c1c0338276",
+      "reviewed": false
+    },
+    "srcHash": "17fa8a09270a7b9f",
+    "status": "machine",
+    "text": "Was aus dem, was die Quelle dieses Recipe rendert, ausgelassen werden soll — für eine unverändert übernommene Quelle, die etwas rendert, das das Release nicht ausliefern darf: ein Dokument, das ein abgerufenes Chart rendert, etwa ein Secret mit einem Schlüssel, den das Chart bei jedem Rendern neu erzeugt, einen Service, ein Volume oder eine Config, die eine abgerufene Compose-Datei mitbringt, eine Ressource, die ein abgerufenes CloudFormation-Template deklariert, oder eine Ressource, die ein abgerufenes ARM-Template deklariert. Die meisten Recipes brauchen es nie. Jeder Eintrag benennt eine Einheit, die die Quelle rendert, über ihre Art, ihren Namen und, wo der Eintrag sie angibt, ihren Namespace und das Sub-Chart, aus dem sie stammt, jeweils im Vokabular, das der die Quelle rendernde Provider verwendet — bei einem Chart ein Dokument über sein eigenes `kind` und `metadata.name`; bei einer Compose-Datei einen `service`, ein `volume` oder eine `config` jeweils über den Schlüssel unter `services:`, `volumes:` oder `configs:`; bei einem CloudFormation-Template eine Ressource über ihren `Type` und ihre logische ID; bei einem ARM-Template eine Ressource über ihren `type` und ihren symbolischen Namen oder über ihren `name` wie geschrieben, wo das Template seine Ressourcen als Liste aufführt. Dieser Provider lässt jede Einheit aus, auf die ein Eintrag passt, und worauf ein Eintrag passt und was der Provider wegen eines Eintrags ablehnt, ist der Vertrag, den dieser Provider selbst dokumentiert. Ein Provider, der nichts auslassen kann, lehnt ein Recipe, das diesen Schlüssel deklariert, ab, bevor irgendetwas gerendert wird. Nur was `source:` rendert, wird gefiltert — ein Eintrag in `workload:` oder `artifacts:` nie —, daher setzt der Schlüssel `source` voraus. Jeder Wert ist ein Template, ausgewertet gegen den Kontext, gegen den `valuesMapping` ausgewertet wird. Das `when` eines Eintrags wird zuerst ausgewertet, und ein Eintrag, dessen `when` einen falsy-Wert rendert, wird verworfen. Jeder aktiv gebliebene Eintrag muss etwas auslassen: Ein aktiver Eintrag, der auf nichts passt, was die Quelle gerendert hat, bricht den Build ab und nennt den Eintrag. Die Quelle wird trotzdem vollständig gerendert — jedes Template eines Charts läuft trotzdem, sodass ein fehlschlagendes Template den Build trotzdem scheitern lässt —, und nur ihre Ausgabe wird ausgelassen. Mindestens 1 Eintrag."
+  },
   "17fbd2bd9bc5f3b5": {
     "at": "2026-11-10T01:41:59.922Z",
     "job": "session-0011-20261110014159",
@@ -72596,6 +72607,17 @@
     "status": "machine",
     "text": "Die Rangfolge pro Feld ist CLI-Flag > `signing` pro Registry > globales `signing` > Public-Good-Standard. Fulcio und Rekor verwenden standardmäßig die Public-Good-Instanzen von Sigstore und sind daher optional; `timestamp_url` hat keinen Standardwert — der vertrauenswürdige schlüssellose Zeitstempel ergibt sich aus der Aufnahme in das Transparency-Log von Rekor, und eine RFC3161-Zeitstempelstelle ist Opt-in (setzen Sie `timestamp_url` oder `--timestamp-url` mit einem vollständigen Endpunkt, um eine zu aktivieren). **Sicherheit:** Der `signing:`-Block enthält kein geheimes Material — das OIDC-Identitätstoken ist nie ein Konfigurationsfeld (ein kurzlebiges Geheimnis, das zum Zeitpunkt des Signierens bereitgestellt wird: an einem interaktiven Terminal über einen Browser-Ablauf oder auf GitHub Actions aus dem Workflow bezogen und andernfalls mit `--identity-token` übergeben oder als `AGGREGA_IDENTITY_TOKEN` oder `SIGSTORE_ID_TOKEN` exportiert), und der private Schlüssel steht nie inline; `key_path` ist ein Pfad zu einer Schlüsseldatei. Das ist die bewusste Asymmetrie zur Verifizierungsseite, die einen öffentlichen Schlüssel inline festlegt, während auf der Signierseite immer nur ein Schlüsselpfad steht."
   },
+  "6c397ddb9f64fdc9": {
+    "at": "2026-11-17T15:02:07.286Z",
+    "job": "session-0021-20261117150207",
+    "revision": {
+      "from": "c2b7f65427851d6b",
+      "reviewed": false
+    },
+    "srcHash": "6c397ddb9f64fdc9",
+    "status": "machine",
+    "text": "Die Art der auszulassenden Einheit, im Vokabular des Providers, der die Quelle rendert: für ein Chart das eigene `kind` eines gerenderten Dokuments, etwa `Secret`; für eine Compose-Datei `service`, `volume` oder `config`; für ein CloudFormation-Template der `Type` einer Ressource, etwa `AWS::S3::Bucket`; für ein ARM-Template der `type` einer Ressource, etwa `Microsoft.Storage/storageAccounts`. Sie benennt eine Art, die die Quelle rendert, und hat nichts mit dem `kind:` zu tun, das ein strukturiertes `source:` trägt. Ein Template."
+  },
   "6c3e775abd04d2a0": {
     "at": "2026-11-04T08:19:27.953Z",
     "job": "session-0219-20261104081927",
@@ -87728,6 +87750,17 @@
     "status": "machine",
     "text": "Ein adressierbares Stück, in das sich die erzeugte Ausgabe eines Providers aufteilt — die hybride Sicht auf ein Stück Ausgabe. Eine strukturierte Einheit trägt einen Baum (eine nach RFC 6902 adressierbare Sicht) und ist ein PATCH-Ziel; eine opake Einheit trägt nur ihren Medientyp und ihre Bytes (keinen Baum) und ist ein SELECT- und EMIT-Ziel, aber kein PATCH-Ziel."
   },
+  "8273c322072a7cd3": {
+    "at": "2026-11-17T15:02:07.286Z",
+    "job": "session-0021-20261117150207",
+    "revision": {
+      "from": "d8f78ce61daf9b69",
+      "reviewed": false
+    },
+    "srcHash": "8273c322072a7cd3",
+    "status": "machine",
+    "text": "Der Namespace, in dem sich die auszulassende Einheit befindet, wenn der Eintrag nur eine Einheit in diesem Namespace erfassen soll — für einen Provider, dessen Ausgabe Namespaces hat, wie es bei den gerenderten Dokumenten eines Charts der Fall ist. Fehlt er oder rendert er zum leeren String, erfasst der Eintrag eine Einheit seiner Art und seines Namens, unabhängig von ihrem Namespace. Eine Compose-Datei, ein CloudFormation-Template und ein ARM-Template haben keine Namespaces, und ihre Provider lehnen einen Eintrag ab, der einen nennt. Ein Template."
+  },
   "827e3cb10bfdeab1": {
     "at": "2026-11-04T06:48:44.911Z",
     "job": "session-0212-20261104064844",
@@ -92603,6 +92636,17 @@
     "status": "machine",
     "text": "Die Durchlaufreihenfolge ist zuerst die values-Säule (in Autorenreihenfolge), dann die infra-Säule (nach demselben Prinzip). Das Säulenpräfix (`values.` / `infra.`) und der gepunktete Pfad innerhalb der Säule bestimmen genau, welches Blatt jede Klammer annotiert."
   },
+  "89eb7e4d5199f26b": {
+    "at": "2026-11-17T15:02:07.286Z",
+    "job": "session-0021-20261117150207",
+    "revision": {
+      "from": "1bdfa4d470c5c8e8",
+      "reviewed": false
+    },
+    "srcHash": "89eb7e4d5199f26b",
+    "status": "machine",
+    "text": "Das Sub-Chart, aus dem die auszulassende Einheit stammt, wenn der Eintrag nur die Kopie erfassen soll, die ein Sub-Chart rendert — für eine Quelle, die aus verschachtelten Quellen zusammengesetzt ist, wie ein Chart aus seinen Sub-Charts. Für ein Chart der eigene Name des Sub-Charts oder der Alias, den ihm die Abhängigkeit seines übergeordneten Charts gibt, wobei die Namen eines verschachtelten Sub-Charts vom äußersten an mit `/` verbunden werden: `operator` oder `operator/webhooks`. Der Eintrag erfasst dann ein Dokument, das aus `templates/` oder `crds/` dieses Sub-Charts selbst gerendert wird, und weder eines, das das Chart selbst rendert, noch eines, das ein darin verschachteltes Sub-Chart rendert. Fehlt er oder rendert er zum leeren String, erfasst der Eintrag eine Einheit seiner Art und seines Namens, gleich woher sie stammt. Ein Chart, das kein Sub-Chart dieses Namens rendert, bricht den Build ab und nennt den Eintrag. Eine Compose-Datei, ein CloudFormation-Template und ein ARM-Template haben keine Sub-Charts, und ihre Provider lehnen einen Eintrag ab, der eines nennt. Ein Template."
+  },
   "89ecdefd844b5a96": {
     "at": "2026-10-22T14:15:44.761Z",
     "job": "session-0041-20261022141544",
@@ -94827,6 +94871,17 @@
     "srcHash": "8d1a8cb22eaa94af",
     "status": "machine",
     "text": "Der Boundary-Bereich: Dateien für die gemeinsame Ausgabe einer Boundary"
+  },
+  "8d1bac746ba2d88a": {
+    "at": "2026-11-17T15:02:07.286Z",
+    "job": "session-0021-20261117150207",
+    "revision": {
+      "from": "9283eba1ed8b09d3",
+      "reviewed": false
+    },
+    "srcHash": "8d1bac746ba2d88a",
+    "status": "machine",
+    "text": "Optionale Bereitstellungswelle pro Boundary (Ganzzahl mit Vorzeichen, Standardwert 0). Jede Komponente in dieser Boundary erbt die Welle der Boundary in ihren Knoten. Negative Werte sind zulässig (werden vor allem anderen ausgeführt); größere Werte werden nach kleineren ausgeführt. Auf K8s und Helm ist die Welle das, was die Bereitstellung ordnet: Sie wird zu einer Annotation `argocd.argoproj.io/sync-wave`, und auf einer Ressource, die der Chart bereits als Helm-Hook kennzeichnet, wird sie außerdem zum `helm.sh/hook-weight` dieses Hooks. Auf compose wird die Welle sowohl als Service-Label festgehalten als auch zum Ordnen der Services der Datei verwendet, in die sie gerendert wird, über `depends_on` zwischen ihnen — sie erreicht also jeden Service in dieser einen Datei und nichts außerhalb davon. Auf cloudformation ordnet die Welle die Provisionierung des Stacks, zu dem die Boundary zusammengesetzt wird: Jede Ressource in einer Welle wird als abhängig von den Ressourcen der vorherigen Welle deklariert, was die Reihenfolge festlegt, in der sie erstellt werden, und umgekehrt die Reihenfolge, in der sie gelöscht werden. Das ist nur die Erstellungs- und Löschreihenfolge — ein Stack-Template kennt keinen Begriff davon, dass eine Ressource bereit ist, daher wartet nichts darauf, dass eine Ressource einsatzfähig wird. Auf terraform ordnet die Welle die module-Blöcke der Root-Konfiguration, zu der die Boundary zusammengesetzt wird: Jedes Modul in einer Welle wird als abhängig von den Modulen der vorherigen Welle deklariert, was die Reihenfolge festlegt, in der die Engine ihre Aktionen ausführt. Das ist nur die Reihenfolge der Aktionen — eine Konfiguration kennt keinen Begriff davon, dass eine Ressource bereit ist, daher wartet nichts darauf, dass eine Ressource einsatzfähig wird —, und der Wert wird außerdem mit der Build-Herkunft des Knotens festgehalten. Auf arm ordnet die Welle die Bereitstellung des Templates, zu dem die Boundary zusammengesetzt wird: Jede Ressource und jedes nested deployment einer Welle wird über `dependsOn` als abhängig von denen der vorherigen Welle deklariert. Der Compiler überträgt denselben Wert auf jeden Knoten in der Boundary als dessen `sync_wave`, wo das Verhalten pro Ziel noch einmal aus Sicht des Knotens beschrieben wird. Verschachtelte Boundaries erben nicht implizit — jede deklariert ihre eigene Welle."
   },
   "8d1f3a05d7621946": {
     "at": "2026-11-04T06:48:44.911Z",
@@ -99630,6 +99685,17 @@
     "srcHash": "942c8984717d9bfc",
     "status": "machine",
     "text": "Die Unterstützungsmatrix in diesem Kapitel ist **aus diesen Deklarationen generiert**, in der Granularität, die die Deklaration trägt — pro Provider **pro Eingabeart**, weil ein Provider einen Schlüssel lesen kann, wenn er eine Bereitstellungseinheit synthetisiert, und keine Möglichkeit haben kann, ihn zu lesen, wenn er ein lokal kopiertes Artefakt rendert. Verfassen Sie anhand der Matrix hier: Eine Zelle sagt, was dieser Provider auf diesem Pfad liest, weil eine Zelle nichts sagen kann, was der Provider nicht deklariert hat. Eine Deklaration, die eine Eingabeart nennt, die der eigene Render-Verhaltensvertrag des Providers nicht rendert, wird abgelehnt, wenn die Plugin-Entität gelesen wird, sodass die beiden Aussagen nicht voneinander abweichen können."
+  },
+  "942cba09b5d1f16d": {
+    "at": "2026-11-17T15:02:07.286Z",
+    "job": "session-0021-20261117150207",
+    "revision": {
+      "from": "bc7b3afe76730afe",
+      "reviewed": false
+    },
+    "srcHash": "942cba09b5d1f16d",
+    "status": "machine",
+    "text": "Der Name der auszulassenden Einheit, im Vokabular des Providers, der die Quelle rendert: für ein Chart der eigene `metadata.name` eines gerenderten Dokuments; für eine Compose-Datei der Schlüssel der Einheit unter `services:`, `volumes:` oder `configs:`; für ein CloudFormation-Template die logische ID der Ressource, ihr Schlüssel unter `Resources`; für ein ARM-Template der symbolische Name der Ressource, ihr Schlüssel unter `resources`, oder ihr `name` wie geschrieben, wo `resources` eine Liste ist. Ein Template."
   },
   "942cd561870c9899": {
     "at": "2026-11-03T05:17:12.447Z",

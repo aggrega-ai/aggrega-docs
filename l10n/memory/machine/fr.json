@@ -16211,6 +16211,17 @@
     "status": "machine",
     "text": "Le mandat est satisfait par un rattachement à n’importe quelle portée — un bloc `features:` au niveau du composant ou du sous-système, un bloc de Release au niveau de la frontière ou du composant, ou une expansion pilotée par annotation — car il teste l’ensemble final des rattachements de l’instance plutôt que l’origine de chaque rattachement. Un mandat non satisfait arrête le build en nommant le label et le type requis ; une valeur qui n’est pas un URI de type de Feature, ou une clé sans label après le préfixe, arrête le build avec un diagnostic distinct de déclaration mal formée. Le traitement complet de la rédaction, et la différence entre un mandat et un emplacement `featuresSchema`, se trouvent dans [`entities/component.md`](../entities/component.md) « Obligations de présence »."
   },
+  "17fa8a09270a7b9f": {
+    "at": "2026-11-17T15:02:07.286Z",
+    "job": "session-0021-20261117150207",
+    "revision": {
+      "from": "36d688c1c0338276",
+      "reviewed": false
+    },
+    "srcHash": "17fa8a09270a7b9f",
+    "status": "machine",
+    "text": "Ce qu’il faut exclure de ce que rend la source de cette Recipe — pour une source prise telle quelle qui rend quelque chose que la Release ne doit pas livrer : un document que rend un chart récupéré, comme un Secret contenant une clé que le chart génère à nouveau à chaque rendu, un service, un volume ou une config qu’un fichier compose récupéré embarque, une ressource que déclare un template CloudFormation récupéré, ou une ressource que déclare un template ARM récupéré. La plupart des Recipes n’en ont jamais besoin. Chaque entrée nomme une unité que rend la source par son type, son nom et, lorsque l’entrée les donne, son namespace et le sous-chart dont elle provient, chacun dans le vocabulaire du fournisseur qui rend la source — pour un chart, un document par son propre `kind` et son `metadata.name` ; pour un fichier compose, un `service`, un `volume` ou une `config` par sa clé sous `services:`, `volumes:` ou `configs:` ; pour un template CloudFormation, une ressource par son `Type` et son ID logique ; pour un template ARM, une ressource par son `type` et son nom symbolique, ou par son `name` tel qu’il est écrit lorsque le template liste ses ressources. Ce fournisseur exclut chaque unité à laquelle correspond une entrée, et ce à quoi correspond une entrée, et ce que le fournisseur refuse du fait d’une entrée, relève du contrat documenté propre à ce fournisseur. Un fournisseur qui ne peut rien exclure refuse une Recipe déclarant cette clé avant que quoi que ce soit ne soit rendu. Seul ce que rend `source:` est filtré — une entrée `workload:` ou `artifacts:` ne l’est jamais — la clé requiert donc `source`. Chaque valeur est un template, évalué par rapport au contexte par rapport auquel `valuesMapping` est évalué. Le `when` d’une entrée est évalué en premier, et une entrée dont le `when` rend une valeur falsy est abandonnée. Chaque entrée restée active doit exclure quelque chose : une entrée active qui ne correspond à rien de ce que la source a rendu interrompt le build, en nommant l’entrée. La source est tout de même rendue intégralement — chaque template d’un chart s’exécute tout de même, de sorte qu’un template qui échoue fait tout de même échouer le build — et seule sa sortie est exclue. Au moins 1 entrée."
+  },
   "17fbd2bd9bc5f3b5": {
     "at": "2026-11-10T01:41:59.922Z",
     "job": "session-0011-20261110014159",
@@ -72602,6 +72613,17 @@
     "status": "machine",
     "text": "La priorité par champ est : flag de la CLI > `signing` par registre > `signing` global > valeur par défaut d’intérêt public. Fulcio et Rekor utilisent par défaut les instances d’intérêt public de Sigstore ; ils sont donc facultatifs ; `timestamp_url` n’a pas de valeur par défaut — l’horodatage de confiance sans clé provient de l’inclusion dans le journal de transparence de Rekor, et une autorité d’horodatage RFC3161 est optionnelle (définissez `timestamp_url`, ou `--timestamp-url`, avec un point de terminaison complet pour en activer une). **Sécurité :** le bloc `signing:` ne contient aucun élément secret — le jeton d’identité OIDC n’est jamais un champ de configuration (c’est un secret de courte durée, fourni au moment de la signature : obtenu par un flux dans le navigateur sur un terminal interactif ou depuis le workflow sur GitHub Actions, et sinon passé avec `--identity-token` ou exporté sous la forme `AGGREGA_IDENTITY_TOKEN` ou `SIGSTORE_ID_TOKEN`), et la clé privée n’est jamais en ligne ; `key_path` est le chemin d’un fichier de clé. C’est l’asymétrie délibérée avec le côté vérification, qui épingle une clé publique en ligne, alors que le côté signature n’accepte jamais qu’un chemin de clé."
   },
+  "6c397ddb9f64fdc9": {
+    "at": "2026-11-17T15:02:07.286Z",
+    "job": "session-0021-20261117150207",
+    "revision": {
+      "from": "c2b7f65427851d6b",
+      "reviewed": false
+    },
+    "srcHash": "6c397ddb9f64fdc9",
+    "status": "machine",
+    "text": "Le type de l’unité à exclure, dans le vocabulaire du fournisseur qui effectue le rendu de la source : pour un chart, le `kind` propre d’un document rendu, comme `Secret` ; pour un fichier compose, `service`, `volume` ou `config` ; pour un template CloudFormation, le `Type` d’une ressource, comme `AWS::S3::Bucket` ; pour un template ARM, le `type` d’une ressource, comme `Microsoft.Storage/storageAccounts`. Il nomme un type que la source rend, et n’a aucun rapport avec le `kind:` que porte un `source:` structuré. Un template."
+  },
   "6c3e775abd04d2a0": {
     "at": "2026-11-04T08:19:27.953Z",
     "job": "session-0219-20261104081927",
@@ -87732,6 +87754,17 @@
     "status": "machine",
     "text": "Une pièce adressable en laquelle se découpe la sortie émise d’un fournisseur — la vue hybride d’une pièce de sortie. Une unité structurée porte un arbre (une vue adressable selon RFC 6902) et est une cible PATCH ; une unité opaque ne porte que son type de média et ses octets (aucun arbre) et est une cible SELECT et EMIT mais pas une cible PATCH."
   },
+  "8273c322072a7cd3": {
+    "at": "2026-11-17T15:02:07.286Z",
+    "job": "session-0021-20261117150207",
+    "revision": {
+      "from": "d8f78ce61daf9b69",
+      "reviewed": false
+    },
+    "srcHash": "8273c322072a7cd3",
+    "status": "machine",
+    "text": "Le namespace dans lequel se trouve l’unité à exclure, lorsque l’entrée ne doit correspondre qu’à une unité de ce namespace — pour un fournisseur dont la sortie a des namespaces, comme c’est le cas des documents rendus d’un chart. S’il est absent, ou s’il est rendu en chaîne vide, l’entrée correspond à une unité de son type et de son nom quel que soit son namespace. Un fichier compose, un template CloudFormation et un template ARM n’ont pas de namespaces, et leurs fournisseurs refusent une entrée qui en nomme un. Un template."
+  },
   "827e3cb10bfdeab1": {
     "at": "2026-11-04T06:48:44.911Z",
     "job": "session-0212-20261104064844",
@@ -92611,6 +92644,17 @@
     "status": "machine",
     "text": "L’ordre de parcours est d’abord le pilier values (dans l’ordre de l’auteur), puis le pilier infra (selon la même discipline). Le préfixe du pilier (`values.` / `infra.`) et le chemin pointé à l’intérieur du pilier indiquent exactement quelle feuille chaque crochet annote."
   },
+  "89eb7e4d5199f26b": {
+    "at": "2026-11-17T15:02:07.286Z",
+    "job": "session-0021-20261117150207",
+    "revision": {
+      "from": "1bdfa4d470c5c8e8",
+      "reviewed": false
+    },
+    "srcHash": "89eb7e4d5199f26b",
+    "status": "machine",
+    "text": "Le sous-chart dont provient l’unité à exclure, lorsque l’entrée ne doit correspondre qu’à la copie que rend un sous-chart — pour une source assemblée à partir de sources imbriquées, comme l’est un chart à partir de ses sous-charts. Pour un chart, le nom propre du sous-chart, ou l’alias que lui donne la dépendance de son parent, les noms d’un sous-chart imbriqué étant joints par `/` à partir du plus externe : `operator`, ou `operator/webhooks`. L’entrée correspond alors à un document rendu à partir des `templates/` ou des `crds/` propres à ce sous-chart, et ni à un document que le chart rend lui-même ni à un document que rend un sous-chart imbriqué dans celui-ci. S’il est absent, ou s’il est rendu en chaîne vide, l’entrée correspond à une unité de son type et de son nom quelle que soit sa provenance. Un chart qui ne rend aucun sous-chart de ce nom arrête le build, en nommant l’entrée. Un fichier compose, un template CloudFormation et un template ARM n’ont pas de sous-charts, et leurs fournisseurs refusent une entrée qui en nomme un. Un template."
+  },
   "89ecdefd844b5a96": {
     "at": "2026-10-22T14:15:44.761Z",
     "job": "session-0041-20261022141544",
@@ -94841,6 +94885,17 @@
     "srcHash": "8d1a8cb22eaa94af",
     "status": "machine",
     "text": "La portée boundary : fichiers pour la sortie partagée d’une boundary"
+  },
+  "8d1bac746ba2d88a": {
+    "at": "2026-11-17T15:02:07.286Z",
+    "job": "session-0021-20261117150207",
+    "revision": {
+      "from": "9283eba1ed8b09d3",
+      "reviewed": false
+    },
+    "srcHash": "8d1bac746ba2d88a",
+    "status": "machine",
+    "text": "Vague de déploiement facultative par frontière (entier signé, 0 par défaut). Chaque composant de cette frontière hérite de la vague de la frontière dans son nœud. Les valeurs négatives sont autorisées (exécutées avant tout le reste) ; les valeurs plus grandes s’exécutent après les plus petites. Sur K8s et Helm, la vague est ce qui ordonne le déploiement : elle devient une annotation `argocd.argoproj.io/sync-wave`, et sur une ressource que le chart marque déjà comme hook Helm, elle devient aussi le `helm.sh/hook-weight` de ce hook. Sur compose, la vague est à la fois consignée comme label de service et utilisée pour ordonner les services du fichier dans lequel elle est rendue, au moyen de `depends_on` entre eux — elle atteint donc chaque service de ce seul fichier et rien en dehors. Sur cloudformation, la vague ordonne le provisionnement de la pile dans laquelle la frontière est assemblée : chaque ressource d’une vague est déclarée dépendante des ressources de la vague précédente, ce qui fixe l’ordre dans lequel elles sont créées et, à l’inverse, l’ordre dans lequel elles sont supprimées. Il s’agit uniquement de l’ordre de création et de suppression — un template de pile n’exprime aucune notion de ressource prête, de sorte que rien n’attend qu’une ressource devienne opérationnelle. Sur terraform, la vague ordonne les blocs module de la configuration racine dans laquelle la frontière est assemblée : chaque module d’une vague est déclaré dépendant des modules de la vague précédente, ce qui fixe l’ordre dans lequel le moteur effectue ses actions. Il s’agit uniquement de l’ordre des actions — une configuration n’exprime aucune notion de ressource prête, de sorte que rien n’attend qu’une ressource devienne opérationnelle — et la valeur est aussi consignée avec la provenance de build du nœud. Sur arm, la vague ordonne le déploiement du template dans lequel la frontière est assemblée, en déclarant que chaque ressource et chaque nested deployment d’une vague dépendent de ceux de la vague précédente au moyen de `dependsOn`. Le compilateur reporte la même valeur sur chaque nœud de la frontière sous la forme du `sync_wave` de ce nœud, où le comportement par cible est décrit à nouveau du point de vue du nœud. Les frontières imbriquées n’héritent pas implicitement — chacune déclare sa propre vague."
   },
   "8d1f3a05d7621946": {
     "at": "2026-11-04T06:48:44.911Z",
@@ -99656,6 +99711,17 @@
     "srcHash": "942c8984717d9bfc",
     "status": "machine",
     "text": "La matrice de prise en charge de ce chapitre est **générée à partir de ces déclarations**, à la granularité que porte la déclaration — par fournisseur **par type d’entrée**, car un fournisseur peut lire une clé lorsqu’il synthétise une unité de déploiement et n’avoir aucun moyen de la lire lorsqu’il rend un artefact copié localement. Rédigez en vous appuyant sur la matrice d’ici : une cellule dit ce que ce fournisseur lit sur ce chemin, car une cellule ne peut rien dire que le fournisseur n’ait pas déclaré. Une déclaration qui nomme un type d’entrée que le propre contrat de comportement de rendu du fournisseur ne rend pas est refusée lorsque l’entité Plugin est lue, de sorte que les deux affirmations ne peuvent pas diverger."
+  },
+  "942cba09b5d1f16d": {
+    "at": "2026-11-17T15:02:07.286Z",
+    "job": "session-0021-20261117150207",
+    "revision": {
+      "from": "bc7b3afe76730afe",
+      "reviewed": false
+    },
+    "srcHash": "942cba09b5d1f16d",
+    "status": "machine",
+    "text": "Le nom de l’unité à exclure, dans le vocabulaire du fournisseur qui effectue le rendu de la source : pour un chart, le `metadata.name` propre d’un document rendu ; pour un fichier compose, la clé de l’unité sous `services:`, `volumes:` ou `configs:` ; pour un template CloudFormation, l’ID logique de la ressource, sa clé sous `Resources` ; pour un template ARM, le nom symbolique de la ressource, sa clé sous `resources`, ou son `name` tel qu’il est écrit lorsque `resources` est une liste. Un template."
   },
   "942cd561870c9899": {
     "at": "2026-11-03T05:17:12.447Z",

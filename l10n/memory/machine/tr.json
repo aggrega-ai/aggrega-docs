@@ -17903,6 +17903,17 @@
     "status": "machine",
     "text": "Zorunluluk, herhangi bir kapsamdaki bir eklentiyle karşılanır (bileşen düzeyinde veya alt sistem düzeyinde bir `features:` bloğu, Release'in sınır düzeyinde veya bileşen düzeyinde bir bloğu ya da ek açıklama güdümlü genişletme), çünkü her eklentinin nereden geldiğini değil, örneğin son eklenti kümesini sınar. Karşılanmayan bir zorunluluk, etiketi ve gerekli türü adlandırarak derlemeyi durdurur; Feature türü URI'si olmayan bir değer ya da önekten sonra etiketi olmayan bir anahtar, ayrı bir hatalı bildirim tanılamasıyla durdurur. Yazımın tam açıklaması ve bir zorunluluğun bir `featuresSchema` yuvasından nasıl ayrıldığı [`entities/component.md`](../entities/component.md) “Presence mandates” bölümündedir."
   },
+  "17fa8a09270a7b9f": {
+    "at": "2026-11-17T15:02:07.286Z",
+    "job": "session-0021-20261117150207",
+    "revision": {
+      "from": "36d688c1c0338276",
+      "reviewed": false
+    },
+    "srcHash": "17fa8a09270a7b9f",
+    "status": "machine",
+    "text": "Bu Recipe'in kaynağının işlediklerinden neyin dışarıda bırakılacağı — olduğu gibi alınan ve Release'in yayımlamaması gereken bir şey işleyen bir kaynak için: getirilen bir chart'ın işlediği bir belge, örneğin chart'ın her işlemede yeniden ürettiği bir anahtarı tutan bir Secret; getirilen bir compose dosyasının paketlediği bir service, volume veya config; getirilen bir CloudFormation şablonunun bildirdiği bir kaynak; ya da getirilen bir ARM şablonunun bildirdiği bir kaynak. Çoğu Recipe'in buna hiç ihtiyacı olmaz. Her girdi, kaynağın işlediği bir birimi türü, adı ve girdi belirtiyorsa ad alanı ile geldiği subchart ile adlandırır; her biri kaynağı işleyen sağlayıcının sözcük dağarcığındadır — bir chart için kendi `kind` ve `metadata.name` değerleriyle bir belge; bir compose dosyası için `services:`, `volumes:` veya `configs:` altındaki anahtarıyla bir `service`, bir `volume` veya bir `config`; bir CloudFormation şablonu için `Type` değeri ve mantıksal kimliğiyle bir kaynak; bir ARM şablonu için `type` değeri ve sembolik adıyla ya da şablonun kaynaklarını listelediği durumda yazıldığı hâliyle `name` değeriyle bir kaynak. O sağlayıcı, bir girdinin eşleştiği her birimi dışarıda bırakır; bir girdinin neyle eşleştiği ve sağlayıcının bir girdi nedeniyle neyi reddettiği, o sağlayıcının kendi belgelenmiş sözleşmesidir. Hiçbir şeyi dışarıda bırakamayan bir sağlayıcı, bu anahtarı bildiren bir Recipe'i herhangi bir şey işlenmeden önce reddeder. Yalnızca `source:` öğesinin işledikleri filtrelenir — bir `workload:` veya bir `artifacts:` girdisi asla filtrelenmez —; bu nedenle anahtar `source` gerektirir. Her değer bir şablondur ve `valuesMapping` öğesinin değerlendirildiği bağlama karşı değerlendirilir. Bir girdinin `when` değeri önce değerlendirilir ve `when` değeri yanlış sayılan bir değer üreten girdi atılır. Etkin kalan her girdi bir şeyi dışarıda bırakmalıdır: kaynağın işlediği hiçbir şeyle eşleşmeyen etkin bir girdi, girdiyi adlandırarak derlemeyi durdurur. Kaynak yine de tamamen işlenir — bir chart'ın her şablonu yine çalışır, dolayısıyla başarısız olan bir şablon derlemeyi yine başarısız kılar — ve yalnızca çıktısı dışarıda bırakılır. En az 1 girdi."
+  },
   "17fbd2bd9bc5f3b5": {
     "at": "2026-11-10T01:41:59.922Z",
     "job": "session-0011-20261110014159",
@@ -80058,6 +80069,17 @@
     "status": "machine",
     "text": "Alan başına öncelik sırası şöyledir: CLI bayrağı > kayıt defteri başına `signing` > genel `signing` > kamu yararına varsayılan. Fulcio ve Rekor varsayılan olarak Sigstore'un kamu yararına örneklerini kullanır, bu nedenle isteğe bağlıdır; `timestamp_url`'nin varsayılanı yoktur — anahtarsız güvenilir zaman damgası, Rekor'un şeffaflık günlüğüne dahil edilmeden gelir ve bir RFC3161 zaman damgası yetkilisi isteğe bağlıdır (birini etkinleştirmek için `timestamp_url` veya `--timestamp-url` değerini tam bir uç noktayla ayarlayın). **Güvenlik:** `signing:` bloğu hiçbir gizli malzeme taşımaz — OIDC kimlik belirteci hiçbir zaman bir yapılandırma alanı değildir (kısa ömürlü bir sırdır ve imzalama anında sağlanır: etkileşimli bir terminalde bir tarayıcı akışıyla ya da GitHub Actions'ta iş akışından edinilir, aksi hâlde `--identity-token` ile iletilir veya `AGGREGA_IDENTITY_TOKEN` ya da `SIGSTORE_ID_TOKEN` olarak dışa aktarılır) ve özel anahtar hiçbir zaman satır içi değildir; `key_path` bir anahtar dosyasının yoludur. Bu, satır içi bir genel anahtarı sabitleyen doğrulama tarafıyla kasıtlı bir asimetridir; imzalama tarafında ise her zaman yalnızca bir anahtar yolu bulunur."
   },
+  "6c397ddb9f64fdc9": {
+    "at": "2026-11-17T15:02:07.286Z",
+    "job": "session-0021-20261117150207",
+    "revision": {
+      "from": "c2b7f65427851d6b",
+      "reviewed": false
+    },
+    "srcHash": "6c397ddb9f64fdc9",
+    "status": "machine",
+    "text": "Dışarıda bırakılacak birimin türü, kaynağı işleyen sağlayıcının sözcük dağarcığıyla: bir chart için, işlenen bir belgenin kendi `kind` değeri, örneğin `Secret`; bir compose dosyası için `service`, `volume` veya `config`; bir CloudFormation şablonu için bir kaynağın `Type` değeri, örneğin `AWS::S3::Bucket`; bir ARM şablonu için bir kaynağın `type` değeri, örneğin `Microsoft.Storage/storageAccounts`. Kaynağın işlediği bir türü adlandırır ve yapılandırılmış bir `source:` alanının taşıdığı `kind:` ile ilgisi yoktur. Bir şablondur."
+  },
   "6c3e775abd04d2a0": {
     "at": "2026-10-23T00:02:41.868223+00:00",
     "job": "msgbatch_01GBmDXubWU53zHo6wo1SbnJ",
@@ -96704,6 +96726,17 @@
     "status": "machine",
     "text": "Bir sağlayıcının yaydığı çıktının bölündüğü adreslenebilir tek bir parça — bir çıktı parçasının hibrit görünümü. Yapılandırılmış bir birim bir ağaç (RFC 6902 ile adreslenebilir bir görünüm) taşır ve bir PATCH hedefidir; opak bir birim yalnızca medya türünü ve baytlarını taşır (ağaç yoktur) ve bir SELECT ve EMIT hedefidir, ancak PATCH hedefi değildir."
   },
+  "8273c322072a7cd3": {
+    "at": "2026-11-17T15:02:07.286Z",
+    "job": "session-0021-20261117150207",
+    "revision": {
+      "from": "d8f78ce61daf9b69",
+      "reviewed": false
+    },
+    "srcHash": "8273c322072a7cd3",
+    "status": "machine",
+    "text": "Girdinin yalnızca belirli bir ad alanındaki bir birimle eşleşmesi gerektiğinde, dışarıda bırakılacak birimin bulunduğu ad alanı; bir chart'ın işlenen belgelerinde olduğu gibi, çıktısında ad alanları bulunan bir sağlayıcı için geçerlidir. Yoksa veya boş dizgeye işlenirse girdi, ad alanı ne olursa olsun, kendi türünde ve adındaki bir birimle eşleşir. Bir compose dosyasında, bir CloudFormation şablonunda ve bir ARM şablonunda ad alanı yoktur; bunların sağlayıcıları ad alanı belirten bir girdiyi reddeder. Bir şablondur."
+  },
   "827e3cb10bfdeab1": {
     "at": "2026-10-30T02:04:27.098Z",
     "job": "session-0050-20261030020427",
@@ -102031,6 +102064,17 @@
     "status": "machine",
     "text": "Dolaşma sırası önce values sütunu (yazar sırasıyla), ardından infra sütunudur (aynı düzenle). Sütun öneki (`values.` / `infra.`) ve sütun içindeki noktalı yol, her parantezin hangi yaprağı açıkladığını tam olarak belirtir."
   },
+  "89eb7e4d5199f26b": {
+    "at": "2026-11-17T15:02:07.286Z",
+    "job": "session-0021-20261117150207",
+    "revision": {
+      "from": "1bdfa4d470c5c8e8",
+      "reviewed": false
+    },
+    "srcHash": "89eb7e4d5199f26b",
+    "status": "machine",
+    "text": "Çıkarılacak birimin geldiği alt chart; girdinin yalnızca tek bir alt chart'ın işlediği kopyayla eşleşmesi gerektiğinde kullanılır — bir chart'ın alt chart'larından oluşması gibi, iç içe kaynaklardan oluşturulan bir kaynak için. Bir chart için alt chart'ın kendi adı ya da üst chart'ın bağımlılığının ona verdiği takma ad; iç içe bir alt chart'ın adları en dıştakinden başlayarak `/` ile birleştirilir: `operator` veya `operator/webhooks`. Girdi bu durumda o alt chart'ın kendi `templates/` veya `crds/` dizininden işlenen bir belgeyle eşleşir; ne chart'ın kendisinin işlediği bir belgeyle ne de onun içine yerleştirilmiş bir alt chart'ın işlediği bir belgeyle eşleşir. Belirtilmediğinde veya boş string olarak işlendiğinde girdi, nereden gelirse gelsin kendi türü ve adındaki bir birimle eşleşir. O adda hiçbir alt chart işlemeyen bir chart, girdiyi adlandırarak derlemeyi durdurur. Bir compose dosyasının, bir CloudFormation şablonunun ve bir ARM şablonunun alt chart'ı yoktur ve sağlayıcıları alt chart adlandıran bir girdiyi reddeder. Bir şablon."
+  },
   "89ecdefd844b5a96": {
     "at": "2026-10-22T09:15:22.065068+00:00",
     "job": "msgbatch_01PZRcL3mvRgpjTW4rDpG9ri",
@@ -104383,6 +104427,17 @@
     "srcHash": "8d1a8cb22eaa94af",
     "status": "machine",
     "text": "Boundary kapsamı: bir boundary'nin paylaşılan çıktısı için dosyalar"
+  },
+  "8d1bac746ba2d88a": {
+    "at": "2026-11-17T15:02:07.286Z",
+    "job": "session-0021-20261117150207",
+    "revision": {
+      "from": "9283eba1ed8b09d3",
+      "reviewed": false
+    },
+    "srcHash": "8d1bac746ba2d88a",
+    "status": "machine",
+    "text": "İsteğe bağlı, sınır başına dağıtım dalgası (işaretli tamsayı, varsayılan 0). Bu sınırdaki her bileşen, sınırın dalgasını kendi düğümüne devralır. Negatif değerlere izin verilir (diğer her şeyden önce çalışır); büyük değerler küçük olanlardan sonra çalışır. K8s ve Helm'de dağıtımı sıralayan dalgadır: dalga bir `argocd.argoproj.io/sync-wave` ek açıklamasına dönüşür ve chart'ın zaten Helm hook olarak işaretlediği bir kaynakta ayrıca o hook'un `helm.sh/hook-weight` değerine dönüşür. compose'da dalga hem bir servis etiketi olarak kaydedilir hem de işlendiği dosyanın servislerini aralarındaki `depends_on` aracılığıyla sıralar; dolayısıyla o tek dosyadaki her servise ulaşır ve dışındaki hiçbir şeye ulaşmaz. cloudformation'da dalga, sınırın birleştirildiği yığının sağlanmasını sıralar: bir dalgadaki her kaynağın, kendinden önceki dalganın kaynaklarına bağımlı olduğu bildirilir; bu da kaynakların oluşturulma sırasını ve tersine silinme sırasını belirler. Bu yalnızca oluşturma ve silme sırasıdır: bir yığın şablonu, bir kaynağın hazır olması diye bir kavramı ifade etmez, dolayısıyla hiçbir şey bir kaynağın hizmet verebilir hâle gelmesini beklemez. terraform'da dalga, sınırın birleştirildiği kök yapılandırmanın module bloklarını sıralar: bir dalgadaki her modülün, kendinden önceki dalganın modüllerine bağımlı olduğu bildirilir; bu da motorun eylemlerini gerçekleştirme sırasını belirler. Bu yalnızca eylem sırasıdır (bir yapılandırma, bir kaynağın hazır olması diye bir kavramı ifade etmez, dolayısıyla hiçbir şey bir kaynağın hizmet verebilir hâle gelmesini beklemez) ve değer ayrıca düğümün derleme kökeniyle birlikte kaydedilir. arm'da dalga, sınırın birleştirildiği şablonun dağıtımını sıralar: bir dalgadaki her kaynak ve her nested deployment, `dependsOn` aracılığıyla kendinden önceki dalgadakilere bağımlı olarak bildirilir. Derleyici aynı değeri sınırdaki her düğüme o düğümün `sync_wave` değeri olarak taşır; hedef başına davranış orada düğüm tarafından yeniden açıklanır. İç içe sınırlar örtük olarak devralmaz; her biri kendi dalgasını bildirir."
   },
   "8d1f3a05d7621946": {
     "at": "2026-10-22T23:53:38.624924+00:00",
@@ -109677,6 +109732,17 @@
     "srcHash": "942c8984717d9bfc",
     "status": "machine",
     "text": "Bu bölümdeki destek matrisi, bildirimin taşıdığı ayrıntı düzeyinde **bu bildirimlerden üretilir** — provider başına **girdi türü başına**, çünkü bir provider bir dağıtım birimini sentezlerken bir anahtarı okuyabilir, ancak dahil edilmiş bir yapıtı oluştururken onu okuyamayabilir. Yazarken buradaki matrisi esas alın: bir hücre, o provider'ın o yolda neyi okuduğunu söyler, çünkü bir hücre provider'ın bildirmediği hiçbir şeyi söyleyemez. Provider'ın kendi oluşturma davranışı sözleşmesinin oluşturmadığı bir girdi türünü adlandıran bir bildirim, Plugin varlığı okunurken reddedilir; böylece iki iddia birbiriyle çelişemez."
+  },
+  "942cba09b5d1f16d": {
+    "at": "2026-11-17T15:02:07.286Z",
+    "job": "session-0021-20261117150207",
+    "revision": {
+      "from": "bc7b3afe76730afe",
+      "reviewed": false
+    },
+    "srcHash": "942cba09b5d1f16d",
+    "status": "machine",
+    "text": "Dışarıda bırakılacak birimin adı, kaynağı işleyen sağlayıcının sözcük dağarcığıyla: bir chart için, işlenen bir belgenin kendi `metadata.name` değeri; bir compose dosyası için, birimin `services:`, `volumes:` veya `configs:` altındaki anahtarı; bir CloudFormation şablonu için, kaynağın mantıksal kimliği, yani `Resources` altındaki anahtarı; bir ARM şablonu için, kaynağın sembolik adı, yani `resources` altındaki anahtarı veya `resources` bir liste olduğunda yazıldığı hâliyle `name` değeri. Bir şablondur."
   },
   "942cd561870c9899": {
     "at": "2026-10-22T13:38:02.118076+00:00",

@@ -17909,6 +17909,17 @@
     "status": "machine",
     "text": "Yêu cầu được thỏa mãn bởi một attachment ở bất kỳ phạm vi nào — một khối `features:` cấp component hoặc cấp subsystem, một khối cấp boundary hoặc cấp component của Release, hoặc phần mở rộng dựa trên annotation — vì nó kiểm tra tập attachment cuối cùng của thể hiện chứ không xét mỗi attachment đến từ đâu. Một yêu cầu không được đáp ứng sẽ dừng bản dựng, nêu tên nhãn và kiểu được yêu cầu; một giá trị không phải URI kiểu Feature, hoặc một khóa không có nhãn sau tiền tố, sẽ dừng với một thông báo chẩn đoán riêng về khai báo sai định dạng. Hướng dẫn viết đầy đủ, và cách một yêu cầu hiện diện khác với một slot `featuresSchema`, có tại [`entities/component.md`](../entities/component.md) “Presence mandates”."
   },
+  "17fa8a09270a7b9f": {
+    "at": "2026-11-17T15:02:07.286Z",
+    "job": "session-0021-20261117150207",
+    "revision": {
+      "from": "36d688c1c0338276",
+      "reviewed": false
+    },
+    "srcHash": "17fa8a09270a7b9f",
+    "status": "machine",
+    "text": "Những gì cần loại bỏ khỏi kết quả mà source của Recipe này render — dành cho một source được dùng nguyên trạng nhưng render ra thứ mà Release không được phát hành: một tài liệu do một chart được tải về render, chẳng hạn một Secret chứa một khóa mà chart tạo mới ở mỗi lần render, một service, một volume hoặc một config mà một tệp compose được tải về đóng gói kèm, một tài nguyên mà một template CloudFormation được tải về khai báo, hoặc một tài nguyên mà một template ARM được tải về khai báo. Hầu hết các Recipes không bao giờ cần đến nó. Mỗi mục chỉ định một đơn vị mà source render theo kind, tên của nó và, nếu mục có cung cấp, namespace của nó và subchart mà nó đến từ đó, mỗi thứ theo từ vựng của provider đang render source — với một chart, là một tài liệu theo `kind` và `metadata.name` của chính nó; với một tệp compose, là một `service`, một `volume` hoặc một `config` theo khóa của nó dưới `services:`, `volumes:` hoặc `configs:`; với một template CloudFormation, là một tài nguyên theo `Type` và logical ID của nó; với một template ARM, là một tài nguyên theo `type` và tên tượng trưng của nó, hoặc theo `name` của nó như được viết khi template liệt kê các tài nguyên của mình. Provider đó loại bỏ mọi đơn vị mà một mục khớp, và việc một mục khớp với gì, cũng như những gì provider từ chối vì một mục, là hợp đồng được tài liệu hóa của riêng provider đó. Một provider không thể loại bỏ bất cứ thứ gì sẽ từ chối một Recipe khai báo khóa này trước khi bất cứ thứ gì được render. Chỉ những gì `source:` render mới được lọc — một mục `workload:` hoặc `artifacts:` thì không bao giờ — nên khóa này yêu cầu `source`. Mọi giá trị đều là một template, được đánh giá dựa trên cùng ngữ cảnh mà `valuesMapping` được đánh giá. `when` của một mục được đánh giá trước, và một mục có `when` render ra giá trị falsy sẽ bị bỏ qua. Mọi mục còn hoạt động đều phải loại bỏ được thứ gì đó: một mục hoạt động không khớp với bất cứ thứ gì source đã render sẽ dừng build, kèm tên của mục đó. Source vẫn được render đầy đủ — mọi template của một chart vẫn chạy, nên một template bị lỗi vẫn làm build thất bại — và chỉ đầu ra của nó bị loại bỏ. Ít nhất 1 mục."
+  },
   "17fbd2bd9bc5f3b5": {
     "at": "2026-11-10T01:41:59.922Z",
     "job": "session-0011-20261110014159",
@@ -80084,6 +80095,17 @@
     "status": "machine",
     "text": "Thứ tự ưu tiên theo từng trường là cờ CLI > `signing` theo registry > `signing` toàn cục > mặc định public-good. Fulcio và Rekor mặc định dùng các phiên bản public-good của Sigstore, nên chúng là tùy chọn; `timestamp_url` không có mặc định — dấu thời gian tin cậy không cần khóa đến từ việc được đưa vào nhật ký minh bạch của Rekor, và một cơ quan cấp dấu thời gian RFC3161 là tùy chọn bật (đặt `timestamp_url`, hoặc `--timestamp-url`, với một endpoint đầy đủ để bật). **Bảo mật:** khối `signing:` không mang tài liệu bí mật nào — token định danh OIDC không bao giờ là một trường cấu hình (đó là một bí mật có thời hạn ngắn, được cung cấp tại thời điểm ký: lấy qua luồng trình duyệt ở terminal tương tác hoặc từ workflow trên GitHub Actions, còn lại thì được truyền bằng `--identity-token` hoặc xuất ra dưới dạng `AGGREGA_IDENTITY_TOKEN` hay `SIGSTORE_ID_TOKEN`), và khóa riêng không bao giờ được ghi trực tiếp; `key_path` là đường dẫn tới một tệp khóa. Đây là sự bất đối xứng có chủ ý so với phía xác minh, nơi ghim một khóa công khai trực tiếp, còn phía ký thì chỉ bao giờ có một đường dẫn khóa."
   },
+  "6c397ddb9f64fdc9": {
+    "at": "2026-11-17T15:02:07.286Z",
+    "job": "session-0021-20261117150207",
+    "revision": {
+      "from": "c2b7f65427851d6b",
+      "reviewed": false
+    },
+    "srcHash": "6c397ddb9f64fdc9",
+    "status": "machine",
+    "text": "Loại của đơn vị cần loại bỏ, theo từ vựng của provider kết xuất nguồn: với một chart, là `kind` riêng của một tài liệu được kết xuất, chẳng hạn `Secret`; với một tệp compose, là `service`, `volume` hoặc `config`; với một template CloudFormation, là `Type` của một tài nguyên, chẳng hạn `AWS::S3::Bucket`; với một template ARM, là `type` của một tài nguyên, chẳng hạn `Microsoft.Storage/storageAccounts`. Nó đặt tên cho một loại mà nguồn kết xuất, và không liên quan đến `kind:` mà một `source:` có cấu trúc mang theo. Là một template."
+  },
   "6c3e775abd04d2a0": {
     "at": "2026-10-23T00:02:41.868223+00:00",
     "job": "msgbatch_01GBmDXubWU53zHo6wo1SbnJ",
@@ -96734,6 +96756,17 @@
     "status": "machine",
     "text": "Một phần có thể định địa chỉ mà đầu ra do một provider phát ra được chia thành — góc nhìn lai của một phần đầu ra. Một đơn vị có cấu trúc mang một cây (một góc nhìn có thể định địa chỉ theo RFC-6902) và là đích PATCH; một đơn vị mờ chỉ mang media type và các byte của nó (không có cây) và là đích SELECT và EMIT nhưng không phải đích PATCH."
   },
+  "8273c322072a7cd3": {
+    "at": "2026-11-17T15:02:07.286Z",
+    "job": "session-0021-20261117150207",
+    "revision": {
+      "from": "d8f78ce61daf9b69",
+      "reviewed": false
+    },
+    "srcHash": "8273c322072a7cd3",
+    "status": "machine",
+    "text": "Namespace chứa đơn vị cần loại bỏ, khi mục chỉ nên khớp với một đơn vị trong namespace đó — dành cho một provider có đầu ra có namespace, như các tài liệu được kết xuất của một chart. Khi vắng mặt, hoặc kết xuất thành chuỗi rỗng, mục khớp với một đơn vị có loại và tên của nó bất kể namespace. Một tệp compose, một template CloudFormation và một template ARM không có namespace, và provider của chúng từ chối một mục có nêu namespace. Là một template."
+  },
   "827e3cb10bfdeab1": {
     "at": "2026-10-30T02:04:27.098Z",
     "job": "session-0050-20261030020427",
@@ -102061,6 +102094,17 @@
     "status": "machine",
     "text": "Thứ tự duyệt là trụ values trước (theo thứ tự của tác giả), rồi đến trụ infra (cùng nguyên tắc). Tiền tố trụ (`values.` / `infra.`) và đường dẫn có dấu chấm bên trong trụ chỉ rõ chính xác lá mà mỗi ngoặc chú thích."
   },
+  "89eb7e4d5199f26b": {
+    "at": "2026-11-17T15:02:07.286Z",
+    "job": "session-0021-20261117150207",
+    "revision": {
+      "from": "1bdfa4d470c5c8e8",
+      "reviewed": false
+    },
+    "srcHash": "89eb7e4d5199f26b",
+    "status": "machine",
+    "text": "Subchart mà đơn vị cần loại bỏ xuất phát từ đó, khi mục chỉ nên khớp với bản sao do một subchart render — dành cho một source được lắp ráp từ các source lồng nhau, như một chart được lắp ráp từ các subchart của nó. Với một chart, đó là tên riêng của subchart, hoặc bí danh mà dependency của chart cha đặt cho nó, với các tên của một subchart lồng nhau được nối bằng `/` từ ngoài cùng: `operator`, hoặc `operator/webhooks`. Khi đó mục khớp với một tài liệu được render từ `templates/` hoặc `crds/` riêng của subchart đó, và không khớp với tài liệu do chính chart render hay tài liệu do một subchart lồng bên trong nó render. Nếu vắng mặt, hoặc render ra chuỗi rỗng, mục khớp với một đơn vị có kind và tên của nó bất kể nó xuất phát từ đâu. Một chart không render subchart nào có tên đó sẽ dừng bản build, kèm tên của mục. Một tệp compose, một template CloudFormation và một template ARM không có subchart, và các provider của chúng từ chối một mục đặt tên subchart. Một template."
+  },
   "89ecdefd844b5a96": {
     "at": "2026-10-22T10:27:55.857345+00:00",
     "job": "msgbatch_01St5AJWD4JFUsFvC38dR1rN",
@@ -104419,6 +104463,17 @@
     "srcHash": "8d1a8cb22eaa94af",
     "status": "machine",
     "text": "Phạm vi boundary: các tệp cho đầu ra dùng chung của một boundary"
+  },
+  "8d1bac746ba2d88a": {
+    "at": "2026-11-17T15:02:07.286Z",
+    "job": "session-0021-20261117150207",
+    "revision": {
+      "from": "9283eba1ed8b09d3",
+      "reviewed": false
+    },
+    "srcHash": "8d1bac746ba2d88a",
+    "status": "machine",
+    "text": "Wave triển khai tùy chọn theo từng boundary (số nguyên có dấu, mặc định 0). Mọi component trong boundary này kế thừa wave của boundary vào node của nó. Cho phép giá trị âm (chạy trước mọi thứ khác); giá trị lớn hơn chạy sau giá trị nhỏ hơn. Trên K8s và Helm, wave là thứ quyết định thứ tự triển khai: nó trở thành annotation `argocd.argoproj.io/sync-wave`, và trên một resource mà chart đã đánh dấu là Helm hook, nó cũng trở thành `helm.sh/hook-weight` của hook đó. Trên compose, wave vừa được ghi lại dưới dạng label của service vừa sắp thứ tự các service của tệp mà nó được render vào, thông qua `depends_on` giữa chúng — vì vậy nó áp dụng cho mọi service trong đúng tệp đó và không gì bên ngoài. Trên cloudformation, wave sắp thứ tự việc cấp phát stack mà boundary được lắp vào: mọi resource trong một wave được khai báo là phụ thuộc vào các resource của wave trước nó, điều này cố định thứ tự chúng được tạo và, theo chiều ngược lại, thứ tự chúng bị xóa. Đó chỉ là thứ tự tạo và xóa — một stack template không thể hiện khái niệm resource đã sẵn sàng, nên không có gì chờ một resource trở nên khả dụng. Trên terraform, wave sắp thứ tự các khối module của cấu hình gốc mà boundary được lắp vào: mọi module trong một wave được khai báo là phụ thuộc vào các module của wave trước nó, điều này cố định thứ tự engine thực hiện các hành động. Đó chỉ là thứ tự hành động — một cấu hình không thể hiện khái niệm resource đã sẵn sàng, nên không có gì chờ một resource trở nên khả dụng — và giá trị này cũng được ghi lại cùng thông tin nguồn gốc build của node. Trên arm, wave sắp thứ tự việc triển khai template mà boundary được lắp vào: mọi resource và mọi nested deployment trong một wave được khai báo phụ thuộc vào những cái của wave trước đó thông qua `dependsOn`. Trình biên dịch mang cùng giá trị này lên mọi node trong boundary dưới dạng `sync_wave` của node đó, nơi hành vi theo từng đích được mô tả lại từ phía node. Các boundary lồng nhau không ngầm kế thừa — mỗi boundary tự khai báo wave của riêng mình."
   },
   "8d1f3a05d7621946": {
     "at": "2026-10-22T23:53:38.624924+00:00",
@@ -109713,6 +109768,17 @@
     "srcHash": "942c8984717d9bfc",
     "status": "machine",
     "text": "Ma trận hỗ trợ trong chương này được **sinh ra từ các khai báo đó**, ở mức chi tiết mà khai báo mang theo — theo từng provider **theo từng loại đầu vào**, vì một provider có thể đọc một khóa khi tổng hợp một đơn vị triển khai nhưng không có cách nào đọc nó khi kết xuất một artifact được vendor hóa. Hãy soạn thảo dựa trên ma trận ở đây: một ô cho biết provider đó đọc gì trên đường đi đó, vì một ô không thể nói bất cứ điều gì mà provider không khai báo. Một khai báo nêu tên một loại đầu vào mà chính hợp đồng hành vi kết xuất của provider không kết xuất sẽ bị từ chối khi thực thể Plugin được đọc, nên hai tuyên bố không thể mâu thuẫn nhau."
+  },
+  "942cba09b5d1f16d": {
+    "at": "2026-11-17T15:02:07.286Z",
+    "job": "session-0021-20261117150207",
+    "revision": {
+      "from": "bc7b3afe76730afe",
+      "reviewed": false
+    },
+    "srcHash": "942cba09b5d1f16d",
+    "status": "machine",
+    "text": "Tên của đơn vị cần loại bỏ, theo từ vựng của provider kết xuất nguồn: với một chart, là `metadata.name` riêng của một tài liệu được kết xuất; với một tệp compose, là khóa của đơn vị dưới `services:`, `volumes:` hoặc `configs:`; với một template CloudFormation, là ID logic của tài nguyên, tức khóa của nó dưới `Resources`; với một template ARM, là tên tượng trưng của tài nguyên, tức khóa của nó dưới `resources`, hoặc `name` của nó như được viết khi `resources` là một danh sách. Là một template."
   },
   "942cd561870c9899": {
     "at": "2026-10-22T13:38:02.118076+00:00",

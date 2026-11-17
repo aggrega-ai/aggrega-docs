@@ -17903,6 +17903,17 @@
     "status": "machine",
     "text": "任何作用域上的附件都能满足该强制要求——组件级或子系统级的 `features:` 块、Release 边界级或组件级的块，或由注解驱动的展开——因为它检查的是实例最终的附件集合，而不是每个附件的来源。未满足的强制要求会中止构建，并给出标签和所需类型；值不是 Feature 类型 URI，或前缀之后没有标签的键，会以另一个声明格式错误的诊断中止。完整的编写说明，以及强制要求与 `featuresSchema` 槽的区别，见 [`entities/component.md`](../entities/component.md) 的“Presence mandates”。"
   },
+  "17fa8a09270a7b9f": {
+    "at": "2026-11-17T15:02:07.286Z",
+    "job": "session-0021-20261117150207",
+    "revision": {
+      "from": "36d688c1c0338276",
+      "reviewed": false
+    },
+    "srcHash": "17fa8a09270a7b9f",
+    "status": "machine",
+    "text": "从该 Recipe 的 source 渲染结果中省去的内容——适用于按原样采用、却会渲染出 Release 不得发布之物的 source：所获取的 chart 渲染出的文档，例如保存着 chart 每次渲染都重新生成的密钥的 Secret；所获取的 compose 文件捆绑的 service、volume 或 config；所获取的 CloudFormation 模板声明的资源；或所获取的 ARM 模板声明的资源。大多数 Recipes 从不需要它。每个条目按种类、名称以及（条目给出时的）命名空间和其来源的 subchart 指定 source 渲染的一个单元，均使用渲染该 source 的 provider 的词汇——对于 chart，是按文档自身的 `kind` 和 `metadata.name` 指定的文档；对于 compose 文件，是按其在 `services:`、`volumes:` 或 `configs:` 下的键指定的 `service`、`volume` 或 `config`；对于 CloudFormation 模板，是按其 `Type` 和逻辑 ID 指定的资源；对于 ARM 模板，是按其 `type` 和符号名称，或按模板列出其资源时所写的 `name` 指定的资源。该 provider 会省去条目匹配的每个单元；条目匹配什么、provider 因条目而拒绝什么，均属于该 provider 自身有文档的契约。无法省去任何内容的 provider 会在渲染任何内容之前拒绝声明此键的 Recipe。只有 `source:` 渲染的内容会被过滤——`workload:` 或 `artifacts:` 条目永远不会——因此该键要求 `source`。每个值都是模板，针对 `valuesMapping` 所用的同一上下文求值。条目的 `when` 最先求值，`when` 渲染为假值的条目会被丢弃。每个保持激活的条目都必须省去某些内容：未匹配到 source 渲染的任何内容的激活条目会中止构建，并指出该条目。source 仍会完整渲染——chart 的每个模板仍会运行，因此失败的模板仍会导致构建失败——只有其输出被省去。至少 1 个条目。"
+  },
   "17fbd2bd9bc5f3b5": {
     "at": "2026-11-10T01:41:59.922Z",
     "job": "session-0011-20261110014159",
@@ -80063,6 +80074,17 @@
     "status": "machine",
     "text": "每个字段的优先级为：CLI 标志 > 每仓库 `signing` > 全局 `signing` > 公益默认值。Fulcio 和 Rekor 默认使用公益的 Sigstore 实例，因此是可选的；`timestamp_url` 没有默认值——无密钥的可信时间戳来自 Rekor 透明日志的收录，RFC3161 时间戳机构需选择启用（设置 `timestamp_url` 或 `--timestamp-url`，并提供完整端点以启用）。**安全：** `signing:` 块不携带任何机密材料——OIDC 身份令牌从不作为配置字段（它是短期机密，在签名时提供：在交互式终端中通过浏览器流程获取，或在 GitHub Actions 上从工作流获取，否则通过 `--identity-token` 传入，或导出为 `AGGREGA_IDENTITY_TOKEN` 或 `SIGSTORE_ID_TOKEN`），私钥也从不内联；`key_path` 是指向密钥文件的路径。这是与验证端有意为之的不对称：验证端固定一个内联公钥，而签名端始终只接受密钥路径。"
   },
+  "6c397ddb9f64fdc9": {
+    "at": "2026-11-17T15:02:07.286Z",
+    "job": "session-0021-20261117150207",
+    "revision": {
+      "from": "c2b7f65427851d6b",
+      "reviewed": false
+    },
+    "srcHash": "6c397ddb9f64fdc9",
+    "status": "machine",
+    "text": "要省略的单元的 kind，使用渲染该 source 的 provider 的词汇：对于 chart，是渲染出的文档自身的 `kind`，例如 `Secret`；对于 compose 文件，是 `service`、`volume` 或 `config`；对于 CloudFormation 模板，是资源的 `Type`，例如 `AWS::S3::Bucket`；对于 ARM 模板，是资源的 `type`，例如 `Microsoft.Storage/storageAccounts`。它指定的是 source 渲染出的 kind，与结构化 `source:` 所携带的 `kind:` 无关。这是一个模板。"
+  },
   "6c3e775abd04d2a0": {
     "at": "2026-10-22T05:25:45.661574+00:00",
     "job": "msgbatch_01GK3s5ypk3MzMWPEKha5JkC",
@@ -96717,6 +96739,17 @@
     "status": "machine",
     "text": "provider 发出的输出所切分成的一个可寻址片段——一段输出的混合视图。结构化单元携带一棵树（可按 RFC 6902 寻址的视图），是 PATCH 目标；不透明单元只携带其媒体类型和字节（没有树），是 SELECT 和 EMIT 目标，但不是 PATCH 目标。"
   },
+  "8273c322072a7cd3": {
+    "at": "2026-11-17T15:02:07.286Z",
+    "job": "session-0021-20261117150207",
+    "revision": {
+      "from": "d8f78ce61daf9b69",
+      "reviewed": false
+    },
+    "srcHash": "8273c322072a7cd3",
+    "status": "machine",
+    "text": "要省略的单元所在的 namespace，用于该条目只应匹配该 namespace 中的单元的情况——适用于输出带有 namespace 的 provider，例如 chart 渲染出的文档。若不设置，或渲染为空字符串，该条目匹配具有其 kind 和名称的单元，无论其 namespace 为何。compose 文件、CloudFormation 模板和 ARM 模板没有 namespace，它们的 provider 会拒绝指定了 namespace 的条目。这是一个模板。"
+  },
   "827e3cb10bfdeab1": {
     "at": "2026-10-30T02:04:27.098Z",
     "job": "session-0050-20261030020427",
@@ -102042,6 +102075,17 @@
     "status": "machine",
     "text": "遍历顺序是先 values 支柱（按作者顺序），再 infra 支柱（同样的规则）。支柱前缀（`values.` / `infra.`）和支柱内的点分路径准确指出每个括号所标注的叶子。"
   },
+  "89eb7e4d5199f26b": {
+    "at": "2026-11-17T15:02:07.286Z",
+    "job": "session-0021-20261117150207",
+    "revision": {
+      "from": "1bdfa4d470c5c8e8",
+      "reviewed": false
+    },
+    "srcHash": "89eb7e4d5199f26b",
+    "status": "machine",
+    "text": "要排除的单元所来自的子 chart，用于条目只应匹配某一个子 chart 所渲染副本的情况——适用于由嵌套 source 组装而成的 source，就像 chart 由其子 chart 组装而成。对于 chart，为子 chart 自身的名称，或其父 chart 的依赖为其指定的别名，嵌套子 chart 的名称从最外层起用 `/` 连接：`operator` 或 `operator/webhooks`。此时条目匹配从该子 chart 自身的 `templates/` 或 `crds/` 渲染出的文档，既不匹配 chart 自身渲染的文档，也不匹配嵌套在该子 chart 内的子 chart 渲染的文档。缺省或渲染为空字符串时，条目匹配其种类和名称对应的单元，无论其来源。未渲染该名称子 chart 的 chart 会使构建停止，并指出该条目。compose 文件、CloudFormation 模板和 ARM 模板没有子 chart，其 provider 会拒绝指定子 chart 的条目。一个模板。"
+  },
   "89ecdefd844b5a96": {
     "at": "2026-10-22T02:02:14.297198+00:00",
     "job": "msgbatch_016CHyieYQChUE1r8UVGktgV",
@@ -104400,6 +104444,17 @@
     "srcHash": "8d1a8cb22eaa94af",
     "status": "machine",
     "text": "边界作用域：用于边界共享输出的文件"
+  },
+  "8d1bac746ba2d88a": {
+    "at": "2026-11-17T15:02:07.286Z",
+    "job": "session-0021-20261117150207",
+    "revision": {
+      "from": "9283eba1ed8b09d3",
+      "reviewed": false
+    },
+    "srcHash": "8d1bac746ba2d88a",
+    "status": "machine",
+    "text": "可选的按边界部署波次（有符号整数，默认为 0）。此边界中的每个组件都会将边界的波次继承到其节点中。允许负值（在其他所有内容之前运行）；较大的值在较小的值之后运行。在 K8s 和 Helm 上，波次决定部署顺序：它会成为 `argocd.argoproj.io/sync-wave` 注解；对于 chart 已标记为 Helm hook 的资源，它还会成为该 hook 的 `helm.sh/hook-weight`。在 compose 上，波次既会记录为服务标签，也会通过服务之间的 `depends_on` 对其渲染所在文件中的服务进行排序——因此它作用于该文件中的每个服务，而不会影响文件之外的任何内容。在 cloudformation 上，波次决定边界所组装进的 stack 的资源配置顺序：一个波次中的每个资源都被声明为依赖于前一个波次的资源，从而确定资源的创建顺序，以及相反的删除顺序。这仅是创建和删除顺序——stack 模板无法表达资源就绪的概念，因此不会等待任何资源变为可用。在 terraform 上，波次决定边界所组装进的根配置中 module 块的顺序：一个波次中的每个 module 都被声明为依赖于前一个波次的 module，从而确定引擎执行操作的顺序。这仅是操作顺序——配置无法表达资源就绪的概念，因此不会等待任何资源变为可用——该值还会随节点的构建来源信息一起记录。在 arm 上，波次决定边界所组装进的模板的部署顺序：一个波次中的每个资源和每个 nested deployment 都通过 `dependsOn` 被声明为依赖于前一个波次的资源和 nested deployment。编译器会将同一个值作为每个节点的 `sync_wave` 带到边界中的每个节点上，在那里会从节点的角度再次说明各目标的行为。嵌套边界不会隐式继承——每个嵌套边界各自声明自己的波次。"
   },
   "8d1f3a05d7621946": {
     "at": "2026-10-22T05:25:45.661574+00:00",
@@ -109698,6 +109753,17 @@
     "srcHash": "942c8984717d9bfc",
     "status": "machine",
     "text": "本章中的支持矩阵**由这些声明生成**，其粒度与声明所携带的粒度一致——按 provider **按输入类型**划分，因为一个 provider 可能在合成部署单元时能读取某个键，而在渲染内置的制品时却无法读取它。请依据此处的矩阵进行编写：每个单元格说明该 provider 在该路径上读取什么，因为单元格无法表述 provider 未声明的任何内容。如果某个声明指定了该 provider 自身渲染行为契约并不渲染的输入类型，则在读取该 Plugin 实体时会被拒绝，因此这两项声明不会相互矛盾。"
+  },
+  "942cba09b5d1f16d": {
+    "at": "2026-11-17T15:02:07.286Z",
+    "job": "session-0021-20261117150207",
+    "revision": {
+      "from": "bc7b3afe76730afe",
+      "reviewed": false
+    },
+    "srcHash": "942cba09b5d1f16d",
+    "status": "machine",
+    "text": "要省略的单元的名称，使用渲染该 source 的 provider 的词汇：对于 chart，是渲染出的文档自身的 `metadata.name`；对于 compose 文件，是该单元在 `services:`、`volumes:` 或 `configs:` 下的键；对于 CloudFormation 模板，是资源的逻辑 ID，即它在 `Resources` 下的键；对于 ARM 模板，是资源的符号名称，即它在 `resources` 下的键，或在 `resources` 为列表时按原样书写的 `name`。这是一个模板。"
   },
   "942cd561870c9899": {
     "at": "2026-10-22T03:00:38.891470+00:00",

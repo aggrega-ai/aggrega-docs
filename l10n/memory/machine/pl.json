@@ -17903,6 +17903,17 @@
     "status": "machine",
     "text": "Wymóg spełnia przyłączenie na dowolnym poziomie — blok `features:` na poziomie komponentu lub podsystemu, blok na poziomie granicy lub komponentu w encji Release albo rozwinięcie sterowane adnotacjami — ponieważ sprawdzany jest końcowy zbiór przyłączeń instancji, a nie miejsce pochodzenia każdego przyłączenia. Niespełniony wymóg zatrzymuje kompilację z podaniem etykiety i wymaganego typu; wartość, która nie jest URI typu Feature, lub klucz bez etykiety po prefiksie zatrzymują kompilację z osobnym komunikatem diagnostycznym o błędnej deklaracji. Pełny opis tworzenia oraz tego, czym wymóg różni się od slotu `featuresSchema`, znajduje się w [`entities/component.md`](../entities/component.md), w części „Presence mandates”."
   },
+  "17fa8a09270a7b9f": {
+    "at": "2026-11-17T15:02:07.286Z",
+    "job": "session-0021-20261117150207",
+    "revision": {
+      "from": "36d688c1c0338276",
+      "reviewed": false
+    },
+    "srcHash": "17fa8a09270a7b9f",
+    "status": "machine",
+    "text": "Co pominąć w tym, co renderuje źródło tej encji Recipe — dla źródła przyjętego takim, jakie jest, które renderuje coś, czego encja Release nie może dostarczyć: dokument renderowany przez pobrany chart, na przykład Secret z kluczem, który chart generuje od nowa przy każdym renderowaniu, usługę, wolumin lub konfigurację dołączoną do pobranego pliku compose zasób zadeklarowany w pobranym szablonie CloudFormation albo zasób zadeklarowany w pobranym szablonie ARM. Większość encji Recipes nigdy tego nie potrzebuje. Każdy wpis wskazuje jedną jednostkę renderowaną przez źródło po jej rodzaju, nazwie i — jeśli wpis je podaje — przestrzeni nazw oraz subcharcie, z którego pochodzi, każde w słownictwie providera renderującego źródło: dla chartu dokument po jego własnym `kind` i `metadata.name`; dla pliku compose `service`, `volume` lub `config` po kluczu pod `services:`, `volumes:` lub `configs:`; dla szablonu CloudFormation zasób po jego `Type` i identyfikatorze logicznym; dla szablonu ARM zasób po jego `type` i nazwie symbolicznej albo po jego `name` zapisanym tak, jak jest, gdy szablon wymienia swoje zasoby na liście. Ten provider pomija każdą jednostkę, do której pasuje wpis, a to, do czego wpis pasuje i co provider odrzuca z powodu wpisu, jest jego własnym udokumentowanym kontraktem. Provider, który nie potrafi niczego pominąć, odrzuca encję Recipe deklarującą ten klucz, zanim cokolwiek zostanie wyrenderowane. Filtrowane jest tylko to, co renderuje `source:` — wpis `workload:` ani `artifacts:` nigdy nie jest — więc klucz wymaga `source`. Każda wartość jest szablonem, ewaluowanym względem tego samego kontekstu co `valuesMapping`. Najpierw ewaluowane jest `when` wpisu, a wpis, którego `when` renderuje wartość fałszywą, jest odrzucany. Każdy pozostały aktywny wpis musi coś pominąć: aktywny wpis, który nie pasuje do niczego, co wyrenderowało źródło, zatrzymuje kompilację, wskazując ten wpis. Źródło nadal renderuje się w całości — każdy szablon chartu nadal się wykonuje, więc szablon, który zawodzi, nadal przerywa kompilację — i pomijany jest tylko jego wynik. Co najmniej 1 wpis."
+  },
   "17fbd2bd9bc5f3b5": {
     "at": "2026-11-10T01:41:59.922Z",
     "job": "session-0011-20261110014159",
@@ -80058,6 +80069,17 @@
     "status": "machine",
     "text": "Pierwszeństwo dla każdego pola to: flaga CLI > `signing` dla rejestru > globalne `signing` > domyślna wartość public-good. Fulcio i Rekor domyślnie korzystają z instancji public-good Sigstore, więc są opcjonalne; `timestamp_url` nie ma wartości domyślnej — zaufany znacznik czasu bez kluczy pochodzi z włączenia do dziennika przejrzystości Rekor, a urząd znaczników czasu RFC3161 jest opcjonalny (aby go włączyć, należy ustawić `timestamp_url` lub `--timestamp-url` z pełnym punktem końcowym). **Bezpieczeństwo:** blok `signing:` nie zawiera żadnych tajnych materiałów — token tożsamości OIDC nigdy nie jest polem konfiguracji (to krótkotrwały sekret, przekazywany w momencie podpisywania: pozyskiwany przez przepływ w przeglądarce w interaktywnym terminalu lub z workflow w GitHub Actions, a w pozostałych przypadkach przekazywany przez `--identity-token` lub eksportowany jako `AGGREGA_IDENTITY_TOKEN` albo `SIGSTORE_ID_TOKEN`), a klucz prywatny nigdy nie jest podawany inline; `key_path` to ścieżka do pliku klucza. To celowa asymetria względem strony weryfikacji, która przypina klucz publiczny inline, podczas gdy po stronie podpisywania jest zawsze tylko ścieżka do klucza."
   },
+  "6c397ddb9f64fdc9": {
+    "at": "2026-11-17T15:02:07.286Z",
+    "job": "session-0021-20261117150207",
+    "revision": {
+      "from": "c2b7f65427851d6b",
+      "reviewed": false
+    },
+    "srcHash": "6c397ddb9f64fdc9",
+    "status": "machine",
+    "text": "Rodzaj jednostki do pominięcia, w słownictwie providera renderującego źródło: dla chartu własny `kind` wyrenderowanego dokumentu, np. `Secret`; dla pliku compose `service`, `volume` lub `config`; dla szablonu CloudFormation `Type` zasobu, np. `AWS::S3::Bucket`; dla szablonu ARM `type` zasobu, np. `Microsoft.Storage/storageAccounts`. Wskazuje rodzaj renderowany przez źródło i nie ma związku z `kind:`, który zawiera ustrukturyzowane `source:`. Szablon."
+  },
   "6c3e775abd04d2a0": {
     "at": "2026-10-23T00:02:41.868223+00:00",
     "job": "msgbatch_01GBmDXubWU53zHo6wo1SbnJ",
@@ -96706,6 +96728,17 @@
     "status": "machine",
     "text": "Jeden adresowalny fragment, na który dzieli się wyemitowany wynik dostawcy — hybrydowy widok jednego fragmentu wyniku. Jednostka ustrukturyzowana przenosi drzewo (widok adresowalny według RFC 6902) i jest celem PATCH; jednostka nieprzezroczysta przenosi tylko swój typ nośnika i bajty (bez drzewa) i jest celem SELECT i EMIT, ale nie celem PATCH."
   },
+  "8273c322072a7cd3": {
+    "at": "2026-11-17T15:02:07.286Z",
+    "job": "session-0021-20261117150207",
+    "revision": {
+      "from": "d8f78ce61daf9b69",
+      "reviewed": false
+    },
+    "srcHash": "8273c322072a7cd3",
+    "status": "machine",
+    "text": "Przestrzeń nazw, w której znajduje się jednostka do pominięcia, gdy wpis ma dopasować tylko jednostkę w tej przestrzeni nazw — dla providera, którego wynik ma przestrzenie nazw, tak jak wyrenderowane dokumenty chartu. Gdy pole jest nieobecne lub renderuje się do pustego ciągu, wpis dopasowuje jednostkę o danym rodzaju i nazwie niezależnie od przestrzeni nazw. Plik compose, szablon CloudFormation i szablon ARM nie mają przestrzeni nazw, a ich providery odrzucają wpis, który ją wskazuje. Szablon."
+  },
   "827e3cb10bfdeab1": {
     "at": "2026-10-30T02:04:27.098Z",
     "job": "session-0050-20261030020427",
@@ -102027,6 +102060,17 @@
     "status": "machine",
     "text": "Kolejność przechodzenia: najpierw filar values (w kolejności autora), potem filar infra (według tej samej zasady). Prefiks filaru (`values.` / `infra.`) i ścieżka z kropkami wewnątrz filaru wskazują dokładnie, który liść opisuje każdy nawias."
   },
+  "89eb7e4d5199f26b": {
+    "at": "2026-11-17T15:02:07.286Z",
+    "job": "session-0021-20261117150207",
+    "revision": {
+      "from": "1bdfa4d470c5c8e8",
+      "reviewed": false
+    },
+    "srcHash": "89eb7e4d5199f26b",
+    "status": "machine",
+    "text": "Subchart, z którego pochodzi pomijana jednostka, gdy wpis ma dopasować tylko kopię renderowaną przez jeden subchart — dla źródła złożonego z zagnieżdżonych źródeł, tak jak chart jest złożony ze swoich subchartów. Dla chartu jest to własna nazwa subchartu albo alias nadany mu przez zależność rodzica, przy czym nazwy zagnieżdżonego subchartu łączy się znakiem `/`, zaczynając od najbardziej zewnętrznego: `operator` lub `operator/webhooks`. Wpis dopasowuje wtedy dokument wyrenderowany z własnych `templates/` lub `crds/` tego subchartu, a nie dokument renderowany przez sam chart ani przez subchart zagnieżdżony w tamtym. Gdy pole jest nieobecne lub renderuje się do pustego stringu, wpis dopasowuje jednostkę swojego rodzaju i nazwy niezależnie od jej pochodzenia. Chart, który nie renderuje subchartu o tej nazwie, zatrzymuje kompilację, wskazując wpis. Plik compose, szablon CloudFormation i szablon ARM nie mają subchartów, a ich dostawcy odrzucają wpis, który go wskazuje. Szablon."
+  },
   "89ecdefd844b5a96": {
     "at": "2026-10-22T09:15:22.065068+00:00",
     "job": "msgbatch_01PZRcL3mvRgpjTW4rDpG9ri",
@@ -104379,6 +104423,17 @@
     "srcHash": "8d1a8cb22eaa94af",
     "status": "machine",
     "text": "Zakres granicy: pliki dla wspólnego wyniku granicy"
+  },
+  "8d1bac746ba2d88a": {
+    "at": "2026-11-17T15:02:07.286Z",
+    "job": "session-0021-20261117150207",
+    "revision": {
+      "from": "9283eba1ed8b09d3",
+      "reviewed": false
+    },
+    "srcHash": "8d1bac746ba2d88a",
+    "status": "machine",
+    "text": "Opcjonalna fala wdrożenia dla granicy (liczba całkowita ze znakiem, domyślnie 0). Każdy komponent w tej granicy dziedziczy falę granicy do swojego węzła. Wartości ujemne są dozwolone (uruchamiane przed wszystkim innym); większe wartości uruchamiane są po mniejszych. W K8s i Helm to fala określa kolejność wdrożenia: staje się adnotacją `argocd.argoproj.io/sync-wave`, a na zasobie, który chart już oznacza jako hook Helm, staje się też wartością `helm.sh/hook-weight` tego hooka. W compose fala jest zarówno zapisywana jako etykieta usługi, jak i porządkuje usługi pliku, do którego jest renderowana, za pomocą `depends_on` między nimi — obejmuje więc każdą usługę w tym jednym pliku i nic poza nim. W cloudformation fala porządkuje provisioning stosu, do którego składana jest granica: każdy zasób w fali jest deklarowany jako zależny od zasobów poprzedniej fali, co ustala kolejność ich tworzenia i, w odwrotnej kolejności, usuwania. Dotyczy to wyłącznie kolejności tworzenia i usuwania — szablon stosu nie wyraża pojęcia gotowości zasobu, więc nic nie czeka, aż zasób stanie się zdatny do użytku. W terraform fala porządkuje bloki modułów konfiguracji głównej, do której składana jest granica: każdy moduł w fali jest deklarowany jako zależny od modułów poprzedniej fali, co ustala kolejność wykonywania akcji przez silnik. Dotyczy to wyłącznie kolejności akcji — konfiguracja nie wyraża pojęcia gotowości zasobu, więc nic nie czeka, aż zasób stanie się zdatny do użytku — a wartość jest również zapisywana w pochodzeniu kompilacji węzła. W arm fala porządkuje wdrożenie szablonu, do którego składana jest granica: każdy zasób i każdy nested deployment w fali jest deklarowany jako zależny od zasobów i nested deployment z poprzedniej fali przez `dependsOn`. Kompilator przenosi tę samą wartość na każdy węzeł w granicy jako `sync_wave` tego węzła, gdzie zachowanie dla poszczególnych celów opisano ponownie od strony węzła. Zagnieżdżone granice nie dziedziczą jej niejawnie — każda deklaruje własną falę."
   },
   "8d1f3a05d7621946": {
     "at": "2026-10-22T23:53:38.624924+00:00",
@@ -109673,6 +109728,17 @@
     "srcHash": "942c8984717d9bfc",
     "status": "machine",
     "text": "Macierz obsługi w tym rozdziale jest **generowana z tych deklaracji**, z taką szczegółowością, jaką niesie deklaracja — dla każdego dostawcy **dla każdego rodzaju wejścia**, ponieważ dostawca może odczytywać klucz, gdy syntetyzuje jednostkę wdrożeniową, i nie mieć możliwości odczytania go, gdy renderuje dostarczony artefakt. Należy tworzyć definicje w oparciu o tę macierz: komórka mówi, co dany dostawca odczytuje na danej ścieżce, ponieważ komórka nie może powiedzieć niczego, czego dostawca nie zadeklarował. Deklaracja wymieniająca rodzaj wejścia, którego własny kontrakt zachowania renderowania dostawcy nie renderuje, jest odrzucana przy odczycie encji Plugin, więc te dwa twierdzenia nie mogą być ze sobą sprzeczne."
+  },
+  "942cba09b5d1f16d": {
+    "at": "2026-11-17T15:02:07.286Z",
+    "job": "session-0021-20261117150207",
+    "revision": {
+      "from": "bc7b3afe76730afe",
+      "reviewed": false
+    },
+    "srcHash": "942cba09b5d1f16d",
+    "status": "machine",
+    "text": "Nazwa jednostki do pominięcia, w słownictwie providera renderującego źródło: dla chartu własne `metadata.name` wyrenderowanego dokumentu; dla pliku compose klucz jednostki pod `services:`, `volumes:` lub `configs:`; dla szablonu CloudFormation logiczny identyfikator zasobu, czyli jego klucz pod `Resources`; dla szablonu ARM symboliczna nazwa zasobu, czyli jego klucz pod `resources`, albo jego `name` zapisane tak, jak jest, gdy `resources` jest listą. Szablon."
   },
   "942cd561870c9899": {
     "at": "2026-10-22T13:38:02.118076+00:00",
