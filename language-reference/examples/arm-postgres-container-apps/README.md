@@ -107,8 +107,8 @@ section holds exactly these two entries:
 | `OrdersApi` | the server component's Recipe, `arm/server-container-apps` |
 
 Each Recipe wraps a module from Microsoft's Azure Verified Modules programme,
-pinned to a git tag whose commit and archive digest the lockfile records, so
-every build vendors exactly the same bytes. The head of the server's entry,
+pinned to a git tag whose commit and archive digest the Recipe's `entity.lock`
+records, so every build vendors exactly the same bytes. The head of the server's entry,
 with the module's template omitted:
 
 ```json
@@ -221,11 +221,6 @@ The attachment is in the Release because where a password lives is the
 operator's decision. The Aggregate says nothing about it, and a Release never
 writes `values:`.
 
-The Manifest also holds the other route a credential takes. A neighbour's
-value its producer declares sensitive halts the server's build; naming the
-secret under `infra.overrides.secrets` instead delivers it to the container
-through a Key Vault-backed app secret, still with no value in the template.
-
 ## Deploying the template
 
 The template is a resource-group template. The provider writes no parameters
@@ -278,8 +273,8 @@ resource in a template, so the build stops:
 Three things to read out of that.
 
 - **Both ends are named.** Each entry gives the component, so both are
-  searchable in the files you wrote. Neither component's name is the intended
-  one, so both are reported rather than the first.
+  searchable in the files you wrote. Both are reported because both derive the
+  same symbol.
 - **The shared symbol and its key space are named.** `PaymentsDb` is the
   symbol both reached, and `symbolic-names` is the name space of the template's
   resources.
