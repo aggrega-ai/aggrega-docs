@@ -32,7 +32,7 @@ Every cell in that grid carries one of three tiers:
 Two scopes, and only one of them makes input kind a meaningful axis:
 
 - **Node-scoped** — `aggrega.ai/namespace`, `aggrega.ai/image-registry`, `aggrega.ai/image-pull-secret`, `aggrega.ai/service-account` and `aggrega.ai/kubernetes-version` shape one component's own rendered output, which the path its input kind selects produces. These are the grid's columns.
-- **Assembly- and reference-scoped** — `aggrega.ai/chart-name` is resolved once when an umbrella chart is assembled, and the three `aggrega.ai/aws-*` keys are resolved when a reference crosses a boundary. Input kind is not an axis for either: the value is read at the assembly or at the reference, however each contributing node was rendered. They have their own table at [Keys resolved per assembly and per reference](#keys-resolved-per-assembly-and-per-reference).
+- **Assembly- and reference-scoped** — `aggrega.ai/chart-name` is resolved once when an umbrella chart is assembled, and the `aggrega.ai/aws-*` and `aggrega.ai/azure-*` keys a provider reads are resolved when a reference crosses a boundary. Input kind is not an axis for either: the value is read at the assembly or at the reference, however each contributing node was rendered. They have their own table at [Keys resolved per assembly and per reference](#keys-resolved-per-assembly-and-per-reference).
 
 ### Category 1 — Placement
 
@@ -87,6 +87,10 @@ Two scopes, and only one of them makes input kind a meaningful axis:
 | `aggrega.ai/aws-account` | `cloudformation` — per cross-boundary reference | AWS account the stack (boundary) deploys into | Same-account — a cross-stack reference resolves through a same-account stack-export import |
 | `aggrega.ai/aws-region` | `cloudformation` — per cross-boundary reference | AWS region the stack (boundary) deploys into | Same-region — a cross-stack reference resolves through a same-region stack-export import |
 | `aggrega.ai/aws-assume-role-arn` | `cloudformation` — per cross-boundary reference | IAM role ARN a cross-account stack read assumes to reach a peer stack's exported values | No role is supplied on a cross-account reference |
+| `aggrega.ai/azure-subscription` | `arm` — per cross-boundary reference | Azure subscription the boundary's template deploys into | The producer is taken to be in the consuming deployment's own subscription |
+| `aggrega.ai/azure-resource-group` | `arm` — per cross-boundary reference | Azure resource group the boundary's template deploys into | The producer is taken to be in the consuming deployment's own resource group |
+| `aggrega.ai/azure-management-group` | reserved; no provider reads it | Reserved for the Azure management group a boundary's template deploys into | — |
+| `aggrega.ai/azure-deployment-scope` | reserved; no provider reads it | Reserved for the level a boundary's template deploys at: `resourceGroup`, `subscription` or `managementGroup` | — |
 
 Each CloudFormation boundary renders into one stack. When a `uses` edge crosses
 from one boundary to another, the `cloudformation` provider needs to know where the
@@ -104,6 +108,18 @@ them against live AWS state; the account, region, and role are supplied by the
 Release or declared in the Aggregate, and the runtime environment resolves the final physical read. When every
 annotation is absent, the provider treats the peer as same-account and same-region
 and supplies no role.
+
+The `arm` provider reads two annotations in the same way. Each Azure boundary renders
+into one deployment. When a `uses` edge crosses from one boundary to another,
+`aggrega.ai/azure-subscription` and `aggrega.ai/azure-resource-group` name where the
+producing deployment lives, and the provider builds that deployment's resource ID from
+them. They resolve through the same annotation cascade and are opaque scalar strings;
+the provider never resolves them against live Azure state. When one is absent, the
+producer is taken to be in the consuming deployment's own subscription or resource
+group. `aggrega.ai/azure-management-group` names a management group and
+`aggrega.ai/azure-deployment-scope` names the level a template deploys at
+(`resourceGroup`, `subscription` or `managementGroup`); both are reserved and no provider
+reads them.
 
 ### Support by provider and input kind
 
@@ -158,7 +174,7 @@ The value still passes through untouched — the build does not halt, because a 
 
 ### Keys resolved per assembly and per reference
 
-Four of the shipped keys are not node-scoped, so they sit outside the grid above rather than being folded into it: input kind is not a meaningful axis for them, and giving each one a row per input kind would repeat a single cell three times and imply a distinction that does not exist. Each declares the boundary scope, and the table below is generated from those declarations.
+The assembly- and reference-scoped keys are not node-scoped, so they sit outside the grid above rather than being folded into it: input kind is not a meaningful axis for them, and giving each one a row per input kind would repeat a single cell three times and imply a distinction that does not exist. Each declares the boundary scope, and the table below is generated from those declarations.
 
 <!-- BEGIN GENERATED: well-known-annotation-boundary-scope -->
 | Annotation | Applied by | Purpose | Default |
@@ -167,9 +183,11 @@ Four of the shipped keys are not node-scoped, so they sit outside the grid above
 | `aggrega.ai/aws-account` | `cloudformation` | The AWS account the stack (boundary) deploys into. A cross-boundary reference reads it to decide whether a peer stack sits in the same account. | The peer is treated as same-account, and a cross-stack reference resolves through a same-account stack-export import rather than a cross-account stack-output read. |
 | `aggrega.ai/aws-region` | `cloudformation` | The AWS region the stack (boundary) deploys into. A cross-boundary reference reads it to decide whether a peer stack sits in the same region. | The peer is treated as same-region, and a cross-stack reference resolves through a same-region stack-export import. |
 | `aggrega.ai/aws-assume-role-arn` | `cloudformation` | The IAM role ARN a cross-account stack read assumes to reach a peer stack's exported values. | No role is supplied, and a cross-account reference carries no assume-role. |
+| `aggrega.ai/azure-subscription` | `arm` | The Azure subscription the boundary's template deploys into. A cross-boundary reference reads it to build the producing deployment's resource ID. | The producer is taken to be in the consuming deployment's own subscription. |
+| `aggrega.ai/azure-resource-group` | `arm` | The Azure resource group the boundary's template deploys into. A cross-boundary reference reads it to build the producing deployment's resource ID. | The producer is taken to be in the consuming deployment's own resource group. |
 <!-- END GENERATED: well-known-annotation-boundary-scope -->
 
-**When each is resolved**, which the declaration itself does not carry. `aggrega.ai/chart-name` is resolved once per umbrella-chart assembly, from the boundary annotation cascade; every contributor to one assembly must resolve it to the same value, and disagreement halts the build naming the boundaries. The three `aggrega.ai/aws-*` keys are resolved per cross-boundary reference under component-over-boundary precedence, so a component value wins over a boundary value; Category 6 above describes the reference each one shapes.
+**When each is resolved**, which the declaration itself does not carry. `aggrega.ai/chart-name` is resolved once per umbrella-chart assembly, from the boundary annotation cascade; every contributor to one assembly must resolve it to the same value, and disagreement halts the build naming the boundaries. The `aggrega.ai/aws-*` keys and the two `aggrega.ai/azure-*` keys the `arm` provider reads are resolved per cross-boundary reference under component-over-boundary precedence, so a component value wins over a boundary value; Category 6 above describes the reference each one shapes.
 
 ### Reserved names no provider reads
 
