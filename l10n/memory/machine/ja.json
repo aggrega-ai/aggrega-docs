@@ -12364,6 +12364,13 @@
     "status": "machine",
     "text": "Aggregate の `parameters:` ブロックでは、これらの一部は Release の値が読まれる前に、宣言そのものに対してもチェックされます。パラメータ自身の `minLength` と `maxLength` は 0 以上でなければならず、負の値は Aggregate の読み込み時に拒否されます。また、ネストされた `items`、`properties`、`valuesType` の契約内にあるものも含め、すべての `pattern` はコンパイル可能な正規表現でなければなりません。パターンはパラメータ契約の読み込み時にコンパイルされるためです。すべての `format` は、どの深さにあっても、以下の名前付きフォーマットのいずれかでなければなりません。ブール型またはオブジェクト型のパラメータに対する `min` や `max` も拒否されます。これらの型ではこの組は何も制限しないためです。いずれの不備も、Release がそのパラメータを指定しているかどうかにかかわらず、パラメータ名を示してビルドを停止します。ネストされた契約内の長さの上下限には、この下限は適用されません。各チェックが実行される場所については [entities/aggregate.md](../entities/aggregate.md#parameter-slot-vocabulary) を参照してください。"
   },
+  "1039b6b197f30eea": {
+    "at": "2026-11-17T13:55:43.875Z",
+    "job": "session-0012-20261117135543",
+    "srcHash": "1039b6b197f30eea",
+    "status": "machine",
+    "text": "`[[` で始まる文字列は、`[` で始まる**リテラル**です。ARM は `[[` を 1 つの `[` として読むため、`\"[[prod]\"` はテキスト `[prod]` になります。"
+  },
   "103a690a0daf7dc3": {
     "at": "2026-11-12T10:04:20.678Z",
     "job": "session-0010-20261112100420",
@@ -19264,6 +19271,13 @@
     "status": "machine",
     "text": "[拡張性](14-extensibility.md)"
   },
+  "1a1233af165b354c": {
+    "at": "2026-11-17T13:55:43.875Z",
+    "job": "session-0012-20261117135543",
+    "srcHash": "1a1233af165b354c",
+    "status": "machine",
+    "text": "**エスケープ。** 角括弧のテキストをリテラルのままにするには、`[[` で始めます。`format()` 文字列の中では、リテラルの `{` や `}` は 2 つ重ねて書きます。Aggrega のテンプレートエンジンが評価するアーティファクトの中でリテラルの ARM `{{` を書くには `{{ \"{{\" }}` と書きます。エンジンは `{{` を自身のアクションとして読むためです。ARM は単一の波括弧を使うので、ほとんどのアーティファクトでは何も必要ありません。"
+  },
   "1a12d3b6ff70ab35": {
     "at": "2026-10-22T01:33:54.654983+00:00",
     "job": "msgbatch_01LUPrwrVc3dPv7pYcgEkmHm",
@@ -21249,6 +21263,13 @@
     "srcHash": "1cb04963eff6d70b",
     "status": "machine",
     "text": "同様です。固定されていないプラグイン参照を解決するどちらの経路でも同じです。マーカーを読めなかった場合はその旨を示し、公開されているバージョンが選別されなかったことを明示します。"
+  },
+  "1cb26c40c1652636": {
+    "at": "2026-11-17T13:55:43.875Z",
+    "job": "session-0012-20261117135543",
+    "srcHash": "1cb26c40c1652636",
+    "status": "machine",
+    "text": "ビルドは停止します。値自体の角括弧は式の中に入れ子にできません。値の代わりにプロデューサーの呼び出しを使って式を書くか、テキストをリテラルとして組み立ててください。"
   },
   "1cb28a024da5aa82": {
     "at": "2026-10-29T21:34:59.076Z",
@@ -25200,6 +25221,13 @@
     "status": "machine",
     "text": "ライブラリの厳密なセマンティックバージョニング（例: 1.0.0）です。利用側は、ベア名参照（<Library>:<version>#/artifacts/<name>）において、これを任意の `:<version>` 最小バージョン下限として指定できます。解決されたバージョンは Release ごとのロックファイルが管理します。"
   },
+  "22256f42cbba0029": {
+    "at": "2026-11-17T13:55:43.875Z",
+    "job": "session-0012-20261117135543",
+    "srcHash": "22256f42cbba0029",
+    "status": "machine",
+    "text": "**状態を読み取る呼び出しを置ける場所。** `reference()` と `list*` 関数は、リソースの `properties`、出力の `value`、出力ループの `input` で使用できます。それ以外の場所 — 変数、パラメーターの既定値、リソースの `name` — では、ARM がそれらを評価するのはこれらの場所だけであるため、ビルドはポインターを示して停止します。同じ理由で、ユーザー定義関数の中でも拒否されます。関数が使われる場所で呼び出し、その結果を引数として渡してください。"
+  },
   "22257afcee47ad9b": {
     "at": "2026-10-22T05:25:45.661574+00:00",
     "job": "msgbatch_01GK3s5ypk3MzMWPEKha5JkC",
@@ -25866,6 +25894,17 @@
     "srcHash": "22fdf80a6214b282",
     "status": "machine",
     "text": "更新では、各リポジトリを再読み込みするかどうかを決める前にそのリポジトリを再検証します。タグ一覧と選択されたバージョンのマニフェストダイジェストがどちらも変わっていない場合、キャッシュされたレコードはそのまま再利用され、そのリポジトリの公開済みバージョンについてマーカーの再確認は行われません。"
+  },
+  "22ffc2d56ae3274f": {
+    "at": "2026-11-17T13:55:43.875Z",
+    "job": "session-0012-20261117135543",
+    "revision": {
+      "from": "c2676ab9b41b554a",
+      "reviewed": false
+    },
+    "srcHash": "22ffc2d56ae3274f",
+    "status": "machine",
+    "text": "リテラルテキストの中、`\"postgres://<value>:5432\"`"
   },
   "23026c5c3b72d10c": {
     "at": "2026-10-22T01:56:20.260469+00:00",
@@ -31620,6 +31659,13 @@
     "srcHash": "2ab7b8924f2b1253",
     "status": "machine",
     "text": "a Manifest name mapping's key names no component instance or attachment in this build, so the entry binds nothing: Manifest `\"<manifest>\"`, key `\"<component>\"` under mappings.features.name: no attachment in this build is named `\"<component>\"`; a features.name key names an attachment by its own name — the key it is written under in a component's features, or `<alias>.<slot>` for one written on a connection — never the component it is attached to; attachments of type `\"<feature-type>\"` in this build: `\"<attachments>\"`; `\"<component>\"` is a component, and a features.name key names the attachment rather than the component it is attached to — did you mean `\"<attachment>\"`?（Manifest の name マッピングのキーがこのビルド内のどのコンポーネントインスタンスもアタッチメントも指していないため、このエントリは何もバインドしません。Manifest の mappings.features.name の下のキー：このビルドにその名前のアタッチメントはありません。features.name のキーはアタッチメントをそれ自身の名前、つまりコンポーネントの features 内で記述されているキー、または接続上に記述されたものについてはエイリアスとスロットで指し、アタッチ先のコンポーネントを指すことはありません。このビルド内のその型のアタッチメントは示されたとおりです。その名前はコンポーネントであり、features.name のキーはアタッチ先のコンポーネントではなくアタッチメントを指します。示されたアタッチメントのことですか？）"
+  },
+  "2ac263933c27f3c2": {
+    "at": "2026-11-17T13:55:43.875Z",
+    "job": "session-0012-20261117135543",
+    "srcHash": "2ac263933c27f3c2",
+    "status": "machine",
+    "text": "値全体、`\"<value>\"`"
   },
   "2ac5fa6263bef342": {
     "at": "2026-10-22T03:12:40.354254+00:00",
@@ -38066,6 +38112,13 @@
     "status": "machine",
     "text": "Aggrega のツールだけを使い、フォルダーは自分で作成しないでください。ワークスペースフォルダーにまだ `import-google-adk` フォルダーがない場合は、`example` を `import-google-adk` に設定し、`dir` を指定せずに `draft` ツールを一度呼び出してください。このツールは例を新しい `import-google-adk` フォルダーに書き込み、その `source` フォルダーにこの例がインポートするものが入ります。次に、`workspace_root` を `import-google-adk/source`、`source` を `support_agent`、`target` を `compose` に設定して `import` ツールを呼び出してください。このツールは必要な回答を `support_agent` フォルダー内の `import-answers.yaml` から読み取り、下書きを `import-google-adk/source` に書き込み、下書きが必要とするものをプルします。次に、`workspace_root` を `import-google-adk/source`、`release` を `release.yaml` に設定して `validate` ツールを、`workspace_root` を `import-google-adk/source`、`release` を `release.yaml`、`write` を true に設定して `build` ツールを呼び出してください。ビルドが書き込んだファイルを教えてください。それらは `import-google-adk/source/dist/` の下にあります。"
   },
+  "33af32208f741b38": {
+    "at": "2026-11-17T13:55:43.875Z",
+    "job": "session-0012-20261117135543",
+    "srcHash": "33af32208f741b38",
+    "status": "machine",
+    "text": "`format()` 式：`\"[format('postgres://{0}:5432', <expression>)]\"`。"
+  },
   "33b34abd641c67dd": {
     "at": "2026-10-22T08:23:20.000561+00:00",
     "job": "msgbatch_01HzD7wD8iu4mXKJLFLJkdaf",
@@ -42926,6 +42979,13 @@
     "srcHash": "3a9caed9c7f6c8df",
     "status": "machine",
     "text": "このバウンダリアタッチメントの infra ペイロードが保持するリーフのうち、アタッチされた Feature が sensitive と宣言しているもので、それぞれデータが占めるピラー接頭辞付きのドット区切りパスとして示されます。バウンダリレベルのアタッチメントは values ペイロードを保持しないため、ここには infra.<path> の座標のみが現れます。ここで読み取られるペイロードはアタッチメントが最終的に保持するものであるため、Feature のスキーマがデフォルトとして宣言した値にあるリーフも、バウンダリが記述したリーフと並んで示されます。補完されたデフォルトはペイロードが保持するデータであり、記述されたブロックだけから読み取ったマーキングではそれが示されないままになります。リーフは、Feature のスキーマが sensitive と宣言したパスがそれをカバーする場合に現れます。宣言がそのリーフを指すか、それを含むオブジェクトを指す場合であり、宣言がカバーするオブジェクトの下にあるリーフはその宣言によって示されます。照合はドット区切りパスに対してセグメント単位で行われ、パス自体のテキストからは何も読み取らず、値も検査しないため、`db` での宣言は `db.password` をカバーし、`dbPassword` という名前の兄弟リーフには及びません。キーがないことは、このアタッチメントがその Feature が sensitive と宣言するリーフを一つも示さないことを表し、これにはアタッチされた Feature がこのリーダーが読み取れるスキーマに解決されない場合も含まれます。infra ペイロードがセンシティブでないことを主張するものではなく、示すべきリーフを持たないアタッチメントと、この軸をまったく報告しないプロデューサーとを区別するものでもありません。キーがないことを値を平文で表示または出力してよいという許可と解釈するコンシューマーは、逆に読んでいます。リーフはペイロードが保持する順序で届きます。これは infra ペイロード自体が保持する順序と同じであり、同一入力の実行間でグラフをバイト単位で同一に保つものです。アタッチメントがその Feature が sensitive と宣言するリーフを保持しない場合は存在しません。"
+  },
+  "3aa1ce2d0650c75f": {
+    "at": "2026-11-17T13:55:43.875Z",
+    "job": "session-0012-20261117135543",
+    "srcHash": "3aa1ce2d0650c75f",
+    "status": "machine",
+    "text": "`[` で始まり `]` で終わる文字列は**式**です。構文解析できなければなりません。解析できない式は、JSON ポインターを示してビルドを停止します。"
   },
   "3aa8859bad4bc335": {
     "at": "2026-10-29T17:38:31.046Z",
@@ -54175,6 +54235,13 @@
     "status": "machine",
     "text": "Manifest は `features.annotations` ブロックも受け付けます。これは、Release または Aggregate のサブシステムが、component ごとの宣言ではなくアノテーションキーによって Features をアタッチできる、並行する記述手段です。バインディングの形、どの記述手段がどのルーティングパスを使うかを決める side と pillar の区分、明示的なアタッチメントを優先する規律、およびスキーマのデフォルトに関する規則は、後述の専用セクション [Annotation-Driven Feature Bindings](#annotation-driven-feature-bindings) で説明します。"
   },
+  "49c15bd9c7c1d474": {
+    "at": "2026-11-17T13:55:43.875Z",
+    "job": "session-0012-20261117135543",
+    "srcHash": "49c15bd9c7c1d474",
+    "status": "machine",
+    "text": "**配信された値の組み立て。** コンポーネントは隣接するものの値を 3 通りで書くことができ、隣接するものがどこに配置されても同じテキストが機能します："
+  },
   "49c8036a6f4d756d": {
     "at": "2026-10-22T01:50:22.319444+00:00",
     "job": "msgbatch_01VwQyd4vfmNKqBKVTg2vP5W",
@@ -59361,6 +59428,13 @@
     "srcHash": "5113e4429c599aa7",
     "status": "machine",
     "text": "利用できるフィールドはテンプレートサイトによって異なります。Recipe の `provides:` テンプレートは provides の評価時に自己完結したコンテキスト（`.context.inject`/`.context.uses` なし）で実行されます。Recipe の `valuesMapping:` はベースレンダリング時に完全な TemplateContext で実行されます。FeatureRecipe の `injectMapping:` は inject マッピング時に、インターセプトされる inject パイプを含む完全な TemplateContext で実行されます。サイトごとの完全な利用可能性の表は [expansion-matrix.md](expansion-matrix.md) にあります。このページでは、マトリクスの「利用可能な参照」列が指すフィールドの形を説明します。"
+  },
+  "51168838024b26bb": {
+    "at": "2026-11-17T13:55:43.875Z",
+    "job": "session-0012-20261117135543",
+    "srcHash": "51168838024b26bb",
+    "status": "machine",
+    "text": "構造の検証"
   },
   "51179903bc575129": {
     "at": "2026-11-01T15:15:25.467Z",
@@ -64645,6 +64719,13 @@
     "srcHash": "582e47a3ddb0b021",
     "status": "machine",
     "text": "取得されたバイトは、ピンのもとでのあらゆる取得と同様にピンに照らして検証されるため、そのバージョンのもとで別のバイトを提供するレジストリは、後述のとおり pull を停止します。ピン留めされたバイトを保持するソースがない場合（カタログディレクトリがエンティティを提供せず、キャッシュエントリが別のバイトを保持し、ピン留めされたバージョンを提供するレジストリがないか、実行がどのレジストリにも到達しない場合）、pull と `aggrega pull --verify` は `E0135`（キャッシュエントリのマニフェストがロックファイルのピン留めするものでない場合は `E0133`）で停止し、読み取った各ソースとその内容を示します。実行がレジストリに到達しなかった場合、停止時にはピン留めされたバージョンを再度取得する手順も示されます。"
+  },
+  "582e77d7b3e9bd7a": {
+    "at": "2026-11-17T13:55:43.875Z",
+    "job": "session-0012-20261117135543",
+    "srcHash": "582e77d7b3e9bd7a",
+    "status": "machine",
+    "text": "ARM が式として読むものの解析できない文字列全体、たとえば `\"[prod]\"` は、そのポインターを示してビルドを停止し、リテラルのままにするには `[[` と書くよう伝えます。"
   },
   "58302cfba06a348e": {
     "at": "2026-11-14T23:40:29.533Z",
@@ -74378,6 +74459,13 @@
     "status": "machine",
     "text": "A pipeline step's plugin does not claim the provider rendering what it addresses（パイプラインステップのプラグインが、指定先をレンダリングするプロバイダへの対応を表明していない）"
   },
+  "652da4984c535e57": {
+    "at": "2026-11-17T13:55:43.875Z",
+    "job": "session-0012-20261117135543",
+    "srcHash": "652da4984c535e57",
+    "status": "machine",
+    "text": "**呼び出しに見えるリテラルを保つ。** リテラルとして意図されたテキストが、角括弧で囲まれた完全な ARM 呼び出しでもある場合は、文字列全体を式として書くことでリテラルのままにします：`[format('…')]`。プロバイダーは、呼び出しを探すために式の文字列トークンを読みません。"
+  },
   "6531144476cb7bd9": {
     "at": "2026-10-22T02:48:40.419851+00:00",
     "job": "msgbatch_01GfagNcas3ixJ7ofku3W8dE",
@@ -77452,6 +77540,13 @@
     "srcHash": "696688c14c8c4d5c",
     "status": "machine",
     "text": "透過的なスロットは最初の 5 つを使用し、不透明なスロットは 6 つすべてを使用します。後者は、ベンダーのチャートのようなパッケージ化されたインフラストラクチャでは一般的なケースです。"
+  },
+  "696a499952a388a8": {
+    "at": "2026-11-17T13:55:43.875Z",
+    "job": "session-0012-20261117135543",
+    "srcHash": "696a499952a388a8",
+    "status": "machine",
+    "text": "記述"
   },
   "696d984fedcd145a": {
     "at": "2026-11-05T20:48:59.984Z",
@@ -106540,6 +106635,13 @@
     "status": "machine",
     "text": "**CloudFormation。** 組み立てられたスタックテンプレート内のすべてのリソースは、`DependsOn` を通じて、同じスタックに寄与した直前の wave のリソースに依存します。そのため wave は、リソースが作成される順序と、その逆として削除される順序を決定します。これは準備完了状態に基づく順序付けではありません。スタックテンプレートには、リソースが利用可能であるという概念がありません。フラグメント自身の `DependsOn` は置き換えられず、拡張されます。別のスタックに組み立てられる Components は対象外であり、2 つのスタック間の順序付けは operator の責任範囲です。[`providers/cloudformation.md`](../providers/cloudformation.md#deployment-ordering) を参照してください。"
   },
+  "90f80f8dfc92c188": {
+    "at": "2026-11-17T13:55:43.875Z",
+    "job": "session-0012-20261117135543",
+    "srcHash": "90f80f8dfc92c188",
+    "status": "machine",
+    "text": "Recipe が `arm` テンプレートに書き込むすべての文字列は ARM テキストであり、ARM が読むとおりに読まれます："
+  },
   "9105778443aec18e": {
     "at": "2026-10-22T08:03:58.541373+00:00",
     "job": "msgbatch_01JG3MCod2kUphSC2Zwegw3H",
@@ -116107,6 +116209,13 @@
     "srcHash": "9dbfc15e5d97886b",
     "status": "machine",
     "text": "オブジェクト型および配列型のパラメータ"
+  },
+  "9dc4ba96449bf3b1": {
+    "at": "2026-11-17T13:55:43.875Z",
+    "job": "session-0012-20261117135543",
+    "srcHash": "9dc4ba96449bf3b1",
+    "status": "machine",
+    "text": "値が書き換えられるのは 2 行目の場合だけです。プロバイダーが読むのは、ARM テンプレート関数の完全な呼び出し、またはテンプレート自身の `functions` が宣言する `namespace.member` の完全な呼び出しとして解析でき、その後ろにメンバーまたはインデックスのアクセサーが続いてもよい範囲だけです。このような書き換えはそれぞれ、コンポーネントと JSON ポインターを示す **info** 診断として報告されるため、書き換えが黙って行われることはありません："
   },
   "9dcd5fbc4362e453": {
     "at": "2026-10-22T04:43:27.484470+00:00",
@@ -131851,6 +131960,17 @@
     "status": "machine",
     "text": "pkg/plugintest"
   },
+  "b2863d8861043854": {
+    "at": "2026-11-17T13:55:43.875Z",
+    "job": "session-0012-20261117135543",
+    "revision": {
+      "from": "eceea1c058515c80",
+      "reviewed": false
+    },
+    "srcHash": "b2863d8861043854",
+    "status": "machine",
+    "text": "プロデューサーの式をそのまま、書かれたとおりに評価します。"
+  },
   "b2866cca4ea6402c": {
     "at": "2026-10-22T05:07:43.448651+00:00",
     "job": "msgbatch_017U8zLucNunw6USSWNfR6c8",
@@ -132303,6 +132423,13 @@
     "srcHash": "b30d98301a6339a4",
     "status": "machine",
     "text": "そのキーでフローを実行します："
+  },
+  "b30dabd37ee83df1": {
+    "at": "2026-11-17T13:55:43.875Z",
+    "job": "session-0012-20261117135543",
+    "srcHash": "b30dabd37ee83df1",
+    "status": "machine",
+    "text": "arm-provider: `<where>`, a value written inside literal text is written as a format() expression, so that ARM evaluates it; to keep the text literal, write the whole string as an expression, such as [format('...')] (リテラルテキストの中に書かれた値は、ARM が評価するように format() 式として書かれます。テキストをリテラルのままにするには、文字列全体を式として書きます。たとえば [format('...')] です)"
   },
   "b30e7f142afd2ca3": {
     "at": "2026-10-22T02:42:41.008096+00:00",
@@ -155276,6 +155403,13 @@
     "status": "machine",
     "text": "宣言されたヘルスプローブは compose の healthcheck になりますが、これを妨げる要因が 2 つあります。"
   },
+  "d13f5a5bb3dc8c70": {
+    "at": "2026-11-17T13:55:43.875Z",
+    "job": "session-0012-20261117135543",
+    "srcHash": "d13f5a5bb3dc8c70",
+    "status": "machine",
+    "text": "ソーステンプレートは、レンダリングの前に検証されます。JSON として読み取れないテンプレート — Windows ツールで保存されたテンプレートのバイトオーダーマーク、CRLF 改行、JSONC コメントは読み取られますが、それ以外は読み取られません — は、検証コード `arm-template-parse` を報告します。JSON として読めても ARM テンプレートではないドキュメントは、`arm-template-shape` を報告します。オブジェクトではない、`$schema` がない、テンプレートのスコープを示さないスキーマである、または `resources` の形式がその言語バージョンに合っていない（`languageVersion` 2.x ではリスト、なしではオブジェクト）場合です。どちらの検証コードも、ファイルと修正すべき点を示します。検証を通過したテンプレートが、そのまま丸ごと取り込まれるわけではありません。組み立てられたテンプレートに何が届くかは、[ソーステンプレート](#sourced-templates)で決まります。"
+  },
   "d14247b9e127c4e0": {
     "at": "2026-10-17T19:52:32.862Z",
     "job": "74a8aef5535e",
@@ -168576,6 +168710,13 @@
     "status": "machine",
     "text": "プラグインの読み込みと実行時にホストが適用する、任意の実行制約です。外向きのネットワークアクセスは記述するフィールドではありません。プラグインはビルド時にネットワークへアクセスすることはなく（これが事前コンパイルの境界です）、そのためここにはホスト許可リストのフィールドはありません。プラグインが必要とするリモートコンテンツは、Release のロックファイルに記録される、ホストが仲介しダイジェストで固定された外部入力チャネルを通じて届き、環境のネットワークアクセスを通じて届くことはありません。フェッチラッパーと固定の運用については[開発者ガイド](../plugins/plugin-developer-guide.md)で説明しています。"
   },
+  "e28fed017f488af2": {
+    "at": "2026-11-17T13:55:43.875Z",
+    "job": "session-0012-20261117135543",
+    "srcHash": "e28fed017f488af2",
+    "status": "machine",
+    "text": "それ以外の文字列はリテラルです。より大きなリテラルの中にある角括弧のテキスト — `array[0]`、`[a-z]`、`[test] value`、`[ -f x ]` — は、バイト単位でそのままテンプレートに届きます。"
+  },
   "e291c4ea8a1590bf": {
     "at": "2026-10-22T05:07:43.448651+00:00",
     "job": "msgbatch_017U8zLucNunw6USSWNfR6c8",
@@ -170846,6 +170987,13 @@
     "status": "machine",
     "text": "このコマンドが組み込まれる作成ループ（形を学び、雛形を作成し、記入し、検証する）については、[Aggrega ファイルの作成](../../authoring/getting-started.md)を参照してください。"
   },
+  "e5aecae99b636605": {
+    "at": "2026-11-17T13:55:43.875Z",
+    "job": "session-0012-20261117135543",
+    "srcHash": "e5aecae99b636605",
+    "status": "machine",
+    "text": "テンプレートが保持する内容"
+  },
   "e5b1dbcae58f18c3": {
     "at": "2026-10-22T04:56:15.693842+00:00",
     "job": "msgbatch_01WhSSFNVABxaLkxubBM2sHx",
@@ -171554,6 +171702,13 @@
     "srcHash": "e68ee04dff59551b",
     "status": "machine",
     "text": "例"
+  },
+  "e698ebba6dd23c1a": {
+    "at": "2026-11-17T13:55:43.875Z",
+    "job": "session-0012-20261117135543",
+    "srcHash": "e698ebba6dd23c1a",
+    "status": "machine",
+    "text": "自分で書いた式の中、`\"[concat('x', <value>)]\"`"
   },
   "e69b7f13d304f620": {
     "at": "2026-11-17T11:47:50.182Z",
@@ -181542,6 +181697,13 @@
     "srcHash": "f3ebea48a05fad64",
     "status": "machine",
     "text": "enum"
+  },
+  "f3f3445406576a8b": {
+    "at": "2026-11-17T13:55:43.875Z",
+    "job": "session-0012-20261117135543",
+    "srcHash": "f3f3445406576a8b",
+    "status": "machine",
+    "text": "ARM テキストの書き方"
   },
   "f3f90ec808f60562": {
     "at": "2026-10-22T01:39:34.791258+00:00",

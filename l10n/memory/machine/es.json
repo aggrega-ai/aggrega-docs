@@ -11214,6 +11214,13 @@
     "status": "machine",
     "text": "En el bloque `parameters:` de un Aggregate, algunas de estas también se comprueban sobre la propia declaración, antes de leer cualquier valor de la Release. Los `minLength` y `maxLength` propios de un parámetro son cero o más — uno negativo se rechaza cuando se carga el Aggregate — y cada `pattern`, incluido uno dentro de un contrato `items`, `properties` o `valuesType` anidado, debe ser una expresión regular que compile, ya que el patrón se compila al leer el contrato del parámetro. Cada `format`, a cualquier profundidad, debe ser uno de los formatos con nombre de más abajo. También se rechaza un `min` o un `max` en un parámetro booleano o de objeto, ya que el par no acota nada en esos tipos. Cada fallo detiene la compilación nombrando el parámetro, tanto si una Release lo proporciona como si no. Un límite de longitud dentro de un contrato anidado no está sujeto a ese mínimo; consulta [entities/aggregate.md](../entities/aggregate.md#parameter-slot-vocabulary) para saber dónde se ejecuta cada comprobación."
   },
+  "1039b6b197f30eea": {
+    "at": "2026-11-17T13:55:43.875Z",
+    "job": "session-0012-20261117135543",
+    "srcHash": "1039b6b197f30eea",
+    "status": "machine",
+    "text": "Una cadena que empieza por `[[` es un **literal** que se abre con `[`. ARM lee `[[` como un solo `[`, de modo que `\"[[prod]\"` es el texto `[prod]`."
+  },
   "103a690a0daf7dc3": {
     "at": "2026-11-12T10:04:20.678Z",
     "job": "session-0010-20261112100420",
@@ -17417,6 +17424,13 @@
     "status": "machine",
     "text": "[Extensibilidad](14-extensibility.md)"
   },
+  "1a1233af165b354c": {
+    "at": "2026-11-17T13:55:43.875Z",
+    "job": "session-0012-20261117135543",
+    "srcHash": "1a1233af165b354c",
+    "status": "machine",
+    "text": "**Escape.** Para mantener literal un texto entre corchetes, ábrelo con `[[`. Dentro de una cadena `format()`, un `{` o un `}` literal se escribe duplicado. Un `{{` literal de ARM dentro de un artefacto que evalúa el motor de plantillas de Aggrega se escribe `{{ \"{{\" }}`, porque el motor lee `{{` como una acción propia: ARM usa llaves simples, así que la mayoría de los artefactos no necesitan nada de esto."
+  },
   "1a12d3b6ff70ab35": {
     "at": "2026-10-22T08:02:26.315Z",
     "job": "session-0024-20261022080226",
@@ -19234,6 +19248,13 @@
     "srcHash": "1cb04963eff6d70b",
     "status": "machine",
     "text": "Lo mismo, en cualquiera de las dos vías por las que resuelve una referencia a un plugin no fijada. Cuando no se pudieron leer los marcadores, lo indica y declara que las versiones publicadas no se filtraron."
+  },
+  "1cb26c40c1652636": {
+    "at": "2026-11-17T13:55:43.875Z",
+    "job": "session-0012-20261117135543",
+    "srcHash": "1cb26c40c1652636",
+    "status": "machine",
+    "text": "La compilación se detiene: los corchetes propios del valor no pueden anidarse dentro de una expresión. Escribe la expresión con la llamada del productor en lugar del valor, o compón el texto de forma literal."
   },
   "1cb28a024da5aa82": {
     "at": "2026-10-30T06:59:34.584Z",
@@ -22813,6 +22834,13 @@
     "status": "machine",
     "text": "`BuildNotice`"
   },
+  "22256f42cbba0029": {
+    "at": "2026-11-17T13:55:43.875Z",
+    "job": "session-0012-20261117135543",
+    "srcHash": "22256f42cbba0029",
+    "status": "machine",
+    "text": "**Dónde puede aparecer una llamada que lee estado.** `reference()` y las funciones `list*` se admiten en las `properties` de un recurso, en el `value` de una salida y en el `input` de un bucle de salida; en cualquier otro sitio —una variable, el valor predeterminado de un parámetro, el `name` de un recurso— la compilación se detiene indicando el puntero, porque ARM las evalúa solo en esos lugares. Se rechazan dentro de una función definida por el usuario por la misma razón: llámalas donde se use la función y pasa el resultado como argumento."
+  },
   "22257afcee47ad9b": {
     "at": "2026-11-04T07:09:44.037Z",
     "job": "session-0213-20261104070944",
@@ -23413,6 +23441,13 @@
     "srcHash": "22fdf80a6214b282",
     "status": "machine",
     "text": "Una actualización revalida cada repositorio antes de decidir volver a leerlo: donde el listado de tags y el digest del manifest de la versión seleccionada no han cambiado, el registro en caché se reutiliza tal cual, y las versiones publicadas de ese repositorio no se vuelven a examinar en busca de marcadores."
+  },
+  "22ffc2d56ae3274f": {
+    "at": "2026-11-17T13:55:43.875Z",
+    "job": "session-0012-20261117135543",
+    "srcHash": "22ffc2d56ae3274f",
+    "status": "machine",
+    "text": "Dentro de texto literal, `\"postgres://<value>:5432\"`"
   },
   "23026c5c3b72d10c": {
     "at": "2026-10-22T12:43:13.152Z",
@@ -28602,6 +28637,13 @@
     "srcHash": "2ab7b8924f2b1253",
     "status": "machine",
     "text": "a Manifest name mapping's key names no component instance or attachment in this build, so the entry binds nothing: Manifest `\"<manifest>\"`, key `\"<component>\"` under mappings.features.name: no attachment in this build is named `\"<component>\"`; a features.name key names an attachment by its own name — the key it is written under in a component's features, or `<alias>.<slot>` for one written on a connection — never the component it is attached to; attachments of type `\"<feature-type>\"` in this build: `\"<attachments>\"`; `\"<component>\"` is a component, and a features.name key names the attachment rather than the component it is attached to — did you mean `\"<attachment>\"`? (la clave de un mapeo por nombre del Manifest no nombra ninguna instancia de componente ni vinculación de esta compilación, así que la entrada no enlaza nada: Manifest, clave bajo mappings.features.name: ninguna vinculación de esta compilación se llama así; una clave features.name nombra una vinculación por su propio nombre — la clave bajo la que está escrita en los features de un componente, o el alias y el slot para una escrita en una conexión — nunca el componente al que está vinculada; vinculaciones del tipo indicado en esta compilación: enumeradas; ese nombre es un componente, y una clave features.name nombra la vinculación y no el componente al que está vinculada — ¿querías decir la vinculación sugerida?)"
+  },
+  "2ac263933c27f3c2": {
+    "at": "2026-11-17T13:55:43.875Z",
+    "job": "session-0012-20261117135543",
+    "srcHash": "2ac263933c27f3c2",
+    "status": "machine",
+    "text": "El valor completo, `\"<value>\"`"
   },
   "2ac97c61dd7dda32": {
     "at": "2026-11-02T23:50:32.426Z",
@@ -34508,6 +34550,13 @@
     "status": "machine",
     "text": "Usa solo las herramientas de Aggrega y no crees ninguna carpeta por tu cuenta. Si la carpeta del espacio de trabajo todavía no contiene una carpeta `import-google-adk`, llama una vez a la herramienta `draft` con `example` establecido en `import-google-adk` y sin `dir`: escribe el ejemplo en una nueva carpeta `import-google-adk`, cuya carpeta `source` contiene lo que importa este ejemplo. Luego llama a la herramienta `import` con `workspace_root` establecido en `import-google-adk/source`, `source` establecido en `support_agent` y `target` establecido en `compose`: lee las respuestas que necesita de `import-answers.yaml` dentro de la carpeta `support_agent`, escribe sus borradores en `import-google-adk/source` y descarga lo que estos necesitan. Luego llama a la herramienta `validate` con `workspace_root` establecido en `import-google-adk/source` y `release` establecido en `release.yaml`, y a la herramienta `build` con `workspace_root` establecido en `import-google-adk/source`, `release` establecido en `release.yaml` y `write` establecido en true. Dime qué archivos escribió la compilación; están en `import-google-adk/source/dist/`."
   },
+  "33af32208f741b38": {
+    "at": "2026-11-17T13:55:43.875Z",
+    "job": "session-0012-20261117135543",
+    "srcHash": "33af32208f741b38",
+    "status": "machine",
+    "text": "Una expresión `format()`: `\"[format('postgres://{0}:5432', <expression>)]\"`."
+  },
   "33b36c2446212bd1": {
     "at": "2026-10-22T07:22:08.562Z",
     "job": "session-0022-20261022072208",
@@ -38876,6 +38925,13 @@
     "srcHash": "3a9caed9c7f6c8df",
     "status": "machine",
     "text": "Las hojas que lleva la carga útil infra de esta vinculación a un límite y que la Feature vinculada declara sensibles, cada una como la ruta con puntos prefijada por el pilar que ocupa el dato. Aquí solo aparecen coordenadas infra.<path>, porque una vinculación a nivel de límite no lleva ninguna carga útil values. La carga útil leída aquí es la que la vinculación acaba llevando, de modo que una hoja situada en un valor que el esquema de la Feature declara como predeterminado se nombra junto a una que escribió un límite — un valor predeterminado rellenado es un dato que lleva la carga útil, y un marcado leído solo del bloque escrito lo dejaría sin nombrar. Una hoja aparece donde la cubre una ruta que el esquema de la Feature declara sensible: la declaración nombra esa hoja, o nombra un objeto que la contiene, de modo que una hoja bajo un objeto que cubre una declaración queda nombrada por esa declaración. La coincidencia se evalúa segmento a segmento sobre la ruta con puntos, sin leer nada del propio texto de la ruta y sin inspeccionar ningún valor, de modo que una declaración en `db` cubre `db.password` y no alcanza a una hoja hermana llamada `dbPassword`. Una clave ausente indica que esta vinculación no nombra ninguna hoja que su Feature declare sensible, lo que incluye el caso en que la Feature vinculada no se resuelve en ningún esquema que este lector pudiera leer. No afirma que la carga útil infra no sea sensible, y no distingue una vinculación que no tiene ninguna hoja así que nombrar de un productor que no informa de este eje en absoluto. Un consumidor que lee una clave ausente como permiso para mostrar o emitir un valor en claro la ha leído al revés. Las hojas llegan en el orden en que la carga útil las contiene, que es el mismo orden que lleva la propia carga útil infra y lo que mantiene el grafo idéntico byte a byte entre ejecuciones con una entrada idéntica. Ausente cuando la vinculación no lleva ninguna hoja que su Feature declare sensible."
+  },
+  "3aa1ce2d0650c75f": {
+    "at": "2026-11-17T13:55:43.875Z",
+    "job": "session-0012-20261117135543",
+    "srcHash": "3aa1ce2d0650c75f",
+    "status": "machine",
+    "text": "Una cadena que empieza por `[` y termina en `]` es una **expresión**. Debe poder analizarse; una expresión que no se pueda analizar detiene la compilación e indica el puntero JSON."
   },
   "3aa8859bad4bc335": {
     "at": "2026-10-30T05:41:23.167Z",
@@ -49175,6 +49231,13 @@
     "status": "machine",
     "text": "El Manifest también acepta un bloque `features.annotations` — una superficie de autoría paralela que permite a un subsistema de una Release o de un Aggregate vincular Features por clave de anotación en lugar de por declaración por componente. La forma de la vinculación, la partición side-vs-pillar que determina qué superficie de autoría usa qué rutas de enrutamiento, la disciplina según la cual gana la vinculación explícita y la regla de valores predeterminados del esquema se encuentran en la sección dedicada [Vinculaciones de Feature guiadas por anotaciones](#annotation-driven-feature-bindings) más abajo."
   },
+  "49c15bd9c7c1d474": {
+    "at": "2026-11-17T13:55:43.875Z",
+    "job": "session-0012-20261117135543",
+    "srcHash": "49c15bd9c7c1d474",
+    "status": "machine",
+    "text": "**Componer un valor entregado.** Un componente puede escribir el valor de un vecino de tres maneras, y el mismo texto funciona dondequiera que aterrice el vecino:"
+  },
   "49c8036a6f4d756d": {
     "at": "2026-10-22T11:13:35.211Z",
     "job": "session-0032-20261022111335",
@@ -53856,6 +53919,13 @@
     "srcHash": "5113d5a5d1f8ba52",
     "status": "machine",
     "text": "`0.8.6` es la versión de las tres entidades Plugin del catálogo de la biblioteca estándar; los plugins en sí están compilados en la CLI, y una compilación los sirve desde allí. `aggrega build --release release-production.yaml --auto-pull\n--detail` enumera ambas cosas, para cada uno de los tres:"
+  },
+  "51168838024b26bb": {
+    "at": "2026-11-17T13:55:43.875Z",
+    "job": "session-0012-20261117135543",
+    "srcHash": "51168838024b26bb",
+    "status": "machine",
+    "text": "Validación estructural"
   },
   "51179903bc575129": {
     "at": "2026-11-02T19:03:21.213Z",
@@ -58669,6 +58739,13 @@
     "srcHash": "582e47a3ddb0b021",
     "status": "machine",
     "text": "Los bytes descargados se contrastan con el pin como cualquier descarga bajo un pin, así que un registry que sirve otros bytes bajo esa versión detiene el pull, como se describe más abajo. Cuando ninguna fuente contiene los bytes fijados —ningún directorio de catálogo proporciona la entidad, la entrada de la caché contiene otros bytes, y ningún registry sirve la versión fijada o la ejecución no llega a ninguno—, el pull y `aggrega pull --verify` se detienen con `E0135` —o `E0133` cuando el manifest de la entrada de la caché no es el que fija el lockfile—, nombrando cada fuente que leyeron y lo que contenía; cuando la ejecución no llegó a ningún registry, la detención también nombra el paso que vuelve a descargar la versión fijada."
+  },
+  "582e77d7b3e9bd7a": {
+    "at": "2026-11-17T13:55:43.875Z",
+    "job": "session-0012-20261117135543",
+    "srcHash": "582e77d7b3e9bd7a",
+    "status": "machine",
+    "text": "Una cadena completa que ARM leería como una expresión pero que no se puede analizar, como `\"[prod]\"`, detiene la compilación indicando su puntero y dice que se escriba `[[` para mantenerla literal."
   },
   "58302cfba06a348e": {
     "at": "2026-11-14T23:40:29.533Z",
@@ -67383,6 +67460,13 @@
     "status": "machine",
     "text": "A pipeline step's plugin does not claim the provider rendering what it addresses (El plugin de un paso de pipeline no reivindica el proveedor que renderiza lo que el paso direcciona)"
   },
+  "652da4984c535e57": {
+    "at": "2026-11-17T13:55:43.875Z",
+    "job": "session-0012-20261117135543",
+    "srcHash": "652da4984c535e57",
+    "status": "machine",
+    "text": "**Mantener literal algo que parece una llamada.** El texto que se pretende literal pero que, aun así, es una llamada ARM completa entre corchetes se mantiene literal escribiendo toda la cadena como una expresión: `[format('…')]`. El proveedor no lee en busca de llamadas los tokens de cadena de una expresión."
+  },
   "6531144476cb7bd9": {
     "at": "2026-11-03T01:59:06.045Z",
     "job": "session-0036-20261103015906",
@@ -70154,6 +70238,13 @@
     "srcHash": "696688c14c8c4d5c",
     "status": "machine",
     "text": "Un slot transparente usa las cinco primeras; un slot opaco usa las seis, que es el caso habitual en la infraestructura empaquetada, como el chart de un proveedor."
+  },
+  "696a499952a388a8": {
+    "at": "2026-11-17T13:55:43.875Z",
+    "job": "session-0012-20261117135543",
+    "srcHash": "696a499952a388a8",
+    "status": "machine",
+    "text": "Escrito como"
   },
   "696d984fedcd145a": {
     "at": "2026-11-05T17:13:45.687Z",
@@ -96700,6 +96791,13 @@
     "status": "machine",
     "text": "**CloudFormation.** Cada recurso de la plantilla de stack ensamblada depende, mediante `DependsOn`, de los recursos de la oleada inmediatamente anterior que contribuyeron al mismo stack — de modo que la oleada fija el orden en que se crean los recursos y, a la inversa, el orden en que se eliminan. No es un orden por disponibilidad: una plantilla de stack no tiene noción de que un recurso esté listo para dar servicio. El `DependsOn` propio de un fragmento se amplía en lugar de reemplazarse. Los Components que se ensamblan en un stack distinto quedan fuera de alcance, y secuenciar dos stacks es responsabilidad del operador. Consulta [`providers/cloudformation.md`](../providers/cloudformation.md#deployment-ordering)."
   },
+  "90f80f8dfc92c188": {
+    "at": "2026-11-17T13:55:43.875Z",
+    "job": "session-0012-20261117135543",
+    "srcHash": "90f80f8dfc92c188",
+    "status": "machine",
+    "text": "Cada cadena que una Recipe escribe en una plantilla `arm` es texto ARM y se lee como lo lee ARM:"
+  },
   "9105778443aec18e": {
     "at": "2026-11-04T10:10:45.227Z",
     "job": "session-0229-20261104101045",
@@ -105290,6 +105388,13 @@
     "srcHash": "9dbfc15e5d97886b",
     "status": "machine",
     "text": "Parámetros de tipo objeto y de tipo array"
+  },
+  "9dc4ba96449bf3b1": {
+    "at": "2026-11-17T13:55:43.875Z",
+    "job": "session-0012-20261117135543",
+    "srcHash": "9dc4ba96449bf3b1",
+    "status": "machine",
+    "text": "Un valor nunca se reescribe salvo en la segunda fila, y el proveedor solo lee los tramos que se analizan como una llamada completa a una función de plantilla ARM —o a un `namespace.member` que declaran las propias `functions` de la plantilla—, con los accesores de miembro o de índice que la sigan. Cada reescritura así se notifica como un diagnóstico **info** que nombra el componente y el puntero JSON, de modo que una reescritura nunca es silenciosa:"
   },
   "9dcd5fbc4362e453": {
     "at": "2026-11-03T21:17:49.829Z",
@@ -119571,6 +119676,17 @@
     "status": "machine",
     "text": "pkg/plugintest"
   },
+  "b2863d8861043854": {
+    "at": "2026-11-17T13:55:43.875Z",
+    "job": "session-0012-20261117135543",
+    "revision": {
+      "from": "eceea1c058515c80",
+      "reviewed": false
+    },
+    "srcHash": "b2863d8861043854",
+    "status": "machine",
+    "text": "La expresión del productor tal como está, evaluada tal como se escribió."
+  },
   "b2866cca4ea6402c": {
     "at": "2026-11-04T03:28:35.383Z",
     "job": "session-0197-20261104032835",
@@ -119998,6 +120114,13 @@
     "srcHash": "b30d98301a6339a4",
     "status": "machine",
     "text": "y ejecuta el flujo con la clave:"
+  },
+  "b30dabd37ee83df1": {
+    "at": "2026-11-17T13:55:43.875Z",
+    "job": "session-0012-20261117135543",
+    "srcHash": "b30dabd37ee83df1",
+    "status": "machine",
+    "text": "arm-provider: `<where>`, a value written inside literal text is written as a format() expression, so that ARM evaluates it; to keep the text literal, write the whole string as an expression, such as [format('...')] (un valor escrito dentro de texto literal se escribe como una expresión format(), para que ARM lo evalúe; para mantener literal el texto, escribe la cadena completa como una expresión, por ejemplo [format('...')])"
   },
   "b30e7f142afd2ca3": {
     "at": "2026-11-03T00:27:34.341Z",
@@ -140927,6 +141050,13 @@
     "status": "machine",
     "text": "Una sonda de estado declarada se convierte en un healthcheck de compose, y dos cosas pueden impedirlo."
   },
+  "d13f5a5bb3dc8c70": {
+    "at": "2026-11-17T13:55:43.875Z",
+    "job": "session-0012-20261117135543",
+    "srcHash": "d13f5a5bb3dc8c70",
+    "status": "machine",
+    "text": "Una plantilla de origen se valida antes de renderizarse. Una plantilla que no puede leerse como JSON —las marcas de orden de bytes, los finales de línea CRLF y los comentarios JSONC de una plantilla guardada por herramientas de Windows se leen, y todo lo demás no— informa del código de validación `arm-template-parse`. Un documento que se lee como JSON pero no es una plantilla ARM informa de `arm-template-shape`: no es un objeto, no tiene `$schema`, un esquema que no nombra ningún ámbito de plantilla, o un `resources` de forma incorrecta para su versión de lenguaje (una lista con `languageVersion` 2.x, un objeto sin ella). Ambos códigos de validación nombran el archivo y qué corregir. Que una plantilla pase no significa que se lleve entera: lo que llega a la plantilla ensamblada se decide en [Plantillas de origen](#sourced-templates)."
+  },
   "d14247b9e127c4e0": {
     "at": "2026-10-17T19:52:32.862Z",
     "job": "74a8aef5535e",
@@ -153039,6 +153169,13 @@
     "status": "machine",
     "text": "Restricciones de ejecución opcionales que el host aplica al cargar y ejecutar el plugin. El acceso de red saliente no es un campo de autoría: un plugin nunca accede a la red en tiempo de compilación — la frontera ahead-of-time — así que aquí no hay ningún campo de lista de hosts permitidos. El contenido remoto que necesita un plugin llega a través del canal de entrada externa mediado por el host y fijado por digest, registrado en el lockfile de la Release, nunca a través de un acceso de red ambiental; la [guía para desarrolladores](../plugins/plugin-developer-guide.md) documenta el envoltorio de obtención y la disciplina de fijación."
   },
+  "e28fed017f488af2": {
+    "at": "2026-11-17T13:55:43.875Z",
+    "job": "session-0012-20261117135543",
+    "srcHash": "e28fed017f488af2",
+    "status": "machine",
+    "text": "Cualquier otra cadena es un literal. El texto entre corchetes dentro de un literal mayor — `array[0]`, `[a-z]`, `[test] value`, `[ -f x ]` — llega a la plantilla byte por byte."
+  },
   "e291c4ea8a1590bf": {
     "at": "2026-11-04T02:50:28.781Z",
     "job": "session-0193-20261104025028",
@@ -155080,6 +155217,13 @@
     "status": "machine",
     "text": "Para el ciclo de autoría al que alimenta este comando — aprender la forma, generar el esqueleto, rellenar, validar —, consulta [Escribir archivos de Aggrega](../../authoring/getting-started.md)."
   },
+  "e5aecae99b636605": {
+    "at": "2026-11-17T13:55:43.875Z",
+    "job": "session-0012-20261117135543",
+    "srcHash": "e5aecae99b636605",
+    "status": "machine",
+    "text": "Lo que contiene la plantilla"
+  },
   "e5b1dbcae58f18c3": {
     "at": "2026-11-04T01:07:57.122Z",
     "job": "session-0183-20261104010757",
@@ -155725,6 +155869,13 @@
     "srcHash": "e68ee04dff59551b",
     "status": "machine",
     "text": "Ejemplos"
+  },
+  "e698ebba6dd23c1a": {
+    "at": "2026-11-17T13:55:43.875Z",
+    "job": "session-0012-20261117135543",
+    "srcHash": "e698ebba6dd23c1a",
+    "status": "machine",
+    "text": "Dentro de una expresión que escribiste, `\"[concat('x', <value>)]\"`"
   },
   "e69b7f13d304f620": {
     "at": "2026-11-17T11:47:50.182Z",
@@ -164872,6 +165023,13 @@
     "srcHash": "f3ebea48a05fad64",
     "status": "machine",
     "text": "enum"
+  },
+  "f3f3445406576a8b": {
+    "at": "2026-11-17T13:55:43.875Z",
+    "job": "session-0012-20261117135543",
+    "srcHash": "f3f3445406576a8b",
+    "status": "machine",
+    "text": "Escribir texto ARM"
   },
   "f3f90ec808f60562": {
     "at": "2026-10-22T10:25:30.703Z",
