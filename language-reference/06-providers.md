@@ -17,4 +17,4 @@ The chapter organises into two clusters. **Architecture and shared contracts** c
 - [`compose`](providers/compose.md) — the Docker Compose provider. Per-boundary `docker-compose.yaml` output.
 - [`terraform`](providers/terraform.md) — the Terraform provider. One root configuration per boundary, with each component a module block sourcing that component's own sub-directory.
 - [`cloudformation`](providers/cloudformation.md) — the CloudFormation provider. One stack template per boundary, emitted as pure JSON.
-- [`arm`](providers/arm.md) — the Azure Resource Manager provider. One template per boundary at resource-group or subscription scope, emitted as JSON.
+- [`arm`](providers/arm.md) — the Azure Resource Manager provider. One template per boundary at resource-group, subscription or management-group scope, emitted as JSON.

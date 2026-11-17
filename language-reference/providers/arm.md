@@ -25,7 +25,7 @@ Several components assemble into one template, so every top-level key an ARM tem
 
 | Top-level key | What the assembled template does with it |
 | --- | --- |
-| `$schema` | Read for the scope the content is written for: the file name of the schema (`deploymentTemplate`, `subscriptionDeploymentTemplate`, `managementGroupDeploymentTemplate`). Absent means resource group. The assembled template carries the schema of the scope its boundary deploys at. In a boundary deployed at subscription scope, resource-group content is assembled into a nested deployment of its own; see [Deploying at subscription scope](#deploying-at-subscription-scope). A fragment written for a wider scope than its boundary's halts; see [What `arm` does not do](#what-arm-does-not-do). |
+| `$schema` | Read for the scope the content is written for: the file name of the schema (`deploymentTemplate`, `subscriptionDeploymentTemplate`, `managementGroupDeploymentTemplate`). Absent means resource group. The assembled template carries the schema of the scope its boundary deploys at. In a boundary deployed at subscription scope, resource-group content is assembled into a nested deployment of its own, and in one deployed at management-group scope subscription content and resource-group content are; see [Deploying at subscription scope](#deploying-at-subscription-scope) and [Deploying at management-group scope](#deploying-at-management-group-scope). A fragment written for a wider scope than its boundary's halts; see [What `arm` does not do](#what-arm-does-not-do). |
 | `languageVersion` | Written as `2.0` by the provider. A fragment's own must be absent or `2.0`; any other value, every experimental one included, halts naming the key. |
 | `contentVersion` | Written as `1.0.0.0` by the provider. A fragment's own is reported with a warning and not carried. |
 | `apiProfile` | Halts naming the key: a profile changes the API version of every contributor's resources, so one component cannot carry it into a template other components share. |
@@ -240,7 +240,7 @@ Two annotations on the producer's boundary place its deployment, and they are re
 
 A component's own value wins over a boundary's within the Release, and a value the Release writes wins over one the Aggregate writes; see [Well-known annotations](well-known-annotations.md). Because the compiler does not look the placement up, the annotations must match where the operator deploys the producer.
 
-`arm` links to a producer deployed at resource-group scope: the resource ID above is the ID of a deployment to a resource group. A link to a producer whose boundary deploys at subscription scope halts the build, naming the link. A consumer may deploy at subscription scope. A value its resource-group content reads is read inside the `_resourceGroup` deployment, where the consumer's own resource group is that deployment's. A value its subscription content reads needs the producer's boundary to name `aggrega.ai/azure-resource-group`, because a subscription-scope template has no resource group of its own; without it the build halts naming the annotation.
+`arm` links to a producer deployed at resource-group scope: the resource ID above is the ID of a deployment to a resource group. A link to a producer whose boundary deploys at subscription or management-group scope halts the build, naming the link. A consumer may deploy at subscription or management-group scope. A value its resource-group content reads is read inside the `_resourceGroup` deployment, where the consumer's own resource group is that deployment's. A value its subscription content reads needs the producer's boundary to name `aggrega.ai/azure-resource-group`, because a subscription-scope template has no resource group of its own; without it the build halts naming the annotation. At management-group scope the same holds for the `_subscription` deployment, and a value the management-group content itself reads needs the producer's boundary to name `aggrega.ai/azure-subscription` too, because a management-group-scope template has no subscription of its own.
 
 ### What the operator owns
 
@@ -255,8 +255,8 @@ The links rest on deployments that already exist in Azure, so these are the oper
 
 - **A secret read across deployments.** A provided value that reads a secret (a `list*` function, `listOutputsWithSecureValues`, or a `securestring` or `secureObject` parameter's value) would be recorded in the producer's deployment history. Store the secret in Key Vault and attach `core/referenced-secret` on both ends. See [A secret is read across deployments](../errors/fatal-halts.md#a-secret-is-read-across-deployments).
 - **A value read from another deployment written where ARM does not evaluate it.** Outside a resource's `properties`, an output's `value` or an output's `copy` input. See [A value read from another deployment is written where ARM does not evaluate it](../errors/fatal-halts.md#a-value-read-from-another-deployment-is-written-where-arm-does-not-evaluate-it).
-- **A producer deployed at subscription scope.** Place the producer in a boundary deployed at resource-group scope.
-- **A value read at subscription scope from a producer whose boundary names no resource group.** Annotate the producer's boundary with `aggrega.ai/azure-resource-group`.
+- **A producer deployed at subscription or management-group scope.** Place the producer in a boundary deployed at resource-group scope.
+- **A value read at subscription or management-group scope from a producer whose boundary names no resource group, or at management-group scope none subscription.** Annotate the producer's boundary with `aggrega.ai/azure-resource-group`, and `aggrega.ai/azure-subscription` where the read is at management-group scope.
 - **A provided value that splices a call into literal text.** Write the provided value as one expression, `[format('postgres://{0}:5432', reference('Db').outputs.fqdn.value)]`. See [A provided value splices a call into literal text across deployments](../errors/fatal-halts.md#a-provided-value-splices-a-call-into-literal-text-across-deployments).
 
 A Recipe publishes a provided value as one whole expression or as a plain literal. Within one template, text around a value still composes into `format()` as described under [Writing ARM text](#writing-arm-text).
@@ -349,7 +349,7 @@ With `group` declaring the resource group `orders-rg` and `store` a storage acco
 
 **A reference reaches only its own level.** The top level and the nested deployment are two templates to ARM, so a name one declares is not declared in the other. A subscription resource naming a resource-group resource by its symbolic name, a parameter only the resource-group content declares, or a variable of the other level, halts the build naming the JSON pointer and the name, and so does the reverse. Name a resource of the other level by its resource ID.
 
-**Waves order each level.** The resources inside the nested deployment are ordered by wave as in [Deployment ordering](#deployment-ordering). At the top level the nested deployment is one resource, in the earliest wave of the components inside it.
+**Waves order each level.** The resources inside the nested deployment are ordered by wave as in [Deployment ordering](#deployment-ordering). At the top level the nested deployment is one resource, in the earliest wave of the components inside it, and it holds all of them as one unit. Two wave orders cannot be written onto it, and halt the build instead of weakening the order: a top-level resource in a wave strictly between the earliest and the latest wave of the components inside the nested deployment, which would have to follow some of them and precede others, and a nested deployment that depends on the resource declaring its resource group when that resource is in a later wave than the deployment's earliest, which would make each depend on the other. The halts name the nested deployment and the waves; put the component that declares the resource group in an earlier wave, or the components of the nested deployment in one wave.
 
 **A sourced template written for a subscription sits at the top level.** Its nested deployment takes `location: "[deployment().location]"`, so it records its deployment where the outer deployment does. A sourced resource-group template sits inside `_resourceGroup` like any other resource-group content.
 
@@ -367,11 +367,112 @@ az stack sub create -n <stack> -l <loc> -f arm-template.json \
   --action-on-unmanage detachAll --deny-settings-mode none
 ```
 
-A boundary annotated `managementGroup`, and content written for a management group, halt the build; see [What `arm` does not do](#what-arm-does-not-do).
+A fragment written for a management group in a boundary deployed at subscription scope halts the build; see [What `arm` does not do](#what-arm-does-not-do).
+
+## Deploying at management-group scope
+
+A boundary annotated `aggrega.ai/azure-deployment-scope: managementGroup` assembles a template deployed to a management group. Content written for a management group — a fragment whose `$schema` is `managementGroupDeploymentTemplate` — sits at the template's top level. Content written for a subscription sits in one nested deployment, `_subscription`, and content written for a resource group in another, `_resourceGroup`. Both are nested directly under the management group, side by side, so the resource group level is not inside the subscription level:
+
+```yaml
+# release.yaml fragment
+spec:
+  boundaries:
+    platform:
+      directory: ./dist/platform
+      annotations:
+        aggrega.ai/azure-deployment-scope: managementGroup
+        aggrega.ai/azure-subscription: orders-sub
+        aggrega.ai/azure-resource-group: orders-rg
+      components:
+        policy: {}
+        group: {}
+        store: {}
+```
+
+With `policy` a policy definition written for a management group, `group` declaring the resource group `orders-rg` for a subscription and `store` a storage account written for a resource group, the template reads, provenance and the fields not shown left out:
+
+```json
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-08-01/managementGroupDeploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "languageVersion": "2.0",
+  "resources": {
+    "Policy": {
+      "apiVersion": "2023-04-01",
+      "name": "policy",
+      "type": "Microsoft.Authorization/policyDefinitions"
+    },
+    "_resourceGroup": {
+      "apiVersion": "2025-04-01",
+      "dependsOn": ["_subscription"],
+      "name": "[format('rg-{0}', uniqueString(deployment().name))]",
+      "properties": {
+        "expressionEvaluationOptions": { "scope": "inner" },
+        "mode": "Incremental",
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "languageVersion": "2.0",
+          "resources": {
+            "Store": { "type": "Microsoft.Storage/storageAccounts", "name": "store" }
+          }
+        }
+      },
+      "resourceGroup": "orders-rg",
+      "subscriptionId": "orders-sub",
+      "type": "Microsoft.Resources/deployments"
+    },
+    "_subscription": {
+      "apiVersion": "2025-04-01",
+      "location": "[deployment().location]",
+      "name": "[format('sub-{0}', uniqueString(deployment().name))]",
+      "properties": {
+        "expressionEvaluationOptions": { "scope": "inner" },
+        "mode": "Incremental",
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "languageVersion": "2.0",
+          "resources": {
+            "Group": {
+              "apiVersion": "2024-03-01",
+              "location": "[deployment().location]",
+              "name": "orders-rg",
+              "type": "Microsoft.Resources/resourceGroups"
+            }
+          }
+        }
+      },
+      "subscriptionId": "orders-sub",
+      "type": "Microsoft.Resources/deployments"
+    }
+  }
+}
+```
+
+**Each nested deployment is assembled as the top level is.** All subscription content of the boundary is assembled into `_subscription`, and all resource-group content into `_resourceGroup`, on the terms of [Top-level sections in the assembled template](#top-level-sections-in-the-assembled-template) and of [Deploying at subscription scope](#deploying-at-subscription-scope): the same merge, the same parameters declared at the top level and passed down, the same rule that a reference reaches only its own level, the same waves. Each deploys incrementally, evaluated in its own scope, under the names `[format('sub-{0}', uniqueString(deployment().name))]` and `[format('rg-{0}', uniqueString(deployment().name))]`. A boundary whose components write no content for a scope has no deployment for it. The symbolic names `_subscription` and `_resourceGroup` are the provider's at the top level of a management-group-scope template; a management-group fragment declaring a resource under either halts.
+
+**The subscription and the resource group are named by the boundary.** `_subscription` takes `subscriptionId` from `aggrega.ai/azure-subscription` and `location: "[deployment().location]"`. `_resourceGroup` takes `subscriptionId` from the same annotation and `resourceGroup` from `aggrega.ai/azure-resource-group`. An annotation a nested deployment needs that is absent or empty halts the build naming it, and two components whose content lands in one nested deployment naming different values halt naming both. The management group itself is not written into the template; it is the target of the deploy command. `aggrega.ai/azure-management-group` is not read.
+
+**The resource group level follows the subscription level that declares its group.** Where `_subscription` holds a `Microsoft.Resources/resourceGroups` resource whose `name` is exactly the annotation's value, not declared `existing: true`, and both deploy to the same subscription, `_resourceGroup` depends on `_subscription`, so the group is deployed first. Otherwise nothing is added: the group is yours to create. As at subscription scope, a wave order that cannot be written onto either nested deployment halts; see [Waves order each level](#deploying-at-subscription-scope).
+
+The deploy commands take the management group and the location the deployment's record is stored in, which the nested deployments take too:
+
+```bash
+# Preview what the template would change.
+az deployment mg what-if -m <mg> -l <loc> -f arm-template.json
+
+# Deploy it.
+az deployment mg create -m <mg> -l <loc> -n <name> -f arm-template.json
+
+# Or deploy it as a deployment stack that never deletes what it stops managing.
+az stack mg create -n <stack> -m <mg> -l <loc> -f arm-template.json \
+  --action-on-unmanage detachAll --deny-settings-mode none
+```
 
 ## What `arm` does not do
 
-- **It assembles no template at management-group or tenant scope.** A boundary annotated `aggrega.ai/azure-deployment-scope: managementGroup` halts, and so does a fragment whose `$schema` declares a management group or a tenant: the provider assembles a boundary at resource-group or subscription scope. A value of the annotation that names no scope halts naming the values it takes.
-- **Content wider than its boundary halts.** A fragment written for a subscription in a boundary deployed at resource-group scope is refused naming the component and the annotation: annotate the boundary `aggrega.ai/azure-deployment-scope: subscription`, or write the resources in a resource-group template.
+- **It assembles no template at tenant scope.** A fragment whose `$schema` declares a tenant halts: the provider assembles a boundary at resource-group, subscription or management-group scope. A value of the annotation that names no scope halts naming the values it takes.
+- **Content wider than its boundary halts.** A fragment written for a subscription in a boundary deployed at resource-group scope is refused naming the component and the annotation: annotate the boundary `aggrega.ai/azure-deployment-scope: subscription` or `managementGroup`, or write the resources in a resource-group template. A fragment written for a management group is refused in a boundary at any narrower scope the same way.
 - **It never signs in to Azure or runs ARM.** No build contacts Azure; every value ARM resolves at deploy time stays an expression.
 - **It does not generate a secret.** See [the credential model](../../architecture/08-credential-model.md): on `arm`, the generating Features halt the build, and a supplied secret travels as a `securestring` parameter or a Key Vault reference.

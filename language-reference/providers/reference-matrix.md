@@ -11,7 +11,7 @@ This page is a signpost. It states what each standard-library provider produces 
 - **`compose`** — produces Docker Compose services, merged into one compose file per boundary. See [compose.md](compose.md).
 - **`terraform`** — produces Terraform configuration. It emits configuration and never runs Terraform. See [terraform.md](terraform.md).
 - **`cloudformation`** — produces CloudFormation stack templates, one per boundary. It emits configuration and never runs CloudFormation. See [cloudformation.md](cloudformation.md).
-- **`arm`** — produces Azure Resource Manager templates at resource-group or subscription scope, one per boundary. It emits configuration and never runs ARM. See [arm.md](arm.md).
+- **`arm`** — produces Azure Resource Manager templates at resource-group, subscription or management-group scope, one per boundary. It emits configuration and never runs ARM. See [arm.md](arm.md).
 
 ## What a boundary's `syncWave` does on each provider
 
