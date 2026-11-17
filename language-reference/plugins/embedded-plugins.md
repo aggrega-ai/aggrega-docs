@@ -6,18 +6,18 @@ Aggrega ships a set of Wasm plugins compiled directly into the CLI binary. These
 
 | Type | Name | Capabilities | Version |
 | --- | --- | --- | --- |
-| governance | `governance/cel` | — | `0.9.2 (commit a80867a48)` |
-| governance | `governance/label-injector` | — | `0.9.2 (commit a80867a48)` |
-| governance | `governance/rego` | — | `0.9.2 (commit a80867a48)` |
-| governance | `governance/selector-tagger` | — | `0.9.2 (commit a80867a48)` |
-| linter | `linter/publishing` | — | `0.9.2 (commit a80867a48)` |
-| parser | `parser/hcl` | parse:hcl | `0.9.2 (commit a80867a48)` |
-| parser | `parser/json` | parse:json | `0.9.2 (commit a80867a48)` |
-| parser | `parser/jsonc` | parse:jsonc | `0.9.2 (commit a80867a48)` |
-| parser | `parser/toml` | parse:toml | `0.9.2 (commit a80867a48)` |
-| parser | `parser/yaml` | parse:yaml | `0.9.2 (commit a80867a48)` |
-| provider | `provider/cloudformation` | cloudformation | `0.9.2 (commit a80867a48)` |
-| provider | `provider/compose` | compose | `0.9.2 (commit a80867a48)` |
-| provider | `provider/helm` | helm | `0.9.2 (commit a80867a48)` |
-| provider | `provider/helm-chart` | helm-chart | `0.9.2 (commit a80867a48)` |
-| provider | `provider/terraform` | terraform | `0.9.2 (commit a80867a48)` |
+| governance | `governance/cel` | — | `0.9.3 (commit 65d37b134)` |
+| governance | `governance/label-injector` | — | `0.9.3 (commit 65d37b134)` |
+| governance | `governance/rego` | — | `0.9.3 (commit 65d37b134)` |
+| governance | `governance/selector-tagger` | — | `0.9.3 (commit 65d37b134)` |
+| linter | `linter/publishing` | — | `0.9.3 (commit 65d37b134)` |
+| parser | `parser/hcl` | parse:hcl | `0.9.3 (commit 65d37b134)` |
+| parser | `parser/json` | parse:json | `0.9.3 (commit 65d37b134)` |
+| parser | `parser/jsonc` | parse:jsonc | `0.9.3 (commit 65d37b134)` |
+| parser | `parser/toml` | parse:toml | `0.9.3 (commit 65d37b134)` |
+| parser | `parser/yaml` | parse:yaml | `0.9.3 (commit 65d37b134)` |
+| provider | `provider/cloudformation` | cloudformation | `0.9.3 (commit 65d37b134)` |
+| provider | `provider/compose` | compose | `0.9.3 (commit 65d37b134)` |
+| provider | `provider/helm` | helm | `0.9.3 (commit 65d37b134)` |
+| provider | `provider/helm-chart` | helm-chart | `0.9.3 (commit 65d37b134)` |
+| provider | `provider/terraform` | terraform | `0.9.3 (commit 65d37b134)` |
