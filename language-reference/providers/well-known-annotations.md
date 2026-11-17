@@ -127,6 +127,9 @@ The node-scoped keys, per provider per input kind. Column headers drop the `aggr
 | `cloudformation` | sourced | — | — | — | — | — |
 | `cloudformation` | synthesized | n/a | n/a | n/a | n/a | n/a |
 | `cloudformation` | artifacts-only | — | — | — | — | — |
+| `arm` | sourced | — | — | — | — | — |
+| `arm` | synthesized | n/a | n/a | n/a | n/a | n/a |
+| `arm` | artifacts-only | — | — | — | — | — |
 
 *Every provider distributed with the compiler has rows here, including one that reads no placement annotation at all — an empty row set would be indistinguishable from a provider nobody has described yet. A provider supplied separately declares what it reads in the same way and is not listed here, because a published page cannot enumerate providers it has never seen.*
 <!-- END GENERATED: well-known-annotation-support -->

@@ -447,6 +447,7 @@ Each provider declares which input kinds it renders; a central input-kind gate a
 | helm-chart | ✅ | ❌ | ✅ templated with `[[` `]]` delimiters | ❌ | ❌ | ❌ |
 | terraform | ✅ | ❌ | ✅ | ✅ | ❌ | ✅ |
 | cloudformation | ✅ | ❌ | ✅ | ✅ | ✅ | ❌ |
+| arm | ✅ | ❌ | ✅ | ✅ | ✅ | ❌ |
 
 *This grid covers the providers distributed with the compiler. A provider supplied separately declares the input kinds it accepts, whether it honours `omits:` and whether it accepts `boundary.artifacts:`, in the same way, and the compiler reads that declaration by the same route — it is not listed here, because a published page cannot enumerate providers it has never seen.*
 <!-- END GENERATED: provider-capability-matrix -->
