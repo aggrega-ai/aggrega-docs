@@ -52,7 +52,7 @@ The `helm`, `helm-chart`, `compose`, `terraform`, `cloudformation`, and `arm` pr
 
 [`cloudformation`](cloudformation.md) renders a boundary into one AWS CloudFormation stack template, assembling the resource fragments its components author into a single pure-JSON template, surfacing each component's `provides` as stack `Outputs`, and wiring `uses` edges as `Fn::GetAtt` within a stack and as `Fn::ImportValue` / `Fn::GetStackOutput` across stacks. It supports sourced and artifacts input and emits configuration without ever running CloudFormation; runtime-only values stay as CloudFormation intrinsics.
 
-[`arm`](arm.md) renders a boundary into one Azure Resource Manager template at resource-group scope, assembling the resource fragments its components author, or wrapping a compiled template a Recipe sources as a nested template, and surfacing each component's `provides` as template `outputs`. It supports sourced and artifacts input and emits configuration without ever running ARM; runtime-only values stay as ARM template expressions.
+[`arm`](arm.md) renders a boundary into one Azure Resource Manager template at resource-group scope, assembling the resource fragments its components author, or wrapping a compiled template a Recipe sources as a nested deployment, and surfacing each component's `provides` as template `outputs`. It supports sourced and artifacts input and emits configuration without ever running ARM; runtime-only values stay as ARM template expressions.
 
 The [provider reference index](reference-matrix.md) routes you to each provider's own reference page; which input kinds each one accepts is answered by the capability matrix in [../../architecture/16-recipe-input-composition.md](../../architecture/16-recipe-input-composition.md).
 

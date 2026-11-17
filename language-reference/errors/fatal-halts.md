@@ -5635,7 +5635,7 @@ A parameter or variable that is not declared reports in the same shape, naming t
 
 <!-- covers: internal/plugincondition.ErrPluginRequiredInputUnresolved -->
 
-A sourced template is nested inside the template its boundary assembles, and the parameters of a nested template cannot be supplied when the outer one is deployed. A parameter the template declares with no `defaultValue`, and that does not admit null, therefore needs a value from the `valuesMapping` of the Recipe or FeatureRecipe sourcing it, or ARM would refuse it when the template is deployed.
+A sourced template is wrapped as a nested deployment, and a nested deployment's parameters cannot be supplied when the outer template is deployed. A parameter the template declares with no `defaultValue`, and that does not admit null, therefore needs a value from the `valuesMapping` of the Recipe or FeatureRecipe sourcing it, or ARM would refuse it when the template is deployed.
 
 Emitted message. The condition leads, then every parameter left unbound:
 > a plugin could not resolve something it requires to exactly one value
