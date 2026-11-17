@@ -615,6 +615,17 @@
     "status": "machine",
     "text": "Một SchemaLibrary là một thực thể catalog chứa các định nghĩa JSON Schema 2020-12 có thể tái sử dụng cùng với các helper có tham số tùy chọn. Các Components và Features dùng chung các dạng schema — URL, khoảng thời gian, cấu trúc probe phổ biến, giới hạn tài nguyên lặp lại — khai báo các dạng đó một lần trong một thư viện và tham chiếu chúng qua các URI `$ref` chuẩn. Thực thể thư viện thuộc Tier 3: tùy chọn dành cho các catalog cần tái sử dụng schema giữa các Component. Các catalog không có nội dung schema lặp lại được phát hành mà không có SchemaLibrary nào."
   },
+  "00bdfbc3c1619875": {
+    "at": "2026-11-17T11:39:21.279Z",
+    "job": "session-0003-20261117113921",
+    "revision": {
+      "from": "e13f0e46628ac33b",
+      "reviewed": false
+    },
+    "srcHash": "00bdfbc3c1619875",
+    "status": "machine",
+    "text": "**Chế độ 3: Thư viện `$import:`.** Giá trị là một map với một khóa `$import:` duy nhất mang một tham chiếu định danh bằng tên trần tới một gói ArtifactLibrary, `<Library>#/artifacts/<name>`. Một gói là một tập hợp tệp được import như một đơn vị, nên **một mục mở rộng thành một đầu ra cho mỗi tệp trong gói, mỗi đầu ra nằm dưới khóa của map theo dạng `<key>/<filename>`** — khóa đặt tên cho nơi sử dụng và là thư mục chứa các tệp đó, chứ không phải tên của bất kỳ tệp nào trong số đó. Mục thứ ba ở trên có khóa `operator-support`; nếu `PlatformArtifacts#/artifacts/OperatorSupport` khai báo `crd.yaml` và `rbac.yaml`, thì mục duy nhất đó phát ra `operator-support/crd.yaml` và `operator-support/rbac.yaml`. Tham chiếu không mang registry host — dạng có host `oci://…` bị từ chối — phiên bản được chọn trong số những phiên bản mà danh mục nắm giữ và được ghi vào lockfile của Release, và có thể nêu một phiên bản tối thiểu tùy chọn `:<version>` theo dạng `<Library>:<version>#/artifacts/<name>`. Xem [entities/artifactlibrary](artifactlibrary.md) để biết về thực thể thư viện và toàn bộ ngữ pháp tham chiếu."
+  },
   "00bf980a2ef9c986": {
     "at": "2026-10-30T02:00:09.600Z",
     "job": "session-0051-20261030020009",
@@ -28395,6 +28406,17 @@
     "status": "machine",
     "text": "đường dẫn đến tệp cấu hình toàn cục, ghi đè biến môi trường AGGREGA_CONFIG và vị trí mặc định. Các tệp cấu hình trong cây workspace vẫn được xếp lớp lên trên"
   },
+  "266eaf908ac018d1": {
+    "at": "2026-11-17T11:39:21.279Z",
+    "job": "session-0003-20261117113921",
+    "revision": {
+      "from": "b72082abcec3ac99",
+      "reviewed": false
+    },
+    "srcHash": "266eaf908ac018d1",
+    "status": "machine",
+    "text": "**Những gì lõi phân giải.** Không provider nào kiểm tra các khóa nguồn của riêng mình. Một nguồn *được tải* được phân giải bởi một định danh dựng sẵn có `kind` chọn một bộ phân giải — `helm-oci-chart`, `helm-https-chart`, `compose-https-fragment`, `git-repository`, `bicep-module-oci` và `terraform-module-oci`. Một nguồn dự định được tải phải mang `kind` và `url`; tọa độ nào khác chọn nội dung tùy thuộc vào kind. Các kind chart và fragment nhận `version`, và ghim nó đúng như đã viết. `git-repository` nhận `ref` — một tag, một nhánh hoặc một commit — và tùy chọn `module_subdir`, chỉ thư mục bên trong kho là artifact; vì chỉ một commit mới chỉ định nội dung không thể bị trỏ lại, tham chiếu được phân giải lúc khóa và lockfile ghi lại cả tham chiếu đã được viết lẫn commit mà nó phân giải tới. Một `module_subdir` vượt lên trên kho như đã viết — dấu gạch chéo ngược được tính là dấu phân cách — bị từ chối trước khi bất cứ thứ gì được tải. Kho được lưu trữ từ bản checkout của chính nó: một liên kết tượng trưng mà kho commit được lưu trữ như tệp hoặc thư mục mà nó trỏ tới nếu đích nằm trong kho, còn liên kết dẫn ra ngoài kho sẽ dừng thao tác pull, nêu tên liên kết theo vị trí của nó trong kho. `bicep-module-oci` và `terraform-module-oci` lấy tọa độ từ một registry OCI: đúng `url: oci://<registry>/<repository>`, không có tag, digest, query hay `//` trong đó, và một `version` bắt buộc, là một tag hoặc một digest manifest `sha256:` được viết dưới dạng 64 ký tự thập lục phân viết thường. Phiên bản được ghim đúng như đã viết, và lockfile ghi lại digest manifest cùng digest của một layer mà kind đó tải về. `bicep-module-oci` là một module Bicep như `bicep publish` lưu trữ: layer template ARM đã biên dịch được tải về từng byte một và bố trí thành `main.json`, mà [provider `arm`](../providers/arm.md#sourcing-a-published-bicep-module) lồng vào template mà nó lắp ráp. `terraform-module-oci` là một gói module OpenTofu, một layer `archive/zip` được bố trí như một cây thư mục, mà [provider `terraform`](../providers/terraform.md#sourcing-a-module-from-an-oci-registry) đưa vào thư mục vendor; tùy chọn nó nhận `module_subdir`, chỉ thư mục bên trong gói là artifact. `chart` và `ref` bị từ chối trên cả hai kind, còn `module_subdir` bị từ chối trên `bicep-module-oci`, vốn là một template duy nhất. Một nguồn không chỉ định một artifact duy nhất bị từ chối ngay khi tài liệu được đọc, trước khi bất cứ thứ gì được tải: [The source does not name one artifact of its OCI module kind (Nguồn không chỉ định một artifact duy nhất của kind module OCI của nó)](../errors/fatal-halts.md#the-source-does-not-name-one-artifact-of-its-oci-module-kind). Một nguồn được viết thành một chuỗi `oci://` duy nhất chỉ định một Helm chart; một kind module luôn được chỉ định bằng `kind:`. Một nguồn có cấu trúc có `url:` chỉ một đường dẫn hệ thống tệp thì không được tải: nó được đọc từ đĩa với cùng điều kiện như một chuỗi đường dẫn trần, với `url:` tương đối được neo vào thư mục chứa tệp entity khai báo nó. Một nguồn có cấu trúc bỏ qua `kind`/`url` cũng không được tải, và nếu đã dự định tải thì bản build dừng rõ ràng ở bước duyệt nguồn lúc khóa thay vì âm thầm phân giải thành rỗng. Nội dung luôn được ghim trước; trình biên dịch không bao giờ tải trạng thái runtime trực tiếp."
+  },
   "267114fa15182a40": {
     "at": "2026-10-22T13:49:57.993635+00:00",
     "job": "msgbatch_012jjD4vu9JwBogX6bQQmFbf",
@@ -39698,6 +39720,13 @@
     "status": "machine",
     "text": "Hợp đồng hành vi render tại thời điểm biên dịch mà một plugin render provider tự khai báo: các loại đầu vào mà nó render, cách nó ghép đầu ra theo từng node của một nhóm dispatch, cặp dấu phân cách template mà nó áp dụng cho các tệp artifact được nhập, liệu một instance đã nạp có thể phục vụ mọi lần chuyển giao hay không, liệu nó có tuân theo các mục omit hay không, và liệu nó có chấp nhận các tệp mà một Recipe đóng góp vào đầu ra dùng chung của boundary hay không. Khối này nằm cạnh `capabilities` trong cùng một block nhưng trả lời một câu hỏi khác: danh sách capability cho biết plugin này phục vụ *những* capability nào, còn hợp đồng cho biết nó render chúng *như thế nào*. Nó được viết như một tuyên bố mà host đối chiếu với bản tự báo cáo `describe()` của chính plugin khi publish và khi nạp; nếu không khớp thì quá trình dừng lại. Khi vắng mặt, không có hợp đồng hành vi render nào được khai báo, và việc đối chiếu chỉ so sánh các tuyên bố theo từng export. Mọi trường đều là tùy chọn."
   },
+  "3665b9d2bff694f3": {
+    "at": "2026-11-17T11:39:21.279Z",
+    "job": "session-0003-20261117113921",
+    "srcHash": "3665b9d2bff694f3",
+    "status": "machine",
+    "text": "**ARM:** một template đã biên dịch được lấy từ nguồn, chẳng hạn `main.json` của Azure Verified Modules, được bọc thành một deployment lồng nhau, và các đoạn template mà một Recipe viết ra được gộp thành một template resource group cho mỗi ranh giới, trong đó phần liên kết đầu ra `valuesMapping:` ràng buộc các tham số mà template lấy từ nguồn khai báo. Xem [provider arm](../providers/arm.md)."
+  },
   "36684ecaf59a5dd4": {
     "at": "2026-10-22T10:27:55.857345+00:00",
     "job": "msgbatch_01St5AJWD4JFUsFvC38dR1rN",
@@ -45771,6 +45800,17 @@
     "status": "machine",
     "text": "**Chỉ những gì `source:` của chính FeatureRecipe này render mới được lọc.** `workload:` và `artifacts:` của nó thì không, và đầu ra của component chủ cũng không: các mục của một attachment chỉ tác động đến chart của chính nó, tệp compose của chính nó hoặc template CloudFormation của chính nó, và không gì khác — một compose service mà component chủ khai báo dưới cùng khóa trong `docker-compose.yaml` mà cả hai cùng được ghép vào sẽ không bị ảnh hưởng, và một resource mà component chủ khai báo dưới cùng logical ID trong stack mà cả hai cùng được ghép vào cũng vậy. Để thay đổi một tài liệu mà component chủ render, Recipe của component chủ phải khai báo mục đó, hoặc một bước `pipeline:` vá nó."
   },
+  "3ef8f1dfd4fb756e": {
+    "at": "2026-11-17T11:39:21.279Z",
+    "job": "session-0003-20261117113921",
+    "revision": {
+      "from": "d7fae35e643fe2ef",
+      "reviewed": false
+    },
+    "srcHash": "3ef8f1dfd4fb756e",
+    "status": "machine",
+    "text": "Fragment `#/workloads/` là thứ chọn một mục Workload, và chính fragment này phân biệt tham chiếu này với dạng `#/mappings/` mà `valuesMapping:` sử dụng — dạng đó trỏ tới một mục MappingLibrary và không đặt tên cho một phần thân Workload. Tham chiếu không mang host registry, phiên bản được chọn trong số những phiên bản mà danh mục nắm giữ và được ghi vào lockfile của Release, có thể nêu một phiên bản tối thiểu `:<version>` tùy chọn dưới dạng `<Library>:<version>#/workloads/<Entry>`, và một mục có phần thân tự nó là một `$import:` ở gốc trường sẽ được phân giải đệ quy. Phần thân được import là một Go template được đánh giá trong ngữ cảnh kết xuất của Recipe sử dụng nó, nên `.values`, `.infra` và `.features` truyền vào nó đúng như vào một phần thân nội tuyến. Xem [entities/workloadlibrary](workloadlibrary.md) về thực thể thư viện và ngữ pháp tham chiếu đầy đủ."
+  },
   "3efb9866c2ec5abe": {
     "at": "2026-10-29T19:40:39.585Z",
     "job": "session-0016-20261029194039",
@@ -51682,6 +51722,17 @@
     "srcHash": "46f4b2144b12a1e1",
     "status": "machine",
     "text": "Thay vì dựa vào logic trình biên dịch được mã hóa cứng để quản lý egress mạng, Aggrega ủy thác hoàn toàn bảo mật vành đai cho các công cụ chính sách không phụ thuộc của doanh nghiệp và các plugin kết xuất Wasm. Điều này bảo đảm các cấu hình được tạo tuân thủ nghiêm ngặt các phê duyệt egress tường minh."
+  },
+  "46f691d378532aad": {
+    "at": "2026-11-17T11:39:21.279Z",
+    "job": "session-0003-20261117113921",
+    "revision": {
+      "from": "53464b0d48a44e0c",
+      "reviewed": false
+    },
+    "srcHash": "46f691d378532aad",
+    "status": "machine",
+    "text": "Fragment `#/artifacts/<name>` chọn bundle và phân biệt một tham chiếu artifacts với `#/mappings/<name>` của MappingLibrary, `#/schemas/<name>` của SchemaLibrary và `#/workloads/<name>` của WorkloadLibrary. Tham chiếu không mang registry host; dạng có host `oci://…` bị từ chối cả bởi schema của envelope lẫn tại vị trí sử dụng, nên một vị trí registry vật lý không bao giờ đi vào mã nguồn được viết. Phiên bản tối thiểu được nêu dưới dạng `<Library>:<version>#/artifacts/<name>` — dấu phân tách là `:`, và việc viết `@` thay vào đó bị từ chối với một chẩn đoán nêu tham chiếu đã sửa. Xem [SchemaLibrary](schemalibrary.md) để biết cách một tham chiếu chọn trong số các phiên bản mà danh mục nắm giữ và về phiên bản duy nhất mà một Release đọc cho mỗi tên thư viện."
   },
   "46f6dd2ac7b5bda6": {
     "at": "2026-10-23T00:18:01.108465+00:00",
@@ -76039,6 +76090,17 @@
     "srcHash": "6839691e0bacb2d4",
     "status": "machine",
     "text": "volume có tên + khai báo `volumes: { <volume-name>: {} }` cấp cao nhất, được đặt tên theo [Cách suy ra tên volume](#how-a-volume-name-is-derived)"
+  },
+  "6839c530cba20db6": {
+    "at": "2026-11-17T11:39:21.279Z",
+    "job": "session-0003-20261117113921",
+    "revision": {
+      "from": "1c91274e11af697d",
+      "reviewed": false
+    },
+    "srcHash": "6839c530cba20db6",
+    "status": "machine",
+    "text": "Fragment `#/mappings/<name>` chọn mục và phân biệt một tham chiếu ánh xạ với `#/schemas/<name>` của SchemaLibrary. Tham chiếu dùng cùng mô hình định danh tên trần như `$ref:` của SchemaLibrary — `<Library>#/mappings/<name>`, không mang host registry nào — và có thể nêu một phiên bản tối thiểu dưới dạng `<Library>:<version>#/mappings/<name>`. Xem [SchemaLibrary](schemalibrary.md) để biết cách một tham chiếu chọn trong số các phiên bản mà danh mục nắm giữ và về phiên bản duy nhất mà một Release đọc cho mỗi tên thư viện."
   },
   "683b9941aa375ebe": {
     "at": "2026-10-22T13:49:57.993635+00:00",
@@ -102093,6 +102155,17 @@
     "status": "machine",
     "text": "Danh mục này là tài liệu tham chiếu chuẩn về những gì tác giả có thể đặt vào `source:`; các nhãn của nó là những nhãn mà [`10-status.md`](../10-status.md) định nghĩa."
   },
+  "8bdccfb2850e59ba": {
+    "at": "2026-11-17T11:39:21.279Z",
+    "job": "session-0003-20261117113921",
+    "revision": {
+      "from": "e5dec9ae02e74390",
+      "reviewed": false
+    },
+    "srcHash": "8bdccfb2850e59ba",
+    "status": "machine",
+    "text": "`available` — mọi provider đã phát hành (helm, helm-chart, compose, terraform, cloudformation, arm) đều chấp nhận một chuỗi đường dẫn hệ thống tệp thuần."
+  },
   "8bddf5f7c863b33b": {
     "at": "2026-10-22T10:44:41.513626+00:00",
     "job": "msgbatch_01SU94FsDLwMBbtBG2UdzNK5",
@@ -105713,6 +105786,17 @@
     "srcHash": "90e841bd91ddc79f",
     "status": "machine",
     "text": "`name` của crew trong `crew.jsonc` hoặc `crew.json`; `config/agents.yaml` và `config/tasks.yaml` không mang tên nào, vì một dự án kiểu cổ điển đặt tên crew trong chương trình của nó"
+  },
+  "90e84989943a6c17": {
+    "at": "2026-11-17T11:39:21.279Z",
+    "job": "session-0003-20261117113921",
+    "revision": {
+      "from": "3ef58547a9e520f4",
+      "reviewed": false
+    },
+    "srcHash": "90e84989943a6c17",
+    "status": "machine",
+    "text": "**Chỉ những gì `source:` của chính FeatureRecipe này render mới được lọc.** `workload:` và `artifacts:` của nó thì không, và đầu ra của component chủ cũng không: các mục của một attachment chỉ tác động đến chart của chính nó, tệp compose của chính nó, template CloudFormation của chính nó hoặc template ARM của chính nó, và không gì khác — một compose service mà component chủ khai báo dưới cùng khóa trong `docker-compose.yaml` mà cả hai cùng được ghép vào sẽ không bị ảnh hưởng, và một resource mà component chủ khai báo dưới cùng logical ID trong stack mà cả hai cùng được ghép vào cũng vậy. Để thay đổi một tài liệu mà component chủ render, Recipe của component chủ phải khai báo mục đó, hoặc một bước `pipeline:` vá nó."
   },
   "90e8b5c0b4bd1ddb": {
     "at": "2026-10-29T21:33:51.093Z",

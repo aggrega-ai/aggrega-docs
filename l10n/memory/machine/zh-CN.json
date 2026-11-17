@@ -615,6 +615,17 @@
     "status": "machine",
     "text": "SchemaLibrary 是一种目录实体，用于存放可复用的 JSON Schema 2020-12 定义以及可选的参数化辅助项。共享相同 schema 结构（URL、时长、通用探针结构、反复出现的资源限制）的 Components 和 Features 只需在库中声明一次这些结构，然后通过规范的 `$ref` URI 引用它们。该库实体属于第 3 层：需要跨 Component 复用 schema 的目录可以选择启用。没有重复 schema 内容的目录无需包含任何 SchemaLibrary。"
   },
+  "00bdfbc3c1619875": {
+    "at": "2026-11-17T11:39:21.279Z",
+    "job": "session-0003-20261117113921",
+    "revision": {
+      "from": "e13f0e46628ac33b",
+      "reviewed": false
+    },
+    "srcHash": "00bdfbc3c1619875",
+    "status": "machine",
+    "text": "**模式 3：库 `$import:`。** 值是一个只含单个 `$import:` 键的映射，携带对某个 ArtifactLibrary 捆绑包的裸名称身份引用 `<Library>#/artifacts/<name>`。捆绑包是作为一个单元导入的一组文件，因此**一个条目会按捆绑包中的每个文件展开为一个输出，每个输出以 `<key>/<filename>` 的形式嵌套在映射键之下**——键命名的是使用位置，是这些文件所在的目录，而不是其中任何一个文件的名称。上面的第三个条目的键为 `operator-support`；如果 `PlatformArtifacts#/artifacts/OperatorSupport` 声明了 `crd.yaml` 和 `rbac.yaml`，这个单一条目就会生成 `operator-support/crd.yaml` 和 `operator-support/rbac.yaml`。该引用不携带注册表主机——带主机的 `oci://…` 形式会被拒绝——版本从目录所包含的版本中选取，并记录在该 Release 的锁文件中，并且可以用 `<Library>:<version>#/artifacts/<name>` 声明一个可选的 `:<version>` 最低版本。关于该库实体和完整的引用语法，参见 [entities/artifactlibrary](artifactlibrary.md)。"
+  },
   "00bf980a2ef9c986": {
     "at": "2026-10-30T02:00:09.600Z",
     "job": "session-0051-20261030020009",
@@ -28383,6 +28394,17 @@
     "status": "machine",
     "text": "全局配置文件的路径，覆盖 AGGREGA_CONFIG 环境变量和默认位置。工作区树中的配置文件仍会叠加在其上"
   },
+  "266eaf908ac018d1": {
+    "at": "2026-11-17T11:39:21.279Z",
+    "job": "session-0003-20261117113921",
+    "revision": {
+      "from": "b72082abcec3ac99",
+      "reviewed": false
+    },
+    "srcHash": "266eaf908ac018d1",
+    "status": "machine",
+    "text": "**核心解析的内容。** 没有任何 provider 会校验其自身的 source 键。*需获取的*源由一个内置标识解析，其 `kind` 选择解析器——`helm-oci-chart`、`helm-https-chart`、`compose-https-fragment`、`git-repository`、`bicep-module-oci` 和 `terraform-module-oci`。意图获取的源必须带有 `kind` 和 `url`；由哪个进一步的坐标选择内容取决于 kind。chart 和 fragment 类 kind 接受 `version`，并按所写内容固定。`git-repository` 接受 `ref`——一个 tag、分支或提交——以及可选的 `module_subdir`，用于指明仓库中作为制品的目录；由于只有提交所指的内容无法被重新指向，该引用在锁定时解析，lockfile 同时记录所编写的引用及其解析到的提交。按所写内容会越出仓库之上的 `module_subdir`（反斜杠也算作分隔符）会在获取任何内容之前被拒绝。仓库从其自身的检出中归档：仓库提交的符号链接，若指向仓库内部，则按其指向的文件或目录归档；若指向仓库之外，则中止拉取，并按其在仓库中的位置指明该链接。`bicep-module-oci` 和 `terraform-module-oci` 从 OCI 注册表获取其坐标：必须严格写成 `url: oci://<registry>/<repository>`，其中不得包含标签、摘要、查询或 `//`，并且必须提供 `version`，它要么是标签，要么是写成 64 个小写十六进制字符的 `sha256:` manifest 摘要。版本按所写内容固定，lockfile 记录 manifest 摘要以及该 kind 所拉取的那一个层的摘要。`bicep-module-oci` 是按 `bicep publish` 所存储形式的 Bicep 模块：编译后的 ARM 模板层按字节原样拉取，并布局为 `main.json`，由 [`arm` provider](../providers/arm.md#sourcing-a-published-bicep-module) 嵌套到其组装的模板中。`terraform-module-oci` 是 OpenTofu 模块包，即布局为目录树的 `archive/zip` 层，由 [`terraform` provider](../providers/terraform.md#sourcing-a-module-from-an-oci-registry) 纳入 vendor 目录；它可选地接受 `module_subdir`，用于指明包中作为制品的目录。两种 kind 都拒绝 `chart` 和 `ref`，`bicep-module-oci` 还拒绝 `module_subdir`，因为它是单个模板。没有指明唯一制品的源会在读取文档时、获取任何内容之前被拒绝：[The source does not name one artifact of its OCI module kind (该源没有指明其 OCI 模块 kind 的唯一制品)](../errors/fatal-halts.md#the-source-does-not-name-one-artifact-of-its-oci-module-kind)。写成单个 `oci://` 字符串的源指明一个 Helm chart；模块 kind 始终用 `kind:` 指明。`url:` 指向文件系统路径的结构化源不会被获取：它与裸路径字符串一样从磁盘读取，相对的 `url:` 以声明它的实体文件所在目录为基准。省略 `kind`/`url` 的结构化源同样不会被获取；如果原本意图获取，构建会在锁定时的源下降阶段明确中止，而不是静默地解析为空。内容总是在编译前固定；编译器从不获取实时的运行时状态。"
+  },
   "267114fa15182a40": {
     "at": "2026-10-22T03:06:36.769432+00:00",
     "job": "msgbatch_01LMJ2pDqXu3quNM1ykbvTtk",
@@ -39687,6 +39709,13 @@
     "status": "machine",
     "text": "渲染 provider 的插件自行声明的编译期渲染行为契约：它渲染的输入种类、它如何组装一个分发组的逐节点输出、它应用于导入的制品文件的模板分隔符对、一个已加载的实例是否可以服务每一次跨越、它是否遵循 omit 条目，以及它是否接受 Recipe 向其边界共享输出贡献的文件。它与 `capabilities` 位于同一块中，但回答的是不同的问题：能力列表说明该插件服务*哪些*能力，而契约说明它*如何*渲染这些能力。它被编写为一项声明，宿主在发布时和加载时将其与插件自身的 `describe()` 自我报告进行交叉核对；不一致时停止。缺省时不声明任何渲染行为契约，交叉核对只比较逐导出的声明。所有字段均为可选。"
   },
+  "3665b9d2bff694f3": {
+    "at": "2026-11-17T11:39:21.279Z",
+    "job": "session-0003-20261117113921",
+    "srcHash": "3665b9d2bff694f3",
+    "status": "machine",
+    "text": "**ARM：**作为源获取的已编译模板（例如 Azure Verified Modules 的 `main.json`）会被包装为嵌套部署；Recipe 编写的模板片段会按边界合并为一个资源组模板，其中 `valuesMapping:` 输出绑定用于绑定所获取模板声明的参数。请参阅 [arm provider](../providers/arm.md)。"
+  },
   "36684ecaf59a5dd4": {
     "at": "2026-10-22T01:50:22.319444+00:00",
     "job": "msgbatch_01VwQyd4vfmNKqBKVTg2vP5W",
@@ -45767,6 +45796,17 @@
     "status": "machine",
     "text": "**只有该 FeatureRecipe 自身的 `source:` 渲染出的内容会被过滤。**其 `workload:` 和 `artifacts:` 不会被过滤，宿主 component 的输出也不会：一个挂载的条目只作用于它自己的 chart、它自己的 compose 文件或它自己的 CloudFormation 模板，不涉及其他任何内容。宿主在两者共同组装进的 `docker-compose.yaml` 中以相同键声明的 compose service 不受影响，宿主在两者共同组装进的 stack 中以相同逻辑 ID 声明的 resource 同样不受影响。要修改宿主渲染的文档，应由宿主的 Recipe 声明该条目，或由一个 `pipeline:` 步骤对其打补丁。"
   },
+  "3ef8f1dfd4fb756e": {
+    "at": "2026-11-17T11:39:21.279Z",
+    "job": "session-0003-20261117113921",
+    "revision": {
+      "from": "d7fae35e643fe2ef",
+      "reviewed": false
+    },
+    "srcHash": "3ef8f1dfd4fb756e",
+    "status": "machine",
+    "text": "`#/workloads/` 片段用于选择 Workload 条目，也正是这个片段将此引用与 `valuesMapping:` 使用的 `#/mappings/` 形式区分开来——后者指向 MappingLibrary 条目，并不指定 Workload 主体。该引用不携带注册表主机，版本从目录所包含的版本中选取，并记录在该 Release 的锁文件中，可以用 `<Library>:<version>#/workloads/<Entry>` 的形式声明可选的 `:<version>` 最低版本，而主体本身是字段根 `$import:` 的条目会递归解析。导入的主体是一个在使用方 Recipe 的渲染上下文中求值的 Go 模板，因此 `.values`、`.infra` 和 `.features` 会像流入内联主体一样流入其中。关于该库实体及完整的引用语法，参见 [entities/workloadlibrary](workloadlibrary.md)。"
+  },
   "3efb9866c2ec5abe": {
     "at": "2026-10-29T19:40:39.585Z",
     "job": "session-0016-20261029194039",
@@ -51672,6 +51712,17 @@
     "srcHash": "46f4b2144b12a1e1",
     "status": "machine",
     "text": "Aggrega 不依赖硬编码的编译器逻辑来管控网络出口，而是将边界安全完全委托给企业自身与内容无关的策略引擎和 Wasm 渲染插件。这确保生成的配置严格符合显式的出口审批。"
+  },
+  "46f691d378532aad": {
+    "at": "2026-11-17T11:39:21.279Z",
+    "job": "session-0003-20261117113921",
+    "revision": {
+      "from": "53464b0d48a44e0c",
+      "reviewed": false
+    },
+    "srcHash": "46f691d378532aad",
+    "status": "machine",
+    "text": "`#/artifacts/<name>` 片段用于选择 bundle，并将 artifacts 引用与 MappingLibrary 的 `#/mappings/<name>`、SchemaLibrary 的 `#/schemas/<name>` 以及 WorkloadLibrary 的 `#/workloads/<name>` 区分开来。引用不携带注册表主机；带主机的 `oci://…` 形式会同时被信封 schema 和使用位置拒绝，因此物理注册表位置永远不会进入编写的源码。最低版本以 `<Library>:<version>#/artifacts/<name>` 的形式声明——分隔符是 `:`，改写为 `@` 会被拒绝，并给出指明修正后引用的诊断信息。关于引用如何在目录所包含的版本中进行选择，以及每个 Release 对每个库名称读取的唯一版本，请参阅 [SchemaLibrary](schemalibrary.md)。"
   },
   "46f6dd2ac7b5bda6": {
     "at": "2026-10-22T08:23:20.000561+00:00",
@@ -76018,6 +76069,17 @@
     "srcHash": "6839691e0bacb2d4",
     "status": "machine",
     "text": "命名卷 + 顶层 `volumes: { <volume-name>: {} }` 声明，按[卷名称的推导方式](#how-a-volume-name-is-derived)命名"
+  },
+  "6839c530cba20db6": {
+    "at": "2026-11-17T11:39:21.279Z",
+    "job": "session-0003-20261117113921",
+    "revision": {
+      "from": "1c91274e11af697d",
+      "reviewed": false
+    },
+    "srcHash": "6839c530cba20db6",
+    "status": "machine",
+    "text": "`#/mappings/<name>` 片段用于选择条目，并将映射引用与 SchemaLibrary 的 `#/schemas/<name>` 区分开来。该引用使用与 SchemaLibrary `$ref:` 相同的裸名称标识模型——`<Library>#/mappings/<name>`，不携带注册表主机——并可以用 `<Library>:<version>#/mappings/<name>` 声明最低版本。关于引用如何在目录所包含的版本中进行选择，以及每个 Release 对每个库名称读取的唯一版本，请参阅 [SchemaLibrary](schemalibrary.md)。"
   },
   "683b9941aa375ebe": {
     "at": "2026-10-22T03:00:38.891470+00:00",
@@ -102074,6 +102136,17 @@
     "status": "machine",
     "text": "该清单是作者可以在 `source:` 中填写哪些内容的权威参考；其标签即 [`10-status.md`](../10-status.md) 所定义的标签。"
   },
+  "8bdccfb2850e59ba": {
+    "at": "2026-11-17T11:39:21.279Z",
+    "job": "session-0003-20261117113921",
+    "revision": {
+      "from": "e5dec9ae02e74390",
+      "reviewed": false
+    },
+    "srcHash": "8bdccfb2850e59ba",
+    "status": "machine",
+    "text": "`available`——所有已发布的 provider（helm、helm-chart、compose、terraform、cloudformation、arm）都接受裸文件系统路径字符串。"
+  },
   "8bddf5f7c863b33b": {
     "at": "2026-10-22T02:13:05.447791+00:00",
     "job": "msgbatch_01EP4VHoVp3GUUNothAVw7Eq",
@@ -105694,6 +105767,17 @@
     "srcHash": "90e841bd91ddc79f",
     "status": "machine",
     "text": "`crew.jsonc` 或 `crew.json` 中 crew 的 `name`；`config/agents.yaml` 和 `config/tasks.yaml` 不带有名称，因为经典项目在其程序中为 crew 命名"
+  },
+  "90e84989943a6c17": {
+    "at": "2026-11-17T11:39:21.279Z",
+    "job": "session-0003-20261117113921",
+    "revision": {
+      "from": "3ef58547a9e520f4",
+      "reviewed": false
+    },
+    "srcHash": "90e84989943a6c17",
+    "status": "machine",
+    "text": "**只有该 FeatureRecipe 自身的 `source:` 渲染出的内容会被过滤。**其 `workload:` 和 `artifacts:` 不会被过滤，宿主 component 的输出也不会：一个挂载的条目只作用于它自己的 chart、它自己的 compose 文件、它自己的 CloudFormation 模板或它自己的 ARM 模板，不涉及其他任何内容。宿主在两者共同组装进的 `docker-compose.yaml` 中以相同键声明的 compose service 不受影响，宿主在两者共同组装进的 stack 中以相同逻辑 ID 声明的 resource 同样不受影响。要修改宿主渲染的文档，应由宿主的 Recipe 声明该条目，或由一个 `pipeline:` 步骤对其打补丁。"
   },
   "90e8b5c0b4bd1ddb": {
     "at": "2026-10-29T21:33:51.093Z",

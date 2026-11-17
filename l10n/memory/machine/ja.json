@@ -615,6 +615,17 @@
     "status": "machine",
     "text": "SchemaLibrary は、再利用可能な JSON Schema 2020-12 の定義と、任意のパラメータ化されたヘルパーを保持するカタログエンティティです。スキーマの形状（URL、期間、共通のプローブ構造、繰り返し現れるリソース制限など）を共有する Components と Features は、それらの形状をライブラリで一度だけ宣言し、正規の `$ref` URI を介して参照します。このライブラリエンティティは Tier 3 であり、Component をまたいだスキーマの再利用を必要とするカタログのためのオプトイン機能です。繰り返されるスキーマ内容を持たないカタログは、SchemaLibrary なしで提供されます。"
   },
+  "00bdfbc3c1619875": {
+    "at": "2026-11-17T11:39:21.279Z",
+    "job": "session-0003-20261117113921",
+    "revision": {
+      "from": "e13f0e46628ac33b",
+      "reviewed": false
+    },
+    "srcHash": "00bdfbc3c1619875",
+    "status": "machine",
+    "text": "**モード 3：ライブラリの `$import:`。** 値は、ArtifactLibrary のバンドルへの素の名前によるアイデンティティ参照 `<Library>#/artifacts/<name>` を持つ単一の `$import:` キーからなるマップです。バンドルは 1 つの単位としてインポートされるファイルの集合であるため、**1 つのエントリはバンドル内のファイルごとに 1 つの出力に展開され、それぞれがマップのキーの下に `<key>/<filename>` として配置されます**。キーは利用箇所を指定し、いずれか 1 つのファイルの名前ではなく、それらのファイルが置かれるディレクトリになります。上の 3 番目のエントリはキーが `operator-support` です。`PlatformArtifacts#/artifacts/OperatorSupport` が `crd.yaml` と `rbac.yaml` を宣言している場合、この単一のエントリは `operator-support/crd.yaml` と `operator-support/rbac.yaml` を出力します。参照はレジストリホストを持ちません（ホストを含む `oci://…` 形式は拒否されます）。バージョンはカタログが保持するバージョンの中から選択されて Release のロックファイルに記録され、任意の `:<version>` による最小バージョンを `<Library>:<version>#/artifacts/<name>` として指定できます。ライブラリエンティティと参照の完全な文法については [entities/artifactlibrary](artifactlibrary.md) を参照してください。"
+  },
   "00bf980a2ef9c986": {
     "at": "2026-10-30T02:00:09.600Z",
     "job": "session-0051-20261030020009",
@@ -28383,6 +28394,17 @@
     "status": "machine",
     "text": "グローバル設定ファイルへのパス。AGGREGA_CONFIG 環境変数とデフォルトの場所を上書きします。ワークスペースツリー内の設定ファイルは引き続きその上に重ねられます"
   },
+  "266eaf908ac018d1": {
+    "at": "2026-11-17T11:39:21.279Z",
+    "job": "session-0003-20261117113921",
+    "revision": {
+      "from": "b72082abcec3ac99",
+      "reviewed": false
+    },
+    "srcHash": "266eaf908ac018d1",
+    "status": "machine",
+    "text": "**コアが解決するもの。** 独自のソースキーを検証するプロバイダーはありません。*フェッチされる*ソースは組み込みの識別子によって解決され、その `kind` がリゾルバーを選択します。リゾルバーは `helm-oci-chart`、`helm-https-chart`、`compose-https-fragment`、`git-repository`、`bicep-module-oci`、`terraform-module-oci` です。フェッチを意図したソースは `kind` と `url` を持つ必要があり、どの追加の座標がコンテンツを選択するかは kind によって異なります。チャートとフラグメントの kind は `version` を取り、記述されたとおりに固定します。`git-repository` は `ref`（タグ、ブランチ、またはコミット）を取り、オプションでリポジトリ内のアーティファクトとなるディレクトリを指定する `module_subdir` を取ります。付け替えられないコンテンツを指すのはコミットだけであるため、参照はロック時に解決され、lockfile には記述された参照と、それが解決されたコミットの両方が記録されます。記述されたとおりの状態でリポジトリより上の階層に出る `module_subdir`（バックスラッシュも区切り文字として扱われます）は、何かがフェッチされる前に拒否されます。リポジトリはそれ自身のチェックアウトからアーカイブされます。リポジトリがコミットしているシンボリックリンクは、リンク先がリポジトリ内にある場合はリンク先のファイルまたはディレクトリとしてアーカイブされ、リポジトリの外を指すリンクはプルを停止させ、そのリンクをリポジトリ内の位置で示します。`bicep-module-oci` と `terraform-module-oci` は、座標を OCI レジストリから取ります。`url: oci://<registry>/<repository>` を厳密にこの形で記述し、タグ、ダイジェスト、クエリ、`//` を含めてはならず、必須の `version` はタグか、64 桁の小文字の 16 進数で記述した `sha256:` マニフェストダイジェストのいずれかです。バージョンは記述されたとおりに固定され、lockfile にはマニフェストダイジェストと、その kind がプルする 1 つのレイヤーのダイジェストが記録されます。`bicep-module-oci` は `bicep publish` が保存する形式の Bicep モジュールで、コンパイル済みの ARM テンプレートレイヤーがバイト単位でそのままプルされ、`main.json` として配置されます。これを [`arm` プロバイダー](../providers/arm.md#sourcing-a-published-bicep-module)が、組み立てるテンプレートの中にネストします。`terraform-module-oci` は OpenTofu のモジュールパッケージで、ディレクトリツリーとして配置される `archive/zip` レイヤーであり、[`terraform` プロバイダー](../providers/terraform.md#sourcing-a-module-from-an-oci-registry)がベンダリングします。オプションで `module_subdir` を取り、パッケージ内のアーティファクトとなるディレクトリを指定します。`chart` と `ref` は両方の kind で拒否され、`module_subdir` は 1 つのテンプレートである `bicep-module-oci` で拒否されます。1 つのアーティファクトを指定しないソースは、ドキュメントの読み込み時に、何かがフェッチされる前に拒否されます：[The source does not name one artifact of its OCI module kind (ソースが OCI モジュール kind の 1 つのアーティファクトを指定していません)](../errors/fatal-halts.md#the-source-does-not-name-one-artifact-of-its-oci-module-kind)。単一の `oci://` 文字列として書かれたソースは Helm チャートを指し、モジュール kind は常に `kind:` で指定します。`url:` がファイルシステムのパスを指す構造化ソースはフェッチされません。単なるパス文字列と同じ条件でディスクから読み込まれ、相対的な `url:` はそれを宣言するエンティティファイルを含むディレクトリを基準とします。`kind`/`url` を省略した構造化ソースもフェッチされず、フェッチが意図されていた場合、何も解決しないまま黙って進むのではなく、ロック時のソース走査でビルドが明示的に停止します。コンテンツは常に事前に固定され、コンパイラが実行時の状態をライブでフェッチすることはありません。"
+  },
   "267114fa15182a40": {
     "at": "2026-10-22T03:06:36.769432+00:00",
     "job": "msgbatch_01LMJ2pDqXu3quNM1ykbvTtk",
@@ -39687,6 +39709,13 @@
     "status": "machine",
     "text": "provider をレンダリングするプラグインが自ら宣言する、コンパイル時のレンダリング動作の契約です。レンダリングする入力の種類、ディスパッチグループのノードごとの出力をどう組み立てるか、インポートされたアーティファクトファイルに適用するテンプレート区切り文字の組、ロードした 1 つのインスタンスがすべての呼び出しを処理できるかどうか、omit エントリを尊重するかどうか、そして Recipe がそのバウンダリの共有出力に提供するファイルを受け入れるかどうかを表します。同じブロック内で `capabilities` の隣に置かれますが、答える問いは異なります。capability のリストはこのプラグインが*どの* capability を提供するかを示し、契約はそれらを*どのように*レンダリングするかを示します。これは、ホストが公開時とロード時にプラグイン自身の `describe()` による自己申告と照合する主張として記述され、不一致があると停止します。省略した場合はレンダリング動作の契約を宣言しないことになり、照合ではエクスポートごとの主張のみが比較されます。すべてのフィールドは任意です。"
   },
+  "3665b9d2bff694f3": {
+    "at": "2026-11-17T11:39:21.279Z",
+    "job": "session-0003-20261117113921",
+    "srcHash": "3665b9d2bff694f3",
+    "status": "machine",
+    "text": "**ARM：** ソースとして取得したコンパイル済みテンプレート（Azure Verified Modules の `main.json` など）は、ネストされたデプロイメントとしてラップされます。Recipe が記述するテンプレートフラグメントは、境界ごとに 1 つのリソースグループテンプレートにマージされ、`valuesMapping:` の出力バインディングが、取得したテンプレートの宣言するパラメーターを束縛します。[arm プロバイダー](../providers/arm.md)を参照してください。"
+  },
   "36684ecaf59a5dd4": {
     "at": "2026-10-22T01:50:22.319444+00:00",
     "job": "msgbatch_01VwQyd4vfmNKqBKVTg2vP5W",
@@ -45767,6 +45796,17 @@
     "status": "machine",
     "text": "**フィルタリングされるのは、この FeatureRecipe 自身の `source:` がレンダリングするものだけです。** その `workload:` と `artifacts:` はフィルタリングされず、ホストのコンポーネントの出力もフィルタリングされません。アタッチメントのエントリが及ぶのは、そのアタッチメント自身のチャート、compose ファイル、CloudFormation テンプレートだけです。両者がまとめられる `docker-compose.yaml` でホストが同じキーで宣言する compose service は変更されず、両者がまとめられるスタックでホストが同じ論理 ID で宣言する resource も同様です。ホストがレンダリングするドキュメントを変更するには、ホストの Recipe がエントリを宣言するか、`pipeline:` ステップでパッチを当てます。"
   },
+  "3ef8f1dfd4fb756e": {
+    "at": "2026-11-17T11:39:21.279Z",
+    "job": "session-0003-20261117113921",
+    "revision": {
+      "from": "d7fae35e643fe2ef",
+      "reviewed": false
+    },
+    "srcHash": "3ef8f1dfd4fb756e",
+    "status": "machine",
+    "text": "Workload エントリを選択するのは `#/workloads/` フラグメントであり、このフラグメントによって、この参照は `valuesMapping:` が使う `#/mappings/` 形式と区別されます。後者は MappingLibrary のエントリを指し、Workload 本体を指定しません。参照はレジストリホストを含まず、バージョンはカタログが保持するバージョンの中から選択されて Release のロックファイルに記録されます。オプションの `:<version>` による最小バージョンを `<Library>:<version>#/workloads/<Entry>` として指定でき、本体自体がフィールドルートの `$import:` であるエントリは再帰的に解決されます。インポートされた本体は、利用する側の Recipe のレンダリングコンテキストで評価される Go テンプレートであるため、`.values`、`.infra`、`.features` はインラインの本体とまったく同じように流れ込みます。ライブラリエンティティと参照の完全な文法については [entities/workloadlibrary](workloadlibrary.md) を参照してください。"
+  },
   "3efb9866c2ec5abe": {
     "at": "2026-10-29T19:40:39.585Z",
     "job": "session-0016-20261029194039",
@@ -51672,6 +51712,17 @@
     "srcHash": "46f4b2144b12a1e1",
     "status": "machine",
     "text": "Aggrega は、ネットワークのエグレスを統制するためにハードコードされたコンパイラのロジックに頼るのではなく、境界のセキュリティを企業の依存しないポリシーエンジンと Wasm レンダリングプラグインに完全に委ねます。これにより、生成される設定が明示的なエグレス承認に厳密に適合することが保証されます。"
+  },
+  "46f691d378532aad": {
+    "at": "2026-11-17T11:39:21.279Z",
+    "job": "session-0003-20261117113921",
+    "revision": {
+      "from": "53464b0d48a44e0c",
+      "reviewed": false
+    },
+    "srcHash": "46f691d378532aad",
+    "status": "machine",
+    "text": "`#/artifacts/<name>` フラグメントはバンドルを選択し、artifacts の参照を MappingLibrary の `#/mappings/<name>`、SchemaLibrary の `#/schemas/<name>`、WorkloadLibrary の `#/workloads/<name>` と区別します。参照はレジストリのホストを持ちません。ホストを含む `oci://…` 形式はエンベロープスキーマでも利用箇所でも拒否されるため、物理的なレジストリの場所が作成されたソースに入り込むことはありません。最小バージョンは `<Library>:<version>#/artifacts/<name>` として指定します。区切り文字は `:` で、代わりに `@` と書くと、修正後の参照を示す診断とともに拒否されます。参照がカタログの保持するバージョンの中からどのように選択されるか、および Release がライブラリ名ごとに読み取る 1 つのバージョンについては、[SchemaLibrary](schemalibrary.md) を参照してください。"
   },
   "46f6dd2ac7b5bda6": {
     "at": "2026-10-22T08:23:20.000561+00:00",
@@ -76024,6 +76075,17 @@
     "srcHash": "6839691e0bacb2d4",
     "status": "machine",
     "text": "名前付きボリューム + トップレベルの `volumes: { <volume-name>: {} }` 宣言。名前は[ボリューム名の導出方法](#how-a-volume-name-is-derived)に従って付けられます"
+  },
+  "6839c530cba20db6": {
+    "at": "2026-11-17T11:39:21.279Z",
+    "job": "session-0003-20261117113921",
+    "revision": {
+      "from": "1c91274e11af697d",
+      "reviewed": false
+    },
+    "srcHash": "6839c530cba20db6",
+    "status": "machine",
+    "text": "`#/mappings/<name>` フラグメントはエントリを選択し、マッピング参照を SchemaLibrary の `#/schemas/<name>` と区別します。この参照は、SchemaLibrary の `$ref:` と同じベア名アイデンティティモデルを使用し、`<Library>#/mappings/<name>` の形でレジストリホストを含まず、最小バージョンを `<Library>:<version>#/mappings/<name>` として指定できます。参照がカタログの保持するバージョンの中からどのように選択されるか、および Release がライブラリ名ごとに読み取る 1 つのバージョンについては、[SchemaLibrary](schemalibrary.md) を参照してください。"
   },
   "683b9941aa375ebe": {
     "at": "2026-10-22T03:00:38.891470+00:00",
@@ -102082,6 +102144,17 @@
     "status": "machine",
     "text": "この一覧は、作成者が `source:` に何を書けるかについての正規のリファレンスです。そのラベルは [`10-status.md`](../10-status.md) が定義するものです。"
   },
+  "8bdccfb2850e59ba": {
+    "at": "2026-11-17T11:39:21.279Z",
+    "job": "session-0003-20261117113921",
+    "revision": {
+      "from": "e5dec9ae02e74390",
+      "reviewed": false
+    },
+    "srcHash": "8bdccfb2850e59ba",
+    "status": "machine",
+    "text": "`available` — 提供中のすべてのプロバイダー（helm、helm-chart、compose、terraform、cloudformation、arm）が、単純なファイルシステムパス文字列を受け付けます。"
+  },
   "8bddf5f7c863b33b": {
     "at": "2026-10-22T02:13:05.447791+00:00",
     "job": "msgbatch_01EP4VHoVp3GUUNothAVw7Eq",
@@ -105702,6 +105775,17 @@
     "srcHash": "90e841bd91ddc79f",
     "status": "machine",
     "text": "`crew.jsonc` または `crew.json` にあるクルーの `name`。`config/agents.yaml` と `config/tasks.yaml` は名前を持ちません。クラシックなプロジェクトはクルーの名前をプログラム内で付けるためです"
+  },
+  "90e84989943a6c17": {
+    "at": "2026-11-17T11:39:21.279Z",
+    "job": "session-0003-20261117113921",
+    "revision": {
+      "from": "3ef58547a9e520f4",
+      "reviewed": false
+    },
+    "srcHash": "90e84989943a6c17",
+    "status": "machine",
+    "text": "**フィルタリングされるのは、この FeatureRecipe 自身の `source:` がレンダリングするものだけです。** その `workload:` と `artifacts:` はフィルタリングされず、ホストのコンポーネントの出力もフィルタリングされません。アタッチメントのエントリが及ぶのは、そのアタッチメント自身のチャート、compose ファイル、CloudFormation テンプレート、ARM テンプレートだけです。両者がまとめられる `docker-compose.yaml` でホストが同じキーで宣言する compose service は変更されず、両者がまとめられるスタックでホストが同じ論理 ID で宣言する resource も同様です。ホストがレンダリングするドキュメントを変更するには、ホストの Recipe がエントリを宣言するか、`pipeline:` ステップでパッチを当てます。"
   },
   "90e8b5c0b4bd1ddb": {
     "at": "2026-10-29T21:33:51.093Z",

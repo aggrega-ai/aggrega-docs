@@ -541,6 +541,17 @@
     "status": "machine",
     "text": "Uma SchemaLibrary é uma entidade de catálogo que contém definições reutilizáveis de JSON Schema 2020-12 mais helpers parametrizados opcionais. Components e Features que compartilham formas de esquema — URLs, durações, estruturas comuns de probes, limites de recursos recorrentes — declaram essas formas uma única vez em uma biblioteca e as referenciam por URIs `$ref` canônicas. A entidade de biblioteca é de Nível 3: opcional para catálogos que precisam reutilizar esquemas entre um Component e outro. Catálogos sem conteúdo de esquema repetido são distribuídos sem nenhuma SchemaLibrary."
   },
+  "00bdfbc3c1619875": {
+    "at": "2026-11-17T11:39:21.279Z",
+    "job": "session-0003-20261117113921",
+    "revision": {
+      "from": "e13f0e46628ac33b",
+      "reviewed": false
+    },
+    "srcHash": "00bdfbc3c1619875",
+    "status": "machine",
+    "text": "**Modo 3: `$import:` de biblioteca.** O valor é um mapa com uma única chave `$import:` que carrega uma referência de identidade por nome simples a um bundle de uma ArtifactLibrary, `<Library>#/artifacts/<name>`. Um bundle é um conjunto de arquivos importados como uma única unidade, então **uma entrada se expande em uma saída por arquivo do bundle, cada uma aninhada sob a chave do mapa como `<key>/<filename>`** — a chave nomeia o ponto de uso e é o diretório em que esses arquivos ficam, e não o nome de nenhum deles. A terceira entrada acima tem a chave `operator-support`; se `PlatformArtifacts#/artifacts/OperatorSupport` declara `crd.yaml` e `rbac.yaml`, essa única entrada emite `operator-support/crd.yaml` e `operator-support/rbac.yaml`. A referência não carrega nenhum host de registry — uma forma `oci://…` com host é rejeitada —, a versão é selecionada entre as que o catálogo contém e registrada no lockfile da Release, e uma versão mínima `:<version>` opcional pode ser indicada como `<Library>:<version>#/artifacts/<name>`. Veja [entities/artifactlibrary](artifactlibrary.md) para a entidade de biblioteca e a gramática completa da referência."
+  },
   "00bf980a2ef9c986": {
     "at": "2026-11-04T09:19:57.883Z",
     "job": "session-0225-20261104091957",
@@ -25654,6 +25665,17 @@
     "status": "machine",
     "text": "caminho para o arquivo de configuração global, substituindo a variável de ambiente AGGREGA_CONFIG e o local padrão. Os arquivos de configuração da árvore do workspace continuam se sobrepondo"
   },
+  "266eaf908ac018d1": {
+    "at": "2026-11-17T11:39:21.279Z",
+    "job": "session-0003-20261117113921",
+    "revision": {
+      "from": "b72082abcec3ac99",
+      "reviewed": false
+    },
+    "srcHash": "266eaf908ac018d1",
+    "status": "machine",
+    "text": "**O que o núcleo resolve.** Nenhum provider valida chaves de origem próprias. Uma origem *obtida* é resolvida por uma identidade nativa cujo `kind` seleciona um resolvedor — `helm-oci-chart`, `helm-https-chart`, `compose-https-fragment`, `git-repository`, `bicep-module-oci` e `terraform-module-oci`. Uma origem destinada a ser obtida deve conter `kind` e `url`; a coordenada adicional que seleciona o conteúdo depende do kind. Os kinds de chart e de fragmento aceitam `version` e a fixam como está escrita. `git-repository` aceita `ref` — uma tag, um branch ou um commit — e, opcionalmente, `module_subdir`, que indica o diretório dentro do repositório que constitui o artefato; como apenas um commit identifica conteúdo que não pode ser reapontado, a referência é resolvida no momento do lock e o lockfile registra tanto a referência escrita quanto o commit para o qual ela foi resolvida. Um `module_subdir` que, como está escrito, sobe acima do repositório — uma barra invertida conta como separador — é recusado antes que qualquer coisa seja obtida. O repositório é arquivado a partir do seu próprio checkout: um link simbólico incluído em um commit é arquivado como o arquivo ou diretório para o qual aponta, quando este fica dentro do repositório, e um que sai dele interrompe o pull, indicando o link pela sua posição no repositório. `bicep-module-oci` e `terraform-module-oci` obtêm suas coordenadas de um registry OCI: exatamente `url: oci://<registry>/<repository>`, sem tag, digest, query nem `//`, e uma `version` obrigatória, que é uma tag ou um digest de manifest `sha256:` escrito como 64 caracteres hexadecimais minúsculos. A versão é fixada como está escrita, e o lockfile registra o digest do manifest e o digest da única camada que o kind obtém. `bicep-module-oci` é um módulo Bicep como o `bicep publish` o armazena: a camada do template ARM compilado é obtida byte a byte e disposta como `main.json`, que o [provider `arm`](../providers/arm.md#sourcing-a-published-bicep-module) aninha no template que monta. `terraform-module-oci` é um pacote de módulo OpenTofu, uma camada `archive/zip` disposta como árvore de diretórios, que o [provider `terraform`](../providers/terraform.md#sourcing-a-module-from-an-oci-registry) incorpora ao vendor; opcionalmente aceita `module_subdir`, que indica o diretório dentro do pacote que constitui o artefato. `chart` e `ref` são recusados em ambos os kinds, e `module_subdir` em `bicep-module-oci`, que é um único template. Uma origem que não indica um único artefato é recusada quando o documento é lido, antes que qualquer coisa seja obtida: [The source does not name one artifact of its OCI module kind (A origem não indica um único artefato do seu kind de módulo OCI)](../errors/fatal-halts.md#the-source-does-not-name-one-artifact-of-its-oci-module-kind). Uma origem escrita como uma única string `oci://` indica um chart Helm; um kind de módulo é sempre indicado com `kind:`. Uma origem estruturada cujo `url:` indica um caminho do sistema de arquivos não é obtida: ela é lida do disco nas mesmas condições que uma string de caminho simples, com um `url:` relativo ancorado no diretório que contém o arquivo da entidade que o declara. Uma origem estruturada que omite `kind`/`url` também não é obtida e, se uma obtenção era pretendida, o build é interrompido de forma explícita na descida de origens no momento do lock, em vez de ser resolvido silenciosamente para nada. O conteúdo é sempre fixado antecipadamente; o compilador nunca obtém estado de runtime ao vivo."
+  },
   "267114fa15182a40": {
     "at": "2026-11-03T06:09:06.251Z",
     "job": "session-0062-20261103060906",
@@ -35934,6 +35956,13 @@
     "status": "machine",
     "text": "Exportação"
   },
+  "3665b9d2bff694f3": {
+    "at": "2026-11-17T11:39:21.279Z",
+    "job": "session-0003-20261117113921",
+    "srcHash": "3665b9d2bff694f3",
+    "status": "machine",
+    "text": "**ARM:** um template compilado obtido de uma origem, como um `main.json` do Azure Verified Modules, é encapsulado como uma implantação aninhada, e os fragmentos de template que uma Recipe escreve são mesclados em um único template de grupo de recursos por fronteira, com o binding de saída `valuesMapping:` vinculando os parâmetros que um template obtido declara. Veja [o provider arm](../providers/arm.md)."
+  },
   "36684ecaf59a5dd4": {
     "at": "2026-10-22T11:13:35.211Z",
     "job": "session-0032-20261022111335",
@@ -41477,6 +41506,17 @@
     "status": "machine",
     "text": "**Só é filtrado o que o próprio `source:` desta FeatureRecipe renderiza.** Seu `workload:` e seus `artifacts:` não, e tampouco a saída do componente host: as entradas de uma anexação alcançam o próprio chart, o próprio arquivo compose ou o próprio template CloudFormation, e nada mais — um serviço compose que o host declara sob a mesma chave no `docker-compose.yaml` em que ambos são montados fica intacto, assim como um recurso que o host declara sob o mesmo ID lógico na stack em que ambos são montados. Para alterar um documento que o host renderiza, a Recipe do host declara a entrada, ou uma etapa de `pipeline:` aplica um patch nele."
   },
+  "3ef8f1dfd4fb756e": {
+    "at": "2026-11-17T11:39:21.279Z",
+    "job": "session-0003-20261117113921",
+    "revision": {
+      "from": "d7fae35e643fe2ef",
+      "reviewed": false
+    },
+    "srcHash": "3ef8f1dfd4fb756e",
+    "status": "machine",
+    "text": "O fragmento `#/workloads/` é o que seleciona uma entrada de Workload, e é o fragmento que distingue esta referência da forma `#/mappings/` que `valuesMapping:` usa — aquela endereça uma entrada de uma MappingLibrary e não nomeia um corpo de Workload. A referência não traz host de registry, a versão é selecionada entre as que o catálogo contém e registrada no lockfile da Release, uma versão mínima `:<version>` opcional pode ser indicada como `<Library>:<version>#/workloads/<Entry>`, e uma entrada cujo corpo é ele próprio um `$import:` na raiz do campo é resolvida recursivamente. O corpo importado é um template Go avaliado no contexto de render da Recipe que o consome, de modo que `.values`, `.infra` e `.features` fluem para ele exatamente como para um corpo inline. Veja [entities/workloadlibrary](workloadlibrary.md) para a entidade de biblioteca e a gramática completa da referência."
+  },
   "3efb9866c2ec5abe": {
     "at": "2026-10-30T06:04:18.554Z",
     "job": "session-0066-20261030060418",
@@ -46838,6 +46878,17 @@
     "srcHash": "46f4b2144b12a1e1",
     "status": "machine",
     "text": "Em vez de depender de lógica fixa no compilador para governar o egress de rede, o Aggrega delega inteiramente a segurança do perímetro aos mecanismos de políticas agnósticos da empresa e aos plugins de renderização Wasm. Isso garante que as configurações geradas estejam estritamente em conformidade com as aprovações explícitas de egress."
+  },
+  "46f691d378532aad": {
+    "at": "2026-11-17T11:39:21.279Z",
+    "job": "session-0003-20261117113921",
+    "revision": {
+      "from": "53464b0d48a44e0c",
+      "reviewed": false
+    },
+    "srcHash": "46f691d378532aad",
+    "status": "machine",
+    "text": "O fragmento `#/artifacts/<name>` seleciona o bundle e distingue uma referência de artefatos de `#/mappings/<name>` da MappingLibrary, de `#/schemas/<name>` da SchemaLibrary e de `#/workloads/<name>` da WorkloadLibrary. A referência não carrega nenhum host de registry; uma forma com host `oci://…` é rejeitada tanto pelo esquema do envelope quanto no ponto de consumo, de modo que uma localização física de registry nunca entra no código-fonte escrito. Uma versão mínima é declarada como `<Library>:<version>#/artifacts/<name>` — o separador é `:`, e escrever `@` no lugar é recusado com um diagnóstico que nomeia a referência corrigida. Veja [SchemaLibrary](schemalibrary.md) para saber como uma referência seleciona entre as versões que um catálogo contém e qual é a única versão que uma Release lê por nome de biblioteca."
   },
   "46f6dd2ac7b5bda6": {
     "at": "2026-11-04T12:39:30.717Z",
@@ -68827,6 +68878,17 @@
     "srcHash": "6839691e0bacb2d4",
     "status": "machine",
     "text": "volume nomeado + declaração `volumes: { <volume-name>: {} }` de nível superior, nomeado conforme [Como um nome de volume é derivado](#how-a-volume-name-is-derived)"
+  },
+  "6839c530cba20db6": {
+    "at": "2026-11-17T11:39:21.279Z",
+    "job": "session-0003-20261117113921",
+    "revision": {
+      "from": "1c91274e11af697d",
+      "reviewed": false
+    },
+    "srcHash": "6839c530cba20db6",
+    "status": "machine",
+    "text": "O fragmento `#/mappings/<name>` seleciona a entrada e distingue uma referência de mapping do `#/schemas/<name>` da SchemaLibrary. A referência usa o mesmo modelo de identidade por nome simples que o `$ref:` da SchemaLibrary — `<Library>#/mappings/<name>`, sem nenhum host de registry — e pode indicar uma versão mínima como `<Library>:<version>#/mappings/<name>`. Veja [SchemaLibrary](schemalibrary.md) para saber como uma referência seleciona entre as versões que um catálogo contém e qual é a única versão que uma Release lê por nome de biblioteca."
   },
   "683b9941aa375ebe": {
     "at": "2026-11-03T06:41:11.801Z",
@@ -92581,6 +92643,17 @@
     "status": "machine",
     "text": "O inventário é a referência canônica do que os autores podem colocar em `source:`; seus rótulos são os que [`10-status.md`](../10-status.md) define."
   },
+  "8bdccfb2850e59ba": {
+    "at": "2026-11-17T11:39:21.279Z",
+    "job": "session-0003-20261117113921",
+    "revision": {
+      "from": "e5dec9ae02e74390",
+      "reviewed": false
+    },
+    "srcHash": "8bdccfb2850e59ba",
+    "status": "machine",
+    "text": "`available` — todo provider distribuído (helm, helm-chart, compose, terraform, cloudformation, arm) aceita uma string de caminho simples do sistema de arquivos."
+  },
   "8bddf5f7c863b33b": {
     "at": "2026-10-22T21:56:12.149Z",
     "job": "session-0050-20261022215612",
@@ -95880,6 +95953,17 @@
     "srcHash": "90e841bd91ddc79f",
     "status": "machine",
     "text": "o `name` da crew em `crew.jsonc` ou `crew.json`; `config/agents.yaml` e `config/tasks.yaml` não carregam nenhum, pois um projeto clássico nomeia a sua crew no seu programa"
+  },
+  "90e84989943a6c17": {
+    "at": "2026-11-17T11:39:21.279Z",
+    "job": "session-0003-20261117113921",
+    "revision": {
+      "from": "3ef58547a9e520f4",
+      "reviewed": false
+    },
+    "srcHash": "90e84989943a6c17",
+    "status": "machine",
+    "text": "**Só é filtrado o que o próprio `source:` desta FeatureRecipe renderiza.** Seu `workload:` e seus `artifacts:` não, e tampouco a saída do componente host: as entradas de uma anexação alcançam o próprio chart, o próprio arquivo compose, o próprio template CloudFormation ou o próprio template ARM, e nada mais — um serviço compose que o host declara sob a mesma chave no `docker-compose.yaml` em que ambos são montados fica intacto, assim como um recurso que o host declara sob o mesmo ID lógico na stack em que ambos são montados. Para alterar um documento que o host renderiza, a Recipe do host declara a entrada, ou uma etapa de `pipeline:` aplica um patch nele."
   },
   "90e8b5c0b4bd1ddb": {
     "at": "2026-10-30T06:38:36.798Z",

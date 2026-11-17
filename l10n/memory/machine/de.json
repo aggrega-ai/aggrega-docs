@@ -541,6 +541,17 @@
     "status": "machine",
     "text": "Eine SchemaLibrary ist eine Katalogentität, die wiederverwendbare Definitionen in JSON Schema 2020-12 sowie optionale parametrisierte Helfer enthält. Components und Features, die Schemaformen teilen — URLs, Dauern, gemeinsame Probe-Strukturen, wiederkehrende Ressourcenlimits —, deklarieren diese Formen einmal in einer Bibliothek und verweisen über kanonische `$ref`-URIs darauf. Die Bibliotheksentität ist Stufe 3: optional für Kataloge, die Component-übergreifende Schemawiederverwendung benötigen. Kataloge ohne wiederholte Schemainhalte werden ohne jede SchemaLibrary ausgeliefert."
   },
+  "00bdfbc3c1619875": {
+    "at": "2026-11-17T11:39:21.279Z",
+    "job": "session-0003-20261117113921",
+    "revision": {
+      "from": "e13f0e46628ac33b",
+      "reviewed": false
+    },
+    "srcHash": "00bdfbc3c1619875",
+    "status": "machine",
+    "text": "**Modus 3: Bibliotheks-`$import:`.** Der Wert ist eine Map mit einem einzigen `$import:`-Schlüssel, der eine Identitätsreferenz in Form eines bloßen Namens auf ein Bundle einer ArtifactLibrary trägt, `<Library>#/artifacts/<name>`. Ein Bundle ist eine Menge von Dateien, die als eine Einheit importiert werden, daher **wird ein Eintrag zu einer Ausgabe pro Datei im Bundle erweitert, jede unter dem Map-Schlüssel als `<key>/<filename>` verschachtelt** — der Schlüssel benennt die Stelle der Verwendung und ist das Verzeichnis, in dem diese Dateien landen, nicht der Name einer von ihnen. Der dritte Eintrag oben hat den Schlüssel `operator-support`; wenn `PlatformArtifacts#/artifacts/OperatorSupport` `crd.yaml` und `rbac.yaml` deklariert, gibt dieser eine Eintrag `operator-support/crd.yaml` und `operator-support/rbac.yaml` aus. Die Referenz trägt keinen Registry-Host — eine Form `oci://…` mit Host wird abgelehnt —, die Version wird unter den Versionen ausgewählt, die ein Katalog enthält, und im Lockfile des Release festgehalten, und eine optionale Mindestversion `:<version>` kann als `<Library>:<version>#/artifacts/<name>` angegeben werden. Siehe [entities/artifactlibrary](artifactlibrary.md) für die Bibliotheks-Entität und die vollständige Grammatik der Referenz."
+  },
   "00bf980a2ef9c986": {
     "at": "2026-11-04T09:19:57.883Z",
     "job": "session-0225-20261104091957",
@@ -25650,6 +25661,17 @@
     "status": "machine",
     "text": "Pfad zur globalen Konfigurationsdatei, übersteuert die Umgebungsvariable AGGREGA_CONFIG und den Standardort. Konfigurationsdateien im Workspace-Baum legen sich weiterhin darüber"
   },
+  "266eaf908ac018d1": {
+    "at": "2026-11-17T11:39:21.279Z",
+    "job": "session-0003-20261117113921",
+    "revision": {
+      "from": "b72082abcec3ac99",
+      "reviewed": false
+    },
+    "srcHash": "266eaf908ac018d1",
+    "status": "machine",
+    "text": "**Was der Kern auflöst.** Kein Provider validiert eigene Quellschlüssel. Eine *abgerufene* Quelle wird durch eine integrierte Identität aufgelöst, deren `kind` einen Resolver auswählt — `helm-oci-chart`, `helm-https-chart`, `compose-https-fragment`, `git-repository`, `bicep-module-oci` und `terraform-module-oci`. Eine zum Abruf bestimmte Quelle muss `kind` und `url` enthalten; welche weitere Koordinate den Inhalt auswählt, hängt vom Kind ab. Die Chart- und Fragment-Kinds nehmen `version` an und pinnen sie wie geschrieben. `git-repository` nimmt `ref` an — ein Tag, einen Branch oder einen Commit — und optional `module_subdir`, das das Verzeichnis innerhalb des Repositorys benennt, das das Artefakt ist; da nur ein Commit Inhalte benennt, die nicht umgelenkt werden können, wird die Referenz zur Lock-Zeit aufgelöst, und die Lockfile hält sowohl die verfasste Referenz als auch den Commit fest, zu dem sie aufgelöst wurde. Ein `module_subdir`, das wie geschrieben über das Repository hinaus aufsteigt — ein Backslash zählt als Trennzeichen —, wird abgelehnt, bevor irgendetwas abgerufen wird. Das Repository wird aus seinem eigenen Checkout archiviert: Ein symbolischer Link, den es committet, wird als die Datei oder das Verzeichnis archiviert, auf das er zeigt, sofern dieses innerhalb des Repositorys liegt, und einer, der aus ihm herausführt, bricht den Pull ab und nennt den Link anhand seiner Stelle im Repository. `bicep-module-oci` und `terraform-module-oci` beziehen ihre Koordinaten aus einer OCI-Registry: genau `url: oci://<registry>/<repository>`, ohne Tag, Digest, Query oder `//` darin, und eine erforderliche `version`, die entweder ein Tag oder ein `sha256:`-Manifest-Digest aus 64 hexadezimalen Kleinbuchstaben ist. Die Version wird wie geschrieben gepinnt, und die Lockfile hält den Manifest-Digest und den Digest der einen Schicht fest, die das Kind abruft. `bicep-module-oci` ist ein Bicep-Modul, wie `bicep publish` es ablegt: Die kompilierte ARM-Template-Schicht wird Byte für Byte abgerufen und als `main.json` abgelegt, das der [`arm`-Provider](../providers/arm.md#sourcing-a-published-bicep-module) in das Template einbettet, das er zusammenstellt. `terraform-module-oci` ist ein OpenTofu-Modulpaket, eine `archive/zip`-Schicht, die als Verzeichnisbaum abgelegt wird und die der [`terraform`-Provider](../providers/terraform.md#sourcing-a-module-from-an-oci-registry) vendort; optional nimmt es `module_subdir` an, das das Verzeichnis innerhalb des Pakets benennt, das das Artefakt ist. `chart` und `ref` werden bei beiden Kinds abgelehnt, `module_subdir` bei `bicep-module-oci`, das ein einzelnes Template ist. Eine Quelle, die nicht genau ein Artefakt benennt, wird abgelehnt, sobald das Dokument gelesen wird, bevor irgendetwas abgerufen wird: [The source does not name one artifact of its OCI module kind (Die Quelle benennt nicht genau ein Artefakt ihres OCI-Modul-Kinds)](../errors/fatal-halts.md#the-source-does-not-name-one-artifact-of-its-oci-module-kind). Eine Quelle, die als einzelner `oci://`-String geschrieben ist, benennt ein Helm-Chart; ein Modul-Kind wird immer mit `kind:` benannt. Eine strukturierte Quelle, deren `url:` einen Dateisystempfad benennt, wird nicht abgerufen: Sie wird unter denselben Bedingungen wie ein einfacher Pfad-String von der Festplatte gelesen, wobei eine relative `url:` an dem Verzeichnis verankert ist, das die deklarierende Entitätsdatei enthält. Eine strukturierte Quelle, die `kind`/`url` auslässt, wird ebenfalls nicht abgerufen, und falls ein Abruf beabsichtigt war, bricht der Build beim Abstieg in die Quellen zur Lock-Zeit deutlich ab, statt stillschweigend ins Leere aufgelöst zu werden. Der Inhalt wird immer vorab gepinnt; der Compiler ruft niemals Live-Laufzeitzustand ab."
+  },
   "267114fa15182a40": {
     "at": "2026-11-03T06:09:06.251Z",
     "job": "session-0062-20261103060906",
@@ -35936,6 +35958,13 @@
     "status": "machine",
     "text": "Export"
   },
+  "3665b9d2bff694f3": {
+    "at": "2026-11-17T11:39:21.279Z",
+    "job": "session-0003-20261117113921",
+    "srcHash": "3665b9d2bff694f3",
+    "status": "machine",
+    "text": "**ARM:** Ein bezogenes kompiliertes Template, etwa ein `main.json` aus Azure Verified Modules, wird als verschachtelte Bereitstellung eingebunden, und die Template-Fragmente, die ein Recipe verfasst, werden pro Grenze zu einem Resource-Group-Template zusammengeführt, wobei die Ausgabe-Bindung `valuesMapping:` die Parameter bindet, die ein bezogenes Template deklariert. Siehe [den arm-Provider](../providers/arm.md)."
+  },
   "36684ecaf59a5dd4": {
     "at": "2026-10-22T11:13:35.211Z",
     "job": "session-0032-20261022111335",
@@ -41479,6 +41508,17 @@
     "status": "machine",
     "text": "**Gefiltert wird nur, was die eigene `source:` dieses FeatureRecipe rendert.** Sein `workload:` und seine `artifacts:` nicht, und auch nicht die Ausgabe der Host-Komponente: Die Einträge einer Anbindung erreichen ihr eigenes Chart, ihre eigene Compose-Datei oder ihr eigenes CloudFormation-Template und nichts anderes — ein Compose-Service, den der Host unter demselben Schlüssel in der `docker-compose.yaml` deklariert, in die beide zusammengeführt werden, bleibt unberührt, ebenso eine Ressource, die der Host unter derselben logischen ID in dem Stack deklariert, in den beide zusammengeführt werden. Um ein Dokument zu ändern, das der Host rendert, deklariert das Recipe des Hosts den Eintrag, oder ein Schritt in `pipeline:` patcht es."
   },
+  "3ef8f1dfd4fb756e": {
+    "at": "2026-11-17T11:39:21.279Z",
+    "job": "session-0003-20261117113921",
+    "revision": {
+      "from": "d7fae35e643fe2ef",
+      "reviewed": false
+    },
+    "srcHash": "3ef8f1dfd4fb756e",
+    "status": "machine",
+    "text": "Das Fragment `#/workloads/` ist es, das einen Workload-Eintrag auswählt, und es ist das Fragment, das diese Referenz von der Form `#/mappings/` unterscheidet, die `valuesMapping:` verwendet — jene adressiert einen Eintrag einer MappingLibrary und benennt keinen Workload-Body. Die Referenz trägt keinen Registry-Host, die Version wird unter den Versionen ausgewählt, die ein Katalog enthält, und im Lockfile des Release festgehalten, eine optionale Mindestversion `:<version>` kann als `<Library>:<version>#/workloads/<Entry>` angegeben werden, und ein Eintrag, dessen Body selbst ein `$import:` an der Feldwurzel ist, wird rekursiv aufgelöst. Der importierte Body ist ein Go-Template, das im Render-Kontext des konsumierenden Recipe ausgewertet wird, sodass `.values`, `.infra` und `.features` genau so hineinfließen wie in einen Inline-Body. Siehe [entities/workloadlibrary](workloadlibrary.md) für die Bibliotheksentität und die vollständige Referenzgrammatik."
+  },
   "3efb9866c2ec5abe": {
     "at": "2026-10-30T06:04:18.554Z",
     "job": "session-0066-20261030060418",
@@ -46840,6 +46880,17 @@
     "srcHash": "46f4b2144b12a1e1",
     "status": "machine",
     "text": "Statt sich zur Steuerung des Netzwerk-Egress auf fest codierte Compilerlogik zu verlassen, delegiert Aggrega die Perimetersicherheit vollständig an die agnostischen Policy-Engines des Unternehmens und an Wasm-Rendering-Plugins. So wird sichergestellt, dass die generierten Konfigurationen strikt den expliziten Egress-Freigaben entsprechen."
+  },
+  "46f691d378532aad": {
+    "at": "2026-11-17T11:39:21.279Z",
+    "job": "session-0003-20261117113921",
+    "revision": {
+      "from": "53464b0d48a44e0c",
+      "reviewed": false
+    },
+    "srcHash": "46f691d378532aad",
+    "status": "machine",
+    "text": "Das Fragment `#/artifacts/<name>` wählt das Bundle aus und unterscheidet eine Artefaktreferenz von `#/mappings/<name>` der MappingLibrary, `#/schemas/<name>` der SchemaLibrary und `#/workloads/<name>` der WorkloadLibrary. Die Referenz enthält keinen Registry-Host; eine Form mit Host `oci://…` wird sowohl vom Hüllenschema als auch an der Nutzungsstelle zurückgewiesen, sodass ein physischer Registry-Ort nie in den verfassten Quelltext gelangt. Eine Mindestversion wird als `<Library>:<version>#/artifacts/<name>` angegeben — das Trennzeichen ist `:`, und wird stattdessen `@` geschrieben, wird dies mit einer Diagnose zurückgewiesen, die die korrigierte Referenz nennt. Siehe [SchemaLibrary](schemalibrary.md) dazu, wie eine Referenz unter den Versionen auswählt, die ein Katalog enthält, und dazu, dass ein Release pro Bibliotheksname genau eine Version liest."
   },
   "46f6dd2ac7b5bda6": {
     "at": "2026-11-04T12:39:30.717Z",
@@ -68829,6 +68880,17 @@
     "srcHash": "6839691e0bacb2d4",
     "status": "machine",
     "text": "benanntes Volume + Top-Level-Deklaration `volumes: { <volume-name>: {} }`, benannt gemäß [Wie ein Volume-Name abgeleitet wird](#how-a-volume-name-is-derived)"
+  },
+  "6839c530cba20db6": {
+    "at": "2026-11-17T11:39:21.279Z",
+    "job": "session-0003-20261117113921",
+    "revision": {
+      "from": "1c91274e11af697d",
+      "reviewed": false
+    },
+    "srcHash": "6839c530cba20db6",
+    "status": "machine",
+    "text": "Das Fragment `#/mappings/<name>` wählt den Eintrag aus und unterscheidet eine Mapping-Referenz von `#/schemas/<name>` der SchemaLibrary. Die Referenz verwendet dasselbe Identitätsmodell mit bloßem Namen wie `$ref:` der SchemaLibrary — `<Library>#/mappings/<name>`, ohne Registry-Host — und kann eine Mindestversion als `<Library>:<version>#/mappings/<name>` angeben. Siehe [SchemaLibrary](schemalibrary.md) dazu, wie eine Referenz unter den Versionen auswählt, die ein Katalog enthält, und dazu, dass ein Release pro Bibliotheksname genau eine Version liest."
   },
   "683b9941aa375ebe": {
     "at": "2026-11-03T06:41:11.801Z",
@@ -92581,6 +92643,17 @@
     "status": "machine",
     "text": "Die Übersicht ist die kanonische Referenz dafür, was Autoren in `source:` angeben können; ihre Bezeichnungen sind die, die [`10-status.md`](../10-status.md) definiert."
   },
+  "8bdccfb2850e59ba": {
+    "at": "2026-11-17T11:39:21.279Z",
+    "job": "session-0003-20261117113921",
+    "revision": {
+      "from": "e5dec9ae02e74390",
+      "reviewed": false
+    },
+    "srcHash": "8bdccfb2850e59ba",
+    "status": "machine",
+    "text": "`available` — jeder ausgelieferte Provider (helm, helm-chart, compose, terraform, cloudformation, arm) akzeptiert einen einfachen Dateisystempfad als String."
+  },
   "8bddf5f7c863b33b": {
     "at": "2026-10-22T21:56:12.149Z",
     "job": "session-0050-20261022215612",
@@ -95874,6 +95947,17 @@
     "srcHash": "90e841bd91ddc79f",
     "status": "machine",
     "text": "der `name` der Crew in `crew.jsonc` oder `crew.json`; `config/agents.yaml` und `config/tasks.yaml` tragen keinen, da ein klassisches Projekt seine Crew in seinem Programm benennt"
+  },
+  "90e84989943a6c17": {
+    "at": "2026-11-17T11:39:21.279Z",
+    "job": "session-0003-20261117113921",
+    "revision": {
+      "from": "3ef58547a9e520f4",
+      "reviewed": false
+    },
+    "srcHash": "90e84989943a6c17",
+    "status": "machine",
+    "text": "**Gefiltert wird nur, was die eigene `source:` dieses FeatureRecipe rendert.** Sein `workload:` und seine `artifacts:` nicht, und auch nicht die Ausgabe der Host-Komponente: Die Einträge einer Anbindung erreichen ihr eigenes Chart, ihre eigene Compose-Datei oder ihr eigenes CloudFormation-Template oder ihr eigenes ARM-Template und nichts anderes — ein Compose-Service, den der Host unter demselben Schlüssel in der `docker-compose.yaml` deklariert, in die beide zusammengeführt werden, bleibt unberührt, ebenso eine Ressource, die der Host unter derselben logischen ID in dem Stack deklariert, in den beide zusammengeführt werden. Um ein Dokument zu ändern, das der Host rendert, deklariert das Recipe des Hosts den Eintrag, oder ein Schritt in `pipeline:` patcht es."
   },
   "90e8b5c0b4bd1ddb": {
     "at": "2026-10-30T06:38:36.798Z",

@@ -615,6 +615,17 @@
     "status": "machine",
     "text": "SchemaLibrary는 재사용 가능한 JSON Schema 2020-12 정의와 선택적인 매개변수화된 헬퍼를 담는 카탈로그 엔터티입니다. 스키마 형태(URL, 기간, 공통 프로브 구조, 반복되는 리소스 제한)를 공유하는 Components와 Features는 그 형태를 라이브러리에 한 번 선언하고 정규 `$ref` URI로 참조합니다. 이 라이브러리 엔터티는 Tier 3에 해당하며, Component 간 스키마 재사용이 필요한 카탈로그가 선택적으로 사용합니다. 반복되는 스키마 내용이 없는 카탈로그는 SchemaLibrary 없이 배포됩니다."
   },
+  "00bdfbc3c1619875": {
+    "at": "2026-11-17T11:39:21.279Z",
+    "job": "session-0003-20261117113921",
+    "revision": {
+      "from": "e13f0e46628ac33b",
+      "reviewed": false
+    },
+    "srcHash": "00bdfbc3c1619875",
+    "status": "machine",
+    "text": "**모드 3: 라이브러리 `$import:`.** 값은 ArtifactLibrary 번들에 대한 단순 이름 식별 참조 `<Library>#/artifacts/<name>`을 담은 단일 `$import:` 키를 가진 맵입니다. 번들은 하나의 단위로 가져오는 파일 집합이므로, **하나의 항목은 번들의 파일마다 하나의 출력으로 확장되며, 각 출력은 맵 키 아래에 `<key>/<filename>`으로 중첩됩니다**. 키는 사용 위치의 이름을 지정하며, 그 파일들 중 어느 하나의 이름이 아니라 파일들이 놓이는 디렉터리입니다. 위의 세 번째 항목은 `operator-support`를 키로 가지며, `PlatformArtifacts#/artifacts/OperatorSupport`가 `crd.yaml`과 `rbac.yaml`을 선언하면 이 단일 항목은 `operator-support/crd.yaml`과 `operator-support/rbac.yaml`을 생성합니다. 참조에는 레지스트리 호스트가 포함되지 않으며(호스트를 포함한 `oci://…` 형식은 거부됩니다), 버전은 카탈로그가 보유한 버전 중에서 선택되어 Release의 잠금 파일에 기록되고, 선택적인 `:<version>` 최소 버전을 `<Library>:<version>#/artifacts/<name>` 형식으로 지정할 수 있습니다. 라이브러리 엔터티와 전체 참조 문법은 [entities/artifactlibrary](artifactlibrary.md)를 참조하십시오."
+  },
   "00bf980a2ef9c986": {
     "at": "2026-10-30T02:00:09.600Z",
     "job": "session-0051-20261030020009",
@@ -28389,6 +28400,17 @@
     "status": "machine",
     "text": "전역 설정 파일의 경로로, AGGREGA_CONFIG 환경 변수와 기본 위치보다 우선합니다. 워크스페이스 트리의 설정 파일은 여전히 그 위에 겹쳐 적용됩니다"
   },
+  "266eaf908ac018d1": {
+    "at": "2026-11-17T11:39:21.279Z",
+    "job": "session-0003-20261117113921",
+    "revision": {
+      "from": "b72082abcec3ac99",
+      "reviewed": false
+    },
+    "srcHash": "266eaf908ac018d1",
+    "status": "machine",
+    "text": "**코어가 해석하는 것.** 자체 소스 키를 검증하는 provider는 없습니다. *가져오는* 소스는 내장 식별자로 해석되며, 그 `kind`가 리졸버를 선택합니다. 리졸버로는 `helm-oci-chart`, `helm-https-chart`, `compose-https-fragment`, `git-repository`, `bicep-module-oci`, `terraform-module-oci`가 있습니다. 가져오기를 의도한 소스는 `kind`와 `url`을 가져야 하며, 어떤 추가 좌표가 내용을 선택하는지는 kind에 따라 다릅니다. 차트 및 프래그먼트 kind는 `version`을 받으며 작성된 그대로 고정합니다. `git-repository`는 태그, 브랜치 또는 커밋인 `ref`를 받고, 선택적으로 저장소 안에서 아티팩트가 되는 디렉터리를 지정하는 `module_subdir`를 받습니다. 다른 곳을 가리키도록 바뀔 수 없는 내용을 지정하는 것은 커밋뿐이므로, 참조는 잠금 시점에 해석되며 lockfile은 작성된 참조와 그것이 해석된 커밋을 모두 기록합니다. 작성된 그대로 저장소 위로 올라가는 `module_subdir`(백슬래시도 구분자로 간주됨)는 아무것도 가져오기 전에 거부됩니다. 저장소는 자체 체크아웃에서 아카이브됩니다. 저장소가 커밋한 심볼릭 링크는 가리키는 대상이 저장소 안에 있으면 그 파일이나 디렉터리로 아카이브되고, 저장소 밖을 가리키는 링크는 저장소 내 위치로 해당 링크를 지목하며 pull을 중단시킵니다. `bicep-module-oci`와 `terraform-module-oci`는 좌표를 OCI 레지스트리에서 가져옵니다. `url: oci://<registry>/<repository>` 형식을 정확히 따라야 하며 태그, 다이제스트, 쿼리, `//`를 포함해서는 안 되고, 필수 `version`은 태그이거나 64자의 소문자 16진수로 작성한 `sha256:` 매니페스트 다이제스트입니다. 버전은 작성된 그대로 고정되며, lockfile은 매니페스트 다이제스트와 해당 kind에서 가져오는 하나의 레이어의 다이제스트를 기록합니다. `bicep-module-oci`는 `bicep publish`가 저장하는 형태의 Bicep 모듈로, 컴파일된 ARM 템플릿 레이어를 바이트 단위로 그대로 가져와 `main.json`으로 배치하며, [`arm` 프로바이더](../providers/arm.md#sourcing-a-published-bicep-module)가 이를 조립하는 템플릿 안에 중첩합니다. `terraform-module-oci`는 OpenTofu 모듈 패키지로, 디렉터리 트리로 배치되는 `archive/zip` 레이어이며 [`terraform` 프로바이더](../providers/terraform.md#sourcing-a-module-from-an-oci-registry)가 벤더링합니다. 선택적으로 패키지 안에서 아티팩트가 되는 디렉터리를 지정하는 `module_subdir`를 받습니다. `chart`와 `ref`는 두 kind 모두에서 거부되고, `module_subdir`는 하나의 템플릿인 `bicep-module-oci`에서 거부됩니다. 하나의 아티팩트를 지정하지 않는 소스는 문서를 읽는 시점에, 아무것도 가져오기 전에 거부됩니다: [The source does not name one artifact of its OCI module kind (소스가 OCI 모듈 kind의 하나의 아티팩트를 지정하지 않습니다)](../errors/fatal-halts.md#the-source-does-not-name-one-artifact-of-its-oci-module-kind). 단일 `oci://` 문자열로 작성된 소스는 Helm 차트를 가리키며, 모듈 kind의 지정은 항상 `kind:` 키로 합니다. `url:`이 파일 시스템 경로를 지정하는 구조화된 소스는 가져오지 않습니다. 단순 경로 문자열과 같은 조건으로 디스크에서 읽으며, 상대 `url:`은 이를 선언한 엔티티 파일이 있는 디렉터리를 기준으로 합니다. `kind`/`url`을 생략한 구조화된 소스도 가져오지 않으며, 가져오기를 의도했던 경우 아무것도 없는 것으로 조용히 해석되는 대신 잠금 시점의 소스 탐색에서 빌드가 명시적으로 중단됩니다. 내용은 항상 사전에 고정되며, 컴파일러는 실시간 런타임 상태를 가져오지 않습니다."
+  },
   "267114fa15182a40": {
     "at": "2026-10-22T03:06:36.769432+00:00",
     "job": "msgbatch_01LMJ2pDqXu3quNM1ykbvTtk",
@@ -39693,6 +39715,13 @@
     "status": "machine",
     "text": "provider 렌더링 플러그인이 스스로 선언하는 컴파일 타임 렌더 동작 계약입니다. 렌더하는 입력 종류, 디스패치 그룹의 노드별 출력을 조립하는 방식, 가져온 아티팩트 파일에 적용하는 템플릿 구분자 쌍, 로드된 인스턴스 하나가 모든 크로싱을 처리할 수 있는지 여부, omit 항목을 따르는지 여부, 그리고 Recipe가 해당 경계의 공유 출력에 기여하는 파일을 받아들이는지 여부를 담습니다. 같은 블록에서 `capabilities` 옆에 있지만 다른 질문에 답합니다. capability 목록은 이 플러그인이 *어떤* capability를 제공하는지를 말하고, 계약은 그것을 *어떻게* 렌더하는지를 말합니다. 이 계약은 호스트가 게시 시점과 로드 시점에 플러그인 자체의 `describe()` 자체 보고와 교차 검증하는 주장으로 작성되며, 불일치하면 중단됩니다. 없으면 렌더 동작 계약을 선언하지 않은 것이며, 교차 검증은 export별 주장만 비교합니다. 모든 필드는 선택 사항입니다."
   },
+  "3665b9d2bff694f3": {
+    "at": "2026-11-17T11:39:21.279Z",
+    "job": "session-0003-20261117113921",
+    "srcHash": "3665b9d2bff694f3",
+    "status": "machine",
+    "text": "**ARM:** Azure Verified Modules의 `main.json`과 같이 소스로 가져온 컴파일된 템플릿은 중첩 배포로 감싸지고, Recipe가 작성한 템플릿 조각은 경계마다 하나의 리소스 그룹 템플릿으로 병합되며, `valuesMapping:` 출력 바인딩이 가져온 템플릿이 선언하는 매개변수를 바인딩합니다. [arm 프로바이더](../providers/arm.md)를 참고하십시오."
+  },
   "36684ecaf59a5dd4": {
     "at": "2026-10-22T01:50:22.319444+00:00",
     "job": "msgbatch_01VwQyd4vfmNKqBKVTg2vP5W",
@@ -45773,6 +45802,17 @@
     "status": "machine",
     "text": "**이 FeatureRecipe 자체의 `source:`가 렌더링하는 것만 필터링됩니다.** `workload:`와 `artifacts:`는 필터링되지 않으며, 호스트 component의 출력도 마찬가지입니다. attachment의 항목은 자신의 차트, 자신의 compose 파일 또는 자신의 CloudFormation 템플릿에만 적용되고 그 밖의 것에는 적용되지 않습니다. 양쪽이 함께 조립되는 `docker-compose.yaml`에서 호스트가 같은 키로 선언한 compose 서비스는 영향을 받지 않으며, 양쪽이 함께 조립되는 스택에서 호스트가 같은 논리 ID로 선언한 리소스도 마찬가지입니다. 호스트가 렌더링하는 문서를 변경하려면 호스트의 Recipe가 항목을 선언하거나 `pipeline:` 단계에서 패치합니다."
   },
+  "3ef8f1dfd4fb756e": {
+    "at": "2026-11-17T11:39:21.279Z",
+    "job": "session-0003-20261117113921",
+    "revision": {
+      "from": "d7fae35e643fe2ef",
+      "reviewed": false
+    },
+    "srcHash": "3ef8f1dfd4fb756e",
+    "status": "machine",
+    "text": "Workload 항목을 선택하는 것은 `#/workloads/` 프래그먼트이며, 이 참조를 `valuesMapping:`이 사용하는 `#/mappings/` 형식과 구분하는 것도 이 프래그먼트입니다. 후자는 MappingLibrary 항목을 가리키며 Workload 본문을 지정하지 않습니다. 참조에는 레지스트리 호스트가 포함되지 않고, 버전은 카탈로그가 보유한 버전 중에서 선택되어 Release의 lockfile에 기록되며, 선택적인 `:<version>` 최소 버전을 `<Library>:<version>#/workloads/<Entry>` 형식으로 지정할 수 있고, 본문 자체가 필드 루트 `$import:`인 항목은 재귀적으로 해석됩니다. 가져온 본문은 이를 사용하는 Recipe의 렌더링 컨텍스트에서 평가되는 Go 템플릿이므로, `.values`, `.infra`, `.features`가 인라인 본문에서와 똑같이 전달됩니다. 라이브러리 엔터티와 전체 참조 문법은 [entities/workloadlibrary](workloadlibrary.md)를 참고하십시오."
+  },
   "3efb9866c2ec5abe": {
     "at": "2026-10-29T19:40:39.585Z",
     "job": "session-0016-20261029194039",
@@ -51684,6 +51724,17 @@
     "srcHash": "46f4b2144b12a1e1",
     "status": "machine",
     "text": "Aggrega는 네트워크 이그레스를 통제하기 위해 하드코딩된 컴파일러 로직에 의존하지 않고, 경계 보안을 전적으로 기업의 정책 엔진(특정 대상에 구애받지 않는)과 Wasm 렌더링 플러그인에 위임합니다. 이를 통해 생성된 구성이 명시적인 이그레스 승인에 엄격하게 부합하도록 보장합니다."
+  },
+  "46f691d378532aad": {
+    "at": "2026-11-17T11:39:21.279Z",
+    "job": "session-0003-20261117113921",
+    "revision": {
+      "from": "53464b0d48a44e0c",
+      "reviewed": false
+    },
+    "srcHash": "46f691d378532aad",
+    "status": "machine",
+    "text": "`#/artifacts/<name>` 프래그먼트는 번들을 선택하며, artifacts 참조를 MappingLibrary의 `#/mappings/<name>`, SchemaLibrary의 `#/schemas/<name>`, WorkloadLibrary의 `#/workloads/<name>`와 구별합니다. 참조에는 레지스트리 호스트가 포함되지 않습니다. 호스트를 포함하는 `oci://…` 형식은 엔벨로프 스키마와 소비 지점 양쪽에서 거부되므로, 물리적 레지스트리 위치는 작성된 소스에 절대 들어가지 않습니다. 최소 버전은 `<Library>:<version>#/artifacts/<name>` 형식으로 지정합니다. 구분자는 `:`이며, 대신 `@`를 쓰면 수정된 참조를 제시하는 진단과 함께 거부됩니다. 참조가 카탈로그가 보유한 버전 중에서 어떻게 선택하는지, 그리고 Release가 라이브러리 이름마다 읽는 하나의 버전에 대해서는 [SchemaLibrary](schemalibrary.md)를 참고하십시오."
   },
   "46f6dd2ac7b5bda6": {
     "at": "2026-10-22T08:23:20.000561+00:00",
@@ -76036,6 +76087,17 @@
     "srcHash": "6839691e0bacb2d4",
     "status": "machine",
     "text": "명명된 볼륨 + 최상위 `volumes: { <volume-name>: {} }` 선언으로, [볼륨 이름이 도출되는 방식](#how-a-volume-name-is-derived)에 따라 이름이 지정됩니다"
+  },
+  "6839c530cba20db6": {
+    "at": "2026-11-17T11:39:21.279Z",
+    "job": "session-0003-20261117113921",
+    "revision": {
+      "from": "1c91274e11af697d",
+      "reviewed": false
+    },
+    "srcHash": "6839c530cba20db6",
+    "status": "machine",
+    "text": "`#/mappings/<name>` 프래그먼트는 항목을 선택하고, 매핑 참조를 SchemaLibrary의 `#/schemas/<name>`와 구별합니다. 이 참조는 SchemaLibrary `$ref:`와 동일한 순수 이름 기반 식별 모델을 사용합니다. 즉 `<Library>#/mappings/<name>` 형식이며 레지스트리 호스트를 포함하지 않고, 최소 버전을 `<Library>:<version>#/mappings/<name>` 형식으로 지정할 수 있습니다. 참조가 카탈로그가 보유한 버전 중에서 어떻게 선택하는지, 그리고 Release가 라이브러리 이름마다 읽는 하나의 버전에 대해서는 [SchemaLibrary](schemalibrary.md)를 참고하십시오."
   },
   "683b9941aa375ebe": {
     "at": "2026-10-22T03:00:38.891470+00:00",
@@ -102098,6 +102160,17 @@
     "status": "machine",
     "text": "이 목록은 작성자가 `source:`에 무엇을 넣을 수 있는지에 대한 정식 참조이며, 그 레이블은 [`10-status.md`](../10-status.md)가 정의하는 것입니다."
   },
+  "8bdccfb2850e59ba": {
+    "at": "2026-11-17T11:39:21.279Z",
+    "job": "session-0003-20261117113921",
+    "revision": {
+      "from": "e5dec9ae02e74390",
+      "reviewed": false
+    },
+    "srcHash": "8bdccfb2850e59ba",
+    "status": "machine",
+    "text": "`available` — 제공되는 모든 프로바이더(helm, helm-chart, compose, terraform, cloudformation, arm)가 순수 파일 시스템 경로 문자열을 허용합니다."
+  },
   "8bddf5f7c863b33b": {
     "at": "2026-10-22T02:13:05.447791+00:00",
     "job": "msgbatch_01EP4VHoVp3GUUNothAVw7Eq",
@@ -105712,6 +105785,17 @@
     "srcHash": "90e841bd91ddc79f",
     "status": "machine",
     "text": "`crew.jsonc` 또는 `crew.json`에 있는 크루의 `name`; `config/agents.yaml`과 `config/tasks.yaml`에는 이름이 없습니다. 클래식 프로젝트는 크루의 이름을 프로그램 안에서 정하기 때문입니다"
+  },
+  "90e84989943a6c17": {
+    "at": "2026-11-17T11:39:21.279Z",
+    "job": "session-0003-20261117113921",
+    "revision": {
+      "from": "3ef58547a9e520f4",
+      "reviewed": false
+    },
+    "srcHash": "90e84989943a6c17",
+    "status": "machine",
+    "text": "**이 FeatureRecipe 자체의 `source:`가 렌더링하는 것만 필터링됩니다.** `workload:`와 `artifacts:`는 필터링되지 않으며, 호스트 component의 출력도 마찬가지입니다. attachment의 항목은 자신의 차트, 자신의 compose 파일, 자신의 CloudFormation 템플릿 또는 자신의 ARM 템플릿에만 적용되고 그 밖의 것에는 적용되지 않습니다. 양쪽이 함께 조립되는 `docker-compose.yaml`에서 호스트가 같은 키로 선언한 compose 서비스는 영향을 받지 않으며, 양쪽이 함께 조립되는 스택에서 호스트가 같은 논리 ID로 선언한 리소스도 마찬가지입니다. 호스트가 렌더링하는 문서를 변경하려면 호스트의 Recipe가 항목을 선언하거나 `pipeline:` 단계에서 패치합니다."
   },
   "90e8b5c0b4bd1ddb": {
     "at": "2026-10-29T21:33:51.093Z",

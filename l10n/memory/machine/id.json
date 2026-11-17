@@ -615,6 +615,17 @@
     "status": "machine",
     "text": "SchemaLibrary adalah entitas katalog yang menyimpan definisi JSON Schema 2020-12 yang dapat digunakan ulang beserta helper berparameter opsional. Components dan Features yang berbagi bentuk skema — URL, durasi, struktur probe umum, batas sumber daya yang berulang — mendeklarasikan bentuk tersebut satu kali dalam sebuah library dan mereferensikannya melalui URI `$ref` kanonis. Entitas library ini berada di Tier 3: bersifat opt-in untuk katalog yang memerlukan penggunaan ulang skema lintas Component. Katalog tanpa konten skema yang berulang dirilis tanpa SchemaLibrary apa pun."
   },
+  "00bdfbc3c1619875": {
+    "at": "2026-11-17T11:39:21.279Z",
+    "job": "session-0003-20261117113921",
+    "revision": {
+      "from": "e13f0e46628ac33b",
+      "reviewed": false
+    },
+    "srcHash": "00bdfbc3c1619875",
+    "status": "machine",
+    "text": "**Mode 3: `$import:` pustaka.** Nilainya adalah map dengan satu kunci `$import:` yang membawa referensi identitas nama polos ke sebuah bundel ArtifactLibrary, `<Library>#/artifacts/<name>`. Bundel adalah sekumpulan file yang diimpor sebagai satu unit, sehingga **satu entri diperluas menjadi satu keluaran per file dalam bundel, masing-masing ditempatkan di bawah kunci map sebagai `<key>/<filename>`** — kunci menamai lokasi pemakaian dan merupakan direktori tempat file-file tersebut berada, bukan nama salah satu file. Entri ketiga di atas berkunci `operator-support`; jika `PlatformArtifacts#/artifacts/OperatorSupport` mendeklarasikan `crd.yaml` dan `rbac.yaml`, entri tunggal itu menghasilkan `operator-support/crd.yaml` dan `operator-support/rbac.yaml`. Referensi tidak membawa host registry — bentuk `oci://…` yang memuat host ditolak — versi dipilih di antara versi yang dimiliki katalog dan dicatat dalam lockfile milik Release, dan versi minimum `:<version>` yang opsional dapat dinyatakan sebagai `<Library>:<version>#/artifacts/<name>`. Lihat [entities/artifactlibrary](artifactlibrary.md) untuk entitas pustaka dan tata bahasa referensi lengkap."
+  },
   "00bf980a2ef9c986": {
     "at": "2026-10-30T02:00:09.600Z",
     "job": "session-0051-20261030020009",
@@ -28395,6 +28406,17 @@
     "status": "machine",
     "text": "path ke file konfigurasi global, yang menimpa variabel lingkungan AGGREGA_CONFIG dan lokasi default. File konfigurasi pada pohon workspace tetap dilapiskan di atasnya"
   },
+  "266eaf908ac018d1": {
+    "at": "2026-11-17T11:39:21.279Z",
+    "job": "session-0003-20261117113921",
+    "revision": {
+      "from": "b72082abcec3ac99",
+      "reviewed": false
+    },
+    "srcHash": "266eaf908ac018d1",
+    "status": "machine",
+    "text": "**Apa yang diselesaikan inti.** Tidak ada provider yang memvalidasi kunci source miliknya sendiri. Source yang *diambil* diselesaikan oleh identitas bawaan yang `kind`-nya memilih resolver — `helm-oci-chart`, `helm-https-chart`, `compose-https-fragment`, `git-repository`, `bicep-module-oci`, dan `terraform-module-oci`. Source yang dimaksudkan untuk diambil harus memuat `kind` dan `url`; koordinat tambahan mana yang memilih konten bergantung pada kind-nya. Kind chart dan fragment menerima `version`, dan mematoknya sebagaimana ditulis. `git-repository` menerima `ref` — sebuah tag, branch, atau commit — dan secara opsional `module_subdir`, yang menamai direktori di dalam repositori yang menjadi artefaknya; karena hanya commit yang menamai konten yang tidak dapat diarahkan ulang, referensi diselesaikan pada waktu lock dan lockfile mencatat baik referensi yang ditulis maupun commit hasil penyelesaiannya. `module_subdir` yang naik ke atas repositori sebagaimana ditulis — backslash dihitung sebagai pemisah — ditolak sebelum apa pun diambil. Repositori diarsipkan dari checkout-nya sendiri: symbolic link yang di-commit di dalamnya diarsipkan sebagai file atau direktori yang ditunjuknya jika itu berada di dalam repositori, dan link yang mengarah ke luar repositori menghentikan pull, dengan menyebut link tersebut menurut tempatnya di repositori. `bicep-module-oci` dan `terraform-module-oci` mengambil koordinatnya dari registri OCI: persis `url: oci://<registry>/<repository>`, tanpa tag, digest, query, atau `//` di dalamnya, serta `version` yang wajib, yang berupa tag atau digest manifest `sha256:` yang ditulis sebagai 64 karakter heksadesimal huruf kecil. Versi dipatok sebagaimana ditulis, dan lockfile mencatat digest manifest serta digest satu layer yang ditarik oleh kind tersebut. `bicep-module-oci` adalah modul Bicep sebagaimana disimpan oleh `bicep publish`: layer template ARM terkompilasi ditarik byte demi byte dan ditata sebagai `main.json`, yang disarangkan oleh [provider `arm`](../providers/arm.md#sourcing-a-published-bicep-module) ke dalam template yang dirakitnya. `terraform-module-oci` adalah paket modul OpenTofu, berupa layer `archive/zip` yang ditata sebagai pohon direktori, yang di-vendor oleh [provider `terraform`](../providers/terraform.md#sourcing-a-module-from-an-oci-registry); secara opsional ia menerima `module_subdir`, yang menamai direktori di dalam paket yang menjadi artefaknya. `chart` dan `ref` ditolak pada kedua kind, dan `module_subdir` ditolak pada `bicep-module-oci`, yang merupakan satu template. Source yang tidak menamai satu artefak ditolak saat dokumen dibaca, sebelum apa pun diambil: [The source does not name one artifact of its OCI module kind (Source tidak menamai satu artefak dari kind modul OCI-nya)](../errors/fatal-halts.md#the-source-does-not-name-one-artifact-of-its-oci-module-kind). Source yang ditulis sebagai satu string `oci://` menamai chart Helm; kind modul selalu dinamai dengan `kind:`. Source terstruktur yang `url:`-nya menamai path filesystem tidak diambil: source tersebut dibaca dari disk dengan ketentuan yang sama seperti string path biasa, dengan `url:` relatif yang berpangkal pada direktori yang memuat file entitas yang mendeklarasikannya. Source terstruktur yang tidak mencantumkan `kind`/`url` juga tidak diambil, dan jika pengambilan dimaksudkan, build berhenti secara jelas pada penelusuran source waktu lock alih-alih diam-diam menghasilkan kekosongan. Konten selalu dipatok secara ahead-of-time; compiler tidak pernah mengambil state runtime secara langsung."
+  },
   "267114fa15182a40": {
     "at": "2026-10-23T06:14:11.003127+00:00",
     "job": "msgbatch_01GfwKPWr7pSSTBwm1CiQ1ze",
@@ -39698,6 +39720,13 @@
     "status": "machine",
     "text": "Kontrak perilaku render waktu kompilasi yang dideklarasikan sendiri oleh plugin perender provider: jenis input yang direndernya, cara plugin merangkai output per node dari sebuah grup dispatch, pasangan pembatas templat yang diterapkannya pada berkas artefak yang diimpor, apakah satu instans yang dimuat boleh melayani setiap persilangan, apakah plugin menghormati entri omit, dan apakah plugin menerima berkas yang disumbangkan sebuah Recipe ke output bersama boundary-nya. Blok ini berada di samping `capabilities` dalam blok yang sama tetapi menjawab pertanyaan yang berbeda: daftar kapabilitas menyatakan kapabilitas *mana* yang dilayani plugin ini, sedangkan kontrak menyatakan *bagaimana* plugin merendernya. Kontrak ini ditulis sebagai klaim yang diperiksa silang oleh host terhadap laporan diri `describe()` milik plugin itu sendiri saat publikasi dan saat pemuatan; ketidaksesuaian menghentikan proses. Jika tidak ada, tidak ada kontrak perilaku render yang dideklarasikan, dan pemeriksaan silang hanya membandingkan klaim per ekspor. Semua field bersifat opsional."
   },
+  "3665b9d2bff694f3": {
+    "at": "2026-11-17T11:39:21.279Z",
+    "job": "session-0003-20261117113921",
+    "srcHash": "3665b9d2bff694f3",
+    "status": "machine",
+    "text": "**ARM:** template terkompilasi yang bersumber dari luar, seperti `main.json` Azure Verified Modules, dibungkus sebagai deployment bersarang, dan fragmen template yang ditulis sebuah Recipe digabungkan menjadi satu template resource group per batas, dengan output `valuesMapping:` mengikat parameter yang dideklarasikan sebuah template sumber. Lihat [provider arm](../providers/arm.md)."
+  },
   "36684ecaf59a5dd4": {
     "at": "2026-10-22T11:13:35.211Z",
     "job": "session-0032-20261022111335",
@@ -45771,6 +45800,17 @@
     "status": "machine",
     "text": "**Hanya apa yang dirender oleh `source:` milik FeatureRecipe ini sendiri yang disaring.** `workload:` dan `artifacts:`-nya tidak disaring, begitu pula keluaran komponen host: entri sebuah attachment menjangkau chart-nya sendiri, file compose-nya sendiri, atau template CloudFormation-nya sendiri, dan tidak ada yang lain — service compose yang dideklarasikan host dengan key yang sama dalam `docker-compose.yaml` tempat keduanya digabungkan tidak tersentuh, begitu pula resource yang dideklarasikan host dengan logical ID yang sama dalam stack tempat keduanya digabungkan. Untuk mengubah dokumen yang dirender host, Recipe milik host mendeklarasikan entri tersebut, atau sebuah langkah `pipeline:` menambalnya."
   },
+  "3ef8f1dfd4fb756e": {
+    "at": "2026-11-17T11:39:21.279Z",
+    "job": "session-0003-20261117113921",
+    "revision": {
+      "from": "d7fae35e643fe2ef",
+      "reviewed": false
+    },
+    "srcHash": "3ef8f1dfd4fb756e",
+    "status": "machine",
+    "text": "Fragmen `#/workloads/` adalah yang memilih entri Workload, dan fragmen inilah yang membedakan referensi ini dari bentuk `#/mappings/` yang digunakan `valuesMapping:` — bentuk tersebut menunjuk entri MappingLibrary dan tidak menamai isi Workload. Referensi ini tidak memuat host registry, versi dipilih di antara versi yang dimiliki katalog dan dicatat dalam lockfile milik Release, versi minimum `:<version>` yang opsional dapat dinyatakan sebagai `<Library>:<version>#/workloads/<Entry>`, dan entri yang isinya sendiri berupa `$import:` di root field diresolusi secara rekursif. Isi yang diimpor adalah template Go yang dievaluasi dalam konteks render Recipe yang memakainya, sehingga `.values`, `.infra`, dan `.features` mengalir ke dalamnya persis seperti ke isi inline. Lihat [entities/workloadlibrary](workloadlibrary.md) untuk entitas library dan tata bahasa referensi lengkapnya."
+  },
   "3efb9866c2ec5abe": {
     "at": "2026-10-29T19:40:39.585Z",
     "job": "session-0016-20261029194039",
@@ -51682,6 +51722,17 @@
     "srcHash": "46f4b2144b12a1e1",
     "status": "machine",
     "text": "Alih-alih mengandalkan logika kompiler yang di-hardcode untuk mengatur egress jaringan, Aggrega sepenuhnya mendelegasikan keamanan perimeter kepada mesin kebijakan perusahaan yang agnostik dan plugin rendering Wasm. Hal ini memastikan konfigurasi yang dihasilkan sesuai secara ketat dengan persetujuan egress eksplisit."
+  },
+  "46f691d378532aad": {
+    "at": "2026-11-17T11:39:21.279Z",
+    "job": "session-0003-20261117113921",
+    "revision": {
+      "from": "53464b0d48a44e0c",
+      "reviewed": false
+    },
+    "srcHash": "46f691d378532aad",
+    "status": "machine",
+    "text": "Fragmen `#/artifacts/<name>` memilih bundel dan membedakan referensi artifacts dari `#/mappings/<name>` milik MappingLibrary, `#/schemas/<name>` milik SchemaLibrary, dan `#/workloads/<name>` milik WorkloadLibrary. Referensi tidak membawa host registri; bentuk `oci://…` yang memuat host ditolak baik oleh skema envelope maupun di lokasi konsumsi, sehingga lokasi fisik registri tidak pernah masuk ke sumber yang ditulis. Versi minimum dinyatakan sebagai `<Library>:<version>#/artifacts/<name>` — pemisahnya adalah `:`, dan penulisan `@` sebagai gantinya ditolak dengan diagnostik yang menyebutkan referensi yang telah dikoreksi. Lihat [SchemaLibrary](schemalibrary.md) untuk mengetahui bagaimana sebuah referensi memilih di antara versi yang dimiliki katalog dan untuk satu versi yang dibaca sebuah Release per nama pustaka."
   },
   "46f6dd2ac7b5bda6": {
     "at": "2026-10-23T08:34:05.283963+00:00",
@@ -76039,6 +76090,17 @@
     "srcHash": "6839691e0bacb2d4",
     "status": "machine",
     "text": "volume bernama + deklarasi `volumes: { <volume-name>: {} }` tingkat atas, dinamai sesuai [Cara nama volume diturunkan](#how-a-volume-name-is-derived)"
+  },
+  "6839c530cba20db6": {
+    "at": "2026-11-17T11:39:21.279Z",
+    "job": "session-0003-20261117113921",
+    "revision": {
+      "from": "1c91274e11af697d",
+      "reviewed": false
+    },
+    "srcHash": "6839c530cba20db6",
+    "status": "machine",
+    "text": "Fragmen `#/mappings/<name>` memilih entri tersebut dan membedakan referensi pemetaan dari `#/schemas/<name>` milik SchemaLibrary. Referensi ini menggunakan model identitas nama polos yang sama dengan `$ref:` pada SchemaLibrary — `<Library>#/mappings/<name>`, tanpa membawa host registri — dan dapat menyatakan versi minimum sebagai `<Library>:<version>#/mappings/<name>`. Lihat [SchemaLibrary](schemalibrary.md) untuk mengetahui bagaimana sebuah referensi memilih di antara versi yang dimiliki katalog dan untuk satu versi yang dibaca sebuah Release per nama pustaka."
   },
   "683b9941aa375ebe": {
     "at": "2026-10-23T06:14:11.003127+00:00",
@@ -102091,6 +102153,17 @@
     "status": "machine",
     "text": "Inventaris ini adalah rujukan kanonis tentang apa yang dapat dimasukkan penulis ke dalam `source:`; labelnya adalah label yang didefinisikan oleh [`10-status.md`](../10-status.md)."
   },
+  "8bdccfb2850e59ba": {
+    "at": "2026-11-17T11:39:21.279Z",
+    "job": "session-0003-20261117113921",
+    "revision": {
+      "from": "e5dec9ae02e74390",
+      "reviewed": false
+    },
+    "srcHash": "8bdccfb2850e59ba",
+    "status": "machine",
+    "text": "`available` — setiap provider yang tersedia (helm, helm-chart, compose, terraform, cloudformation, arm) menerima string path filesystem polos."
+  },
   "8bddf5f7c863b33b": {
     "at": "2026-10-22T21:56:12.149Z",
     "job": "session-0050-20261022215612",
@@ -105705,6 +105778,17 @@
     "srcHash": "90e841bd91ddc79f",
     "status": "machine",
     "text": "`name` milik crew di `crew.jsonc` atau `crew.json`; `config/agents.yaml` dan `config/tasks.yaml` tidak membawa nama, karena proyek klasik menamai crew-nya di dalam programnya"
+  },
+  "90e84989943a6c17": {
+    "at": "2026-11-17T11:39:21.279Z",
+    "job": "session-0003-20261117113921",
+    "revision": {
+      "from": "3ef58547a9e520f4",
+      "reviewed": false
+    },
+    "srcHash": "90e84989943a6c17",
+    "status": "machine",
+    "text": "**Hanya apa yang dirender oleh `source:` milik FeatureRecipe ini sendiri yang disaring.** `workload:` dan `artifacts:`-nya tidak disaring, begitu pula keluaran komponen host: entri sebuah attachment menjangkau chart-nya sendiri, file compose-nya sendiri, template CloudFormation-nya sendiri, atau template ARM-nya sendiri, dan tidak ada yang lain — service compose yang dideklarasikan host dengan key yang sama dalam `docker-compose.yaml` tempat keduanya digabungkan tidak tersentuh, begitu pula resource yang dideklarasikan host dengan logical ID yang sama dalam stack tempat keduanya digabungkan. Untuk mengubah dokumen yang dirender host, Recipe milik host mendeklarasikan entri tersebut, atau sebuah langkah `pipeline:` menambalnya."
   },
   "90e8b5c0b4bd1ddb": {
     "at": "2026-10-29T21:33:51.093Z",

@@ -615,6 +615,17 @@
     "status": "machine",
     "text": "SchemaLibrary, yeniden kullanılabilir JSON Schema 2020-12 tanımlarını ve isteğe bağlı parametreli yardımcıları barındıran bir katalog varlığıdır. Şema biçimlerini paylaşan Components ve Features — URL'ler, süreler, ortak yoklama yapıları, tekrarlanan kaynak sınırları — bu biçimleri bir kütüphanede bir kez bildirir ve onlara kanonik `$ref` URI'leri aracılığıyla başvurur. Kütüphane varlığı Tier 3'tür: Component'ler arası şema yeniden kullanımına ihtiyaç duyan kataloglar için isteğe bağlıdır. Tekrarlanan şema içeriği olmayan kataloglar hiçbir SchemaLibrary olmadan yayımlanır."
   },
+  "00bdfbc3c1619875": {
+    "at": "2026-11-17T11:39:21.279Z",
+    "job": "session-0003-20261117113921",
+    "revision": {
+      "from": "e13f0e46628ac33b",
+      "reviewed": false
+    },
+    "srcHash": "00bdfbc3c1619875",
+    "status": "machine",
+    "text": "**Mod 3: Kütüphane `$import:`.** Değer, bir ArtifactLibrary paketine yalın adlı kimlik başvurusu (`<Library>#/artifacts/<name>`) taşıyan tek bir `$import:` anahtarına sahip bir eşlemdir. Paket, tek bir birim olarak içe aktarılan bir dosya kümesidir; bu nedenle **tek bir girdi, paketteki her dosya için bir çıktıya genişler ve her biri eşlem anahtarının altına `<key>/<filename>` olarak yerleştirilir**: anahtar, tüketim yerini adlandırır ve bu dosyalardan herhangi birinin adı değil, dosyaların yerleştiği dizindir. Yukarıdaki üçüncü girdinin anahtarı `operator-support`'tur; `PlatformArtifacts#/artifacts/OperatorSupport` `crd.yaml` ve `rbac.yaml` bildiriyorsa, bu tek girdi `operator-support/crd.yaml` ve `operator-support/rbac.yaml` üretir. Başvuru kayıt defteri ana bilgisayarı taşımaz (ana bilgisayar içeren bir `oci://…` biçimi reddedilir), sürüm, kataloğun içerdiği sürümler arasından seçilir ve Release'in kilit dosyasına kaydedilir ve isteğe bağlı bir `:<version>` asgari sürüm `<Library>:<version>#/artifacts/<name>` olarak belirtilebilir. Kütüphane varlığı ve tam başvuru dilbilgisi için [entities/artifactlibrary](artifactlibrary.md) sayfasına bakın."
+  },
   "00bf980a2ef9c986": {
     "at": "2026-10-30T02:00:09.600Z",
     "job": "session-0051-20261030020009",
@@ -28383,6 +28394,17 @@
     "status": "machine",
     "text": "genel yapılandırma dosyasının yolu; AGGREGA_CONFIG ortam değişkenini ve varsayılan konumu geçersiz kılar. Çalışma alanı ağacındaki yapılandırma dosyaları yine bunun üzerine katmanlanır"
   },
+  "266eaf908ac018d1": {
+    "at": "2026-11-17T11:39:21.279Z",
+    "job": "session-0003-20261117113921",
+    "revision": {
+      "from": "b72082abcec3ac99",
+      "reviewed": false
+    },
+    "srcHash": "266eaf908ac018d1",
+    "status": "machine",
+    "text": "**Çekirdeğin çözümledikleri.** Hiçbir provider kendine ait kaynak anahtarlarını doğrulamaz. *Getirilen* bir kaynak, `kind` değeri bir çözümleyici seçen yerleşik bir kimlikle çözümlenir — `helm-oci-chart`, `helm-https-chart`, `compose-https-fragment`, `git-repository`, `bicep-module-oci` ve `terraform-module-oci`. Getirilmesi amaçlanan bir kaynak `kind` ve `url` taşımalıdır; içeriği hangi ek koordinatın seçtiği türe bağlıdır. Chart ve fragment türleri `version` alır ve onu yazıldığı gibi sabitler. `git-repository`, `ref` alır — bir etiket, bir dal veya bir commit — ve isteğe bağlı olarak, depo içinde yapıt olan dizini adlandıran `module_subdir` alır; yalnızca bir commit yeniden yönlendirilemeyen içeriği adlandırdığından, referans kilitleme zamanında çözümlenir ve lockfile hem yazılan referansı hem de çözümlendiği commit'i kaydeder. Yazıldığı haliyle deponun üstüne çıkan bir `module_subdir` — ters eğik çizgi de ayırıcı sayılır — herhangi bir şey getirilmeden önce reddedilir. Depo kendi checkout'undan arşivlenir: deponun commit ettiği bir sembolik bağlantı, gösterdiği yer depo içindeyse gösterdiği dosya veya dizin olarak arşivlenir; depo dışına çıkan bir bağlantı ise bağlantıyı depodaki yeriyle adlandırarak çekmeyi durdurur. `bicep-module-oci` ve `terraform-module-oci` koordinatlarını bir OCI kayıt defterinden alır: tam olarak `url: oci://<registry>/<repository>`, içinde etiket, özet, sorgu veya `//` olmadan ve zorunlu bir `version`; bu ya bir etiket ya da 64 küçük harfli onaltılık karakter olarak yazılmış bir `sha256:` manifest özetidir. Sürüm yazıldığı gibi sabitlenir ve kilit dosyası, manifest özetini ve türün çektiği tek katmanın özetini kaydeder. `bicep-module-oci`, `bicep publish`'in sakladığı biçimiyle bir Bicep modülüdür: derlenmiş ARM şablonu katmanı bayt bayt çekilir ve `main.json` olarak yerleştirilir; [`arm` provider'ı](../providers/arm.md#sourcing-a-published-bicep-module) bunu bir araya getirdiği şablonun içine yerleştirir. `terraform-module-oci`, bir dizin ağacı olarak yerleştirilen `archive/zip` katmanından oluşan bir OpenTofu modül paketidir; [`terraform` provider'ı](../providers/terraform.md#sourcing-a-module-from-an-oci-registry) bunu vendor dizinine alır; isteğe bağlı olarak paketin içinde yapıt olan dizini adlandıran `module_subdir` alır. `chart` ve `ref` her iki türde de, `module_subdir` ise tek bir şablon olan `bicep-module-oci` türünde reddedilir. Tek bir yapıtı adlandırmayan bir kaynak, belge okunurken, herhangi bir şey getirilmeden önce reddedilir: [The source does not name one artifact of its OCI module kind (Kaynak, OCI modül türünün tek bir yapıtını adlandırmıyor)](../errors/fatal-halts.md#the-source-does-not-name-one-artifact-of-its-oci-module-kind). Tek bir `oci://` dizesi olarak yazılan bir kaynak bir Helm chart'ını adlandırır; bir modül türü her zaman `kind:` ile adlandırılır. `url:` değeri bir dosya sistemi yolunu adlandıran yapılandırılmış bir kaynak getirilmez: yalın bir yol dizesiyle aynı koşullarda diskten okunur; göreli bir `url:`, onu bildiren varlık dosyasını içeren dizine göre bağlanır. `kind`/`url` içermeyen yapılandırılmış bir kaynak da getirilmez ve getirme amaçlanmışsa derleme, sessizce hiçliğe çözümlenmek yerine kilitleme zamanındaki kaynak inişinde açıkça durur. İçerik her zaman önceden sabitlenir; derleyici asla canlı çalışma zamanı durumunu getirmez."
+  },
   "267114fa15182a40": {
     "at": "2026-10-22T13:49:57.993635+00:00",
     "job": "msgbatch_012jjD4vu9JwBogX6bQQmFbf",
@@ -39680,6 +39702,13 @@
     "status": "machine",
     "text": "Provider oluşturan bir plugin'in kendi beyan ettiği derleme zamanı oluşturma davranışı sözleşmesi: oluşturduğu girdi türleri, bir dağıtım grubunun düğüm başına çıktısını nasıl birleştirdiği, içe aktarılan artifact dosyalarına uyguladığı şablon sınırlayıcı çifti, yüklenmiş tek bir örneğin her geçişe hizmet edip edemeyeceği, omit girdilerini dikkate alıp almadığı ve bir Recipe'in kendi sınırının paylaşılan çıktısına kattığı dosyaları kabul edip etmediği. Aynı blokta `capabilities` alanının yanında yer alır, ancak farklı bir soruyu yanıtlar: yetenek listesi bu plugin'in *hangi* yeteneklere hizmet ettiğini söylerken, sözleşme bunları *nasıl* oluşturduğunu söyler. Ana makinenin yayımlama ve yükleme sırasında plugin'in kendi `describe()` öz bildirimiyle çapraz denetlediği beyan olarak yazılır; bir uyuşmazlık derlemeyi durdurur. Bulunmaması hiçbir oluşturma davranışı sözleşmesi beyan etmez ve çapraz denetim yalnızca export başına beyanları karşılaştırır. Tüm alanlar isteğe bağlıdır."
   },
+  "3665b9d2bff694f3": {
+    "at": "2026-11-17T11:39:21.279Z",
+    "job": "session-0003-20261117113921",
+    "srcHash": "3665b9d2bff694f3",
+    "status": "machine",
+    "text": "**ARM:** kaynaktan alınan derlenmiş bir şablon, örneğin Azure Verified Modules'ün `main.json` dosyası, iç içe bir dağıtım olarak sarılır ve bir Recipe'in yazdığı şablon parçaları sınır başına tek bir kaynak grubu şablonunda birleştirilir; `valuesMapping:` çıktı bağlaması, kaynaktan alınan bir şablonun bildirdiği parametreleri bağlar. Bkz. [arm provider'ı](../providers/arm.md)."
+  },
   "36684ecaf59a5dd4": {
     "at": "2026-10-22T08:46:18.120972+00:00",
     "job": "msgbatch_016vZZG2Sn4YoWHVbxdzANMj",
@@ -45753,6 +45782,17 @@
     "status": "machine",
     "text": "**Yalnızca bu FeatureRecipe'in kendi `source:` alanının işlediği şey filtrelenir.** `workload:` ve `artifacts:` filtrelenmez, ana bileşenin çıktısı da filtrelenmez: bir eklentinin girdileri yalnızca kendi chart'ına, kendi compose dosyasına veya kendi CloudFormation şablonuna ulaşır, başka hiçbir şeye ulaşmaz — ana bileşenin, ikisinin birlikte birleştirildiği `docker-compose.yaml` içinde aynı anahtar altında bildirdiği bir compose service'i etkilenmez; ana bileşenin, ikisinin birlikte birleştirildiği stack içinde aynı mantıksal kimlik altında bildirdiği bir resource da etkilenmez. Ana bileşenin işlediği bir belgeyi değiştirmek için girdiyi ana bileşenin Recipe'i bildirir ya da belgeye bir `pipeline:` adımı yama uygular."
   },
+  "3ef8f1dfd4fb756e": {
+    "at": "2026-11-17T11:39:21.279Z",
+    "job": "session-0003-20261117113921",
+    "revision": {
+      "from": "d7fae35e643fe2ef",
+      "reviewed": false
+    },
+    "srcHash": "3ef8f1dfd4fb756e",
+    "status": "machine",
+    "text": "Bir Workload girdisini seçen `#/workloads/` parçasıdır ve bu başvuruyu `valuesMapping:` alanının kullandığı `#/mappings/` biçiminden ayıran da bu parçadır — o biçim bir MappingLibrary girdisini adresler ve bir Workload gövdesini adlandırmaz. Başvuru bir kayıt defteri ana bilgisayarı taşımaz, sürüm, kataloğun içerdiği sürümler arasından seçilir ve Release'in kilit dosyasına kaydedilir, isteğe bağlı bir `:<version>` en düşük sürümü `<Library>:<version>#/workloads/<Entry>` olarak belirtilebilir ve gövdesi kendisi alan kökünde bir `$import:` olan bir girdi özyinelemeli olarak çözümlenir. İçe aktarılan gövde, onu kullanan Recipe'in oluşturma bağlamında değerlendirilen bir Go şablonudur; bu nedenle `.values`, `.infra` ve `.features`, satır içi bir gövdeye aktıkları gibi ona da akar. Kütüphane varlığı ve başvurunun tam dilbilgisi için [entities/workloadlibrary](workloadlibrary.md) sayfasına bakın."
+  },
   "3efb9866c2ec5abe": {
     "at": "2026-10-29T19:40:39.585Z",
     "job": "session-0016-20261029194039",
@@ -51658,6 +51698,17 @@
     "srcHash": "46f4b2144b12a1e1",
     "status": "machine",
     "text": "Aggrega, ağ çıkış trafiğini yönetmek için sabit kodlanmış derleyici mantığına güvenmek yerine çevre güvenliğini tamamen kuruluşun bağımsız politika motorlarına ve Wasm işleme eklentilerine devreder. Bu, oluşturulan yapılandırmaların açık çıkış trafiği onaylarına kesin olarak uymasını sağlar."
+  },
+  "46f691d378532aad": {
+    "at": "2026-11-17T11:39:21.279Z",
+    "job": "session-0003-20261117113921",
+    "revision": {
+      "from": "53464b0d48a44e0c",
+      "reviewed": false
+    },
+    "srcHash": "46f691d378532aad",
+    "status": "machine",
+    "text": "`#/artifacts/<name>` parçası paketi seçer ve bir artifacts başvurusunu MappingLibrary'nin `#/mappings/<name>`, SchemaLibrary'nin `#/schemas/<name>` ve WorkloadLibrary'nin `#/workloads/<name>` başvurularından ayırır. Başvuru hiçbir kayıt defteri ana bilgisayarı taşımaz; ana bilgisayar içeren bir `oci://…` biçimi hem zarf şeması tarafından hem de tüketim noktasında reddedilir, böylece fiziksel bir kayıt defteri konumu yazılan kaynağa hiçbir zaman girmez. Asgari sürüm `<Library>:<version>#/artifacts/<name>` olarak belirtilir — ayırıcı `:` karakteridir; bunun yerine `@` yazmak, düzeltilmiş başvuruyu adlandıran bir tanılamayla reddedilir. Bir başvurunun kataloğun içerdiği sürümler arasından nasıl seçim yaptığı ve bir Release'in her kütüphane adı için okuduğu tek sürüm için [SchemaLibrary](schemalibrary.md) bölümüne bakın."
   },
   "46f6dd2ac7b5bda6": {
     "at": "2026-10-23T00:18:01.108465+00:00",
@@ -76013,6 +76064,17 @@
     "srcHash": "6839691e0bacb2d4",
     "status": "machine",
     "text": "adlandırılmış birim + üst düzey `volumes: { <volume-name>: {} }` bildirimi, [Birim adı nasıl türetilir](#how-a-volume-name-is-derived) bölümüne göre adlandırılır"
+  },
+  "6839c530cba20db6": {
+    "at": "2026-11-17T11:39:21.279Z",
+    "job": "session-0003-20261117113921",
+    "revision": {
+      "from": "1c91274e11af697d",
+      "reviewed": false
+    },
+    "srcHash": "6839c530cba20db6",
+    "status": "machine",
+    "text": "`#/mappings/<name>` parçası girdiyi seçer ve bir eşleme başvurusunu SchemaLibrary'nin `#/schemas/<name>` parçasından ayırır. Başvuru, SchemaLibrary `$ref:` ile aynı yalın ad kimlik modelini kullanır — `<Library>#/mappings/<name>`; kayıt defteri ana bilgisayarı taşımaz — ve asgari bir sürümü `<Library>:<version>#/mappings/<name>` biçiminde belirtebilir. Bir başvurunun kataloğun içerdiği sürümler arasından nasıl seçim yaptığı ve bir Release'in her kütüphane adı için okuduğu tek sürüm için [SchemaLibrary](schemalibrary.md) bölümüne bakın."
   },
   "683b9941aa375ebe": {
     "at": "2026-10-22T13:49:57.993635+00:00",
@@ -102063,6 +102125,17 @@
     "status": "machine",
     "text": "Envanter, yazarların `source:` alanına neler koyabileceğine ilişkin kanonik başvurudur; etiketleri [`10-status.md`](../10-status.md) sayfasının tanımladıklarıdır."
   },
+  "8bdccfb2850e59ba": {
+    "at": "2026-11-17T11:39:21.279Z",
+    "job": "session-0003-20261117113921",
+    "revision": {
+      "from": "e5dec9ae02e74390",
+      "reviewed": false
+    },
+    "srcHash": "8bdccfb2850e59ba",
+    "status": "machine",
+    "text": "`available` — sunulan her sağlayıcı (helm, helm-chart, compose, terraform, cloudformation, arm) yalın bir dosya sistemi yolu dizesini kabul eder."
+  },
   "8bddf5f7c863b33b": {
     "at": "2026-10-22T09:37:52.967973+00:00",
     "job": "msgbatch_01RGLknY51NbNWbx2UhJqBqm",
@@ -105677,6 +105750,17 @@
     "srcHash": "90e841bd91ddc79f",
     "status": "machine",
     "text": "`crew.jsonc` veya `crew.json` içinde ekibin `name` değeri; `config/agents.yaml` ve `config/tasks.yaml` ad taşımaz, çünkü klasik bir proje ekibini programında adlandırır"
+  },
+  "90e84989943a6c17": {
+    "at": "2026-11-17T11:39:21.279Z",
+    "job": "session-0003-20261117113921",
+    "revision": {
+      "from": "3ef58547a9e520f4",
+      "reviewed": false
+    },
+    "srcHash": "90e84989943a6c17",
+    "status": "machine",
+    "text": "**Yalnızca bu FeatureRecipe'in kendi `source:` alanının işlediği şey filtrelenir.** `workload:` ve `artifacts:` filtrelenmez, ana bileşenin çıktısı da filtrelenmez: bir eklentinin girdileri yalnızca kendi chart'ına, kendi compose dosyasına, kendi CloudFormation şablonuna veya kendi ARM şablonuna ulaşır, başka hiçbir şeye ulaşmaz — ana bileşenin, ikisinin birlikte birleştirildiği `docker-compose.yaml` içinde aynı anahtar altında bildirdiği bir compose service'i etkilenmez; ana bileşenin, ikisinin birlikte birleştirildiği stack içinde aynı mantıksal kimlik altında bildirdiği bir resource da etkilenmez. Ana bileşenin işlediği bir belgeyi değiştirmek için girdiyi ana bileşenin Recipe'i bildirir ya da belgeye bir `pipeline:` adımı yama uygular."
   },
   "90e8b5c0b4bd1ddb": {
     "at": "2026-10-29T21:33:51.093Z",

@@ -615,6 +615,17 @@
     "status": "machine",
     "text": "SchemaLibrary to encja katalogu, która przechowuje definicje JSON Schema 2020-12 wielokrotnego użytku oraz opcjonalne sparametryzowane funkcje pomocnicze. Components i Features, które współdzielą kształty schematów — adresy URL, czasy trwania, typowe struktury sond, powtarzające się limity zasobów — deklarują te kształty raz w bibliotece i odwołują się do nich za pomocą kanonicznych identyfikatorów URI `$ref`. Encja biblioteki należy do poziomu 3: jest opcjonalna i przeznaczona dla katalogów, które potrzebują ponownego użycia schematów w wielu encjach Component. Katalogi bez powtarzającej się treści schematów obywają się bez żadnej encji SchemaLibrary."
   },
+  "00bdfbc3c1619875": {
+    "at": "2026-11-17T11:39:21.279Z",
+    "job": "session-0003-20261117113921",
+    "revision": {
+      "from": "e13f0e46628ac33b",
+      "reviewed": false
+    },
+    "srcHash": "00bdfbc3c1619875",
+    "status": "machine",
+    "text": "**Tryb 3: bibliotekowy `$import:`.** Wartość jest mapą z jednym kluczem `$import:` zawierającym referencję tożsamości w postaci samej nazwy do pakietu ArtifactLibrary, `<Library>#/artifacts/<name>`. Pakiet to zbiór plików importowanych jako jedna całość, więc **jeden wpis rozwija się w jeden wynik na każdy plik pakietu, każdy zagnieżdżony pod kluczem mapy jako `<key>/<filename>`** — klucz nazywa miejsce użycia i jest katalogiem, do którego trafiają te pliki, a nie nazwą któregokolwiek z nich. Trzeci wpis powyżej ma klucz `operator-support`; jeśli `PlatformArtifacts#/artifacts/OperatorSupport` deklaruje `crd.yaml` i `rbac.yaml`, ten jeden wpis emituje `operator-support/crd.yaml` i `operator-support/rbac.yaml`. Referencja nie zawiera hosta rejestru — forma `oci://…` z hostem jest odrzucana — wersja jest wybierana spośród tych, które zawiera katalog, i zapisywana w pliku blokady encji Release, a opcjonalną wersję minimalną `:<version>` można określić jako `<Library>:<version>#/artifacts/<name>`. Encję biblioteki i pełną gramatykę referencji opisuje [entities/artifactlibrary](artifactlibrary.md)."
+  },
   "00bf980a2ef9c986": {
     "at": "2026-10-30T02:00:09.600Z",
     "job": "session-0051-20261030020009",
@@ -28383,6 +28394,17 @@
     "status": "machine",
     "text": "ścieżka do globalnego pliku konfiguracyjnego, nadpisująca zmienną środowiskową AGGREGA_CONFIG i domyślną lokalizację. Pliki konfiguracyjne z drzewa obszaru roboczego nadal są nakładane na wierzch"
   },
+  "266eaf908ac018d1": {
+    "at": "2026-11-17T11:39:21.279Z",
+    "job": "session-0003-20261117113921",
+    "revision": {
+      "from": "b72082abcec3ac99",
+      "reviewed": false
+    },
+    "srcHash": "266eaf908ac018d1",
+    "status": "machine",
+    "text": "**Co rozstrzyga rdzeń.** Żaden dostawca nie waliduje własnych kluczy źródła. Źródło *pobierane* jest rozstrzygane przez wbudowaną tożsamość, której `kind` wybiera mechanizm rozstrzygania — `helm-oci-chart`, `helm-https-chart`, `compose-https-fragment`, `git-repository`, `bicep-module-oci` oraz `terraform-module-oci`. Źródło przeznaczone do pobrania musi zawierać `kind` i `url`; to, która dalsza współrzędna wybiera treść, zależy od rodzaju. Rodzaje chartów i fragmentów przyjmują `version` i przypinają ją tak, jak została zapisana. `git-repository` przyjmuje `ref` — tag, gałąź lub commit — oraz opcjonalnie `module_subdir`, wskazujący katalog w repozytorium będący artefaktem; ponieważ tylko commit wskazuje treść, której nie można przepiąć, odwołanie jest rozstrzygane w czasie blokowania, a plik blokady zapisuje zarówno odwołanie w postaci napisanej przez autora, jak i commit, na który zostało rozstrzygnięte. Wartość `module_subdir`, która w zapisanej postaci wychodzi ponad repozytorium — ukośnik wsteczny liczy się jako separator — jest odrzucana, zanim cokolwiek zostanie pobrane. Repozytorium jest archiwizowane z własnego checkoutu: zatwierdzone w nim dowiązanie symboliczne jest archiwizowane jako plik lub katalog, na który wskazuje, jeśli leży on wewnątrz repozytorium, a dowiązanie prowadzące poza nie zatrzymuje pobieranie, wskazując dowiązanie po jego miejscu w repozytorium. `bicep-module-oci` i `terraform-module-oci` pobierają swoje współrzędne z rejestru OCI: dokładnie `url: oci://<registry>/<repository>`, bez tagu, digestu, zapytania ani `//`, oraz wymagane `version`, które jest albo tagiem, albo digestem manifestu `sha256:` zapisanym jako 64 małe znaki szesnastkowe. Wersja jest przypinana tak, jak została zapisana, a plik blokady zapisuje digest manifestu i digest jednej warstwy pobieranej przez dany rodzaj. `bicep-module-oci` to moduł Bicep w postaci, w jakiej zapisuje go `bicep publish`: warstwa skompilowanego szablonu ARM jest pobierana bajt po bajcie i układana jako `main.json`, który [dostawca `arm`](../providers/arm.md#sourcing-a-published-bicep-module) zagnieżdża w składanym przez siebie szablonie. `terraform-module-oci` to pakiet modułu OpenTofu, warstwa `archive/zip` ułożona jako drzewo katalogów, którą [dostawca `terraform`](../providers/terraform.md#sourcing-a-module-from-an-oci-registry) włącza do katalogu vendor; opcjonalnie przyjmuje `module_subdir`, wskazujący katalog w pakiecie będący artefaktem. `chart` i `ref` są odrzucane w obu rodzajach, a `module_subdir` w `bicep-module-oci`, który jest jednym szablonem. Źródło, które nie wskazuje jednego artefaktu, jest odrzucane już przy odczycie dokumentu, zanim cokolwiek zostanie pobrane: [The source does not name one artifact of its OCI module kind (Źródło nie wskazuje jednego artefaktu swojego rodzaju modułu OCI)](../errors/fatal-halts.md#the-source-does-not-name-one-artifact-of-its-oci-module-kind). Źródło zapisane jako pojedynczy ciąg `oci://` wskazuje chart Helm; rodzaj modułu zawsze wskazuje się przez `kind:`. Źródło strukturalne, którego `url:` wskazuje ścieżkę w systemie plików, nie jest pobierane: jest odczytywane z dysku na tych samych zasadach co sam ciąg ścieżki, przy czym względny `url:` jest zakotwiczony w katalogu zawierającym plik encji, który go deklaruje. Źródło strukturalne pomijające `kind`/`url` również nie jest pobierane, a jeśli pobranie było zamierzone, kompilacja zatrzymuje się głośno na etapie schodzenia po źródłach w czasie blokowania, zamiast po cichu rozstrzygnąć się do niczego. Treść zawsze jest przypinana z wyprzedzeniem; kompilator nigdy nie pobiera bieżącego stanu środowiska uruchomieniowego."
+  },
   "267114fa15182a40": {
     "at": "2026-10-22T13:49:57.993635+00:00",
     "job": "msgbatch_012jjD4vu9JwBogX6bQQmFbf",
@@ -39680,6 +39702,13 @@
     "status": "machine",
     "text": "Samodzielnie zadeklarowany przez plugin renderujący dostawcy kontrakt zachowania renderowania w czasie kompilacji: rodzaje wejścia, które renderuje, sposób składania wyniku poszczególnych węzłów grupy dyspozycji, para ograniczników szablonu stosowana do importowanych plików artefaktów, informacja, czy jedna załadowana instancja może obsłużyć każde przejście, czy respektuje wpisy pominięć oraz czy przyjmuje pliki, które encja Recipe wnosi do współdzielonego wyniku swojej granicy. Znajduje się obok `capabilities` w tym samym bloku, ale odpowiada na inne pytanie: lista możliwości mówi, *które* możliwości ten plugin obsługuje, a kontrakt mówi, *jak* je renderuje. Jest tworzony jako deklaracja, którą host porównuje z własnym raportem pluginu z `describe()` przy publikacji i przy ładowaniu; niezgodność zatrzymuje proces. Brak bloku oznacza brak kontraktu zachowania renderowania, a porównanie obejmuje wtedy tylko deklaracje poszczególnych eksportów. Wszystkie pola są opcjonalne."
   },
+  "3665b9d2bff694f3": {
+    "at": "2026-11-17T11:39:21.279Z",
+    "job": "session-0003-20261117113921",
+    "srcHash": "3665b9d2bff694f3",
+    "status": "machine",
+    "text": "**ARM:** pobrany skompilowany szablon, taki jak `main.json` z Azure Verified Modules, jest opakowywany jako zagnieżdżone wdrożenie, a fragmenty szablonów tworzone przez encję Recipe są scalane w jeden szablon grupy zasobów na granicę, przy czym powiązanie wyjściowe `valuesMapping:` wiąże parametry deklarowane przez pobrany szablon. Zobacz [dostawcę arm](../providers/arm.md)."
+  },
   "36684ecaf59a5dd4": {
     "at": "2026-10-22T08:46:18.120972+00:00",
     "job": "msgbatch_016vZZG2Sn4YoWHVbxdzANMj",
@@ -45753,6 +45782,17 @@
     "status": "machine",
     "text": "**Filtrowane jest tylko to, co renderuje własne `source:` tej encji FeatureRecipe.** Jej `workload:` i `artifacts:` nie są filtrowane, podobnie jak dane wyjściowe komponentu hosta: wpisy dołączenia obejmują jego własny chart, jego własny plik compose lub jego własny szablon CloudFormation i nic więcej — usługa compose zadeklarowana przez hosta pod tym samym kluczem w `docker-compose.yaml`, do którego oba są składane, pozostaje nietknięta, podobnie jak zasób zadeklarowany przez hosta pod tym samym identyfikatorem logicznym w stosie, do którego oba są składane. Aby zmienić dokument renderowany przez hosta, wpis deklaruje encja Recipe hosta albo łata go krok `pipeline:`."
   },
+  "3ef8f1dfd4fb756e": {
+    "at": "2026-11-17T11:39:21.279Z",
+    "job": "session-0003-20261117113921",
+    "revision": {
+      "from": "d7fae35e643fe2ef",
+      "reviewed": false
+    },
+    "srcHash": "3ef8f1dfd4fb756e",
+    "status": "machine",
+    "text": "To fragment `#/workloads/` wybiera wpis Workload i to on odróżnia to odwołanie od formy `#/mappings/`, której używa `valuesMapping:` — ta adresuje wpis MappingLibrary i nie wskazuje treści Workload. Odwołanie nie zawiera hosta rejestru, wersja jest wybierana spośród tych, które zawiera katalog, i zapisywana w lockfile encji Release, opcjonalną wersję minimalną `:<version>` można określić jako `<Library>:<version>#/workloads/<Entry>`, a wpis, którego treść sama jest `$import:` w korzeniu pola, rozwiązuje się rekurencyjnie. Zaimportowana treść jest szablonem Go wykonywanym w kontekście renderowania korzystającej z niej encji Recipe, więc `.values`, `.infra` i `.features` trafiają do niej dokładnie tak jak do treści wbudowanej. Encję biblioteki i pełną gramatykę odwołań opisuje [entities/workloadlibrary](workloadlibrary.md)."
+  },
   "3efb9866c2ec5abe": {
     "at": "2026-10-29T19:40:39.585Z",
     "job": "session-0016-20261029194039",
@@ -51658,6 +51698,17 @@
     "srcHash": "46f4b2144b12a1e1",
     "status": "machine",
     "text": "Zamiast polegać na zakodowanej na stałe logice kompilatora przy zarządzaniu ruchem wychodzącym z sieci, Aggrega w całości deleguje bezpieczeństwo perymetru do agnostycznych silników polityk przedsiębiorstwa i wtyczek renderujących Wasm. Gwarantuje to, że wygenerowane konfiguracje są ściśle zgodne z jawnymi zatwierdzeniami ruchu wychodzącego."
+  },
+  "46f691d378532aad": {
+    "at": "2026-11-17T11:39:21.279Z",
+    "job": "session-0003-20261117113921",
+    "revision": {
+      "from": "53464b0d48a44e0c",
+      "reviewed": false
+    },
+    "srcHash": "46f691d378532aad",
+    "status": "machine",
+    "text": "Fragment `#/artifacts/<name>` wybiera pakiet i odróżnia odwołanie do artefaktów od `#/mappings/<name>` encji MappingLibrary, `#/schemas/<name>` encji SchemaLibrary oraz `#/workloads/<name>` encji WorkloadLibrary. Odwołanie nie zawiera hosta rejestru; forma `oci://…` zawierająca host jest odrzucana zarówno przez schemat koperty, jak i w miejscu użycia, dzięki czemu fizyczna lokalizacja rejestru nigdy nie trafia do tworzonego źródła. Wersję minimalną określa się jako `<Library>:<version>#/artifacts/<name>` — separatorem jest `:`, a zapis z `@` jest odrzucany z komunikatem diagnostycznym podającym poprawione odwołanie. Zobacz [SchemaLibrary](schemalibrary.md), aby dowiedzieć się, jak odwołanie wybiera spośród wersji, które zawiera katalog, oraz która jedna wersja jest odczytywana przez encję Release dla każdej nazwy biblioteki."
   },
   "46f6dd2ac7b5bda6": {
     "at": "2026-10-23T00:18:01.108465+00:00",
@@ -76013,6 +76064,17 @@
     "srcHash": "6839691e0bacb2d4",
     "status": "machine",
     "text": "nazwany wolumen + deklaracja `volumes: { <volume-name>: {} }` najwyższego poziomu, nazwany zgodnie z [Jak wyprowadzana jest nazwa wolumenu](#how-a-volume-name-is-derived)"
+  },
+  "6839c530cba20db6": {
+    "at": "2026-11-17T11:39:21.279Z",
+    "job": "session-0003-20261117113921",
+    "revision": {
+      "from": "1c91274e11af697d",
+      "reviewed": false
+    },
+    "srcHash": "6839c530cba20db6",
+    "status": "machine",
+    "text": "Fragment `#/mappings/<name>` wybiera wpis i odróżnia odwołanie do mapowania od fragmentu `#/schemas/<name>` encji SchemaLibrary. Odwołanie korzysta z tego samego modelu tożsamości opartej na samej nazwie co `$ref:` w SchemaLibrary — `<Library>#/mappings/<name>`, bez hosta rejestru — i może określać wersję minimalną jako `<Library>:<version>#/mappings/<name>`. Zobacz [SchemaLibrary](schemalibrary.md), aby dowiedzieć się, jak odwołanie wybiera spośród wersji, które zawiera katalog, oraz która jedna wersja jest odczytywana przez encję Release dla każdej nazwy biblioteki."
   },
   "683b9941aa375ebe": {
     "at": "2026-10-22T13:49:57.993635+00:00",
@@ -102059,6 +102121,17 @@
     "status": "machine",
     "text": "Ten wykaz jest kanonicznym źródłem informacji o tym, co autorzy mogą umieścić w `source:`; jego etykiety to te, które definiuje [`10-status.md`](../10-status.md)."
   },
+  "8bdccfb2850e59ba": {
+    "at": "2026-11-17T11:39:21.279Z",
+    "job": "session-0003-20261117113921",
+    "revision": {
+      "from": "e5dec9ae02e74390",
+      "reviewed": false
+    },
+    "srcHash": "8bdccfb2850e59ba",
+    "status": "machine",
+    "text": "`available` — każdy dostępny provider (helm, helm-chart, compose, terraform, cloudformation, arm) przyjmuje gołą ścieżkę systemu plików jako ciąg znaków."
+  },
   "8bddf5f7c863b33b": {
     "at": "2026-10-22T09:37:52.967973+00:00",
     "job": "msgbatch_01RGLknY51NbNWbx2UhJqBqm",
@@ -105673,6 +105746,17 @@
     "srcHash": "90e841bd91ddc79f",
     "status": "machine",
     "text": "`name` załogi w `crew.jsonc` lub `crew.json`; `config/agents.yaml` i `config/tasks.yaml` nie mają żadnej, ponieważ klasyczny projekt nadaje nazwę swojej załodze w swoim programie"
+  },
+  "90e84989943a6c17": {
+    "at": "2026-11-17T11:39:21.279Z",
+    "job": "session-0003-20261117113921",
+    "revision": {
+      "from": "3ef58547a9e520f4",
+      "reviewed": false
+    },
+    "srcHash": "90e84989943a6c17",
+    "status": "machine",
+    "text": "**Filtrowane jest tylko to, co renderuje własne `source:` tej encji FeatureRecipe.** Jej `workload:` i `artifacts:` nie są filtrowane, podobnie jak dane wyjściowe komponentu hosta: wpisy dołączenia obejmują jego własny chart, jego własny plik compose, jego własny szablon CloudFormation lub jego własny szablon ARM i nic więcej — usługa compose zadeklarowana przez hosta pod tym samym kluczem w `docker-compose.yaml`, do którego oba są składane, pozostaje nietknięta, podobnie jak zasób zadeklarowany przez hosta pod tym samym identyfikatorem logicznym w stosie, do którego oba są składane. Aby zmienić dokument renderowany przez hosta, wpis deklaruje encja Recipe hosta albo łata go krok `pipeline:`."
   },
   "90e8b5c0b4bd1ddb": {
     "at": "2026-10-29T21:33:51.093Z",
