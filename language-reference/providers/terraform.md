@@ -262,6 +262,31 @@ This object does not have an attribute named "db_instance_addresz".
 
 The build reads none of the module's `variable` or `output` blocks, writes nothing into the module, and adds no provider configuration to it, so a mistyped output name is caught by the engine rather than by the build. See [Consuming another component's published value](#consuming-another-components-published-value) for the consumer's side.
 
+### Sourcing a module from an OCI registry
+
+An OpenTofu module package is a module published to an OCI registry as one `archive/zip` layer. A Recipe sources it with the `terraform-module-oci` source kind:
+
+```yaml
+spec:
+  capability: terraform
+  implements: example/network/vpc:1.0.0
+  source:
+    kind: terraform-module-oci
+    url: oci://registry.example.com/modules/network
+    version: v1.2.0
+    module_subdir: modules/vpc
+  valuesMapping: |
+    cidr_block: "{{ .values.cidr_block }}"
+```
+
+`url:` is `oci://<registry>/<repository>` exactly: a tag, a digest, a query or a `//` in it is refused. `version:` is required and is a tag or a `sha256:` manifest digest; it is never defaulted. `module_subdir:` is optional and names the directory inside the package that is the module, as it does for a Git repository. It is OpenTofu's `//sub` written as its own key, so `oci://registry.example.com/modules/network//modules/vpc` is `url: oci://registry.example.com/modules/network` with `module_subdir: modules/vpc`. `chart:` and `ref:` are refused. A source that does not name one artifact is refused as the Recipe is read: [The source does not name one artifact of its OCI module kind](../errors/fatal-halts.md#the-source-does-not-name-one-artifact-of-its-oci-module-kind).
+
+**What is pinned.** [`aggrega pin`](../cli/aggrega-pin.md) and the pull fetch the package and record two digests in the lockfile: the manifest digest, and the digest of the package layer exactly as it was published. The version is recorded as you wrote it. Every later build reads the package from the cache and verifies it against those digests before vendoring anything, so it needs no network. A tag is a name a registry can move to other content: a pull over a Recipe whose `entity.lock` records the earlier digest halts, naming `aggrega pin`, rather than adopting the new bytes, and running `aggrega pin` on the Recipe records the new ones deliberately. A `sha256:` version names content that cannot move.
+
+**What is vendored.** The package, or the directory `module_subdir:` names, is laid out as a tree and lands under the component's `modules/` directory file for file, and the root configuration calls it by a local path, exactly as for a module fetched from a Git repository. Because the module is called by a local path, the output reads the same under Terraform and OpenTofu, and the engine fetches nothing to load it. The build never opens a `.tf` file of the package, and nothing is written into it.
+
+Credentials for a private registry are read from the Docker credential configuration: [Authentication](../cli/aggrega-pull.md#authentication) describes it. Binding the module's inputs and reading its outputs work as they do under [Sourcing a module a registry publishes](#sourcing-a-module-a-registry-publishes).
+
 ## Verbatim emission and vendoring
 
 The terraform provider does not transpile, reformat, or rewrite Terraform bodies. An authored HCL or `.tf.json` body is emitted exactly as its template evaluates, an HCL body opening with the provenance comments, and a sourced module is vendored file-for-file. This is what keeps terraform output deterministic and reproducible: given the same inputs, the rendered configuration is byte-identical across runs, and a vendored module round-trips unchanged. Because the provider never resolves runtime state, everything runtime-dependent stays an interpolation string that Terraform binds at apply time.

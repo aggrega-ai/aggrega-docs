@@ -128,6 +128,43 @@ valuesMapping: |
 
 **A required parameter left unbound halts.** A nested deployment's parameters cannot be supplied when it deploys: a parameter with no `defaultValue` that does not admit null and has no mapped value halts the build, naming the parameter and saying to map each one. To take a value at deploy time, map the parameter to `[parameters('<name>')]` and declare that top-level parameter in the Recipe's own `artifacts:` fragment.
 
+## Sourcing a published Bicep module
+
+A Bicep module published to an OCI registry with `bicep publish` carries its compiled ARM template as a layer. A Recipe sources it with the `bicep-module-oci` source kind, and the pull fetches that layer byte for byte and lays it out as `main.json`, which the provider selects as it selects any directory source and nests as described under [Sourced templates](#sourced-templates). An Azure Verified Module publishes this way:
+
+```yaml
+spec:
+  capability: arm
+  implements: example/compute/container-app:1.0.0
+  source:
+    kind: bicep-module-oci
+    url: oci://mcr.microsoft.com/bicep/avm/res/app/container-app
+    version: 0.23.1
+  valuesMapping: |
+    name: "{{ .values.name }}"
+    enableTelemetry: false
+```
+
+`url:` is `oci://<registry>/<repository>` exactly, and `version:` is required: a tag, or a `sha256:` manifest digest. `module_subdir:`, `chart:` and `ref:` are refused, since a published module is one template. A source that does not name one artifact is refused as the Recipe is read: [The source does not name one artifact of its OCI module kind](../errors/fatal-halts.md#the-source-does-not-name-one-artifact-of-its-oci-module-kind). The Recipe binds `enableTelemetry: false` itself; the provider adds no binding the Recipe did not write.
+
+**Bicep's registry references.** Bicep writes a module as `br:<registry>/<path>:<tag>`; the source writes the same coordinates in two keys, `url: oci://<registry>/<path>` and `version: <tag>`. Bicep's `br/public:<path>` alias is the registry `mcr.microsoft.com/bicep`, so it is `url: oci://mcr.microsoft.com/bicep/<path>`. Aggrega does not read `br:` references.
+
+**What is pinned.** The lockfile records the manifest digest and the digest of the template layer as it was published, with the version as written. A build reads the layer from the cache and verifies it against those digests; it needs no network. A moved tag halts a pull over a committed `entity.lock` naming `aggrega pin`, as [Sourcing a module from an OCI registry](terraform.md#sourcing-a-module-from-an-oci-registry) describes for the other kind.
+
+**Azure Container Registry.** A private module registry takes the credentials Aggrega reads from the Docker credential configuration ([Authentication](../cli/aggrega-pull.md#authentication)). Two ways to write them for `<name>.azurecr.io`:
+
+```bash
+# With the Docker CLI installed: az writes the credential where Aggrega reads it.
+az acr login --name <name>
+
+# Without it: pass the access token to aggrega login.
+az acr login --name <name> --expose-token --output tsv --query accessToken \
+  | aggrega login <name>.azurecr.io \
+      --username 00000000-0000-0000-0000-000000000000 --password-stdin
+```
+
+`az acr login` needs the Docker CLI to write the credential. The token lasts 3 hours, and only a pull needs one: a build reads the cache. With `DOCKER_COMMAND=podman` set, `az acr login` writes the credential for Podman, where Aggrega does not read it.
+
 ## The `arm` Recipes in the catalog
 
 Each `arm` Recipe in the table that names a module wraps one of Microsoft's Azure Verified Modules at a pinned tag, each fetched from its git repository at the commit `entity.lock` records, and each binds `enableTelemetry: false`; `arm/azure-api-management` authors its resources itself and `arm/key-vault-secret` renders none. A Recipe reads the Release's `infra.overrides` for the operator's own resources, and halts by name on a value it cannot realize.

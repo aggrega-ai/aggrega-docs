@@ -430,6 +430,19 @@ Emitted message, naming the document, the kind as written and the kinds that are
 
 **How to fix:** correct the kind on the `source:` to one the toolchain serves — a misspelling and a kind that genuinely has no adapter produce the same message, and the message quotes the kind as you wrote it beside the kinds that are served, so the first thing to check is the spelling against that list, which [the Recipe page](../entities/recipe.md#a-wasm-driven-source-schemas) also describes. Where the kind is spelled as you intended, that kind is not one this build can acquire, and no authoring change to the Recipe will make it so; point the `source:` at a form that is served instead, or write it as a single URI whose shape names its kind.
 
+### The source does not name one artifact of its OCI module kind
+
+<!-- covers: pkg/sourcekind.ErrOCIModuleSourceMalformed -->
+
+A source of kind `bicep-module-oci` or `terraform-module-oci` names one artifact in an OCI registry: a `url:` of the form `oci://<registry>/<repository>` and a `version:` that is a tag or a `sha256:` manifest digest. This condition reports a source whose coordinates do not name one: a `url:` that carries a tag, a digest, a query, a fragment or an empty path segment, or names no repository; a `version:` that is absent or is neither a tag nor a `sha256:` digest of 64 lowercase hex characters; a `chart:` or `ref:`, which neither kind uses; or a `module_subdir:` on `bicep-module-oci`, which is one template. A FeatureRecipe's `source:` is held to the same rule.
+
+It is refused as the document is read, before anything is fetched, so checking the Recipe on its own refuses it, and so does every pull, pin and build that reaches it. A source whose `version:` still carries template text is not judged there; the pull judges what it evaluates to. Each fault is reported on its own.
+
+Emitted message, naming the document, then the fault and what to write:
+> the source does not name one artifact of its OCI module kind (Recipe `<name>:<version>`, rule oci-module-source, at `<file>`). the source writes no version; write version: <tag or sha256 manifest digest>
+
+**How to fix:** write the `url:` as `oci://<registry>/<repository>` and move any tag or digest under `version:`; write `version:` as the tag or the `sha256:` manifest digest; and remove `chart:`, `ref:` and, for `bicep-module-oci`, `module_subdir:`. The message opens with what was written and names what to write, so each fault names its own fix. A Bicep `br:<registry>/<path>:<tag>` reference is written `url: oci://<registry>/<path>` with `version: <tag>`.
+
 ### No source adapter is registered in this program for a source kind
 
 <!-- covers: pkg/sourceresolver.ErrNoAdapterRegistered -->
@@ -6922,6 +6935,7 @@ Where one entry appears against two short codes, it covers two distinct conditio
 | `E0376` | `egress: the server did not answer in time` | A server did not answer in time |
 | `E0377` | `registry: the repository listing did not end in time` | A registry's repository listing did not end in time |
 | `E0378` | `oci: the registry kept asking to slow down` | A registry kept asking to slow down |
+| `E0379` | `the source does not name one artifact of its OCI module kind` | The source does not name one artifact of its OCI module kind |
 <!-- END GENERATED: halt-condition-sentences -->
 
 ## The linter domain (not fatal)
