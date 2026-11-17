@@ -65,7 +65,7 @@ arrange subdirectories inside one is yours.
 
 **Directories listed under `workspace.catalog_dirs` are read as well, and they are read first.**
 The list is an ordered search stack: the first directory to declare an identity owns it, and the
-same identity in a later directory is shadowed. `catalog` is read after everything listed — unless
+same identity in a later directory is shadowed. A library name (SchemaLibrary, MappingLibrary, WorkloadLibrary, ArtifactLibrary) is owned as a whole: the first directory that holds any version of it owns it, and every copy in a later directory, at any version, is shadowed. `catalog` is read after everything listed — unless
 a listed directory already contains it, in which case it is read as part of that directory — so
 listing a directory adds to what you had rather than replacing it. A repeatable `--catalog <dir>`
 on the command line is read ahead of both, and a relative path given there resolves against the

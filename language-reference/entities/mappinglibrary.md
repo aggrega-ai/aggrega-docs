@@ -86,7 +86,7 @@ spec:
     $import: "BaseMappings#/mappings/ProbeBlock"
 ```
 
-The `#/mappings/<name>` fragment selects the entry and distinguishes a mapping reference from SchemaLibrary's `#/schemas/<name>`. The reference uses the same bare-name identity model as SchemaLibrary `$ref:` — `<Library>#/mappings/<name>`, carrying no registry host. The version is supplied by the per-Release lockfile (name + version + content digest); an author may assert an optional minimum-version floor as `<Library>:<version>#/mappings/<name>` (the version separator is `:`, matching recipe/feature mappings and the lockfile pin), and physical location is bound at resolution time.
+The `#/mappings/<name>` fragment selects the entry and distinguishes a mapping reference from SchemaLibrary's `#/schemas/<name>`. The reference uses the same bare-name identity model as SchemaLibrary `$ref:` — `<Library>#/mappings/<name>`, carrying no registry host — and may state a minimum version as `<Library>:<version>#/mappings/<name>`. See [SchemaLibrary](schemalibrary.md) for how a reference selects among the versions a catalog holds and for the one version a Release reads per library name.
 
 ## Cross-Library Composition
 
