@@ -130,7 +130,7 @@ valuesMapping: |
 
 ## The `arm` Recipes in the catalog
 
-Six of the catalog's `arm` Recipes wrap one of Microsoft's Azure Verified Modules at a pinned tag, each fetched from its git repository at the commit `entity.lock` records, and each binds `enableTelemetry: false`; `arm/azure-api-management` authors its resources itself and `arm/key-vault-secret` renders none. A Recipe reads the Release's `infra.overrides` for the operator's own resources, and halts by name on a value it cannot realize.
+Each `arm` Recipe in the table that names a module wraps one of Microsoft's Azure Verified Modules at a pinned tag, each fetched from its git repository at the commit `entity.lock` records, and each binds `enableTelemetry: false`; `arm/azure-api-management` authors its resources itself and `arm/key-vault-secret` renders none. A Recipe reads the Release's `infra.overrides` for the operator's own resources, and halts by name on a value it cannot realize.
 
 | Recipe | Implements | What it wraps or authors | Notable refusals |
 | --- | --- | --- | --- |
@@ -151,7 +151,7 @@ On `arm`, a secret reaches a resource as a reference to a Key Vault secret that 
 
 **Into a sourced module.** `arm/postgres-flexible-server` reads the secret's location from the attachment on its `password` slot and binds the module's secure password parameter as a Key Vault reference object, as under [Sourced templates](#sourced-templates). With nothing attached, or another credential, the build halts naming the slot. `arm/azure-api-management` reads its `provider_key` slot the same way: the template writes a named value the instance reads from the secret with its managed identity, which needs read access to it.
 
-**Into a Container Apps container.** A value a neighbour delivers and its producer declares sensitive halts the build in `arm/server-container-apps` and `arm/worker-container-apps`; the route for such a credential is `infra.overrides.secrets`, a map from the name of a container variable to an entry holding two keys:
+**Into a Container Apps container.** A value a neighbour delivers and its producer declares sensitive halts the build in `arm/server-container-apps` and `arm/worker-container-apps`; the route for such a credential is `infra.overrides.secrets`, a map from the name of a container variable to an entry holding `origin` and `identity`:
 
 ```yaml
 infra:
