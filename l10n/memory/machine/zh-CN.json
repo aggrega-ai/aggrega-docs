@@ -4844,6 +4844,13 @@
     "status": "machine",
     "text": "guest 返回一个判定列表。每个判定带有一个严重级别，决定构建的处理方式："
   },
+  "06495f85a523b90b": {
+    "at": "2026-11-17T14:02:03.453Z",
+    "job": "session-0013-20261117140203",
+    "srcHash": "06495f85a523b90b",
+    "status": "machine",
+    "text": "**包装。** 模板成为一个嵌套部署资源的 `properties.template`，以排序后的键写入。嵌套部署在自己的作用域中求值（`expressionEvaluationOptions.scope` 为 `inner`），并以增量方式部署；其 `name` 为 `[format('<Symbol>-{0}', uniqueString(deployment().name))]`，因此对于同一个外层部署是稳定的。引入的模板按读取时的原样携带，只有 `omits:` 条目移除的资源除外。1.0 语言的模板嵌套在 2.0 的外层模板内。`$schema` 为订阅编写的模板属于订阅内容：其嵌套部署使用 `location: \"[deployment().location]\"`，即 ARM 要求该作用域中的部署使用的位置，并按[在订阅作用域部署](#deploying-at-subscription-scope)所述放置。"
+  },
   "064994f1d8961e16": {
     "at": "2026-10-23T00:18:02.017487+00:00",
     "job": "msgbatch_01WWSdKvrWpurqxfMfC3PmVX",
@@ -12288,6 +12295,13 @@
     "srcHash": "10281db8d221d251",
     "status": "machine",
     "text": "**单继承（`extends`）：** 对于完整的组件基线，实体可以使用 `extends: \"URI\"` 属性。Go 编译器递归获取父实体，并深度合并 YAML 元数据（冲突时覆盖标签，数组则追加）。随后，两种目录类型在数据支柱上分道扬镳。Feature 的 `schema:` 按照 JSON Schema 2020-12 组合规则与其基类的组合。扩展的 Component 完全不编写支柱内容：它写下字面标记 `schema: inherited`，并在继承链的每一层都原样接收其基类编写的 `schema:` 块。这样的 Component 组合的是结构——其挂载槽（`featuresSchema`）、拓扑插座（`usesSchema`）、自注入允许列表（`inject`）和命名的 `assertions` 都沿继承链合并。基类与子组件的扩展示例参见 [entities/component](../language-reference/entities/component.md)，继承在构造上确定了什么、哪些仍是发布纪律规则，参见 [governance-and-compliance §“Inheritance and publishing discipline”](11-governance-and-compliance.md#inheritance-and-publishing-discipline)。"
+  },
+  "10282537e8f9c4b8": {
+    "at": "2026-11-17T14:02:03.453Z",
+    "job": "session-0013-20261117140203",
+    "srcHash": "10282537e8f9c4b8",
+    "status": "machine",
+    "text": "从源获取的模板"
   },
   "1028d50a8057e3bc": {
     "at": "2026-10-22T08:15:42.630087+00:00",
@@ -31603,6 +31617,13 @@
     "status": "machine",
     "text": "策略"
   },
+  "2aa6bde92217d6dd": {
+    "at": "2026-11-17T14:02:03.453Z",
+    "job": "session-0013-20261117140203",
+    "srcHash": "2aa6bde92217d6dd",
+    "status": "machine",
+    "text": "**敏感映射规则。** 当 `valuesMapping` 读取某个 Feature 声明为敏感的值时，该映射产生的每个字面量都会被拒绝——构建无法判断映射的哪个输出键携带了密钥——并且中止信息会指出这些字面量本应绑定的参数，绝不指出值。表达式和 Key Vault 引用对象按原样通过，因此应把每个参数导向其中之一。该标记在读取端是精确的："
+  },
   "2aaaee4b797b6138": {
     "at": "2026-11-10T00:13:52.913Z",
     "job": "session-0005-20261110001352",
@@ -43855,6 +43876,13 @@
     "status": "machine",
     "text": "**影响渲染的标志同样作用于这次渲染。** `--trace`、`--verify-determinism`、`--disable-plugin-cache` 和 `--no-unsupported-field-warnings` 作用于自动拉取构建所执行的渲染，方式与作用于普通构建相同，因此在单命令构建中请求跟踪或确定性检查，同样会得到结果。`--dry-run` 是例外，而且它会被拒绝而不是被静默忽略：试运行不写入任何内容，而拉取步骤会写入，因此两者同时使用时会在任何工作开始前停止（参见[预览构建而不写入](#previewing-a-build-without-writing-it)）。"
   },
+  "3bd27c90152bc673": {
+    "at": "2026-11-17T14:02:03.453Z",
+    "job": "session-0013-20261117140203",
+    "srcHash": "3bd27c90152bc673",
+    "status": "machine",
+    "text": "对象本身，作为该参数的条目写入。仅允许用于 `securestring` 或 `secureObject` 参数（直接声明，或通过指向 `definitions` 的一个 `$ref` 声明）；对于其他任何参数，构建会中止。"
+  },
   "3bda0cd035c912ab": {
     "at": "2026-10-22T08:23:20.000561+00:00",
     "job": "msgbatch_01HzD7wD8iu4mXKJLFLJkdaf",
@@ -44768,6 +44796,13 @@
     "srcHash": "3cfd121d28fe2ff0",
     "status": "machine",
     "text": "只使用 Aggrega 工具，不要自己创建任何文件夹。如果工作区文件夹中还没有 `import-crewai` 文件夹，调用一次 `scaffold` 工具，将 `example` 设为 `import-crewai`，不设 `dir`：它会把示例写入一个新的 `import-crewai` 文件夹，其中的 `source` 文件夹包含本示例要导入的内容。然后调用 `import` 工具，将 `workspace_root` 设为 `import-crewai/source`，`source` 设为 `src/support_brief`，`target` 设为 `compose`：它从 `src/support_brief` 文件夹中的 `import-answers.yaml` 读取所需的答案，将草稿写入 `import-crewai/source`，并拉取草稿所需的内容。然后调用 `validate` 工具，将 `workspace_root` 设为 `import-crewai/source`，`release` 设为 `release.yaml`；再调用 `build` 工具，将 `workspace_root` 设为 `import-crewai/source`，`release` 设为 `release.yaml`，`write` 设为 true。告诉我构建写入了哪些文件；它们位于 `import-crewai/source/dist/` 下。"
+  },
+  "3d027bb688d3e9f8": {
+    "at": "2026-11-17T14:02:03.453Z",
+    "job": "session-0013-20261117140203",
+    "srcHash": "3d027bb688d3e9f8",
+    "status": "machine",
+    "text": "**Key Vault 引用对象。** 在 `arm` 上，指定某个密钥的 Feature 会发布密钥所在的位置——对于 Key Vault 密钥，即其资源 ID——而绝不发布密钥本身。使用它的 Recipe 在参数的位置写入 ARM 读取的引用对象："
   },
   "3d045af1f5be098c": {
     "at": "2026-10-22T01:50:22.319444+00:00",
@@ -48216,6 +48251,13 @@
     "srcHash": "4200ad86ff28ee45",
     "status": "machine",
     "text": "同一角色上的挂接按列出的顺序运行，每个挂接都会读取前面挂接写入的标签：标签注入器接收 Rego 策略写入的两个标签，选择器标记器接收这些标签以及标签注入器写入的标签。裁决在这三者之后运行，作用于它们留下的图。"
+  },
+  "420127f480e8cca1": {
+    "at": "2026-11-17T14:02:03.453Z",
+    "job": "session-0013-20261117140203",
+    "srcHash": "420127f480e8cca1",
+    "status": "machine",
+    "text": "**遥测。** 会从其创建的部署中发送遥测的模块，由包装它的 Recipe 指示不要这样做：Azure Verified Module 的 Recipe 在其 `valuesMapping` 中绑定 `enableTelemetry: false`。提供程序从不添加 Recipe 没有写入的绑定。"
   },
   "4204f596cc2bf8b9": {
     "at": "2026-10-22T04:49:50.527667+00:00",
@@ -62105,6 +62147,13 @@
     "status": "machine",
     "text": "**修复方法：**对于缺失的条目，对照库所发布的内容检查名称——条目名称是该库自身映射中的键，区分大小写。对于缺失的库，引用通常是正确的，不足的是依赖闭包：声明对该库的依赖以便加载它，并刷新 lockfile 以固定它。某个库在一个工作区可达而在另一个工作区不可达，是同一故障从另一面看到的样子。"
   },
+  "54802a069d949e2b": {
+    "at": "2026-11-17T14:02:03.453Z",
+    "job": "session-0013-20261117140203",
+    "srcHash": "54802a069d949e2b",
+    "status": "machine",
+    "text": "**绑定。** Recipe 的 `valuesMapping` 绑定模板的参数，并成为嵌套部署的 `properties.parameters`。每个映射键指定模板声明的一个参数，匹配时不区分大小写，与 ARM 匹配参数名的方式一致；未指定任何参数的键会使构建中止，并列出模板声明的参数。以不同大小写写了两次的键会使构建中止，并指出这两个键。每个值按其类型绑定："
+  },
   "548945c5818884e7": {
     "at": "2026-11-17T13:32:02.402Z",
     "job": "session-0009-20261117133202",
@@ -69943,6 +69992,13 @@
     "srcHash": "5f32633c5b1a09ee",
     "status": "machine",
     "text": "无法访问它的内容"
+  },
+  "5f341a848ac76c58": {
+    "at": "2026-11-17T14:02:03.453Z",
+    "job": "session-0013-20261117140203",
+    "srcHash": "5f341a848ac76c58",
+    "status": "machine",
+    "text": "按 ARM 读取参数所声明 `type` 的方式转换：`string` 为文本，`int` 为整数（整数文本写成规范的 JSON 数字），`bool` 为 `true` 或 `false`，`array` 为列表，`object` 为对象。随后依据 `allowedValues`、`minLength`、`maxLength`、`minValue` 和 `maxValue` 进行检查。失败会使构建中止，并指出参数和约束，绝不指出值。通过 `$ref` 指定类型的参数会不经检查地传递其字面量，因为 ARM 会在模板部署时对其进行验证。"
   },
   "5f34f5b8292b1950": {
     "at": "2026-10-29T18:30:40.087Z",
@@ -85701,6 +85757,13 @@
     "status": "machine",
     "text": "**解决方案：通过凭据支柱实现确定性指针**\nAggrega 借助现有的 `inject` 机制解决这一问题，将“确定性”的定义从字面 IP 地址转变为*确定性指针*。生成的配置不传递 URL，而是传递指向云保管库（Cloud Vault）中该 URL *将要*存在的位置的路径。"
   },
+  "746d558c7566c402": {
+    "at": "2026-11-17T14:02:03.453Z",
+    "job": "session-0013-20261117140203",
+    "srcHash": "746d558c7566c402",
+    "status": "machine",
+    "text": "表达式字符串，`[…]`"
+  },
   "746ddae73ba354ed": {
     "at": "2026-10-22T03:18:41.939034+00:00",
     "job": "msgbatch_01WVZNy6gZ7XHn9XMQG1UFc9",
@@ -90187,6 +90250,13 @@
     "srcHash": "7a2533bdf229acac",
     "status": "machine",
     "text": "**`helm/k8s-existing-secret`** 不输出任何内容：它将 `origin` 读取为一个已存在的 Secret 的名称，并按原样发布。"
+  },
+  "7a27c9c22525a423": {
+    "at": "2026-11-17T14:02:03.453Z",
+    "job": "session-0013-20261117140203",
+    "srcHash": "7a27c9c22525a423",
+    "status": "machine",
+    "text": "**精确叶子读取。** Recipe 的 `valuesMapping` 只有在读取声明为敏感的值，或包含这类值的整个对象或映射时，才会将自身标记为敏感。因此，Recipe 按精确的叶子读取附件和注入管道——`.features.password.provides.name`、`.features.password.type`——而绝不遍历 `.features`、整体读取 `.features.password`，也不读取 `default dict .features`，其中任何一种都会标记该映射。Feature 的 `provides.name` 发布的叶子是定位符，不是密钥，因此读取它不会标记映射，Recipe 的其他字面量——SKU、`enableTelemetry: false`——会正常绑定。"
   },
   "7a2ac6d7fc78b1de": {
     "at": "2026-10-22T02:48:40.419851+00:00",
@@ -96759,6 +96829,13 @@
     "srcHash": "8358eda20b5cffea",
     "status": "machine",
     "text": "关于 `assertions:` 块的编写语法（紧凑形式的 `validate:` 无法表达的跨字段规则）：[templates/assertions-block.md](../templates/assertions-block.md)。"
+  },
+  "8359791acc0feb82": {
+    "at": "2026-11-17T14:02:03.453Z",
+    "job": "session-0013-20261117140203",
+    "srcHash": "8359791acc0feb82",
+    "status": "machine",
+    "text": "**选择。** 单文件源就是该文件，无论其名称是什么。目录源的根目录必须包含 `main.json`，否则包含 `azuredeploy.json`；两者都没有的目录会使构建中止，列出这两个文件名，并说明 `.bicep` 源需要先用 `bicep build` 编译。只读取所选的文件：Azure Verified Modules 目录中该文件旁边还有测试和其他文件，它们都不会被打包。"
   },
   "835afa7799f0676c": {
     "at": "2026-10-22T02:54:42.494843+00:00",
@@ -117048,6 +117125,13 @@
     "status": "machine",
     "text": "放宽要求发布后："
   },
+  "9f1e4f21c0ccfa69": {
+    "at": "2026-11-17T14:02:03.453Z",
+    "job": "session-0013-20261117140203",
+    "srcHash": "9f1e4f21c0ccfa69",
+    "status": "machine",
+    "text": "映射的值"
+  },
   "9f23c71babc29f30": {
     "at": "2026-10-22T02:13:05.447791+00:00",
     "job": "msgbatch_01EP4VHoVp3GUUNothAVw7Eq",
@@ -131638,6 +131722,17 @@
     "status": "machine",
     "text": "包装器的代价正是这一切得以成立的原因：它只添加结构和元数据，别无其他。由于它不声明支柱，包装器的实例和基础组件的实例针对同一个契约进行校验，为基础组件编写的 Recipe 永远不会被它的特化所意外影响。"
   },
+  "b20f1cafabbb4921": {
+    "at": "2026-11-17T14:02:03.453Z",
+    "job": "session-0013-20261117140203",
+    "revision": {
+      "from": "c2676ab9b41b554a",
+      "reviewed": false
+    },
+    "srcHash": "b20f1cafabbb4921",
+    "status": "machine",
+    "text": "字面量"
+  },
   "b210d47f12c6ec63": {
     "at": "2026-10-29T21:31:42.799Z",
     "job": "session-0022-20261029213142",
@@ -137690,6 +137785,13 @@
     "status": "machine",
     "text": "`aggregate.yaml` 是一个名为 `<target_namespace>/flow` 的 Aggregate 草稿，它为每个声明式智能体包含一个\n以其名称为键的 `core/ai-agent/agent-framework` 实例，其中包括："
   },
+  "ba0f8c7ce3bb2c87": {
+    "at": "2026-11-17T14:02:03.453Z",
+    "job": "session-0013-20261117140203",
+    "srcHash": "ba0f8c7ce3bb2c87",
+    "status": "machine",
+    "text": "嵌套部署的参数接收到的内容"
+  },
   "ba10502938029128": {
     "at": "2026-11-08T12:31:23.045Z",
     "job": "session-0016-20261108123123",
@@ -140263,6 +140365,13 @@
     "status": "machine",
     "text": "**compose provider** —— 中间文件 `<nodeID>.compose-fragment.yaml`，流入 Release 级组合（机制 5）。"
   },
+  "bd912defe60a92d2": {
+    "at": "2026-11-17T14:02:03.453Z",
+    "job": "session-0013-20261117140203",
+    "srcHash": "bd912defe60a92d2",
+    "status": "machine",
+    "text": "绑定值中的每个字符串，无论嵌套多深，都是遵循[编写 ARM 文本](#writing-arm-text)的 ARM 文本：`[…]` 是必须能够解析的表达式，`[[…` 是字面量。"
+  },
   "bd913b396dd81da1": {
     "at": "2026-10-30T00:21:58.288Z",
     "job": "session-0037-20261030002158",
@@ -140679,6 +140788,13 @@
     "srcHash": "be288c4a54eb3b51",
     "status": "machine",
     "text": "**`url`**——要克隆的仓库。`https://`、`ssh://`、`git+ssh://` 和 `git://` 均可接受。私有仓库可以通过 SSH agent 经 SSH 访问，也可以经 HTTPS 访问，此时需在你的 netrc 文件中为其主机添加一条条目——`machine github.com login <user> password <token>`。写入 URL 本身的凭据会被拒绝，如 [身份验证](../../cli/aggrega-pull.md#authentication) 所述。"
+  },
+  "be2c70cd5f2c18a7": {
+    "at": "2026-11-17T14:02:03.453Z",
+    "job": "session-0013-20261117140203",
+    "srcHash": "be2c70cd5f2c18a7",
+    "status": "machine",
+    "text": "**未绑定的必需参数会使构建中止。** 嵌套部署的参数无法在其部署时提供：没有 `defaultValue`、不接受 null 且没有映射值的参数会使构建中止，并指出该参数，提示映射每一个这样的参数。若要在部署时获取值，请将参数映射到 `[parameters('<name>')]`，并在 Recipe 自己的 `artifacts:` 片段中声明该顶层参数。"
   },
   "be2eeb8cf77775a4": {
     "at": "2026-10-30T00:24:07.272Z",
@@ -142498,6 +142614,13 @@
     "srcHash": "c08351637dc58e63",
     "status": "machine",
     "text": "因此，为输出资源派生名称的 `locals:` 条目会组合宿主和附加项，与 `artifacts:` 模板的做法完全一样："
+  },
+  "c0835331f0b786fe": {
+    "at": "2026-11-17T14:02:03.453Z",
+    "job": "session-0013-20261117140203",
+    "srcHash": "c0835331f0b786fe",
+    "status": "machine",
+    "text": "`{\"value\": null}`，仅用于声明了 `nullable` 的参数；否则构建会中止。"
   },
   "c08442fc8efcd448": {
     "at": "2026-10-22T02:42:41.008096+00:00",
@@ -167789,6 +167912,13 @@
     "status": "machine",
     "text": "**模式 1（内联）：**直接写在 Recipe 中的 Go 模板 Workload。"
   },
+  "e157ce6687cd4548": {
+    "at": "2026-11-17T14:02:03.453Z",
+    "job": "session-0013-20261117140203",
+    "srcHash": "e157ce6687cd4548",
+    "status": "machine",
+    "text": "Key Vault 引用对象，严格为 `reference: {keyVault: {id: …}, secretName: …}`，可选带有 `secretVersion`"
+  },
   "e161cf180678c8db": {
     "at": "2026-11-05T19:43:13.706Z",
     "job": "session-0017-20261105194313",
@@ -185449,6 +185579,13 @@
     "status": "machine",
     "text": "执行除写入外的所有操作：将生成的配置作为内容返回，并注明其对应的文件，不创建或修改任何内容。不使用此标志时，附加项会写入解析得到的配置文件。不适用于 cli 类型。"
   },
+  "f8e4f493c49310b9": {
+    "at": "2026-11-17T14:02:03.453Z",
+    "job": "session-0013-20261117140203",
+    "srcHash": "f8e4f493c49310b9",
+    "status": "machine",
+    "text": "**向安全参数传入字面量会使构建中止。** 为 `securestring` 或 `secureObject` 参数提供字面量会把密钥以文本形式写入模板，因此构建会中止，并提示映射 Key Vault 引用或表达式。"
+  },
   "f8e8790a4208c049": {
     "at": "2026-10-29T23:52:11.486Z",
     "job": "session-0036-20261029235211",
@@ -190488,6 +190625,13 @@
     "srcHash": "ffc8486bfc660b16",
     "status": "machine",
     "text": "`RequestId`"
+  },
+  "ffc87f7812a9529b": {
+    "at": "2026-11-17T14:02:03.453Z",
+    "job": "session-0013-20261117140203",
+    "srcHash": "ffc87f7812a9529b",
+    "status": "machine",
+    "text": "`{\"value\": \"<expression>\"}`。表达式在外层模板的作用域中求值，因此相邻资源的符号名称可以解析。它必须能够解析。"
   },
   "ffc896927aca256f": {
     "at": "2026-10-22T02:18:58.122887+00:00",
