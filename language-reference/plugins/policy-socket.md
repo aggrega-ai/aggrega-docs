@@ -1163,6 +1163,8 @@ governance adapter skeleton each plugin development kit ships:
 [Writing a governance plugin of your own](writing-a-governance-plugin.md) walks it
 from the skeleton to a build it refuses.
 
+**An Azure Resource Manager template reads as JSON.** The `arm` provider writes `arm-template.json`, whose `documents` hold one object. Its `resources` is an object keyed by symbolic name, so a policy reads `input.artifacts[_].documents[_].resources.<symbol>` or ranges over `resources` with `some resource in doc.resources`; a template without symbolic names holds a list there, which `is_object(doc.resources)` tells apart. A resource a Recipe sources from a module is a nested deployment, of type `Microsoft.Resources/deployments`, and its parameters sit at `properties.parameters.<name>.value`, so a policy over those resources reads them there rather than among the module's own resources. [`policy-render-verdict`](../examples/policy-render-verdict/README.md) reads container images this way.
+
 ### YAML, JSON, and Terraform HCL output — the reference Rego render adapter
 
 The reference Rego render adapter runs operator-supplied Rego over any YAML or

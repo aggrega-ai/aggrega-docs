@@ -128,6 +128,44 @@ valuesMapping: |
 
 **A required parameter left unbound halts.** A nested deployment's parameters cannot be supplied when it deploys: a parameter with no `defaultValue` that does not admit null and has no mapped value halts the build, naming the parameter and saying to map each one. To take a value at deploy time, map the parameter to `[parameters('<name>')]` and declare that top-level parameter in the Recipe's own `artifacts:` fragment.
 
+## The `arm` Recipes in the catalog
+
+The catalog's `arm` Recipes wrap Microsoft's Azure Verified Modules at a pinned tag, each fetched from its git repository at the commit `entity.lock` records, and each binds `enableTelemetry: false`. Each reads the Release's `infra.overrides` for the operator's own resources, names a value it cannot realize and halts on it by name.
+
+| Recipe | Implements | What it wraps or authors | Notable refusals |
+| --- | --- | --- | --- |
+| `arm/postgres-flexible-server` | `core/datastore/postgres` | `avm/res/db-for-postgre-sql/flexible-server` 0.16.2: one flexible server with private access in the operator's delegated subnet and private DNS zone | init scripts, a configuration file, another port, a storage size the service does not offer; an administrator password from anything but a Key Vault secret |
+| `arm/redis-azure-managed` | `core/datastore/redis` | `avm/res/cache/redis-enterprise` 0.5.2: one Azure Managed Redis instance with its one database | an attached password, `maxmemory`, `databases`, another port, a container image, a server certificate |
+| `arm/server-container-apps` | `core/compute/server` | `avm/res/app/container-app` 0.23.1: one Container Apps app with internal ingress, in the operator's environment | `infra.published_port`, a delivery its producer declares sensitive, a registry password written as text |
+| `arm/worker-container-apps` | `core/compute/worker` | `avm/res/app/container-app` 0.23.1: one Container Apps app with no ingress, in the operator's environment | a delivery its producer declares sensitive, a registry password written as text |
+| `arm/azure-openai` | `core/ai-model/azure-openai` | `avm/res/cognitive-services/account` 0.19.2: an Azure OpenAI account under the custom subdomain the Release names, and one chat model deployment | `infra.endpoint`, `infra.overrides.enable_telemetry: true` |
+| `arm/azure-openai-embedding` | `core/ai-model/azure-openai-embedding` | `avm/res/cognitive-services/account` 0.19.2: the account and one embedding model deployment | `infra.endpoint`, `infra.overrides.enable_telemetry: true` |
+| `arm/azure-api-management` | `core/gateway/azure-api-management` | Authors an API, its chat completions operation, its backend and its policy on an API Management instance that already exists; it creates no instance | a Feature that writes a policy element: `core/semantic-caching`, `core/period-budget`, `core/prompt-injection-shield` and `core/retry-policy` |
+| `arm/key-vault-secret` (FeatureRecipe) | `core/referenced-secret` | Renders no resource; publishes the Key Vault secret's resource ID as the locator a consuming Recipe uses | an `origin` that is not a Key Vault secret's resource ID |
+
+Deploying the template is the operator's: a build sees neither the subscription's quota nor the regions' offerings, so a value Azure refuses surfaces when the template deploys.
+
+## Key Vault routes
+
+On `arm`, a secret reaches a resource as a reference to a Key Vault secret that already exists, so neither the Release nor the emitted template carries its value. Bind `core/referenced-secret` to `arm/key-vault-secret`: `origin` is the secret's resource ID, `/subscriptions/<subscription>/resourceGroups/<group>/providers/Microsoft.KeyVault/vaults/<vault>/secrets/<secret>`, and `values.key` is the data key; both are published as written. The deploying identity must be able to read the secret.
+
+**Into a sourced module.** `arm/postgres-flexible-server` reads the secret's location from the attachment on its `password` slot and binds the module's secure password parameter as a Key Vault reference object, as under [Sourced templates](#sourced-templates). With nothing attached, or another credential, the build halts naming the slot. `arm/azure-api-management` reads its `provider_key` slot the same way: the template writes a named value the instance reads from the secret with its managed identity, which needs read access to it.
+
+**Into a Container Apps container.** A value a neighbour delivers and its producer declares sensitive halts the build in `arm/server-container-apps` and `arm/worker-container-apps`; the route for such a credential is `infra.overrides.secrets`, a map from the name of a container variable to an entry holding two keys:
+
+```yaml
+infra:
+  overrides:
+    secrets:
+      DATABASE_PASSWORD:
+        origin: /subscriptions/<subscription>/resourceGroups/<group>/providers/Microsoft.KeyVault/vaults/<vault>/secrets/<secret>
+        identity: /subscriptions/<subscription>/resourceGroups/<group>/providers/Microsoft.ManagedIdentity/userAssignedIdentities/<identity>
+```
+
+`origin` is the Key Vault secret's resource ID and `identity` is a user-assigned managed identity allowed to read it. The Recipe writes one Key Vault-backed app secret for each entry, named after the variable in lowercase with each underscore a hyphen, whose `keyVaultUrl` is built from the vault and secret names with `environment().suffixes.keyvaultDns`, so the address is the one of the cloud the template deploys to. The container variable names that app secret with `secretRef`, and the template holds no value. An entry that sets `value` or any key beyond `origin` and `identity` halts, as does an `origin` that is not a Key Vault secret's resource ID.
+
+**No generator.** ARM has no secret generator, so `core/generated-secret` and `core/random-password` have no `arm` FeatureRecipe and a build binding either halts for want of a Recipe; see [the credential model](../../architecture/08-credential-model.md#a-credential-the-target-generates).
+
 ## Leaving resources out of a sourced template
 
 A sourced template's resources are its own: values reach it only through the parameters it declares, so a template fetched from a git repository that declares a resource the Release must not create — a diagnostic setting the platform provides elsewhere, a key vault the operator already owns — cannot be changed by a value. That is what the [`omits:`](../entities/recipe.md#the-omits-field--leaving-rendered-documents-out-of-a-source) entries of a Recipe or a FeatureRecipe are for. This provider honours them on a sourced template and on nothing else: the fragments an `artifacts:` entry authors render without them.
