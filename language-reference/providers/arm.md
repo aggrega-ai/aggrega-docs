@@ -142,8 +142,17 @@ spec:
     version: 0.23.1
   valuesMapping: |
     name: "{{ .values.name }}"
+    environmentResourceId: "{{ .infra.overrides.container_app_environment_id }}"
+    containers:
+      - name: app
+        image: "{{ .infra.image }}"
+        resources:
+          cpu: "0.25"
+          memory: 0.5Gi
     enableTelemetry: false
 ```
+
+The module's required parameters, `environmentResourceId` and `containers` among them, are bound beside `name`; a required parameter the mapping leaves out halts, as above.
 
 `url:` is `oci://<registry>/<repository>` exactly, and `version:` is required: a tag, or a `sha256:` manifest digest. `module_subdir:`, `chart:` and `ref:` are refused, since a published module is one template. A source that does not name one artifact is refused as the Recipe is read: [The source does not name one artifact of its OCI module kind](../errors/fatal-halts.md#the-source-does-not-name-one-artifact-of-its-oci-module-kind). The Recipe binds `enableTelemetry: false` itself; the provider adds no binding the Recipe did not write.
 
