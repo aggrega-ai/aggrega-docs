@@ -8,14 +8,19 @@ import ThemeSelect from "virtual:starlight/components/ThemeSelect";
 import siteNav from "virtual:aggrega-docs/site-nav";
 import { GITHUB_HREF, catalogHref, docsHref } from "../site-nav.mjs";
 
-// The header, in place of Starlight's: the wordmark leading to the Aggrega home
+// The header, in place of Starlight's: the brand leading to the Aggrega home
 // page, this site's search, then the Aggrega menu the home site and the catalog
 // show in the same order and look (src/site-nav.mjs): the documentation, the
 // catalog, the examples and the GitHub repository, the theme switch and the
-// language picker. On a narrow screen the menu's links and the theme switch are
-// left out of the bar, the theme switch being in Starlight's menu (see
-// src/components/MobileMenuFooter.astro), and the search button and the language
-// picker sit together at the bar's end, beside Starlight's menu button.
+// language picker. On a narrow screen the menu's links are left out of the bar. On
+// a page with the sidebar the theme switch is left out too, being in Starlight's
+// menu (see src/components/MobileMenuFooter.astro); on a page without the
+// sidebar, which has no menu button, the theme switch stays in the bar before
+// the language picker. The search button and the language picker sit together
+// at the bar's end, beside Starlight's menu button.
+// From 50rem the first grid column keeps the search aligned with the content
+// column when the bar has room and gives way to the controls when it has not,
+// so the picker keeps its full name.
 // The labels are the page's language's translation of src/strings/site-nav.md
 // (siteNavLabels in src/translations.mjs), each marked with the language it is
 // in, so a label the translation memory lacks is marked as English.
@@ -35,7 +40,7 @@ const newTabId = "site-nav-new-tab";
     {shouldRenderSearch && <Search />}
   </div>
   <div class="end-group sl-flex print:hidden">
-    <div class="sl-hidden md:sl-flex right-group">
+    <div class="right-group">
       <nav aria-label="Aggrega" class="site-nav">
         <a href={route.siteTitleHref} lang={labels.docs.lang}>{labels.docs.text}</a>
         <a href={catalogHref(route.locale)} lang={labels.catalog.lang}>{labels.catalog.text}</a>
@@ -85,8 +90,8 @@ const newTabId = "site-nav-new-tab";
     align-items: center;
   }
 
-  .end-group {
-    min-width: 0;
+  .right-group {
+    display: flex;
   }
 
   @media (max-width: 49.99rem) {
@@ -101,6 +106,16 @@ const newTabId = "site-nav-new-tab";
     }
     .end-group {
       flex: 0 1 auto;
+      min-width: 0;
+    }
+    .right-group .site-nav {
+      display: none;
+    }
+    .right-group {
+      display: none;
+    }
+    :global(:root:not([data-has-sidebar])) .right-group {
+      display: flex;
     }
   }
 
@@ -151,7 +166,7 @@ const newTabId = "site-nav-new-tab";
       );
       display: grid;
       grid-template-columns:
-        minmax(calc(var(--__sidebar-width) + max(0rem, var(--__main-column-fr) - var(--sl-nav-gap))), auto)
+        minmax(min-content, calc(var(--__sidebar-width) + max(0rem, var(--__main-column-fr) - var(--sl-nav-gap))))
         1fr
         auto;
       align-content: center;
