@@ -736,7 +736,7 @@ a Component, Feature or Recipe written for the example, kept beside it or publis
 
 ### `cloud-infrastructure`
 
-Terraform or CloudFormation output for managed cloud services.
+Terraform, CloudFormation or ARM output for managed cloud services.
 
 - [arm-postgres-container-apps](arm-postgres-container-apps/README.md) (`advanced`) — A managed PostgreSQL database and the server that reads it, authored once as developer intent and assembled into **one Azure Resource Manager template**.
 - [aws-rds-and-ecs-service](aws-rds-and-ecs-service/README.md) (`advanced`) — One Aggregate holds a PostgreSQL database and the server that reads it.

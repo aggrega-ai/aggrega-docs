@@ -224,7 +224,7 @@ spec:
                   key: api-key
 ```
 
-Whether that is one secret or two follows from where the two ends resolve secrets. A provider resolves a secret by reference within a **secret scope**: a Kubernetes namespace on `helm`, a Compose project on `compose`, a boundary's root configuration on `terraform`, on `cloudformation` a stack, in the AWS account and region it deploys into, and on `arm` the template, in the resource group it deploys to. Where both ends sit in one scope, they reference one secret resource. Where they sit in different scopes, each end holds a secret resource of its own, realized from the same store entry. The Manifest chooses each end's realization — by Feature type, or for one attachment by its name, which for a connection's attachment is `<alias>.<slot>` (`local.credential` above). Since one parameter feeds both, the two realizations read `origin` as the same kind of locator: both a Secret's name, both the key of a store entry, or both the value itself.
+Whether that is one secret or two follows from where the two ends resolve secrets. A provider resolves a secret by reference within a **secret scope**: a Kubernetes namespace on `helm`, a Compose project on `compose`, a boundary's root configuration on `terraform`, on `cloudformation` a stack, in the AWS account and region it deploys into, and on `arm` the template, at the scope it deploys to. Where both ends sit in one scope, they reference one secret resource. Where they sit in different scopes, each end holds a secret resource of its own, realized from the same store entry. The Manifest chooses each end's realization — by Feature type, or for one attachment by its name, which for a connection's attachment is `<alias>.<slot>` (`local.credential` above). Since one parameter feeds both, the two realizations read `origin` as the same kind of locator: both a Secret's name, both the key of a store entry, or both the value itself.
 
 On `helm` with both ends in one namespace, binding `core/referenced-secret` to `helm/k8s-existing-secret` and fulfilling the parameter with the name of a Secret that namespace holds, `model-keys`, has both ends reference it by name and renders no Secret. The server's container carries:
 
@@ -250,7 +250,7 @@ The build cannot be where the password is made. Its output is a pure function of
 - on `terraform`, the random provider's `random_password`, drawn when the configuration is applied;
 - on `cloudformation`, a Secrets Manager secret that generates its own string when the stack creates it.
 
-On `arm` there is no such resource, as the paragraph on where it cannot be used says.
+On `arm` there is no such resource; see **On `arm`, the generating forms halt** below.
 
 In every case the rendered output names the generator and the secret resource and carries no value. That is a property of what the build has, not a protection it adds: the value never exists until the target makes it. Where the target keeps it afterwards is the target's — Terraform keeps it in the plan and state, a cluster in a Secret.
 

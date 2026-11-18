@@ -184,8 +184,8 @@ list none.
 - `guardrails` — a Release that is meant to halt, and the message it halts with.
 - `catalog-authoring` — a Component, Feature or Recipe written for the example,
   kept beside it or published to the catalog.
-- `cloud-infrastructure` — Terraform or CloudFormation output for managed cloud
-  services.
+- `cloud-infrastructure` — Terraform, CloudFormation or ARM output for managed
+  cloud services.
 - `external-sources` — a Recipe that fetches what it renders: an upstream chart,
   a git repository or a module.
 - `import` — a project written in another format, drafted into Aggrega files by

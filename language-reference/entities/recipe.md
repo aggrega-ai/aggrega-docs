@@ -102,7 +102,7 @@ An Ops team bringing its own infrastructure-as-code keeps it in the Recipe's own
 
 1. **Terraform:** a module is vendored file for file, and an authored body is emitted exactly as written, native HCL (`main.tf`) and Terraform JSON (`.tf.json`) alike — the `terraform` CLI reads both. The boundary's root configuration, `aggrega.modules.tf`, calls each component's directory as a `module` block, and a sourced module's `valuesMapping:` output becomes that block's arguments. See [the terraform provider](../providers/terraform.md).
 2. **CloudFormation:** a sourced template, YAML or JSON, and the resource fragments a Recipe authors are normalized to long-form JSON and merged into one stack template per boundary, the `valuesMapping:` output filling the parameters a sourced template declares. See [the cloudformation provider](../providers/cloudformation.md).
-3. **ARM:** a sourced compiled template, such as an Azure Verified Modules `main.json`, is wrapped as a nested deployment, and the template fragments a Recipe authors are merged into one resource-group template per boundary, the `valuesMapping:` output binding the parameters a sourced template declares. See [the arm provider](../providers/arm.md).
+3. **ARM:** a sourced compiled template, such as an Azure Verified Modules `main.json`, is wrapped as a nested deployment, and the template fragments a Recipe authors are merged into one template per boundary, the `valuesMapping:` output binding the parameters a sourced template declares. See [the arm provider](../providers/arm.md).
 
 A value that exists only once the infrastructure is applied stays a pointer the target resolves — a Terraform `${ ... }` interpolation, a CloudFormation `Ref` or `Fn::GetAtt` — and is never evaluated at build time.
 

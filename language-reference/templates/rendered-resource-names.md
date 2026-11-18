@@ -154,7 +154,7 @@ spec:
 A component named `cache` publishes `cache-default`, and one named `my_cache` publishes
 `my-zucache-default` — in each case the name of the Service the build emits.
 
-The other four report none, and the reasons are **not** the same. None of them is a provider awaiting
+The others report none, and the reasons are **not** the same. None of them is a provider awaiting
 support — in each case either there is no derived name to report, or the name you want is already
 reachable another way.
 
@@ -183,6 +183,11 @@ reachable another way.
   name, which the umbrella's release supplies at install time rather than this provider deriving it —
   so there is no such name here for this key to report. See
   [`../providers/helm-chart.md`](../providers/helm-chart.md) "The chart name the umbrella owns".
+
+- **`arm` — you wrote the names, or the Recipe writes the fold itself.** A fragment's symbolic names
+  are the ones you wrote, and the provider reads them exactly as written. The resource a sourced node
+  is wrapped as is named `{{ capitalizedWords .context.instance_id }}`, which the Recipe writes itself
+  wherever it reads that resource. See [`../providers/arm.md`](../providers/arm.md) "Names".
 
 ## Reading the key where no name is reported
 
