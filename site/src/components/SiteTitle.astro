@@ -1,19 +1,28 @@
 ---
+import markDark from "@aggrega-ai/brand/logo/mark-dark.svg";
+import markLight from "@aggrega-ai/brand/logo/mark-primary.svg";
 import wordmarkLight from "@aggrega-ai/brand/logo/wordmark-light.svg";
 import wordmarkDark from "@aggrega-ai/brand/logo/wordmark-dark.svg";
 import { homeHref } from "../site-nav.mjs";
 
-// The wordmark at the top left, in place of Starlight's site title: it leads to
+// The brand at the top left, in place of Starlight's site title: it leads to
 // the Aggrega home page, the root of the domain, in the page's language, as the
-// home site's and the catalog's wordmarks do. The address is a root-relative
-// path, so it leads to the home page on whichever host serves the documentation.
-// Both wordmarks are in the markup and the theme shows one.
+// home site's and the catalog's do. The address is a root-relative path, so it
+// leads to the home page on whichever host serves the documentation. The bare
+// mark shows below 30rem and the wordmark from 30rem; each has a light and a dark
+// image in the markup, and the theme shows one.
 const route = Astro.locals.starlightRoute;
 ---
 
 <a href={homeHref(route.locale)} class="site-title">
-  <img class="light:sl-hidden" alt="Aggrega" src={wordmarkDark.src} width={136} height={28} />
-  <img class="dark:sl-hidden" alt="Aggrega" src={wordmarkLight.src} width={136} height={28} />
+  <span class="mark">
+    <img class="light:sl-hidden" alt="Aggrega" src={markDark.src} width={50} height={28} />
+    <img class="dark:sl-hidden" alt="Aggrega" src={markLight.src} width={50} height={28} />
+  </span>
+  <span class="wordmark">
+    <img class="light:sl-hidden" alt="Aggrega" src={wordmarkDark.src} width={136} height={28} />
+    <img class="dark:sl-hidden" alt="Aggrega" src={wordmarkLight.src} width={136} height={28} />
+  </span>
 </a>
 
 <style>
@@ -22,6 +31,22 @@ const route = Astro.locals.starlightRoute;
     align-items: center;
     min-width: 0;
     text-decoration: none;
+  }
+  .mark,
+  .wordmark {
+    display: flex;
+    align-items: center;
+  }
+  .wordmark {
+    display: none;
+  }
+  @media (min-width: 30rem) {
+    .mark {
+      display: none;
+    }
+    .wordmark {
+      display: flex;
+    }
   }
   img {
     height: 1.75rem;

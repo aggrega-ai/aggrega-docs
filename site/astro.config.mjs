@@ -145,13 +145,15 @@ export default defineConfig({
       // the page's described by its name in the page's language. The header
       // carries the Aggrega menu the home site and the catalog show
       // (src/site-nav.mjs), its wordmark leads to the home page, and its theme
-      // switch is one button.
+      // switch is one button. The narrow-screen menu's footer holds the theme switch
+      // and the social icons, the language picker being in the header.
       components: {
         Banner: "./src/components/Banner.astro",
         Footer: "./src/components/Footer.astro",
         Head: "./src/components/Head.astro",
         Header: "./src/components/Header.astro",
         LanguageSelect: "./src/components/LanguageSelect.astro",
+        MobileMenuFooter: "./src/components/MobileMenuFooter.astro",
         PageFrame: "./src/components/PageFrame.astro",
         Sidebar: "./src/components/Sidebar.astro",
         SiteTitle: "./src/components/SiteTitle.astro",
