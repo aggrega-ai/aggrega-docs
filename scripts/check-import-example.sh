@@ -31,7 +31,9 @@
 #      came from left out: on the fetch route, the line confirming the fetched
 #      importer's host functions match the published module; on the
 #      catalog-folder route, the warning that an importer read from a catalog
-#      folder runs unverified;
+#      folder runs unverified; and on either route, the warning that the import
+#      read the workspace's catalog folders alone because the registry holding
+#      the published catalog could not be reached ("The published catalog" below);
 #   4. compares the walkthrough page --page names with the example: each fenced
 #      block — read by the rules check-getting-started-commands.mjs reads blocks
 #      by, see "The block reader" below — that the page marks, on the line
@@ -143,12 +145,15 @@
 # it elsewhere, that file is compared like the rest and the check fails on it
 # as a file written and not in draft/, rather than passing over it.
 #
-# The import record. A record's "catalogSnapshot" digest names the newest
-# catalog snapshot the hub publishes when the import runs, which nothing in
-# source/ pins, so step 2 reads each "catalogSnapshot" value as
-# <catalog-snapshot> on both sides, as it writes the temporary directory as
-# <workspace>; every other field is compared as written. draft/ holds the digest
-# the run wrote, and --update writes it so.
+# The published catalog. Whether an import reads the catalog snapshot the hub
+# publishes behind the workspace's catalog folders depends on where the check
+# runs: where the registry cannot be reached the import reads the folders alone,
+# prints the warning saying so, and writes no "catalogSnapshot" member; where it
+# can, the member names whichever snapshot the hub publishes at that moment,
+# which nothing in source/ pins. So step 2 drops each entry's "catalogSnapshot"
+# member on both sides of the record's comparison, present or absent, and step 3
+# leaves out that warning. draft/ holds what the run wrote, and --update writes
+# it so.
 #
 # draft/ therefore holds what the import itself drafts and prints, on either
 # route, and --update writes it so.
@@ -253,6 +258,7 @@ fi
 awk -v ws="$WS" -v route="$IMPORTERS" '
   route != "" && /^warning: plugin "importer\/[a-z0-9-]+" resolved from local with no recorded digest/ { next }
   route == "" && /^  verify: plugin importer\/[a-z0-9-]+ host functions match the published \.wasm$/ { next }
+  /^warn: / && index($0, ", so this import reads the workspace'\''s catalog folders alone, without the published catalog behind them") { next }
   { n = index($0, ws); while (n > 0) { $0 = substr($0, 1, n - 1) "<workspace>" substr($0, n + length(ws)); n = index($0, ws) } print }
 ' "$WORK/stderr" > "$WORK/import.txt"
 
@@ -326,12 +332,11 @@ if ! cmp -s "$WORK/expected" "$WORK/written"; then
   diff "$WORK/expected" "$WORK/written" | sed -n 's/^</  only in draft\/:/p; s/^>/  only written:/p'
   rc=1
 fi
-# A file is compared as read, except an import record's snapshot digests: each
-# "catalogSnapshot" value is read as <catalog-snapshot> on both sides, since the
-# digest names whichever catalog snapshot the hub publishes when the check runs.
+# A file is compared as read, except an import record: each entry's
+# "catalogSnapshot" line is dropped on both sides, present or absent.
 masked() {
   case "$1" in
-    */.aggrega-import.json) sed -E 's/("catalogSnapshot": *)"[^"]*"/\1"<catalog-snapshot>"/' "$1" ;;
+    */.aggrega-import.json) grep -v '^ *"catalogSnapshot": ' "$1" ;;
     *) cat "$1" ;;
   esac
 }
