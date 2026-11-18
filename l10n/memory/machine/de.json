@@ -72400,6 +72400,17 @@
     "status": "machine",
     "text": "**Eine Authoring-Oberfläche.** Ein einziges Aggregate ist die maßgebliche Quelle dafür, *was* Tempo ist; das Manifest sagt, *wie* es zu realisieren ist."
   },
+  "6b2b28da5c32eb23": {
+    "at": "2026-11-18T15:28:56.240Z",
+    "job": "session-0004-20261118152856",
+    "revision": {
+      "from": "b459dcc2d22368d6",
+      "reviewed": false
+    },
+    "srcHash": "6b2b28da5c32eb23",
+    "status": "machine",
+    "text": "Es wird angenommen, dass der Produzent im eigenen Abonnement der konsumierenden Bereitstellung liegt; eine im Geltungsbereich einer Verwaltungsgruppe bereitgestellte Grenze mit Inhalt für ein Abonnement oder eine Ressourcengruppe bricht den Build ab und nennt die Annotation, und ebenso ein Lesen im Geltungsbereich einer Verwaltungsgruppe von einem Produzenten im Geltungsbereich einer Ressourcengruppe oder eines Abonnements."
+  },
   "6b33f073a175d315": {
     "at": "2026-11-04T09:20:00.075Z",
     "job": "session-0226-20261104092000",
@@ -77251,6 +77262,17 @@
     "srcHash": "72636aa95f4e65ee",
     "status": "machine",
     "text": "Was einem Modell über einen leeren Workspace gesagt wird"
+  },
+  "7265a20e0d0cfb8a": {
+    "at": "2026-11-18T15:28:56.240Z",
+    "job": "session-0004-20261118152856",
+    "revision": {
+      "from": "f8c1887597e25d65",
+      "reviewed": false
+    },
+    "srcHash": "7265a20e0d0cfb8a",
+    "status": "machine",
+    "text": "Der `arm`-Anbieter liest seine Platzierungsannotationen auf dieselbe Weise. Jede Azure-Grenze wird in eine Bereitstellung gerendert. Wenn eine `uses`-Kante von einer Grenze zu einer anderen führt, benennen `aggrega.ai/azure-subscription` und `aggrega.ai/azure-resource-group`, wo die erzeugende Bereitstellung liegt, und der Anbieter bildet daraus die Ressourcen-ID dieser Bereitstellung. Sie werden über dieselbe Annotationskaskade aufgelöst und sind opake skalare Zeichenfolgen; der Anbieter löst sie nie gegen den Live-Zustand von Azure auf. Fehlt eine, wird angenommen, dass der Produzent im eigenen Abonnement, in der eigenen Ressourcengruppe oder in der eigenen Verwaltungsgruppe der konsumierenden Bereitstellung liegt; hat die konsumierende Ebene keine eigene, bricht der Build ab und nennt die Annotation."
   },
   "726d1dfe24f99a1c": {
     "at": "2026-10-30T19:53:23.628Z",
@@ -84903,6 +84925,17 @@
     "srcHash": "7d86b8289939b36a",
     "status": "machine",
     "text": "Das Lesen von `{{ .context.rendered_name }}` auf einem Knoten, dessen Provider keinen solchen Namen meldet, **hält den Build an**, und die Diagnose sagt, welcher Schlüssel stattdessen zu schreiben ist. Es wird kein leerer Wert gerendert: Eine Adresse, der ein Segment fehlt, ist ein falsches Artefakt, das bereitgestellt wird, und das ist schlimmer als ein Build, der anhält."
+  },
+  "7d895a3c188c41b7": {
+    "at": "2026-11-18T15:28:56.240Z",
+    "job": "session-0004-20261118152856",
+    "revision": {
+      "from": "802a524bd09a3786",
+      "reviewed": false
+    },
+    "srcHash": "7d895a3c188c41b7",
+    "status": "machine",
+    "text": "Die Azure-Ressourcengruppe, in der das Template der Grenze bereitgestellt wird. Eine Referenz auf eine im Geltungsbereich einer Ressourcengruppe bereitgestellte Grenze liest sie, um die Ressourcen-ID der erzeugenden Bereitstellung zu bilden, und eine im Geltungsbereich eines Abonnements oder einer Verwaltungsgruppe bereitgestellte Grenze stellt ihren Ressourcengruppen-Inhalt darin bereit."
   },
   "7d8ccfa9c302d1f9": {
     "at": "2026-11-03T23:30:44.700Z",
@@ -120047,6 +120080,17 @@
     "status": "machine",
     "text": "Die Namen der Ignore-Dateien, die das Ökosystem innerhalb einer Quelle berücksichtigt — `.helmignore` für ein Chart. Die Zeilen jeder solchen Datei sind weitere Muster, bezogen auf das Verzeichnis, das sie enthält."
   },
+  "b0ee7815be7af93e": {
+    "at": "2026-11-18T15:28:56.240Z",
+    "job": "session-0004-20261118152856",
+    "revision": {
+      "from": "3b52b2037cfc9160",
+      "reviewed": false
+    },
+    "srcHash": "b0ee7815be7af93e",
+    "status": "machine",
+    "text": "**Wann jeder aufgelöst wird**, was die Deklaration selbst nicht trägt. `aggrega.ai/chart-name` wird einmal pro Zusammensetzung eines Umbrella-Charts aufgelöst, aus der Annotationskaskade der Grenze; jeder Beitragende zu einer Zusammensetzung muss ihn zum selben Wert auflösen, und eine Abweichung bricht den Build ab und nennt die Grenzen. Die Schlüssel `aggrega.ai/aws-*` und die Schlüssel `aggrega.ai/azure-*`, die der Anbieter `arm` liest, werden pro grenzüberschreitender Referenz aus dem eigenen Annotationssatz der erzeugenden Komponente aufgelöst, in dem der Release-Eintrag einer Komponente gegenüber dem ihrer Grenze gewinnt und ein Wert, den das Release schreibt, gegenüber einem, den das Aggregate schreibt; Kategorie 6 oben beschreibt die Referenz, die jeder davon formt. `aggrega.ai/azure-deployment-scope`, `aggrega.ai/azure-subscription` und `aggrega.ai/azure-resource-group` werden außerdem einmal pro `arm`-Template aufgelöst, und zwar aus dem Annotationssatz jeder Komponente, die in dieses einfließt: Jede Komponente muss den Geltungsbereich zum selben Wert auflösen, jede Komponente, die Ressourcengruppen-Inhalt in ein Template mit Abonnement- oder Verwaltungsgruppen-Geltungsbereich schreibt, die Ressourcengruppe, und jede Komponente, die Abonnement- oder Ressourcengruppen-Inhalt in ein Template mit Verwaltungsgruppen-Geltungsbereich schreibt, das Abonnement – sonst bricht der Build ab und nennt zwei, die voneinander abweichen. Ein Feature, das an die gesamte Grenze angehängt ist, trägt keine eigenen Annotationen und übernimmt jeden dieser Schlüssel, den die Komponenten der Grenze zu einem einzigen Wert auflösen."
+  },
   "b0f6ceaee00470d3": {
     "at": "2026-11-03T15:26:15.166Z",
     "job": "session-0123-20261103152615",
@@ -134710,6 +134754,17 @@
     "status": "machine",
     "text": "Eine Kette von `extends`-Zeigern läuft in sich selbst zurück. Jeder Typ, der `extends` deklariert — Component, Feature, Manifest und Release —, wird von einem einzigen Kettendurchlauf durchlaufen, sodass ein Zyklus überall, wo er gefunden wird, mit denselben Worten gemeldet wird."
   },
+  "c62fba726da797da": {
+    "at": "2026-11-18T15:28:56.240Z",
+    "job": "session-0004-20261118152856",
+    "revision": {
+      "from": "6ced12dbd440ded7",
+      "reviewed": false
+    },
+    "srcHash": "c62fba726da797da",
+    "status": "machine",
+    "text": "Die anderen melden keinen, und die Gründe sind **nicht** dieselben. Keiner von ihnen ist ein Anbieter, der auf Unterstützung wartet — in jedem Fall gibt es entweder keinen abgeleiteten Namen zu melden, oder der gewünschte Name ist bereits auf anderem Weg erreichbar."
+  },
   "c6379076d529ac81": {
     "at": "2026-10-30T09:03:14.647Z",
     "job": "session-0075-20261030090314",
@@ -141691,6 +141746,17 @@
     "srcHash": "cfd4ae615b8005ed",
     "status": "machine",
     "text": "**Den Container-Pfad liefern Sie.** Das Tool liest die Struktur des Dokuments und leitet nie aus dem Namen, dem Typ oder der scheinbaren Bedeutung von etwas ab, wohin es gehört. Sie sagen, welcher Schlüssel; es sagt, wohin die Einträge dieses Schlüssels in *diesem* Dokument gehören — welche Segmente des Pfads die Datei bereits enthält, in welchen Spalten ihre Einträge stehen und bis zu welcher letzten Zeile ihr innerster Block reicht. Für die Anbindung eines Features an einen Knoten eines kompilierten Graphen müssen Sie diesen Schlüssel nicht selbst kennen: `attachment-container` oben meldet das Dokument und den Container, und beide werden hier unverändert übergeben."
+  },
+  "cfda18c933c73d0b": {
+    "at": "2026-11-18T15:28:56.240Z",
+    "job": "session-0004-20261118152856",
+    "revision": {
+      "from": "be277098cc83b23a",
+      "reviewed": false
+    },
+    "srcHash": "cfda18c933c73d0b",
+    "status": "machine",
+    "text": "**Auf Zusammensetzung und Referenz bezogen** — `aggrega.ai/chart-name` wird einmal aufgelöst, wenn ein Umbrella-Chart zusammengesetzt wird, `aggrega.ai/azure-deployment-scope`, `aggrega.ai/azure-subscription` und `aggrega.ai/azure-resource-group`, wenn ein `arm`-Template zusammengesetzt wird, und die Schlüssel `aggrega.ai/aws-*` und `aggrega.ai/azure-*`, die ein Anbieter liest, wenn eine Referenz eine Grenze überquert. Die Eingabeart ist für keinen von ihnen eine Achse: Der Wert wird bei der Zusammensetzung oder bei der Referenz gelesen, wie auch immer jeder beitragende Knoten gerendert wurde. Sie haben ihre eigene Tabelle unter [Pro Zusammensetzung und pro Referenz aufgelöste Schlüssel](#keys-resolved-per-assembly-and-per-reference)."
   },
   "cfda781129683cfe": {
     "at": "2026-10-17T19:16:13.188Z",
@@ -169917,6 +169983,13 @@
     "status": "machine",
     "text": "**So beheben Sie es:** Verschieben Sie den referenzierten Eintrag über seinen Leser. Das Umordnen eines Blocks `locals:` ist überall dort eine Verhaltensänderung, wo ein Eintrag einen anderen liest, daher ist die Korrektur genau die Umordnung, die die Meldung nennt. Ein Selbstverweis — ein Eintrag, der seinen eigenen Schlüssel nennt — lässt sich nicht durch Umordnen beheben; berechnen Sie stattdessen den Wert direkt aus `.values` und `.infra`, was die Meldung anstelle der Verschiebe-Anweisung sagt."
   },
+  "f7cc3cdaf4fa56e7": {
+    "at": "2026-11-18T15:28:56.240Z",
+    "job": "session-0004-20261118152856",
+    "srcHash": "f7cc3cdaf4fa56e7",
+    "status": "machine",
+    "text": "**`arm` — Sie haben die Namen selbst geschrieben, oder das Recipe schreibt die Namensumsetzung selbst.** Die symbolischen Namen eines Fragments sind die, die Sie geschrieben haben, und der Anbieter liest sie genau so, wie sie geschrieben sind. Die Ressource, als die ein Knoten mit Quelle verpackt wird, heißt `{{ capitalizedWords .context.instance_id }}`; das Recipe schreibt das selbst, wo immer es diese Ressource liest. Siehe [`../providers/arm.md`](../providers/arm.md) „Namen“."
+  },
   "f7d680eec068752b": {
     "at": "2026-10-30T06:36:56.027Z",
     "job": "session-0069-20261030063656",
@@ -172947,6 +173020,17 @@
     "srcHash": "fc24291e48cef6bf",
     "status": "machine",
     "text": "Bei dieser Antwort immer true: Das Aktualisieren der Indizes greift auf die Registries selbst zu, während ihr Auflisten und das Suchen aus der Konfiguration und aus einem lokalen Index antworten. Ob eine bestimmte Registry tatsächlich erreicht wurde, wird in ihrem eigenen Eintrag in hosts durch unreachable angegeben."
+  },
+  "fc28c52eb8c7b838": {
+    "at": "2026-11-18T15:28:56.240Z",
+    "job": "session-0004-20261118152856",
+    "revision": {
+      "from": "89946420cf8c81ed",
+      "reviewed": false
+    },
+    "srcHash": "fc28c52eb8c7b838",
+    "status": "machine",
+    "text": "**Die Ebene der Ressourcengruppe folgt der Abonnement-Ebene, die ihre Gruppe deklariert.** Enthält `_subscription` eine `Microsoft.Resources/resourceGroups`-Ressource, deren `name` genau dem Wert der Annotation entspricht und die nicht mit `existing: true` deklariert ist, und werden beide im selben Abonnement bereitgestellt, hängt `_resourceGroup` von `_subscription` ab, sodass die Gruppe zuerst bereitgestellt wird. Andernfalls wird für die Gruppe nichts hinzugefügt: Sie müssen sie selbst anlegen. Jede verschachtelte Bereitstellung wird auf der obersten Ebene wie im Geltungsbereich eines Abonnements geordnet, wobei die jeweils andere verschachtelte Bereitstellung als eine Ressource der obersten Ebene in ihrer frühesten Welle zählt; siehe [Wellen ordnen jede Ebene](#deploying-at-subscription-scope). Zwei weitere Reihenfolgen brechen den Build ab und nennen beide verschachtelten Bereitstellungen: `_resourceGroup` folgt auf ein `_subscription`, dessen Komponenten eine spätere Welle erreichen als die früheste von `_resourceGroup`, wodurch dieser spätere Inhalt zuerst bereitgestellt würde; und beide beginnen in derselben Welle, obwohl beide Komponenten einer späteren Welle enthalten, sodass jede auf die andere warten müsste."
   },
   "fc2a3f46ca40c781": {
     "at": "2026-10-22T07:44:28.418Z",

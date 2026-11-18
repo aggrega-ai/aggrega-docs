@@ -79778,6 +79778,17 @@
     "status": "machine",
     "text": "**Jedna powierzchnia tworzenia.** Pojedyncza encja Aggregate jest źródłem prawdy o tym,\n  *czym* jest Tempo; encja Manifest określa, *jak* to zrealizować."
   },
+  "6b2b28da5c32eb23": {
+    "at": "2026-11-18T15:28:56.240Z",
+    "job": "session-0004-20261118152856",
+    "revision": {
+      "from": "b459dcc2d22368d6",
+      "reviewed": false
+    },
+    "srcHash": "6b2b28da5c32eb23",
+    "status": "machine",
+    "text": "Przyjmuje się, że producent znajduje się w subskrypcji samego wdrożenia konsumującego; granica wdrażana w zakresie grupy zarządzania z zawartością subskrypcji lub grupy zasobów zatrzymuje kompilację, wskazując adnotację, tak samo jak odczyt w zakresie grupy zarządzania z producenta w zakresie grupy zasobów lub subskrypcji."
+  },
   "6b33f073a175d315": {
     "at": "2026-10-23T00:02:43.446982+00:00",
     "job": "msgbatch_013KkBfZb9E8JzDFk2rQG1By",
@@ -85151,6 +85162,17 @@
     "srcHash": "72636aa95f4e65ee",
     "status": "machine",
     "text": "Co model słyszy o pustej przestrzeni roboczej"
+  },
+  "7265a20e0d0cfb8a": {
+    "at": "2026-11-18T15:28:56.240Z",
+    "job": "session-0004-20261118152856",
+    "revision": {
+      "from": "f8c1887597e25d65",
+      "reviewed": false
+    },
+    "srcHash": "7265a20e0d0cfb8a",
+    "status": "machine",
+    "text": "Dostawca `arm` odczytuje swoje adnotacje umiejscowienia w ten sam sposób. Każda granica Azure jest renderowana do jednego wdrożenia. Gdy krawędź `uses` przechodzi z jednej granicy do drugiej, `aggrega.ai/azure-subscription` i `aggrega.ai/azure-resource-group` wskazują, gdzie znajduje się wdrożenie producenta, a dostawca buduje z nich identyfikator zasobu tego wdrożenia. Są rozwiązywane przez tę samą kaskadę adnotacji i są nieprzejrzystymi ciągami skalarnymi; dostawca nigdy nie rozwiązuje ich względem rzeczywistego stanu Azure. Gdy jednej brakuje, przyjmuje się, że producent znajduje się w subskrypcji, grupie zasobów lub grupie zarządzania samego wdrożenia konsumującego; jeśli poziom konsumujący nie ma własnej, kompilacja zatrzymuje się, wskazując adnotację."
   },
   "726d1dfe24f99a1c": {
     "at": "2026-10-22T11:01:14.074299+00:00",
@@ -93580,6 +93602,17 @@
     "srcHash": "7d86b8289939b36a",
     "status": "machine",
     "text": "Odczyt `{{ .context.rendered_name }}` w węźle, którego dostawca nie zgłasza takiej nazwy, **zatrzymuje\nbudowanie**, a diagnostyka wskazuje, który klucz należy zapisać zamiast niego. Nie jest renderowana pusta wartość: adres krótszy o jeden segment to błędny artefakt, który się wdraża, a to gorsze niż budowanie, które się zatrzymuje."
+  },
+  "7d895a3c188c41b7": {
+    "at": "2026-11-18T15:28:56.240Z",
+    "job": "session-0004-20261118152856",
+    "revision": {
+      "from": "802a524bd09a3786",
+      "reviewed": false
+    },
+    "srcHash": "7d895a3c188c41b7",
+    "status": "machine",
+    "text": "Grupa zasobów Azure, do której wdrażany jest szablon granicy. Referencja przekraczająca granicę do granicy wdrażanej w zakresie grupy zasobów odczytuje ją, aby zbudować identyfikator zasobu wdrożenia producenta, a granica wdrażana w zakresie subskrypcji lub grupy zarządzania wdraża do niej swoją zawartość grupy zasobów."
   },
   "7d8ccfa9c302d1f9": {
     "at": "2026-10-22T23:34:49.752518+00:00",
@@ -132149,6 +132182,17 @@
     "status": "machine",
     "text": "Nazwy plików ignorowania, które ekosystem respektuje wewnątrz źródła — `.helmignore` dla chartu. Wiersze każdego takiego pliku są kolejnymi wzorcami, odnoszącymi się do katalogu, który go zawiera."
   },
+  "b0ee7815be7af93e": {
+    "at": "2026-11-18T15:28:56.240Z",
+    "job": "session-0004-20261118152856",
+    "revision": {
+      "from": "3b52b2037cfc9160",
+      "reviewed": false
+    },
+    "srcHash": "b0ee7815be7af93e",
+    "status": "machine",
+    "text": "**Kiedy każdy z nich jest rozstrzygany** – tej informacji sama deklaracja nie zawiera. `aggrega.ai/chart-name` jest rozwiązywany raz dla każdego złożenia chartu parasolowego, na podstawie kaskady adnotacji granicy; każdy współtwórca jednego złożenia musi rozwiązać go do tej samej wartości, a rozbieżność zatrzymuje kompilację z podaniem nazw granic. Klucze `aggrega.ai/aws-*` oraz klucze `aggrega.ai/azure-*`, które odczytuje dostawca `arm`, są rozwiązywane dla każdej referencji przekraczającej granicę na podstawie własnego zestawu adnotacji komponentu wytwarzającego, w którym wpis Release komponentu wygrywa z wpisem jego granicy, a wartość zapisana przez Release wygrywa z wartością zapisaną przez Aggregate; kategoria 6 powyżej opisuje referencję, którą kształtuje każdy z nich. `aggrega.ai/azure-deployment-scope`, `aggrega.ai/azure-subscription` i `aggrega.ai/azure-resource-group` są ponadto rozwiązywane raz dla każdego szablonu `arm`, na podstawie zestawu adnotacji każdego komponentu składanego w ten szablon: każdy komponent musi rozwiązać zakres do tej samej wartości, każdy komponent zapisujący zawartość grupy zasobów w szablonie o zakresie subskrypcji lub grupy zarządzania musi rozwiązać grupę zasobów, a każdy komponent zapisujący zawartość subskrypcji lub grupy zasobów w szablonie o zakresie grupy zarządzania musi rozwiązać subskrypcję; w przeciwnym razie kompilacja zatrzymuje się, wskazując dwa komponenty, które się różnią. Feature dołączony do całej granicy nie niesie własnych adnotacji i przejmuje każdy z tych kluczy, który komponenty granicy rozwiązują do jednej wartości."
+  },
   "b0f2e970b6874d22": {
     "at": "2026-10-22T21:42:39.864359+00:00",
     "job": "msgbatch_01PqbJsVmEBt5689iaQGF8jy",
@@ -148238,6 +148282,17 @@
     "status": "machine",
     "text": "Łańcuch wskaźników `extends` zapętla się. Każdy rodzaj encji deklarujący `extends` — Component, Feature, Manifest i Release — jest przechodzony jednym przejściem łańcucha, więc pętla jest zgłaszana tymi samymi słowami, niezależnie od tego, gdzie zostanie znaleziona."
   },
+  "c62fba726da797da": {
+    "at": "2026-11-18T15:28:56.240Z",
+    "job": "session-0004-20261118152856",
+    "revision": {
+      "from": "6ced12dbd440ded7",
+      "reviewed": false
+    },
+    "srcHash": "c62fba726da797da",
+    "status": "machine",
+    "text": "Pozostałe nie zgłaszają żadnej, a powody **nie** są takie same. Żaden z nich nie jest dostawcą oczekującym na obsługę — w każdym przypadku albo nie ma pochodnej nazwy do zgłoszenia, albo potrzebna nazwa jest już dostępna w inny sposób."
+  },
   "c6379076d529ac81": {
     "at": "2026-10-22T09:56:04.106489+00:00",
     "job": "msgbatch_01B3jiAm926wn5S8SwmarTsj",
@@ -155838,6 +155893,17 @@
     "srcHash": "cfd4ae615b8005ed",
     "status": "machine",
     "text": "**Ścieżkę kontenera podaje wywołujący.** Narzędzie odczytuje strukturę dokumentu i nigdy nie wywnioskowuje, gdzie coś należy umieścić, na podstawie nazwy, typu ani pozornego znaczenia. Wywołujący wskazuje klucz, a narzędzie mówi, gdzie w *tym* dokumencie trafiają wpisy tego klucza — które segmenty ścieżki plik już zawiera, w jakich kolumnach leżą jego wpisy i do którego ostatniego wiersza sięga jego najbardziej wewnętrzny blok. W przypadku dołączenia encji Feature do węzła skompilowanego grafu nie trzeba znać tego klucza samodzielnie: opisane wyżej `attachment-container` zwraca dokument i kontener, a oba trafiają tutaj bez zmian."
+  },
+  "cfda18c933c73d0b": {
+    "at": "2026-11-18T15:28:56.240Z",
+    "job": "session-0004-20261118152856",
+    "revision": {
+      "from": "be277098cc83b23a",
+      "reviewed": false
+    },
+    "srcHash": "cfda18c933c73d0b",
+    "status": "machine",
+    "text": "**Zakres złożenia i referencji** — `aggrega.ai/chart-name` jest rozwiązywany raz, gdy składany jest chart parasolowy, `aggrega.ai/azure-deployment-scope`, `aggrega.ai/azure-subscription` i `aggrega.ai/azure-resource-group`, gdy składany jest szablon `arm`, a klucze `aggrega.ai/aws-*` i `aggrega.ai/azure-*`, które odczytuje dostawca, są rozwiązywane, gdy referencja przekracza granicę. Dla żadnego z nich rodzaj wejścia nie jest osią: wartość jest odczytywana przy złożeniu lub przy referencji, niezależnie od tego, jak wyrenderowano każdy współtworzący węzeł. Mają własną tabelę w sekcji [Klucze rozwiązywane dla złożenia i dla referencji](#keys-resolved-per-assembly-and-per-reference)."
   },
   "cfda781129683cfe": {
     "at": "2026-10-17T19:16:13.188Z",
@@ -186763,6 +186829,13 @@
     "status": "machine",
     "text": "**Jak naprawić:** należy przenieść wpis, do którego jest odwołanie, powyżej wpisu, który go odczytuje. Zmiana kolejności bloku `locals:` jest zmianą zachowania wszędzie tam, gdzie jeden wpis odczytuje inny, więc poprawką jest dokładnie ta zmiana kolejności, którą wskazuje komunikat. Odwołania do samego siebie — wpisu wskazującego własny klucz — nie można naprawić zmianą kolejności; zamiast tego należy obliczyć wartość bezpośrednio z `.values` i `.infra`, co komunikat podaje zamiast instrukcji przeniesienia."
   },
+  "f7cc3cdaf4fa56e7": {
+    "at": "2026-11-18T15:28:56.240Z",
+    "job": "session-0004-20261118152856",
+    "srcHash": "f7cc3cdaf4fa56e7",
+    "status": "machine",
+    "text": "**`arm` — nazwy napisano samodzielnie albo Recipe samo zapisuje przekształcenie.** Nazwy symboliczne fragmentu są takie, jakie napisano, a dostawca odczytuje je dokładnie tak, jak je zapisano. Zasób, w który opakowany jest węzeł ze źródłem, nazywa się `{{ capitalizedWords .context.instance_id }}`, co Recipe samo zapisuje wszędzie tam, gdzie odczytuje ten zasób. Zob. [`../providers/arm.md`](../providers/arm.md) „Nazwy”."
+  },
   "f7d680eec068752b": {
     "at": "2026-10-29T20:59:36.662Z",
     "job": "session-0020-20261029205936",
@@ -190045,6 +190118,17 @@
     "srcHash": "fc24291e48cef6bf",
     "status": "machine",
     "text": "W tej odpowiedzi zawsze true: odświeżenie indeksów łączy się z samymi rejestrami, podczas gdy ich wyświetlanie i wyszukiwanie odpowiadają na podstawie konfiguracji i lokalnego indeksu. Czy dany rejestr faktycznie osiągnięto, podaje jego własny wpis w hosts, przez unreachable."
+  },
+  "fc28c52eb8c7b838": {
+    "at": "2026-11-18T15:28:56.240Z",
+    "job": "session-0004-20261118152856",
+    "revision": {
+      "from": "89946420cf8c81ed",
+      "reviewed": false
+    },
+    "srcHash": "fc28c52eb8c7b838",
+    "status": "machine",
+    "text": "**Poziom grupy zasobów podąża za poziomem subskrypcji, który deklaruje jej grupę.** Gdy `_subscription` zawiera zasób `Microsoft.Resources/resourceGroups`, którego `name` jest dokładnie wartością adnotacji i który nie jest zadeklarowany z `existing: true`, a oba wdrożenia trafiają do tej samej subskrypcji, `_resourceGroup` zależy od `_subscription`, więc grupa jest wdrażana jako pierwsza. W przeciwnym razie dla grupy nic nie jest dodawane: należy ją utworzyć samodzielnie. Każde zagnieżdżone wdrożenie jest porządkowane na najwyższym poziomie tak jak w zakresie subskrypcji, a drugie zagnieżdżone wdrożenie liczy się jako jeden zasób najwyższego poziomu w swojej najwcześniejszej fali; zob. [Fale porządkują każdy poziom](#deploying-at-subscription-scope). Dwie dalsze kolejności zatrzymują kompilację, wskazując oba zagnieżdżone wdrożenia: `_resourceGroup` następujący po `_subscription`, którego komponenty sięgają późniejszej fali niż najwcześniejsza fala komponentów `_resourceGroup`, co wdrożyłoby tę późniejszą zawartość jako pierwszą, oraz oba zaczynające się w jednej fali, gdy oba zawierają komponenty późniejszej fali, tak że każde musiałoby czekać na drugie."
   },
   "fc2a3f46ca40c781": {
     "at": "2026-10-22T07:44:28.418Z",

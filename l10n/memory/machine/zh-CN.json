@@ -79783,6 +79783,17 @@
     "status": "machine",
     "text": "**单一编写入口。** 单个 Aggregate 是 Tempo *是什么*的唯一事实来源；\n  Manifest 则说明*如何*实现它。"
   },
+  "6b2b28da5c32eb23": {
+    "at": "2026-11-18T15:28:56.240Z",
+    "job": "session-0004-20261118152856",
+    "revision": {
+      "from": "b459dcc2d22368d6",
+      "reviewed": false
+    },
+    "srcHash": "6b2b28da5c32eb23",
+    "status": "machine",
+    "text": "生产方被视为位于消费方部署自身的订阅中；在管理组作用域部署、包含订阅或资源组内容的边界会中止构建并指出该注解，在管理组作用域读取资源组或订阅作用域的生产方时也是如此。"
+  },
   "6b33f073a175d315": {
     "at": "2026-10-22T08:03:58.541373+00:00",
     "job": "msgbatch_01JG3MCod2kUphSC2Zwegw3H",
@@ -85160,6 +85171,17 @@
     "srcHash": "72636aa95f4e65ee",
     "status": "machine",
     "text": "模型对空工作区被告知什么"
+  },
+  "7265a20e0d0cfb8a": {
+    "at": "2026-11-18T15:28:56.240Z",
+    "job": "session-0004-20261118152856",
+    "revision": {
+      "from": "f8c1887597e25d65",
+      "reviewed": false
+    },
+    "srcHash": "7265a20e0d0cfb8a",
+    "status": "machine",
+    "text": "`arm` 提供程序以相同方式读取其放置注解。每个 Azure 边界渲染为一个部署。当 `uses` 边从一个边界跨到另一个边界时，`aggrega.ai/azure-subscription` 和 `aggrega.ai/azure-resource-group` 指明生产方部署所在的位置，提供程序据此构造该部署的资源 ID。它们通过同一注解级联解析，是不透明的标量字符串；提供程序从不对照实时的 Azure 状态解析它们。缺少其中之一时，生产方被视为位于消费方部署自身的订阅、资源组或管理组中；消费方层级自身没有时，构建会中止并指出该注解。"
   },
   "726d1dfe24f99a1c": {
     "at": "2026-10-22T02:30:34.989739+00:00",
@@ -93589,6 +93611,17 @@
     "srcHash": "7d86b8289939b36a",
     "status": "machine",
     "text": "在其 provider 未报告此类名称的节点上读取 `{{ .context.rendered_name }}` **会使构建中止**，诊断信息会说明应改写哪个键。它不会渲染空值：少了一段的地址是一个会被部署的错误产物，这比停止的构建更糟。"
+  },
+  "7d895a3c188c41b7": {
+    "at": "2026-11-18T15:28:56.240Z",
+    "job": "session-0004-20261118152856",
+    "revision": {
+      "from": "802a524bd09a3786",
+      "reviewed": false
+    },
+    "srcHash": "7d895a3c188c41b7",
+    "status": "machine",
+    "text": "边界的模板所部署到的 Azure 资源组。对在资源组作用域部署的边界的跨边界引用会读取它，以构造生产方部署的资源 ID；在订阅作用域或管理组作用域部署的边界会把其资源组内容部署到该资源组中。"
   },
   "7d8ccfa9c302d1f9": {
     "at": "2026-10-22T04:49:50.527667+00:00",
@@ -132200,6 +132233,17 @@
     "status": "machine",
     "text": "该生态系统在 source 内部遵循的忽略文件的名称——对于 chart 是 `.helmignore`。每个此类文件的各行是进一步的模式，限定于包含该文件的目录。"
   },
+  "b0ee7815be7af93e": {
+    "at": "2026-11-18T15:28:56.240Z",
+    "job": "session-0004-20261118152856",
+    "revision": {
+      "from": "3b52b2037cfc9160",
+      "reviewed": false
+    },
+    "srcHash": "b0ee7815be7af93e",
+    "status": "machine",
+    "text": "**各键何时解析**，这一点声明本身并不携带。`aggrega.ai/chart-name` 在每次伞形 chart 组装时解析一次，来源是边界注解级联；同一组装的所有贡献方都必须将其解析为同一个值，不一致时构建会中止并指出相关边界。`aggrega.ai/aws-*` 键，以及 `arm` 提供程序读取的 `aggrega.ai/azure-*` 键，按每个跨边界引用解析，来源是生产方组件自身的注解集；在该注解集中，组件的 Release 条目优先于其边界的条目，Release 写入的值优先于 Aggregate 写入的值；上文类别 6 描述了每个键所塑造的引用。`aggrega.ai/azure-deployment-scope`、`aggrega.ai/azure-subscription` 和 `aggrega.ai/azure-resource-group` 还会按每个 `arm` 模板解析一次，来源是组装进该模板的每个组件的注解集：每个组件都必须将作用域解析为同一个值；向订阅作用域或管理组作用域的模板写入资源组内容的每个组件，必须将资源组解析为同一个值；向管理组作用域的模板写入订阅或资源组内容的每个组件，必须将订阅解析为同一个值；否则构建会中止，并指出两个不一致的组件。附加到整个边界的 Feature 自身不携带注解，并采用边界的各组件解析为同一个值的每一个这些键。"
+  },
   "b0f2e970b6874d22": {
     "at": "2026-10-22T03:06:36.769432+00:00",
     "job": "msgbatch_01LMJ2pDqXu3quNM1ykbvTtk",
@@ -148307,6 +148351,17 @@
     "status": "machine",
     "text": "一条 `extends` 指针链绕回到自身。每个声明 `extends` 的类型——Component、Feature、Manifest 和 Release——都由同一个链遍历处理，因此无论在何处发现循环，报告的措辞都相同。"
   },
+  "c62fba726da797da": {
+    "at": "2026-11-18T15:28:56.240Z",
+    "job": "session-0004-20261118152856",
+    "revision": {
+      "from": "6ced12dbd440ded7",
+      "reviewed": false
+    },
+    "srcHash": "c62fba726da797da",
+    "status": "machine",
+    "text": "其他的不报告名称，而且原因**并不**相同。它们都不是有待支持的提供程序——每种情况下，要么没有可报告的派生名称，要么你需要的名称已可通过其他方式获取。"
+  },
   "c6379076d529ac81": {
     "at": "2026-10-22T02:24:43.656154+00:00",
     "job": "msgbatch_01LPuEFeUVjFEgXoDzuak74j",
@@ -155907,6 +155962,17 @@
     "srcHash": "cfd4ae615b8005ed",
     "status": "machine",
     "text": "**容器路径由你提供。** 该工具读取文档的结构，从不根据某个东西的名称、它携带的类型或它看起来的含义来推断它应该放在哪里。你指定哪个键；它告诉你该键的条目在*这个*文档中放在哪里——文件已包含路径中的哪些段、其条目所在的列，以及其最内层块到达的最后一行。对于已编译图中某个节点上的 Feature 附加，你无需自己知道那个键：上文的 `attachment-container` 会报告文档和容器，两者原样传入此处即可。"
+  },
+  "cfda18c933c73d0b": {
+    "at": "2026-11-18T15:28:56.240Z",
+    "job": "session-0004-20261118152856",
+    "revision": {
+      "from": "be277098cc83b23a",
+      "reviewed": false
+    },
+    "srcHash": "cfda18c933c73d0b",
+    "status": "machine",
+    "text": "**装配作用域和引用作用域**——`aggrega.ai/chart-name` 在装配 umbrella chart 时解析一次，`aggrega.ai/azure-deployment-scope`、`aggrega.ai/azure-subscription` 和 `aggrega.ai/azure-resource-group` 在装配 `arm` 模板时解析，提供程序读取的 `aggrega.ai/aws-*` 和 `aggrega.ai/azure-*` 键则在引用跨越边界时解析。输入类型对它们都不是维度：无论每个参与的节点如何渲染，该值都在装配处或引用处读取。它们有自己的表格，见[按装配和按引用解析的键](#keys-resolved-per-assembly-and-per-reference)。"
   },
   "cfda781129683cfe": {
     "at": "2026-10-17T19:16:13.188Z",
@@ -186834,6 +186900,13 @@
     "status": "machine",
     "text": "**如何修复：**将被引用的条目移到读取它的条目上方。只要有一个条目读取另一个，重排 `locals:` 块就是一项行为变更，因此修复方式恰好是消息所指出的那次重排。自引用——条目引用其自身的键——无法通过重排修复；请改为直接从 `.values` 和 `.infra` 计算该值，消息会以此代替移动条目的指示。"
   },
+  "f7cc3cdaf4fa56e7": {
+    "at": "2026-11-18T15:28:56.240Z",
+    "job": "session-0004-20261118152856",
+    "srcHash": "f7cc3cdaf4fa56e7",
+    "status": "machine",
+    "text": "**`arm` — 名称由你编写，或者由 Recipe 自己编写折叠逻辑。** 片段的符号名称就是你所写的名称，提供程序会按其原样读取。带来源的节点所包装成的资源，其名称为 `{{ capitalizedWords .context.instance_id }}`，Recipe 在读取该资源的任何位置都会自行写出这一名称。参见 [`../providers/arm.md`](../providers/arm.md)“名称”。"
+  },
   "f7d680eec068752b": {
     "at": "2026-10-29T20:59:36.662Z",
     "job": "session-0020-20261029205936",
@@ -190114,6 +190187,17 @@
     "srcHash": "fc24291e48cef6bf",
     "status": "machine",
     "text": "在此回答中始终为 true：刷新索引会访问注册表本身，而列出注册表和搜索则依据配置和本地索引作答。某个注册表实际是否可达，由 hosts 中其自身条目的 unreachable 说明。"
+  },
+  "fc28c52eb8c7b838": {
+    "at": "2026-11-18T15:28:56.240Z",
+    "job": "session-0004-20261118152856",
+    "revision": {
+      "from": "89946420cf8c81ed",
+      "reviewed": false
+    },
+    "srcHash": "fc28c52eb8c7b838",
+    "status": "machine",
+    "text": "**资源组层级跟在声明其资源组的订阅层级之后。** 当 `_subscription` 包含一个 `Microsoft.Resources/resourceGroups` 资源，其 `name` 恰好等于注解的值，且未声明为 `existing: true`，并且两者部署到同一个订阅时，`_resourceGroup` 依赖于 `_subscription`，因此资源组会先部署。否则不会为该资源组添加任何内容：需要你自己创建。每个嵌套部署在顶层的排序方式与订阅作用域相同，另一个嵌套部署在其最早的波次中算作一个顶层资源；参见[波次为每个层级排序](#deploying-at-subscription-scope)。另有两种顺序会中止构建，并指出两个嵌套部署：`_resourceGroup` 跟在某个 `_subscription` 之后，而其组件所达到的波次晚于 `_resourceGroup` 的组件中最早的波次，这会使较晚的内容先部署；以及两者在同一个波次开始，而两者都包含更晚波次的组件，导致每一方都必须等待另一方。"
   },
   "fc2a3f46ca40c781": {
     "at": "2026-10-22T01:33:54.654983+00:00",

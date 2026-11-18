@@ -72394,6 +72394,17 @@
     "status": "machine",
     "text": "**Una única superficie de autoría.** Un único Aggregate es la fuente de verdad sobre *qué* es Tempo; el Manifest dice *cómo* realizarlo."
   },
+  "6b2b28da5c32eb23": {
+    "at": "2026-11-18T15:28:56.240Z",
+    "job": "session-0004-20261118152856",
+    "revision": {
+      "from": "b459dcc2d22368d6",
+      "reviewed": false
+    },
+    "srcHash": "6b2b28da5c32eb23",
+    "status": "machine",
+    "text": "Se considera que el productor está en la propia suscripción de la implementación consumidora; un límite implementado en el ámbito de grupo de administración con contenido de suscripción o de grupo de recursos detiene la compilación nombrando la anotación, y lo mismo ocurre con una lectura, en el ámbito de grupo de administración, de un productor en el ámbito de grupo de recursos o de suscripción."
+  },
   "6b33f073a175d315": {
     "at": "2026-11-04T09:20:00.075Z",
     "job": "session-0226-20261104092000",
@@ -77239,6 +77250,17 @@
     "srcHash": "72636aa95f4e65ee",
     "status": "machine",
     "text": "Qué se le dice a un modelo sobre un workspace vacío"
+  },
+  "7265a20e0d0cfb8a": {
+    "at": "2026-11-18T15:28:56.240Z",
+    "job": "session-0004-20261118152856",
+    "revision": {
+      "from": "f8c1887597e25d65",
+      "reviewed": false
+    },
+    "srcHash": "7265a20e0d0cfb8a",
+    "status": "machine",
+    "text": "El proveedor `arm` lee sus anotaciones de ubicación de la misma manera. Cada límite de Azure se renderiza en una implementación. Cuando una arista `uses` cruza de un límite a otro, `aggrega.ai/azure-subscription` y `aggrega.ai/azure-resource-group` indican dónde está la implementación productora, y el proveedor construye a partir de ellas el ID de recurso de esa implementación. Se resuelven por la misma cascada de anotaciones y son cadenas escalares opacas; el proveedor nunca las resuelve contra el estado real de Azure. Cuando falta una, se considera que el productor está en la propia suscripción, grupo de recursos o grupo de administración de la implementación consumidora; si el nivel consumidor no tiene uno propio, la compilación se detiene nombrando la anotación."
   },
   "726d1dfe24f99a1c": {
     "at": "2026-10-30T19:53:23.628Z",
@@ -84891,6 +84913,17 @@
     "srcHash": "7d86b8289939b36a",
     "status": "machine",
     "text": "Leer `{{ .context.rendered_name }}` en un nodo cuyo proveedor no informa ningún nombre de ese tipo **detiene la compilación**, y el diagnóstico indica qué clave escribir en su lugar. No renderiza un valor vacío: una dirección a la que le falta un segmento es un artefacto erróneo que se despliega, lo cual es peor que una compilación que se detiene."
+  },
+  "7d895a3c188c41b7": {
+    "at": "2026-11-18T15:28:56.240Z",
+    "job": "session-0004-20261118152856",
+    "revision": {
+      "from": "802a524bd09a3786",
+      "reviewed": false
+    },
+    "srcHash": "7d895a3c188c41b7",
+    "status": "machine",
+    "text": "El grupo de recursos de Azure en el que se implementa la plantilla del límite. Una referencia a un límite implementado en el ámbito de grupo de recursos lo lee para construir el ID de recurso de la implementación productora, y un límite implementado en el ámbito de suscripción o de grupo de administración implementa en él su contenido de grupo de recursos."
   },
   "7d8ccfa9c302d1f9": {
     "at": "2026-11-03T23:30:44.700Z",
@@ -120043,6 +120076,17 @@
     "status": "machine",
     "text": "Los nombres de los archivos ignore que el ecosistema respeta dentro de una fuente — `.helmignore` para un chart. Las líneas de cada uno de esos archivos son patrones adicionales, con ámbito en el directorio que lo contiene."
   },
+  "b0ee7815be7af93e": {
+    "at": "2026-11-18T15:28:56.240Z",
+    "job": "session-0004-20261118152856",
+    "revision": {
+      "from": "3b52b2037cfc9160",
+      "reviewed": false
+    },
+    "srcHash": "b0ee7815be7af93e",
+    "status": "machine",
+    "text": "**Cuándo se resuelve cada una**, algo que la propia declaración no lleva. `aggrega.ai/chart-name` se resuelve una sola vez por ensamblado de chart paraguas, a partir de la cascada de anotaciones del límite; cada contribuyente a un mismo ensamblado debe resolverla al mismo valor, y un desacuerdo detiene la compilación nombrando los límites. Las claves `aggrega.ai/aws-*` y las claves `aggrega.ai/azure-*` que lee el proveedor `arm` se resuelven por referencia entre límites a partir del conjunto de anotaciones propio del componente productor, en el que la entrada de Release de un componente prevalece sobre la de su límite y un valor que escribe la Release prevalece sobre uno que escribe el Aggregate; la categoría 6 de arriba describe la referencia a la que da forma cada una. `aggrega.ai/azure-deployment-scope`, `aggrega.ai/azure-subscription` y `aggrega.ai/azure-resource-group` también se resuelven una vez por plantilla `arm`, a partir del conjunto de anotaciones de cada componente que se ensambla en ella: todos los componentes deben resolver el ámbito al mismo valor, todo componente que escribe contenido de grupo de recursos en una plantilla de ámbito de suscripción o de grupo de administración debe resolver el grupo de recursos, y todo componente que escribe contenido de suscripción o de grupo de recursos en una plantilla de ámbito de grupo de administración debe resolver la suscripción; de lo contrario, la compilación se detiene nombrando a dos que discrepan. Una Feature asociada a todo el límite no lleva anotaciones propias y toma cada una de estas claves cuyo valor los componentes del límite resuelven a uno solo."
+  },
   "b0f6ceaee00470d3": {
     "at": "2026-11-03T15:26:15.166Z",
     "job": "session-0123-20261103152615",
@@ -134706,6 +134750,17 @@
     "status": "machine",
     "text": "Una cadena de punteros `extends` vuelve sobre sí misma. Cada tipo que declara `extends` — Component, Feature, Manifest y Release — se recorre con un único recorrido de cadena, de modo que un bucle se informa con las mismas palabras dondequiera que se encuentre."
   },
+  "c62fba726da797da": {
+    "at": "2026-11-18T15:28:56.240Z",
+    "job": "session-0004-20261118152856",
+    "revision": {
+      "from": "6ced12dbd440ded7",
+      "reviewed": false
+    },
+    "srcHash": "c62fba726da797da",
+    "status": "machine",
+    "text": "Los demás no informan ninguno, y las razones **no** son las mismas. Ninguno de ellos es un proveedor a la espera de soporte — en cada caso, o no hay ningún nombre derivado que informar, o el nombre que quieres ya es accesible de otra forma."
+  },
   "c6379076d529ac81": {
     "at": "2026-10-30T09:03:14.647Z",
     "job": "session-0075-20261030090314",
@@ -141681,6 +141736,17 @@
     "srcHash": "cfd4ae615b8005ed",
     "status": "machine",
     "text": "**La ruta del contenedor la proporcionas tú.** La herramienta lee la estructura del documento y nunca deduce dónde va algo por cómo se llama, qué tipo lleva o qué parece significar. Tú dices qué clave; ella dice dónde van las entradas de esa clave en *este* documento — qué segmentos de la ruta contiene ya el archivo, en qué columnas están sus entradas y la última línea a la que llega su bloque más interno. Para vincular una Feature a un nodo de un grafo compilado no necesitas conocer tú mismo esa clave: `attachment-container`, descrito arriba, indica el documento y el contenedor, y ambos van aquí sin cambios."
+  },
+  "cfda18c933c73d0b": {
+    "at": "2026-11-18T15:28:56.240Z",
+    "job": "session-0004-20261118152856",
+    "revision": {
+      "from": "be277098cc83b23a",
+      "reviewed": false
+    },
+    "srcHash": "cfda18c933c73d0b",
+    "status": "machine",
+    "text": "**Con ámbito de ensamblado y de referencia** — `aggrega.ai/chart-name` se resuelve una sola vez cuando se ensambla un chart paraguas, `aggrega.ai/azure-deployment-scope`, `aggrega.ai/azure-subscription` y `aggrega.ai/azure-resource-group` cuando se ensambla una plantilla `arm`, y las claves `aggrega.ai/aws-*` y `aggrega.ai/azure-*` que lee un proveedor cuando una referencia cruza un límite. El tipo de entrada no es un eje para ninguna de ellas: el valor se lee en el ensamblado o en la referencia, sea cual sea la forma en que se renderizó cada nodo contribuyente. Tienen su propia tabla en [Claves resueltas por ensamblado y por referencia](#keys-resolved-per-assembly-and-per-reference)."
   },
   "cfda781129683cfe": {
     "at": "2026-10-17T19:16:13.188Z",
@@ -169905,6 +169971,13 @@
     "status": "machine",
     "text": "**Cómo corregirlo:** mueve la entrada referenciada encima de quien la lee. Reordenar un bloque `locals:` es un cambio de comportamiento allí donde una entrada lee otra, así que la corrección es exactamente el reordenamiento que nombra el mensaje. Una autorreferencia — una entrada que nombra su propia clave — no se puede corregir reordenando; en su lugar, calcula el valor directamente a partir de `.values` y `.infra`, que es lo que dice el mensaje en lugar de la instrucción de moverla."
   },
+  "f7cc3cdaf4fa56e7": {
+    "at": "2026-11-18T15:28:56.240Z",
+    "job": "session-0004-20261118152856",
+    "srcHash": "f7cc3cdaf4fa56e7",
+    "status": "machine",
+    "text": "**`arm` — tú escribiste los nombres, o la Recipe escribe ella misma el plegado.** Los nombres simbólicos de un fragmento son los que escribiste, y el proveedor los lee exactamente como están escritos. El recurso en el que se envuelve un nodo con origen se llama `{{ capitalizedWords .context.instance_id }}`, que la Recipe escribe ella misma dondequiera que lee ese recurso. Consulta [`../providers/arm.md`](../providers/arm.md) «Nombres»."
+  },
   "f7d680eec068752b": {
     "at": "2026-10-30T06:36:56.027Z",
     "job": "session-0069-20261030063656",
@@ -172935,6 +173008,17 @@
     "srcHash": "fc24291e48cef6bf",
     "status": "machine",
     "text": "Siempre true en esta respuesta: actualizar los índices llega hasta los propios registros, mientras que listarlos y buscar responden desde la configuración y desde un índice local. Si se llegó realmente a un registro dado se indica en su propia entrada en hosts, mediante unreachable."
+  },
+  "fc28c52eb8c7b838": {
+    "at": "2026-11-18T15:28:56.240Z",
+    "job": "session-0004-20261118152856",
+    "revision": {
+      "from": "89946420cf8c81ed",
+      "reviewed": false
+    },
+    "srcHash": "fc28c52eb8c7b838",
+    "status": "machine",
+    "text": "**El nivel del grupo de recursos sigue al nivel de suscripción que declara su grupo.** Cuando `_subscription` contiene un recurso `Microsoft.Resources/resourceGroups` cuyo `name` es exactamente el valor de la anotación, no declarado con `existing: true`, y ambas se implementan en la misma suscripción, `_resourceGroup` depende de `_subscription`, de modo que el grupo se implementa primero. En caso contrario no se añade nada para el grupo: te corresponde crearlo a ti. Cada implementación anidada se ordena en el nivel superior como en el ámbito de suscripción, y la otra implementación anidada cuenta como un único recurso de nivel superior en su primera oleada; consulta [Las oleadas ordenan cada nivel](#deploying-at-subscription-scope). Otros dos órdenes detienen la compilación y nombran ambas implementaciones anidadas: que `_resourceGroup` siga a un `_subscription` cuyos componentes alcanzan una oleada posterior a la primera de `_resourceGroup`, lo que implementaría primero ese contenido posterior, y que las dos empiecen en una misma oleada mientras ambas contienen componentes de una oleada posterior, de modo que cada una tendría que esperar a la otra."
   },
   "fc2a3f46ca40c781": {
     "at": "2026-10-22T07:44:28.418Z",

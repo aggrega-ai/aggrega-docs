@@ -72416,6 +72416,17 @@
     "status": "machine",
     "text": "**Un’unica superficie di authoring.** Un unico Aggregate è la fonte di verità su *che cosa* è Tempo; il Manifest dice *come* realizzarlo."
   },
+  "6b2b28da5c32eb23": {
+    "at": "2026-11-18T15:28:56.240Z",
+    "job": "session-0004-20261118152856",
+    "revision": {
+      "from": "b459dcc2d22368d6",
+      "reviewed": false
+    },
+    "srcHash": "6b2b28da5c32eb23",
+    "status": "machine",
+    "text": "Si assume che il produttore si trovi nella sottoscrizione propria della distribuzione consumatrice; un confine distribuito all’ambito di un gruppo di gestione con contenuto di sottoscrizione o di gruppo di risorse interrompe la build nominando l’annotazione, e lo stesso vale per una lettura, all’ambito di un gruppo di gestione, di un produttore all’ambito di un gruppo di risorse o di una sottoscrizione."
+  },
   "6b33f073a175d315": {
     "at": "2026-11-04T09:20:00.075Z",
     "job": "session-0226-20261104092000",
@@ -77261,6 +77272,17 @@
     "srcHash": "72636aa95f4e65ee",
     "status": "machine",
     "text": "Cosa viene detto a un modello su un workspace vuoto"
+  },
+  "7265a20e0d0cfb8a": {
+    "at": "2026-11-18T15:28:56.240Z",
+    "job": "session-0004-20261118152856",
+    "revision": {
+      "from": "f8c1887597e25d65",
+      "reviewed": false
+    },
+    "srcHash": "7265a20e0d0cfb8a",
+    "status": "machine",
+    "text": "Il provider `arm` legge le sue annotazioni di collocazione allo stesso modo. Ogni confine Azure viene renderizzato in una distribuzione. Quando un arco `uses` passa da un confine a un altro, `aggrega.ai/azure-subscription` e `aggrega.ai/azure-resource-group` indicano dove si trova la distribuzione produttrice, e il provider costruisce da esse l’ID di risorsa di quella distribuzione. Si risolvono attraverso la stessa cascata di annotazioni e sono stringhe scalari opache; il provider non le risolve mai rispetto allo stato reale di Azure. Quando una manca, si assume che il produttore si trovi nella sottoscrizione, nel gruppo di risorse o nel gruppo di gestione propri della distribuzione consumatrice; dove il livello consumatore non ne ha uno proprio, la build si interrompe nominando l’annotazione."
   },
   "726d1dfe24f99a1c": {
     "at": "2026-10-30T19:53:23.628Z",
@@ -84907,6 +84929,17 @@
     "srcHash": "7d86b8289939b36a",
     "status": "machine",
     "text": "Leggere `{{ .context.rendered_name }}` su un nodo il cui provider non riporta alcun nome di questo tipo **arresta la build**, e la diagnostica dice quale chiave scrivere invece. Non renderizza un valore vuoto: un indirizzo a cui manca un segmento è un artefatto sbagliato che viene distribuito, il che è peggio di una build che si ferma."
+  },
+  "7d895a3c188c41b7": {
+    "at": "2026-11-18T15:28:56.240Z",
+    "job": "session-0004-20261118152856",
+    "revision": {
+      "from": "802a524bd09a3786",
+      "reviewed": false
+    },
+    "srcHash": "7d895a3c188c41b7",
+    "status": "machine",
+    "text": "Il gruppo di risorse Azure in cui viene distribuito il template del confine. Un riferimento a un confine distribuito all’ambito di un gruppo di risorse lo legge per costruire l’ID risorsa della distribuzione produttrice, e un confine distribuito all’ambito di una sottoscrizione o di un gruppo di gestione vi distribuisce il proprio contenuto di gruppo di risorse."
   },
   "7d8ccfa9c302d1f9": {
     "at": "2026-11-03T23:30:44.700Z",
@@ -120065,6 +120098,17 @@
     "status": "machine",
     "text": "I nomi dei file ignore che l’ecosistema rispetta all’interno di una sorgente — `.helmignore` per un chart. Le righe di ciascuno di tali file sono ulteriori pattern, con ambito alla directory che lo contiene."
   },
+  "b0ee7815be7af93e": {
+    "at": "2026-11-18T15:28:56.240Z",
+    "job": "session-0004-20261118152856",
+    "revision": {
+      "from": "3b52b2037cfc9160",
+      "reviewed": false
+    },
+    "srcHash": "b0ee7815be7af93e",
+    "status": "machine",
+    "text": "**Quando ciascuna viene risolta**, cosa che la dichiarazione stessa non porta. `aggrega.ai/chart-name` viene risolta una sola volta per assemblaggio del chart ombrello, dalla cascata delle annotazioni del confine; ogni contributore a uno stesso assemblaggio deve risolverla allo stesso valore, e un disaccordo arresta la build nominando i confini. Le chiavi `aggrega.ai/aws-*` e le chiavi `aggrega.ai/azure-*` che il provider `arm` legge vengono risolte per riferimento tra confini a partire dall’insieme di annotazioni proprio del componente produttore, nel quale la voce di Release di un componente prevale su quella del suo confine e un valore scritto dalla Release prevale su uno scritto dall’Aggregate; la Categoria 6 qui sopra descrive il riferimento a cui ciascuna dà forma. `aggrega.ai/azure-deployment-scope`, `aggrega.ai/azure-subscription` e `aggrega.ai/azure-resource-group` vengono inoltre risolte una volta per template `arm`, a partire dall’insieme di annotazioni di ciascun componente che vi confluisce: ogni componente deve risolvere l’ambito allo stesso valore, ogni componente che scrive contenuto di gruppo di risorse in un template con ambito di sottoscrizione o di gruppo di gestione deve risolvere il gruppo di risorse, e ogni componente che scrive contenuto di sottoscrizione o di gruppo di risorse in un template con ambito di gruppo di gestione deve risolvere la sottoscrizione; altrimenti la build si arresta nominando due componenti in disaccordo. Una Feature collegata all’intero confine non porta annotazioni proprie e riprende ciascuna di queste chiavi il cui valore i componenti del confine risolvono in uno solo."
+  },
   "b0f6ceaee00470d3": {
     "at": "2026-11-03T15:26:15.166Z",
     "job": "session-0123-20261103152615",
@@ -134746,6 +134790,17 @@
     "status": "machine",
     "text": "Una catena di puntatori `extends` torna su sé stessa. Ogni tipo che dichiara `extends` — Component, Feature, Manifest e Release — viene percorso da un’unica visita della catena, quindi un ciclo viene segnalato con le stesse parole ovunque venga trovato."
   },
+  "c62fba726da797da": {
+    "at": "2026-11-18T15:28:56.240Z",
+    "job": "session-0004-20261118152856",
+    "revision": {
+      "from": "6ced12dbd440ded7",
+      "reviewed": false
+    },
+    "srcHash": "c62fba726da797da",
+    "status": "machine",
+    "text": "Gli altri non ne riportano alcuno, e le ragioni **non** sono le stesse. Nessuno di loro è un provider in attesa di supporto — in ciascun caso o non c’è alcun nome derivato da riportare, oppure il nome che ti serve è già raggiungibile in un altro modo."
+  },
   "c6379076d529ac81": {
     "at": "2026-10-30T09:03:14.647Z",
     "job": "session-0075-20261030090314",
@@ -141721,6 +141776,17 @@
     "srcHash": "cfd4ae615b8005ed",
     "status": "machine",
     "text": "**Il percorso del contenitore spetta a te.** Lo strumento legge la struttura del documento e non deduce mai dove vada qualcosa da come si chiama, dal tipo che porta o da ciò che sembra significare. Tu dici quale chiave; lo strumento dice dove vanno le voci di quella chiave in *questo* documento — quali segmenti del percorso il file contiene già, le colonne a cui si trovano le sue voci e l’ultima riga raggiunta dal suo blocco più interno. Per associare una Feature a un nodo di un grafo compilato non devi conoscere tu stesso quella chiave: `attachment-container`, descritto sopra, riporta il documento e il contenitore, ed entrambi vanno qui senza modifiche."
+  },
+  "cfda18c933c73d0b": {
+    "at": "2026-11-18T15:28:56.240Z",
+    "job": "session-0004-20261118152856",
+    "revision": {
+      "from": "be277098cc83b23a",
+      "reviewed": false
+    },
+    "srcHash": "cfda18c933c73d0b",
+    "status": "machine",
+    "text": "**Con ambito di assemblaggio e di riferimento** — `aggrega.ai/chart-name` viene risolta una sola volta quando viene assemblato un chart ombrello, `aggrega.ai/azure-deployment-scope`, `aggrega.ai/azure-subscription` e `aggrega.ai/azure-resource-group` quando viene assemblato un template `arm`, e le chiavi `aggrega.ai/aws-*` e `aggrega.ai/azure-*` che un provider legge quando un riferimento attraversa un confine. Il tipo di input non è un asse per nessuna di esse: il valore viene letto all’assemblaggio o al riferimento, comunque sia stato renderizzato ciascun nodo che vi contribuisce. Hanno una tabella propria in [Chiavi risolte per assemblaggio e per riferimento](#keys-resolved-per-assembly-and-per-reference)."
   },
   "cfda781129683cfe": {
     "at": "2026-10-17T19:16:13.188Z",
@@ -169977,6 +170043,13 @@
     "status": "machine",
     "text": "**Come risolvere:** sposta la voce a cui si fa riferimento sopra chi la legge. Riordinare un blocco `locals:` è una modifica di comportamento ovunque una voce ne legga un’altra, quindi la correzione è esattamente il riordinamento che il messaggio nomina. Un autoriferimento — una voce che nomina la propria chiave — non può essere corretto con un riordinamento; calcola invece il valore direttamente da `.values` e `.infra`, come dice il messaggio al posto dell’istruzione di spostamento."
   },
+  "f7cc3cdaf4fa56e7": {
+    "at": "2026-11-18T15:28:56.240Z",
+    "job": "session-0004-20261118152856",
+    "srcHash": "f7cc3cdaf4fa56e7",
+    "status": "machine",
+    "text": "**`arm` — hai scritto tu i nomi, oppure è la Recipe a scrivere la conversione.** I nomi simbolici di un frammento sono quelli che hai scritto, e il provider li legge esattamente come sono scritti. La risorsa in cui viene incapsulato un nodo con sorgente si chiama `{{ capitalizedWords .context.instance_id }}`, che la Recipe scrive da sé ovunque legga quella risorsa. Vedi [`../providers/arm.md`](../providers/arm.md) «Nomi»."
+  },
   "f7d680eec068752b": {
     "at": "2026-10-30T06:36:56.027Z",
     "job": "session-0069-20261030063656",
@@ -173007,6 +173080,17 @@
     "srcHash": "fc24291e48cef6bf",
     "status": "machine",
     "text": "Sempre true in questa risposta: l’aggiornamento degli indici si rivolge ai registry stessi, mentre elencarli e cercare rispondono dalla configurazione e da un indice locale. Se un dato registry sia stato effettivamente raggiunto è indicato nella sua voce in hosts, da unreachable."
+  },
+  "fc28c52eb8c7b838": {
+    "at": "2026-11-18T15:28:56.240Z",
+    "job": "session-0004-20261118152856",
+    "revision": {
+      "from": "89946420cf8c81ed",
+      "reviewed": false
+    },
+    "srcHash": "fc28c52eb8c7b838",
+    "status": "machine",
+    "text": "**Il livello del gruppo di risorse segue il livello della sottoscrizione che dichiara il suo gruppo.** Quando `_subscription` contiene una risorsa `Microsoft.Resources/resourceGroups` il cui `name` è esattamente il valore dell’annotazione, non dichiarata `existing: true`, ed entrambe si distribuiscono nella stessa sottoscrizione, `_resourceGroup` dipende da `_subscription`, così il gruppo viene distribuito per primo. In caso contrario non viene aggiunto nulla per il gruppo: spetta a te crearlo. Ogni distribuzione annidata è ordinata al livello superiore come all’ambito di sottoscrizione, e l’altra distribuzione annidata conta come una sola risorsa di livello superiore nella sua prima ondata; vedi [Le ondate ordinano ogni livello](#deploying-at-subscription-scope). Altri due ordini interrompono la build nominando entrambe le distribuzioni annidate: `_resourceGroup` che segue un `_subscription` i cui componenti raggiungono un’ondata successiva alla prima di quelle di `_resourceGroup`, il che distribuirebbe per primo quel contenuto successivo, e le due che iniziano nella stessa ondata mentre entrambe contengono componenti di un’ondata successiva, così che ciascuna dovrebbe attendere l’altra."
   },
   "fc2a3f46ca40c781": {
     "at": "2026-10-22T07:44:28.418Z",

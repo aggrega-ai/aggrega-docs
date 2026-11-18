@@ -72398,6 +72398,17 @@
     "status": "machine",
     "text": "**Uma única superfície de autoria.** Um único Aggregate é a fonte da verdade sobre *o que* o Tempo é; o Manifest diz *como* realizá-lo."
   },
+  "6b2b28da5c32eb23": {
+    "at": "2026-11-18T15:28:56.240Z",
+    "job": "session-0004-20261118152856",
+    "revision": {
+      "from": "b459dcc2d22368d6",
+      "reviewed": false
+    },
+    "srcHash": "6b2b28da5c32eb23",
+    "status": "machine",
+    "text": "Considera-se que o produtor está na própria assinatura da implantação consumidora; uma fronteira implantada no escopo de grupo de gerenciamento com conteúdo de assinatura ou de grupo de recursos interrompe o build, nomeando a anotação, e o mesmo acontece com uma leitura, no escopo de grupo de gerenciamento, de um produtor no escopo de grupo de recursos ou de assinatura."
+  },
   "6b33f073a175d315": {
     "at": "2026-11-04T09:20:00.075Z",
     "job": "session-0226-20261104092000",
@@ -77249,6 +77260,17 @@
     "srcHash": "72636aa95f4e65ee",
     "status": "machine",
     "text": "O que é dito a um modelo sobre um workspace vazio"
+  },
+  "7265a20e0d0cfb8a": {
+    "at": "2026-11-18T15:28:56.240Z",
+    "job": "session-0004-20261118152856",
+    "revision": {
+      "from": "f8c1887597e25d65",
+      "reviewed": false
+    },
+    "srcHash": "7265a20e0d0cfb8a",
+    "status": "machine",
+    "text": "O provedor `arm` lê as suas anotações de posicionamento da mesma forma. Cada fronteira do Azure é renderizada em uma implantação. Quando uma aresta `uses` passa de uma fronteira para outra, `aggrega.ai/azure-subscription` e `aggrega.ai/azure-resource-group` indicam onde está a implantação produtora, e o provedor constrói a partir delas o ID de recurso dessa implantação. Elas são resolvidas pela mesma cascata de anotações e são strings escalares opacas; o provedor nunca as resolve em relação ao estado real do Azure. Quando uma está ausente, considera-se que o produtor está na própria assinatura, no próprio grupo de recursos ou no próprio grupo de gerenciamento da implantação consumidora; se o nível consumidor não tiver um próprio, o build é interrompido, nomeando a anotação."
   },
   "726d1dfe24f99a1c": {
     "at": "2026-10-30T19:53:23.628Z",
@@ -84895,6 +84917,17 @@
     "srcHash": "7d86b8289939b36a",
     "status": "machine",
     "text": "Ler `{{ .context.rendered_name }}` em um nó cujo provedor não informa nenhum nome desse tipo **interrompe o build**, e o diagnóstico diz qual chave escrever em vez disso. Não renderiza um valor vazio: um endereço ao qual falta um segmento é um artefato errado que é implantado, o que é pior do que um build que para."
+  },
+  "7d895a3c188c41b7": {
+    "at": "2026-11-18T15:28:56.240Z",
+    "job": "session-0004-20261118152856",
+    "revision": {
+      "from": "802a524bd09a3786",
+      "reviewed": false
+    },
+    "srcHash": "7d895a3c188c41b7",
+    "status": "machine",
+    "text": "O grupo de recursos do Azure no qual o template da fronteira é implantado. Uma referência a uma fronteira implantada no escopo de grupo de recursos o lê para construir o ID do recurso da implantação produtora, e uma fronteira implantada no escopo de assinatura ou de grupo de gerenciamento implanta nele seu conteúdo de grupo de recursos."
   },
   "7d8ccfa9c302d1f9": {
     "at": "2026-11-03T23:30:44.700Z",
@@ -120053,6 +120086,17 @@
     "status": "machine",
     "text": "Os nomes dos arquivos ignore que o ecossistema respeita dentro de uma fonte — `.helmignore` para um chart. As linhas de cada um desses arquivos são padrões adicionais, com escopo no diretório que o contém."
   },
+  "b0ee7815be7af93e": {
+    "at": "2026-11-18T15:28:56.240Z",
+    "job": "session-0004-20261118152856",
+    "revision": {
+      "from": "3b52b2037cfc9160",
+      "reviewed": false
+    },
+    "srcHash": "b0ee7815be7af93e",
+    "status": "machine",
+    "text": "**Quando cada uma é resolvida**, algo que a própria declaração não carrega. `aggrega.ai/chart-name` é resolvida uma única vez por montagem de chart guarda-chuva, a partir da cascata de anotações da fronteira; cada contribuinte de uma mesma montagem deve resolvê-la para o mesmo valor, e uma divergência interrompe o build nomeando as fronteiras. As chaves `aggrega.ai/aws-*` e as chaves `aggrega.ai/azure-*` que o provedor `arm` lê são resolvidas por referência entre fronteiras a partir do conjunto de anotações do próprio componente produtor, no qual a entrada da Release de um componente prevalece sobre a de sua fronteira e um valor que a Release escreve prevalece sobre um que o Aggregate escreve; a categoria 6 acima descreve a referência que cada uma molda. `aggrega.ai/azure-deployment-scope`, `aggrega.ai/azure-subscription` e `aggrega.ai/azure-resource-group` também são resolvidas uma vez por template `arm`, a partir do conjunto de anotações de cada componente que se monta nele: todos os componentes devem resolver o escopo para o mesmo valor, todo componente que escreve conteúdo de grupo de recursos em um template de escopo de assinatura ou de grupo de gerenciamento deve resolver o grupo de recursos, e todo componente que escreve conteúdo de assinatura ou de grupo de recursos em um template de escopo de grupo de gerenciamento deve resolver a assinatura; caso contrário, o build é interrompido nomeando dois que divergem. Uma Feature associada a toda a fronteira não tem anotações próprias e assume cada uma destas chaves cujo valor os componentes da fronteira resolvem para um só."
+  },
   "b0f6ceaee00470d3": {
     "at": "2026-11-03T15:26:15.166Z",
     "job": "session-0123-20261103152615",
@@ -134716,6 +134760,17 @@
     "status": "machine",
     "text": "Uma cadeia de ponteiros `extends` volta sobre si mesma. Todo tipo que declara `extends` — Component, Feature, Manifest e Release — é percorrido por um único percurso de cadeia, de modo que um laço é relatado com as mesmas palavras onde quer que seja encontrado."
   },
+  "c62fba726da797da": {
+    "at": "2026-11-18T15:28:56.240Z",
+    "job": "session-0004-20261118152856",
+    "revision": {
+      "from": "6ced12dbd440ded7",
+      "reviewed": false
+    },
+    "srcHash": "c62fba726da797da",
+    "status": "machine",
+    "text": "Os demais não informam nenhum, e os motivos **não** são os mesmos. Nenhum deles é um provedor aguardando suporte — em cada caso, ou não há nenhum nome derivado a informar, ou o nome que você quer já é acessível de outra forma."
+  },
   "c6379076d529ac81": {
     "at": "2026-10-30T09:03:14.647Z",
     "job": "session-0075-20261030090314",
@@ -141691,6 +141746,17 @@
     "srcHash": "cfd4ae615b8005ed",
     "status": "machine",
     "text": "**O caminho do contêiner é você quem fornece.** A ferramenta lê a estrutura do documento e nunca deduz onde algo vai pelo seu nome, pelo tipo que carrega ou pelo que parece significar. Você diz qual chave; ela diz onde vão as entradas dessa chave *neste* documento — quais segmentos do caminho o arquivo já contém, as colunas em que ficam suas entradas e a última linha que seu bloco mais interno alcança. Para vincular uma Feature a um nó de um grafo compilado, você não precisa conhecer essa chave: `attachment-container`, acima, informa o documento e o contêiner, e ambos vão aqui sem alterações."
+  },
+  "cfda18c933c73d0b": {
+    "at": "2026-11-18T15:28:56.240Z",
+    "job": "session-0004-20261118152856",
+    "revision": {
+      "from": "be277098cc83b23a",
+      "reviewed": false
+    },
+    "srcHash": "cfda18c933c73d0b",
+    "status": "machine",
+    "text": "**Com escopo de montagem e de referência** — `aggrega.ai/chart-name` é resolvida uma única vez quando um chart guarda-chuva é montado, `aggrega.ai/azure-deployment-scope`, `aggrega.ai/azure-subscription` e `aggrega.ai/azure-resource-group` quando um template `arm` é montado, e as chaves `aggrega.ai/aws-*` e `aggrega.ai/azure-*` que um provedor lê quando uma referência cruza uma fronteira. O tipo de entrada não é um eixo para nenhuma delas: o valor é lido na montagem ou na referência, independentemente de como cada nó contribuinte foi renderizado. Elas têm uma tabela própria em [Chaves resolvidas por montagem e por referência](#keys-resolved-per-assembly-and-per-reference)."
   },
   "cfda781129683cfe": {
     "at": "2026-10-17T19:16:13.188Z",
@@ -169915,6 +169981,13 @@
     "status": "machine",
     "text": "**Como corrigir:** mova a entrada referenciada para acima de quem a lê. Reordenar um bloco `locals:` é uma mudança de comportamento onde quer que uma entrada leia outra, então a correção é exatamente a reordenação que a mensagem nomeia. Uma autorreferência — uma entrada que nomeia sua própria chave — não pode ser corrigida reordenando; em vez disso, calcule o valor diretamente a partir de `.values` e `.infra`, o que a mensagem diz no lugar da instrução de mover."
   },
+  "f7cc3cdaf4fa56e7": {
+    "at": "2026-11-18T15:28:56.240Z",
+    "job": "session-0004-20261118152856",
+    "srcHash": "f7cc3cdaf4fa56e7",
+    "status": "machine",
+    "text": "**`arm` — você escreveu os nomes, ou a Recipe escreve ela mesma a conversão.** Os nomes simbólicos de um fragmento são os que você escreveu, e o provedor os lê exatamente como foram escritos. O recurso em que um nó com origem é encapsulado se chama `{{ capitalizedWords .context.instance_id }}`, o que a Recipe escreve ela mesma sempre que lê esse recurso. Veja [`../providers/arm.md`](../providers/arm.md) “Nomes”."
+  },
   "f7d680eec068752b": {
     "at": "2026-10-30T06:36:56.027Z",
     "job": "session-0069-20261030063656",
@@ -172939,6 +173012,17 @@
     "srcHash": "fc24291e48cef6bf",
     "status": "machine",
     "text": "Sempre true nesta resposta: atualizar os índices vai até os próprios registros, enquanto listá-los e pesquisar respondem a partir da configuração e de um índice local. Se um dado registro foi de fato alcançado é indicado na sua própria entrada em hosts, por unreachable."
+  },
+  "fc28c52eb8c7b838": {
+    "at": "2026-11-18T15:28:56.240Z",
+    "job": "session-0004-20261118152856",
+    "revision": {
+      "from": "89946420cf8c81ed",
+      "reviewed": false
+    },
+    "srcHash": "fc28c52eb8c7b838",
+    "status": "machine",
+    "text": "**O nível do grupo de recursos segue o nível de assinatura que declara o seu grupo.** Quando `_subscription` contém um recurso `Microsoft.Resources/resourceGroups` cujo `name` é exatamente o valor da anotação, não declarado com `existing: true`, e ambas são implantadas na mesma assinatura, `_resourceGroup` depende de `_subscription`, de modo que o grupo é implantado primeiro. Caso contrário, nada é acrescentado para o grupo: cabe a você criá-lo. Cada implantação aninhada é ordenada no nível superior como no escopo de assinatura, e a outra implantação aninhada conta como um único recurso de nível superior na sua primeira onda; veja [As ondas ordenam cada nível](#deploying-at-subscription-scope). Duas outras ordens interrompem o build, nomeando as duas implantações aninhadas: `_resourceGroup` vindo depois de um `_subscription` cujos componentes alcançam uma onda posterior à primeira de `_resourceGroup`, o que implantaria primeiro esse conteúdo posterior, e as duas começando na mesma onda quando ambas contêm componentes de uma onda posterior, de modo que cada uma teria de esperar pela outra."
   },
   "fc2a3f46ca40c781": {
     "at": "2026-10-22T07:44:28.418Z",
