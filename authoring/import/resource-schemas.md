@@ -20,8 +20,9 @@ that serves it:
 
 This page works the Azure case end to end, then shows the CloudFormation and
 Terraform cases, and a variant that drafts a Recipe alone for a Component the
-catalog already holds. Every command and block of output on the Azure parts
-below comes from a real run.
+catalog already holds. The commands and the output on the Azure parts below are
+from a run of a build of the compiler release that carries these importers and
+the `arm` provider.
 
 Nothing is fetched on your behalf. You export the schema with the vendor's own
 tool, so the import reads a file you hold and reaches no cloud account.
@@ -103,9 +104,10 @@ Microsoft.ManagedIdentity/identities@2024-11-30
 ```
 
 Then name the one you want under the `resource_types` setting of the importer's
-entry in `.aggrega-config.yaml`. The entry's `uri` names the importer and the
-compiler's version, which `aggrega version` prints; an importer is handed its
-settings through such an entry, as
+entry in `.aggrega-config.yaml`. Every workspace already serves the importer, so
+the entry is needed only to pass `resource_types`. Its `uri` names the importer
+and the compiler's version, which `aggrega version` prints; an importer is
+handed its settings through such an entry, as
 [Which importer turns a source into drafts](../../language-reference/cli/configuration.md#which-importer-turns-a-source-into-drafts)
 describes:
 
@@ -152,16 +154,15 @@ wrote .aggrega-import.json
 On standard error, with `<workspace>` standing for the folder you ran it in:
 
 ```text
-[… omitted: a warning that the importer runs unverified, printed where its module is read from beside its Plugin entity in a catalog folder rather than fetched]
 read as the arm-schema format, with drafted paths relative to <workspace>
 mapped Microsoft.ManagedIdentity/userAssignedIdentities@2024-11-30 (Microsoft.ManagedIdentity/userAssignedIdentities) to imported/security/microsoft-managedidentity-userassignedidentities as a draft, NONE at 0.05
 ```
 
-The format is recognised from the file: a Bicep file by its name, `types.json`,
-and its first entry. `--format arm-schema` names it where it is not, and is the
-safer way to import a large export, such as a provider's whole Terraform
-schema, since the import then reads the file as that format without
-recognising it first.
+`aggrega import` recognises a Bicep type file named `types.json`, as
+`Azure/bicep-types-az` names them, and `--format arm-schema` names the format
+for a file named otherwise. `--format` is also the way to import a large export,
+such as a provider's whole Terraform schema, without the import recognising it
+first.
 
 The `mapped` line says the resource type became a draft of its own, with no
 catalog Component close to it. The drafts are written under `catalog/`, a folder
@@ -285,8 +286,8 @@ nothing the build depends on is held anywhere else.
 ## Use the drafts in an Aggregate and a Release
 
 The import drafts no Aggregate, no Manifest and no Release, so the lines that
-use the drafted Component are yours. In an Aggregate, `aggregate.yaml`, one component of the drafted type,
-carrying the identity the `values` pillar holds:
+use the drafted Component are yours. In an Aggregate, `aggregate.yaml`, one
+component of the drafted type, carrying the identity the `values` pillar holds:
 
 ```yaml
 apiVersion: aggrega.ai/v1beta1
@@ -357,8 +358,8 @@ aggrega build --release release.yaml
 ```
 
 ```text
-Pull complete: release.lock (entities=4, source_artifacts=0, external_inputs=0)
-Total build time:               4.8s
+Pull complete: release.lock (entities=…, source_artifacts=…, external_inputs=…)
+[… omitted: the build's elapsed time]
 Build completed: 1 file written to <workspace>/dist
 ```
 
@@ -403,8 +404,8 @@ annotation the Release sets, as
 [Deploying at subscription scope](../../language-reference/providers/arm.md#deploying-at-subscription-scope)
 and
 [Deploying at management-group scope](../../language-reference/providers/arm.md#deploying-at-management-group-scope)
-describe. A type writable at no scope the provider deploys at, or only as an
-extension of another resource, is refused by name.
+describe. A type writable only at the tenant scope, or only as an extension of
+another resource, is refused by name.
 
 ## Secrets
 
@@ -531,6 +532,7 @@ Component:
 ```yaml
 plugins:
   importer:
+    # The entry passes resource_types; the importer is served without it.
     - uri: importer/arm-schema:<compiler version>
       with:
         settings:

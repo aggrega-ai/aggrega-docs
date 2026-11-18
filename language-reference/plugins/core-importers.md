@@ -2739,10 +2739,10 @@ The `resource_types` [setting](#settings) lists them. Each entry is a type's nam
   without regard to case for Azure (`Microsoft.Storage/storageAccounts`, optionally followed by
   `@<apiVersion>`), as Azure Resource Manager reads types. The draft keeps the file's spelling.
 - With no list, and sources holding one type, that type is drafted. With no list and several, the import
-  stops under `resource-type-not-named`, listing them for CloudFormation and Azure, and, for Terraform,
-  giving how many and where to write the list.
+  stops under `resource-type-not-named`, listing the types of an Azure file and, for Terraform, saying how many
+  there are and where to write the list.
 - A listed type the sources do not hold stops the import under `resource-type-not-found`, naming it
-  and up to five of the nearest names. The list is the import's whole: a type of another file is drafted
+  and the nearest names it does hold. The list is the import's whole: a type of another file is drafted
   by importing that file with this one. An Azure type named with an API version the file does not hold
   stops it under the same code, naming the one it holds.
 - A Terraform type that more than one provider of the export carries is drafted from the non-beta provider
@@ -2787,7 +2787,7 @@ drafted key names the rule:
 
 Keys of `values` and `infra` are written in snake_case at every depth, and the Recipe maps each back to
 the vendor's spelling. A constraint is carried as the Component's own: `enum`, `pattern` where Go's regular
-expressions compile it, minimum and maximum, length bounds, `format` where it is one of the eight names the
+expressions compile it, minimum and maximum, length bounds, `format` where it is one of the names the
 compiler checks, and a union as the open union of its branches' types. A vendor constraint not carried is
 reported under `constraint-dropped` naming the property, the constraint and why; so is a shape cut where a
 definition refers back to itself, or nests deeper than six levels, which is drafted as an open object. A
@@ -2815,8 +2815,8 @@ named after the Component's last segment, and implements the Component at `0.1.0
 Where the name a draft would take is already held by a Component of the workspace's folders or the
 published catalog with other `values` keys, the import stops under `component-exists`, naming the
 Component, the differing keys and `component` as the remedy. A Component held with the same keys is the
-same draft refreshed, and the import goes on. A plain import never writes over a Component or Recipe file already in place, and `aggrega import --sync`
-refreshes the ones the record lists, stopping at one you edited.
+same draft refreshed, and the import goes on. A plain import writes over no Component or Recipe file already in place, and stops naming
+`--sync`, which brings the files the record lists up to date with the source.
 
 A text taken from a vendor's schema — a description, a line of the Recipe's header quoting one —
 opens with `[vendor schema text]`, so the drafts can be searched for it; text the import writes itself
@@ -2833,8 +2833,8 @@ the instance's boundary. A type writable only at the subscription or the managem
 for that scope, and the Recipe's header names the boundary annotation the Release sets, as
 [Deploying at subscription scope](../providers/arm.md#deploying-at-subscription-scope) and
 [Deploying at management-group scope](../providers/arm.md#deploying-at-management-group-scope) describe. A
-type writable only at the tenant scope, or only as an extension of another resource, or at no scope the
-provider deploys at, is refused under `resource-type-refused`. The root `systemData` Azure keeps on a
+type writable only at the tenant scope, or only as an extension of another resource, is refused under
+`resource-type-refused`. The root `systemData` Azure keeps on a
 resource is read back and not provided. A Terraform export carries no provider version, so the module
 requires the provider with no constraint and the import warns under `provider-version-unconstrained`,
 naming where to add one. A Terraform provider's source is written in its short form for
@@ -2886,7 +2886,7 @@ the import does not recognise it first.
 
 ### The settings they read
 
-They read `resource_types`, `target_namespace`, `emit_hints` and `render_mode`, as [Settings](#settings)
+They read `resource_types`, `target_namespace` and `render_mode`, as [Settings](#settings)
 describes them, and no other setting. Under `render_mode: llm` the decision record, which holds the
 catalog Component each type resembles as `swapHint`, is written alone as `import-decisions.json`, and no
 draft is.
@@ -2999,7 +2999,7 @@ with its `code` as well.
 | `beta-provider-passed-over` | `info` | Exactly a Terraform provider and its `-beta` sibling carry the type, and the non-beta provider's is drafted. |
 | `resource-types-unreadable` | `halt` | `resource_types` is not a list of names and objects with a `type` and a `component`. |
 | `resource-schema-unreadable` | `halt` | A source parses but is not the format's schema shape; the missing member is named. |
-| `resource-type-refused` | `halt` | The provider cannot realize the type: a CloudFormation `MODULE`, `HOOK` or `NON_PROVISIONABLE` type, or an Azure type writable only at a scope the `arm` provider does not deploy at, or an input it cannot read from another resource. |
+| `resource-type-refused` | `halt` | The provider cannot realize the type: a CloudFormation `describe-type` output whose `Type` is not `RESOURCE` or whose `ProvisioningType` is `NON_PROVISIONABLE`, or an Azure type writable only at the tenant scope or only as an extension of another resource. |
 | `component-exists` | `halt` | The Component name a draft would take is held, in the workspace's folders or the published catalog, with other `values` keys; the keys and `component` as the remedy are named. |
 | `constraint-dropped` | `warn` | A vendor constraint is not carried, or a shape is cut where a definition refers back to itself or nests too deep; the property, the constraint and why are named. |
 | `provider-version-unconstrained` | `warn` | A Terraform export carries no provider version, so the drafted module requires the provider with no constraint. |
