@@ -17,7 +17,7 @@ While any value is owed, the import does not pull the drafted Release's dependen
 | a file | `import-answers.yaml` in the same directory as the source file |
 | a directory | `import-answers.yaml` inside the source directory |
 
-`--answers <file>` names another file. A relative path resolves against the directory you run the command in. Where the drafts owe values and the answers file is not the default one beside the source, the record the import writes beside the drafts, `.aggrega-import.json`, names it, so a later `aggrega import --sync` into the same directory reads it without being told again. The record never holds an answer.
+`--answers <file>` names another file. A relative path resolves against the directory you run the command in. Where the drafts owe values and the answers file is not the default one beside the source, the import's entry in the record it writes beside the drafts, `.aggrega-import.json`, names it, so a later `aggrega import --sync` into the same directory reads it without being told again. The record never holds an answer.
 
 A secret's answer is the name of where the secret comes from, never the secret itself (see [Secrets](#secrets)), so the answers file can be kept with the source in version control.
 
@@ -99,7 +99,7 @@ Under `--dry-run` nothing is asked and nothing is written, the answers file incl
 
 ## Re-running and `--sync`
 
-`aggrega import --sync` reads the same answers file as the import before it: the one `--answers` names, else the one the record beside the drafts names, else the default one beside the source. It writes each answer into the drafts in place of the empty value, and where the answers file answers every owed value it asks nothing.
+`aggrega import --sync` reads the same answers file as the import before it: the one `--answers` names, else the one the record's entry for the import's format names, else the default one beside the source. It writes each answer into the drafts in place of the empty value, and where the answers file answers every owed value it asks nothing.
 
 Once nothing is owed and the workspace is not offline, the import pulls the drafted Release's dependencies as [`aggrega pull`](cli/aggrega-pull.md) does, writing `release.lock`, so `aggrega validate` and `aggrega build` work on the drafts at once. Under `--offline` nothing is pulled, and the import names the `aggrega pull --release <path>` to run next.
 
