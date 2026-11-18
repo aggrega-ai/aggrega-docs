@@ -439,7 +439,7 @@ A source of kind `bicep-module-oci` or `terraform-module-oci` names one artifact
 It is refused as the document is read, before anything is fetched, so checking the Recipe on its own refuses it, and so does every pull, pin and build that reaches it. A source whose `version:` still carries template text is not judged there; the pull judges what it evaluates to. A source can carry several faults. A build or `aggrega validate` stops at the first refusal and reports it, and the editor lists every fault, one objection each. The message never repeats the `url:` as written, since a `url:` can carry a credential.
 
 Emitted message, naming the document, then the fault and what to write:
-> the source does not name one artifact of its OCI module kind (Recipe `<name>:<version>`, rule oci-module-source, at `<file>`). the source writes no version; write version: <tag or sha256 manifest digest>
+> the source does not name one artifact of its OCI module kind (Recipe `<name>:<version>`, rule oci-module-source, at `<file>`). the source writes no version; write `version: <tag or sha256 manifest digest>`
 
 **How to fix:** write the `url:` as `oci://<registry>/<repository>` and move any tag or digest under `version:`; write `version:` as the tag or the `sha256:` manifest digest; and remove `chart:`, `ref:` and, for `bicep-module-oci`, `module_subdir:`. The message opens with what was written and names what to write, so each fault names its own fix. A Bicep `br:<registry>/<path>:<tag>` reference is written `url: oci://<registry>/<path>` with `version: <tag>`.
 

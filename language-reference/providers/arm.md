@@ -147,7 +147,7 @@ spec:
       - name: app
         image: "{{ .infra.image }}"
         resources:
-          cpu: "0.25"
+          cpu: "[json('0.25')]"
           memory: 0.5Gi
     enableTelemetry: false
 ```
