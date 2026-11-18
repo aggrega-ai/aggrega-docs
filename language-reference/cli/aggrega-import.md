@@ -42,21 +42,36 @@ once with the network available, where that would fetch it, or placing the
 module beside a Plugin entity of that importer at that version in a catalog
 folder.
 
-The catalog an import reads is the workspace's catalog folders. Where the
-workspace names none — AGGREGA_CATALOG_DIRS is unset, its configuration lists
-no catalog_dirs, and it holds no catalog folder at its root — import reads the
-catalog its default registry publishes as one signed snapshot, at
-catalog/snapshot. A snapshot is fetched once: its signature is verified under
-that registry's trust policy, and it is kept in the workspace's content cache
-and read there as a catalog folder, held to its digest, with no registry asked
-for it again. Which snapshot an import reads: with --upgrade, the newest;
-otherwise the one the record beside the drafts names, fetched by its digest
-when this machine does not hold it; otherwise the one the workspace last
-fetched as the newest; otherwise the newest. The record an import writes names
-the snapshot it read by its digest. Under --offline an import that would have
-to fetch one stops, naming what to run. A registry that publishes no
-snapshot leaves the import with no catalog, and a warning says so. A workspace
-that names a catalog folder imports against it, and nothing is fetched.
+The catalog an import reads is the one a build resolves against: the
+workspace's catalog folders first — those AGGREGA_CATALOG_DIRS and its
+configuration's catalog_dirs name, then the catalog folder at its root — and
+last the catalog its default registry publishes as one signed snapshot, at
+catalog/snapshot. An entity a folder holds is read in place of the published
+one of the same identity — its kind, name and version, a Recipe's capability
+too, and a library's name alone — and every other published entity stays in
+view: the importers, the Components drafts are matched against and the Recipes
+--target maps from are the folders' and the published catalog's together. A
+parser or an importer the folders hold for a syntax or a format is chosen for
+it before any the published catalog holds, so a published one of another name
+or a later version is no candidate for that syntax or format, unless a
+plugins.importer attachment names that importer. A snapshot is fetched once:
+its signature is verified under that registry's trust policy, and it is kept in
+the workspace's content cache and read there as a catalog folder, held to its
+digest, with no registry asked for it again. Which snapshot an import reads:
+with --upgrade, the newest; otherwise the one the import's entry in the record
+beside the drafts names, fetched by its digest when this machine does not hold
+it; otherwise the one the workspace last fetched as the newest; otherwise the
+newest. The entry an import writes names the snapshot it read by its digest. Where the snapshot
+cannot be read — the workspace is offline and this machine does not hold it,
+the workspace names no default_registry, or the registry cannot be reached or
+publishes none — a workspace with catalog folders imports over them alone, and
+a warning says why and what reads the snapshot: an import run with the network
+available. Such an import keeps the snapshot its entry names, so the next
+import that can read it reads the same one. A workspace with
+no catalog folder stops instead, naming what to run, or, where the registry
+publishes no snapshot, imports with no catalog, and a warning says so. A
+configuration listing catalog_dirs as an empty list has no catalog folder, the
+one at its root included.
 
 The source is a file or a directory. A file is handed to the importer whole. A
 directory is read into named sources: exactly the files the importer's declared
@@ -140,15 +155,26 @@ catalog's Recipes bind to, and nothing is written. Without --target no Manifest
 is drafted and the drafts are the importer's alone — except under --sync, which
 reuses the target the earlier import was given.
 
-Beside its drafts, every import that drafts anything writes .aggrega-import.json,
-the record of what it wrote: the target it was given, where it was given one,
-the catalog snapshot it read, where it read one, and each drafted file and, in a drafted Aggregate or Release, each key at every
-depth, with a digest of the text written there; any other drafted file is
-recorded whole. A key's text is its line, its value's lines where its value is
-not a mapping of keys, and the comment lines written directly above it at its
-own indentation. The record is JSON, so nothing that reads the workspace's YAML
-documents reads it; keep it beside the drafts for as long as you mean to sync
-them.
+Beside its drafts, every import that drafts anything writes its entry in
+.aggrega-import.json, the record of what imports wrote there. The record holds
+one entry per import format, sorted by format, and each names its format, the
+target the import was given, where it was given one, the catalog snapshot it
+read, where it read one, and each drafted file and, in a drafted Aggregate or
+Release, each key at every depth, with a digest of the text written there; any
+other drafted file is recorded whole. A key's text is its line, its value's
+lines where its value is not a mapping of keys, and the comment lines written
+directly above it at its own indentation. An import replaces its own format's
+entry, or adds it, and writes every other entry back as it found it, so imports
+of different formats into one directory each keep their own entry and each can
+be synced. A record an older version wrote, holding one import's fields and no
+format, is read as one entry naming no format, and an import without --sync
+keeps it as it is beside its own, reading of it only the catalog snapshot it
+names: its target and its answers file may be another import's. A record that
+cannot be read stops --sync;
+an import without --sync writes it anew, holding its own entry alone, and a
+warning says that the entries it held for other formats' imports are lost. The
+record is JSON, so nothing that reads the workspace's YAML documents reads it;
+keep it beside the drafts for as long as you mean to sync them.
 
 Some values no source can hold: the image of an application built from your
 own code, the email of an owner account, a model the source does not name, the
@@ -159,8 +185,8 @@ Component, Feature and connection it declares, and lists every value still
 empty where that schema requires one, or where it declares the key and nothing
 supplied it — each described by the schema's own description. The values are
 answered from the answers file: --answers names it, and without it import reads
-the one the record beside the drafts names, or else import-answers.yaml beside
-the source file, or inside the source directory. The answers file holds, under
+the one the import's entry in the record beside the drafts names, or else
+import-answers.yaml beside the source file, or inside the source directory. The answers file holds, under
 each drafted file's path, the key path inside that document and its answer as a
 string, with the schema's description in a comment above each key. Each answer
 is written into the drafts before anything is written or recorded, so an import
@@ -169,8 +195,9 @@ An answer for a key these drafts do not leave empty — one only another
 target's drafts ask for, say — is kept in the file and not applied, so one
 answers file serves every target: import adds the keys it owes, sets the
 answers it is given, and leaves every other key and comment as it is, writing
-the file only where that changes it. The record beside the drafts names the
-answers file where it is not the one beside the source, and holds no answer.
+the file only where that changes it. The import's entry in the record beside
+the drafts names the answers file where it is not the one beside the source,
+and holds no answer.
 
 The answers file never holds a secret. A secret's value — one its schema marks
 sensitive — is answered with where the secret comes from: a variable name, a
@@ -199,20 +226,30 @@ and import names the aggrega pull to run next. A pull that fails leaves the
 drafts written and stops import, naming why and the pull to run once it is
 fixed.
 
-An import never writes over an Aggregate already at one of its drafted paths:
-an Aggregate is the document an author goes on editing once it is drafted, so
-import stops, naming it and --sync, and writes nothing — under --dry-run too.
-Every other file already at a drafted path is written over, and a file an
-earlier import drafted that this one does not draft is left where it is.
+An import never writes over an Aggregate, Component, Feature, Recipe or
+FeatureRecipe already at one of its drafted paths: an author goes on editing
+such a document once it is drafted, so import stops, naming it and --sync, and
+writes nothing — under --dry-run too. Where another format's import into the
+directory drafted it, and that import's entry in the record lists it, import
+names that import and --output-dir instead, since a sync of this format would
+not bring it up to date. Every other file already at a drafted path is written
+over, and a file an earlier import drafted that this one does not draft is left
+where it is.
 
 --sync brings what an earlier import drafted up to date with the source instead,
-changing only what the import wrote. A sync given no --target drafts for the
-target the record names, so it drafts the Manifest the earlier import drafted;
+changing only what the import wrote. A sync reads and writes its own format's
+entry in the record, and leaves every other as it is. A sync of a format the
+record holds no entry for reads the entry naming no format, where there is one,
+as its own only where that entry lists a file the sync drafts, and then writes
+it back under its format; otherwise the sync stops, naming the record, and
+writes and removes nothing, since that entry may be another import's. A sync
+given no --target drafts for the target its entry names, so it drafts the
+Manifest the earlier import drafted;
 given one, it drafts for that target and records it in place of the one
 recorded. A recorded target no Recipe in the catalog binds to stops the sync as
 a target you pass does, saying the target is the recorded one. It judges every
-part three ways — what the record says the import
-last wrote there, what is on disk, and what the source drafts now:
+part three ways — what its entry says the import last wrote there, what is on
+disk, and what the source drafts now:
 
   - a part the source left as the import last wrote it stays exactly as it is
     on disk, whether or not you edited it;
@@ -226,8 +263,9 @@ last wrote there, what is on disk, and what the source drafts now:
 Everything else stays byte for byte: a key you added anywhere — a parameter, a
 Feature, under a drafted Component instance too, another Component, the
 environment a drafted Release leaves for you — a comment not written directly
-above a drafted key, and every file the record does not list. Before anything is written, standard error names each part that drifted,
-one line each:
+above a drafted key, and every file its entry does not list, another format's
+drafts among them. Before anything is written, standard error names each part
+that drifted, one line each:
 
   added|removed|changed <key> in <file>
   added|removed|changed <file>
@@ -236,10 +274,12 @@ Where the sync would change or remove a part you edited, add a part where you
 already wrote one, or remove a part holding something you added, import stops,
 naming each such part and why, and writes no draft (an answer you typed is kept
 in the answers file); reconcile them by hand and sync again. A comment you write directly above a drafted key edits that key.
-An Aggregate at a drafted path that no record lists stops the sync too, saying
-so, as does a record that cannot be read. Where the importer reports a
-diagnostic that stops the import, a sync writes nothing. A sync into a directory
-holding no record and nothing at its drafted paths writes the whole draft.
+An Aggregate, Component, Feature, Recipe or FeatureRecipe at a drafted path
+that its entry does not list stops the sync too, saying so — naming another
+format's import where that import's entry lists it — as does a record that
+cannot be read. Where the importer reports a diagnostic that stops the import,
+a sync writes nothing. A sync into a directory whose record holds no entry it
+reads, and nothing at its drafted paths, writes the whole draft.
 
 With --sync, --dry-run writes nothing and names the same drift, or stops on the
 same conflicts, and the exit status says which: 0 when the drafts are in step
@@ -306,6 +346,15 @@ it stops and names them. It does not guess. Recognition reads nothing but the
 source — of a directory, only the files a signature's file names match — and
 reaches no network.
 
+The format also chooses the import's entry in the record beside the drafts,
+which names the catalog snapshot the import reads, so it is settled before that
+snapshot is read: --format names it; under --sync, a record holding one entry
+gives that entry's format; and where the record holds entries of several
+formats and --format is not given, the source is recognized first by the
+importers of the workspace's catalog folders and the core importers alone.
+Where none of them recognizes it, import stops, asking for --format and naming
+the formats the record holds.
+
 Recognition and the importer read the source through the parser the
 workspace's catalog serves for its syntax, and, for a syntax the catalog
 serves no parser for, through the parser the compiler itself carries for it —
@@ -344,11 +393,11 @@ source the write would refuse is refused here too.
 
 | Flag | Default | Description |
 | --- | --- | --- |
-| `--answers` | — | The answers file the values the drafts leave empty that no source can hold are read from and written to: under each drafted file's path, the key path inside it and its answer. A relative path resolves against the directory you run the command in. Without it, the answers file the record beside the drafts names, or else import-answers.yaml beside the source file, or inside the source directory. A secret's answer is the name of where the secret comes from, never the secret itself. |
+| `--answers` | — | The answers file the values the drafts leave empty that no source can hold are read from and written to: under each drafted file's path, the key path inside it and its answer. A relative path resolves against the directory you run the command in. Without it, the answers file the import's entry in the record beside the drafts names, or else import-answers.yaml beside the source file, or inside the source directory. A secret's answer is the name of where the secret comes from, never the secret itself. |
 | `--dry-run` | `false` | Do everything except write: hand back the drafted files as content, naming the file each is for, and create or modify nothing. Every other behaviour is the write's, the importer run included. Without it the drafts are written to disk. |
 | `--format` | — | Name the source format explicitly, overriding detection by the importers' signatures (for example langflow, flowise, n8n, mcp, compose, dify, crewai, langgraph, google-adk or agent-framework) |
 | `--output-dir` | — | Directory the drafted files are written under. A relative path resolves against the directory you run the command in, and a drive named bare on Windows, such as D:, is the current directory on that drive. Without it the drafts are written beneath the root of the workspace the run resolved. |
-| `--sync` | `false` | Bring what an earlier import drafted up to date with the source, changing only what the import wrote, as the record beside the drafts lists it, and naming each part that drifted. With --dry-run, exit 0 when in step, 2 when drifted, 1 on an error or a refusal. |
+| `--sync` | `false` | Bring what an earlier import drafted up to date with the source, changing only what the import wrote, as its entry in the record beside the drafts lists it, and naming each part that drifted. With --dry-run, exit 0 when in step, 2 when drifted, 1 on an error or a refusal. |
 | `--target` | — | Draft a Manifest for this provider capability — the word a Recipe's spec.capability binds to, for example compose or helm — mapping each component type and feature type the drafts need to the Recipe or feature recipe of that capability the workspace's catalog offers for it, the one there is or, among several, the one named after the type, and point the drafted Release at it. A capability no Recipe in the catalog binds to is refused before the importer runs. Without it no Manifest is drafted, except that --sync reuses the target the earlier import was given. |
-| `--upgrade` | `false` | Re-read the published catalog from current registry state: fetch the newest catalog snapshot the workspace's default registry publishes, verify it, and import against it, holding it as the snapshot this workspace reads from then on in place of the one it holds or the one the record beside the drafts names. It has an effect only where the workspace names no catalog folder, and is refused under --offline |
+| `--upgrade` | `false` | Re-read the published catalog from current registry state: fetch the newest catalog snapshot the workspace's default registry publishes, verify it, and import against it, holding it as the snapshot this workspace reads from then on in place of the one it holds or the one the import's entry in the record beside the drafts names. The snapshot is read behind the workspace's catalog folders, where it has some. It is refused under --offline, and where no default registry is named or the registry cannot be reached |
 <!-- END GENERATED: cli-import -->
