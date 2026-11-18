@@ -304,10 +304,10 @@ reads the database's deployment by its resource ID and takes the output from it:
 ```
 
 The ID is built from the server's own subscription and resource group, which
-assumes the database is deployed to the same resource group. A boundary that
-declares `aggrega.ai/azure-subscription` or `aggrega.ai/azure-resource-group` in
-its `annotations` places its template elsewhere, and the read then names those
-values as strings.
+assumes the database is deployed to the same resource group. When the database's
+boundary declares `aggrega.ai/azure-subscription` or
+`aggrega.ai/azure-resource-group` in its `annotations`, it names where its template
+is deployed, and the read then names those values as strings.
 
 ### Deploy the database first, under the recorded name
 
@@ -371,8 +371,9 @@ compiler resolves no live data: it never calls Azure and never runs Azure
 Resource Manager, so a rebuild has nothing to discover that could move the
 bytes. That is the property a diff-based review relies on.
 
-`dist/one-deployment/` is committed beside the Release that builds it, so a
-change to the Recipes shows up as a diff of the template. The two version
+`dist/` is committed beside the Releases that build it — `dist/one-deployment/`,
+`dist/two-deployments-database/` and `dist/two-deployments-server/` — so a change
+to the Recipes shows up as a diff of the templates. The two version
 entries in each provenance block move with the compiler that builds, as the
 excerpts above note. The `*.lock` files are generated and are not committed;
 they regenerate from the files that are.
