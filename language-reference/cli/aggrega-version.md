@@ -62,6 +62,12 @@ under a header naming the count and their shared version. With
 --verbose -o json, the JSON object gains an embeddedPlugins array
 carrying the same detail.
 
+With --licenses, the output is the third-party notices of everything
+compiled into the binary: the host and each embedded guest, every
+dependency with its version, licence and copyright lines, then each
+licence text once. It is printed as plain text, so --licenses cannot be
+combined with -o json or --verbose.
+
 Version strings are v-less (1.0.0, not v1.0.0), homogeneous with the
 version form catalog entities use. Tagged release builds report the
 release version, a build stamped with a version reports that version,
@@ -73,6 +79,7 @@ which marks an unreleased build.
 
 | Flag | Default | Description |
 | --- | --- | --- |
+| `--licenses` | `false` | print the third-party notices of everything compiled into the binary |
 | `--output`, `-o` | `text` | Output format: text\|json. |
 | `--verbose` | `false` | include the embedded-plugin set in the output |
 <!-- END GENERATED: cli-version -->
