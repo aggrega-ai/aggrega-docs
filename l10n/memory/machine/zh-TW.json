@@ -557,17 +557,17 @@
     "text": "4. 沒有幽靈基礎架構（Ghost Infrastructure）：編譯器絕不憑空創造運算或功能"
   },
   "06d0fd4033ea9bf1": {
-    "at": "2026-11-18T11:27:19.320Z",
-    "job": "session-0003-20261118112719",
+    "at": "2026-11-18T13:42:42.603Z",
+    "job": "session-0015-20261118134242",
     "revision": {
       "forced": true,
       "from": "06d0fd4033ea9bf1",
-      "reason": "Lower-case \"workload(s)\" is left in English; it is an ordinary word and takes 工作負載 (as 3d585960 and 4ea1e82a do); the capitalised kind Workload stays.",
+      "reason": "operational: use 運作 (guide), not 營運",
       "reviewed": false
     },
     "srcHash": "06d0fd4033ea9bf1",
     "status": "machine",
-    "text": "**每個 Component 一個內聚的服務——單一工作負載邊界：** 一個 Component 建模**一個內聚的服務**——單一公開的服務，或是一個服務的工作負載連同其僅供內部使用的輔助工作負載。它的 `component.aggrega.ai/type` 標籤指名該服務的營運形態。當多個實體工作負載構成一個內聚的產品、而沒有可獨立使用的部分時，把它們放在單一 Component 內是沒問題的：其 chart 執行控制器、webhook 與注入器的服務，仍然是一個 Component。判斷標準不是有多個工作負載，而是**能否獨立使用**。"
+    "text": "**每個 Component 一個內聚的服務——單一工作負載邊界：** 一個 Component 建模**一個內聚的服務**——單一公開的服務，或是一個服務的工作負載連同其僅供內部使用的輔助工作負載。它的 `component.aggrega.ai/type` 標籤指名該服務的運作形態。當多個實體工作負載構成一個內聚的產品、而沒有可獨立使用的部分時，把它們放在單一 Component 內是沒問題的：其 chart 執行控制器、webhook 與注入器的服務，仍然是一個 Component。判斷標準不是有多個工作負載，而是**能否獨立使用**。"
   },
   "06d51ac8977f3a0c": {
     "at": "2026-11-18T12:54:50.695Z",
@@ -1377,11 +1377,17 @@
     "text": "Workload 的 `containers.<name>.attachments` 區塊*引用*由 Component 的 `featuresSchema` 所宣告的槽位；它不宣告新的槽位。`featuresSchema` 編寫介面請參閱 [../language-reference/entities/component.md](../language-reference/entities/component.md)。"
   },
   "11178cb001274428": {
-    "at": "2026-11-18T11:36:26.060Z",
-    "job": "session-0004-20261118113626",
+    "at": "2026-11-18T13:42:42.603Z",
+    "job": "session-0015-20261118134242",
+    "revision": {
+      "forced": true,
+      "from": "11178cb001274428",
+      "reason": "an LLM token (billing, budget, count) stays `token` in Latin letters (token 數, token 預算), never 權杖, which is a credential token",
+      "reviewed": false
+    },
     "srcHash": "11178cb001274428",
     "status": "machine",
-    "text": "**標準程式庫帶有什麼。** 這些元件帶有 `semantic`：`core/gateway/litellm`，其實現會渲染代理伺服器的路由表：一個跨多個上游提供者的模型對應表；`core/gateway/cloudflare-ai-gateway`，Cloudflare 的代管閘道，它會讀取所轉送的每個模型請求——其指名的模型、所計費的權杖，以及在閘道自身檢查開啟時的內容；`core/gateway/azure-api-management`，Azure API Management 的 AI 閘道，一項代管服務，它會讀取提供模型的 API 上的每個模型請求——其語意快取所比較的提示、回覆所回報的權杖，以及其安全檢查送去檢驗的內容；`core/gateway/apisix`，其 AI proxy 會讀取提供模型的路由上每個請求的本文，以及模型回覆所回報的權杖；`core/gateway/envoy-gateway`，其 Envoy AI Gateway 擴充功能會讀取提供連接於其上之模型的路由上每個請求的本文，以找出其指名的模型，以及每個回覆所回報的權杖；`core/gateway/kong-enterprise`，Kong Gateway Enterprise，其 AI proxy 會讀取提供已連接模型的路由上每個請求的本文——其指名的模型與所攜帶的訊息——以及每個回覆所回報的權杖；`core/gateway/traefik-hub`，Traefik Hub，其 Chat Completion 中介軟體會讀取提供已連接模型的路由上每個請求的本文，依聊天補全結構描述檢查它，並讀取每個回覆所回報的權杖；`core/gateway/agentgateway`，agentgateway，它會讀取其模型服務路徑上每個請求的本文，以找出其指名的模型，也就是它選擇請求要送往哪個已連接模型的方式，以及每個回覆所回報的權杖；以及 `core/gateway/higress`，Higress，其 AI proxy 會讀取提供已連接模型的路由上每個請求的本文——其指名的模型與是否為串流——而其外掛程式會讀取每個回覆所回報的權杖——因此需要此值的 AI Features 能針對其中任何一個解析，而每個實現都會說明其閘道遵循什麼，或在其閘道完全不遵循時中止建置；沒有對應某個閘道之實現的 Feature，會在該處中止建置並指名其型別。沒有任何元件帶有 `l4-mesh`，而標準程式庫的其他閘道元件完全不帶智慧標籤：路由流量的那些會終止 HTTP 並在第 7 層路由，其中一個是完全不路由任何東西的控制平面，所以兩個值都無法描述它。第 4 層 TCP 網格又是另一個產品類別。這使上述拒絕完全維持有效，因為它依據的是 `semantic` 的缺席：需要該值的附加在它們之中任何一個上都會中止。目錄確實執行第 4 層網格的架構師，會在該元件上帶 `l4-mesh`，這使得這項區別在兩個方向上都可被選取。"
+    "text": "**標準程式庫帶有什麼。** 這些元件帶有 `semantic`：`core/gateway/litellm`，其實現會渲染代理伺服器的路由表：一個跨多個上游提供者的模型對應表；`core/gateway/cloudflare-ai-gateway`，Cloudflare 的代管閘道，它會讀取所轉送的每個模型請求——其指名的模型、所計費的 token，以及在閘道自身檢查開啟時的內容；`core/gateway/azure-api-management`，Azure API Management 的 AI 閘道，一項代管服務，它會讀取提供模型的 API 上的每個模型請求——其語意快取所比較的提示、回覆所回報的 token，以及其安全檢查送去檢驗的內容；`core/gateway/apisix`，其 AI proxy 會讀取提供模型的路由上每個請求的本文，以及模型回覆所回報的 token；`core/gateway/envoy-gateway`，其 Envoy AI Gateway 擴充功能會讀取提供連接於其上之模型的路由上每個請求的本文，以找出其指名的模型，以及每個回覆所回報的 token；`core/gateway/kong-enterprise`，Kong Gateway Enterprise，其 AI proxy 會讀取提供已連接模型的路由上每個請求的本文——其指名的模型與所攜帶的訊息——以及每個回覆所回報的 token；`core/gateway/traefik-hub`，Traefik Hub，其 Chat Completion 中介軟體會讀取提供已連接模型的路由上每個請求的本文，依聊天補全結構描述檢查它，並讀取每個回覆所回報的 token；`core/gateway/agentgateway`，agentgateway，它會讀取其模型服務路徑上每個請求的本文，以找出其指名的模型，也就是它選擇請求要送往哪個已連接模型的方式，以及每個回覆所回報的 token；以及 `core/gateway/higress`，Higress，其 AI proxy 會讀取提供已連接模型的路由上每個請求的本文——其指名的模型與是否為串流——而其外掛程式會讀取每個回覆所回報的 token——因此需要此值的 AI Features 能針對其中任何一個解析，而每個實現都會說明其閘道遵循什麼，或在其閘道完全不遵循時中止建置；沒有對應某個閘道之實現的 Feature，會在該處中止建置並指名其型別。沒有任何元件帶有 `l4-mesh`，而標準程式庫的其他閘道元件完全不帶智慧標籤：路由流量的那些會終止 HTTP 並在第 7 層路由，其中一個是完全不路由任何東西的控制平面，所以兩個值都無法描述它。第 4 層 TCP 網格又是另一個產品類別。這使上述拒絕完全維持有效，因為它依據的是 `semantic` 的缺席：需要該值的附加在它們之中任何一個上都會中止。目錄確實執行第 4 層網格的架構師，會在該元件上帶 `l4-mesh`，這使得這項區別在兩個方向上都可被選取。"
   },
   "11398ca2b7d4deb2": {
     "at": "2026-11-18T07:13:03.194Z",
@@ -1458,17 +1464,17 @@
     "text": "依需求，在任何建置之外（`aggrega import`、編輯器，以及助理的 `import` 工具）"
   },
   "122505024bb8b768": {
-    "at": "2026-11-18T11:27:19.320Z",
-    "job": "session-0003-20261118112719",
+    "at": "2026-11-18T13:42:42.603Z",
+    "job": "session-0015-20261118134242",
     "revision": {
       "forced": true,
       "from": "122505024bb8b768",
-      "reason": "The source has a line break inside the segment (a second line starts after the bold lead-in) and the TW has none; restore the line break exactly as the source has it.",
+      "reason": "operational: use 運作 (guide), not 營運; Zero-Port is a named mechanism: 零連接埠 (as heading 1e83092739a73914 does), not 「Zero-Port」 in English",
       "reviewed": false
     },
     "srcHash": "122505024bb8b768",
     "status": "machine",
-    "text": "**逃生艙口：** 如果應用程式的內部程式碼*無法*更動，平台架構師會在 `schema:` 宣告中明確公開一個 `port` 欄位。\n**架構說明：**「Zero-Port」慣例是平台更廣泛的**關注點分離（Separation of Concerns）**中最突出的範例。這個完全相同的理念——將實體機制從開發者面前抽象掉——同樣適用於 CPU 請求、記憶體上限、營運網域與磁碟大小。每當實體基礎架構的限制*必須*洩漏到開發者的應用程式酬載中（因為舊有程式碼或嚴格的硬體需求），就一定要由架構師 `schema:` 宣告中明確的「逃生艙口」來管理，也就是開發者酬載所依據驗證的那個宣告。"
+    "text": "**逃生艙口：** 如果應用程式的內部程式碼*無法*更動，平台架構師會在 `schema:` 宣告中明確公開一個 `port` 欄位。**架構說明：**「零連接埠」慣例是平台更廣泛的**關注點分離（Separation of Concerns）**中最突出的範例。這個完全相同的理念——將實體機制從開發者面前抽象掉——同樣適用於 CPU 請求、記憶體上限、運作網域與磁碟大小。每當實體基礎架構的限制*必須*洩漏到開發者的應用程式酬載中（因為舊有程式碼或嚴格的硬體需求），就一定要由架構師 `schema:` 宣告中明確的「逃生艙口」來管理，也就是開發者酬載所依據驗證的那個宣告。"
   },
   "12250d79925cefb1": {
     "at": "2026-11-18T12:59:22.923Z",
@@ -1894,11 +1900,17 @@
     "text": "**按下 Cancel 會停止編譯器**，而不只是停止編輯器的等待。透過語言伺服器時，擴充功能會為它所發出的請求送出取消；透過子處理程序時則終止該處理程序。編譯的取消在編譯本身的階段邊界生效，因此已在進行中的繁重階段會先完成——這就是為什麼訊息說操作已被停止，而不是說它立即停止。無論哪種方式，結果都回報為 **stopped**，絕不會回報為失敗。"
   },
   "171a947542c1d197": {
-    "at": "2026-11-18T11:41:24.291Z",
-    "job": "session-0005-20261118114124",
+    "at": "2026-11-18T13:42:42.603Z",
+    "job": "session-0015-20261118134242",
+    "revision": {
+      "forced": true,
+      "from": "171a947542c1d197",
+      "reason": "lowercase workload left in English: 工作負載 (guide)",
+      "reviewed": false
+    },
     "srcHash": "171a947542c1d197",
     "status": "machine",
-    "text": "**語意快取：** `core/semantic-caching` 宣告一個快取，它以先前某個在語意上足夠接近的提示所儲存的回覆來回答提示，而不是再次呼叫模型。`embedding_model` 指名將每個提示轉換為向量的模型，依閘道發布的名稱，當兩個提示至少有 `similarity_threshold` 的相似度時，就會提供所儲存的回覆，且該回覆在 `ttl_seconds` 內保持可用。`scope` 決定誰共用快取：`end_user`（預設）將閘道所識別的每個終端使用者分開保存，而 `key` 則讓呈現同一個金鑰的每個呼叫端從同一個快取取得服務，因此該金鑰背後的終端使用者可能得到為另一個終端使用者所產生的回覆。`core/data-masking` 宣告與它衝突，因此同時帶有兩者的元件會使建置中止。標準程式庫在 AI 閘道上實現它，閘道將回覆保存在連接到其 `cache_store` 插槽的 `core/datastore/redis` 中，在儲存區需要密碼時，向儲存區呈現該連線上的認證所持有的密碼，儲存區在 `ttl_seconds` 過後移除每個回覆，並快取聊天、responses 與 messages 請求，而不快取補全或內嵌請求。除非閘道的 `api_key` 槽位已附加，否則該實現方式會中止建置，因為沒有管理金鑰，閘道就不檢查任何呼叫端；在閘道的模型對應表未發布的 `embedding_model` 上，以及在沒有任何東西連接到 `cache_store` 時，也會中止。所儲存的回覆只會提供給與其儲存時所用條件相符的請求：請求所呈現的金鑰（由閘道驗證），連同該金鑰的團隊與組織；在 `end_user` 之下，請求所指名的終端使用者；以及請求所要求的模型連同其其他參數。在聊天請求上，閘道會將金鑰、團隊、組織與終端使用者寫入請求本身，覆蓋呼叫端為它們所送的任何值；在 responses 或 messages 請求上，它會從請求自己的中繼資料中移除團隊、組織或終端使用者欄位，並拒絕在那裡指名金鑰的請求，因此沒有任何請求能憑名稱進入另一個金鑰的回覆。請求自己的中繼資料仍可以讓它在其所呈現之金鑰的回覆之間移動：在 responses 請求上，`model_group` 會取代它在回覆儲存條件中所要求的模型；在 responses 或 messages 請求上，`caching_groups` 讓指名同一組模型別名的請求跨越它們共用回覆；而在 responses 或聊天請求上，`redis_namespace` 讓指名某個命名空間的請求與未指名者分開。閘道從請求自己指名的標頭或本文欄位讀取終端使用者，且不驗證其中任何一個：在 `end_user` 之下，指名另一個終端使用者的呼叫端會得到該終端使用者的回覆，而未指名終端使用者的請求，會與其所呈現之金鑰下每個其他這類請求共用一個快取。代管閘道不實現它：其快取只回答與先前請求完全相同的請求。在 `core/gateway/azure-api-management` 上，它被實現為 Azure 的語意快取查詢與儲存，寫入該 API 的原則：`embedding_model` 指名 API Management 執行個體已為內嵌模型所持有的後端，該執行個體以其受控身分連到它，而該執行個體需要設定了 RediSearch 的 Redis 快取作為其外部快取，這兩者建置都看不到，因此除非操作員藉由設定閘道的 `infra.cache_serves_vector_search` 確認該快取提供 RediSearch，否則建置會中止；儲存區將回覆保留 `ttl_seconds`；而 `similarity_threshold` 被寫成 Azure 的分數門檻，即一減去該門檻，將該分數視為餘弦距離，因為 Microsoft 給出了它的範圍與方向——越低要求提示越接近——卻沒有給出其度量。回覆依每個 API 與每個 API Management 訂閱（其金鑰由閘道驗證）分開儲存與提供，因此該實現方式保留 `key`，在不需要訂閱金鑰的 API 上拒絕它，並拒絕 `end_user`：其 Recipe 渲染的 API 不驗證任何終端使用者的權杖，因此閘道沒有可分開保存的已驗證終端使用者。`core/gateway/contour` 與 `core/gateway/nginx` 同樣不實現它，因為它們不提供語意快取。在 `core/gateway/agentgateway` 上，其實現方式會中止每一次附加，並指明原因：agentgateway 不保有回覆的快取，而其提示快取只標記自行快取提示的提供者可以在何處這麼做。在 `core/gateway/kong-enterprise` 上，其實現方式會中止每一次附加，並指明所要求的範圍：Kong 的 AI Semantic Cache 沒有任何設定能將一個呼叫端所儲存的回覆與另一個呼叫端的分開，而閘道只將呼叫端分辨為某個驗證外掛所指名的使用者，且不宣告任何呼叫端，原因見上方「Kong 在模型之前」，因此在 `end_user` 與 `key` 之下，每個請求都會共用同一個快取。在 `core/gateway/higress` 上，其實現方式會中止每一次附加，並指明所要求的範圍：Higress 的語意快取將每個回覆儲存在一個鍵前綴之後接提示文字之下，而該鍵中沒有任何東西指名呼叫端或終端使用者，且閘道不宣告任何呼叫端，因此每個請求都會共用同一個快取。在 `core/gateway/apisix` 上，它在 chart Recipe 上實現，寫入每個連接模型的聊天路由，作為 APISIX 3.18.0 的語意快取，針對其 Release 在 `infra.callers` 中宣告的呼叫端：回覆依每條路由與每個呼叫端儲存，使用呼叫端所呈現的金鑰（由閘道驗證），因此沒有任何呼叫端會得到為另一個呼叫端所儲存的回覆；該實現方式保留 `key` 並以名稱拒絕 `end_user`，因為閘道無法分辨同一個金鑰背後的終端使用者。`embedding_model` 指名閘道 `models` 插槽上的一條連線，快取使用其端點、模型與認證進行內嵌。快取會對請求的最後一則使用者訊息進行內嵌，並提供所儲存的回覆，該回覆的訊息至少有 `similarity_threshold` 的相似度，且其較早的訊息——系統提示、較早的輪次——相同。回覆在連接到閘道 `cache_store` 插槽的 `core/datastore/redis` 中存放 `ttl_seconds`，快取向它呈現該連線上的認證所持有的密碼，而依語意提供的回覆會在該請求之下再次儲存，再多 `ttl_seconds`。補全請求不被快取，且儲存區或內嵌的失敗視為未命中：請求仍會被回應。該實現方式在沒有宣告任何呼叫端時、在沒有任何東西連接到 `cache_store` 或 `models` 插槽時，以及在該處沒有連線攜帶的 `embedding_model` 上會中止。APISIX 依路由與呼叫端而不是依閘道為所儲存的回覆建立鍵，因此連到同一個儲存區的兩個 APISIX 閘道，或將其閘道指向同一個外部儲存區的同一個 Aggregate 的兩個 Releases，可能會把快取的回覆提供給同一別名與模型上同名的呼叫端。它的 workload Recipe 在 APISIX 3.17.0 上完全不帶語意快取。在 `core/gateway/traefik-hub` 上，它在 chart Recipe 上被實現為 Traefik Hub 的語意快取，位於每個連接模型的路由上，針對其 Release 在 `infra.callers` 中宣告的呼叫端：回覆依每個連接的模型與每個呼叫端儲存，使用閘道的金鑰檢查所驗證的呼叫端，各自以自己的鍵，因此沒有任何呼叫端會得到為另一個呼叫端所儲存的回覆；該實現方式保留 `key` 並以名稱拒絕 `end_user`，因為閘道無法分辨同一個金鑰背後的終端使用者。`embedding_model` 指名閘道 `models` 插槽上的一條連線，快取使用其端點、模型與認證對請求的文字進行內嵌。`similarity_threshold` 被寫成快取的距離界限，即一減去該門檻，視為餘弦距離，因為 Traefik 的參考文件給出了該界限的方向，卻沒有給出其度量。回覆在連接到閘道 `cache_store` 插槽的 `core/datastore/redis` 中保留 `ttl_seconds`，而太大而無法內嵌的請求會在不快取的情況下被回應。該實現方式在沒有宣告任何呼叫端時、在沒有任何東西連接到 `cache_store` 或 `models` 插槽時、在該處沒有連線攜帶的 `embedding_model` 上，以及在標籤未指名 3.19 內從 v3.19.11 起或從 v3.20.6 起之任何發行版本的 Traefik Hub 映像檔上會中止，因為較早的發行版本會讓一條路由的每個呼叫端共用一個快取。"
+    "text": "**語意快取：** `core/semantic-caching` 宣告一個快取，它以先前某個在語意上足夠接近的提示所儲存的回覆來回答提示，而不是再次呼叫模型。`embedding_model` 指名將每個提示轉換為向量的模型，依閘道發布的名稱，當兩個提示至少有 `similarity_threshold` 的相似度時，就會提供所儲存的回覆，且該回覆在 `ttl_seconds` 內保持可用。`scope` 決定誰共用快取：`end_user`（預設）將閘道所識別的每個終端使用者分開保存，而 `key` 則讓呈現同一個金鑰的每個呼叫端從同一個快取取得服務，因此該金鑰背後的終端使用者可能得到為另一個終端使用者所產生的回覆。`core/data-masking` 宣告與它衝突，因此同時帶有兩者的元件會使建置中止。標準程式庫在 AI 閘道上實現它，閘道將回覆保存在連接到其 `cache_store` 插槽的 `core/datastore/redis` 中，在儲存區需要密碼時，向儲存區呈現該連線上的認證所持有的密碼，儲存區在 `ttl_seconds` 過後移除每個回覆，並快取聊天、responses 與 messages 請求，而不快取補全或內嵌請求。除非閘道的 `api_key` 槽位已附加，否則該實現方式會中止建置，因為沒有管理金鑰，閘道就不檢查任何呼叫端；在閘道的模型對應表未發布的 `embedding_model` 上，以及在沒有任何東西連接到 `cache_store` 時，也會中止。所儲存的回覆只會提供給與其儲存時所用條件相符的請求：請求所呈現的金鑰（由閘道驗證），連同該金鑰的團隊與組織；在 `end_user` 之下，請求所指名的終端使用者；以及請求所要求的模型連同其其他參數。在聊天請求上，閘道會將金鑰、團隊、組織與終端使用者寫入請求本身，覆蓋呼叫端為它們所送的任何值；在 responses 或 messages 請求上，它會從請求自己的中繼資料中移除團隊、組織或終端使用者欄位，並拒絕在那裡指名金鑰的請求，因此沒有任何請求能憑名稱進入另一個金鑰的回覆。請求自己的中繼資料仍可以讓它在其所呈現之金鑰的回覆之間移動：在 responses 請求上，`model_group` 會取代它在回覆儲存條件中所要求的模型；在 responses 或 messages 請求上，`caching_groups` 讓指名同一組模型別名的請求跨越它們共用回覆；而在 responses 或聊天請求上，`redis_namespace` 讓指名某個命名空間的請求與未指名者分開。閘道從請求自己指名的標頭或本文欄位讀取終端使用者，且不驗證其中任何一個：在 `end_user` 之下，指名另一個終端使用者的呼叫端會得到該終端使用者的回覆，而未指名終端使用者的請求，會與其所呈現之金鑰下每個其他這類請求共用一個快取。代管閘道不實現它：其快取只回答與先前請求完全相同的請求。在 `core/gateway/azure-api-management` 上，它被實現為 Azure 的語意快取查詢與儲存，寫入該 API 的原則：`embedding_model` 指名 API Management 執行個體已為內嵌模型所持有的後端，該執行個體以其受控身分連到它，而該執行個體需要設定了 RediSearch 的 Redis 快取作為其外部快取，這兩者建置都看不到，因此除非操作員藉由設定閘道的 `infra.cache_serves_vector_search` 確認該快取提供 RediSearch，否則建置會中止；儲存區將回覆保留 `ttl_seconds`；而 `similarity_threshold` 被寫成 Azure 的分數門檻，即一減去該門檻，將該分數視為餘弦距離，因為 Microsoft 給出了它的範圍與方向——越低要求提示越接近——卻沒有給出其度量。回覆依每個 API 與每個 API Management 訂閱（其金鑰由閘道驗證）分開儲存與提供，因此該實現方式保留 `key`，在不需要訂閱金鑰的 API 上拒絕它，並拒絕 `end_user`：其 Recipe 渲染的 API 不驗證任何終端使用者的權杖，因此閘道沒有可分開保存的已驗證終端使用者。`core/gateway/contour` 與 `core/gateway/nginx` 同樣不實現它，因為它們不提供語意快取。在 `core/gateway/agentgateway` 上，其實現方式會中止每一次附加，並指明原因：agentgateway 不保有回覆的快取，而其提示快取只標記自行快取提示的提供者可以在何處這麼做。在 `core/gateway/kong-enterprise` 上，其實現方式會中止每一次附加，並指明所要求的範圍：Kong 的 AI Semantic Cache 沒有任何設定能將一個呼叫端所儲存的回覆與另一個呼叫端的分開，而閘道只將呼叫端分辨為某個驗證外掛所指名的 consumer，且不宣告任何呼叫端，原因見上方「Kong 在模型之前」，因此在 `end_user` 與 `key` 之下，每個請求都會共用同一個快取。在 `core/gateway/higress` 上，其實現方式會中止每一次附加，並指明所要求的範圍：Higress 的語意快取將每個回覆儲存在一個鍵前綴之後接提示文字之下，而該鍵中沒有任何東西指名呼叫端或終端使用者，且閘道不宣告任何呼叫端，因此每個請求都會共用同一個快取。在 `core/gateway/apisix` 上，它在 chart Recipe 上實現，寫入每個連接模型的聊天路由，作為 APISIX 3.18.0 的語意快取，針對其 Release 在 `infra.callers` 中宣告的呼叫端：回覆依每條路由與每個呼叫端儲存，使用呼叫端所呈現的金鑰（由閘道驗證），因此沒有任何呼叫端會得到為另一個呼叫端所儲存的回覆；該實現方式保留 `key` 並以名稱拒絕 `end_user`，因為閘道無法分辨同一個金鑰背後的終端使用者。`embedding_model` 指名閘道 `models` 插槽上的一條連線，快取使用其端點、模型與認證進行內嵌。快取會對請求的最後一則使用者訊息進行內嵌，並提供所儲存的回覆，該回覆的訊息至少有 `similarity_threshold` 的相似度，且其較早的訊息——系統提示、較早的輪次——相同。回覆在連接到閘道 `cache_store` 插槽的 `core/datastore/redis` 中存放 `ttl_seconds`，快取向它呈現該連線上的認證所持有的密碼，而依語意提供的回覆會在該請求之下再次儲存，再多 `ttl_seconds`。補全請求不被快取，且儲存區或內嵌的失敗視為未命中：請求仍會被回應。該實現方式在沒有宣告任何呼叫端時、在沒有任何東西連接到 `cache_store` 或 `models` 插槽時，以及在該處沒有連線攜帶的 `embedding_model` 上會中止。APISIX 依路由與呼叫端而不是依閘道為所儲存的回覆建立鍵，因此連到同一個儲存區的兩個 APISIX 閘道，或將其閘道指向同一個外部儲存區的同一個 Aggregate 的兩個 Releases，可能會把快取的回覆提供給同一別名與模型上同名的呼叫端。它的工作負載 Recipe 在 APISIX 3.17.0 上完全不帶語意快取。在 `core/gateway/traefik-hub` 上，它在 chart Recipe 上被實現為 Traefik Hub 的語意快取，位於每個連接模型的路由上，針對其 Release 在 `infra.callers` 中宣告的呼叫端：回覆依每個連接的模型與每個呼叫端儲存，使用閘道的金鑰檢查所驗證的呼叫端，各自以自己的鍵，因此沒有任何呼叫端會得到為另一個呼叫端所儲存的回覆；該實現方式保留 `key` 並以名稱拒絕 `end_user`，因為閘道無法分辨同一個金鑰背後的終端使用者。`embedding_model` 指名閘道 `models` 插槽上的一條連線，快取使用其端點、模型與認證對請求的文字進行內嵌。`similarity_threshold` 被寫成快取的距離界限，即一減去該門檻，視為餘弦距離，因為 Traefik 的參考文件給出了該界限的方向，卻沒有給出其度量。回覆在連接到閘道 `cache_store` 插槽的 `core/datastore/redis` 中保留 `ttl_seconds`，而太大而無法內嵌的請求會在不快取的情況下被回應。該實現方式在沒有宣告任何呼叫端時、在沒有任何東西連接到 `cache_store` 或 `models` 插槽時、在該處沒有連線攜帶的 `embedding_model` 上，以及在標籤未指名 3.19 內從 v3.19.11 起或從 v3.20.6 起之任何發行版本的 Traefik Hub 映像檔上會中止，因為較早的發行版本會讓一條路由的每個呼叫端共用一個快取。"
   },
   "173f2b27c4f5e8dd": {
     "at": "2026-11-18T11:27:19.320Z",
@@ -2215,15 +2227,17 @@
     "text": "3. 端對端範例"
   },
   "1ce138f0d34cf0b4": {
-    "at": "2026-11-18T13:17:56.240Z",
-    "job": "session-0014-20261118131756",
+    "at": "2026-11-18T13:42:42.603Z",
+    "job": "session-0015-20261118134242",
     "revision": {
-      "from": "91b7f02021d0d080",
+      "forced": true,
+      "from": "1ce138f0d34cf0b4",
+      "reason": "halt: use 中止 (the dominant rendering), not 停止/終止",
       "reviewed": false
     },
     "srcHash": "1ce138f0d34cf0b4",
     "status": "machine",
-    "text": "在 `arm` 上沒有這樣的資源；請參閱下方的 **在 `arm` 上，產生型式會停止**。"
+    "text": "在 `arm` 上沒有這樣的資源；請參閱下方的 **在 `arm` 上，產生型式會中止**。"
   },
   "1d1cc688e986b86a": {
     "at": "2026-11-18T12:45:41.103Z",
@@ -3894,11 +3908,17 @@
     "text": "安裝了 [Aggrega 的 Visual Studio Code 擴充功能](../editor/install.md#installing-the-extension)之後，請在 VS Code 中開啟匯入所執行的工作區——也就是存放其 `.aggrega-config.yaml` 的資料夾：草稿就在其中，位於它的根目錄，或位於 `--output-dir` 所指名的資料夾。當工作區只有一個 Release 時，編輯器會替你選取它；有多個時，**Aggrega: Select Release…** 會選擇編輯器要處理的那一個。編輯器會在你編輯草稿時，依據所選的 Release 檢查它們，並在檔案與 Problems 面板中標示它所發現的問題。命令選擇區（Command Palette）中的 **Aggrega: Show topology graph** 會繪出所選 Release 的元件及它們之間的連線。**Aggrega: Build**、**Aggrega: Preview build** 與 **Aggrega: Pull** 都作用於同一個 Release，而且每一個也都是活動列中 **Aggrega** 檢視的 **Commands** 面板上的按鈕；Build 會把它的檔案寫入工作區的 `dist/`。[在 Visual Studio Code 中使用 Aggrega](../editor/README.md) 涵蓋其餘部分。"
   },
   "3442c41536cf755e": {
-    "at": "2026-11-18T11:41:24.291Z",
-    "job": "session-0005-20261118114124",
+    "at": "2026-11-18T13:42:42.603Z",
+    "job": "session-0015-20261118134242",
+    "revision": {
+      "forced": true,
+      "from": "3442c41536cf755e",
+      "reason": "lowercase workload left in English: 工作負載 (guide)",
+      "reviewed": false
+    },
     "srcHash": "3442c41536cf755e",
     "status": "machine",
-    "text": "**提示注入篩檢：** `core/prompt-injection-shield` 宣告閘道所轉送的模型請求，會在呼叫模型之前，針對試圖覆寫模型所獲指示的企圖進行檢查，其 `sensitivity` 為 `standard` 或 `strict`——strict 會拒絕更多這類企圖，也會連帶拒絕更多正當的請求。該檢查是機率式分類器的判定：它會漏掉一些攻擊——包括改寫、編碼或改拼寫的攻擊——會拒絕一些正當的請求，且已知可被規避，因此它是眾多控制中的一個，且不判斷模型的回覆、工具呼叫引數或影像。它附加到任何閘道，而實現方式要麼將閘道的請求送過連接到其 `guard` 插槽的防護，該防護對閘道的要求只有它會轉送到其所設定的位址，要麼開啟閘道自己執行的檢查。透過防護時，防護會檢查每個請求，並將其接納的內容轉送到模型，而在該插槽上沒有任何東西時附加此 Feature 會中止建置並指名它。標準程式庫在 AI 閘道與 NGINX 閘道上實現它，兩者都以 `core/security/nemo-guardrails` 作為防護：一個使用 OpenAI 聊天補全 API 的服務，其護欄會將請求的最新使用者訊息送到連接到它的 `core/security/trustyai-huggingface-detector` 的分類器，並在該分類器的分數達到防護的門檻時拒絕該請求。被拒絕的請求由防護自己以一般的補全回應，其內容完全不會到達模型；當無法連到防護或其偵測器時，請求同樣會被拒絕。兩者各自會在防護不是那一個、且未以敏感度所指名的門檻執行時中止建置——`standard` 為 0.5，`strict` 為 0.001，這兩個值是針對偵測器的預設分類器測得的，而閘道看到的是防護而不是其後的偵測器，無法檢查其模型。在 AI 閘道上，模型對應表的每個別名都送到防護，每個目標寫成 `openai/<model>`，因此該對應表是手動輸入的那一個：連接到閘道 `models` 插槽的模型會以自己連線的認證送到它自己的端點，繞過防護，而在該插槽持有連線期間，該實現方式會中止建置並指名該連線。AI 閘道會拒絕聊天補全以外的每個請求，那是防護所檢查的唯一一種；在 NGINX 閘道上，它唯一的 location 會轉送到防護，以取代上游，而防護不回應任何其他模型路由。在 `core/gateway/azure-api-management` 上，它被實現為 Azure 自己的 prompt shield，透過 `infra.content_safety_backend_id` 所指名之該執行個體的 Azure AI Content Safety 後端，在 API 的原則中開啟，且在該鍵未設定期間建置會中止：Azure AI Content Safety 會在呼叫模型之前、在語意快取的查詢之前，檢查每個請求是否有使用者攻擊，而閘道對其偵測到的請求以 HTTP 403 回應，就如同對長於該服務所接受長度的請求一樣。該防護只有開或關，因此 `standard` 會保留，`strict` 則以名稱拒絕，且它以 Microsoft 自己的敏感度執行，沒有依 `standard` 在各防護上所指名的門檻測量。該執行個體以其受控身分連到該後端，這需要該服務上的 Cognitive Services User 角色；建置兩者都看不到。標準程式庫中除了這三者之外沒有任何閘道實現它，而將它附加到其他閘道會中止建置並指名其型別：大多數不渲染實現方式可以送過防護的路由——它們將路由保存在自己的儲存區中、從其後的服務取得路由，或是標準程式庫沒有在其上開啟這類檢查的代管服務——而 `core/gateway/apisix`（其 chart Recipe 渲染連接到它之模型的路由）與 `core/gateway/envoy-gateway`（其 Recipe 渲染連接到它之模型的 AI 路由）沒有它的實現方式。在 `core/gateway/agentgateway` 上，其 Recipes 為連接到它的每個模型渲染一個項目，其實現方式會中止每一次附加，並指明原因：agentgateway 只透過它所呼叫的服務來判斷這類企圖——操作員執行的 webhook，或 Azure AI Content Safety、Google Model Armor 或 AWS Bedrock Guardrails——而該實現方式不連接其中任何一個。在 `core/gateway/higress` 上，其實現方式同樣會中止每一次附加，並指明原因：Higress 只透過它所呼叫的服務來判斷這類企圖——Alibaba Cloud 的內容安全服務，或透過其原始碼攜帶、但其 2.2.5 外掛發行版本未發布的外掛，操作員執行的 Qwen3Guard 模型服務——當該呼叫失敗時，每一個都會讓請求通過，而該實現方式不連接其中任何一個。在 `core/gateway/traefik-hub` 上，其實現方式同樣會中止每一次附加，並指明原因：Traefik Hub 只透過它所呼叫的服務來判斷這類企圖——其 LLM Guard 與 Parallel LLM Guard 中介軟體，它們在請求中並帶著實現方式必須寫入的條件，呼叫防護服務或模型，而它們與提示攻擊偵測器的運作並未經過測量，因此沒有任何敏感度能對應到那裡的檢查；或其 Azure Prompt Shield、Amazon Bedrock Guardrails 與 GCP Model Armor 中介軟體，它們呼叫實現方式不連接的代管服務。防護只讀取最新的使用者訊息，因此系統訊息、較早的輪次或工具結果會在未被讀取的情況下到達模型，而且只有穿過閘道的流量才會被篩檢：直接呼叫模型位址的 workload 會繞過它。"
+    "text": "**提示注入篩檢：** `core/prompt-injection-shield` 宣告閘道所轉送的模型請求，會在呼叫模型之前，針對試圖覆寫模型所獲指示的企圖進行檢查，其 `sensitivity` 為 `standard` 或 `strict`——strict 會拒絕更多這類企圖，也會連帶拒絕更多正當的請求。該檢查是機率式分類器的判定：它會漏掉一些攻擊——包括改寫、編碼或改拼寫的攻擊——會拒絕一些正當的請求，且已知可被規避，因此它是眾多控制中的一個，且不判斷模型的回覆、工具呼叫引數或影像。它附加到任何閘道，而實現方式要麼將閘道的請求送過連接到其 `guard` 插槽的防護，該防護對閘道的要求只有它會轉送到其所設定的位址，要麼開啟閘道自己執行的檢查。透過防護時，防護會檢查每個請求，並將其接納的內容轉送到模型，而在該插槽上沒有任何東西時附加此 Feature 會中止建置並指名它。標準程式庫在 AI 閘道與 NGINX 閘道上實現它，兩者都以 `core/security/nemo-guardrails` 作為防護：一個使用 OpenAI 聊天補全 API 的服務，其護欄會將請求的最新使用者訊息送到連接到它的 `core/security/trustyai-huggingface-detector` 的分類器，並在該分類器的分數達到防護的門檻時拒絕該請求。被拒絕的請求由防護自己以一般的補全回應，其內容完全不會到達模型；當無法連到防護或其偵測器時，請求同樣會被拒絕。兩者各自會在防護不是那一個、且未以敏感度所指名的門檻執行時中止建置——`standard` 為 0.5，`strict` 為 0.001，這兩個值是針對偵測器的預設分類器測得的，而閘道看到的是防護而不是其後的偵測器，無法檢查其模型。在 AI 閘道上，模型對應表的每個別名都送到防護，每個目標寫成 `openai/<model>`，因此該對應表是手動輸入的那一個：連接到閘道 `models` 插槽的模型會以自己連線的認證送到它自己的端點，繞過防護，而在該插槽持有連線期間，該實現方式會中止建置並指名該連線。AI 閘道會拒絕聊天補全以外的每個請求，那是防護所檢查的唯一一種；在 NGINX 閘道上，它唯一的 location 會轉送到防護，以取代上游，而防護不回應任何其他模型路由。在 `core/gateway/azure-api-management` 上，它被實現為 Azure 自己的 prompt shield，透過 `infra.content_safety_backend_id` 所指名之該執行個體的 Azure AI Content Safety 後端，在 API 的原則中開啟，且在該鍵未設定期間建置會中止：Azure AI Content Safety 會在呼叫模型之前、在語意快取的查詢之前，檢查每個請求是否有使用者攻擊，而閘道對其偵測到的請求以 HTTP 403 回應，就如同對長於該服務所接受長度的請求一樣。該防護只有開或關，因此 `standard` 會保留，`strict` 則以名稱拒絕，且它以 Microsoft 自己的敏感度執行，沒有依 `standard` 在各防護上所指名的門檻測量。該執行個體以其受控身分連到該後端，這需要該服務上的 Cognitive Services User 角色；建置兩者都看不到。標準程式庫中除了這三者之外沒有任何閘道實現它，而將它附加到其他閘道會中止建置並指名其型別：大多數不渲染實現方式可以送過防護的路由——它們將路由保存在自己的儲存區中、從其後的服務取得路由，或是標準程式庫沒有在其上開啟這類檢查的代管服務——而 `core/gateway/apisix`（其 chart Recipe 渲染連接到它之模型的路由）與 `core/gateway/envoy-gateway`（其 Recipe 渲染連接到它之模型的 AI 路由）沒有它的實現方式。在 `core/gateway/agentgateway` 上，其 Recipes 為連接到它的每個模型渲染一個項目，其實現方式會中止每一次附加，並指明原因：agentgateway 只透過它所呼叫的服務來判斷這類企圖——操作員執行的 webhook，或 Azure AI Content Safety、Google Model Armor 或 AWS Bedrock Guardrails——而該實現方式不連接其中任何一個。在 `core/gateway/higress` 上，其實現方式同樣會中止每一次附加，並指明原因：Higress 只透過它所呼叫的服務來判斷這類企圖——Alibaba Cloud 的內容安全服務，或透過其原始碼攜帶、但其 2.2.5 外掛發行版本未發布的外掛，操作員執行的 Qwen3Guard 模型服務——當該呼叫失敗時，每一個都會讓請求通過，而該實現方式不連接其中任何一個。在 `core/gateway/traefik-hub` 上，其實現方式同樣會中止每一次附加，並指明原因：Traefik Hub 只透過它所呼叫的服務來判斷這類企圖——其 LLM Guard 與 Parallel LLM Guard 中介軟體，它們在請求中並帶著實現方式必須寫入的條件，呼叫防護服務或模型，而它們與提示攻擊偵測器的運作並未經過測量，因此沒有任何敏感度能對應到那裡的檢查；或其 Azure Prompt Shield、Amazon Bedrock Guardrails 與 GCP Model Armor 中介軟體，它們呼叫實現方式不連接的代管服務。防護只讀取最新的使用者訊息，因此系統訊息、較早的輪次或工具結果會在未被讀取的情況下到達模型，而且只有穿過閘道的流量才會被篩檢：直接呼叫模型位址的工作負載會繞過它。"
   },
   "344a6518f6099de9": {
     "at": "2026-11-18T11:27:19.320Z",
@@ -4264,17 +4284,17 @@
     "text": "為了同時提供嚴格驗證與標準的目錄中繼資料（作者、版本、描述），領域 2（介面）與領域 3（實作）的定義是以 YAML 封套撰寫。領域 2 使用以精簡形式（預設；約 15 個關鍵字，機械式轉換為 JSON Schema 2020-12）或完整 JSON Schema YAML 表達的內嵌 `schema:` 宣告。"
   },
   "3944bb819957d536": {
-    "at": "2026-11-18T11:27:19.320Z",
-    "job": "session-0003-20261118112719",
+    "at": "2026-11-18T13:42:42.603Z",
+    "job": "session-0015-20261118134242",
     "revision": {
       "forced": true,
       "from": "3944bb819957d536",
-      "reason": "\"primitives\" is 基本元件 here, which collides with 元件 (component) and differs from 基本元素 in 408a3824, 6f3eae21, e5e3119f; write 基本元素.",
+      "reason": "context (template/execution/deployment context): use 情境 (21 segments), not 內容 or 脈絡; operational: use 運作 (e.g. 運作本體論, 運作性質), not 維運 (which is the Ops discipline)",
       "reviewed": false
     },
     "srcHash": "3944bb819957d536",
     "status": "machine",
-    "text": "**語意 DSL 與維運本體論：** 開發者使用一組封閉的通用雲端基本元素（例如 `server`、`worker`、`stateful-server`），在 Aggrega 保留的 `component.aggrega.ai/type` 標籤上描繪其架構。所有進階脈絡——例如 AI 代理程式的自主性、生成能力或資料合規——都透過靜態的鴨子型別（Duck-Typing）標籤疊加其上，而在自有軸線上對元件分類的目錄，則會加入自己的標籤鍵。"
+    "text": "**語意 DSL 與運作本體論：** 開發者使用一組封閉的通用雲端基本元素（例如 `server`、`worker`、`stateful-server`），在 Aggrega 保留的 `component.aggrega.ai/type` 標籤上描繪其架構。所有進階情境——例如 AI 代理程式的自主性、生成能力或資料合規——都透過靜態的鴨子型別（Duck-Typing）標籤疊加其上，而在自有軸線上對元件分類的目錄，則會加入自己的標籤鍵。"
   },
   "394b3ad953fb0315": {
     "at": "2026-11-18T12:24:04.851Z",
@@ -4969,11 +4989,17 @@
     "text": "在 `helm` 上、兩端位於同一個命名空間時，把 `core/referenced-secret` 繫結到 `helm/k8s-existing-secret`，並以該命名空間所持有的某個 Secret 名稱 `model-keys` 履行參數，會讓兩端依名稱參照它，且不渲染任何 Secret。伺服器的容器帶有："
   },
   "42e278ba2c9d6c49": {
-    "at": "2026-11-18T11:36:26.060Z",
-    "job": "session-0004-20261118113626",
+    "at": "2026-11-18T13:42:42.603Z",
+    "job": "session-0015-20261118134242",
+    "revision": {
+      "forced": true,
+      "from": "42e278ba2c9d6c49",
+      "reason": "Naked Base is a named mechanism: 裸基底（Naked Base） as df7a8fc1318e9b57/bbaa2cf7161f8074 write it, not bare English",
+      "reviewed": false
+    },
     "srcHash": "42e278ba2c9d6c49",
     "status": "machine",
-    "text": "**Flavored Interfaces（風味介面，結構描述繼承）：** Component 可以宣告 `extends`，指名另一個 Component 作為其基底，而所組合的是**結構**：標籤、註記、附加槽位、自我注入允許清單、拓撲插槽，以及具名的 `assertions`。三大資料支柱不會組合——擴充的 Component 寫入字面標記 `schema: inherited`，且不自行撰寫任何 `values`、`infra` 或 `provides` 內容，因此其契約與其基底完全相同。這就是此機制**收斂而非變化**的原因：由於契約不變，為基底撰寫的每個 Recipe 已經能服務該特化版本，而特化版本只需要一個目錄實體與一行 Manifest 對應。因此，特化所新增的是選擇器或原則所讀取的身分——稽核層級、資料區域、治理聯絡人，或是選擇器接納範圍比基底更小的插槽。它無法新增不同的契約，因為它沒有可供撰寫契約的介面。有一個後果很容易被忽略：**對應那一行仍然是必要的。** Recipe 的選取依據是精確的對應鍵，所以特化版本即使不需要自己的 Recipe，也需要自己的 `mappings.components.type` 項目。請參閱 [examples/extends-wrapper](../language-reference/examples/extends-wrapper/README.md)，其中的已發布包裝器新增了已審查層級標籤並依其收斂一個插槽，並附上當連接到該插槽的邊離開該層級時會中止的建置。取決於元件如何設定的特性**不是**此機制的主題：特化版本會固定其基底的成品並繼承其契約，所以對特化版本為真的特性，已經對基底為真，而 Naked Base 規則把它放在基底上。這類特性屬於下方的 Dynamic Mutator。"
+    "text": "**風味介面（Flavored Interfaces，結構描述繼承）：** Component 可以宣告 `extends`，指名另一個 Component 作為其基底，而所組合的是**結構**：標籤、註記、附加槽位、自我注入允許清單、拓撲插槽，以及具名的 `assertions`。三大資料支柱不會組合——擴充的 Component 寫入字面標記 `schema: inherited`，且不自行撰寫任何 `values`、`infra` 或 `provides` 內容，因此其契約與其基底完全相同。這就是此機制**收斂而非變化**的原因：由於契約不變，為基底撰寫的每個 Recipe 已經能服務該特化版本，而特化版本只需要一個目錄實體與一行 Manifest 對應。因此，特化所新增的是選擇器或原則所讀取的身分——稽核層級、資料區域、治理聯絡人，或是選擇器接納範圍比基底更小的插槽。它無法新增不同的契約，因為它沒有可供撰寫契約的介面。有一個後果很容易被忽略：**對應那一行仍然是必要的。** Recipe 的選取依據是精確的對應鍵，所以特化版本即使不需要自己的 Recipe，也需要自己的 `mappings.components.type` 項目。請參閱 [examples/extends-wrapper](../language-reference/examples/extends-wrapper/README.md)，其中的已發布包裝器新增了已審查層級標籤並依其收斂一個插槽，並附上當連接到該插槽的邊離開該層級時會中止的建置。取決於元件如何設定的特徵**不是**此機制的主題：特化版本會固定其基底的成品並繼承其契約，所以對特化版本為真的特徵，已經對基底為真，而裸基底（Naked Base）規則把它放在基底上。這類特徵屬於下方的 Dynamic Mutator。"
   },
   "42fc7e1aaeed79ac": {
     "at": "2026-11-18T12:29:00.520Z",
@@ -7417,11 +7443,17 @@
     "text": "Aggrega 執行的是嚴格、固定順序的預先（AOT）編譯器管線，而不是寫死的協調邏輯。由 `aggrega build` 觸發後，編譯器在隔離的 WebAssembly（Wasm）插槽之間傳遞扁平圖，在渲染實體成品之前評估架構。"
   },
   "62132e66784e4cf8": {
-    "at": "2026-11-18T11:36:26.060Z",
-    "job": "session-0004-20261118113626",
+    "at": "2026-11-18T13:42:42.603Z",
+    "job": "session-0015-20261118134242",
+    "revision": {
+      "forced": true,
+      "from": "62132e66784e4cf8",
+      "reason": "wire/wiring: use 連接 (dominant), not 接線/串接; 連線 stays for connection",
+      "reviewed": false
+    },
     "srcHash": "62132e66784e4cf8",
     "status": "machine",
-    "text": "**標準程式庫帶有什麼。** `core/ai-tool/mcp` 帶有 `http`。它把 Model Context Protocol 伺服器附加到代理，而由 Manifest 選擇該伺服器如何被實現：`helm/mcp` 與 `compose/mcp` 執行一個透過 HTTP 提供該通訊協定的映像檔；`helm/mcp-stdio-bridge` 與 `compose/mcp-stdio-bridge` 執行一個只支援 stdio 的套件，置於一個固定版本的橋接器之後，由橋接器透過 HTTP 提供它；`helm/mcp-remote` 與 `compose/mcp-remote` 連到別人所執行的伺服器，自己不執行任何東西。每個實現都發布相同的 `host`、`port`、`endpoint`、`protocol` 與 `credential_header`，所以使用端的接線不會因實現而改變。伺服器自身的認證是環境變數，保存在工具的 `server_env` 槽位中：在 Kubernetes 上以參照方式傳遞給橋接器，在 Docker Compose 上則原樣寫入服務的環境中，其中 Compose 變數參照能讓認證不出現在檔案裡；遠端伺服器的認證則由使用端在它自己連到該工具的連線上持有，並放在 `credential_header` 所指名的標頭之下出示，除非 Release 另行指名，否則為 `Authorization`。當遠端伺服器從它自己的位址讀取其金鑰時，使用端也在該連線上持有完整的位址，放在一個 `endpoint` 槽位中，在 Kubernetes 上由對 Secret 的參照填入，在 Docker Compose 上由 Compose 變數參照填入，所以金鑰不會出現在任何渲染後的檔案中，而工具的 `infra.endpoint` 持有的是不含金鑰部分的位址；[examples/mcp-address-from-secret](../language-reference/examples/mcp-address-from-secret/README.md) 兩者都會建置。`core/ai-agent/openai-agents-sdk`、`core/ai-agent/claude-agent-sdk`、`core/ai-agent/agent-framework`、`core/ai-agent/google-adk` 與 `core/ai-agent/mastra`，以及流程平台 `core/ai-agent/flowise` 與 `core/ai-agent/n8n`，宣告這種形式的工具插槽 `tools`，並在以連線別名命名的變數之下，傳遞每個已連接工具的位址，以及以參照方式傳遞該連線的認證；而撰寫 `inject:` 區塊的連線則會收到該區塊所規定的內容，取代由工具所發布內容推導出的變數，其 `credential` 與 `endpoint` 槽位所持有的內容則維持在別名的名稱之下；自行定義的使用端以相同方式宣告一個。三個流程平台各自在部署時，於兩個目標上，把 Aggregate 中撰寫的流程帶進平台：Langflow 在每次啟動時從其流程目錄載入所帶的定義，Flowise 的 chatflow 由一個以 Release 所指名的擁有者帳號登入的一次性步驟植入，而 n8n 的工作流程則由平台啟動前的初始化步驟匯入。`core/ai-agent/langflow` 宣告相同形式的 `tools` 插槽，它不接受 `inject:` 區塊，並改為透過該流程傳遞每條連線，因為 Langflow 的 MCP Tools 元件只從 Langflow 自己的設定或流程取得伺服器位址，絕不從變數取得：它的 Recipes 會把工具的位址寫入其伺服器以該連線別名命名的 MCP Tools 節點，以參照方式把連線的認證傳遞為該節點標頭所指名的變數——在 `Authorization` 之下，是一個持有 `Bearer` 與認證的變數——並讓所連接工具與儲存體的主機通過 Langflow 對私有位址的防護。三個平台也都宣告一個選取 `datastore.aggrega.ai/engine in (vector, semantic-memory, search)` 的 `vector_store` 插槽，它傳遞每個已連接儲存體的位址——它所發布的 `endpoint`，對 `core/datastore/pgvector` 而言則是不帶密碼的連線 URI，或由其通訊協定、主機與連接埠組成的位址——並以相同方式以參照傳遞連線的認證；同時發布其資料庫與使用者的儲存體，如 `core/datastore/pgvector` 那樣，也會在這些部分抵達 Flowise 與 n8n，因為兩個平台的 PostgreSQL 向量節點都不接受連線字串；Langflow 的 PGVector 元件只接受一個字串，它以 `AGGREGA_VECTOR_STORE_<ALIAS>_CONNECTION_STRING` 接收這樣的儲存體，以連線的認證作為其密碼，在 Kubernetes 上以參照方式，在 Docker Compose 上則原樣傳遞。Flowise 的 chatflow 透過在 Flowise 的 Variables 頁面建立的同名 Runtime variable 讀取傳遞的變數，而 n8n 的工作流程只有在 Aggregate 設定平台的 `allow_env_access_in_nodes` 值時，才能透過 `$env` 讀取，因為預設上其 Recipes 會維持 n8n 對節點中環境存取的封鎖。"
+    "text": "**標準程式庫帶有什麼。** `core/ai-tool/mcp` 帶有 `http`。它把 Model Context Protocol 伺服器附加到代理，而由 Manifest 選擇該伺服器如何被實現：`helm/mcp` 與 `compose/mcp` 執行一個透過 HTTP 提供該通訊協定的映像檔；`helm/mcp-stdio-bridge` 與 `compose/mcp-stdio-bridge` 執行一個只支援 stdio 的套件，置於一個固定版本的橋接器之後，由橋接器透過 HTTP 提供它；`helm/mcp-remote` 與 `compose/mcp-remote` 連到別人所執行的伺服器，自己不執行任何東西。每個實現都發布相同的 `host`、`port`、`endpoint`、`protocol` 與 `credential_header`，所以使用端的連接不會因實現而改變。伺服器自身的認證是環境變數，保存在工具的 `server_env` 槽位中：在 Kubernetes 上以參照方式傳遞給橋接器，在 Docker Compose 上則原樣寫入服務的環境中，其中 Compose 變數參照能讓認證不出現在檔案裡；遠端伺服器的認證則由使用端在它自己連到該工具的連線上持有，並放在 `credential_header` 所指名的標頭之下出示，除非 Release 另行指名，否則為 `Authorization`。當遠端伺服器從它自己的位址讀取其金鑰時，使用端也在該連線上持有完整的位址，放在一個 `endpoint` 槽位中，在 Kubernetes 上由對 Secret 的參照填入，在 Docker Compose 上由 Compose 變數參照填入，所以金鑰不會出現在任何渲染後的檔案中，而工具的 `infra.endpoint` 持有的是不含金鑰部分的位址；[examples/mcp-address-from-secret](../language-reference/examples/mcp-address-from-secret/README.md) 兩者都會建置。`core/ai-agent/openai-agents-sdk`、`core/ai-agent/claude-agent-sdk`、`core/ai-agent/agent-framework`、`core/ai-agent/google-adk` 與 `core/ai-agent/mastra`，以及流程平台 `core/ai-agent/flowise` 與 `core/ai-agent/n8n`，宣告這種形式的工具插槽 `tools`，並在以連線別名命名的變數之下，傳遞每個已連接工具的位址，以及以參照方式傳遞該連線的認證；而撰寫 `inject:` 區塊的連線則會收到該區塊所規定的內容，取代由工具所發布內容推導出的變數，其 `credential` 與 `endpoint` 槽位所持有的內容則維持在別名的名稱之下；自有的使用端以相同方式宣告一個。三個流程平台各自在部署時，於兩個目標上，把 Aggregate 中撰寫的流程帶進平台：Langflow 在每次啟動時從其流程目錄載入所帶的定義，Flowise 的 chatflow 由一個以 Release 所指名的擁有者帳號登入的一次性步驟植入，而 n8n 的工作流程則由平台啟動前的初始化步驟匯入。`core/ai-agent/langflow` 宣告相同形式的 `tools` 插槽，它不接受 `inject:` 區塊，並改為透過該流程傳遞每條連線，因為 Langflow 的 MCP Tools 元件只從 Langflow 自己的設定或流程取得伺服器位址，絕不從變數取得：它的 Recipes 會把工具的位址寫入其伺服器以該連線別名命名的 MCP Tools 節點，以參照方式把連線的認證傳遞為該節點標頭所指名的變數——在 `Authorization` 之下，是一個持有 `Bearer` 與認證的變數——並讓所連接工具與儲存體的主機通過 Langflow 對私有位址的防護。三個平台也都宣告一個選取 `datastore.aggrega.ai/engine in (vector, semantic-memory, search)` 的 `vector_store` 插槽，它傳遞每個已連接儲存體的位址——它所發布的 `endpoint`，對 `core/datastore/pgvector` 而言則是不帶密碼的連線 URI，或由其通訊協定、主機與連接埠組成的位址——並以相同方式以參照傳遞連線的認證；同時發布其資料庫與使用者的儲存體，如 `core/datastore/pgvector` 那樣，也會在這些部分抵達 Flowise 與 n8n，因為兩個平台的 PostgreSQL 向量節點都不接受連線字串；Langflow 的 PGVector 元件只接受一個字串，它以 `AGGREGA_VECTOR_STORE_<ALIAS>_CONNECTION_STRING` 接收這樣的儲存體，以連線的認證作為其密碼，在 Kubernetes 上以參照方式，在 Docker Compose 上則原樣傳遞。Flowise 的 chatflow 透過在 Flowise 的 Variables 頁面建立的同名 Runtime variable 讀取傳遞的變數，而 n8n 的工作流程只有在 Aggregate 設定平台的 `allow_env_access_in_nodes` 值時，才能透過 `$env` 讀取，因為預設上其 Recipes 會維持 n8n 對節點中環境存取的封鎖。"
   },
   "6236ba1b6e11aa91": {
     "at": "2026-11-18T13:17:56.240Z",
@@ -8826,17 +8858,17 @@
     "text": "匯入 Google ADK 代理程式"
   },
   "73622fb14fc08d4c": {
-    "at": "2026-11-18T11:27:19.320Z",
-    "job": "session-0003-20261118112719",
+    "at": "2026-11-18T13:42:42.603Z",
+    "job": "session-0015-20261118134242",
     "revision": {
       "forced": true,
       "from": "73622fb14fc08d4c",
-      "reason": "Lower-case \"feature(s)\" is left in English; it is an ordinary word and takes 功能 (as 4868eddc and c357df0d do); only the capitalised Feature/Features stays.",
+      "reason": "feature: lowercase feature is 功能, not 特性",
       "reviewed": false
     },
     "srcHash": "73622fb14fc08d4c",
     "status": "machine",
-    "text": "**原因：** 標籤是由平台架構師撰寫的、目錄層級不可變的特性——是原則引擎與選擇器所讀取的語意身分。Release 透過明確的、以對應表為基礎的 ID 指定（`components: { \"my-agent\": {} }`）將元件路由到邊界，這保留了依元件巢狀放置 `infra` 與功能覆寫的能力，而不會把標籤的撰寫權混入開發者的 Aggregate。"
+    "text": "**原因：** 標籤是由平台架構師撰寫、目錄層級不可變的特徵——是原則引擎與選擇器所讀取的語意身分。Release 透過明確的、以對應表為基礎的 ID 指定（`components: { \"my-agent\": {} }`）將元件路由到邊界，這保留了依元件巢狀放置 `infra` 與功能覆寫的能力，而不會把標籤的撰寫權混入開發者的 Aggregate。"
   },
   "7379e9c57afb980e": {
     "at": "2026-11-18T12:45:41.103Z",
@@ -8972,17 +9004,17 @@
     "text": "2. **開發者體驗：意圖與抽象**"
   },
   "74f7869e4b199834": {
-    "at": "2026-11-18T11:27:19.320Z",
-    "job": "session-0003-20261118112719",
+    "at": "2026-11-18T13:42:42.603Z",
+    "job": "session-0015-20261118134242",
     "revision": {
       "forced": true,
       "from": "74f7869e4b199834",
-      "reason": "\"the socket layer\" is a network (TCP) socket and is rendered 插槽層, which reads as the plugin socket; write 通訊端（socket）層.",
+      "reason": "Zero-Port is a named mechanism: 零連接埠 (as heading 1e83092739a73914 does), not 「Zero-Port」 in English",
       "reviewed": false
     },
     "srcHash": "74f7869e4b199834",
     "status": "machine",
-    "text": "「Zero-Port」這個名稱代表這項慣例；其原則可推廣到舊有應用程式寫死的任何實體基礎架構限制。下方的結構描述以 `tcp_keepalive_seconds` 作為示範用的範例——這是應用程式預期在通訊端（socket）層出現的核心／網路時序——因為它明確落在基礎架構洩漏這條軸上。"
+    "text": "「零連接埠」這個名稱代表這項慣例；其準則可推廣到舊有應用程式寫死的任何實體基礎架構限制。下方的結構描述以 `tcp_keepalive_seconds` 作為示範範例——這是應用程式預期在通訊端層出現的核心／網路時序——因為它明確落在基礎架構洩漏這條軸上。"
   },
   "74fdaab28c61116a": {
     "at": "2026-11-18T12:54:50.695Z",
@@ -9146,11 +9178,17 @@
     "text": "由此衍生兩項推論："
   },
   "76c3ea18a0c56ae1": {
-    "at": "2026-11-18T11:41:24.291Z",
-    "job": "session-0005-20261118114124",
+    "at": "2026-11-18T13:42:42.603Z",
+    "job": "session-0015-20261118134242",
+    "revision": {
+      "forced": true,
+      "from": "76c3ea18a0c56ae1",
+      "reason": "an LLM token (billing, budget, count) stays `token` in Latin letters (token 數, token 預算), never 權杖, which is a credential token; policy: 原則 (guide), not 政策 (also see token)",
+      "reviewed": false
+    },
     "srcHash": "76c3ea18a0c56ae1",
     "status": "machine",
-    "text": "**Azure API Management 在模型之前：** `core/gateway/azure-api-management` 是 Azure API Management 的 AI 閘道，一項代管服務，透過已存在之 API Management 執行個體上的一個 API 提供一個模型 API 的服務。它的 terraform Recipe 讀取該執行個體，並新增該 API、其聊天補全作業、其轉送的後端，以及該 API 的原則，該原則會從轉送的內容中移除呼叫端的訂閱金鑰，並依 `infra.backend_authentication` 所述向模型 API 進行驗證：使用該執行個體的受控身分、使用保存在 Key Vault 中的提供者金鑰，或不使用任何東西。它的 helm 與 compose Recipes 參照在 Release 之外設定的 API，並在任何附加時中止建置。在下列控制中，其 terraform Recipe 實現語意快取、期間預算、提示注入篩檢與重試原則，每一項都寫入該 API 的原則。它不實現並行上限，因為 Microsoft 表示其並行原則所強制的上限永遠不完全精確，且當一個區域中執行多個容量單位時會更低；也不實現備援鏈，因為該 API 只轉送到一個後端，而 Azure 自己的容錯移轉，即後端集區的優先順序群組，是將之後的請求移離斷路器已跳脫的後端，而不是把失敗的請求轉送到另一個模型。它對 `core/audit-logging` 的實現方式會中止每一次附加，並指明哪些超出其能力範圍：記錄本身，這要由該執行個體上的診斷設定開啟；`require_cost` 開啟時一個請求的成本，因為 Azure 的模型請求記錄只記錄 token 數與模型，不記錄價格；以及給定 `retention_days` 時的保留期限，因為一列資料會保留多久，取決於它所寫入的 Log Analytics 工作區保留多久。政策是否如 Microsoft 文件所述套用並強制執行，任何建置都未觀察到。"
+    "text": "**Azure API Management 在模型之前：** `core/gateway/azure-api-management` 是 Azure API Management 的 AI 閘道，一項代管服務，透過已存在之 API Management 執行個體上的一個 API 提供一個模型 API 的服務。它的 terraform Recipe 讀取該執行個體，並新增該 API、其聊天補全作業、其轉送的後端，以及該 API 的原則，該原則會從轉送的內容中移除呼叫端的訂閱金鑰，並依 `infra.backend_authentication` 所述向模型 API 進行驗證：使用該執行個體的受控身分、使用保存在 Key Vault 中的提供者金鑰，或不使用任何東西。它的 helm 與 compose Recipes 參照在 Release 之外設定的 API，並在任何附加時中止建置。在下列控制中，其 terraform Recipe 實現語意快取、期間預算、提示注入篩檢與重試原則，每一項都寫入該 API 的原則。它不實現並行上限，因為 Microsoft 表示其並行原則所強制的上限永遠不完全精確，且當一個區域中執行多個容量單位時會更低；也不實現備援鏈，因為該 API 只轉送到一個後端，而 Azure 自己的容錯移轉，即後端集區的優先順序群組，是將之後的請求移離斷路器已跳脫的後端，而不是把失敗的請求轉送到另一個模型。它對 `core/audit-logging` 的實現方式會中止每一次附加，並指明哪些超出其能力範圍：記錄本身，這要由該執行個體上的診斷設定開啟；`require_cost` 開啟時一個請求的成本，因為 Azure 的模型請求記錄只記錄 token 數與模型，不記錄價格；以及給定 `retention_days` 時的保留期限，因為一列資料會保留多久，取決於它所寫入的 Log Analytics 工作區保留多久。這些原則是否如 Microsoft 文件所述套用並強制執行，任何建置都未觀察到。"
   },
   "77013cf9ca6e635d": {
     "at": "2026-11-18T13:17:56.240Z",
@@ -9209,24 +9247,30 @@
     "text": "`nodeSelector` / `affinity` / `tolerations`"
   },
   "77d4c9b2fb7110d1": {
-    "at": "2026-11-18T11:36:26.060Z",
-    "job": "session-0004-20261118113626",
+    "at": "2026-11-18T13:42:42.603Z",
+    "job": "session-0015-20261118134242",
+    "revision": {
+      "forced": true,
+      "from": "77d4c9b2fb7110d1",
+      "reason": "an LLM token (billing, budget, count) stays `token` in Latin letters (token 數, token 預算), never 權杖, which is a credential token",
+      "reviewed": false
+    },
     "srcHash": "77d4c9b2fb7110d1",
     "status": "machine",
-    "text": "**標準程式庫帶有什麼。** `core/gateway/nginx` 帶有 `request-mirroring: full-rate`、`upstream-tls: trust-anchor` 與 `concurrency-cap: total`，即對它轉送的每個請求設一個上限。`core/gateway/contour` 帶有 `request-mirroring: sampled`、`caller-identity: client-certificate` 與 `upstream-tls: trust-anchor`。`core/gateway/envoy-gateway` 帶有與 `core/gateway/contour` 相同的三個值、`period-budget: tokens`（計算它透過 Envoy AI Gateway 所服務之模型的每個回覆所回報的權杖），以及 `concurrency-cap: per-target`（對流向它所服務的每個模型的進行中請求設的上限）。`core/gateway/kong` 帶有 `upstream-tls: trust-anchor` 與 `prompt-guard: pattern-list`，其 AI Prompt Guard 會將模型請求的訊息與其路由所持有的清單比對。`core/gateway/tyk` 帶有 `upstream-pinning: public-key`，由 `core/upstream-key-pinning` 選取。`core/gateway/litellm` 帶有 `caller-identity: injected-header`、`content-masking: entity-recognition`、`period-budget: cost`、`prompt-guard: pattern-list`、`upstream-tls: trust-anchor` 與 `concurrency-cap: per-target`，即對流向其模型對應表每個項目的進行中請求設的上限。`core/gateway/cloudflare-ai-gateway` 帶有 `period-budget: cost`。`core/gateway/apisix` 帶有 `period-budget: tokens`（計算每個模型的回覆所回報的權杖，不做任何計價）與 `prompt-guard: pattern-list`。`core/gateway/kong-enterprise` 帶有 `period-budget: tokens`（計算每個模型的回覆所回報的權杖）與 `content-masking: entity-recognition`。`core/gateway/traefik-hub` 帶有 `content-masking: entity-recognition` 與 `prompt-guard: pattern-list`，其 Content Guard 中介軟體會遮蔽其設定所持有的模式的比對結果，或其所呼叫的 Presidio 分析器偵測到的實體型別，或拒絕模式比對到的請求；以及 `period-budget: cost`，依其配額中介軟體隨附的各模型價目表計價，也可改為計算每個回覆所回報的權杖。`core/gateway/agentgateway` 帶有 `content-masking: pattern-list` 與 `prompt-guard: pattern-list`，其正規表示式防護會遮蔽或拒絕其設定所持有的模式的比對結果，且不辨識任何實體型別；以及 `period-budget: cost`，即它依每個 API 金鑰以美元保存的預算，依其模型成本目錄計價，或以權杖計。`core/gateway/higress` 帶有 `content-masking: pattern-list`，其 `ai-data-masking` 外掛程式會在聊天請求訊息的文字中遮蔽其設定所持有的模式的比對結果，且不辨識任何實體型別；以及 `period-budget: tokens`，將每個回覆所回報的提示與補全權杖合併計算，不做任何計價。`core/gateway/azure-api-management` 帶有 `period-budget: tokens`，將每個回覆所回報的提示與補全權杖合併計算，在該執行個體的每個閘道上各自獨立計數，且不做任何計價。`core/security/nemo-guardrails` 與 `core/security/trustyai-guardrails-gateway` 是兩個站在模型路徑上、以訓練過的分類器判斷請求的防護，帶有 `prompt-guard: classifier`，由 AI 閘道與 NGINX 閘道的 `guard` 插槽選取。其中的 AI 閘道——`core/gateway/litellm`、`core/gateway/cloudflare-ai-gateway`、`core/gateway/apisix`、`core/gateway/envoy-gateway`、`core/gateway/kong-enterprise`、`core/gateway/traefik-hub`、`core/gateway/agentgateway`、`core/gateway/higress` 與 `core/gateway/azure-api-management`——帶有 `semantic`，其餘則不帶任何 `gateway.aggrega.ai/intelligence` 值，這是分離在正常運作，而不是它的例外：需要鏡像的 Feature 會觸及擁有鏡像的三個元件，而產品層級選擇器只會觸及其中的 Envoy Gateway，原因與鏡像無關；需要提示防護、內容遮蔽或期間預算的 Feature 會依 AI 閘道能*做*什麼而觸及它，而不是依它所在的層級；而限制進行中請求數的 Feature 會觸及不帶層級值的 NGINX 閘道，正如它也觸及 Envoy Gateway 與 AI 閘道；拒絕符合模式清單之請求的 Feature 會觸及同樣不帶層級值的開放原始碼 Kong，正如它觸及 APISIX。在這些軸之一上沒有東西可描述的元件，在那裡不帶任何值，而不是帶最弱的值，所以指名該軸上任何值的選擇器正確地不會附加到它。"
+    "text": "**標準程式庫帶有什麼。** `core/gateway/nginx` 帶有 `request-mirroring: full-rate`、`upstream-tls: trust-anchor` 與 `concurrency-cap: total`，即對它轉送的每個請求設一個上限。`core/gateway/contour` 帶有 `request-mirroring: sampled`、`caller-identity: client-certificate` 與 `upstream-tls: trust-anchor`。`core/gateway/envoy-gateway` 帶有與 `core/gateway/contour` 相同的三個值、`period-budget: tokens`（計算它透過 Envoy AI Gateway 所服務之模型的每個回覆所回報的 token），以及 `concurrency-cap: per-target`（對流向它所服務的每個模型的進行中請求設的上限）。`core/gateway/kong` 帶有 `upstream-tls: trust-anchor` 與 `prompt-guard: pattern-list`，其 AI Prompt Guard 會將模型請求的訊息與其路由所持有的清單比對。`core/gateway/tyk` 帶有 `upstream-pinning: public-key`，由 `core/upstream-key-pinning` 選取。`core/gateway/litellm` 帶有 `caller-identity: injected-header`、`content-masking: entity-recognition`、`period-budget: cost`、`prompt-guard: pattern-list`、`upstream-tls: trust-anchor` 與 `concurrency-cap: per-target`，即對流向其模型對應表每個項目的進行中請求設的上限。`core/gateway/cloudflare-ai-gateway` 帶有 `period-budget: cost`。`core/gateway/apisix` 帶有 `period-budget: tokens`（計算每個模型的回覆所回報的 token，不做任何計價）與 `prompt-guard: pattern-list`。`core/gateway/kong-enterprise` 帶有 `period-budget: tokens`（計算每個模型的回覆所回報的 token）與 `content-masking: entity-recognition`。`core/gateway/traefik-hub` 帶有 `content-masking: entity-recognition` 與 `prompt-guard: pattern-list`，其 Content Guard 中介軟體會遮蔽其設定所持有的模式的比對結果，或其所呼叫的 Presidio 分析器偵測到的實體型別，或拒絕模式比對到的請求；以及 `period-budget: cost`，依其配額中介軟體隨附的各模型價目表計價，也可改為計算每個回覆所回報的 token。`core/gateway/agentgateway` 帶有 `content-masking: pattern-list` 與 `prompt-guard: pattern-list`，其正規表示式防護會遮蔽或拒絕其設定所持有的模式的比對結果，且不辨識任何實體型別；以及 `period-budget: cost`，即它依每個 API 金鑰以美元保存的預算，依其模型成本目錄計價，或以 token 計。`core/gateway/higress` 帶有 `content-masking: pattern-list`，其 `ai-data-masking` 外掛程式會在聊天請求訊息的文字中遮蔽其設定所持有的模式的比對結果，且不辨識任何實體型別；以及 `period-budget: tokens`，將每個回覆所回報的提示與補全 token 合併計算，不做任何計價。`core/gateway/azure-api-management` 帶有 `period-budget: tokens`，將每個回覆所回報的提示與補全 token 合併計算，在該執行個體的每個閘道上各自獨立計數，且不做任何計價。`core/security/nemo-guardrails` 與 `core/security/trustyai-guardrails-gateway` 是兩個站在模型路徑上、以訓練過的分類器判斷請求的防護，帶有 `prompt-guard: classifier`，由 AI 閘道與 NGINX 閘道的 `guard` 插槽選取。其中的 AI 閘道——`core/gateway/litellm`、`core/gateway/cloudflare-ai-gateway`、`core/gateway/apisix`、`core/gateway/envoy-gateway`、`core/gateway/kong-enterprise`、`core/gateway/traefik-hub`、`core/gateway/agentgateway`、`core/gateway/higress` 與 `core/gateway/azure-api-management`——帶有 `semantic`，其餘則不帶任何 `gateway.aggrega.ai/intelligence` 值，這是分離在正常運作，而不是它的例外：需要鏡像的 Feature 會觸及擁有鏡像的三個元件，而產品層級選擇器只會觸及其中的 Envoy Gateway，原因與鏡像無關；需要提示防護、內容遮蔽或期間預算的 Feature 會依 AI 閘道能*做*什麼而觸及它，而不是依它所在的層級；而限制進行中請求數者會觸及不帶層級值的 NGINX 閘道，正如它也觸及 Envoy Gateway 與 AI 閘道；拒絕符合模式清單之請求者會觸及同樣不帶層級值的開放原始碼 Kong，正如它觸及 APISIX。在這些軸之一上沒有東西可描述的元件，在那裡不帶任何值，而不是帶最弱的值，所以指名該軸上任何值的選擇器正確地不會附加到它。"
   },
   "77dc7c6945651292": {
-    "at": "2026-11-18T11:27:19.320Z",
-    "job": "session-0003-20261118112719",
+    "at": "2026-11-18T13:42:42.603Z",
+    "job": "session-0015-20261118134242",
     "revision": {
       "forced": true,
       "from": "77dc7c6945651292",
-      "reason": "\"primitives\" is 基本元件 here, which collides with 元件 (component) and differs from 基本元素 in 408a3824, 6f3eae21, e5e3119f; write 基本元素.",
+      "reason": "operational: use 運作 (guide), not 營運",
       "reviewed": false
     },
     "srcHash": "77dc7c6945651292",
     "status": "machine",
-    "text": "**營運雲端原生本體論：** 為確保開源 Wasm 外掛程式與企業原則能普遍互通，`component.aggrega.ai/type` 標籤只對應到一組封閉的通用雲端基本元素（`server`、`worker`、`task`、`function`、`stateful-server`、`resource`）。這是 Aggrega 自己的鍵：已發布的 Component 結構描述列舉了它所接受的值，載入時帶有其他任何值的文件會被拒絕。集中固定該詞彙，就是保證自主原則引擎與社群建置的 Wasm 渲染外掛程式，在遇到兩者的作者都沒寫過的 Component 時，對同一種形態讀到同一個詞。編譯器仍不從字串推斷任何事——它只把值與選擇器比對，並不自行佈建任何東西；封閉集合帶來的是，每個人的選擇器比對的都是同一套詞彙。"
+    "text": "**運作雲端原生本體論：** 為確保開源 Wasm 外掛程式與企業原則能普遍互通，`component.aggrega.ai/type` 標籤只對應到一組封閉的通用雲端基本元素（`server`、`worker`、`task`、`function`、`stateful-server`、`resource`）。這是 Aggrega 自己的鍵：已發布的 Component 結構描述列舉了它所接受的值，載入時帶有其他任何值的文件會被拒絕。集中固定該詞彙，就是保證自主原則引擎與社群建置的 Wasm 渲染外掛程式，在遇到兩者的作者都沒寫過的 Component 時，對同一種形態讀到同一個詞。編譯器仍不從字串推斷任何事——它只把值與選擇器比對，並不自行佈建任何東西；封閉集合帶來的是，每個人的選擇器比對的都是同一套詞彙。"
   },
   "77ec9135577cd7a5": {
     "at": "2026-11-18T07:13:03.194Z",
@@ -9812,11 +9856,17 @@
     "text": "共用的結構、擴充程式碼，以及由平台擁有的編譯器種類"
   },
   "80cd6cf4e7b5d85c": {
-    "at": "2026-11-18T11:36:26.060Z",
-    "job": "session-0004-20261118113626",
+    "at": "2026-11-18T13:42:42.603Z",
+    "job": "session-0015-20261118134242",
+    "revision": {
+      "forced": true,
+      "from": "80cd6cf4e7b5d85c",
+      "reason": "wire/wiring: use 連接 (dominant), not 接線/串接; 連線 stays for connection",
+      "reviewed": false
+    },
     "srcHash": "80cd6cf4e7b5d85c",
     "status": "machine",
-    "text": "**不是安全邊界。** 本章中沒有任何內容是機密性機制。認證模型是一個*接線*模型：它決定指標或值從哪裡來、誰可以限制它，以及它如何抵達容器。保護機密資料是機密儲存庫、叢集，以及處理已渲染目錄樹的管線的工作。"
+    "text": "**不是安全邊界。** 本章中沒有任何內容是機密性機制。認證模型是一個*連接*模型：它決定指標或值從哪裡來、誰可以限制它，以及它如何抵達容器。保護機密資料是機密儲存庫、叢集，以及處理已渲染目錄樹的管線的工作。"
   },
   "80f57bd7da64eaac": {
     "at": "2026-11-18T12:38:48.225Z",
@@ -9896,11 +9946,17 @@
     "text": "Aggrega 可以從多個地方使用：終端機、Visual Studio Code 擴充功能、透過 Model Context Protocol（MCP）連線的 AI 助理，以及任何驅動 `aggrega` 二進位檔的程式。這些前端都沒有自己的編譯器。每一個都執行 `aggrega` 二進位檔，或連到已在執行的那一個並向它詢問，因此解析 YAML、解析目錄與建立圖都發生在同一個地方，前端顯示的就是該二進位檔所編譯的結果。前端不會重新實作其中任何部分，所以不會有第二份副本與第一份產生偏差。"
   },
   "81f06a58901aa4a4": {
-    "at": "2026-11-18T11:36:26.060Z",
-    "job": "session-0004-20261118113626",
+    "at": "2026-11-18T13:42:42.603Z",
+    "job": "session-0015-20261118134242",
+    "revision": {
+      "forced": true,
+      "from": "81f06a58901aa4a4",
+      "reason": "bind/binding: use 繫結 (36 segments), not 綁定",
+      "reviewed": false
+    },
     "srcHash": "81f06a58901aa4a4",
     "status": "machine",
-    "text": "**位於模型前方的 Kong Gateway Enterprise：** `core/gateway/kong-enterprise`，Kong 同一個以資料庫為後端之閘道的付費版本，在 `core/gateway/kong` 所提供的路由上提供連接到它自己 `models` 插槽的模型，由相同的設定寫成，並在閘道啟動前由閘道自己 pod 中的一個步驟匯入其 PostgreSQL 後端，且如 Kong 一樣發布其 `endpoint` 與 `model`。它唯一的實現是以 Kong 官方 Helm chart 為基礎的 chart Recipe；沒有 compose 實現。它執行 Release 在 `infra.image` 中指名的映像檔，包含版本標籤，因為 Kong 依其自己的條款散布企業版映像檔，所以目錄不指名任何映像檔；在該鍵未設定或其標籤不含版本時，建置會中止。授權以參照方式送達閘道，參照的是綁定到其必要的 `license` 槽位的 Secret，絕不以值的形式，而在沒有任何東西綁定該槽位時，建置會中止。編譯器不驗證任何授權，也不聯絡任何廠商，所以能乾淨建置的 Release 並不能說明授權的任何事：Kong 在節點啟動時讀取授權，而沒有有效授權的節點，其行為如同授權已過期，其實體設定為唯讀，其 proxy 流量則以已就位的設定提供服務。Kong 把它的 AI 外掛程式作為其 AI Gateway Enterprise 方案販售，這是授權內建置無法看到的權益，且在授權缺少該權益時會略過這類外掛程式而不是拒絕它，所以附加 `core/semantic-caching`、`core/period-budget`、`core/data-masking`、`core/fallback-chain`、`core/retry-policy` 或 `core/target-selection` 會中止建置，直到 Release 把 `infra.ai_gateway_entitled` 設為 `true`，確認授權帶有它為止。在下方的控制中，它實現期間預算與後備鏈，各自寫入閘道所匯入的路由，並如下文「Data Exfiltration & Payload Interception」所述實現 `core/data-masking`；它對語意快取、重試原則與目標選擇的實現會中止每一次附加，各自指名原因，而並行限制、稽核記錄、提示注入篩選、回應驗證與提示拒絕模式在那裡沒有實現，所以附加其中任何一個都會中止建置。變更的路由集合會使閘道滾動更新，而匯入會新增與更新路由，不移除任何路由，所以其連線已被移除的路由，以及 AI Feature 所寫入的外掛程式在該 Feature 被移除之後，都會留在資料庫中，直到經由 Kong 的 Admin API 刪除為止；基於上一項所述的原因，它也不宣告任何呼叫端，其模型路由不檢查任何呼叫端的金鑰。執行中的閘道是否強制執行這些控制中的任何一項，沒有任何建置會觀察到。"
+    "text": "**位於模型前方的 Kong Gateway Enterprise：** `core/gateway/kong-enterprise`，Kong 同一個以資料庫為後端之閘道的付費版本，在 `core/gateway/kong` 所提供的路由上提供連接到它自己 `models` 插槽的模型，由相同的設定寫成，並在閘道啟動前由閘道自己 pod 中的一個步驟匯入其 PostgreSQL 後端，且如 Kong 一樣發布其 `endpoint` 與 `model`。它唯一的實現是以 Kong 官方 Helm chart 為基礎的 chart Recipe；沒有 compose 實現。它執行 Release 在 `infra.image` 中指名的映像檔，包含版本標籤，因為 Kong 依其自己的條款散布企業版映像檔，所以目錄不指名任何映像檔；在該鍵未設定或其標籤不含版本時，建置會中止。授權以參照方式送達閘道，參照的是繫結到其必要的 `license` 槽位的 Secret，絕不以值的形式，而在沒有任何東西繫結該槽位時，建置會中止。編譯器不驗證任何授權，也不聯絡任何廠商，所以能乾淨建置的 Release 並不能說明授權的任何事：Kong 在節點啟動時讀取授權，而沒有有效授權的節點，其行為如同授權已過期，其實體設定為唯讀，其 proxy 流量則以已就位的設定提供服務。Kong 把它的 AI 外掛程式作為其 AI Gateway Enterprise 方案販售，這是授權內建置無法看到的權益，且在授權缺少該權益時會略過這類外掛程式而不是拒絕它，所以附加 `core/semantic-caching`、`core/period-budget`、`core/data-masking`、`core/fallback-chain`、`core/retry-policy` 或 `core/target-selection` 會中止建置，直到 Release 把 `infra.ai_gateway_entitled` 設為 `true`，確認授權帶有它為止。在下方的控制中，它實現期間預算與後備鏈，各自寫入閘道所匯入的路由，並如下文「Data Exfiltration & Payload Interception」所述實現 `core/data-masking`；它對語意快取、重試原則與目標選擇的實現會中止每一次附加，各自指名原因，而並行限制、稽核記錄、提示注入篩選、回應驗證與提示拒絕模式在那裡沒有實現，所以附加其中任何一個都會中止建置。變更的路由集合會使閘道滾動更新，而匯入會新增與更新路由，不移除任何路由，所以其連線已被移除的路由，以及 AI Feature 所寫入的外掛程式在該 Feature 被移除之後，都會留在資料庫中，直到經由 Kong 的 Admin API 刪除為止；基於上一項所述的原因，它也不宣告任何呼叫端，其模型路由不檢查任何呼叫端的金鑰。執行中的閘道是否強制執行這些控制中的任何一項，沒有任何建置會觀察到。"
   },
   "82046ee3c1689af5": {
     "at": "2026-11-18T12:45:41.103Z",
@@ -10936,17 +10992,17 @@
     "text": "答案檔指名了一個此匯入不會詢問的 Secret：它沒有為它留下任何空白，所以不套用任何答案，並讓檔案保持原樣。"
   },
   "9058b48b9385dff8": {
-    "at": "2026-11-18T11:27:19.320Z",
-    "job": "session-0003-20261118112719",
+    "at": "2026-11-18T13:42:42.603Z",
+    "job": "session-0015-20261118134242",
     "revision": {
       "forced": true,
       "from": "9058b48b9385dff8",
-      "reason": "\"buckets\" is rendered 桶, which a Taiwan reader reads as a barrel; write 類別 (three categories by origin) instead of 桶, and 各類別 for \"each bucket\".",
+      "reason": "operational: use 運作 (guide), not 營運",
       "reviewed": false
     },
     "srcHash": "9058b48b9385dff8",
     "status": "machine",
-    "text": "**流 5：串接註記（情境中繼資料）：** 範圍廣泛的情境資料（如營運網域、命名空間或計費代碼）透過串接註記（Cascading Annotations）處理，避免 `infra` 廣播造成污染。這些資料依其來源分成各個類別，而下列每個類別的預期用途都是一項**社會契約**：Recipe 範本可以讀取全部三個類別，編譯器不強制分離（請參閱 [labels-and-annotations](../language-reference/vocabulary/labels-and-annotations.md)）："
+    "text": "**流 5：串接註記（情境中繼資料）：** 範圍廣泛的情境資料（如運作網域、命名空間或計費代碼）透過串接註記（Cascading Annotations）處理，避免 `infra` 廣播造成污染。這些資料依其來源分成各個類別，而下列每個類別的預期用途都是一項**社會契約**：Recipe 範本可以讀取全部三個類別，編譯器不強制分離（請參閱 [labels-and-annotations](../language-reference/vocabulary/labels-and-annotations.md)）："
   },
   "908a263b2c0527fb": {
     "at": "2026-11-18T07:06:16.115Z",
@@ -11180,17 +11236,17 @@
     "text": "單一 PVC；可在 pod 重新啟動後保留"
   },
   "936643a9e20c8d88": {
-    "at": "2026-11-18T11:27:19.320Z",
-    "job": "session-0003-20261118112719",
+    "at": "2026-11-18T13:42:42.603Z",
+    "job": "session-0015-20261118134242",
     "revision": {
       "forced": true,
       "from": "936643a9e20c8d88",
-      "reason": "The source writes lower-case \"workload(s)\" but the TW capitalises it to Workload (the kept kind); translate it as 工作負載.",
+      "reason": "ship: not 出貨; use 發布 or 隨附",
       "reviewed": false
     },
     "srcHash": "936643a9e20c8d88",
     "status": "machine",
-    "text": "**角色：** 平台架構師（Platform Architect，與領域 2 為同一角色），但只有在目錄內容成長到足以受益於跨 Component 的結構描述重複使用，或跨 Recipe 重複使用範本、工作負載形態或成品套組時，才會用到此角色。單獨作業的撰寫者與小型目錄不需要任何第 3 層實體即可出貨。"
+    "text": "**角色：** 平台架構師（Platform Architect，與領域 2 為同一角色），但只有在目錄內容成長到足以受益於跨 Component 的結構描述重複使用，或跨 Recipe 重複使用範本、工作負載形態或成品套組時，才會用到此角色。單人撰寫者與小型目錄無需任何第 3 層實體即可發布。"
   },
   "9372c470eeadd5ec": {
     "at": "2026-11-18T11:36:26.060Z",
@@ -11896,11 +11952,17 @@
     "text": "**它不加密。** 沒有任何東西被包裝、封存或轉換。"
   },
   "9bea6a922532ea94": {
-    "at": "2026-11-18T11:36:26.060Z",
-    "job": "session-0004-20261118113626",
+    "at": "2026-11-18T13:42:42.603Z",
+    "job": "session-0015-20261118134242",
+    "revision": {
+      "forced": true,
+      "from": "9bea6a922532ea94",
+      "reason": "bind/binding: use 繫結 (36 segments), not 綁定; an LLM token (billing, budget, count) stays `token` in Latin letters (token 數, token 預算), never 權杖, which is a credential token; Kong consumer is a product entity: keep consumer in Latin (or 使用端), not 消費者",
+      "reviewed": false
+    },
     "srcHash": "9bea6a922532ea94",
     "status": "machine",
-    "text": "**位於模型前方的 APISIX：** `core/gateway/apisix`，開放原始碼的 Apache APISIX 閘道，在 Manifest 綁定其 chart Recipe 之處（它執行 APISIX 3.18.0），透過 APISIX 的 AI proxy 提供連接到它自己 `models` 插槽的模型。每個已連接模型在 `/<alias>/v1` 之下取得一條聊天路由與一條補全路由——當附加了期間預算或提示拒絕模式時，則只有聊天路由，因為 APISIX 不對補全請求計算權杖，其提示防護也不讀取任何權杖——由模型所發布的 `endpoint` 與 `model` 寫成，寫入隨閘道渲染的路由檔案，閘道在啟動時讀取它，並在檔案變更時再次讀取。從該檔案讀取其路由的閘道不讀取任何 etcd，也不執行 Admin API，所以在連接了模型時，`etcd` 連線或 `admin_key` 附加項目會中止建置，而在沒有連接任何東西時，兩者都是必要的。路由決定模型。閘道把每條連線自己的認證作為 bearer 權杖出示，其路由依名稱從閘道的環境讀取，而連到 `model.aggrega.ai/api` 不是 `openai` 之模型的連線會中止建置。它把其 `values.model` 所指名之別名的路由發布為其 `endpoint`，並把該別名發布為其 `model`，並帶有 `model.aggrega.ai/api: openai`，所以代理的 `model` 插槽接受它，一如接受 AI 閘道；沒有連接任何東西時，它把兩個鍵都發布為空。其連線已被移除的路由會在下一次渲染中消失。Release 可以在 `infra.callers` 中指名閘道的呼叫端，並透過 `caller_keys` 槽位指名其金鑰，一個 Secret 為每個呼叫端名稱持有一個資料鍵：每個呼叫端於是成為路由檔案中的一個消費者，其金鑰依名稱從該 Secret 讀取，而每條路由都會以 HTTP 401 拒絕沒有出示任何已宣告金鑰的請求，金鑰以 `Authorization: Bearer <key>` 出示——OpenAI 用戶端出示金鑰的方式——並從它所轉送的請求中移除該金鑰。沒有呼叫端時，路由是開放的。它的工作負載 Recipe，在 APISIX 3.17.0 上，把其路由保存在 etcd 中，不渲染任何路由，並在連到該插槽的連線與 `infra.callers` 上中止建置。在下方的控制中，它實現期間預算、針對其所宣告呼叫端的語意快取，以及提示拒絕模式。"
+    "text": "**位於模型前方的 APISIX：** `core/gateway/apisix`，開放原始碼的 Apache APISIX 閘道，在 Manifest 繫結其 chart Recipe 之處（它執行 APISIX 3.18.0），透過 APISIX 的 AI proxy 提供連接到它自己 `models` 插槽的模型。每個已連接模型在 `/<alias>/v1` 之下取得一條聊天路由與一條補全路由——當附加了期間預算或提示拒絕模式時，則只有聊天路由，因為 APISIX 不對補全請求計算 token，其提示防護也不讀取任何 token——由模型所發布的 `endpoint` 與 `model` 寫成，寫入隨閘道渲染的路由檔案，閘道在啟動時讀取它，並在檔案變更時再次讀取。從該檔案讀取其路由的閘道不讀取任何 etcd，也不執行 Admin API，所以在連接了模型時，`etcd` 連線或 `admin_key` 附加項目會中止建置，而在沒有連接任何東西時，兩者都是必要的。路由決定模型。閘道把每條連線自己的認證作為 bearer 權杖出示，其路由依名稱從閘道的環境讀取，而連到 `model.aggrega.ai/api` 不是 `openai` 之模型的連線會中止建置。它把其 `values.model` 所指名之別名的路由發布為其 `endpoint`，並把該別名發布為其 `model`，並帶有 `model.aggrega.ai/api: openai`，所以代理的 `model` 插槽接受它，一如接受 AI 閘道；沒有連接任何東西時，它把兩個鍵都發布為空。其連線已被移除的路由會在下一次渲染中消失。Release 可以在 `infra.callers` 中指名閘道的呼叫端，並透過 `caller_keys` 槽位指名其金鑰，一個 Secret 為每個呼叫端名稱持有一個資料鍵：每個呼叫端於是成為路由檔案中的一個 consumer，其金鑰依名稱從該 Secret 讀取，而每條路由都會以 HTTP 401 拒絕沒有出示任何已宣告金鑰的請求，金鑰以 `Authorization: Bearer <key>` 出示——OpenAI 用戶端出示金鑰的方式——並從它所轉送的請求中移除該金鑰。沒有呼叫端時，路由是開放的。它的工作負載 Recipe，在 APISIX 3.17.0 上，把其路由保存在 etcd 中，不渲染任何路由，並在連到該插槽的連線與 `infra.callers` 上中止建置。在下方的控制中，它實現期間預算、針對其所宣告呼叫端的語意快取，以及提示拒絕模式。"
   },
   "9c37e710ce416dac": {
     "at": "2026-11-18T12:38:48.225Z",
@@ -12182,11 +12244,17 @@
     "text": "認證相關的資料治理"
   },
   "9ff76e5bc546bc0e": {
-    "at": "2026-11-18T11:36:26.060Z",
-    "job": "session-0004-20261118113626",
+    "at": "2026-11-18T13:42:42.603Z",
+    "job": "session-0015-20261118134242",
+    "revision": {
+      "forced": true,
+      "from": "9ff76e5bc546bc0e",
+      "reason": "Naked Base is a named mechanism: 裸基底（Naked Base） as df7a8fc1318e9b57/bbaa2cf7161f8074 write it, not bare English",
+      "reviewed": false
+    },
     "srcHash": "9ff76e5bc546bc0e",
     "status": "machine",
-    "text": "**標準程式庫帶有什麼。** `core/datastore/qdrant`、`core/datastore/weaviate`、`core/datastore/chroma`、`core/datastore/pgvector` 與 `core/datastore/milvus` 帶有 `vector`，`core/datastore/cognee` 帶有 `semantic-memory`，而 `core/datastore/opensearch` 與 `core/datastore/elasticsearch` 帶有 `search`，所以上述知識庫選擇器能針對它們各自解析。`core/datastore/redis`、`core/datastore/valkey` 與 `core/datastore/memcached` 帶有 `kv`。這些標籤每一個都位於元件自己的基底上，因為產品的身分就是該引擎。對 `core/datastore/pgvector` 而言，該身分是它所固定的成品：它執行 pgvector 專案自己的 PostgreSQL 映像檔，其中帶有該擴充功能，而且每個 Recipe 都會在元件所建立的資料庫中啟用該擴充功能——所以它的向量特性不取決於某項設定，這正是它與上文「Naked Base, Flavored Edges」中設定案例的區別，在該案例中，通用 PostgreSQL 只有在開發者開啟擴充功能時才會獲得該特性。`relational`、`document` 與 `graph` 在標準程式庫中沒有任何元件，所以只指名其中這些值的選擇器在這裡不會比對到任何東西，而帶有其中之一的目錄就能滿足它。"
+    "text": "**標準程式庫帶有什麼。** `core/datastore/qdrant`、`core/datastore/weaviate`、`core/datastore/chroma`、`core/datastore/pgvector` 與 `core/datastore/milvus` 帶有 `vector`，`core/datastore/cognee` 帶有 `semantic-memory`，而 `core/datastore/opensearch` 與 `core/datastore/elasticsearch` 帶有 `search`，所以上述知識庫選擇器能針對它們各自解析。`core/datastore/redis`、`core/datastore/valkey` 與 `core/datastore/memcached` 帶有 `kv`。這些標籤每一個都位於元件自己的基底上，因為產品的身分就是該引擎。對 `core/datastore/pgvector` 而言，該身分是它所固定的成品：它執行 pgvector 專案自己的 PostgreSQL 映像檔，其中帶有該擴充功能，而且每個 Recipe 都會在元件所建立的資料庫中啟用該擴充功能——所以它的向量特徵不取決於某項設定，這正是它與上文「裸基底（Naked Base），風味邊（Flavored Edges）」中設定案例的區別，在該案例中，通用 PostgreSQL 只有在開發者開啟擴充功能時才會獲得該特徵。`relational`、`document` 與 `graph` 在標準程式庫中沒有任何元件，所以只指名其中這些值的選擇器在這裡不會比對到任何東西，而帶有其中之一的目錄就能滿足它。"
   },
   "9ffe7c407527d5bb": {
     "at": "2026-11-18T12:54:50.695Z",
@@ -12644,11 +12712,17 @@
     "text": "`-R` 會涵蓋那些資料夾中的檔案。`ClusterIP` Service，也就是 MCP 與 Dify 建置賦予它們所執行之伺服器的那一種，只能從叢集內部觸及：若要從你的機器觸及，請把本機連接埠轉送給它，使用 `kubectl port-forward svc/<service> <local port>:<port>`，它會一直執行到你停止為止。"
   },
   "a6e4de34151fb189": {
-    "at": "2026-11-18T11:41:24.291Z",
-    "job": "session-0005-20261118114124",
+    "at": "2026-11-18T13:42:42.603Z",
+    "job": "session-0015-20261118134242",
+    "revision": {
+      "forced": true,
+      "from": "a6e4de34151fb189",
+      "reason": "an LLM token (billing, budget, count) stays `token` in Latin letters (token 數, token 預算), never 權杖, which is a credential token; lowercase workload left in English: 工作負載 (guide); consumers in an authentication plugin sense: keep consumer in Latin as Kong names it, not 使用者",
+      "reviewed": false
+    },
     "srcHash": "a6e4de34151fb189",
     "status": "machine",
-    "text": "**期間預算：** `core/period-budget` 限制經過閘道的流量在一段期間內可以消耗的量：一個 `limit`、它所涵蓋的 `period`、一個 `scope`——閘道服務的所有東西、每個呼叫端或每個模型——以及一個 `unit`——以美元計的成本或 token——一旦閘道在該期間內所計的量超過上限，後續的模型請求就會被拒絕。它附加到任何宣告 `dataplane.aggrega.ai/period-budget` 的元件。標準程式庫在 AI 閘道上實現它，其預算涵蓋閘道服務的所有東西，以美元計算，並在每個期間開始時重新開始——從 UTC 午夜起算的若干天，或從第一天起算的一個曆月：該實現方式將上限與期間寫入閘道 Recipe 渲染的設定，以名稱拒絕任何其他單位、範圍或期間——包括 `30d`，閘道將其視為一個曆月——並且除非閘道的 `database_url` 與 `api_key` 認證槽位都已附加，否則會中止，因為沒有其簿記資料庫，閘道就不保有計數，而沒有管理金鑰，它就不會對照預算檢查任何呼叫端。一旦計數超過上限，閘道會拒絕管理金鑰以及每個呼叫端的模型請求；其模型清單與金鑰管理仍會回應該金鑰。在代管閘道上，它被實現為閘道資源上的支出上限規則，以美元計算，窗口隨時間向前移動——最近的 `period`，針對閘道知道其定價的模型——涵蓋閘道服務的所有東西：每個呼叫端或每個模型的預算、token 與曆月都會以名稱拒絕。在 `core/gateway/apisix` 上，它在 chart Recipe 上實現，寫入所連接模型的路由，作為 APISIX 的 token 速率限制：以每個模型的回覆所回報的 token 計算——`total_tokens`、`prompt_tokens` 或 `completion_tokens`——在長度為 `period` 的固定窗口內，該窗口在前一個窗口結束後的第一個模型請求時開啟，而不是依時鐘，涵蓋閘道服務的所有東西、各別的每個連接模型，或其 Release 在 `infra.callers` 中宣告的各別每個呼叫端，閘道依每個呼叫端所呈現的金鑰區分它們。一旦計數達到上限，閘道會以 HTTP 503 回應模型請求，直到窗口結束；請求的 token 會在其回覆完成後才加入，因此達到上限的那個請求會被服務，而由其語意快取服務的回覆不計入任何東西，並且在超過上限後仍會被服務。APISIX 不對補全請求計算 token，因此在預算附加期間，每個連接的模型只取得它的聊天路由，而且它將計數保存在閘道處理程序的記憶體中，因此 chart 執行一個複本，重新啟動會開啟新的窗口。以美元計的預算、在 `infra.callers` 未宣告任何呼叫端時每個呼叫端一個預算、曆月，以及一個閘道上的第二個預算，都會以名稱拒絕，在其不渲染任何路由的 workload Recipe 上附加也是如此。在 `core/gateway/envoy-gateway` 上，它被實現為 Envoy Gateway 以用量為基礎的速率限制，位於服務連接到閘道之模型的 AI 路由上：該路由將 `unit` 所指名的 token 數宣告為 Envoy AI Gateway 從每個回覆讀取的成本——`total_tokens`、`prompt_tokens` 或 `completion_tokens`——而該路由上的流量原則在回覆完成時對它收費，以每一個 Envoy Gateway 速率限制單位 `limit` 個 token 計，涵蓋閘道服務的所有東西或各別的每個連接模型。每個窗口都固定在 UTC 時鐘上——一秒、一分鐘、一小時、從午夜起算的一天、從星期四起算的一週，或從 1970 年 1 月 1 日起算的 30 或 365 天——而 `1mo` 是一個曆月，這取決於 Envoy Gateway 速率限制服務的一項設定，該設定隨後適用於該安裝所保有的每個月度速率限制。計數由 Envoy Gateway 控制平面為其服務的每個閘道建立並開啟的速率限制服務保存，位於連接到閘道 `cache` 插槽的 Redis 通訊協定儲存區。一旦計數超過上限，閘道會以 HTTP 429 回應模型請求，直到窗口結束；請求的 token 會在其回覆完成後才加入，因此越過上限的那個請求會被服務。當儲存區或速率限制服務無法連到，或某次檢查耗時超過 Envoy 的速率限制逾時，模型請求會以 HTTP 500 拒絕，這取決於 Envoy Gateway 控制平面的一項設定，該設定隨後適用於該安裝所保有的每個速率限制，因此手動套用到它的速率限制也會以失敗關閉；在中斷之前剛被接納的請求仍會被服務且不計入，因為其 token 是在回覆之後才收費，而在記憶體中保存計數的儲存區在重新啟動時會重新開始每個窗口。以美元計的預算、每個呼叫端一個預算——閘道只依呼叫端自己寫入的標頭分辨呼叫端，而該路徑上沒有任何東西驗證它——任何其他期間，以及一個閘道上的第二個預算，都會以名稱拒絕，在 `models` 或 `cache` 插槽未連接任何東西時附加也是如此。在 `core/gateway/azure-api-management` 上，它被實現為 Azure 的 token 限制，寫入該 API 的原則：以每個回覆所回報的提示與補全 token 合計計算，涵蓋該 API 服務的所有東西或每個 API Management 訂閱（其金鑰由閘道驗證）——要麼是在 UTC 時鐘上固定窗口的配額，即一小時、一天、一週、一個曆月或一個曆年（`1h`、`1d`、`7d`、`1mo` 或 `12mo`；Microsoft 並未說明一週從哪一天開始），超過時以 HTTP 403 回應，要麼是一分鐘（`1m`）內的速率，以 HTTP 429 回應，在傳統層級上以滑動窗口計算，在 v2 層級上以 token bucket 計算。計數是每個回覆所回報的用量，因此並行的請求可能超過上限，且該執行個體的每個閘道各自保有自己的計數。以美元計的預算、單獨以提示或補全 token 計的預算、每個模型一個預算——請求所指名的模型是由呼叫端寫的，且數個名稱可以指到同一個模型——在不需要訂閱金鑰的 API 上每個訂閱一個預算、任何其他期間，以及不是整數的上限，都會以名稱拒絕。Consumption 層級不執行 token 限制。在 `core/gateway/kong-enterprise` 上，它在 chart Recipe 上實現，寫入閘道匯入的路由，作為 Kong 的 AI Rate Limiting Advanced：以每個模型的回覆所回報的 token 計算——`total_tokens`、`prompt_tokens` 或 `completion_tokens`——在長度為 `period` 的固定窗口內，期間為若干秒、分鐘、小時或天，每個請求計入其時間所落入的唯一窗口，涵蓋閘道服務的所有東西或各別的每個連接模型，範圍為 `model` 的請求會計入它所指名的別名，不論由哪個模型回應。一旦計數達到上限，下一個模型請求會以 HTTP 429 回應，直到窗口結束，因此越過上限的那個請求會被服務；Kong 也可以依其自己對請求所攜帶提示 token 的估計提前拒絕請求。計數保存在閘道的 PostgreSQL 後端，由每個複本共用，並在重新啟動後保留。以美元計的預算——Kong 只依其設定給每個模型的價格計算成本，而目錄不提供任何價格——每個呼叫端一個預算——Kong 只將呼叫端分辨為某個驗證外掛所指名的使用者，而閘道不宣告任何呼叫端，原因見上方「Kong 在模型之前」——曆月、一個閘道上的第二個預算，以及早於 3.15 的閘道映像檔，都會以名稱拒絕，在 `models` 插槽未連接任何東西時附加也是如此。在 `core/gateway/agentgateway` 上，它在 chart Recipe 上實現，寫入閘道的設定，並以每個回覆所回報的 token 總數計算：在範圍為 `caller` 之下，作為其 Release 在 `infra.callers` 中宣告之每個呼叫端的 API 金鑰上的預算，在對齊 Unix 紀元、長度為 `period` 的固定窗口內，一天從 UTC 午夜開始，保存在 Recipe 所渲染之磁碟區上的 SQLite 儲存區，並執行一個複本；在範圍為 `gateway` 或 `model` 之下，則作為涵蓋閘道服務的所有東西或請求所要求的每個模型名稱的 token bucket，從閘道讀取其設定起，每過一個 `period` 就補滿到上限，並保存在其記憶體中，因此重新啟動或變更設定會再次將其補滿。一旦所計的量達到上限，模型請求會以 HTTP 429 回應，直到窗口結束或 bucket 被補滿；達到上限的那個請求會被服務。以美元計的預算——閘道的模型成本目錄不為連接到它的任何模型定價，因此預算會什麼都不計——單獨以提示或補全 token 計的預算、在 `infra.callers` 未宣告任何呼叫端時每個呼叫端一個預算、曆月、不是整數的上限，以及一個閘道上的第二個預算，都會以名稱拒絕，在 `models` 插槽未連接任何東西時附加也是如此；其 compose Recipe 沒有實現它。在 `core/gateway/traefik-hub` 上，它在 chart Recipe 上被實現為 Traefik Hub 的配額中介軟體，位於每個連接模型的路由上，將其計數保存在連接到閘道 `cache` 插槽的 Redis 通訊協定儲存區：它計算每個回覆所回報的 token——`total_tokens`、`prompt_tokens` 或 `completion_tokens`——或在 `usd` 之下計算其以美元計的成本，依中介軟體隨附的模型清單定價，沒有價格的模型會以 HTTP 422 拒絕，窗口隨時間滑動，某一時刻所計的量在一個期間之後重新釋放，涵蓋各別的每個連接模型，或在只連接一個模型時涵蓋閘道服務的所有東西。一旦計數達到上限，模型請求會以 HTTP 429 拒絕；請求的計數會在其回覆完成後才加入，因此越過上限的那個請求及與它並行的任何請求都會被服務，而由語意快取服務的回覆不計入任何東西。Traefik 的參考文件指出，在儲存區無法連到時，配額會讓請求不被計入而照常服務。每個呼叫端一個預算——配額依用戶端位址、請求標頭或請求的主機分辨請求，而其中沒有一個是閘道的金鑰檢查所驗證的呼叫端——在連接多個模型時整個閘道一個預算，因為 Traefik 的參考文件並未說明指名同一配額的路由是否共用其計數、曆月，以及除了小時或天，或構成整數小時的分鐘或秒之外的任何期間，都會以名稱拒絕，不是整數 token 數的上限，以及 `models` 或 `cache` 插槽未連接任何東西時的附加也是如此。在 `core/gateway/higress` 上，它在 chart Recipe 上被實現為 Higress 的 token 限制外掛，位於每個連接模型的路由上，將其計數保存在連接到閘道 `cache` 插槽的 Redis 通訊協定儲存區：它在回覆完成後，將每個回覆所回報的提示與補全 token 合計相加，在長度為 `period` 的固定窗口內——一秒、一分鐘、一小時或一天——該窗口在其中第一個回覆被計入時開啟，涵蓋閘道服務的所有東西或各別的每個別名。當計數超過上限時，模型請求會以 HTTP 429 回應，直到窗口結束，因此越過上限的請求會被服務。沒有回報用量的回覆不計入任何東西，因此 Recipe 會要求串流請求的模型回報其用量，並以 HTTP 403 拒絕關閉該回報的串流請求、內容類型既不含 `application/json` 也不以 `multipart/form-data` 開頭的請求（AI proxy 會在不要求回報的情況下轉送它），以及本文為閘道外掛不讀取者的請求——壓縮的本文、含有 `octet-stream` 或 `grpc` 的內容類型、升級；刻意送出閘道的驗證無法解碼之本文的用戶端會繞過那些拒絕，而這類串流請求不被計入。未附加遮蔽時，本文超過閘道 32 KiB 緩衝區的請求可能以 HTTP 413 拒絕，視儲存區何時回應而定。在儲存區無法連到期間，模型請求會被服務而不被計入：該外掛沒有在那時拒絕它們的設定。以美元計的預算、單獨以提示或補全 token 計的預算、每個呼叫端一個預算——閘道不宣告任何呼叫端，因此不驗證任何呼叫端——任何其他期間、不是整數的上限，以及一個閘道上的第二個預算，都會以名稱拒絕，在 `models` 或 `cache` 插槽未連接任何東西時附加也是如此。"
+    "text": "**期間預算：** `core/period-budget` 限制經過閘道的流量在一段期間內可以消耗的量：一個 `limit`、它所涵蓋的 `period`、一個 `scope`——閘道服務的所有東西、每個呼叫端或每個模型——以及一個 `unit`——以美元計的成本或 token——一旦閘道在該期間內所計的量超過上限，後續的模型請求就會被拒絕。它附加到任何宣告 `dataplane.aggrega.ai/period-budget` 的元件。標準程式庫在 AI 閘道上實現它，其預算涵蓋閘道服務的所有東西，以美元計算，並在每個期間開始時重新開始——從 UTC 午夜起算的若干天，或從第一天起算的一個曆月：該實現方式將上限與期間寫入閘道 Recipe 渲染的設定，以名稱拒絕任何其他單位、範圍或期間——包括 `30d`，閘道將其視為一個曆月——並且除非閘道的 `database_url` 與 `api_key` 認證槽位都已附加，否則會中止，因為沒有其簿記資料庫，閘道就不保有計數，而沒有管理金鑰，它就不會對照預算檢查任何呼叫端。一旦計數超過上限，閘道會拒絕管理金鑰以及每個呼叫端的模型請求；其模型清單與金鑰管理仍會回應該金鑰。在代管閘道上，它被實現為閘道資源上的支出上限規則，以美元計算，窗口隨時間向前移動——最近的 `period`，針對閘道知道其定價的模型——涵蓋閘道服務的所有東西：每個呼叫端或每個模型的預算、token 與曆月都會以名稱拒絕。在 `core/gateway/apisix` 上，它在 chart Recipe 上實現，寫入所連接模型的路由，作為 APISIX 的 token 速率限制：以每個模型的回覆所回報的 token 計算——`total_tokens`、`prompt_tokens` 或 `completion_tokens`——在長度為 `period` 的固定窗口內，該窗口在前一個窗口結束後的第一個模型請求時開啟，而不是依時鐘，涵蓋閘道服務的所有東西、各別的每個連接模型，或其 Release 在 `infra.callers` 中宣告的各別每個呼叫端，閘道依每個呼叫端所呈現的金鑰區分它們。一旦計數達到上限，閘道會以 HTTP 503 回應模型請求，直到窗口結束；請求的 token 會在其回覆完成後才加入，因此達到上限的那個請求會被服務，而由其語意快取服務的回覆不計入任何東西，並且在超過上限後仍會被服務。APISIX 不對補全請求計算 token，因此在預算附加期間，每個連接的模型只取得它的聊天路由，而且它將計數保存在閘道處理程序的記憶體中，因此 chart 執行一個複本，重新啟動會開啟新的窗口。以美元計的預算、在 `infra.callers` 未宣告任何呼叫端時每個呼叫端一個預算、曆月，以及一個閘道上的第二個預算，都會以名稱拒絕，在其不渲染任何路由的工作負載 Recipe 上附加也是如此。在 `core/gateway/envoy-gateway` 上，它被實現為 Envoy Gateway 以用量為基礎的速率限制，位於服務連接到閘道之模型的 AI 路由上：該路由將 `unit` 所指名的 token 數宣告為 Envoy AI Gateway 從每個回覆讀取的成本——`total_tokens`、`prompt_tokens` 或 `completion_tokens`——而該路由上的流量原則在回覆完成時對它收費，以每一個 Envoy Gateway 速率限制單位 `limit` 個 token 計，涵蓋閘道服務的所有東西或各別的每個連接模型。每個窗口都固定在 UTC 時鐘上——一秒、一分鐘、一小時、從午夜起算的一天、從星期四起算的一週，或從 1970 年 1 月 1 日起算的 30 或 365 天——而 `1mo` 是一個曆月，這取決於 Envoy Gateway 速率限制服務的一項設定，該設定隨後適用於該安裝所保有的每個月度速率限制。計數由 Envoy Gateway 控制平面為其服務的每個閘道建立並開啟的速率限制服務保存，位於連接到閘道 `cache` 插槽的 Redis 通訊協定儲存區。一旦計數超過上限，閘道會以 HTTP 429 回應模型請求，直到窗口結束；請求的 token 會在其回覆完成後才加入，因此越過上限的那個請求會被服務。當儲存區或速率限制服務無法連到，或某次檢查耗時超過 Envoy 的速率限制逾時，模型請求會以 HTTP 500 拒絕，這取決於 Envoy Gateway 控制平面的一項設定，該設定隨後適用於該安裝所保有的每個速率限制，因此手動套用到它的速率限制也會以失敗關閉；在中斷之前剛被接納的請求仍會被服務且不計入，因為其 token 是在回覆之後才收費，而在記憶體中保存計數的儲存區在重新啟動時會重新開始每個窗口。以美元計的預算、每個呼叫端一個預算——閘道只依呼叫端自己寫入的標頭分辨呼叫端，而該路徑上沒有任何東西驗證它——任何其他期間，以及一個閘道上的第二個預算，都會以名稱拒絕，在 `models` 或 `cache` 插槽未連接任何東西時附加也是如此。在 `core/gateway/azure-api-management` 上，它被實現為 Azure 的 token 限制，寫入該 API 的原則：以每個回覆所回報的提示與補全 token 合計計算，涵蓋該 API 服務的所有東西或每個 API Management 訂閱（其金鑰由閘道驗證）——要麼是在 UTC 時鐘上固定窗口的配額，即一小時、一天、一週、一個曆月或一個曆年（`1h`、`1d`、`7d`、`1mo` 或 `12mo`；Microsoft 並未說明一週從哪一天開始），超過時以 HTTP 403 回應，要麼是一分鐘（`1m`）內的速率，以 HTTP 429 回應，在傳統層級上以滑動窗口計算，在 v2 層級上以 token bucket 計算。計數是每個回覆所回報的用量，因此並行的請求可能超過上限，且該執行個體的每個閘道各自保有自己的計數。以美元計的預算、單獨以提示或補全 token 計的預算、每個模型一個預算——請求所指名的模型是由呼叫端寫的，且數個名稱可以指到同一個模型——在不需要訂閱金鑰的 API 上每個訂閱一個預算、任何其他期間，以及不是整數的上限，都會以名稱拒絕。Consumption 層級不執行 token 限制。在 `core/gateway/kong-enterprise` 上，它在 chart Recipe 上實現，寫入閘道匯入的路由，作為 Kong 的 AI Rate Limiting Advanced：以每個模型的回覆所回報的 token 計算——`total_tokens`、`prompt_tokens` 或 `completion_tokens`——在長度為 `period` 的固定窗口內，期間為若干秒、分鐘、小時或天，每個請求計入其時間所落入的唯一窗口，涵蓋閘道服務的所有東西或各別的每個連接模型，範圍為 `model` 的請求會計入它所指名的別名，不論由哪個模型回應。一旦計數達到上限，下一個模型請求會以 HTTP 429 回應，直到窗口結束，因此越過上限的那個請求會被服務；Kong 也可以依其自己對請求所攜帶提示 token 的估計提前拒絕請求。計數保存在閘道的 PostgreSQL 後端，由每個複本共用，並在重新啟動後保留。以美元計的預算——Kong 只依其設定給每個模型的價格計算成本，而目錄不提供任何價格——每個呼叫端一個預算——Kong 只將呼叫端分辨為某個驗證外掛所指名的 consumer，而閘道不宣告任何呼叫端，原因見上方「Kong 在模型之前」——曆月、一個閘道上的第二個預算，以及早於 3.15 的閘道映像檔，都會以名稱拒絕，在 `models` 插槽未連接任何東西時附加也是如此。在 `core/gateway/agentgateway` 上，它在 chart Recipe 上實現，寫入閘道的設定，並以每個回覆所回報的 token 總數計算：在範圍為 `caller` 之下，作為其 Release 在 `infra.callers` 中宣告之每個呼叫端的 API 金鑰上的預算，在對齊 Unix 紀元、長度為 `period` 的固定窗口內，一天從 UTC 午夜開始，保存在 Recipe 所渲染之磁碟區上的 SQLite 儲存區，並執行一個複本；在範圍為 `gateway` 或 `model` 之下，則作為涵蓋閘道服務的所有東西或請求所要求的每個模型名稱的 token bucket，從閘道讀取其設定起，每過一個 `period` 就補滿到上限，並保存在其記憶體中，因此重新啟動或變更設定會再次將其補滿。一旦所計的量達到上限，模型請求會以 HTTP 429 回應，直到窗口結束或 bucket 被補滿；達到上限的那個請求會被服務。以美元計的預算——閘道的模型成本目錄不為連接到它的任何模型定價，因此預算會什麼都不計——單獨以提示或補全 token 計的預算、在 `infra.callers` 未宣告任何呼叫端時每個呼叫端一個預算、曆月、不是整數的上限，以及一個閘道上的第二個預算，都會以名稱拒絕，在 `models` 插槽未連接任何東西時附加也是如此；其 compose Recipe 沒有實現它。在 `core/gateway/traefik-hub` 上，它在 chart Recipe 上被實現為 Traefik Hub 的配額中介軟體，位於每個連接模型的路由上，將其計數保存在連接到閘道 `cache` 插槽的 Redis 通訊協定儲存區：它計算每個回覆所回報的 token——`total_tokens`、`prompt_tokens` 或 `completion_tokens`——或在 `usd` 之下計算其以美元計的成本，依中介軟體隨附的模型清單定價，沒有價格的模型會以 HTTP 422 拒絕，窗口隨時間滑動，某一時刻所計的量在一個期間之後重新釋放，涵蓋各別的每個連接模型，或在只連接一個模型時涵蓋閘道服務的所有東西。一旦計數達到上限，模型請求會以 HTTP 429 拒絕；請求的計數會在其回覆完成後才加入，因此越過上限的那個請求及與它並行的任何請求都會被服務，而由語意快取服務的回覆不計入任何東西。Traefik 的參考文件指出，在儲存區無法連到時，配額會讓請求不被計入而照常服務。每個呼叫端一個預算——配額依用戶端位址、請求標頭或請求的主機分辨請求，而其中沒有一個是閘道的金鑰檢查所驗證的呼叫端——在連接多個模型時整個閘道一個預算，因為 Traefik 的參考文件並未說明指名同一配額的路由是否共用其計數、曆月，以及除了小時或天，或構成整數小時的分鐘或秒之外的任何期間，都會以名稱拒絕，不是整數 token 數的上限，以及 `models` 或 `cache` 插槽未連接任何東西時的附加也是如此。在 `core/gateway/higress` 上，它在 chart Recipe 上被實現為 Higress 的 token 限制外掛，位於每個連接模型的路由上，將其計數保存在連接到閘道 `cache` 插槽的 Redis 通訊協定儲存區：它在回覆完成後，將每個回覆所回報的提示與補全 token 合計相加，在長度為 `period` 的固定窗口內——一秒、一分鐘、一小時或一天——該窗口在其中第一個回覆被計入時開啟，涵蓋閘道服務的所有東西或各別的每個別名。當計數超過上限時，模型請求會以 HTTP 429 回應，直到窗口結束，因此越過上限的請求會被服務。沒有回報用量的回覆不計入任何東西，因此 Recipe 會要求串流請求的模型回報其用量，並以 HTTP 403 拒絕關閉該回報的串流請求、內容類型既不含 `application/json` 也不以 `multipart/form-data` 開頭的請求（AI proxy 會在不要求回報的情況下轉送它），以及本文為閘道外掛不讀取者的請求——壓縮的本文、含有 `octet-stream` 或 `grpc` 的內容類型、升級；刻意送出閘道的驗證無法解碼之本文的用戶端會繞過那些拒絕，而這類串流請求不被計入。未附加遮蔽時，本文超過閘道 32 KiB 緩衝區的請求可能以 HTTP 413 拒絕，視儲存區何時回應而定。在儲存區無法連到期間，模型請求會被服務而不被計入：該外掛沒有在那時拒絕它們的設定。以美元計的預算、單獨以提示或補全 token 計的預算、每個呼叫端一個預算——閘道不宣告任何呼叫端，因此不驗證任何呼叫端——任何其他期間、不是整數的上限，以及一個閘道上的第二個預算，都會以名稱拒絕，在 `models` 或 `cache` 插槽未連接任何東西時附加也是如此。"
   },
   "a6f4d645321f5f33": {
     "at": "2026-11-18T12:38:48.225Z",
@@ -13263,11 +13337,17 @@
     "text": "匯入 Langflow flow"
   },
   "acdfe4817d3b2787": {
-    "at": "2026-11-18T11:36:26.060Z",
-    "job": "session-0004-20261118113626",
+    "at": "2026-11-18T13:42:42.603Z",
+    "job": "session-0015-20261118134242",
+    "revision": {
+      "forced": true,
+      "from": "acdfe4817d3b2787",
+      "reason": "an LLM token (billing, budget, count) stays `token` in Latin letters (token 數, token 預算), never 權杖, which is a credential token",
+      "reviewed": false
+    },
     "srcHash": "acdfe4817d3b2787",
     "status": "machine",
-    "text": "權杖預算"
+    "text": "token 預算"
   },
   "acfc58d1afa3300d": {
     "at": "2026-11-18T12:33:55.728Z",
@@ -13612,11 +13692,17 @@
     "text": "`source:` + `valuesMapping:`（無 `workload:`，無成品）"
   },
   "b1536afed3e8350b": {
-    "at": "2026-11-18T11:41:24.291Z",
-    "job": "session-0005-20261118114124",
+    "at": "2026-11-18T13:42:42.603Z",
+    "job": "session-0015-20261118134242",
+    "revision": {
+      "forced": true,
+      "from": "b1536afed3e8350b",
+      "reason": "bind/binding: use 繫結 (36 segments), not 綁定",
+      "reviewed": false
+    },
     "srcHash": "b1536afed3e8350b",
     "status": "machine",
-    "text": "**Traefik Hub 在模型之前：** `core/gateway/traefik-hub` 是 Traefik 的付費閘道，透過 Traefik Hub 的 Chat Completion 中介軟體，為連接到自身 `models` 插槽的模型提供服務。它唯一的實現方式是以 Traefik 自己的 Helm chart 為基礎的 chart Recipe；沒有 compose 實現方式。它執行 Release 在 `infra.image` 中指名的映像檔，含標籤，因為 Traefik 以自己的條款散布 Traefik Hub，目錄因此不指名任何映像檔；該鍵未設定或未指名標籤時，建置會中止。授權權杖以參照方式送達閘道，參照的是綁定到其必要 `license` 槽位的 Secret，位於資料鍵 `token` 之下，絕不以值傳遞，且在沒有任何東西綁定該槽位或其發布了其他資料鍵時，建置會中止。Traefik 需要對 `api.traefik.io` 的對外 HTTPS，閘道在那裡驗證其權杖；從 Traefik Hub v3.21 起，閘道在無法連到該主機期間仍會提供服務，並在背景重試，權杖預設有效一年，到期後閘道會停止。chart Recipe 會關閉 chart 將閘道錯誤記錄匯出到 Traefik 平台的功能，以及檢查較新發行版本的功能。編譯器不驗證任何權杖，也不聯絡任何廠商，因此能乾淨建置的 Release 並不能說明閘道是否會啟動。每個連接的模型在 `/<alias>/v1/chat/completions` 取得一條路由，透過一個型別為 ExternalName 的 Service 送到該模型發布的 `endpoint`，並且不論請求攜帶什麼模型名稱，都要求其發布的 `model`，因此由路徑選定模型；它只提供聊天補全。閘道將每條連線自己的認證以 bearer 權杖呈現，Traefik Hub 從該連線的 Chat Completion 中介軟體所指名的 Secret 讀取，且若連線所連到的模型其 `model.aggrega.ai/api` 不是 `openai`，或其端點指名的是位址而非主機，建置會中止。它將其 `values.model` 所指名之別名的路由發布為自身的 `endpoint`，並將該別名發布為 `model`，且帶有 `model.aggrega.ai/api: openai`，因此代理的 `model` 插槽接受它的方式就如同接受 AI 閘道；未連接任何東西時，兩個鍵都發布為空。Release 可以在 `infra.callers` 中指名閘道的呼叫端，並透過 `caller_keys` 槽位提供其金鑰的 htpasswd 雜湊：Traefik Hub 的 API Key 中介軟體隨後位於每條模型路由的最前面，並拒絕未以 `Authorization: Bearer <key>` 呈現任何已宣告金鑰的請求，且金鑰會從轉送的請求中移除；沒有呼叫端時，路由是開放的。呼叫端的項目指名了不存在的 Secret 或資料鍵時，Traefik Hub 如何處理，其參考文件並未說明，因此最壞的情況是路由與沒有呼叫端時一樣開放。在下列控制中，它透過 Traefik Hub 的 AI 閘道中介軟體實現期間預算、為其宣告之呼叫端提供的語意快取、提示拒絕模式與資料遮蔽，並透過 Traefik 自己的容錯移轉與重試實現備援鏈與重試原則，每一項都寫入其 chart Recipe 渲染的路由。AI 閘道是授權內含的使用權限，建置無法看到，而對於授權缺少該權限的有效權杖，Traefik Hub 如何處理並無文件記載，因此附加前四項中的任何一項都會中止建置，直到 Release 將 `infra.ai_gateway_entitled` 設為 `true`。它對提示注入篩檢、稽核記錄、目標選擇與回應驗證的實現方式會中止每一次附加，並各自指明原因；並行上限不會附加到它，因為它不帶有 `dataplane.aggrega.ai/concurrency-cap` 值。執行中的閘道是否強制執行這些控制，任何建置都未觀察到。"
+    "text": "**Traefik Hub 在模型之前：** `core/gateway/traefik-hub` 是 Traefik 的付費閘道，透過 Traefik Hub 的 Chat Completion 中介軟體，為連接到自身 `models` 插槽的模型提供服務。它唯一的實現方式是以 Traefik 自己的 Helm chart 為基礎的 chart Recipe；沒有 compose 實現方式。它執行 Release 在 `infra.image` 中指名的映像檔，含標籤，因為 Traefik 以自己的條款散布 Traefik Hub，目錄因此不指名任何映像檔；該鍵未設定或未指名標籤時，建置會中止。授權權杖以參照方式送達閘道，參照的是繫結到其必要 `license` 槽位的 Secret，位於資料鍵 `token` 之下，絕不以值傳遞，且在沒有任何東西繫結該槽位或其發布了其他資料鍵時，建置會中止。Traefik 需要對 `api.traefik.io` 的對外 HTTPS，閘道在那裡驗證其權杖；從 Traefik Hub v3.21 起，閘道在無法連到該主機期間仍會提供服務，並在背景重試，權杖預設有效一年，到期後閘道會停止。chart Recipe 會關閉 chart 將閘道錯誤記錄匯出到 Traefik 平台的功能，以及檢查較新發行版本的功能。編譯器不驗證任何權杖，也不聯絡任何廠商，因此能乾淨建置的 Release 並不能說明閘道是否會啟動。每個連接的模型在 `/<alias>/v1/chat/completions` 取得一條路由，透過一個型別為 ExternalName 的 Service 送到該模型發布的 `endpoint`，並且不論請求攜帶什麼模型名稱，都要求其發布的 `model`，因此由路徑選定模型；它只提供聊天補全。閘道將每條連線自己的認證以 bearer 權杖呈現，Traefik Hub 從該連線的 Chat Completion 中介軟體所指名的 Secret 讀取，且若連線所連到的模型其 `model.aggrega.ai/api` 不是 `openai`，或其端點指名的是位址而非主機，建置會中止。它將其 `values.model` 所指名之別名的路由發布為自身的 `endpoint`，並將該別名發布為 `model`，且帶有 `model.aggrega.ai/api: openai`，因此代理的 `model` 插槽接受它的方式就如同接受 AI 閘道；未連接任何東西時，兩個鍵都發布為空。Release 可以在 `infra.callers` 中指名閘道的呼叫端，並透過 `caller_keys` 槽位提供其金鑰的 htpasswd 雜湊：Traefik Hub 的 API Key 中介軟體隨後位於每條模型路由的最前面，並拒絕未以 `Authorization: Bearer <key>` 呈現任何已宣告金鑰的請求，且金鑰會從轉送的請求中移除；沒有呼叫端時，路由是開放的。呼叫端的項目指名了不存在的 Secret 或資料鍵時，Traefik Hub 如何處理，其參考文件並未說明，因此最壞的情況是路由與沒有呼叫端時一樣開放。在下列控制中，它透過 Traefik Hub 的 AI 閘道中介軟體實現期間預算、為其宣告之呼叫端提供的語意快取、提示拒絕模式與資料遮蔽，並透過 Traefik 自己的容錯移轉與重試實現備援鏈與重試原則，每一項都寫入其 chart Recipe 渲染的路由。AI 閘道是授權內含的使用權限，建置無法看到，而對於授權缺少該權限的有效權杖，Traefik Hub 如何處理並無文件記載，因此附加前四項中的任何一項都會中止建置，直到 Release 將 `infra.ai_gateway_entitled` 設為 `true`。它對提示注入篩檢、稽核記錄、目標選擇與回應驗證的實現方式會中止每一次附加，並各自指明原因；並行上限不會附加到它，因為它不帶有 `dataplane.aggrega.ai/concurrency-cap` 值。執行中的閘道是否強制執行這些控制，任何建置都未觀察到。"
   },
   "b1698f3ff4503335": {
     "at": "2026-11-18T12:54:50.695Z",
@@ -13878,8 +13964,14 @@
     "text": "指名應用程式的目錄。匯入會讀取其 `langgraph.json`，而不讀取它的其他任何檔案："
   },
   "b4106619100a06f7": {
-    "at": "2026-11-18T11:41:24.291Z",
-    "job": "session-0005-20261118114124",
+    "at": "2026-11-18T13:42:42.603Z",
+    "job": "session-0015-20261118134242",
+    "revision": {
+      "forced": true,
+      "from": "b4106619100a06f7",
+      "reason": "an LLM token (billing, budget, count) stays `token` in Latin letters (token 數, token 預算), never 權杖, which is a credential token",
+      "reviewed": false
+    },
     "srcHash": "b4106619100a06f7",
     "status": "machine",
     "text": "**在目標之間選擇：** `core/target-selection` 宣告閘道如何在數個能服務同一請求的目標之間選擇，其 `strategy` 為 `latency`（觀察到回應最快的目標）或 `cost`（呼叫成本最低的目標）。策略是應用程式對其閘道所提要求的一部分，因此開發者在 Aggregate 中附加它。在 AI 閘道上，目標是其 `values.models` 中發布相同別名的項目——連接的模型以其連線的別名提供服務，其他項目不得發布該別名——標準程式庫以將 proxy 的 `latency-based-routing` 寫入閘道 Recipe 渲染的路由設定來實現 `latency`：proxy 將每個請求送到最近十次回覆平均耗時最短的項目，回覆回報其 token 時以每個輸出 token 計算，串流請求則以其第一個 token 計算，而尚未嘗試過的項目視為最快。沒有該附加項時，設定不指名任何策略，proxy 會在這些項目之中隨機挑選。`cost` 在那裡以名稱拒絕：proxy 為一個項目定價的方式，是在價格表中依其原樣查找其目標，而該表指名 OpenAI 與 Anthropic 的模型時不帶閘道目標所攜帶的提供者前綴，且找不到的項目以固定的備用價格計價，因此共用一個別名的項目會被定同樣的價格，並依其順序來選擇。在 `core/gateway/kong-enterprise` 上，每次附加都會中止，因為連接到它的每個模型都在各自只帶有該一個模型的路由上提供服務，沒有任何可供選擇的東西。在 `core/gateway/agentgateway` 上，每次附加也會中止，並指明原因：agentgateway 隨機抽取一個模型名稱的兩個目標，並選取其健康度除以回應耗時之後得分較高的那個，因此只有在最快的目標被抽到時才會選取它，而且它不依成本選擇目標。在 `core/gateway/higress` 上，每次附加也會中止，並指明原因：Higress 可以測量服務的延遲，但其負載平衡器外掛在 AI proxy 之後執行——AI proxy 已為路由所解析出的候選目標設定好請求的模型、位址與認證——並把它的選擇寫入一個請求標頭，而沒有本目錄不渲染的 Envoy 篩選器，就沒有任何東西依該標頭路由，因此該選擇不會生效，而且它不依成本選擇目標。在 `core/gateway/traefik-hub` 上，每次附加也會中止，並指明原因：Traefik 只在單一 Service 的伺服器之間依最低回應時間挑選，而一個模型名稱與一個認證就涵蓋該 Service，在 Service 之間則依權重或依用戶端位址的雜湊來平衡，絕不依延遲，且其任何策略都不依成本選擇目標；而連接到該閘道的每個模型都在各自只帶有該一個模型的路由上提供服務，沒有任何可供選擇的東西。在任何其他閘道上，附加會中止建置。"
@@ -14757,11 +14849,17 @@
     "text": "列出可安裝的助理，以及各自讀取的資料夾："
   },
   "c0988bb791fda707": {
-    "at": "2026-11-18T11:36:26.060Z",
-    "job": "session-0004-20261118113626",
+    "at": "2026-11-18T13:42:42.603Z",
+    "job": "session-0015-20261118134242",
+    "revision": {
+      "forced": true,
+      "from": "c0988bb791fda707",
+      "reason": "scaffolding: use 鷹架 (as 2457afd38cff9c28, 65684430e17f8485), not 骨架",
+      "reviewed": false
+    },
     "srcHash": "c0988bb791fda707",
     "status": "machine",
-    "text": "為了因應現代 AI 系統獨特的需求、易變性與安全威脅，Aggrega 將專門化的智慧直接內建於其開放原始碼的 **AI 標準程式庫（The Catalog，即目錄）**之中。它確保通用的雲端原生骨架與高度專門化的 AI 原生推理引擎能夠安全地並存。"
+    "text": "為了因應現代 AI 系統獨特的需求、易變性與安全威脅，Aggrega 將專門化的智慧直接內建於其開放原始碼的 **AI 標準程式庫（The Catalog，即目錄）**之中。它確保通用的雲端原生鷹架與高度專門化的 AI 原生推理引擎能夠安全地並存。"
   },
   "c0a52445b7f1d260": {
     "at": "2026-11-18T12:24:04.851Z",
@@ -14869,8 +14967,14 @@
     "text": "**兩個機密**——Langflow 編輯器要求的管理員密碼，以及平台出示給模型的 OpenAI 金鑰——在此宣告，並附上各自在 Langflow 環境中送達時所用的變數 `LANGFLOW_SUPERUSER_PASSWORD` 與 `OPENAI_API_KEY`。在 Docker Compose 上，僅由 Release 附加的機密會以鍵 `value` 送達，而兩者會衝突；在此宣告後，各自有自己的鍵。Release 說明各自的來源。"
   },
   "c1981474138eb34c": {
-    "at": "2026-11-18T11:41:24.291Z",
-    "job": "session-0005-20261118114124",
+    "at": "2026-11-18T13:42:42.603Z",
+    "job": "session-0015-20261118134242",
+    "revision": {
+      "forced": true,
+      "from": "c1981474138eb34c",
+      "reason": "an LLM token (billing, budget, count) stays `token` in Latin letters (token 數, token 預算), never 權杖, which is a credential token",
+      "reviewed": false
+    },
     "srcHash": "c1981474138eb34c",
     "status": "machine",
     "text": "**稽核記錄：** `core/audit-logging` 讓閘道為它所服務的每個模型請求保留一筆記錄，指名回應的模型與回覆所回報的 token，而每個實現方式會說明記錄落在何處。它附加到任何帶有 `gateway.aggrega.ai/intelligence: semantic` 的元件，且它的三個值屬於操作員，設定在其 `infra` 中，因此操作員在 Release 中附加它。`require_cost` 預設為開啟，讓記錄也說明每個請求的成本，以實現方式所指名的貨幣計。`require_verified_caller` 預設為開啟，讓它指名閘道所驗證的呼叫端，即閘道所核發或檢查的金鑰。`retention_days` 預設為未設定，讓閘道在記錄達到那麼多天時刪除它；沒有設定時，閘道本身不刪除任何記錄，而記錄會保留多久，取決於它所落入之處保留多久。無法保留某個值的閘道會在建置時拒絕該附加項並指名該值，因此讓 `require_cost` 與 `require_verified_caller` 維持預設值的附加項，會得到成本與已驗證的呼叫端，否則就會中止。關閉 `require_verified_caller` 就是接受呼叫端為請求本身所宣稱的任何對象，或完全沒有呼叫端的記錄：任何送出請求的人都可以讓它記錄在另一個呼叫端名下，因此這樣的記錄並不顯示是誰送出了請求。在 AI 閘道上，記錄是閘道簿記資料庫中的一列資料，且每個值都會被接受：該列說明請求的成本，以美元計，依閘道為每個模型保有的價格表定價——表中沒有定價的模型記錄為沒有成本——並指名閘道所驗證的金鑰，以及該金鑰所屬的使用者與團隊，而一列所指名的終端使用者則是請求所寫的任何內容，未經檢查。沒有其簿記資料庫，閘道不寫入任何一列；沒有管理金鑰，它不檢查任何呼叫端，也不為未呈現金鑰且未指名終端使用者的請求寫入任何一列，因此除非閘道的 `database_url` 與 `api_key` 認證槽位都已附加，否則建置會中止；在閘道的 `values.log_masking` 列出要遮蔽的內容期間，它只記錄已回應的請求。在 `core/gateway/envoy-gateway` 上，記錄是閘道存取記錄的一行，其 Recipe 在附加項存在期間寫入：資料平面標準輸出上每個請求一行 JSON，攜帶 Envoy Gateway 預設寫入的欄位、請求所指名的模型、回應的模型，以及回覆所回報的提示、補全與總 token 數，服務該些模型的路由會宣告這些計數，讓 Envoy AI Gateway 記錄它們。模型沒有回應的請求不帶回應的模型，也不帶 token，而存取記錄本身不保留任何東西，因此一行能保留多久，取決於收集該輸出的任何東西。沒有任何欄位指名閘道所驗證的呼叫端：用戶端的位址與其送出的標頭都是依其送達的原樣寫入。閘道不保有價格，其 Recipe 渲染的路由上沒有任何東西驗證呼叫端，且存取記錄不保有任何可刪除的記錄，因此其實現方式會建置關閉 `require_cost` 與 `require_verified_caller` 且不給 `retention_days` 的附加項，否則會中止，並指名它無法保留的每個值，全部放在一次失敗中；在 `models` 插槽未連接任何東西時也會中止。在 `core/gateway/agentgateway` 上，記錄是閘道在附加項存在期間，寫入其 chart Recipe 渲染之磁碟區上 SQLite 儲存區的一列資料，並執行一個複本，針對每個通過其金鑰、預算與授權檢查的模型請求寫入，包括被防護拒絕的請求：閘道向模型伺服器要求的模型——即所連接模型發布的名稱，而不是呼叫端送來的別名——以及回應的模型、回覆所回報的輸入、輸出與總 token 數、其狀態與時間，以及對其 Release 在 `infra.callers` 中宣告的每個呼叫端，來自閘道所驗證之 API 金鑰的該呼叫端名稱。因金鑰、授權規則或呼叫端的預算而被拒絕的請求不留下任何一列。不保留任何提示或回覆文字，而這些資料列透過閘道的管理介面讀取，該介面在其 pod 內接聽。`require_verified_caller` 在宣告了呼叫端期間被接受；`require_cost` 會以名稱拒絕，因為閘道的模型成本目錄不為連接到它的任何模型定價，未宣告呼叫端時的 `require_verified_caller` 與 `retention_days` 也是如此，因為閘道不刪除任何記錄；其 compose Recipe 沒有實現它。在 `core/gateway/higress` 上，記錄是閘道存取記錄行的 `ai_log` 欄位，由 Higress 的統計外掛在附加項存在期間填入：回應的模型，以及回覆所回報的輸入、輸出與總 token 數，位於閘道的標準輸出上，不含提示或回覆文字。該閘道不宣告任何呼叫端、不為任何東西定價，也不保有任何它能刪除的記錄，因此其實現方式會建置關閉 `require_cost` 與 `require_verified_caller` 且不給 `retention_days` 的附加項，否則會中止，並指名它無法保留的每個值，全部放在一次失敗中；在 `models` 插槽未連接任何東西時也會中止。在 `core/gateway/traefik-hub` 上，每次附加都會中止並指明原因：Traefik Hub 只把模型請求的記錄保留為其 AI 中介軟體匯出到追蹤後端的 OpenTelemetry span——指名模型，並在其詳細等級上指名 token 與其以美元計的成本——而其實現方式不連接任何追蹤後端，因此記錄不會落在任何地方；該 span 也不指名呼叫端，因此無法指名閘道的金鑰檢查所驗證的那一個。在 `core/gateway/azure-api-management` 上，每次附加都會中止，如上方該閘道的項目所述，而標準程式庫中沒有其他閘道實現它，因此在任何其他閘道上附加會中止並指名其型別。"
@@ -15553,11 +15657,17 @@
     "text": "宣告上的一個關鍵字"
   },
   "cb3cf81cd0354d61": {
-    "at": "2026-11-18T11:36:26.060Z",
-    "job": "session-0004-20261118113626",
+    "at": "2026-11-18T13:42:42.603Z",
+    "job": "session-0015-20261118134242",
+    "revision": {
+      "forced": true,
+      "from": "cb3cf81cd0354d61",
+      "reason": "wire/wiring: use 連接 (dominant), not 接線/串接; 連線 stays for connection",
+      "reviewed": false
+    },
     "srcHash": "cb3cf81cd0354d61",
     "status": "machine",
-    "text": "**編譯器使用情境：** 當架構師撰寫指名所需能力標籤的 `usesSchema` 選擇器時，編譯器原生的標籤比對引擎會在產生成品之前，拒絕不滿足該選擇器的接線。編譯器將這些標籤視為不透明字串；「text-generation」與「embedding」的語意由架構師撰寫選擇器時決定。"
+    "text": "**編譯器使用情境：** 當架構師撰寫指名所需能力標籤的 `usesSchema` 選擇器時，編譯器原生的標籤比對引擎會在產生成品之前，拒絕不滿足該選擇器的連接。編譯器將這些標籤視為不透明字串；「text-generation」與「embedding」的語意由架構師撰寫選擇器時決定。"
   },
   "cb3e1441451328cc": {
     "at": "2026-11-18T13:17:56.240Z",
@@ -16889,11 +16999,17 @@
     "text": "Release 結構描述以機制禁止 `values:` 區塊。操作員無法從 Release 對 Component 或 Feature 撰寫 `values`。這是在 JSON Schema 層級的結構描述強制——不是社會契約，也不是慣例——而且是明示的：每份實體文件在載入時都會依其種類的結構描述驗證，因此帶有 `values:` 的 Release 會讓建置中止，並以診斷指出檔案與出問題的鍵，而不是被默默忽略。"
   },
   "dccd301af36ecd62": {
-    "at": "2026-11-18T11:36:26.060Z",
-    "job": "session-0004-20261118113626",
+    "at": "2026-11-18T13:42:42.603Z",
+    "job": "session-0015-20261118134242",
+    "revision": {
+      "forced": true,
+      "from": "dccd301af36ecd62",
+      "reason": "Naked Base is a named mechanism: 裸基底（Naked Base） as df7a8fc1318e9b57/bbaa2cf7161f8074 write it, not bare English; Enterprise Exception: 企業例外（Enterprise Exception） as 0eb1db82fb5cd8ad does",
+      "reviewed": false
+    },
     "srcHash": "dccd301af36ecd62",
     "status": "machine",
-    "text": "**標準程式庫帶有什麼。** 沒有任何 `core/` Component 帶有這個標籤。元件的資料屬於哪個類別，說明的是企業環境如何使用該元件，而不是在每個 Release 中都為真的產品屬性，所以依 Naked Base 規則，它不放在基底上：企業環境把它放在自己的 Component 上——如範例中的理賠助理那樣透過 `extends` 的特化版本，或上文 Enterprise Exception 之下自有的基底。"
+    "text": "**標準程式庫帶有什麼。** 沒有任何 `core/` Component 帶有這個標籤。元件的資料屬於哪個類別，說明的是企業環境如何使用該元件，而不是在每個 Release 中都為真的產品屬性，所以依裸基底（Naked Base）規則，它不放在基底上：企業環境把它放在自己的 Component 上——如範例中的理賠助理那樣透過 `extends` 的特化版本，或上文企業例外（Enterprise Exception）之下自有的基底。"
   },
   "dcf2e9a0dd5e56a6": {
     "at": "2026-11-18T07:06:16.115Z",
@@ -17197,11 +17313,17 @@
     "text": "**`mapped` 行** 指出 OpenAI Chat Model 節點成為標準程式庫的 OpenAI 模型 `core/ai-model/openai`，採參照而非草擬，因為它在高層級以 0.9143 相符：一個自成一體的元件，連接到平台的 `model` 插槽。"
   },
   "df7a8fc1318e9b57": {
-    "at": "2026-11-18T11:36:26.060Z",
-    "job": "session-0004-20261118113626",
+    "at": "2026-11-18T13:42:42.603Z",
+    "job": "session-0015-20261118134242",
+    "revision": {
+      "forced": true,
+      "from": "df7a8fc1318e9b57",
+      "reason": "capability: use 能力 (as 65 other segments), not 特性",
+      "reviewed": false
+    },
     "srcHash": "df7a8fc1318e9b57",
     "status": "machine",
-    "text": "**Naked Base（裸基底）：** 根層級的開放原始碼 `Component` 只寫死產品客觀上為真、且作者的任何設定都無法改變的事——首先且始終是運作基本元素（`component.aggrega.ai/type`）。Postgres 資料庫客觀上是 `stateful-server`；這項事實無法改變。同樣的檢驗也容許能力標籤，只要產品的身分*就是*那項能力：`core/datastore/qdrant` 與 `core/datastore/weaviate` 是向量搜尋引擎，作者寫什麼都無法讓它們變成別的東西，因此各自在基底上帶有 `datastore.aggrega.ai/engine: vector`，正如 `core/datastore/redis` 帶有 `kv`。裸基底所拒絕的是相反的情況——取決於元件如何設定或使用的特性，下方的第三種機制正是為此而存在。"
+    "text": "**裸基底（Naked Base）：** 根層級的開放原始碼 `Component` 只寫死產品客觀上為真、且作者的任何設定都無法改變的事——首先且始終是運作基本元素（`component.aggrega.ai/type`）。Postgres 資料庫客觀上是 `stateful-server`；這項事實無法改變。同樣的檢驗也容許能力標籤，只要產品的身分*就是*那項能力：`core/datastore/qdrant` 與 `core/datastore/weaviate` 是向量搜尋引擎，作者寫什麼都無法讓它們變成別的東西，因此各自在基底上帶有 `datastore.aggrega.ai/engine: vector`，正如 `core/datastore/redis` 帶有 `kv`。裸基底所拒絕的是相反的情況——取決於元件如何設定或使用的特徵，下方的第三種機制正是為此而存在。"
   },
   "df89dbdf365e243d": {
     "at": "2026-11-18T12:49:35.296Z",
@@ -18347,11 +18469,17 @@
     "text": "把本機連接埠轉送到 n8n 的 Service `n8n-default`，並讓命令持續執行："
   },
   "efe125bdc1ec5dfb": {
-    "at": "2026-11-18T11:36:26.060Z",
-    "job": "session-0004-20261118113626",
+    "at": "2026-11-18T13:42:42.603Z",
+    "job": "session-0015-20261118134242",
+    "revision": {
+      "forced": true,
+      "from": "efe125bdc1ec5dfb",
+      "reason": "Kong consumer is a product entity: keep consumer in Latin (or 使用端), not 消費者",
+      "reviewed": false
+    },
     "srcHash": "efe125bdc1ec5dfb",
     "status": "machine",
-    "text": "**位於模型前方的 Kong：** `core/gateway/kong`，開放原始碼的 Kong 閘道，透過 Kong 的 AI proxy 提供連接到它自己 `models` 插槽的模型，而在下方的控制中，它只實現提示拒絕模式，作為每個已連接模型的每條路由上的 Kong AI Prompt Guard。每個已連接模型在 `/<alias>/v1` 之下取得一條聊天路由與一條補全路由，由模型所發布的 `endpoint` 與 `model` 寫成，而它的 Recipes 會在閘道啟動前，把這些路由匯入閘道的 PostgreSQL 後端。路由決定模型，所以請求會送到其路徑所指名的模型，無論它攜帶什麼模型名稱。閘道把每條連線自己的認證作為 bearer 權杖出示，其設定依名稱從閘道的環境讀取，而連到 `model.aggrega.ai/api` 不是 `openai` 之模型的連線會中止建置。它把其 `values.model` 所指名之別名的路由發布為其 `endpoint`，並把該別名發布為其 `model`，並帶有 `model.aggrega.ai/api: openai`，所以代理的 `model` 插槽接受它，一如接受 AI 閘道。沒有任何東西連接到該插槽時，閘道不提供任何模型，並把兩個鍵都發布為空，連接到它的代理則讀不到位址也讀不到模型名稱。匯入會新增與更新路由，不移除任何路由，所以其連線已被移除的路由仍會持續回應，而 `core/prompt-deny-patterns` 附加項目所寫的提示防護在附加項目被移除後仍會持續拒絕，直到各自經由 Kong 的 Admin API 刪除為止。基於同樣的原因，閘道不宣告任何呼叫端，其模型路由也不檢查任何呼叫端的金鑰：Kong 只將呼叫端區分為驗證外掛程式所指名的消費者，而消費者及其金鑰一經匯入，在呼叫端從 Release 移除後仍能繼續驗證，輪替後的金鑰也會讓舊金鑰繼續有效；key-auth 的金鑰也無法以參照方式持有，所以呼叫端的金鑰只能以字面值進入渲染後的檔案，才能到達 Kong。"
+    "text": "**位於模型前方的 Kong：** `core/gateway/kong`，開放原始碼的 Kong 閘道，透過 Kong 的 AI proxy 提供連接到它自己 `models` 插槽的模型，而在下方的控制中，它只實現提示拒絕模式，作為每個已連接模型的每條路由上的 Kong AI Prompt Guard。每個已連接模型在 `/<alias>/v1` 之下取得一條聊天路由與一條補全路由，由模型所發布的 `endpoint` 與 `model` 寫成，而它的 Recipes 會在閘道啟動前，把這些路由匯入閘道的 PostgreSQL 後端。路由決定模型，所以請求會送到其路徑所指名的模型，無論它攜帶什麼模型名稱。閘道把每條連線自己的認證作為 bearer 權杖出示，其設定依名稱從閘道的環境讀取，而連到 `model.aggrega.ai/api` 不是 `openai` 之模型的連線會中止建置。它把其 `values.model` 所指名之別名的路由發布為其 `endpoint`，並把該別名發布為其 `model`，並帶有 `model.aggrega.ai/api: openai`，所以代理的 `model` 插槽接受它，一如接受 AI 閘道。沒有任何東西連接到該插槽時，閘道不提供任何模型，並把兩個鍵都發布為空，連接到它的代理則讀不到位址也讀不到模型名稱。匯入會新增與更新路由，不移除任何路由，所以其連線已被移除的路由仍會持續回應，而 `core/prompt-deny-patterns` 附加項目所寫的提示防護在附加項目被移除後仍會持續拒絕，直到各自經由 Kong 的 Admin API 刪除為止。基於同樣的原因，閘道不宣告任何呼叫端，其模型路由也不檢查任何呼叫端的金鑰：Kong 只將呼叫端區分為驗證外掛程式所指名的 consumer，而 consumer 及其金鑰一經匯入，在呼叫端從 Release 移除後仍能繼續驗證，輪替後的金鑰也會讓舊金鑰繼續有效；key-auth 的金鑰也無法以參照方式持有，所以呼叫端的金鑰只能以字面值進入渲染後的檔案，才能到達 Kong。"
   },
   "effad7fa5f292d2c": {
     "at": "2026-11-18T12:54:50.695Z",
