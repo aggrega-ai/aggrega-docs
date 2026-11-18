@@ -6,12 +6,11 @@ import config from "virtual:starlight/user-config";
 // by path, as src/components/Banner.astro imports its helpers.
 import { localizedUrl } from "../../node_modules/@astrojs/starlight/utils/localizedUrl.ts";
 
-// The language picker, in the header and in the narrow screen's menu, in place
-// of Starlight's: a drop-down whose closed control shows the current language
-// and whose menu lists every published language, the current one checked. Each
-// entry is a link to the page the reader is on in that language, as Starlight's
-// own picker computes it, named in its own language and marked with its own
-// `lang`.
+// The language picker, in the header at every width, in place of Starlight's: a
+// drop-down whose closed control shows the current language and whose menu lists
+// every published language, the current one checked. Each entry is a link to
+// the page the reader is on in that language, as Starlight's own picker computes
+// it, named in its own language and marked with its own `lang`.
 //
 // The page is built with a `<details>` element, so the menu opens and its links
 // work without client JavaScript. The script replaces the element's control
@@ -183,20 +182,10 @@ const options = locales.map(([code, locale]) => ({
       menu.addEventListener("pointerleave", () => {
         if (isOpen() && menu.contains(document.activeElement)) menu.focus({ preventScroll: true });
       });
-      // Starlight's narrow-screen menu closes itself on the Escape key's release,
-      // so the release of an Escape that closed this menu stops here: it closes
-      // this menu alone, and a second Escape closes the narrow-screen menu.
-      let closedOnEscape = false;
       this.addEventListener("keydown", (event) => {
         if (event.key !== "Escape" || !isOpen()) return;
         event.preventDefault();
-        closedOnEscape = true;
         close(true);
-      });
-      this.addEventListener("keyup", (event) => {
-        if (event.key !== "Escape" || !closedOnEscape) return;
-        closedOnEscape = false;
-        event.stopPropagation();
       });
       document.addEventListener("click", (event) => {
         if (!this.contains(event.target as Node)) close(false);
@@ -217,6 +206,8 @@ const options = locales.map(([code, locale]) => ({
   aggrega-lang-select {
     position: relative;
     display: block;
+    min-width: 0;
+    max-width: 100%;
   }
   .control {
     --sl-label-icon-size: 0.875rem;
@@ -227,6 +218,8 @@ const options = locales.map(([code, locale]) => ({
     gap: 0.25rem;
     margin: 0;
     height: 2.5rem;
+    min-width: 0;
+    max-width: 100%;
     padding-inline: calc(var(--sl-label-icon-size) + 1.25rem) calc(var(--sl-caret-size) + 0.75rem);
     /* Framed as the home site's and the catalog's pickers are. */
     border: 1px solid var(--sl-color-gray-5);
@@ -237,6 +230,19 @@ const options = locales.map(([code, locale]) => ({
     cursor: pointer;
     list-style: none;
     white-space: nowrap;
+  }
+  .control > span[lang] {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  @media (max-width: 39.99rem) {
+    .control {
+      padding-inline-start: 0.625rem;
+    }
+    .control .label-icon {
+      display: none;
+    }
   }
   .control::-webkit-details-marker {
     display: none;
@@ -297,11 +303,6 @@ const options = locales.map(([code, locale]) => ({
   }
   ul:focus {
     outline: none;
-  }
-  /* In the narrow screen's menu the picker sits at the menu's end, so its menu opens upwards. */
-  :global(#starlight__sidebar) ul {
-    top: auto;
-    bottom: calc(100% + 0.25rem);
   }
   li {
     margin: 0;
