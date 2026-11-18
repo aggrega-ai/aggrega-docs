@@ -26,7 +26,7 @@ import demoVideo from "./src/plugins/demo-video.mjs";
 import { codeThemes } from "./src/code-themes.mjs";
 import { analyticsModule } from "./src/analytics.mjs";
 import installedChunks from "./src/installed-chunks.mjs";
-import { fontLicensePlugin } from "@aggrega-ai/brand/font-license-plugin";
+import { fontLicenseIntegration } from "@aggrega-ai/brand/font-license-plugin";
 
 // The site is served under the /docs subdirectory of the main domain. Content
 // is single-sourced from the repository's Markdown corpus via the docs
@@ -113,9 +113,7 @@ export default defineConfig({
   // menu at the top of the page, for the header (src/components/Header.astro),
   // and the analytics beacon of a build given the site token, for the page head
   // (src/analytics.mjs). The browser scripts made only of installed packages'
-  // code are written to a directory of their own (src/installed-chunks.mjs),
-  // and the brand fonts' licence texts, which the SIL Open Font License asks to
-  // travel with the font files, are written beside them.
+  // code are written to a directory of their own (src/installed-chunks.mjs).
   vite: {
     plugins: [
       untranslatedPagesModule(),
@@ -123,7 +121,6 @@ export default defineConfig({
       siteNavModule(),
       analyticsModule(),
       installedChunks(),
-      fontLicensePlugin(),
     ],
   },
   integrations: [
@@ -132,6 +129,9 @@ export default defineConfig({
     // theme switch changes it. It is registered before Starlight so the block
     // reaches the browser as a diagram source rather than as highlighted code.
     mermaid({ autoTheme: true, enableLog: false }),
+    // The SIL Open Font License asks that its text travel with the font files:
+    // once the build is done, each family's text is written beside them.
+    fontLicenseIntegration(),
     starlight({
       title: "Aggrega",
       // A version selector is mounted above the sidebar, and the document head
@@ -199,6 +199,9 @@ export default defineConfig({
         dark: "@aggrega-ai/brand/logo/mark-dark.svg",
         alt: "Aggrega",
       },
+      // The brand's fonts' stylesheet comes first because it opens with their
+      // licence comment, and the CSS minifier keeps such a comment only at the
+      // top of a stylesheet.
       // The brand's tokens, fonts and type classes, its diagrams' drawing
       // vocabulary (every shape and its colour roles, shared with the home
       // site), and the theme bound to them (src/styles/brand.css); the home's
@@ -210,8 +213,8 @@ export default defineConfig({
       // (downloaded only for a reader who picks one), and the site's rules for
       // the panel (src/styles/a11y.css).
       customCss: [
-        "@aggrega-ai/brand/tokens.css",
         "@aggrega-ai/brand/fonts.css",
+        "@aggrega-ai/brand/tokens.css",
         "@aggrega-ai/brand/typography.css",
         "@aggrega-ai/brand/diagram.css",
         "./src/styles/brand.css",
