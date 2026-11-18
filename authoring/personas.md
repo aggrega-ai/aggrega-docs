@@ -118,7 +118,7 @@ What operations owns: the templates that render provider-native output from the 
 
 The operator authors **Manifests** and **Releases**: the routing layer and the per-environment compilation input. A Manifest tells the compiler which Recipe realizes each Component for a given target, so the same Aggregate can hit different implementations across environments. A Release is the single compilation input — it points at the Aggregate and Manifest, fulfills the parameters the developer exposed, attaches the Features whose inputs are operational, sizes with `infra` the ones the developer attached, and wires edges of its own within the sockets the architect declared.
 
-What the operator owns: the Manifest's routing map, the Release's parameter fulfillment, the `infra` sizing each component gets, the attachments of the Features whose inputs are operational, and the per-edge `infra` a Release writes on a connection. The operator fulfills the developer's exposed variation points; the Release cannot introduce new application values or new compute — those come only from the Aggregate.
+What the operator owns: the Manifest's routing map, the Release's parameter fulfillment, the `infra` sizing each component gets, the attachments of the Features whose inputs are operational, and the per-edge `infra` a Release writes on a connection. The operator fulfills the developer's exposed variation points; the Release cannot introduce new `values` or new compute — those come only from the Aggregate.
 
 ## Roles are hats, not headcount
 
