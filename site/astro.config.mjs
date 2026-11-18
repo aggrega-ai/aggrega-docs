@@ -26,6 +26,7 @@ import demoVideo from "./src/plugins/demo-video.mjs";
 import { codeThemes } from "./src/code-themes.mjs";
 import { analyticsModule } from "./src/analytics.mjs";
 import installedChunks from "./src/installed-chunks.mjs";
+import { fontLicensePlugin } from "@aggrega-ai/brand/font-license-plugin";
 
 // The site is served under the /docs subdirectory of the main domain. Content
 // is single-sourced from the repository's Markdown corpus via the docs
@@ -112,7 +113,9 @@ export default defineConfig({
   // menu at the top of the page, for the header (src/components/Header.astro),
   // and the analytics beacon of a build given the site token, for the page head
   // (src/analytics.mjs). The browser scripts made only of installed packages'
-  // code are written to a directory of their own (src/installed-chunks.mjs).
+  // code are written to a directory of their own (src/installed-chunks.mjs),
+  // and the brand fonts' licence texts, which the SIL Open Font License asks to
+  // travel with the font files, are written beside them.
   vite: {
     plugins: [
       untranslatedPagesModule(),
@@ -120,6 +123,7 @@ export default defineConfig({
       siteNavModule(),
       analyticsModule(),
       installedChunks(),
+      fontLicensePlugin(),
     ],
   },
   integrations: [
