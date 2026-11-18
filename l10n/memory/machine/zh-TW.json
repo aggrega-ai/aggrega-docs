@@ -20,12 +20,33 @@
     "status": "machine",
     "text": "**目標需要什麼在執行。** 請求只有在有東西填入它時才會被填入。在 `helm` 上那是控制器，而編譯器無法檢查叢集以得知是否有控制器在執行，所以 helm 的 FeatureRecipes 會讓建置中止，除非 Release 以附加項目上的 `infra.control_plane_present: true` 確認該前提條件。在 `terraform` 與 `cloudformation` 上，套用或堆疊會自行產生該值，事先不需要有任何東西在執行。"
   },
+  "00a48b8987c705c4": {
+    "at": "2026-11-18T12:24:04.851Z",
+    "job": "session-0006-20261118122404",
+    "srcHash": "00a48b8987c705c4",
+    "status": "machine",
+    "text": "12. 模型序列化與供應鏈安全"
+  },
   "00e1e566f7588d8a": {
     "at": "2026-11-18T07:13:03.194Z",
     "job": "session-0002-20261118071303",
     "srcHash": "00e1e566f7588d8a",
     "status": "machine",
     "text": "**意義：** 在各環境之間動態改變應用程式認知或邏輯狀態的外部引數（例如將 `workers: 2` 改為 `workers: 10`）。支援**具型別的契約**（完整的具型別契約語法請參閱 [data-pillars](../language-reference/vocabulary/data-pillars.md)），並在內插之前進行驗證。對於將參數值保存在獨立檔案的 GitOps 工作流程，Release 使用 `$import:` 形式；編譯器會載入該檔案的內容，並取代內嵌的 `parameters:` 對應表。多檔案分層則透過 Release 的 `extends:` 鏈來表達。"
+  },
+  "0104726172ad5797": {
+    "at": "2026-11-18T12:24:04.851Z",
+    "job": "session-0006-20261118122404",
+    "srcHash": "0104726172ad5797",
+    "status": "machine",
+    "text": "確定性輸出不變式適用於**建置時間**：給定相同的來源檔案 + 相同的鎖定檔 + 相同的編譯器版本，輸出位元組完全相同。**鎖定時間**的對應性質（給定相同的來源檔案 + 相同的登錄庫狀態，得到相同的鎖定檔）較弱——登錄庫是可變的（可以發布新版本；可以加入 sidecar；各元件的中繼資料可以演進），因此在不同時間對相同來源檔案進行兩次鎖定叫用，可能產生不同的鎖定檔。這正是鎖定檔的用途，與 npm、Cargo 和 Go 的慣例相同。從全新的鎖定檔出發，建置會產生確定性的輸出。這種兩個時刻的分離，使登錄庫端的可變性變得可以容忍：在時間 T2 發布的 sidecar 會改變下一次鎖定叫用；它不會改變針對在 T1 產生的鎖定檔所做的建置。"
+  },
+  "013cc019a70990ba": {
+    "at": "2026-11-18T12:24:04.851Z",
+    "job": "session-0006-20261118122404",
+    "srcHash": "013cc019a70990ba",
+    "status": "machine",
+    "text": "由於 AI 工作負載帶來了新型態的攻擊向量（例如提示注入與自主資料外洩），保護它們需要將靜態的架構治理與主動的執行階段強制連結起來。作為預先（Ahead-of-Time，AOT）編譯器，Aggrega 不會攔截即時網路流量，也不會評估 AI 提示。它改以兩部分的架構交接來滿足複雜的安全需求：**靜態架構編譯**（編譯時期）與**執行交接**（部署時期）。"
   },
   "013fdd45196a8f85": {
     "at": "2026-11-18T11:27:19.320Z",
@@ -40,12 +61,26 @@
     "status": "machine",
     "text": "**扁平的 Aggregate（頂層元件）：** 在 `spec.components` 之下撰寫元件，不使用 `subsystems`。編譯器會在載入時將它們摺入合成的 `default` 子系統。子系統範圍的註記與子系統層級的功能，只套用於*已宣告的*子系統；扁平形態不帶任何這類項目。"
   },
+  "0166bd8b0187dad8": {
+    "at": "2026-11-18T12:24:04.851Z",
+    "job": "session-0006-20261118122404",
+    "srcHash": "0166bd8b0187dad8",
+    "status": "machine",
+    "text": "**動作：** 編譯器對 IR 圖執行抽象的靜態分析。第一，它從 `usesSchema` 定義中擷取 `selector` 字串，並使用原生 Go 標籤比對引擎（支援 Kubernetes 風格的 `AND`、透過 `in()` 的 `OR`，以及透過 `!=` 語意的 `NOT`），在明確定義的圖邊上評估，以確保**已宣告**插槽上的跨節點型別安全。臨時插槽上的邊——由 Aggregate 作者命名、而目錄並未宣告的插槽——沒有目錄項目，因此沒有選擇器，這項檢查沒有可評估的內容，也沒有缺漏；每條邊都會記錄它屬於兩者中的哪一種，而臨時邊可以攜帶什麼，改由目標宣告的 `provides` 界定。它也評估 Feature 的 `appliesTo` 與 `appliesToAnyOf` 選擇器，以驗證附加的功能與其目標元件的標籤相容，並依填入附加槽位的 Feature 的標籤，評估每個已填入附加槽位自己的 `selector`。第二，它針對節點最終的附加集合，評估節點的 Component 所宣告的每項**存在強制要求**——每個 `features.aggrega.ai/requiredType.<label>` 註記。分析器是這項檢查所屬之處，因為它是第一個同時持有規則兩半的階段：已解析的 Component 實體的註記，以及五層串接所產生的附加集合，Aggregate 附加、子系統附加、Release 附加與註記擴充的附加項一律計入。沒有任何附加項滿足的強制要求會中止建置；宣告格式錯誤的強制要求會以不同的診斷中止，因此損壞的宣告絕不會被當成已滿足的需求。第三，它執行**驗證閘門**，將完整的圖結構（包括所有節點、邊、附加的功能，以及預先計算的 DFS 路徑）傳給附加在 `ir-verdict` 角色的治理外掛程式。企業的自訂 Wasm 原則評估拓撲。如果 Wasm 外掛程式回傳失敗陣列（例如偵測到一條從 `public` 節點到 `restricted` 節點、沒有特定代理功能的連續路徑），建置就會中止。"
+  },
   "018f8f3e8ff1982c": {
     "at": "2026-11-18T07:13:03.194Z",
     "job": "session-0002-20261118071303",
     "srcHash": "018f8f3e8ff1982c",
     "status": "machine",
     "text": "**流 1：環境注入（`parameters`）：** CI/CD 管線注入部署的現實。編譯器依具型別的 `parameters:` 契約驗證 Release 所提供的每個值，接著在執行下游的 `values:` 結構描述驗證*之前*，內插已解析的 Go 範本變數。"
+  },
+  "01da99b81443863b": {
+    "at": "2026-11-18T12:24:04.851Z",
+    "job": "session-0006-20261118122404",
+    "srcHash": "01da99b81443863b",
+    "status": "machine",
+    "text": "**預先佈建的沙箱邊界：** 對於執行階段才發明的短暫工具，架構師定義一個功能（例如 `dynamic-execution-environment`）。附加後，Wasm 渲染外掛程式會產生設定，佈建一個鎖定的運算集區（例如 WebAssembly 執行階段）。Meta-Agent 將新程式碼注入這個沙箱，但其影響範圍受限於所產生的靜態網路原則。"
   },
   "0290d1371c2e12b5": {
     "at": "2026-11-18T11:36:26.060Z",
@@ -130,6 +165,13 @@
     "srcHash": "03b314aca91aec0b",
     "status": "machine",
     "text": "`context_servers`——請見 [Zed](#zed)"
+  },
+  "0401af2e3106b709": {
+    "at": "2026-11-18T12:24:04.851Z",
+    "job": "session-0006-20261118122404",
+    "srcHash": "0401af2e3106b709",
+    "status": "machine",
+    "text": "對於動態中繼資料，企業會運用**變更閘門——治理插槽的 `label-transform` 角色**，它在拓撲建構期間執行。圖展開之後、靜態分析評估它之前，編譯器會執行企業所附加的 Wasm 外掛程式。該外掛程式讀取 Release 的環境、節點已宣告的標籤，以及每個節點的實例宣告的值，並指名建置的節點應帶有的標籤——因此必要的中繼資料不需要開發者輸入就能到達元件（例如依 Release 的環境決定標籤 `compliance.aggrega.ai/data-class: restricted`，或依資料庫宣告的擴充功能決定 `datastore.aggrega.ai/engine: vector`）。這些值是唯讀的：外掛程式只決定標籤，其他一概不決定。"
   },
   "04862baf643b0c9f": {
     "at": "2026-11-18T07:13:03.194Z",
@@ -261,6 +303,13 @@
     "status": "machine",
     "text": "ArtifactLibrary"
   },
+  "07100fe7c460028f": {
+    "at": "2026-11-18T12:24:04.851Z",
+    "job": "session-0006-20261118122404",
+    "srcHash": "07100fe7c460028f",
+    "status": "machine",
+    "text": "部署開源模型時，往往意味著下載不透明的 `.pkl` 或 `.gguf` 檔案，其中可能含有惡意程式碼酬載。**企業可以將**模型供應鏈安全視為目標平台的設定問題。透過在目錄中定義 `model_provenance` 功能，企業的 Wasm 渲染外掛程式可以評估設定並將其轉譯為執行階段成品（例如 Kubernetes Kyverno 原則），讓目標叢集被設定為阻擋協調器拉取未簽署或未驗證的模型權重。"
+  },
   "072eef95314ac6f0": {
     "at": "2026-11-18T11:27:19.320Z",
     "job": "session-0003-20261118112719",
@@ -288,6 +337,13 @@
     "srcHash": "07ed5db1d7476d6f",
     "status": "machine",
     "text": "第 3 層 — 程式庫"
+  },
+  "08631ec5577f2dc1": {
+    "at": "2026-11-18T12:24:04.851Z",
+    "job": "session-0006-20261118122404",
+    "srcHash": "08631ec5577f2dc1",
+    "status": "machine",
+    "text": "**固定的迭代順序。** 每次走訪對應表形狀的 YAML，都以固定順序迭代，因為 Go 原生的對應表迭代是隨機的。編譯器在大多數階段（精簡形式編譯器、合併器、`spec.templates` 解析器、錯誤格式器、YAML 序列化器）迭代前會排序；附加槽位投影則改為沿用作者自己的順序，因此槽位表的屬性順序就是撰寫時的順序。"
   },
   "08973f1646548170": {
     "at": "2026-11-18T07:06:16.115Z",
@@ -393,6 +449,13 @@
     "status": "machine",
     "text": "願景與定位"
   },
+  "0bb42fabf854a445": {
+    "at": "2026-11-18T12:24:04.851Z",
+    "job": "session-0006-20261118122404",
+    "srcHash": "0bb42fabf854a445",
+    "status": "machine",
+    "text": "**不透明的執行邏輯（`values`）：** 如果企業部署 AI 閘道，開發者會設定閘道自己的行為——在標準程式庫的 AI 閘道上，是發布呼叫端可要求的每個別名，以及每個別名解析到的上游的 `models` 對應表。核心編譯器不會解析這些概念。它們安全地存在於不透明的 `values` 酬載中，並嚴格受元件的 `schema:` 宣告驗證。編譯器只是把這份酬載傳給 Wasm 外掛程式，以產生閘道的設定。多個閘道產品共用的控制，例如備援鏈、重試次數，或在發布同一別名的項目之間做選擇，是附加到閘道上的 Features，而不是閘道上的值，每一個都以該閘道自己的術語為閘道實現。"
+  },
   "0bcd7a52b3072f39": {
     "at": "2026-11-18T07:06:16.115Z",
     "job": "session-0001-20261118070616",
@@ -406,6 +469,13 @@
     "srcHash": "0bd30b15d2db394d",
     "status": "machine",
     "text": "它不必問你就能做什麼"
+  },
+  "0c3500ff43fd2c57": {
+    "at": "2026-11-18T12:24:04.851Z",
+    "job": "session-0006-20261118122404",
+    "srcHash": "0c3500ff43fd2c57",
+    "status": "machine",
+    "text": "**執行階段（實體強制）：** 協調器部署所產生的成品後，閘道會在轉送之前，將其遮罩的請求文字中的每個相符處取代為預留位置，因此模型提供者收到的是預留位置；使用 `action: refuse` 時，附加項不會轉送帶有相符處的請求的任何內容，而是改以錯誤回應。無法連到或出錯的辨識器會使請求失敗，因此其文字不會被傳遞出去。遮罩觸及不到的範圍，由兩個預設值即為保護的值決定。在 AI 閘道上，當附加項同時遮罩回覆時，閘道會遮罩回覆的文字，以及模型或其提供者在旁附加的部分——拒絕訊息、引用與註記、網頁搜尋的查詢與結果、提供者自有名稱下的欄位——或者在 `refuse` 之下，完全不送出帶有相符處的回覆；以模式遮罩的串流回覆會在結尾時完整送達呼叫端。預設情況下，請求中其遮罩觸及不到的內容——例如影像產生這類路由、`safety_identifier` 這類欄位、對話中的影像或檔案、提供者自行執行的工具——AI 閘道會在轉送其任何內容之前以 HTTP 400 拒絕；接受此類文字未經遮罩就到達提供者的操作員，可在 Release 中對附加項設定 `allow_unmasked_text`，由實現列出此時通過的確切內容，而非文字的內容仍由 `allow_non_text_content` 管轄。預設情況下，已遮罩的回覆所攜帶、而其遮罩無法讀取的內容——語音音訊及其逐字稿、影像、模型所選權杖的機率——會被扣留，失敗的呼叫會以固定訊息而非提供者回傳的訊息送達呼叫端；`allow_unmasked_reply_parts` 讓這些內容未經遮罩即送達呼叫端。回覆本身的文字絕不會因它而放行，但它放行的部分可能帶有回覆的字句：語音回覆的逐字稿、權杖機率背後的權杖、引用該回覆的提供者錯誤訊息。在 `core/gateway/kong-enterprise` 上，每個相符處會被取代為編號的預留位置，因此在 `redact` 下列出模式的附加項要設定 `placeholder_shows_name: false`；`refuse` 只作用於請求，從 Kong 3.12 起，對帶有相符處的請求回應 HTTP 400；回覆則從 3.12 起被遮罩，要求串流回覆的請求此時會在轉送之前被拒絕，並且拒絕 `allow_streamed_replies`。Kong 的 sanitizer 讀取使用者回合的文字、補全的提示與回覆的訊息文字，而 Kong 的參考文件未指名任何設定可拒絕包含 sanitizer 讀取不到內容的請求，或扣留回覆的其餘部分，因此在該閘道上，每項保護在保持預設值時會在建置時依名稱被拒絕，而當 Release 放寬它們後附加項即可建置——請求被遮罩時放寬 `allow_unmasked_text` 與 `allow_non_text_content`，回覆被遮罩時放寬 `allow_unmasked_reply_parts` 與 `mask_reasoning: false`——並由 `data-masking-kong-enterprise` 列出每項此時放行的內容。在那裡，文字並非以 OpenAI API 回傳的單一字串形式到達的回覆會未經讀取而通過，其自身文字未經遮罩即送達呼叫端；這道護欄是建置對接到該閘道的每個模型所做的檢查，遇到 `model.aggrega.ai/api` 不是 `openai` 的模型時會中止。在 `core/gateway/traefik-hub` 上，每個相符處會被取代為與相符處等長的一串 `*`，因此在 `redact` 下列出模式的附加項要設定 `placeholder_shows_name: false`；`refuse` 以 HTTP 403 取代請求或回覆作為回應；被遮罩的回覆會整份保留並在結尾時送出，串流的也包含在內，因此在回覆中遮罩實體類型的附加項要設定 `allow_streamed_replies`。Traefik 的參考文件未說明 Content Guard 讀取聊天請求或回覆的哪些欄位，也未指名任何設定可針對它未讀取的內容拒絕請求或扣留部分回覆，因此在該閘道上，每項保護在保持預設值時會在建置時依名稱被拒絕，而當 Release 放寬它們後附加項即可建置——請求被遮罩時放寬 `allow_unmasked_text` 與 `allow_non_text_content`，回覆被遮罩時放寬 `allow_unmasked_reply_parts` 與 `mask_reasoning: false`——並由 `data-masking-traefik-hub` 列出每項此時放行的內容。同時列出模式與實體類型的附加項，以及同一閘道上的第二個遮罩附加項，都會被拒絕，因為 Traefik 的參考文件未說明路由上的第二個 Content Guard 讀取的是第一個已遮罩的文字，還是呼叫端原本送出的請求。在 `core/gateway/higress` 上，Higress 的 `ai-data-masking` 外掛程式會將附加項所列模式的每個相符處，在聊天請求每則訊息的內容與推理中，取代為以括號包住的模式名稱；它只遮罩請求，因此 `scope` 的 `response` 與 `both` 會被拒絕，且它不辨識任何實體類型。該外掛程式不讀取請求的其他任何內容，因此在保護保持預設值時，閘道的 chart Recipe 也會寫入 Higress 的請求驗證外掛程式，在轉送任何內容之前以 HTTP 403 拒絕帶有遮罩未讀取內容的請求——不是以 JSON 送出或不是聊天補全的本文、內容為清單或 null 的訊息、工具呼叫或工具回合、訊息的名稱、除聊天補全的非文字參數與開發者自己的工具、回應格式及停止序列之外的任何參數——並且無論附加項放寬什麼，都會拒絕本文被 Higress 外掛程式略過的請求——壓縮的本文、內容類型包含 `octet-stream` 或 `grpc` 者、升級——以及含有 Unicode 取代字元 U+FFFD 的本文，該驗證以此讀取不是有效 UTF-8 的位元組，因為遮罩外掛程式會將不是有效 UTF-8 的本文未經遮罩即轉送。本文超過閘道 32 KiB 緩衝區的請求會以 HTTP 413 拒絕。驗證只讀取其 JSON 解碼器接受的本文，因此刻意送出解碼器拒絕的有效 JSON 的用戶端——例如超出 double 所能容納的數字——會通過對其本文的每項拒絕：遮罩外掛程式此時只遮罩每則訊息的純文字內容與推理，因此所列的值若出現在本文其他任何位置——工具呼叫的引數、名稱、任何其他欄位——都會未經遮罩即轉送，以 JSON 跳脫序列寫成的內容亦然，而若這樣的本文同時也不是有效 UTF-8，則其全部內容都會未經遮罩即轉送。刻意將本文巢狀超過 127 層、置於驗證接受的欄位（例如 `tools`）之內的用戶端，送出的是驗證能解碼並接受的有效 JSON，但遮罩外掛程式的 JSON 讀取器會在該深度停止，因此該本文中以 JSON 跳脫序列寫成的內容同樣會未經遮罩即轉送。遮罩本身並不足夠：沒有模式相符、也沒有辨識器偵測到的文字會原樣通過；在 AI 閘道上，工具呼叫的引數與工具結果是逐值遮罩，但其鍵的名稱不會被遮罩；開發者自己的工具定義、回應格式與停止序列依原樣通過；閘道與辨識器服務看得到原始文字；閘道對一次呼叫所記錄的內容——在其自身的記錄中，或在交給記錄整合的內容中——仍可能含有該文字；而未經過閘道的流量則不受影響。"
   },
   "0c77fe09ab336a3e": {
     "at": "2026-11-18T07:06:16.115Z",
@@ -435,12 +505,26 @@
     "status": "machine",
     "text": "這並不表示各環境的值都相同。支援依環境變化的途徑是**參數提升（Parameter Hoisting）**："
   },
+  "0df2d6e21bda34ed": {
+    "at": "2026-11-18T12:24:04.851Z",
+    "job": "session-0006-20261118122404",
+    "srcHash": "0df2d6e21bda34ed",
+    "status": "machine",
+    "text": "**附加項而非值的模式：** 標準程式庫的慣例是，認證以*附加項*的方式請求，絕不寫進 `values` 區塊，否則它會成為編譯器逐字攜帶的內嵌字面值。認證附加項會指名認證 Feature 的 `type`（標示為 `feature.aggrega.ai/kind: secret` 者），並用自己的 `values` 描述針對機密儲存庫的查詢。認證路由接著就是與能力無關的晚期綁定，而核心編譯器絕不解析或暴露內容——它只傳遞 Ops Recipe 所提供的指標。這是目錄與結構描述所鼓勵的**慣例**，不是編譯器檢查：編譯器不會解讀 `values` 葉節點的意義，因此將內容內嵌的作者就是內嵌了它。結構描述*確實*保證的是，附加介面存在且具型別。"
+  },
   "0e38efcf58d986a0": {
     "at": "2026-11-18T11:27:19.320Z",
     "job": "session-0003-20261118112719",
     "srcHash": "0e38efcf58d986a0",
     "status": "machine",
     "text": "**可參照的資源。** FeatureRecipe 宣告 `source`、`workload`、`artifacts` 和／或 `valuesMapping`，因此它輸出一個資源——通常是平台原生的 Secret。它透過自己的 `provides` 發布該資源的身分，而使用端以 `.features.<name>.provides.name` / `.provides.key` 讀回。資源本身的名稱衍生自同一個已發布的 `provides`，所以使用端讀取的名稱與資源所帶的名稱，是同一個被評估的字串，而不是兩個可能漂移的衍生結果。"
+  },
+  "0e7df84c8877861e": {
+    "at": "2026-11-18T12:24:04.851Z",
+    "job": "session-0006-20261118122404",
+    "srcHash": "0e7df84c8877861e",
+    "status": "machine",
+    "text": "6. 拓撲安全驗證與執行階段強制"
   },
   "0e96f27ec218196c": {
     "at": "2026-11-18T11:36:26.060Z",
@@ -462,6 +546,13 @@
     "srcHash": "0eb1db82fb5cd8ad",
     "status": "machine",
     "text": "**Enterprise Exception（企業例外）：** 由於編譯器不預設立場，撰寫自家內部目錄的企業可以自由打破這項規則。如果企業安全性原則規定*所有*內部資料庫都高度敏感，平台架構師可以也應該直接在其 `acme/postgres` 基底元件上寫死 `compliance.aggrega.ai/data-class: restricted`（或企業指定的類似標籤），讓它的每個實例都帶有該類別，企業所附加的原則則在每個實例上讀取它。標籤本身不強制任何事：編譯器只將它當作字串攜帶，中止建置的是所附加的原則。如果企業環境中只有部分該產品的使用會存放那種資料，則改由透過 `extends` 的特化版本攜帶該類別——請參閱 [examples/policy-data-class-route](../language-reference/examples/policy-data-class-route/README.md)，其中的理賠助理是標準程式庫的 LangGraph 代理加上一個類別標籤，與讀取它的原則並列。"
+  },
+  "0edcb61c312362b0": {
+    "at": "2026-11-18T12:24:04.851Z",
+    "job": "session-0006-20261118122404",
+    "srcHash": "0edcb61c312362b0",
+    "status": "machine",
+    "text": "**問題：** 自主代理程式可能嘗試將受限的企業資料洩漏給未經授權的外部 API。"
   },
   "0f0302f405a94fd9": {
     "at": "2026-11-18T07:06:16.115Z",
@@ -497,6 +588,13 @@
     "srcHash": "1075dfd46901d222",
     "status": "machine",
     "text": "將**目錄介面（Catalog Interface，領域 2）**與**基礎架構 Recipe（Infrastructure Recipe，領域 3）**分開，正是延遲繫結（Late Binding）得以成立的原因。介面定義開發者能請求*什麼*；實作則定義該請求在特定提供者上如何*實現*。領域 4（Manifest）在編譯時期於兩者之間進行路由，因此同一個 Aggregate 可在不同環境中指向不同的實作，而開發者的程式碼無需更動。"
+  },
+  "10a66e48942a5193": {
+    "at": "2026-11-18T12:24:04.851Z",
+    "job": "session-0006-20261118122404",
+    "srcHash": "10a66e48942a5193",
+    "status": "machine",
+    "text": "先進的 AI 系統具備 Meta-Agent，能撰寫程式碼，即時發明並部署新的代理程式。由於 Aggrega 要求預先（AOT）的靜態架構，它以兩條明確的邊界來解決執行階段的基礎架構演進："
   },
   "10dc8ba63ef0be4a": {
     "at": "2026-11-18T11:27:19.320Z",
@@ -615,6 +713,13 @@
     "status": "machine",
     "text": "**與能力無關的術語：** 為避免底層基礎架構的現實（如 Kubernetes 術語 `namespace`）滲入開發者體驗，平台使用 `boundaries` 這類通用概念。"
   },
+  "134dd2cdf05ccfc5": {
+    "at": "2026-11-18T12:24:04.851Z",
+    "job": "session-0006-20261118122404",
+    "srcHash": "134dd2cdf05ccfc5",
+    "status": "machine",
+    "text": "每個內部元件（例如 `acme/datastore/postgres`）都從自己的 `schema:` 參照該項目，並加入屬於自己的值，讓共用欄位與元件自己的欄位一起接受驗證："
+  },
   "1354ecf09e490c3a": {
     "at": "2026-11-18T11:36:26.060Z",
     "job": "session-0004-20261118113626",
@@ -676,6 +781,13 @@
     "srcHash": "154d6ef221ef940e",
     "status": "machine",
     "text": "**來源。** 明確撰寫的欄位，勝過由註記驅動的擴充所提供的欄位，不論兩者來自哪個範圍。"
+  },
+  "1568f00748895c37": {
+    "at": "2026-11-18T12:24:04.851Z",
+    "job": "session-0006-20261118122404",
+    "srcHash": "1568f00748895c37",
+    "status": "machine",
+    "text": "**平行處理不會浮現到輸出。** 編譯器可以平行處理獨立的單元（不同的實體可以並行編譯）。平行的結果會先收集到確定性的結構中（例如依實體名稱排序），再序列化。"
   },
   "1581f725c1ab607e": {
     "at": "2026-11-18T07:13:03.194Z",
@@ -775,12 +887,26 @@
     "status": "machine",
     "text": "為了維持架構純粹並防止範圍蔓延，Aggrega 在嚴格、不可協商的邊界下運作。這個平台對它解決的問題很審慎，對它不做的事同樣謹守。"
   },
+  "1ac4d63200257cf0": {
+    "at": "2026-11-18T12:24:04.851Z",
+    "job": "session-0006-20261118122404",
+    "srcHash": "1ac4d63200257cf0",
+    "status": "machine",
+    "text": "以應用程式圍繞其撰寫的框架或 SDK 所建構、而非作為獨立產品出貨的代理程式，在標準程式庫中採用同一種形式。Release 會指定應用程式映像檔，目錄並不固定它。`model` 插槽會將框架從所接線的模型讀取的內容——框架讀取之處的位址與模型名稱，以及連線的認證（以參照方式）——傳遞到該框架所讀取的變數。框架未定義自有伺服器時，該元件為 `worker`，且不開啟連接埠：`core/ai-agent/crewai` 與 `core/ai-agent/langgraph` 採用這種形式，`core/ai-agent/openai-agents-sdk` 也是，其 `model` 插槽只接受帶有 `model.aggrega.ai/api: openai` 的模型或閘道；`core/ai-agent/claude-agent-sdk` 亦然，其插槽只接受帶有 `model.aggrega.ai/api: anthropic` 者；`core/ai-agent/agent-framework` 也是，用於以 Microsoft Agent Framework 建構的應用程式，它本身不提供任何服務，其插槽只接受帶有 `model.aggrega.ai/api: openai` 者，並傳遞 Agent Framework 的 Python OpenAI 用戶端所讀取的變數；這三者會中止建置並指名 `infra.image`，直到 Release 設定它為止。OpenAI Agents SDK 預設會將每次執行的追蹤上傳到 OpenAI，因此除非 Aggregate 將其 `upload_traces_to_openai` 值設為 `true`，否則 `core/ai-agent/openai-agents-sdk` 會關閉該上傳。框架自行提供 HTTP 服務時，該元件為 `server`，使用框架自己的連接埠，並將呼叫端連到的位址發布為 `host`、`port`、`endpoint` 與 `protocol`，它同樣會中止建置並指名 `infra.image`，直到 Release 設定它為止：`core/ai-agent/google-adk` 在連接埠 8000 提供 ADK 的 REST API，並傳遞 ADK 的 Gemini 用戶端傳送給 Gemini API 的金鑰，其 `model` 插槽只接受帶有 `model.aggrega.ai/api: gemini` 的模型，例如 `core/ai-model/gemini`，絕不接受閘道，因為 ADK 的用戶端不會讀取閘道的位址；`core/ai-agent/mastra` 在連接埠 4111 提供 Mastra 所建構的伺服器，在 Kubernetes 上於其 `/health` 路由回應後才算就緒，接受帶有 `model.aggrega.ai/api: openai` 的模型或閘道，並且在 Aggregate 於其 `agent_id` 值中指名應用程式的某個代理程式時，發布該代理程式的 Agent2Agent 卡片位址，讓 `core/ai-tool/agent-invocation` 可以委派給它。這兩種伺服器的路由會回應任何呼叫端，除非應用程式對其進行驗證，因此在任一者上附加 `core/public-ingress` 或 `core/http-route` 時，會中止建置，直到 Release 將其 `infra.routes_authenticated` 設為 `true`，以確認應用程式會驗證其路由接受的每個請求。SDK 與伺服器執行階段，以及 `core/ai-agent/agent-framework`，也宣告一個選用的 `tools` 插槽，它會以連線別名命名的變數傳遞每個所接線工具的位址，以及連線的認證（以參照方式）。由於應用程式是 Release 自己的程式碼，這些代理程式為該程式碼傳遞的變數只是預設值：它們的每個插槽都接受 `inject:` 區塊，Aggregate 可藉此指名應用程式改為讀取的變數或檔案，而框架自行讀取的變數，以及連線上的附加項所傳遞的內容則保持不變。代理程式自身的值也是如此：每個元件都接受自身的 `inject:` 區塊，內含 `env` 與 `file` 項目，而範本只讀取元件自己的某個值、且不讀取元件其他任何內容（沒有其他值、其 infra、其中繼資料或其身分）的項目，會取代 Recipe 傳遞該值時所用的預設名稱，例如 CrewAI 代理程式的 `role` 所用的 `CREWAI_ROLE`。匯入 CrewAI 專案的代理程式宣告、LangGraph 應用程式的 `langgraph.json`、Google ADK 應用程式的代理程式設定，或 Agent Framework 的宣告式代理程式，會草擬這些代理程式——`core/ai-agent/crewai`、`core/ai-agent/langgraph`、`core/ai-agent/google-adk` 與 `core/ai-agent/agent-framework`——連接到設定所指名的資料儲存庫，並在代理程式的 `model` 插槽接受時連接到設定所指名的模型，同時附上一份草擬的 Release，該 Release 將程式執行所用的映像檔留給操作員指名，且只讀取設定，絕不讀取程式，如 [匯入器 Plugins](14-extensibility.md#7-importer-plugins-drafting-authoring-files-from-foreign-sources) 所述。"
+  },
   "1aed83dd3232d10e": {
     "at": "2026-11-18T07:13:03.194Z",
     "job": "session-0002-20261118071303",
     "srcHash": "1aed83dd3232d10e",
     "status": "machine",
     "text": "**範圍：** 用於元件實例上、`uses` 內的明確目標定義之中，以及附加的 `features` 上，包含認證 Features。"
+  },
+  "1b14abd271922234": {
+    "at": "2026-11-18T12:24:04.851Z",
+    "job": "session-0006-20261118122404",
+    "srcHash": "1b14abd271922234",
+    "status": "machine",
+    "text": "A. 編譯時期：原則驗證與成品產生"
   },
   "1b818e0f5b65c133": {
     "at": "2026-11-18T07:13:03.194Z",
@@ -872,6 +998,13 @@
     "status": "machine",
     "text": "2. 連接埠抽象（零連接埠慣例）"
   },
+  "1ed71a81da76a9af": {
+    "at": "2026-11-18T12:24:04.851Z",
+    "job": "session-0006-20261118122404",
+    "srcHash": "1ed71a81da76a9af",
+    "status": "machine",
+    "text": "**邊的目標：** 每個 `uses` 目標都必須指名建置所持有的元件；不存在的目標會中止建置，並指名其被接入的插槽。"
+  },
   "1f139af553816fa4": {
     "at": "2026-11-18T11:36:26.060Z",
     "job": "session-0004-20261118113626",
@@ -906,6 +1039,13 @@
     "srcHash": "1ff12c5afa3b9bb9",
     "status": "machine",
     "text": "**編譯器使用情境：** 選擇器指向儲存語意而非產品——代理的知識庫插槽選取 `datastore.aggrega.ai/engine in (vector, semantic-memory, search)`，而原則引擎可以拒絕將 SQL 酬載路由到向量引擎。雙用途資料儲存體的 AI 相關性是由這個標籤推導而來，絕不會另外存成布林值。"
+  },
+  "2008b1902d5b44db": {
+    "at": "2026-11-18T12:24:04.851Z",
+    "job": "session-0006-20261118122404",
+    "srcHash": "2008b1902d5b44db",
+    "status": "machine",
+    "text": "**解析——解析器與語法驗證器**"
   },
   "203abb8b2148ad79": {
     "at": "2026-11-18T11:27:19.320Z",
@@ -961,6 +1101,13 @@
     "srcHash": "21c16c56cf18ec09",
     "status": "machine",
     "text": "**Spinnaker** 是將成品部署到 VM 與 Kubernetes 目標的持續交付引擎，位於 Aggrega 所佔據的成品產生步驟的下游。"
+  },
+  "2297ee83d11b1eea": {
+    "at": "2026-11-18T12:24:04.851Z",
+    "job": "session-0006-20261118122404",
+    "srcHash": "2297ee83d11b1eea",
+    "status": "machine",
+    "text": "**階段 1——精簡形式編譯。** 編譯器走訪 `schema:`、`parameters:` 與 SchemaLibrary 內容的 YAML 樹；逐節點分派（精簡形式葉節點、JSON Schema YAML、`$ref:` 參照，或組合）；輸出已解析的 JSON Schema 2020-12。精簡形式與 JSON Schema YAML 可以透過 `$jsonschema:` 逸出，在任何節點邊界混用；編譯器透過走訪樹並逐節點分派來處理混用的情況。這項轉換是純函式：相同的精簡形式輸入一律產生相同的 JSON Schema 輸出。關鍵字詞彙請見 [`language-reference/vocabulary/compact-form-authoring.md`](../language-reference/vocabulary/compact-form-authoring.md)。"
   },
   "22c1b3465a8ac52f": {
     "at": "2026-11-18T07:06:16.115Z",
@@ -1115,6 +1262,13 @@
     "status": "machine",
     "text": "Aggrega 會公告它的整個工具介面，並由用戶端決定要把多少呈現給模型。有些用戶端會限制同時登錄的工具數量，並丟棄其餘的。遇到這種情況時，`mcp.announce_tools` 會把伺服器公告的內容縮減為你指名的工具——請見[縮減伺服器公告的內容](../language-reference/cli/aggrega-mcp.md#narrowing-what-the-server-announces)。"
   },
+  "275ba55c6e745d53": {
+    "at": "2026-11-18T12:24:04.851Z",
+    "job": "session-0006-20261118122404",
+    "srcHash": "275ba55c6e745d53",
+    "status": "machine",
+    "text": "**集中式企業治理（評估完整的現實）：** 頻外機制（例如 git 存放庫上的 `CODEOWNERS`）審查的是變更的檔案，而不是它們所編譯成的架構。治理判定角色評判的是架構本身。因為 AOT 編譯器會將開發者的 `Aggregate` 與平台操作員的 `Release` *兩者*攤平來建構 IR 圖，所以 `ir-verdict` 角色上的原則會在產生實體成品之前評估完整的現實，而 `render-verdict` 角色上的原則則評估成品本身。如果開發者要求未經核准的 Component，或者——讀取蓋在每個渲染物件上的 `aggrega.ai/recipe-uri` 出處——Manifest 將元件對應到未經核准的 Recipe，原則可以讓建置致命中止。"
+  },
   "27d009b600abcaee": {
     "at": "2026-11-18T11:36:26.060Z",
     "job": "session-0004-20261118113626",
@@ -1143,6 +1297,13 @@
     "status": "machine",
     "text": "Aggrega 技能"
   },
+  "295602e6784fefd3": {
+    "at": "2026-11-18T12:24:04.851Z",
+    "job": "session-0006-20261118122404",
+    "srcHash": "295602e6784fefd3",
+    "status": "machine",
+    "text": "驗證器管線"
+  },
   "299748a2bd7b97e1": {
     "at": "2026-11-18T11:36:26.060Z",
     "job": "session-0004-20261118113626",
@@ -1163,12 +1324,26 @@
     "status": "machine",
     "text": "**依 Aggrega 未定義的軸線分類：** 封閉集合涵蓋的是這一個保留鍵。需要自己的分類的目錄——層級、資料區、服務等級、基本元素更細的劃分——會在保留鍵旁撰寫**它自己的標籤鍵**，因為 Component 結構描述接受任何帶有字串值的其他標籤鍵，而每個選擇器介面都以同樣方式讀取它。擴充發生在你的鍵上，而不是在 Aggrega 的鍵之內，這使企業詞彙得以成長，而共用的詞彙不會漂移。"
   },
+  "29ff69c6c58613f3": {
+    "at": "2026-11-18T12:24:04.851Z",
+    "job": "session-0006-20261118122404",
+    "srcHash": "29ff69c6c58613f3",
+    "status": "machine",
+    "text": "**執行階段強制：** 設定套用到目標環境之後，由實體基礎架構接手。Aggrega 所設定的專用工具（例如護欄 sidecar、運作中的服務網格，或原生雲端防火牆）會啟動並開始主動運作：實際攔截酬載、驗證 JWT，或丟棄惡意的提示注入。"
+  },
   "2a3b81f262bacb4f": {
     "at": "2026-11-18T07:06:16.115Z",
     "job": "session-0001-20261118070616",
     "srcHash": "2a3b81f262bacb4f",
     "status": "machine",
     "text": "若 `https://aggrega.ai/docs/ai-assistants/skill/` 提供了在你身上安裝 Aggrega 外掛程式的方法，請在安裝前先問我，然後以那種方式安裝，或是當那是需要我在你的介面中進行的步驟時，告訴我該怎麼做。該外掛程式會加入 Aggrega 技能，並讓你連線到 Aggrega MCP 伺服器。否則，請執行 `aggrega skills install --help`，在它印出的清單中找出你自己的識別碼。問我想把技能裝在這個專案還是每個專案，然後執行 `aggrega skills install --agent <your identifier>`，若要裝在每個專案則加上 `--global`。若你不在清單中，就略過安裝技能並說明這一點。"
+  },
+  "2a7b28696c2d18ec": {
+    "at": "2026-11-18T12:24:04.851Z",
+    "job": "session-0006-20261118122404",
+    "srcHash": "2a7b28696c2d18ec",
+    "status": "machine",
+    "text": "由於插槽評估的是通用的 JSON 資料，它不會被鎖定在單一原則語言。企業可以使用最適合其生態系的標準來編譯並強制執行其架構規則："
   },
   "2a9ef29579f9a72d": {
     "at": "2026-11-18T11:36:26.060Z",
@@ -1420,6 +1595,13 @@
     "status": "machine",
     "text": "以下兩個範例展示明確拓撲支柱的兩項不同特性：**範例 A** 證明連線*是否*獲得授權（跨節點型別安全），**範例 B** 證明連線資料*如何*被實際交付（多型與正規化）。"
   },
+  "347238cad284e51d": {
+    "at": "2026-11-18T12:24:04.851Z",
+    "job": "session-0006-20261118122404",
+    "srcHash": "347238cad284e51d",
+    "status": "machine",
+    "text": "**問題：** 如果代理程式因遭投毒的 Model Context Protocol（MCP）工具而被入侵，它可能自主執行破壞性動作（例如刪除資料庫或授權轉帳）。"
+  },
   "349fa9188c23d1a3": {
     "at": "2026-11-18T07:06:16.115Z",
     "job": "session-0001-20261118070616",
@@ -1440,6 +1622,27 @@
     "srcHash": "34bc87b2967c2f94",
     "status": "machine",
     "text": "透過 HTTPS 連線的伺服器"
+  },
+  "35b3c8c9eb87d52e": {
+    "at": "2026-11-18T12:24:04.851Z",
+    "job": "session-0006-20261118122404",
+    "srcHash": "35b3c8c9eb87d52e",
+    "status": "machine",
+    "text": "**工作區相對路徑。** 已解析輸出中的所有路徑都是工作區相對路徑；路徑解析層在路徑進入任何輸出之前先將其正規化。"
+  },
+  "35ce70e7227f62b8": {
+    "at": "2026-11-18T12:24:04.851Z",
+    "job": "session-0006-20261118122404",
+    "srcHash": "35ce70e7227f62b8",
+    "status": "machine",
+    "text": "**拓撲建構——拓撲建構器與變更閘門**"
+  },
+  "35e3d39907ef82f7": {
+    "at": "2026-11-18T12:24:04.851Z",
+    "job": "session-0006-20261118122404",
+    "srcHash": "35e3d39907ef82f7",
+    "status": "machine",
+    "text": "GitOps 原生輸出"
   },
   "35f30b5407574692": {
     "at": "2026-11-18T07:06:16.115Z",
@@ -1530,6 +1733,13 @@
     "status": "machine",
     "text": "**語意 DSL 與維運本體論：** 開發者使用一組封閉的通用雲端基本元素（例如 `server`、`worker`、`stateful-server`），在 Aggrega 保留的 `component.aggrega.ai/type` 標籤上描繪其架構。所有進階脈絡——例如 AI 代理程式的自主性、生成能力或資料合規——都透過靜態的鴨子型別（Duck-Typing）標籤疊加其上，而在自有軸線上對元件分類的目錄，則會加入自己的標籤鍵。"
   },
+  "394b3ad953fb0315": {
+    "at": "2026-11-18T12:24:04.851Z",
+    "job": "session-0006-20261118122404",
+    "srcHash": "394b3ad953fb0315",
+    "status": "machine",
+    "text": "**LLM 追蹤：** 代理功能可以設定資料平面，擷取並轉送 AI 專用的 OpenTelemetry span 標頭，確保複雜的代理程式推理迴圈能在外部工具中視覺化。"
+  },
   "397f01116ce72bbd": {
     "at": "2026-11-18T07:13:03.194Z",
     "job": "session-0002-20261118071303",
@@ -1564,6 +1774,27 @@
     "status": "machine",
     "text": "**1. 領域 1（Aggregate）：開發者意圖**\n開發者請求一個舊有的 Oracle 資料庫。他們不在乎它在哪裡；他們只規定呼叫端的代理程式預期連線字串以環境變數的方式交付。由於 IP 是靜態的、事先已知，他們透過 parameters 傳入。"
   },
+  "3aa8859bad4bc335": {
+    "at": "2026-11-18T12:24:04.851Z",
+    "job": "session-0006-20261118122404",
+    "srcHash": "3aa8859bad4bc335",
+    "status": "machine",
+    "text": "**以「開發者」角色出現的 Meta-Agent（GitOps 迴圈）：** 如果 Meta-Agent 需要真正新的實體基礎架構，它就扮演開發者。它寫出新的 `Aggregate.yaml` 並提交到 Git。這會觸發標準的 CI/CD 管線。治理判定角色以靜態方式分析 AI 所要求的拓撲，如果 AI 憑空捏造了弱點，就會安全地中止建置。"
+  },
+  "3aad97586583751a": {
+    "at": "2026-11-18T12:24:04.851Z",
+    "job": "session-0006-20261118122404",
+    "srcHash": "3aad97586583751a",
+    "status": "machine",
+    "text": "**階段 4——`featuresSchema:` 的橋接合成。** 編譯器依作者順序走訪每個實體的 `featuresSchema:` 內容，並輸出一個 JSON Schema 片段，描述可綁定每個附加槽位的填入形狀，並在宣告 `inject` 允許清單的槽位上加上 `x-aggrega-inject:` 擴充關鍵字。該片段會針對撰寫的附加區塊單獨編譯並檢查，而不是併入面向開發者的 `schema:` 內容；擴充關鍵字是 JSON Schema 驗證會忽略的中繼資料，且之後沒有任何階段會從片段讀回它——需要槽位允許清單的檢查會讀取槽位。`usesSchema:` 插槽表完全不會投影成任何片段：插槽的 `selector:` 與 `inject:` 是以架構師撰寫的具型別 YAML 來讀取，而插槽每條邊的 `valueSchema:` / `infraSchema:` 則單獨編譯。這項合成是針對其輸入的純函式。"
+  },
+  "3b33f7be852f1be9": {
+    "at": "2026-11-18T12:24:04.851Z",
+    "job": "session-0006-20261118122404",
+    "srcHash": "3b33f7be852f1be9",
+    "status": "machine",
+    "text": "**問題：** 在多代理程式鏈中，面向公眾的代理程式可能被劫持，並命令內部、權限很高的代理程式擷取敏感資料。標準防火牆只看到「代理程式 A 正在與代理程式 B 通訊」並放行流量，完全失去原始惡意使用者的脈絡。"
+  },
   "3b362bbaac71da06": {
     "at": "2026-11-18T07:13:03.194Z",
     "job": "session-0002-20261118071303",
@@ -1577,6 +1808,20 @@
     "srcHash": "3b36a55ccad0ccd7",
     "status": "machine",
     "text": "只有一個附加關鍵字（`features:`）、一種渲染情境形態（`.features.<name>`，而對於寫在連線上的附加項目，連線之下是同樣的形態 `.context.uses.<alias>.features.<slot>`）、一種執行順序，以及一組輸出座標——對於元件上的附加項目，就是它所附加的元件，再加上它所附加時使用的名稱，無論目標的版面配置是把這兩者放成與元件自身目錄並列的 `<component>--<instance>/` 目錄，還是 `<component>--<instance>--` 檔名前綴。附加項目之間不同的是**它們產生什麼**——注入的值、可參照的資源、sidecar、雲端身分——而不是它們宣告所用的介面。"
+  },
+  "3b66e47ca1342f53": {
+    "at": "2026-11-18T12:24:04.851Z",
+    "job": "session-0006-20261118122404",
+    "srcHash": "3b66e47ca1342f53",
+    "status": "machine",
+    "text": "基準是程式庫項目而不是基底 Component，因為寫了 `extends:` 的 Component 會完整接收其基底的 `schema:`，且不宣告任何自己的值（請見[繼承與發布紀律](#inheritance-and-publishing-discipline)）。"
+  },
+  "3bc626e485e7d31e": {
+    "at": "2026-11-18T12:24:04.851Z",
+    "job": "session-0006-20261118122404",
+    "srcHash": "3bc626e485e7d31e",
+    "status": "machine",
+    "text": "**Aggrega 的解法：**"
   },
   "3be2fabcedca2b87": {
     "at": "2026-11-18T07:06:16.115Z",
@@ -1627,6 +1872,13 @@
     "status": "machine",
     "text": "如果應用程式與某個實體互動——無論是本機資料庫、受管雲端資源、SaaS LLM，還是一般公開的 API 端點——該實體**必須**在 `Aggregate` 中宣告為獨立的 Component。這項規則是一項**慣例**：編譯器看不到應用程式發出的呼叫，因此沒有任何東西會檢查它。"
   },
+  "3dc392708df9b999": {
+    "at": "2026-11-18T12:24:04.851Z",
+    "job": "session-0006-20261118122404",
+    "srcHash": "3dc392708df9b999",
+    "status": "machine",
+    "text": "2. Wasm 變更閘門（動態合規）"
+  },
   "3e330da39296d4ab": {
     "at": "2026-11-18T07:13:03.194Z",
     "job": "session-0002-20261118071303",
@@ -1640,6 +1892,13 @@
     "srcHash": "3f192d38355f5a10",
     "status": "machine",
     "text": "**編譯器使用情境：** 這是核心的運作雲端本體論。靜態分析器以 Go 原生評估 `usesSchema` 選擇器字串，確保當插槽需要特定 AI 能力時，開發者無法把代理連接到一般資料庫。此外，DevOps 使用這個標籤，明確將有狀態基本元素（`stateful-server`、`resource`）路由到支援永久磁碟的實體叢集邊界，而治理裁決角色可以強制規定有狀態元件絕不會放在僅限暫時性的邊界中。"
+  },
+  "3f1cf094723a2b16": {
+    "at": "2026-11-18T12:24:04.851Z",
+    "job": "session-0006-20261118122404",
+    "srcHash": "3f1cf094723a2b16",
+    "status": "machine",
+    "text": "Aggrega 的責任，在它處理完輸入並將設定好的靜態成品寫入輸出目錄的那一刻即告結束。它是純粹的編譯器：它寫出設定，然後控制權完全回到呼叫它的任何系統。"
   },
   "3f2314a0f996cb75": {
     "at": "2026-11-18T11:27:19.320Z",
@@ -1732,6 +1991,13 @@
     "status": "machine",
     "text": "**[撰寫指南](authoring/README.md)** — Aggrega 的「如何坐下來開始撰寫」。撰寫循環、四個協作角色、實體種類對角色的對應表，以及如何透過 Model Context Protocol 伺服器連線 AI 助理。請從[撰寫 Aggrega 檔案](authoring/getting-started.md)開始；若要讓你的 AI 助理自行安裝並設定 Aggrega，請貼上[用你的 AI 助理設定 Aggrega](ai-assistants/set-up.md)中的提示。"
   },
+  "42cce0c7e5fccd5e": {
+    "at": "2026-11-18T12:24:04.851Z",
+    "job": "session-0006-20261118122404",
+    "srcHash": "42cce0c7e5fccd5e",
+    "status": "machine",
+    "text": "**C. 進階運作安全（`spec.interoperability`）**"
+  },
   "42d0faa85a519d45": {
     "at": "2026-11-18T07:13:03.194Z",
     "job": "session-0002-20261118071303",
@@ -1808,6 +2074,13 @@
     "status": "machine",
     "text": "槽位與自由附加項目"
   },
+  "4420720f7f8e6c52": {
+    "at": "2026-11-18T12:24:04.851Z",
+    "job": "session-0006-20261118122404",
+    "srcHash": "4420720f7f8e6c52",
+    "status": "machine",
+    "text": "11. 代理系統的自動化設計（ADAS）"
+  },
   "443d6badb4970603": {
     "at": "2026-11-18T11:27:19.320Z",
     "job": "session-0003-20261118112719",
@@ -1857,6 +2130,13 @@
     "status": "machine",
     "text": "自行撰寫內部目錄的企業，明確地可以自由打破標準程式庫的慣例。只要通過結構描述驗證，編譯器就接受他們所寫的任何內容。此架構倡導最佳做法；它不建造牢籠。"
   },
+  "4690f7946183d34e": {
+    "at": "2026-11-18T12:24:04.851Z",
+    "job": "session-0006-20261118122404",
+    "srcHash": "4690f7946183d34e",
+    "status": "machine",
+    "text": "因為這些標籤在渲染開始之前就已在記憶體內注入標準中繼資料字典，Wasm 渲染外掛程式可以讀取它們，在渲染成品時有條件地產生特定的實體設定——例如強化過的 AWS 或 Kubernetes 資源。"
+  },
   "46d972e0c9ee3a1f": {
     "at": "2026-11-18T11:36:26.060Z",
     "job": "session-0004-20261118113626",
@@ -1891,6 +2171,13 @@
     "status": "machine",
     "text": "5. Aggregate 是撰寫介面；Release 無法宣告 `values:`"
   },
+  "47c52331e0220160": {
+    "at": "2026-11-18T12:24:04.851Z",
+    "job": "session-0006-20261118122404",
+    "srcHash": "47c52331e0220160",
+    "status": "machine",
+    "text": "治理與合規"
+  },
   "483958368f6154f4": {
     "at": "2026-11-18T07:13:03.194Z",
     "job": "session-0002-20261118071303",
@@ -1912,12 +2199,26 @@
     "status": "machine",
     "text": "**雲端原生型別（基礎架構底層）：**"
   },
+  "48bc0126ed5bd69a": {
+    "at": "2026-11-18T12:24:04.851Z",
+    "job": "session-0006-20261118122404",
+    "srcHash": "48bc0126ed5bd69a",
+    "status": "machine",
+    "text": "**`conflictsWith`：** 在 Feature 的目錄實體上於 `interoperability` 之下宣告的清單，列出不能與它一同附加的 Features。編譯器會將它與每個元件在所有範圍都貢獻之後最終帶有的 Features 比對——元件自己的附加項、寫在包含它的子系統或邊界上的附加項、其 Release 元件項目上的附加項，以及註記驅動的擴充所產生的附加項——並在某個元件同時帶有兩者時，於渲染任何實體成品之前中止（也就是作者直接或透過某個範圍，附加了某個 Feature 的作者明確宣告為不相容的兩個 Features）。一項宣告就足夠，而且 Features 依名稱比對，不論其版本。編譯器不會從名稱中讀出任何意義：不相容是作者的宣告，而檢查只是名稱的比對。Feature 的原子性與純粹性本身仍是社會契約——沒有任何檢查確認某個 Feature 只做一件事。"
+  },
   "48d05cd7c315d2ba": {
     "at": "2026-11-18T07:06:16.115Z",
     "job": "session-0001-20261118070616",
     "srcHash": "48d05cd7c315d2ba",
     "status": "machine",
     "text": "**由他人替你執行的伺服器**，透過 HTTPS 連線，不需要二進位檔、外掛程式或技能。請改為把位址交給助理的用戶端，如[透過 HTTPS 連線的伺服器](mcp-server.md#a-server-reached-over-https)所述。"
+  },
+  "493b4d886ce7a692": {
+    "at": "2026-11-18T12:24:04.851Z",
+    "job": "session-0006-20261118122404",
+    "srcHash": "493b4d886ce7a692",
+    "status": "machine",
+    "text": "驗證器管線在每個酬載首次完整之處執行——解析期間元件的 `values` 與 `infra`、拓撲建構帶入時子 Aggregate 的元件，以及圖定案時附加項的酬載——因此結構描述發現會在靜態分析評估任何選擇器之前，以及在斷言評估之前中止建置，這讓斷言範本可以依賴已驗證的酬載。"
   },
   "49442eb9dd666680": {
     "at": "2026-11-18T11:27:19.320Z",
@@ -1967,6 +2268,20 @@
     "status": "machine",
     "text": "Aggrega 不是會「為你撰寫 Terraform」的 AI 代理程式。它是一個確定性的 Go 編譯器，剖析嚴格的特定領域語言（Domain-Specific Language，DSL），以保證可重現、可稽核的部署成品。它不會對基礎架構產生幻覺。"
   },
+  "4ad2729bc21ed9a8": {
+    "at": "2026-11-18T12:24:04.851Z",
+    "job": "session-0006-20261118122404",
+    "srcHash": "4ad2729bc21ed9a8",
+    "status": "machine",
+    "text": "**階段 5——帶出處的自訂合併器。** 對於宣告 `extends:` 的實體，編譯器走訪父鏈；父項已解析的 JSON Schema 成為基底；子項的覆寫套用於其上。已解析結構描述中的每個葉節點都帶有逐葉節點的出處標籤（檔案路徑、行號、父項對子項的來源）。合併器的輸出是驗證器引擎所取用的內容；驗證器引擎是未經修改的第三方 JSON Schema 2020-12 符合性實作，周圍包有一層確定性的走訪器，用於有序地輸出發現。"
+  },
+  "4ae4673af2f1d941": {
+    "at": "2026-11-18T12:24:04.851Z",
+    "job": "session-0006-20261118122404",
+    "srcHash": "4ae4673af2f1d941",
+    "status": "machine",
+    "text": "**`uses` 邊：** 開發者在每個實例的 `uses` 區塊中連結元件，在插槽中指名目標元件，圖中的每一條邊都來自這樣的宣告。恰好指名另一個元件的 `values` 項目不會畫出邊：編譯器不會從值中讀出任何意義。"
+  },
   "4afa52d715d7d21f": {
     "at": "2026-11-18T07:13:03.194Z",
     "job": "session-0002-20261118071303",
@@ -1994,12 +2309,26 @@
     "status": "machine",
     "text": "3. 字串管道（String Pipe）：編譯器無法推斷意義"
   },
+  "4c2f7e7c6dc076b4": {
+    "at": "2026-11-18T12:24:04.851Z",
+    "job": "session-0006-20261118122404",
+    "srcHash": "4c2f7e7c6dc076b4",
+    "status": "machine",
+    "text": "**機制：** 拓撲純粹性檢查 + 治理插槽的 `ir-verdict` 角色。"
+  },
   "4c4d7bd240a94505": {
     "at": "2026-11-18T11:41:24.291Z",
     "job": "session-0005-20261118114124",
     "srcHash": "4c4d7bd240a94505",
     "status": "machine",
     "text": "**回應驗證與評估：** `core/response-validation` 宣告在模型的回覆到達呼叫端之前，依 JSON Schema 對其進行檢查：`schema` 攜帶結構描述本身，不符合它的回覆會被拒絕而不是被傳遞——或者，在 `invert` 開啟時，符合它的回覆會被拒絕。該結構描述屬於附加項，對每個請求都相同，不是呼叫端隨自己的請求所送的結構描述，因此開發者在 Aggregate 中附加它，將結構描述寫在其 `values` 中。標準程式庫中沒有任何實現方式保留它：在 `core/gateway/agentgateway` 上，其實現方式會中止每一次附加，並指明原因——agentgateway 的回應防護比對模式或呼叫內容安全或 webhook 服務，而其中沒有一個接受結構描述——在 `core/gateway/higress` 上其實現方式也是如此，其回覆檢查以在回覆訊息中找到的單純 JSON，而不是其 OpenAI 路由傳回的聊天補全，來回答通過的回覆，被任何送出請求標頭 `X-HIGRESS-AI-JSON-RESP: true` 的用戶端略過，且不檢查巢狀超過六層的結構描述；在 `core/gateway/traefik-hub` 上其實現方式也是如此，因為 Traefik Hub 的參考文件中沒有任何中介軟體會依結構描述檢查回覆——其 Chat Completion 中介軟體依聊天補全結構描述檢查請求，其 API 管理依 OpenAPI 文件檢查請求本文，而其 LLM Guard 將回覆送到外部服務，該實現方式不連接它；在任何其他閘道上，附加會中止建置並指名其型別。`core/traffic-shadowing` 將即時請求複製到第二個服務，並丟棄該服務的回應，因此候選的模型或服務可以在真實流量下接受評估，而沒有任何呼叫端看到它的輸出。它附加到任何宣告 `dataplane.aggrega.ai/request-mirroring` 的元件，AI 閘道並未宣告；標準程式庫在 NGINX 閘道上實現它，該閘道複製整個串流而不是其中一部分，並以名稱在較小的比例上中止。"
+  },
+  "4c4de272bc235504": {
+    "at": "2026-11-18T12:24:04.851Z",
+    "job": "session-0006-20261118122404",
+    "srcHash": "4c4de272bc235504",
+    "status": "machine",
+    "text": "為了在輸出的套用方式上嚴格保持不預設立場，渲染外掛程式會將所產生的成品輸出到乾淨、以邊界隔離的目錄結構中（例如 `dist/boundaries/aws-core-cluster/`、`dist/boundaries/gcp-data-cluster/`）。這讓外部 GitOps 控制器（如 ArgoCD 或 Flux）能夠同步並套用基礎架構，而 Aggrega 編譯器完全不需要即時的叢集 API 認證。"
   },
   "4c69aae1c71ef73c": {
     "at": "2026-11-18T07:06:16.115Z",
@@ -2140,6 +2469,13 @@
     "status": "machine",
     "text": "**解決方案：** Aggrega 透過明確的*注入契約（Injection Contract）*，以**真正的控制反轉**取代寫死的基礎架構相依性。開發者只需宣告一條語意拓撲邊（例如「代理程式 A 使用資料庫 B」），並指定其程式碼預期如何接收連線資料（例如作為環境變數或檔案掛載）。編譯器取得目標由平台維運指派的確定性指標——無論那是 Kubernetes 內部 DNS 名稱、Terraform 內插字串，或 Wasm 格式的 DSN——並在不解析它們的情況下，將它們直接傳入渲染範本。這讓現代工作負載的開發者不必處理實體路由與連接埠。編譯器只是把確定性字串傳遞過去；跨環境穩定的相依性接線，是 Recipe 撰寫紀律的特性（平台維運提供適合該環境的確定性指標），而不是核心編譯器的保證。"
   },
+  "511f73c2a4c204c6": {
+    "at": "2026-11-18T12:24:04.851Z",
+    "job": "session-0006-20261118122404",
+    "srcHash": "511f73c2a4c204c6",
+    "status": "machine",
+    "text": "**執行階段（實體強制）：** 當被劫持的代理程式嘗試呼叫該工具時，已部署的代理會暫停請求，並實際阻擋執行，直到收到來自人類操作員、以密碼學簽署的核准為止。"
+  },
   "515daed3d130ed1c": {
     "at": "2026-11-18T11:27:19.320Z",
     "job": "session-0003-20261118112719",
@@ -2180,6 +2516,13 @@
     "srcHash": "52315d70df8b99c6",
     "status": "machine",
     "text": "若你已安裝外掛程式，你就已連線到 Aggrega MCP 伺服器。否則，請依 `https://aggrega.ai/docs/ai-assistants/mcp-server/` 為你描述的方式，以加入 MCP 伺服器的做法，讓自己連線到 Aggrega MCP 伺服器，也就是命令 `aggrega mcp`。若需要重新啟動或重新載入才能載入外掛程式或伺服器，請告訴我該怎麼做。"
+  },
+  "52458043680886a3": {
+    "at": "2026-11-18T12:24:04.851Z",
+    "job": "session-0006-20261118122404",
+    "srcHash": "52458043680886a3",
+    "status": "machine",
+    "text": "編譯管線與執行流程"
   },
   "525ce08f879d44b5": {
     "at": "2026-11-18T07:13:03.194Z",
@@ -2249,6 +2592,20 @@
     "srcHash": "53d3cbb2a9dbb492",
     "status": "machine",
     "text": "團隊規模（「帽子」比喻）"
+  },
+  "53dc3f6e761fcfc6": {
+    "at": "2026-11-18T12:24:04.851Z",
+    "job": "session-0006-20261118122404",
+    "srcHash": "53dc3f6e761fcfc6",
+    "status": "machine",
+    "text": "編譯管線（概要）"
+  },
+  "53fa3aa5751b0c15": {
+    "at": "2026-11-18T12:24:04.851Z",
+    "job": "session-0006-20261118122404",
+    "srcHash": "53fa3aa5751b0c15",
+    "status": "machine",
+    "text": "**`spec.interoperability.conflictsWith`** — 不能與這個 Feature 到達同一個元件的 Features 清單。當一個元件最終所得的附加項——從到達它的每個範圍蒐集而來：元件本身、包含它的子系統或邊界、其 Release 元件項目，以及註記驅動的擴充——同時包含這個 Feature 與它所指名的某一個時，編譯器會在渲染之前中止建置。這是將 Feature 作者所宣告的名稱，與元件所攜帶的 Features 做比對，不從任何一方讀出意義：不相容是作者的判斷，而編譯器讓建置遵守它。一項宣告就足夠，名稱的比對不論其版本，而附加到不共用任何元件的同層邊界的兩個 Features 絕不會相遇。"
   },
   "542896f0ff38d294": {
     "at": "2026-11-18T11:36:26.060Z",
@@ -2320,6 +2677,13 @@
     "status": "machine",
     "text": "安裝"
   },
+  "5725fbd4c5a160c9": {
+    "at": "2026-11-18T12:24:04.851Z",
+    "job": "session-0006-20261118122404",
+    "srcHash": "5725fbd4c5a160c9",
+    "status": "machine",
+    "text": "**靜態分析——靜態分析器與驗證閘門**"
+  },
   "5753d832768cb3b1": {
     "at": "2026-11-18T11:27:19.320Z",
     "job": "session-0003-20261118112719",
@@ -2368,6 +2732,13 @@
     "srcHash": "588f41106929acf0",
     "status": "machine",
     "text": "**可程式化原則（不預設立場的編譯器）：** Go 核心編譯器是對內容保持中立、進行運算的機制。它剖析 YAML、走訪圖，並評估標籤交集。真正的「智慧」（例如強制要求攜帶受限資料的模型流量，經過會遮罩敏感文字的 AI 閘道）是由企業以可插拔的 WebAssembly（Wasm）插槽動態地編寫，用於抽象語法樹（Abstract Syntax Tree，AST）變更——更改設定在記憶體中已剖析的表示——與原則驗證。"
+  },
+  "58c7083ee2bc89c4": {
+    "at": "2026-11-18T12:24:04.851Z",
+    "job": "session-0006-20261118122404",
+    "srcHash": "58c7083ee2bc89c4",
+    "status": "machine",
+    "text": "10. 動態拓撲對應（相依性解析）"
   },
   "59310d0d0a076dad": {
     "at": "2026-11-18T11:36:26.060Z",
@@ -2599,6 +2970,20 @@
     "status": "machine",
     "text": "Aggrega 的設計指引將撰寫工作分成四個領域："
   },
+  "611f68a3dac105b3": {
+    "at": "2026-11-18T12:24:04.851Z",
+    "job": "session-0006-20261118122404",
+    "srcHash": "611f68a3dac105b3",
+    "status": "machine",
+    "text": "9. Feature 相容性與拓撲安全"
+  },
+  "613c388009a83f6c": {
+    "at": "2026-11-18T12:24:04.851Z",
+    "job": "session-0006-20261118122404",
+    "srcHash": "613c388009a83f6c",
+    "status": "machine",
+    "text": "**成品評估：** Recipe 在 `artifacts:` 之下宣告的每個項目——內嵌內容，或該項目自己的 `$import:` 所指名的檔案——都會被讀取、以範本解析、針對完整的範本脈絡評估，並帶有建置的出處。產生的投影交給提供者，由提供者決定輸出格式、出處落在何處、輸出路徑與最終位元組。每個輸出的檔案都會記錄它來自哪種撰寫形式，因此檔名衝突時可以指名每一個貢獻者。"
+  },
   "614f852318404889": {
     "at": "2026-11-18T07:06:16.115Z",
     "job": "session-0001-20261118070616",
@@ -2627,12 +3012,26 @@
     "status": "machine",
     "text": "**相鄰的設定管理。** 這些處理的是與拓撲編譯不同的伺服器狀態與 YAML 修補問題，而 Aggrega 不鎖定它們的領域。"
   },
+  "619ffefeeb710789": {
+    "at": "2026-11-18T12:24:04.851Z",
+    "job": "session-0006-20261118122404",
+    "srcHash": "619ffefeeb710789",
+    "status": "machine",
+    "text": "C. 解決「Confused Deputy」問題（脈絡傳遞）"
+  },
   "62010ada87e61011": {
     "at": "2026-11-18T07:13:03.194Z",
     "job": "session-0002-20261118071303",
     "srcHash": "62010ada87e61011",
     "status": "machine",
     "text": "**流 2：認知應用程式意圖（Components 中的 `values`）：** 定義應用程式本身固有的邏輯。Component 的 `schema:` 宣告（精簡形式或 JSON Schema 2020-12）為此酬載提供嚴格的型別檢查與驗證，讓開發者獲得即時的「Shift-Left」回饋，並確保所請求的設定符合底層的基礎架構 API。"
+  },
+  "621017c9ce6f87dd": {
+    "at": "2026-11-18T12:24:04.851Z",
+    "job": "session-0006-20261118122404",
+    "srcHash": "621017c9ce6f87dd",
+    "status": "machine",
+    "text": "Aggrega 執行的是嚴格、固定順序的預先（AOT）編譯器管線，而不是寫死的協調邏輯。由 `aggrega build` 觸發後，編譯器在隔離的 WebAssembly（Wasm）插槽之間傳遞扁平圖，在渲染實體成品之前評估架構。"
   },
   "62132e66784e4cf8": {
     "at": "2026-11-18T11:36:26.060Z",
@@ -2703,6 +3102,13 @@
     "status": "machine",
     "text": "完成後，助理有兩種方式使用 Aggrega。**技能**是一個資料夾，裝有一個 `SKILL.md` 檔案，助理會在你的請求涉及 Aggrega 時載入它：它告訴助理撰寫循環如何運作，並要求所有關於結構描述或檔案的答案都取自二進位檔，而不是憑記憶。**MCP 伺服器**，也就是 `aggrega mcp`，提供 Aggrega 的工具——起草、驗證、建置及其餘——以及這些工具所依據的參考資料。[Aggrega 技能](skill.md)說明技能與外掛程式，[連線 MCP 伺服器](mcp-server.md)說明伺服器，[你的助理能用 Aggrega 做什麼](what-it-can-do.md)說明它能透過伺服器使用什麼。"
   },
+  "6443fc955ce547d7": {
+    "at": "2026-11-18T12:24:04.851Z",
+    "job": "session-0006-20261118122404",
+    "srcHash": "6443fc955ce547d7",
+    "status": "machine",
+    "text": "**渲染**"
+  },
   "644f3d9152d744e6": {
     "at": "2026-11-18T07:06:16.115Z",
     "job": "session-0001-20261118070616",
@@ -2751,6 +3157,13 @@
     "srcHash": "65d90e50c54c8e32",
     "status": "machine",
     "text": "連線後，請不帶引數呼叫 `describe-capabilities` 工具，並摘要它列出的內容。"
+  },
+  "660cb0e03b3d7249": {
+    "at": "2026-11-18T12:24:04.851Z",
+    "job": "session-0006-20261118122404",
+    "srcHash": "660cb0e03b3d7249",
+    "status": "machine",
+    "text": "**複雜資料結構（例如 CoALA）：** 架構師不受限於單一扁平的目標清單，而是依結構所需在 `usesSchema` 中宣告任意數量的插槽，每個插槽都有自己的選擇器與自己每條邊的 `valueSchema`。例如，要實作 CoALA 框架，架構師可以將 `semantic_memory`、`episodic_memory` 與 `working_memory` 宣告為不同的插槽，使每個記憶體儲存庫都是不同的拓撲目標。通用的原則引擎會評估這些結構化的邊，為每個不同的認知腦葉強制執行細緻的存取控制護欄。"
   },
   "661e0fc91a95e5a0": {
     "at": "2026-11-18T11:27:19.320Z",
@@ -3030,6 +3443,13 @@
     "status": "machine",
     "text": "**語意式開發者體驗（5 關鍵字對應表標準）：** 為避免認知摩擦，開發者在以對應表為基礎的 YAML 拓撲中，只使用五個普遍易懂的關鍵字："
   },
+  "6ffa558661bc1b74": {
+    "at": "2026-11-18T12:24:04.851Z",
+    "job": "session-0006-20261118122404",
+    "srcHash": "6ffa558661bc1b74",
+    "status": "machine",
+    "text": "**一次陳述規則：治理附加項的範圍是工作區。** 上述兩種模式是依元件與依 Feature 撰寫的，但強制執行它們的治理附加項不是。治理外掛程式附加在工作區設定的 `plugins.governance` 鍵上，而該附加項會綁定**工作區中的每一次建置**。因此企業規則只在一處陳述：平台團隊附加外掛程式一次，任何元件、Aggregate 或 Release 都不必選擇加入、提及它，或為了讓它生效而被編輯。這使得模式 1 中的驗證保險機制成為完整的答案，而不是各專案的慣例——繞過內部目錄、要求裸露的 `core/postgres` 的開發者，與其他人一樣由同一份附加的原則評估，因為原則是工作區的屬性，而不是他們所選元件的屬性。"
+  },
   "6ffc8a660378e18a": {
     "at": "2026-11-18T07:13:03.194Z",
     "job": "session-0002-20261118071303",
@@ -3160,6 +3580,20 @@
     "status": "machine",
     "text": "**原因：** 標籤是由平台架構師撰寫的、目錄層級不可變的特性——是原則引擎與選擇器所讀取的語意身分。Release 透過明確的、以對應表為基礎的 ID 指定（`components: { \"my-agent\": {} }`）將元件路由到邊界，這保留了依元件巢狀放置 `infra` 與功能覆寫的能力，而不會把標籤的撰寫權混入開發者的 Aggregate。"
   },
+  "73eb210f2d82dc47": {
+    "at": "2026-11-18T12:24:04.851Z",
+    "job": "session-0006-20261118122404",
+    "srcHash": "73eb210f2d82dc47",
+    "status": "machine",
+    "text": "1. 「自帶基準」（Bring Your Own Baseline，BYOB）+ Wasm 驗證閘門"
+  },
+  "7421856277e587d3": {
+    "at": "2026-11-18T12:24:04.851Z",
+    "job": "session-0006-20261118122404",
+    "srcHash": "7421856277e587d3",
+    "status": "machine",
+    "text": "編譯管線的每個階段都維護確定性輸出不變式：給定相同的來源檔案、相同的鎖定檔與相同的編譯器版本，建置會產生位元組完全相同的輸出。這項不變式是根本性的——鎖定檔中的內容定址需要穩定的成品摘要；可重現的建置需要在開發者 A 的筆電上撰寫的發行版本，在開發者 B 的筆電與 CI 上編譯出相同的輸出；差異可審查性需要來源的變更成為編譯輸出中唯一的變更。"
+  },
   "74586a5d6d8998d3": {
     "at": "2026-11-18T07:06:16.115Z",
     "job": "session-0001-20261118070616",
@@ -3242,6 +3676,13 @@
     "srcHash": "7620bd98bd8ba976",
     "status": "machine",
     "text": "`draft` 會回傳實體種類的起始文件，帶有該種類必要的欄位，或將文件中某個可執行範例寫入新目錄。`get-schema` 回傳某種類的 JSON Schema，`validate` 檢查草稿並指出其中仍留著的每個預留位置，`lint` 檢查目錄發布慣例，而 `explain-error` 把診斷展開成它所要求的修正。其他工具回答編輯時會出現的問題：哪些 Features 可以附加到元件、它可以連接到什麼，新項目在檔案中屬於哪裡，以及對文件套用的一個有界編輯，其未動到的每個位元組都維持原樣。請見[詢問什麼可以附加，以及什麼可以連接到什麼](../language-reference/cli/aggrega-mcp.md#asking-what-may-attach-and-what-may-connect-to-what)與[對文件套用一個有界編輯](../language-reference/cli/aggrega-mcp.md#applying-one-bounded-edit-to-a-document)。"
+  },
+  "762305526459e048": {
+    "at": "2026-11-18T12:24:04.851Z",
+    "job": "session-0006-20261118122404",
+    "srcHash": "762305526459e048",
+    "status": "machine",
+    "text": "企業治理與合規模式"
   },
   "76368db6f629fa5c": {
     "at": "2026-11-18T07:13:03.194Z",
@@ -3437,12 +3878,33 @@
     "status": "machine",
     "text": "將 `storage.size` 對應到 Terraform 的 `.tf.json` 酬載。"
   },
+  "7bef3d7dded857ae": {
+    "at": "2026-11-18T12:24:04.851Z",
+    "job": "session-0006-20261118122404",
+    "srcHash": "7bef3d7dded857ae",
+    "status": "machine",
+    "text": "**註記驅動的 Feature 擴充子階段：** 在 Manifest 解析、Recipe/Provider 綁定，以及 Manifest 綁定目標驗證（`mappings.features.annotations.<key>.maps` 之下宣告的路徑存在於所參照 Feature 的 `spec.schema`）之後，編譯器會在拓撲建構器之前執行註記擴充子階段。子階段由外而內走訪 Release 邊界與 Aggregate 子系統，透過串接 + 覆寫 + null 退出合併計算每個元件有效的註記集合；將每個註記值解析為 YAML，得到純量、結構化值或 null；將每個值（純量或依子鍵的結構化值）透過 Manifest 綁定的 `maps` 宣告，路由到目標 Feature 結構描述支柱，並強制執行側別對支柱的對應（Aggregate 側觸發 `maps.values`；Release 側觸發 `maps.infra`）；依 Feature 的 `spec.schema` 驗證每個葉節點的型別；並注入合成的 Feature 附加項，IR 圖會以 `origin: annotation` 標記它們。結構描述在每次建置中只編譯一次，並在串接走訪中重複使用。擴充在綁定目標驗證之後、拓撲建構之前執行，因此下游階段將合成附加項在結構上視同明確附加項（透過出處檢查除外）。綁定形式、串接語意與跨側組合規則，請見 [13-catalog-and-registry.md §「註記驅動的 Feature 擴充」](13-catalog-and-registry.md#11-annotation-driven-feature-expansion) 與 [`language-reference/providers/well-known-annotations.md`](../language-reference/providers/well-known-annotations.md)。"
+  },
+  "7c905f7694d06c5f": {
+    "at": "2026-11-18T12:24:04.851Z",
+    "job": "session-0006-20261118122404",
+    "srcHash": "7c905f7694d06c5f",
+    "status": "machine",
+    "text": "**拓撲相依性對應（`uses`）：** AI 框架將代理程式接到其工具或向量資料儲存庫之處，那樣的接線決定了*誰與誰通訊*，因此它宣告在 `uses` 支柱中；保存在 `values` 中的名稱清單，例如標準程式庫的 `tools_allowed`，只是慣例，不會畫出邊。編譯器將這些明確的邊逐字畫在 IR 圖中。這讓下游的 Wasm 渲染外掛程式可以透過程式產生保護連線所需的網路原則與實體邊界，而編譯器不必理解底層的 AI 框架。"
+  },
   "7cfbef17eb1bd00e": {
     "at": "2026-11-18T07:06:16.115Z",
     "job": "session-0001-20261118070616",
     "srcHash": "7cfbef17eb1bd00e",
     "status": "machine",
     "text": "`copilot plugin marketplace add aggrega-ai/aggrega-skills`，然後 `copilot plugin install aggrega@aggrega`"
+  },
+  "7d65cac3d8ceb637": {
+    "at": "2026-11-18T12:24:04.851Z",
+    "job": "session-0006-20261118122404",
+    "srcHash": "7d65cac3d8ceb637",
+    "status": "machine",
+    "text": "8. 可觀測性與合規"
   },
   "7dbff576f682e8fe": {
     "at": "2026-11-18T11:36:26.060Z",
@@ -3498,6 +3960,13 @@
     "status": "machine",
     "text": "**平台 Release：** 他們部署這個 Aggregate。為這些平台元件繫結的渲染器，輸出建立基礎架構所需的成品。"
   },
+  "7ef5a1114b4445d3": {
+    "at": "2026-11-18T12:24:04.851Z",
+    "job": "session-0006-20261118122404",
+    "srcHash": "7ef5a1114b4445d3",
+    "status": "machine",
+    "text": "**編譯時期（驗證與產生）：** 開發者在其 `Aggregate.yaml` 中，將核准閘門 Feature 附加到敏感的工具上。標準程式庫並未提供這樣的 Feature，因此這個 Feature 是在企業自己的目錄中撰寫，連同渲染它的 FeatureRecipe 一起。編譯器驗證圖，並將附加項轉譯為 L7 代理或 webhook 閘道的設定。"
+  },
   "7f529526e379934d": {
     "at": "2026-11-18T11:36:26.060Z",
     "job": "session-0004-20261118113626",
@@ -3551,6 +4020,13 @@
     "srcHash": "810d9dc245a953b4",
     "status": "machine",
     "text": "這種解耦是結構性的。開發者的 Aggregate 寫的是「將資料庫主機注入為環境變數 `DB_HOST`」，而不指名資料庫的實體位址、機密儲存庫的 vault 路徑，或雲端提供者的主機名稱格式。維運 Recipe 透過 `.context.inject` 收到已解析的字串並加以使用，而不必撰寫查詢鏈。"
+  },
+  "814089ce2cc7a64d": {
+    "at": "2026-11-18T12:24:04.851Z",
+    "job": "session-0006-20261118122404",
+    "srcHash": "814089ce2cc7a64d",
+    "status": "machine",
+    "text": "*戳記不帶有識別 Feature 來源或目錄型別的鍵。*"
   },
   "8198e9a805f17ddb": {
     "at": "2026-11-18T07:13:03.194Z",
@@ -3642,6 +4118,13 @@
     "status": "machine",
     "text": "**設定產生（渲染時期）：** 如果原則通過，對外流出規則就依操作員所附加的內容來渲染。附加在 Release 中呼叫端元件上的 `core/egress-allowlist` Feature，在 `helm` 上會針對該元件所渲染的每個工作負載，各渲染一個 Kubernetes 的 `NetworkPolicy`，只允許對外流出到它自己的 Pod、到其 `uses` 邊之目標的 Pod（在這些 Pod 所宣告的連接埠上）、到叢集的 DNS，以及到附加項目為叢集並未執行的目標（例如公開的 SaaS API）所列出的位址範圍。除非 Release 以 `infra.control_plane_present: true` 確認叢集的網路外掛程式會強制執行網路原則，否則建置會中止；而且對任何沒有列出位址範圍的此類外部連線，建置會中止並指名它；在沒有網路原則的 `compose` 上，此附加項目會讓建置中止。*開發者從不撰寫防火牆規則。*"
   },
+  "86bbc6ea77a93164": {
+    "at": "2026-11-18T12:24:04.851Z",
+    "job": "session-0006-20261118122404",
+    "srcHash": "86bbc6ea77a93164",
+    "status": "machine",
+    "text": "確定性由少數幾項每個轉換都遵守的紀律來維護："
+  },
   "86c81f446f1b74c3": {
     "at": "2026-11-18T11:36:26.060Z",
     "job": "session-0004-20261118113626",
@@ -3709,6 +4192,13 @@
     "srcHash": "87cc6c254ca5a00b",
     "status": "machine",
     "text": "指示編譯器：*「當開發者請求 `core/postgres` 時，使用 `aws-rds` Recipe。」*"
+  },
+  "883c1ed1762f6c09": {
+    "at": "2026-11-18T12:24:04.851Z",
+    "job": "session-0006-20261118122404",
+    "srcHash": "883c1ed1762f6c09",
+    "status": "machine",
+    "text": "**編譯時期（驗證與產生）：** 平台團隊撰寫一項原則（例如 Rego），在治理判定角色上評估，內容為：*「每一條經過 AI 閘道的路徑都必須帶有 `core/data-masking`。」* 若缺少，編譯器會中止。若存在，Manifest 所綁定的實現會將遮罩寫入閘道已經渲染的設定中：在 `core/gateway/litellm` 上，寫入符合附加項所列正規表示式的護欄項目，並將文字送到接在閘道 `pii_analyzer` 與 `pii_anonymizer` 插槽的 Presidio 分析器與匿名器，處理其所列的實體類型；在 `core/gateway/kong-enterprise` 上，在每個所接線模型的聊天與補全路由上寫入 Kong 的 AI PII Sanitizer，由閘道的 chart Recipe 寫入，它會將其遮罩的文字，連同附加項所列的正規表示式與實體類型，送到接在閘道 `pii_sanitizer` 插槽的 Kong AI PII 服務；在 `core/gateway/agentgateway` 上，寫入閘道自己的正規表示式護欄，由其 chart Recipe 寫入其設定中，這些護欄會將附加項所列模式的每個相符處取代為 `<masked>`，或在 `refuse` 之下以 HTTP 403 回應請求或回覆，且不辨識任何實體類型；這些護欄不會遮罩串流回覆，因此在遮罩回覆期間，同一份 Recipe 會寫入一條規則，在轉送之前以 HTTP 403 拒絕要求串流回覆的請求，以及本文大於閘道為該規則所讀取的 2 MiB 的任何請求，無論是否串流；在 `core/gateway/traefik-hub` 上，在每個所接線模型的路由上寫入 Traefik Hub AI 閘道的 Content Guard，由其 chart Recipe 寫入，它透過其正規表示式引擎遮罩附加項所列模式的相符處，或透過接在閘道 `pii_analyzer` 插槽的 Presidio 分析器遮罩其所列實體類型的相符處，每個附加項只用一種引擎；在 `core/gateway/higress` 上，在每個所接線模型的路由上寫入 Higress 的 `ai-data-masking` 外掛程式，由其 chart Recipe 寫入，它會將附加項所列模式在聊天請求訊息中的每個相符處，取代為以括號包住的模式名稱，且不辨識任何實體類型。原則也可以提出較窄的問題——遮罩是否位於受限資料與提供者之間——做法是讀取沿路由上各元件的附加項，而不是整體讀取路由的附加項，如 [examples/policy-data-class-route](../language-reference/examples/policy-data-class-route/README.md) 所做的。"
   },
   "88fbb800acea7e23": {
     "at": "2026-11-18T07:06:16.115Z",
@@ -3801,12 +4291,26 @@
     "status": "machine",
     "text": "**使用端可以持有認證。** 槽位屬於需要該認證的實體，而那通常是*呼叫端*，而不是被呼叫的對象：在對外連線時出示金鑰的元件，會在自己的目錄實體上、在它對外連線所經過的插槽上，為該金鑰宣告槽位，所以金鑰是持有在它被出示的那個連線上——而 `uses` 邊的任何性質都不要求目標提供一個。`core/ai-agent/crewai` 就是隨附的形態——它的 `model` 插槽宣告了一個選用的 `credential` 槽位，帶有 `feature.aggrega.ai/kind=secret` 選擇器、`inject: [env]` 與 `sensitive: true`，而 Aggregate 在連線之下填入它，位於 `uses.model.<alias>.features.credential`。標準程式庫的模型元件發布給使用端讀取的，是服務位置與模型名稱，而不是認證，所以代理程式在呼叫該端點時出示的金鑰，是由代理程式宣告、持有在它的連線上。該槽位是選用的，但連到其目錄標為 `component.aggrega.ai/hosting: managed` 的模型、且不帶認證的連線，除非它自己的 `values` 說該模型不需要認證，即 `unauthenticated: true`，否則會讓建置中止——這是代理程式的目錄實體所帶的斷言，編譯器像評估任何斷言一樣評估它，把標籤當成字串來讀。它所連線的模型元件，可以為它*自己的*呼叫端持有自己的金鑰——`core/ai-model/vllm` 正是為此宣告了 `api_key` 槽位——而這兩者是各自獨立的繫結點：附加項目是依名稱在宣告它的地方繫結槽位，不論在元件上或連線上，所以填入其中一個，並不會對另一個說任何事。"
   },
+  "8d576a5f54e61f60": {
+    "at": "2026-11-18T12:24:04.851Z",
+    "job": "session-0006-20261118122404",
+    "srcHash": "8d576a5f54e61f60",
+    "status": "machine",
+    "text": "編譯器還附帶另外兩個除錯介面。[`aggrega build --trace`](../language-reference/cli/aggrega-build.md#trace-output) 會逐階段將每個節點的中間狀態寫入 `dist/` 旁的 `.trace/`，供 Recipe 作者檢查每個階段收到與產生了什麼；而中止建置的診斷，只要失敗有所屬類別，就會帶有它所屬撰寫介面的類別——[`DEVELOPER_ERROR`、`OPS_ERROR`、`CATALOG_ERROR` 及其餘類別](../language-reference/errors/error-translation.md)——使它指向正確的作者。將失敗的產生資訊清單欄位追溯回產生它的範本行的錯誤，並不屬於編譯器的一部分。"
+  },
   "8e4c8d471d15411d": {
     "at": "2026-11-18T07:13:03.194Z",
     "job": "session-0002-20261118071303",
     "srcHash": "8e4c8d471d15411d",
     "status": "machine",
     "text": "對於哪些值公開供各環境變化（`parameters` 宣告）、以及它們如何流入元件的值（範本參照），Aggregate 仍是單一事實來源。Release 負責滿足；它不覆寫。"
+  },
+  "8e7b9120995fe197": {
+    "at": "2026-11-18T12:24:04.851Z",
+    "job": "session-0006-20261118122404",
+    "srcHash": "8e7b9120995fe197",
+    "status": "machine",
+    "text": "如果 Aggrega 把特定領域的邏輯寫死到其官方元件中，它就不再是不預設立場的編譯器，而會淪為有立場的框架。反過來，如果合規完全交給開發者，關鍵標籤就會被拼錯、遺忘或繞過。"
   },
   "8ea6d69632805caa": {
     "at": "2026-11-18T07:06:16.115Z",
@@ -3870,6 +4374,13 @@
     "status": "machine",
     "text": "在 Codex 中："
   },
+  "9155220033099ed3": {
+    "at": "2026-11-18T12:24:04.851Z",
+    "job": "session-0006-20261118122404",
+    "srcHash": "9155220033099ed3",
+    "status": "machine",
+    "text": "**圖定案**"
+  },
   "9158e281fc06d0d5": {
     "at": "2026-11-18T11:36:26.060Z",
     "job": "session-0004-20261118113626",
@@ -3883,6 +4394,13 @@
     "srcHash": "9173ab2e89819cf9",
     "status": "machine",
     "text": "用你的 AI 助理設定 Aggrega"
+  },
+  "9192a96373363240": {
+    "at": "2026-11-18T12:24:04.851Z",
+    "job": "session-0006-20261118122404",
+    "srcHash": "9192a96373363240",
+    "status": "machine",
+    "text": "整條管線的確定性維護"
   },
   "91b7f02021d0d080": {
     "at": "2026-11-18T11:27:19.320Z",
@@ -3911,6 +4429,13 @@
     "srcHash": "925a286772cae701",
     "status": "machine",
     "text": "**韌性：** `core/fallback-chain` 會將模型失敗的請求轉送到其他模型：`chains` 為每個會回退的模型別名指名要依序嘗試、直到其中一個回應為止的別名，失敗的備援再依序遵循它自己的項目，而 `max_hops` 限制請求沿著該鏈傳遞的距離。標準程式庫在 AI 閘道上實現它的方式，是將兩者寫入閘道 Recipe 渲染的路由設定，並在閘道的模型對應表未發布某個名稱時中止建置。請求只有在閘道放棄它所要求的別名之後才會回退：當一個別名被發布多次時，失敗的呼叫會先以重試的方式移到它的另一個項目，受閘道的重試次數限制。`core/retry-policy` 設定該次數——閘道可以送出一個請求的次數，包含第一次送出（`max_attempts`），針對重新送出即可成功的失敗，例如被拒絕的連線、速率限制或逾時——標準程式庫在 AI 閘道上實現它的方式，是將其寫入閘道 Recipe 渲染的路由設定。在 `core/gateway/envoy-gateway` 上，它被實現為服務所連接模型之路由上的流量原則的重試，與承載期間預算之速率限制的是同一個原則，因為 Envoy Gateway 將一個流量原則附加到一條路由：在連線或串流被拒絕、被重設，或回覆 429、503 或 504 之後會再次送出請求，最多 `max_attempts` 次送出；而在路由的請求逾時內沒有任何回應的模型不會再次送出，因為該逾時涵蓋每一次送出。在 `core/gateway/azure-api-management` 上，它被實現為 Azure 在轉送周圍的重試，位於 API 原則的後端區段：以 HTTP 429 或 5xx 狀態回應的請求會再次送出，其本文會被保留以便重新送出，在前一次送出之後一秒進行，最多 `max_attempts` 次送出。被拒絕或中斷的連線，以及在轉送逾時內沒有任何回應的模型，不會再次送出，因為 Azure 在這類錯誤上結束重試，並將其交給原則的 on-error 區段。Azure 在第一次送出之後重試 1 到 50 次，因此 `max_attempts` 為 1 不寫入任何重試，而大於 51 的值會以名稱拒絕。該重試取代 API 原本會繼承的轉送，因此在它附加期間，在執行個體較廣範圍所做的轉送設定，例如逾時，不會套用到該 API，該 API 會以 Azure 的預設值轉送。在代管閘道上，`core/retry-policy` 的實現方式，是將其重試次數寫入閘道的資源，該次數指的是第一次之後的送出次數，從 1 到 5，因此 `max_attempts` 從 2 到 6 會被接受，其他任何值都會被拒絕；`core/fallback-chain` 在那裡不被實現，因為該閘道只在請求以名稱指定的路由中（取代模型）於模型之間回退，因此對模型的請求絕不會回退。在 `core/gateway/kong-enterprise` 上，`core/fallback-chain` 在其 chart Recipe 上實現：`chains` 為其指定項目的每個別名之聊天與補全路由，攜帶 Kong 的 AI Proxy Advanced 以取代其 AI proxy，並以該別名的模型與其走訪所回退到的模型依優先順序作為目標——先是該別名，然後依序是其項目的備援，備援自己的項目只有在計數的躍點少於 `max_hops` 時才依序跟隨。負載平衡器會依序將請求送到走訪的每個目標一次，直到其中一個回應為止，在連線錯誤或逾時、無效的回覆標頭或回覆 429、500、502、503 或 504 之後移到下一個，並原樣傳回其他所有回覆。建置會在以下情況中止：名稱不在 `models` 插槽所攜帶之中，走訪兩次到達同一個別名，與 `core/retry-policy` 並存（因為 Kong 為整個走訪保有一個重試次數，無法在回退之前再次送到同一個模型），以及閘道映像檔早於 3.12。`core/retry-policy` 在那裡不被實現，其實現方式會中止每一次附加並指明原因：每個連接的模型都在各自只帶有該一個模型的路由上提供服務，因此重試必須將請求再次送到同一個目標，而 Kong 的參考文件對其負載平衡器是否如此，兩種讀法都說得通。在 `core/gateway/agentgateway` 上，`core/retry-policy` 在 chart Recipe 上被實現為閘道自己設定的重試原則，附加到其模型請求抵達的接聽器：在回覆 429、500、502、503 或 504、連線被拒絕或被重設、連線花費超過 11 秒才開啟，或名稱查詢失敗之後，請求會立即再次送出到同一個模型，最多 `max_attempts` 次送出。agentgateway 送出請求的次數比其原則的嘗試次數多一次，因此原則寫成 `max_attempts` 減一，`max_attempts` 為 1 不寫入任何東西，而大於 256 的值會以名稱拒絕。本文大於 64 KiB 的請求只送出一次，且設定不設定逾時，因此接受連線卻沒有任何回應的模型會被等待，而不是再次送出。`core/fallback-chain` 在那裡不被實現，其實現方式會中止每一次附加並指明原因：agentgateway 的做法是將失敗的模型從其後的請求中逐出來進行模型之間的容錯移轉，而失敗的那個請求則以其失敗回應，因此沒有任何請求會沿著鏈被走訪。在 `core/gateway/higress` 上，`core/retry-policy` 被實現為路由自己的重試，以 Ingress 註記寫到每條模型路由上：在連線被拒絕或被重設、5xx 回覆或 429 之後會再次送出請求，包含 POST，最多 `max_attempts` 次送出；`max_attempts` 為 1 會寫入關閉重試，覆寫 Higress 控制平面給不帶註記之路由的重試，而大於 2147483648 的值會以名稱拒絕。接受連線後沒有任何回應或回應緩慢的模型不會再次送出，因為路由未設定每次嘗試的期限，而串流請求只有在其回覆開始之前才會再次送出。`core/fallback-chain` 在那裡同樣不被實現，其實現方式會中止每一次附加並指明原因：Higress 最多只將失敗的請求再送出一次，送到另一個目的地——路由的預設後端，或其主控台為 AI 路由寫入的那一條備援路由——因此沒有任何請求會沿著鏈被走訪。在 `core/gateway/traefik-hub` 上兩者都在 chart Recipe 上實現，且每一個都會在 Traefik Hub 映像檔早於 v3.20 時中止建置，該版本的容錯移轉對其所嘗試的 Service 不接受中介軟體，且其重試無法依回覆的狀態再次送出 POST——重試原則為一次送出者除外。`core/fallback-chain` 將 `chains` 為其指定項目的每個別名之路由，送過 Traefik 自己的巢狀容錯移轉，依序嘗試該別名之走訪中的模型——先是該別名，然後依序是其項目的備援，備援自己的項目只有在計數的躍點少於 `max_hops` 時才依序跟隨——每個都帶有自己的模型名稱、認證、配額與重試。某個模型在其任何重試之後回覆 429 或 500 到 504，會使請求移到下一個；其他任何回覆則原樣傳回，最後一個模型的不論為何都是如此，而本文超過 1 MiB 的請求會以 HTTP 413 拒絕，而不是送出。建置會在名稱不在 `models` 插槽所攜帶之中，以及走訪兩次到達同一個別名時中止。`core/retry-policy` 是 Traefik 的重試中介軟體，位於每條模型路由的最後，或位於走訪所嘗試的每個模型之後：在連線沒有向模型送出任何東西之後，以及在回覆 429 或 500 到 504 之後，請求會立即再次送出，包含 POST，最多 `max_attempts` 次送出，包含第一次，而 `max_attempts` 為 1 不寫入任何東西。閘道自己形成的回覆——其金鑰檢查、防護、遮蔽或配額的拒絕——絕不會再次送出，串流回覆一旦開始也不會。"
+  },
+  "92ac66163fb2d2c8": {
+    "at": "2026-11-18T12:24:04.851Z",
+    "job": "session-0006-20261118122404",
+    "srcHash": "92ac66163fb2d2c8",
+    "status": "machine",
+    "text": "**禁止自由形式的連線：** 開發者可以透過目錄未宣告的插槽接線——臨時插槽（請見[相依性解析](07-dependency-resolution.md)）。這種開放是刻意的，編譯器對此不持立場也是刻意的：希望每個連線都經過其架構師所宣告插槽的組織，會將其表達為原則，而不是依賴編譯器。圖中的每條邊都帶有 `socket_declaration`，其值為 `declared` 或 `ad-hoc`，因此規則只需一行："
   },
   "92bb50afc1e8975c": {
     "at": "2026-11-18T11:27:19.320Z",
@@ -3953,12 +4478,40 @@
     "status": "machine",
     "text": "模型"
   },
+  "93941388fde67c01": {
+    "at": "2026-11-18T12:24:04.851Z",
+    "job": "session-0006-20261118122404",
+    "srcHash": "93941388fde67c01",
+    "status": "machine",
+    "text": "**`$defs:` 字母順序。** 結構描述的 `$defs:` 項目在已解析的 JSON Schema 中依字母鍵順序輸出。`$defs:` 在概念上是字典，而不是有序清單；字母順序讓差異在來源重組之後仍可預測。"
+  },
   "93a76345313f8f5c": {
     "at": "2026-11-18T07:06:16.115Z",
     "job": "session-0001-20261118070616",
     "srcHash": "93a76345313f8f5c",
     "status": "machine",
     "text": "**解決方案：** Aggrega 扮演拓撲轉譯器。透過編譯開發者的宣告式 DSL，編譯器產生將複雜的多代理程式推理迴圈直接接入標準雲端基礎架構所需的精確設定，不需要開發者撰寫基礎架構指令碼。"
+  },
+  "950859b8819a46c8": {
+    "at": "2026-11-18T12:24:04.851Z",
+    "job": "session-0006-20261118122404",
+    "srcHash": "950859b8819a46c8",
+    "status": "machine",
+    "text": "**機制：** 繼承合併、Go 範本內插，以及 JSON Schema 2020-12 驗證。"
+  },
+  "952f95bfdd413824": {
+    "at": "2026-11-18T12:24:04.851Z",
+    "job": "session-0006-20261118122404",
+    "srcHash": "952f95bfdd413824",
+    "status": "machine",
+    "text": "本章定義平台團隊如何在每次建置中強制執行企業合規——透過治理插槽、目錄的基準與結構描述，以及目錄作者所遵循的慣例——而不把原則寫死在編譯器中。Day-2 生命週期事件是 [Day-2 生命週期](12-day-two-lifecycles.md)的主題。"
+  },
+  "959d60bc8adade91": {
+    "at": "2026-11-18T12:24:04.851Z",
+    "job": "session-0006-20261118122404",
+    "srcHash": "959d60bc8adade91",
+    "status": "machine",
+    "text": "A. 資料外洩與酬載攔截"
   },
   "95abcd74f7c52cd0": {
     "at": "2026-11-18T07:13:03.194Z",
@@ -3986,6 +4539,13 @@
     "srcHash": "964002761de8326a",
     "status": "machine",
     "text": "**AOT 編譯器與執行交接：** 嚴格的編譯管線將 DSL 轉譯為與能力無關的中介表示法（Intermediate Representation，IR）圖。IR 記錄元件的拓撲，以及它們之間的 `uses` 邊（誰使用誰）；編譯器將此圖交給 WebAssembly（Wasm）治理插槽以偵測傳遞性信任弱點，接著執行 Wasm 渲染外掛程式，產生精確的代理與護欄設定。Aggrega 將這些成品寫入磁碟，並交給 CI/CD 管線或執行階段協調器等其他工具來部署。"
+  },
+  "97581d8e9d9a8a84": {
+    "at": "2026-11-18T12:24:04.851Z",
+    "job": "session-0006-20261118122404",
+    "srcHash": "97581d8e9d9a8a84",
+    "status": "machine",
+    "text": "**外掛程式管線（Wasm 步驟執行）：** 編譯器讀取 Recipe 的 `pipeline` 陣列，並依宣告順序執行其步驟。它針對節點已渲染的文件分派每個步驟所指名的 Wasm 外掛程式，將步驟回傳的 RFC 6902 JSON Patch 操作套用到這些操作所指向的文件，並將步驟的副作用一併輸出——這是外科手術式變更背後的介面，例如注入 Envoy sidecar 或掛載機密的 VolumeMount。`when:` 閘門渲染為假值的步驟會作為直通被略過，讓文件集合保持不變，交給下一個步驟。每個步驟的 `plugin` URI 會在執行前解析為鎖定檔以摘要固定的已驗證成品位元組。FeatureRecipe 的 `pipeline` 步驟以同樣方式執行，作用於附加項自己已渲染的文件，而對於元件範圍的附加項，也包含主機元件的文件。"
   },
   "979de5daf6369a2b": {
     "at": "2026-11-18T07:13:03.194Z",
@@ -4035,6 +4595,13 @@
     "status": "machine",
     "text": "**11. WorkloadLibrary：** 可重複使用的 Workload 範本片段。程式庫在 `spec.workloads:` 宣告具名的工作負載項目。Recipe 透過 `workload: { $import: <library>#/workloads/<entry> }`，以身分使用某個項目，而匯入的內容會依平台擁有的 Workload 結構描述進行驗證，與內嵌的 `workload:` 區塊完全相同——因此從程式庫匯入的工作負載，其渲染結果與等效的內嵌工作負載一致。單一撰寫模式（僅限 Go 範本）。對需要跨 Recipe 重複使用工作負載的目錄而言是選擇性加入，也就是多個 Recipes 共用同一種部署形態、只有各自的值不同的情況。"
   },
+  "9850ef7e7ca357e9": {
+    "at": "2026-11-18T12:24:04.851Z",
+    "job": "session-0006-20261118122404",
+    "srcHash": "9850ef7e7ca357e9",
+    "status": "machine",
+    "text": "*Recipe 的三種輸入種類都會到達編譯器：`source:` + `valuesMapping:` 透過基底渲染，`workload:` 透過 Workload 解析與 Workload 合成，`artifacts:` 透過成品評估。可以交給某個提供者哪些輸入種類，並不是逐子階段決定的——而是在任何渲染分派之前，依提供者自己宣告的契約，每個節點決定一次，因此輸入種類為所綁定提供者不接受的 Recipe，會在那裡被拒絕，而不是在渲染到一半時。三種輸入種類的組合模型、Workload 種類與 Artifacts 機制，請見 [16-recipe-input-composition.md](16-recipe-input-composition.md)；哪個提供者接受哪種種類，請見 [語言狀態](../language-reference/10-status.md)。*"
+  },
   "98a071f942ba80dc": {
     "at": "2026-11-18T11:27:19.320Z",
     "job": "session-0003-20261118112719",
@@ -4054,6 +4621,13 @@
     "srcHash": "994e7b5f6c587bb6",
     "status": "machine",
     "text": "每個領域各有單一職責："
+  },
+  "99a46b1cc6de4291": {
+    "at": "2026-11-18T12:24:04.851Z",
+    "job": "session-0006-20261118122404",
+    "srcHash": "99a46b1cc6de4291",
+    "status": "machine",
+    "text": "D. 拓撲風險分析"
   },
   "9a02332e232448f3": {
     "at": "2026-11-18T07:06:16.115Z",
@@ -4110,6 +4684,13 @@
     "status": "machine",
     "text": "**解決方案：** Aggrega 透過嚴格的**執行交接**，把信任邊界從應用程式碼移到網路基礎架構中。在透過可插拔的 WebAssembly 治理插槽驗證靜態應用程式圖之後，編譯器會執行渲染外掛程式，為 L7 攔截代理（例如資料遮罩或人工核准 webhook）產生所需的精確設定。接著它把這些成品交給執行階段協調器，由協調器實際強制執行規則並阻擋未經授權的動作。"
   },
+  "9af7fc0e9e1b4854": {
+    "at": "2026-11-18T12:24:04.851Z",
+    "job": "session-0006-20261118122404",
+    "srcHash": "9af7fc0e9e1b4854",
+    "status": "machine",
+    "text": "**Aggrega 的解法：** 這項檢查在預先階段執行。由於 Aggrega 在記憶體中建構了預期拓撲的完整 IR 圖，治理判定角色可以對整個架構執行進階的路徑尋找規則。如果原則偵測到一條連續、可遞移的邊鏈，從公開節點出發、終止於高度敏感的資料庫，而沿途任何位置都沒有附加企業所要求的控制，它會立即中止建置。在產生任何一行基礎架構程式碼之前，不安全的架構就已被阻擋。"
+  },
   "9b167e1f07d71471": {
     "at": "2026-11-18T07:06:16.115Z",
     "job": "session-0001-20261118070616",
@@ -4123,6 +4704,13 @@
     "srcHash": "9b1af28844f3e1cd",
     "status": "machine",
     "text": "7. 預設範圍——分組的漸進式揭露"
+  },
+  "9b7b8ee9c6fdf3f3": {
+    "at": "2026-11-18T12:24:04.851Z",
+    "job": "session-0006-20261118122404",
+    "srcHash": "9b7b8ee9c6fdf3f3",
+    "status": "machine",
+    "text": "5. 非同步執行與 HITL 基礎架構"
   },
   "9bd4a9ec1e7e5519": {
     "at": "2026-11-18T11:27:19.320Z",
@@ -4193,6 +4781,13 @@
     "status": "machine",
     "text": "架構不變式"
   },
+  "9d87b8cbf5064809": {
+    "at": "2026-11-18T12:24:04.851Z",
+    "job": "session-0006-20261118122404",
+    "srcHash": "9d87b8cbf5064809",
+    "status": "machine",
+    "text": "五個階段在驗證器引擎看到結構描述之前執行。引擎收到單一已解析的 JSON Schema 2020-12 文件，加上開發者的實例內容；它產生驗證報告。錯誤格式器會參考出處標籤來輸出清楚指名來源位置的使用者面向診斷——包括 Feature 從其基底繼承、而非自己撰寫的限制所來自的原始檔案。"
+  },
   "9dd70612a004b16f": {
     "at": "2026-11-18T11:36:26.060Z",
     "job": "session-0004-20261118113626",
@@ -4207,12 +4802,26 @@
     "status": "machine",
     "text": "本機伺服器使用其擴充功能設定；透過 HTTPS 連線的伺服器則使用其連接器設定"
   },
+  "9ece76a7fbd4582a": {
+    "at": "2026-11-18T12:24:04.851Z",
+    "job": "session-0006-20261118122404",
+    "srcHash": "9ece76a7fbd4582a",
+    "status": "machine",
+    "text": "管線完全在記憶體內，以嚴格、固定的順序執行："
+  },
   "9eee02f590ce5400": {
     "at": "2026-11-18T11:27:19.320Z",
     "job": "session-0003-20261118112719",
     "srcHash": "9eee02f590ce5400",
     "status": "machine",
     "text": "「敏感」這個詞讓讀者預期有某種機密性機制。它不是，而且它的保證比名稱所暗示的更狹窄，具體有五個方面："
+  },
+  "9f0678dc5647b095": {
+    "at": "2026-11-18T12:24:04.851Z",
+    "job": "session-0006-20261118122404",
+    "srcHash": "9f0678dc5647b095",
+    "status": "machine",
+    "text": "透過將架構驗證與執行階段執行分離，平台團隊可以使用 Aggrega 明確地建模、驗證並產生設定，以因應下列 AI 弱點。"
   },
   "9fa8ec5ab6795ee4": {
     "at": "2026-11-18T07:06:16.115Z",
@@ -4249,6 +4858,20 @@
     "status": "machine",
     "text": "起草並檢查你的檔案"
   },
+  "a06106db7f336318": {
+    "at": "2026-11-18T12:24:04.851Z",
+    "job": "session-0006-20261118122404",
+    "srcHash": "a06106db7f336318",
+    "status": "machine",
+    "text": "3. 保存領域智慧（設定與安全）"
+  },
+  "a0944e92334f98a3": {
+    "at": "2026-11-18T12:24:04.851Z",
+    "job": "session-0006-20261118122404",
+    "srcHash": "a0944e92334f98a3",
+    "status": "machine",
+    "text": "**跨節點型別安全：** `usesSchema` 選擇器字串充當明確的頻外指示，在靜態分析期間由 Go 編譯器的標籤比對引擎原生評估。它們保證開發者不會意外將標準元件接到要求特定 AI 原生能力或合規標籤的**已宣告**插槽。這項保證依其構造限定於已宣告的插槽：選擇器位於 `usesSchema` 項目中，因此臨時插槽沒有可評估的選擇器。每條邊都會記錄其插槽是否由目錄宣告，因此需要這項保證涵蓋全部的操作員，可以把它要求為治理判定。"
+  },
   "a0f1f385553f086d": {
     "at": "2026-11-18T07:06:16.115Z",
     "job": "session-0001-20261118070616",
@@ -4256,12 +4879,26 @@
     "status": "machine",
     "text": "可從其設定存取的 `mcp_config.json` 檔案"
   },
+  "a114abf764255654": {
+    "at": "2026-11-18T12:24:04.851Z",
+    "job": "session-0006-20261118122404",
+    "srcHash": "a114abf764255654",
+    "status": "machine",
+    "text": "**Release Feature 結構描述驗證：** 透過 Release 附加的 Features（包含整個邊界適用與特定元件適用的）會在此步驟中依其目錄實體解析。編譯器在目錄解析之後，立即依每個 Feature 的 `schema:` 宣告驗證 Release 提供的 `infra` 區塊，在建構拓撲之前確保型別安全。"
+  },
   "a13989cba7b20e24": {
     "at": "2026-11-18T11:27:19.320Z",
     "job": "session-0003-20261118112719",
     "srcHash": "a13989cba7b20e24",
     "status": "machine",
     "text": "**注入的值。** FeatureRecipe 宣告 `injectMapping`，且沒有資源。它的輸出會在基底 Recipe 渲染之前，深度合併到使用端元件的交付管道中，所以讀取 `.context.inject.env.<KEY>` 的 Recipe 會收到該值。不會輸出任何獨立的東西。"
+  },
+  "a14ba8954befec0a": {
+    "at": "2026-11-18T12:24:04.851Z",
+    "job": "session-0006-20261118122404",
+    "srcHash": "a14ba8954befec0a",
+    "status": "machine",
+    "text": "**階段 3——跨文件 `$ref:` 擴充。** 對於透過 `$ref:` 的 SchemaLibrary 參照（身分形式 `<Library>#/schemas/<entry>`），編譯器在編譯時期透過解析堆疊串接走訪參照鏈；被參照的內容會內嵌到使用端的結構描述中。擴充保留循環偵測（循環會以指名鏈的錯誤中止建置）、身分而非位置的護欄（帶有登錄庫主機的參照會中止並導向身分形式——參照以身分而非實體位置定址程式庫），以及單一來源組合（`$ref:` 區塊只接受裸參照；使用端的覆寫透過 JSON Schema 的 `allOf:` 組合）。解析語意請見 [`language-reference/vocabulary/cross-document-ref.md`](../language-reference/vocabulary/cross-document-ref.md)。"
   },
   "a14eb2a73cc549f8": {
     "at": "2026-11-18T07:13:03.194Z",
@@ -4311,6 +4948,20 @@
     "srcHash": "a398563d83e475d5",
     "status": "machine",
     "text": "**編譯器使用情境：** 將它從開發者可變動的 `values` 區塊中移出，放進不可變的標籤身分，使原則引擎能評估嚴格的最小權限設定。渲染外掛程式可能會為 `read-only` 的網路搜尋工具產生標準的 `invoke` 權限，但要求以嚴格的密碼學簽章設定才能呼叫 `mutating` 的 SQL 刪除工具。"
+  },
+  "a3e9d8d5f63a2033": {
+    "at": "2026-11-18T12:24:04.851Z",
+    "job": "session-0006-20261118122404",
+    "srcHash": "a3e9d8d5f63a2033",
+    "status": "machine",
+    "text": "7. Aggrega 如何應對 AI 安全挑戰"
+  },
+  "a4073ab94605acc9": {
+    "at": "2026-11-18T12:24:04.851Z",
+    "job": "session-0006-20261118122404",
+    "srcHash": "a4073ab94605acc9",
+    "status": "machine",
+    "text": "**Workload 合成：** 解析後的 Workload 會交給 Recipe 的 `capability` 所指名的提供者，由它轉譯為該提供者的原生資源。未宣告 `workload:` 的 Recipe 在此沒有可合成的內容；它的檔案改由來源渲染產生。"
   },
   "a474ac3f10b47165": {
     "at": "2026-11-18T11:27:19.320Z",
@@ -4388,6 +5039,13 @@
     "status": "machine",
     "text": "OpenClaw"
   },
+  "a7c1e59c79876b00": {
+    "at": "2026-11-18T12:24:04.851Z",
+    "job": "session-0006-20261118122404",
+    "srcHash": "a7c1e59c79876b00",
+    "status": "machine",
+    "text": "**B. 核心安全與間接機制**"
+  },
   "a7f9cdb78d3ed1dc": {
     "at": "2026-11-18T07:06:16.115Z",
     "job": "session-0001-20261118070616",
@@ -4395,12 +5053,26 @@
     "status": "machine",
     "text": "`git clone https://github.com/aggrega-ai/aggrega-skills ~/.cursor/plugins/local/aggrega`，然後 **Developer: Reload Window**"
   },
+  "a819f14dc705a340": {
+    "at": "2026-11-18T12:24:04.851Z",
+    "job": "session-0006-20261118122404",
+    "srcHash": "a819f14dc705a340",
+    "status": "machine",
+    "text": "**Common Expression Language（CEL）：** 編譯進 CLI 的 CEL 引擎會執行以單一運算式針對文件撰寫的規則，其撰寫方式如同 Kubernetes 的驗證准入原則。"
+  },
   "a821486d7a05ae45": {
     "at": "2026-11-18T11:41:24.291Z",
     "job": "session-0005-20261118114124",
     "srcHash": "a821486d7a05ae45",
     "status": "machine",
     "text": "**呼叫端所呈現的金鑰：** 檢查其呼叫端所呈現金鑰的伺服器，會將該金鑰保存在自己的槽位中，在每個會檢查金鑰的模型服務目標上名為 `api_key`——`core/ai-model/vllm`、`tei` 與 `tgi`、LiteLLM 模型，以及 AI 閘道，在 AI 閘道上它就是 LiteLLM 所稱的主金鑰——並且它的每個 Recipes 都會將該金鑰以伺服器讀取的變數送達。`core/gateway/apisix` 與 `core/gateway/agentgateway` 各自為其 Release 在 `infra.callers` 中指名的每個呼叫端保存一個金鑰，位於其 `caller_keys` 槽位：一個 Secret，以各呼叫端的名稱保存各自的金鑰。`core/gateway/traefik-hub` 以相同方式保存其呼叫端，不同之處在於其 Secret 保存的是每個呼叫端金鑰的 htpasswd 雜湊，其金鑰檢查會拿呈現的金鑰與之比對，因此它不是呼叫端用來呈現其金鑰的 Secret。呼叫端在自己這一側，於呈現金鑰的連線上，將所呈現的金鑰保存在其插槽所宣告的槽位中：標準程式庫的代理在其 `model` 插槽上宣告一個，即 `credential`；AI 閘道在其 `models` 插槽上與其 `cache_store` 插槽上宣告，在後者上它是閘道的語意快取向其儲存區呈現的密碼；`core/gateway/kong` 與 `core/gateway/kong-enterprise` 在其 `models` 插槽上；`core/gateway/apisix` 在其 `models` 插槽上與其 `cache_store` 插槽上，在後者上它同樣是其語意快取向其儲存區呈現的密碼；`core/gateway/agentgateway` 在其 `models` 插槽上；`core/gateway/envoy-gateway` 在其 `models` 插槽上與其 `cache` 插槽上，在後者上它是閘道的速率限制服務向保存期間預算計數的儲存區呈現的密碼；`core/gateway/higress` 在其 `models` 插槽上與其 `cache` 插槽上，在後者上它是其 token 限制向保存期間預算計數的儲存區呈現的密碼；以及 `core/gateway/traefik-hub` 在其 `models` 插槽上、在其 `cache` 插槽上，於後者它是其配額向保存期間預算計數的儲存區呈現的密碼，以及在其 `cache_store` 插槽上，於後者它是其語意快取向其儲存區呈現的密碼——因此連到模型的代理，或連到其所服務之模型的閘道，會在那裡保存該連線的金鑰。AI 閘道、兩個 Kong、APISIX 與 agentgateway 會以各自的變數送達每個所連接模型的金鑰，該變數由它們設定中該模型的項目或路由指名；Envoy Gateway 在該模型後端的安全性原則中指名 Secret，並由 Envoy AI Gateway 的控制器從中讀取金鑰；Traefik Hub 在該模型路由的 Chat Completion 中介軟體中指名 Secret 與資料鍵，並從中讀取金鑰。連到標示為 `component.aggrega.ai/hosting: managed` 之模型的連線，要攜帶一個金鑰，或在自己的 `values` 中表明該模型不需要金鑰，即 `unauthenticated: true`；兩者皆無時，呼叫端的斷言會中止建置並指名該連線與其目標，而標示為其他值的模型不會引發這種中止。呼叫端的 Component 改為在自己的槽位中宣告的金鑰，則是它所建立之每條連線共用的一個金鑰。任何一端都看不到另一端的附加項，因此伺服器完全不知道呼叫端的金鑰，兩者能夠相符，是因為 Aggregate 從同一個參數供給兩端：兩端在同一個範圍內解析機密時——一個 Kubernetes 命名空間、一個 Compose 專案——它們參照同一個機密，否則各自保有自己的機密，並由同一個儲存項目實現。vLLM、TEI 與 TGI 各自檢查單一金鑰，因此每個呼叫端呈現相同的金鑰，伺服器無法分辨其呼叫端，而 TGI 比對其金鑰時不分大小寫；APISIX、agentgateway 與 Traefik Hub 各自檢查每個已宣告呼叫端的金鑰，並藉此分辨其呼叫端；兩個 Kong 不宣告呼叫端，也不檢查任何呼叫端的金鑰，原因見上方「Kong 在模型之前」；LiteLLM 模型與 AI 閘道在附加其簿記資料庫期間，也接受它們所核發的金鑰。[Credential Model](08-credential-model.md#a-key-both-ends-of-a-connection-hold) 在一個 Aggregate 中完整示範這個形態。"
+  },
+  "a824052cbfab822f": {
+    "at": "2026-11-18T12:24:04.851Z",
+    "job": "session-0006-20261118122404",
+    "srcHash": "a824052cbfab822f",
+    "status": "machine",
+    "text": "**機制：** 正規化。"
   },
   "a84cc6335e5a7240": {
     "at": "2026-11-18T11:27:19.320Z",
@@ -4414,6 +5086,13 @@
     "srcHash": "a84cc6335e5a7240",
     "status": "machine",
     "text": "**7. Manifest：** 相依性鎖定檔。它使用扁平的 URI 對應：`components.type` 字典將目錄元件型別對應到 Recipe URI，`features.type` 字典則將 Feature 型別對應到 FeatureRecipe URI。解析是直接針對鎖定檔加目錄進行 URI 查詢；能力的判定則在建置時，來自每個已解析 Recipe 的 `spec.capability` 欄位。解析之後，每個實體都必須有對應，否則編譯器會中止。為了維持 DRY 的生態系，Manifests 透過 `extends` 關鍵字支援 Kustomize 風格的組合模式，讓特定環境的資訊清單（如本機或預備環境）能乾淨地繼承全域的基底資訊清單，只宣告各自的覆寫內容。"
+  },
+  "a8b7ef3e862f60d2": {
+    "at": "2026-11-18T12:24:04.851Z",
+    "job": "session-0006-20261118122404",
+    "srcHash": "a8b7ef3e862f60d2",
+    "status": "machine",
+    "text": "**注入對應（渲染前攔截）：** Go 編譯器解析開發者抽象的 `.context.inject` 契約。接著它依嚴格的五層洋蔥模型執行順序（子 Aggregate——模組元件自己的附加項，接著是其模組的子系統宣告的附加項，由外而內 → 根 Aggregate 元件 → 根 Aggregate 子系統 → Release 邊界，由外而內 → Release 元件專屬），執行所有已附加 `FeatureRecipes` 的 `injectMapping` Go 範本。編譯器將產生的字典原生深度合併到呼叫端的 `.context.inject` 記憶體管道之上。這會在基底 Recipe 看到它們之前，安全地改寫呼叫端的環境變數與連線字串。對應可以改寫呼叫端自己的 `inject:` 區塊或其某個連線所傳遞的內容；另一個附加的 Feature 已透過自己的對應或自己的 `inject:` 區塊傳遞的鍵，則會中止建置並指名兩個附加項，因此執行順序絕不會在兩個附加項的值之間做決定。"
   },
   "a8dd778388ebb74b": {
     "at": "2026-11-18T11:27:19.320Z",
@@ -4441,6 +5120,13 @@
     "srcHash": "a9416f7593ae279a",
     "status": "machine",
     "text": "**Terraform / OpenTofu** 從宣告式 HCL 佈建雲端資源，並透過 CLI 引擎管理狀態。Aggrega 編譯成靜態成品，並把狀態執行留給執行階段；其隨附的 [Terraform 渲染器](../language-reference/providers/terraform.md)輸出 Terraform 或 OpenTofu 會套用的設定，且從不執行兩者。"
+  },
+  "a96d294304f64b16": {
+    "at": "2026-11-18T12:24:04.851Z",
+    "job": "session-0006-20261118122404",
+    "srcHash": "a96d294304f64b16",
+    "status": "machine",
+    "text": "平台架構師可以運用拆分結構描述管線來為任何複雜的架構建模，完全獨立於核心編譯器："
   },
   "a97bb2a297689af3": {
     "at": "2026-11-18T07:06:16.115Z",
@@ -4477,6 +5163,13 @@
     "status": "machine",
     "text": "若要不使用外掛程式安裝技能，請使用 `aggrega` 二進位檔，它會寫入內建於其中的副本。為你機器上的助理安裝，涵蓋你所有的專案："
   },
+  "aa4845dcab23659e": {
+    "at": "2026-11-18T12:24:04.851Z",
+    "job": "session-0006-20261118122404",
+    "srcHash": "aa4845dcab23659e",
+    "status": "machine",
+    "text": "原則引擎驗證圖之後，編譯器會將那些抽象的安全需求轉譯為實體設定。當開發者附加一項安全 Feature——例如 AI 閘道上的 `core/data-masking`——編譯器會執行其實現所指名的管線步驟，也就是一個隔離的 WebAssembly（Wasm）外掛程式，而該步驟會將控制所需的設定寫入閘道自己的 Recipe 已經渲染的設定中。實現也可以改為將寫入工作留給閘道自己的 Recipe，由它讀取附加項並自行寫入設定，如 `core/gateway/kong-enterprise` 上的 `core/data-masking` 那樣，而針對另一種控制的實現則可能輸出自己的資源；無論哪種方式，輸出都是根據開發者所附加內容寫出的靜態成品。"
+  },
   "aa4cd69aceb4e2e3": {
     "at": "2026-11-18T07:06:16.115Z",
     "job": "session-0001-20261118070616",
@@ -4484,12 +5177,26 @@
     "status": "machine",
     "text": "`implements` 絕不會選擇 Recipe：Manifest 為每個元件型別指名 Recipe，而編譯器檢查所對應 Recipe 的 `implements` 是否以三種形式之一接受該型別，不符時就中止。同一個宣告也是當元件型別沒有對應時，編譯器建議候選 Recipes 的方式。"
   },
+  "aac5b95ef5061353": {
+    "at": "2026-11-18T12:24:04.851Z",
+    "job": "session-0006-20261118122404",
+    "srcHash": "aac5b95ef5061353",
+    "status": "machine",
+    "text": "**稽核記錄：** 企業撰寫的 Wasm 外掛程式可以設定閘道 sidecar，以非同步方式將原始、未經遮蔽的提示與回應串流到安全的 WORM（Write Once, Read Many）儲存貯體，繞過標準的應用程式記錄。"
+  },
   "ab1173eed1d477d9": {
     "at": "2026-11-18T07:13:03.194Z",
     "job": "session-0002-20261118071303",
     "srcHash": "ab1173eed1d477d9",
     "status": "machine",
     "text": "Plugin"
+  },
+  "ab380c690c1360fd": {
+    "at": "2026-11-18T12:24:04.851Z",
+    "job": "session-0006-20261118122404",
+    "srcHash": "ab380c690c1360fd",
+    "status": "machine",
+    "text": "為了解決這個問題，Aggrega 提供合規所需的 **Wasm 插槽機制**，而由企業制定**原則**。企業透過在其生態系中採用兩種不同的社會契約來達成零信任治理。"
   },
   "abdc9d99cdeef5b1": {
     "at": "2026-11-18T11:27:19.320Z",
@@ -4525,6 +5232,13 @@
     "status": "machine",
     "text": "**5. 領域 3（呼叫端 Recipe）：履行契約**\n針對 Python worker 的標準 Helm Recipe，會讀取它所收到的注入對應表，就如同對建置所佈建的資料庫一樣。"
   },
+  "ac4562ad8fc7b4ec": {
+    "at": "2026-11-18T12:24:04.851Z",
+    "job": "session-0006-20261118122404",
+    "srcHash": "ac4562ad8fc7b4ec",
+    "status": "machine",
+    "text": "**動作：** 編譯器將扁平的中介表示（IR）圖定案，保留拓撲建構器畫出的明確拓撲邊。接著它將附加的 Features 及其 `values` 酬載正規化為依節點 ID 對應的扁平字典，為與能力無關的圖準備驗證。"
+  },
   "ac6a458e2b105d66": {
     "at": "2026-11-18T07:13:03.194Z",
     "job": "session-0002-20261118071303",
@@ -4545,6 +5259,13 @@
     "srcHash": "acdfe4817d3b2787",
     "status": "machine",
     "text": "權杖預算"
+  },
+  "acff78aa7db0abe6": {
+    "at": "2026-11-18T12:24:04.851Z",
+    "job": "session-0006-20261118122404",
+    "srcHash": "acff78aa7db0abe6",
+    "status": "machine",
+    "text": "為了保護脆弱的工作負載免受衝突的基礎架構變更影響，通用的 `Feature` 結構描述定義了一項互通性控制："
   },
   "ad0beddb5671bcdf": {
     "at": "2026-11-18T11:27:19.320Z",
@@ -4574,6 +5295,13 @@
     "status": "machine",
     "text": "領域 1：開發者意圖（「做什麼」）"
   },
+  "ad331e89e47a6ec8": {
+    "at": "2026-11-18T12:24:04.851Z",
+    "job": "session-0006-20261118122404",
+    "srcHash": "ad331e89e47a6ec8",
+    "status": "machine",
+    "text": "**機制：** AST 擴充 + 治理插槽的 `label-transform` 角色。"
+  },
   "ada5e7d12c5dcdb2": {
     "at": "2026-11-18T11:27:19.320Z",
     "job": "session-0003-20261118112719",
@@ -4593,6 +5321,13 @@
     "srcHash": "add81717091d424f",
     "status": "machine",
     "text": "`resource`：外部、由平台管理的基礎架構（例如 AWS RDS PostgreSQL、S3 儲存貯體、代管的事件匯流排）。"
+  },
+  "ae604a253eca6796": {
+    "at": "2026-11-18T12:24:04.851Z",
+    "job": "session-0006-20261118122404",
+    "srcHash": "ae604a253eca6796",
+    "status": "machine",
+    "text": "編譯器會建構一份扁平的中介表示（IR）圖，其中包含所有節點、邊與已附加的 Features。在產生任何實體基礎架構之前，會在治理判定角色上，以業界標準的原則引擎評估這份靜態 JSON 圖，藉此強制執行企業的安全態勢。"
   },
   "ae7f31a82514d844": {
     "at": "2026-11-18T07:06:16.115Z",
@@ -4664,6 +5399,13 @@
     "status": "machine",
     "text": "**Traefik Hub 在模型之前：** `core/gateway/traefik-hub` 是 Traefik 的付費閘道，透過 Traefik Hub 的 Chat Completion 中介軟體，為連接到自身 `models` 插槽的模型提供服務。它唯一的實現方式是以 Traefik 自己的 Helm chart 為基礎的 chart Recipe；沒有 compose 實現方式。它執行 Release 在 `infra.image` 中指名的映像檔，含標籤，因為 Traefik 以自己的條款散布 Traefik Hub，目錄因此不指名任何映像檔；該鍵未設定或未指名標籤時，建置會中止。授權權杖以參照方式送達閘道，參照的是綁定到其必要 `license` 槽位的 Secret，位於資料鍵 `token` 之下，絕不以值傳遞，且在沒有任何東西綁定該槽位或其發布了其他資料鍵時，建置會中止。Traefik 需要對 `api.traefik.io` 的對外 HTTPS，閘道在那裡驗證其權杖；從 Traefik Hub v3.21 起，閘道在無法連到該主機期間仍會提供服務，並在背景重試，權杖預設有效一年，到期後閘道會停止。chart Recipe 會關閉 chart 將閘道錯誤記錄匯出到 Traefik 平台的功能，以及檢查較新發行版本的功能。編譯器不驗證任何權杖，也不聯絡任何廠商，因此能乾淨建置的 Release 並不能說明閘道是否會啟動。每個連接的模型在 `/<alias>/v1/chat/completions` 取得一條路由，透過一個型別為 ExternalName 的 Service 送到該模型發布的 `endpoint`，並且不論請求攜帶什麼模型名稱，都要求其發布的 `model`，因此由路徑選定模型；它只提供聊天補全。閘道將每條連線自己的認證以 bearer 權杖呈現，Traefik Hub 從該連線的 Chat Completion 中介軟體所指名的 Secret 讀取，且若連線所連到的模型其 `model.aggrega.ai/api` 不是 `openai`，或其端點指名的是位址而非主機，建置會中止。它將其 `values.model` 所指名之別名的路由發布為自身的 `endpoint`，並將該別名發布為 `model`，且帶有 `model.aggrega.ai/api: openai`，因此代理的 `model` 插槽接受它的方式就如同接受 AI 閘道；未連接任何東西時，兩個鍵都發布為空。Release 可以在 `infra.callers` 中指名閘道的呼叫端，並透過 `caller_keys` 槽位提供其金鑰的 htpasswd 雜湊：Traefik Hub 的 API Key 中介軟體隨後位於每條模型路由的最前面，並拒絕未以 `Authorization: Bearer <key>` 呈現任何已宣告金鑰的請求，且金鑰會從轉送的請求中移除；沒有呼叫端時，路由是開放的。呼叫端的項目指名了不存在的 Secret 或資料鍵時，Traefik Hub 如何處理，其參考文件並未說明，因此最壞的情況是路由與沒有呼叫端時一樣開放。在下列控制中，它透過 Traefik Hub 的 AI 閘道中介軟體實現期間預算、為其宣告之呼叫端提供的語意快取、提示拒絕模式與資料遮蔽，並透過 Traefik 自己的容錯移轉與重試實現備援鏈與重試原則，每一項都寫入其 chart Recipe 渲染的路由。AI 閘道是授權內含的使用權限，建置無法看到，而對於授權缺少該權限的有效權杖，Traefik Hub 如何處理並無文件記載，因此附加前四項中的任何一項都會中止建置，直到 Release 將 `infra.ai_gateway_entitled` 設為 `true`。它對提示注入篩檢、稽核記錄、目標選擇與回應驗證的實現方式會中止每一次附加，並各自指明原因；並行上限不會附加到它，因為它不帶有 `dataplane.aggrega.ai/concurrency-cap` 值。執行中的閘道是否強制執行這些控制，任何建置都未觀察到。"
   },
+  "b181f515808c3219": {
+    "at": "2026-11-18T12:24:04.851Z",
+    "job": "session-0006-20261118122404",
+    "srcHash": "b181f515808c3219",
+    "status": "machine",
+    "text": "由於核心編譯器與實體基礎架構的機制無關，它完全依賴目錄中的明確宣告，來防止產生不相容的設定。"
+  },
   "b1db4d2aaf77c0c5": {
     "at": "2026-11-18T11:36:26.060Z",
     "job": "session-0004-20261118113626",
@@ -4734,6 +5476,13 @@
     "status": "machine",
     "text": "2. AOT 純粹性：編譯器無法存取執行階段的資訊"
   },
+  "b45a7372501dfa54": {
+    "at": "2026-11-18T12:24:04.851Z",
+    "job": "session-0006-20261118122404",
+    "srcHash": "b45a7372501dfa54",
+    "status": "machine",
+    "text": "解析的結構描述驗證階段，仰賴一條驗證器管線，它將實體規格內容（精簡形式、JSON Schema YAML 或混合）轉換為帶有逐葉節點出處的統一 JSON Schema 2020-12 文件，然後依其驗證開發者撰寫的實例內容。五個階段依序以純轉換方式執行；每個階段都是針對其宣告輸入的確定性函式。"
+  },
   "b470ea774eef2ec7": {
     "at": "2026-11-18T11:36:26.060Z",
     "job": "session-0004-20261118113626",
@@ -4769,12 +5518,26 @@
     "status": "machine",
     "text": "**限制 2：與能力無關的 Components**"
   },
+  "b5a4c02c522140f1": {
+    "at": "2026-11-18T12:24:04.851Z",
+    "job": "session-0006-20261118122404",
+    "srcHash": "b5a4c02c522140f1",
+    "status": "machine",
+    "text": "對於靜態、由開發者提供的資料（例如團隊所有權或資料分類），企業絕不應直接依賴原始的開源目錄。相反地，平台架構師撰寫企業基準——每個內部元件都必須帶有的欄位，在 SchemaLibrary 項目中宣告一次——並使用治理判定角色來強制其使用。"
+  },
   "b62c640b29f5d3fc": {
     "at": "2026-11-18T07:06:16.115Z",
     "job": "session-0001-20261118070616",
     "srcHash": "b62c640b29f5d3fc",
     "status": "machine",
     "text": "提示"
+  },
+  "b640b8188e09c71a": {
+    "at": "2026-11-18T12:24:04.851Z",
+    "job": "session-0006-20261118122404",
+    "srcHash": "b640b8188e09c71a",
+    "status": "machine",
+    "text": "**基底渲染（基底 Recipe 的 `valuesMapping`）：** 編譯器評估基底 Recipe 的 `valuesMapping` 範本。範本從 `.context.inject` 管道（在注入對應期間已改寫）讀取被攔截的字串，產生的值字典會餵給 Recipe 的 `capability` 所指名的提供者——helm 與 helm-chart 提供者都透過 Helm 渲染——以渲染基底基礎架構成品。"
   },
   "b653787f583da902": {
     "at": "2026-11-18T11:36:26.060Z",
@@ -4803,6 +5566,13 @@
     "srcHash": "b77a534e1c4e4751",
     "status": "machine",
     "text": "所以，對這條軸線所換得的好處，誠實的說法是："
+  },
+  "b86edab7ccd40750": {
+    "at": "2026-11-18T12:24:04.851Z",
+    "job": "session-0006-20261118122404",
+    "srcHash": "b86edab7ccd40750",
+    "status": "machine",
+    "text": "為了滿足嚴格的法規要求（例如歐盟 AI 法案），**平台架構師（Platform Architects）可以運用 Aggrega 的功能系統**，將 AI 可觀測性作為結構性的基礎架構需求來強制執行，而不是依賴應用程式程式碼："
   },
   "b87429ed26bd087c": {
     "at": "2026-11-18T07:13:03.194Z",
@@ -4873,6 +5643,13 @@
     "status": "machine",
     "text": "讀取結構描述與文件"
   },
+  "ba877c66c2f03553": {
+    "at": "2026-11-18T12:24:04.851Z",
+    "job": "session-0006-20261118122404",
+    "srcHash": "ba877c66c2f03553",
+    "status": "machine",
+    "text": "**Feature 渲染（FeatureRecipe 資源產生）：** 節點上每個附加項，只要其所綁定的 FeatureRecipe 帶有自己的 `source`、`workload`、`artifacts` 和／或 `valuesMapping`——資源產生模式，用於輔助資訊清單，例如 ServiceMonitor、NetworkPolicy、sidecar ConfigMap，或認證傳遞資源——都在一次處理中評估，順序與注入對應所依循的五層洋蔥模型相同。附加集合只有一個，序列也只有一個：運作 Feature 與認證 Feature 走同一條路徑，兩者的差別在於其 FeatureRecipe 輸出什麼。每個附加項的 `.values` 與 `.infra` 會換成它自己的範圍；它繼承基底 Recipe 已評估的 `.locals`；`.attachment_name` 指名正在渲染的實例，而 `.provides` 攜帶附加項自己已解析的 provides，也就是使用端讀取的同一份內容。產生的值字典會餵給 FeatureRecipe 自己的 capability 所指名的提供者，而渲染出的檔案會附加到邊界的輸出，帶有兩個座標——Feature 所附加的元件，然後是它被附加時所用的名稱——因此附加到多個元件的同一個 Feature 名稱會讓各個項目保持獨立。這些座標採用哪種形式，取決於主機提供者自己的配置：在目標為每個貢獻者提供各自位置之處，是與元件自己的目錄並列的 `<component>--<instance>/` 目錄；在目標只讀取直接位於某目錄中的檔案之處，是 `<component>--<instance>--` 檔名前綴。只帶有 `injectMapping`、已在注入對應期間處理過的僅注入 FeatureRecipes 會在此被略過。如同先前的子階段，Feature 渲染一次針對一個元件執行，因此附加項通常在其所附加的元件之後立即評估。FeatureRecipe 宣告 `readsCallerRenderFacts: true` 或 `readsTargetRenderFacts: true` 的附加項，則改為在每個元件，以及每個兩者皆未宣告的附加項都已渲染之後才評估——因此連到其主機的每個元件，以及其主機所接線的每個元件，到那時都已渲染——其輸出會落在它原本會落的位置。"
+  },
   "babe880e370e3ce8": {
     "at": "2026-11-18T11:27:19.320Z",
     "job": "session-0003-20261118112719",
@@ -4899,6 +5676,13 @@
     "srcHash": "bb22171d72a9052a",
     "status": "machine",
     "text": "**9. `datastore.aggrega.ai/engine`**"
+  },
+  "bb29ed6dd9d37a65": {
+    "at": "2026-11-18T12:24:04.851Z",
+    "job": "session-0006-20261118122404",
+    "srcHash": "bb29ed6dd9d37a65",
+    "status": "machine",
+    "text": "**A. 建模特定領域的實作（透過拆分結構描述驗證）**"
   },
   "bb505265f955f7b8": {
     "at": "2026-11-18T07:13:03.194Z",
@@ -4927,6 +5711,13 @@
     "status": "machine",
     "text": "開發者這一側提供 `values`，操作員這一側提供 `infra`，所以兩者從不爭奪同一個欄位。從任一側取得定位器的認證 Feature，會把它宣告成兩個欄位，每個支柱一個，並且它自己的斷言會拒絕同時帶有兩者的附加項目，所以優先順序在那裡也沒有平手需要打破。優先順序只管轄欄位值；它不會重新排序評估，評估依循 [10-compilation-pipeline.md](10-compilation-pipeline.md) 中的串接順序。"
   },
+  "bba2cd97e16d3819": {
+    "at": "2026-11-18T12:24:04.851Z",
+    "job": "session-0006-20261118122404",
+    "srcHash": "bba2cd97e16d3819",
+    "status": "machine",
+    "text": "**代理程式之間的酬載檢查：** 一個代理程式直接傳送給另一個代理程式的請求不會經過 AI 閘道，因此是在接收端代理程式自己的入口，由執行在該代理程式旁邊的護欄引擎（例如 NeMo Guardrails）檢查。在**編譯時期**，實現附加到接收端代理程式的 Feature 的 FeatureRecipe 會渲染引擎的設定。在**執行階段**，引擎依企業撰寫的規則評估每個請求，並拒絕這些規則所否決的請求；它分辨被劫持的請求與合法請求的能力有多好，取決於引擎與規則，因為 Aggrega 編譯設定，從不評估提示。標準程式庫未提供放置這種引擎的 Feature，因此這種模式是在企業自己的目錄中撰寫。閘道自己的模式護欄 `dataplane.aggrega.ai/prompt-guard: pattern-list` 的範圍較窄，由 `core/prompt-deny-patterns` 開啟它——在 AI 閘道上，讀取請求的每則訊息並忽略字母大小寫；在 `core/gateway/apisix` 與 `core/gateway/kong` 上，將每個角色的每則訊息當作一段文字讀取，字母大小寫有別，且請求也必須符合的模式清單同樣有效；在 `core/gateway/agentgateway` 上，每則訊息、工具呼叫引數與工具結果分開讀取，字母大小寫有別；而在 `core/gateway/traefik-hub` 上，將請求當作聊天補全讀取，Traefik 的參考文件並未列出所讀取的欄位，字母大小寫有別：它會拒絕文字與附加項所列運算式之一逐字相符的模型請求——改寫、另一種語言或編碼就能通過——而且只作用於經過閘道的流量，因此代理程式之間直接送出的請求絕不會遇到它。`core/prompt-injection-shield` 是它在同一躍點上的分類器對應，將閘道轉送的每個模型請求，經由接在該閘道 `guard` 插槽的 NeMo Guardrails 護欄送出，或在 Azure API Management 上經由 Azure AI Content Safety 的提示防護送出，而它同樣只涵蓋經過閘道的流量。"
+  },
   "bbaa2cf7161f8074": {
     "at": "2026-11-18T11:36:26.060Z",
     "job": "session-0004-20261118113626",
@@ -4940,6 +5731,13 @@
     "srcHash": "bbb9d32d9d7f6f03",
     "status": "machine",
     "text": "維運工程師在自己的檔案中撰寫高度特定、綁定廠商的基礎架構程式碼，與開發者的撰寫介面解耦。"
+  },
+  "bc1b9fe528a792f1": {
+    "at": "2026-11-18T12:24:04.851Z",
+    "job": "session-0006-20261118122404",
+    "srcHash": "bc1b9fe528a792f1",
+    "status": "machine",
+    "text": "平台工程的一項核心挑戰，是在不汙染開源目錄的情況下，強制執行企業治理（例如 SOC 2 合規、FinOps 成本中心追蹤，以及嚴格的所有權對應）。"
   },
   "bc649bdac8a77d8e": {
     "at": "2026-11-18T07:13:03.194Z",
@@ -4969,12 +5767,33 @@
     "status": "machine",
     "text": "安裝擴充功能套件，設定其 **Workspace folder**，並重新啟動 Claude Desktop，如連線 MCP 伺服器中的 [Claude Desktop](mcp-server.md#claude-desktop) 所述。"
   },
+  "be5986a1bfc0468d": {
+    "at": "2026-11-18T12:24:04.851Z",
+    "job": "session-0006-20261118122404",
+    "srcHash": "be5986a1bfc0468d",
+    "status": "machine",
+    "text": "Wasm 插槽在嵌入式主機上執行——Wazero 引擎之上的 Extism 工具組——並置於一道 **AOT 純粹性防火牆**之後，這道防火牆拒絕外掛程式使用任何執行階段存取能力（網路、檔案系統、掛鐘時間、環境、標準 I/O），因此外掛程式無法破壞確定性的預先保證。主機透過 [`aggrega lint`](../language-reference/cli/aggrega-lint.md) 在頻外執行發布 linter。下列的頻內閘門——治理插槽在拓撲建構時的標籤轉換角色與在靜態分析時的 IR 判定角色，加上結束渲染的外掛程式管線——在每次建置中都會執行：治理角色在工作區為其附加外掛程式之處執行，外掛程式管線則對每個宣告步驟的 Recipe 執行。[語言狀態](../language-reference/10-status.md)追蹤每個管線階段的狀態。"
+  },
   "bec4388b058978ea": {
     "at": "2026-11-18T07:13:03.194Z",
     "job": "session-0002-20261118071303",
     "srcHash": "bec4388b058978ea",
     "status": "machine",
     "text": "10. 建置不佈建的服務：參照 Workloads"
+  },
+  "bedb6e2ace04413f": {
+    "at": "2026-11-18T12:24:04.851Z",
+    "job": "session-0006-20261118122404",
+    "srcHash": "bedb6e2ace04413f",
+    "status": "machine",
+    "text": "**動作：** 最終的成品產生階段分為依固定順序執行的嚴格時間子階段，這讓執行保持確定性："
+  },
+  "bf04e1b145cb5b48": {
+    "at": "2026-11-18T12:24:04.851Z",
+    "job": "session-0006-20261118122404",
+    "srcHash": "bf04e1b145cb5b48",
+    "status": "machine",
+    "text": "**Kyverno：** 評估靜態的 JSON/YAML 資訊清單，讓團隊可以用原生 YAML 撰寫原則，而不必學習 Rego。編譯器並未隨附 Kyverno guest，編譯器只以 WebAssembly guest 執行原則，也從不呼叫 Kyverno CLI，因此 Kyverno 規則是在包裝該引擎的 guest 之後執行。"
   },
   "bf12021816cfd4d2": {
     "at": "2026-11-18T07:06:16.115Z",
@@ -5018,6 +5837,13 @@
     "status": "machine",
     "text": "讓技能保持最新"
   },
+  "c058ac7e4d5343e1": {
+    "at": "2026-11-18T12:24:04.851Z",
+    "job": "session-0006-20261118122404",
+    "srcHash": "c058ac7e4d5343e1",
+    "status": "machine",
+    "text": "基礎架構來源對應"
+  },
   "c0793674c099bbb5": {
     "at": "2026-11-18T07:06:16.115Z",
     "job": "session-0001-20261118070616",
@@ -5031,6 +5857,13 @@
     "srcHash": "c0988bb791fda707",
     "status": "machine",
     "text": "為了因應現代 AI 系統獨特的需求、易變性與安全威脅，Aggrega 將專門化的智慧直接內建於其開放原始碼的 **AI 標準程式庫（The Catalog，即目錄）**之中。它確保通用的雲端原生骨架與高度專門化的 AI 原生推理引擎能夠安全地並存。"
+  },
+  "c0a52445b7f1d260": {
+    "at": "2026-11-18T12:24:04.851Z",
+    "job": "session-0006-20261118122404",
+    "srcHash": "c0a52445b7f1d260",
+    "status": "machine",
+    "text": "本章詳述 Go 編譯器的內部運作原理，定義抽象的 YAML 如何透過編譯管線、中介表示（IR）圖與 WebAssembly（Wasm）執行插槽，轉譯為實體設定。"
   },
   "c0c7f2901da230d2": {
     "at": "2026-11-18T07:13:03.194Z",
@@ -5109,6 +5942,13 @@
     "status": "machine",
     "text": "可重複使用的 Workload 範本片段"
   },
+  "c30c12c5b98379f9": {
+    "at": "2026-11-18T12:24:04.851Z",
+    "job": "session-0006-20261118122404",
+    "srcHash": "c30c12c5b98379f9",
+    "status": "machine",
+    "text": "**工作區規則會拒絕；它不會改寫開發者的契約。** 範圍是通用的，而效果刻意限定為判定。到處適用的規則會中止違反它的建置，並指名要修正的內容，而它無法改為把違規的元件修改成合規。這道界線讓這個機制在企業規模下仍可除錯：建置要嘛符合工作區宣告的規則，要嘛停止並以訊息指向撰寫的那一行，而渲染輸出絕不會含有沒有任何撰寫檔案要求的限制或資源。企業確實希望圖被改變而非被評判時，會附加轉換角色——上述模式 2——而該變更的範圍限定於操作員附加它所要做的事，這就是為什麼它是平台團隊的明確行為，而不是看不見的改寫。"
+  },
   "c34fce1462fae6e8": {
     "at": "2026-11-18T07:13:03.194Z",
     "job": "session-0002-20261118071303",
@@ -5136,6 +5976,13 @@
     "srcHash": "c387045af1dfdcf8",
     "status": "machine",
     "text": "在 `cloudformation` 上，是 Secrets Manager 機密，由堆疊建立它時自行產生其字串。"
+  },
+  "c3eb41c0ac8152b0": {
+    "at": "2026-11-18T12:24:04.851Z",
+    "job": "session-0006-20261118122404",
+    "srcHash": "c3eb41c0ac8152b0",
+    "status": "machine",
+    "text": "**正規 YAML 序列化。** 輸出以單一固定形式寫出，同一輸入只有一種：每次執行、每個深度的鍵順序都相同，陣列與 `enum:` 陣列依輸入順序；2 空格縮排；Unix LF 行尾；YAML 允許之處使用未加引號的字串；`true`/`false` 布林形式；缺少的欄位省略 null。"
   },
   "c42256ed71e3cf2b": {
     "at": "2026-11-18T07:06:16.115Z",
@@ -5185,6 +6032,13 @@
     "srcHash": "c627a4b4564096fe",
     "status": "machine",
     "text": "**`.context`（通用中繼資料管道）**"
+  },
+  "c69afa6797a9f34e": {
+    "at": "2026-11-18T12:24:04.851Z",
+    "job": "session-0006-20261118122404",
+    "srcHash": "c69afa6797a9f34e",
+    "status": "machine",
+    "text": "**Open Policy Agent（OPA/Rego）：** 一種廣泛使用的語言，用於評估複雜的多跳圖關係，並計算跨分散式拓撲的最小權限存取。編譯進 CLI 的 Rego 引擎會依原樣執行 `.rego` 檔案；需要 OPA 完整內建功能範圍的原則，則以 OPA 自己的工具鏈編譯，並在轉接器 guest 之後執行。"
   },
   "c6ac557d6ed1231f": {
     "at": "2026-11-18T07:13:03.194Z",
@@ -5326,12 +6180,26 @@
     "status": "machine",
     "text": "**意義：** 一項明確的命令式指令，規定交付的*意圖*（例如「編譯器，請將這個對應後的值*注入*為環境變數」）。它為實體輸出、已解析的端點或擷取到的認證，建立抽象的契約（`env`、`file`、`arg` 或自訂機制），而該掛載究竟*如何*執行的實體機制，則完全委派給底層的維運 Recipe。每種機制都是項目的清單（`[{ in: API_HOST, from: \"host\" }]`），每個項目以 `in:` 指名其本機識別碼，並恰好帶有 `from:` 或 `value:` 其中之一。"
   },
+  "c9c02f14b90c1cea": {
+    "at": "2026-11-18T12:24:04.851Z",
+    "job": "session-0006-20261118122404",
+    "srcHash": "c9c02f14b90c1cea",
+    "status": "machine",
+    "text": "**呼叫者身分傳遞，分兩個躍點：** 原始呼叫者的身分必須撐過兩個不同的躍點，而每一個都在不同的位置受到保護。在**閘道躍點**，開發者將 `core/context-propagation` 附加到請求進入時所經的閘道，它以 `dataplane.aggrega.ai/caller-identity` 選取。在**編譯時期**，附加項在該閘道自己的設定中實現——在 Envoy Gateway 上，是一項用戶端流量原則，針對 Release 所指名的授權單位驗證每個用戶端的憑證，並轉送憑證的詳細資料；在 LiteLLM AI 閘道上，是一個請求掛鉤，會移除呼叫者提供的任何身分標頭，並加入閘道所驗證的虛擬金鑰所屬的使用者與團隊，以及金鑰若有指名時的組織，作用於附加項在 `destinations` 中所列的模型別名的請求。在**執行階段**，閘道後方的服務收到的是誰在呼叫，而不只是閘道在呼叫。在**工作負載躍點**，一個代理程式直接對另一個代理程式發出的請求不會經過該閘道，因此是在接收端代理程式自己的入口進行檢查，由服務網格拒絕任何缺少已簽署權杖（證明原始使用者意圖）的請求（例如 Istio 的 JWT `AuthorizationPolicy`）。標準程式庫提供閘道躍點的 Feature，但沒有工作負載躍點的 Feature，因此附加 `core/context-propagation` 保護的是經過閘道的流量，而代理程式對代理程式的呼叫則留給企業自行提供的網格設定。由另一方執行的代理程式，由 `core/ai-tool/agent-invocation` 透過 A2A 以 `core/ai-agent/a2a-remote` 連到，完全位於 Release 之外：該方依代理程式的 Agent Card 所宣告的安全機制檢查每次呼叫，而工具會在代理程式發布的請求標頭下，出示連線上所持有、以參照方式從 Secret 讀取的認證。當卡片要求 OAuth 2.0 用戶端認證或 OpenID Connect 時，連線改為（或另外）持有用戶端機密，連同操作員寫在其上的用戶端 ID，而代理程式會發布其卡片所宣告的權杖或探索位址與範圍；工具自己的容器用它們取得權杖、更新權杖，並在每次呼叫時出示；目錄只傳遞這些輸入，而任何建置都無法檢查容器如何處理它們。當卡片要求雙向 TLS 時，連線持有用戶端憑證，而若簽署代理程式伺服器憑證的授權單位不是映像檔已信任的，則也持有該授權單位；每一項都會以檔案形式，從連線所指名的 Secret 掛載到工具的容器中，而容器在 TLS 交握本身中出示憑證。因此，工具可以連到卡片宣告標頭或 cookie 中的 API 金鑰、值固定的 HTTP 驗證機制（例如 Bearer 或 Basic，由 Secret 持有完整的標頭值）、採用用戶端認證授與的 OAuth 2.0 或 OpenID Connect，或雙向 TLS 的代理程式。它無法連到卡片要求查詢字串中的金鑰、回應代理程式質詢的 HTTP 機制（例如 Digest），或用戶端認證以外的 OAuth 2.0 流程的代理程式。它也不會對由另一方透過純 HTTP 執行的代理程式出示認證：當該代理程式的位址為 `http` 時，連線上的認證或用戶端機密會中止建置並指名該連線，因為認證，或以機密取得的權杖，會以未加密方式傳送給它。在 Release 內執行的代理程式則仍可透過 `http` 連到，無論使用哪一種，此時認證會以未加密方式穿越叢集網路。"
+  },
   "c9f1503025311e0e": {
     "at": "2026-11-18T07:06:16.115Z",
     "job": "session-0001-20261118070616",
     "srcHash": "c9f1503025311e0e",
     "status": "machine",
     "text": "4. 應用程式範式與基礎架構的非目標"
+  },
+  "c9f70564debc98ff": {
+    "at": "2026-11-18T12:24:04.851Z",
+    "job": "session-0006-20261118122404",
+    "srcHash": "c9f70564debc98ff",
+    "status": "machine",
+    "text": "為了在沒有寫死規則的情況下建構 IR 圖，編譯器從三項明確宣告中讀取它："
   },
   "ca7667ab5e523538": {
     "at": "2026-11-18T11:27:19.320Z",
@@ -5435,6 +6303,13 @@
     "srcHash": "cd1cc8e8e3c4f99a",
     "status": "machine",
     "text": "單一工作區使用 `.cursor/mcp.json`，或所有工作區共用使用者範圍的 `mcp.json`"
+  },
+  "cd3411226a5a9960": {
+    "at": "2026-11-18T12:24:04.851Z",
+    "job": "session-0006-20261118122404",
+    "srcHash": "cd3411226a5a9960",
+    "status": "machine",
+    "text": "**Locals 前置段：** 在任何 `provides` 範本執行之前，編譯器依撰寫順序評估 Recipe 的 `.locals` 項目，每個項目都針對自成一體的節點本地脈絡——`.context.instance_id`、`.values`、`.infra`，以及同一區塊中目前已解析的項目，但不包括 `.context.inject` 或 `.context.uses`。因此項目可以讀取其上方定義的同層項目，並收到該項目已解析的值；凡是一個項目讀取另一個項目之處，撰寫順序就是契約的一部分，而且區塊絕不會為了讓某個參照得以解析而重新排序。先解析 locals，才讓 `provides` 範本得以讀取 `.locals`。Recipe 的 `.source` 範本在這些 locals 解析之後，針對同一脈絡評估，這讓 `.locals` 可以在 Recipe 的各範本中作為速記重複使用，並讓作者依邊界將 `.source`（chart 版本、路徑、登錄庫）參數化。"
   },
   "cd576ce172d8518e": {
     "at": "2026-11-18T11:36:26.060Z",
@@ -5540,12 +6415,26 @@
     "status": "machine",
     "text": "**開發者為元件自身的值所取的名稱。** 當 Component 宣告了 `spec.inject` 時，開發者自己的 `inject:` 區塊會選定元件自身的值與 provides 傳入交付管道時所用的名稱。編譯器會在 `.context.self_inject` 告知 Recipe 每個項目的範本所讀取的那一個自身的值——依機制而定，將每個名稱對應到 `provides.<key>`、對應到範本只讀取一個自身的值且別無其他時的 `values.<key>`，或對應到空字串——其形態與連線的名稱在 `.context.uses.<alias>.inject` 所採用的形態相同。對於執行開發者映像檔的 Recipe，標準程式庫目錄的慣例是把它原本會為元件自身的值所選的名稱視為預設值，只有在沒有任何項目已對應到該值時，才以預設名稱交付該自身的值。那是目錄的慣例，不是編譯器規則：企業目錄可以用任何自己選擇的方式交付其元件自身的值。編譯器從開發者所寫的文字讀取該對應表，不對這些名稱賦予任何意義。"
   },
+  "cf1a4e4c36dd724d": {
+    "at": "2026-11-18T12:24:04.851Z",
+    "job": "session-0006-20261118122404",
+    "srcHash": "cf1a4e4c36dd724d",
+    "status": "machine",
+    "text": "**動作：** 編譯器原生讀取已驗證元件中明確宣告的 `uses` 區塊，確定性地在圖中的節點之間畫出拓撲邊，並讓 `values` 區塊保持完全不透明。接著它評估**變更閘門**，將圖的一份投影——每個節點的標籤與其實例宣告的 `values`，編譯器交出這些值但不讀取——連同 Release 的名稱與環境，傳給附加在 `label-transform` 角色的治理外掛程式。外掛程式評估脈絡並回傳 JSONPatch，動態地自動標記圖（例如依 Release 的環境注入標籤 `compliance.aggrega.ai/data-class: restricted`，或依資料庫宣告的擴充功能注入 `datastore.aggrega.ai/engine: vector`）；修補只會作用於標籤。"
+  },
   "cf242788df1f36de": {
     "at": "2026-11-18T07:06:16.115Z",
     "job": "session-0001-20261118070616",
     "srcHash": "cf242788df1f36de",
     "status": "machine",
     "text": "**Kustomize** 不使用範本化來修補 Kubernetes YAML，並內建於 `kubectl` 中。它轉換既有的資訊清單，而不是把拓撲藍圖編譯成資訊清單。"
+  },
+  "cf5de15da582357d": {
+    "at": "2026-11-18T12:24:04.851Z",
+    "job": "session-0006-20261118122404",
+    "srcHash": "cf5de15da582357d",
+    "status": "machine",
+    "text": "Aggrega 將人機互動框架（如 AutoGen 和 LangGraph）視為工作節點。為了支援「休眠」中的代理程式在不遺失狀態的情況下等候人工輸入，**平台架構師（Platform Architects）可以在這些代理程式的 Components 上宣告 `usesSchema` 插槽**，嚴格要求必須明確將資料儲存類別的元件綁定到這些插槽，並以資料儲存引擎標籤來選取——對於代理程式依相似度擷取資料的儲存庫，使用 `datastore.aggrega.ai/engine in (vector, semantic-memory, search)`；對於代理程式用來保存其執行狀態檢查點的儲存庫，則使用 `datastore.aggrega.ai/engine=kv`。插槽依引擎標籤而非產品名稱綁定，因此由作者選擇接入哪個儲存庫，而宣告依然成立。此外，對於人對代理程式的回饋迴圈（例如 Slack 整合），可以設定治理判定角色，除非附加了明確宣告的閘道元件，否則拒絕該架構，使回呼 webhook 經由已宣告的入口邊界進入。"
   },
   "cfda781129683cfe": {
     "at": "2026-11-18T07:13:03.194Z",
@@ -5582,6 +6471,13 @@
     "status": "machine",
     "text": "**可重現且受治理。** 相同輸入，相同輸出，每個相依性都固定在鎖定檔中。你的原則會接入編譯器，並在建置違反原則時中止，同時說明該修正什麼。"
   },
+  "d092dcdf7053548a": {
+    "at": "2026-11-18T12:24:04.851Z",
+    "job": "session-0006-20261118122404",
+    "srcHash": "d092dcdf7053548a",
+    "status": "machine",
+    "text": "**不嵌入時間。** 編譯不會在輸出中嵌入時間戳記。下午 2:00 的建置與凌晨 2:00 的建置產生相同的成品。合併器的出處中繼資料使用 file:line，而不是 file:timestamp。"
+  },
   "d0d3a9324140c5f1": {
     "at": "2026-11-18T07:06:16.115Z",
     "job": "session-0001-20261118070616",
@@ -5617,6 +6513,13 @@
     "status": "machine",
     "text": "**領域 3**"
   },
+  "d2bd02f9f5ff9890": {
+    "at": "2026-11-18T12:24:04.851Z",
+    "job": "session-0006-20261118122404",
+    "srcHash": "d2bd02f9f5ff9890",
+    "status": "machine",
+    "text": "Aggrega 將約 30 行的 `Aggregate.yaml` 編譯為數千行的實體 JSON 或 YAML 設定。如果沒有辦法將執行中的資源追溯回其來源，在「main.tf.json line 4,032」除錯失敗就會迫使開發者手動重建對應。Aggrega 的渲染外掛程式透過將追蹤識別碼合併到提供者原生的中繼資料介面來處理這個問題——Kubernetes 的 `metadata.labels` 與 `metadata.annotations`、Terraform 的出處註解，以及各提供者對等的慣例——讓每個渲染出的物件都帶有指回其來源的指標。`aggrega.ai/compiler-version` 標籤（記載於 [governance-and-compliance §5](11-governance-and-compliance.md#5-compile-time-provenance-stamping)）是這個家族中的一個追蹤鍵；它旁邊的戳記還帶有 `aggrega.ai/aggregate-name`、`aggrega.ai/component-id`、`aggrega.ai/boundary-path`、`aggrega.ai/recipe-uri` 與 `aggrega.ai/environment`，而 helm、helm-chart、compose、terraform 與 cloudformation 提供者各自輸出它——helm-chart 提供者是在 Recipe 加到 chart 的範本檔案上輸出，因為它會原封不動地複製 chart 自己的範本。"
+  },
   "d2ec8b301ba3a541": {
     "at": "2026-11-18T07:06:16.115Z",
     "job": "session-0001-20261118070616",
@@ -5630,6 +6533,13 @@
     "srcHash": "d321bfdfd75d57e7",
     "status": "machine",
     "text": "一個 `[mcp_servers.aggrega]` 資料表——請見 [Codex CLI](#codex-cli)"
+  },
+  "d33a5b12145b6a6d": {
+    "at": "2026-11-18T12:24:04.851Z",
+    "job": "session-0006-20261118122404",
+    "srcHash": "d33a5b12145b6a6d",
+    "status": "machine",
+    "text": "這個值在每條邊上一律存在，無論該邊是如何撰寫的，因此原則絕不必把缺少的欄位讀成「declared」。而且它自成一個軸：它說的是插槽從何而來，而不是誰畫了這條邊，因此它與 `origin_feature` 和 `origin_release` 組合，而非與之重疊——原則可以禁止自由形式的連線，同時仍允許 Release 接線已宣告的連線。"
   },
   "d39d8aca0ddd158e": {
     "at": "2026-11-18T11:27:19.320Z",
@@ -5727,12 +6637,26 @@
     "status": "machine",
     "text": "**解決方案：** 由於 Aggrega 與能力無關，應用程式與基礎架構之間的界線完全由使用者決定。Aggrega 可用於「綠地」純基礎架構的 Aggregates，也可以在開發者明確要求將企業 AI 閘道作為其應用程式的一部分時，依需求為它們產生設定。當有此要求時，編譯器會利用 WebAssembly 渲染外掛程式與平台維運的 Recipes，輸出這些閘道的精確成品，讓執行階段基礎架構能實際執行語意快取與跨提供者的後援鏈。"
   },
+  "d844552a14e86c07": {
+    "at": "2026-11-18T12:24:04.851Z",
+    "job": "session-0006-20261118122404",
+    "srcHash": "d844552a14e86c07",
+    "status": "machine",
+    "text": "編譯器的端對端測試在單一測試內將每個測試資料編譯數次，並斷言每次執行都輸出相同的檔案、內容位元組完全相同。重複編譯正是能抓出對應表迭代順序洩漏，或對未排序集合迭代的原因，這類問題在多數執行中產生穩定的輸出，偶爾才會出現分歧。這些測試與編譯器其餘的測試套件一併執行。"
+  },
   "d8bccbc795bdaa2c": {
     "at": "2026-11-18T11:36:26.060Z",
     "job": "session-0004-20261118113626",
     "srcHash": "d8bccbc795bdaa2c",
     "status": "machine",
     "text": "**這組值是 Aggrega 自有的，而且是封閉的。** 已發布的 Component 結構描述列舉了這些值，帶有其他任何值的文件會在載入時被拒絕——`E0215` 會指出該標籤並列出可接受的值。這就是這條軸帶來的好處：針對 `stateful-server` 撰寫的 Feature 或插槽選擇器，在它遇到的每個目錄中意義都相同。"
+  },
+  "d90b6d408f5fdf63": {
+    "at": "2026-11-18T12:24:04.851Z",
+    "job": "session-0006-20261118122404",
+    "srcHash": "d90b6d408f5fdf63",
+    "status": "machine",
+    "text": "這些設定如何執行，非常有彈性，完全由企業決定："
   },
   "d9ed59332a4a6c39": {
     "at": "2026-11-18T07:06:16.115Z",
@@ -5886,6 +6810,13 @@
     "status": "machine",
     "text": "在 Windows 的 PowerShell 中："
   },
+  "dd01b052cb379835": {
+    "at": "2026-11-18T12:24:04.851Z",
+    "job": "session-0006-20261118122404",
+    "srcHash": "dd01b052cb379835",
+    "status": "machine",
+    "text": "對於要補全合規循環的平台團隊，實際的結論是：將酬載必須具備的*形狀*表達為企業基準上的結構描述限制，將企業所要求的*跨實體*規則表達為附加的判定角色，並將開發者永遠不該輸入的*衍生中繼資料*表達為附加的轉換角色。三者都只宣告一次並適用於每次建置，而且沒有任何一項需要開發者知道它們的存在。"
+  },
   "dd157dd15a58f548": {
     "at": "2026-11-18T11:36:26.060Z",
     "job": "session-0004-20261118113626",
@@ -5899,6 +6830,13 @@
     "srcHash": "dd2be1e529902a8c",
     "status": "machine",
     "text": "認證模型"
+  },
+  "dd31d8360c7e6bb1": {
+    "at": "2026-11-18T12:24:04.851Z",
+    "job": "session-0006-20261118122404",
+    "srcHash": "dd31d8360c7e6bb1",
+    "status": "machine",
+    "text": "雖然酬載不預設立場，但通用結構描述會強制執行嚴格的結構機制，以支援安全的成品產生："
   },
   "dd61d9bd37f2cd90": {
     "at": "2026-11-18T11:27:19.320Z",
@@ -5996,6 +6934,13 @@
     "srcHash": "e0275688f7625cac",
     "status": "machine",
     "text": "**平台團隊（Platform Team，領域 2 與 4）：** 這些人是現代的平台架構師（Platform Architects）與 CISO。他們扮演 Paved Road 的建造者。他們撰寫 JSON Schema 2020-12 宣告（通常採用精簡形式），定義保持中立的安全原則（透過 Wasm 驗證插槽評估），並管理 GitOps 路由（`Manifests` 與 `Releases`）。他們把串流對齊的開發者視為內部客戶，使販賣機供應的內容符合客戶的安全原則。"
+  },
+  "e031bbfd0b422e02": {
+    "at": "2026-11-18T12:24:04.851Z",
+    "job": "session-0006-20261118122404",
+    "srcHash": "e031bbfd0b422e02",
+    "status": "machine",
+    "text": "因為 Aggrega 編譯器不預設立場，它對 AI 框架、權杖預算或記憶體分割完全沒有寫死的知識。相反地，通用的雲端原生結構描述就像一只空容器。高度專門化的領域智慧並不是寫死在編譯器核心中，而是分散在整個可延伸的 Aggrega 生態系中。它封裝在平台目錄內專門的 `components`、`features` 與 `recipes` 之中。開發者將其特定的應用程式意圖保存在 `values` 與 `uses` 區塊中——嚴格受架構師的 `schema:` 宣告（精簡形式或完整的 JSON Schema 2020-12）與 `usesSchema` 插槽所管轄——而該智慧的實體轉譯則由特定目標的 WebAssembly 外掛程式執行。"
   },
   "e04b210684700fed": {
     "at": "2026-11-18T11:27:19.320Z",
@@ -6101,6 +7046,13 @@
     "status": "machine",
     "text": "跨越領域邊界（當舊有程式碼需要時，開發者使用參數提升，把基礎架構的關注點注入 Aggregate）。"
   },
+  "e37b1ec694542891": {
+    "at": "2026-11-18T12:24:04.851Z",
+    "job": "session-0006-20261118122404",
+    "srcHash": "e37b1ec694542891",
+    "status": "machine",
+    "text": "**Wasm 驗證保險機制：** 為了防止開發者繞過內部目錄，直接從公開中心拉取裸露的 `core/postgres` 元件，企業會登錄一個拓撲驗證外掛程式。它在靜態分析期間評估——在圖組裝完成之後、渲染任何成品之前——這也是它能看到整個拓撲，而非一次只看一個元件的原因。"
+  },
   "e3cecbe854e989d9": {
     "at": "2026-11-18T07:13:03.194Z",
     "job": "session-0002-20261118071303",
@@ -6177,6 +7129,20 @@
     "status": "machine",
     "text": "**延遲繫結（依賴反轉）：** 開發者請求抽象的介面（Interfaces，例如 `type: enterprise-agent`），而不是特定的實作（Implementations，例如 `helm-chart-v2`）。Manifest 在編譯時將介面解析為正確的實作，讓單一來源檔案就能真正多目標部署。"
   },
+  "e76e1b5e2af3f1a4": {
+    "at": "2026-11-18T12:24:04.851Z",
+    "job": "session-0006-20261118122404",
+    "srcHash": "e76e1b5e2af3f1a4",
+    "status": "machine",
+    "text": "**IR 酬載正規化：** IR 的結構形狀為設定強制執行單一事實來源：拓撲層只攜帶圖結構（節點身分、邊、中繼資料標籤），而正規化的設定狀態存放在一份獨立的記憶體內字典中，由編譯器傳給下游外掛程式。變更設定的變異器只在一處變更；提供者讀取正規化的狀態，不會因冗餘儲存而漂移。"
+  },
+  "e77545ea02d1d9cf": {
+    "at": "2026-11-18T12:24:04.851Z",
+    "job": "session-0006-20261118122404",
+    "srcHash": "e77545ea02d1d9cf",
+    "status": "machine",
+    "text": "**Workload 解析與驗證：** 宣告 `workload:` 的 Recipe——內嵌區塊內容，或指名某個檔案的 `workload: { $import: <path> }`——其文件會針對節點的渲染脈絡評估為範本，然後解析為 YAML 成為 Workload 形狀並接受檢查：渲染後的位元組依 Workload 結構描述驗證，解碼後的值也依其驗證（位元組帶有解碼會捨棄的鍵，而解碼會省略以空值提供的欄位，因此各自拒絕對方看不到的內容），每個 `attachments` 項目都依所綁定 Component 的 `featuresSchema` 宣告的槽位檢查，每個資源參照都依其所指名槽位已解析的 `provides` 檢查。這裡的失敗會中止建置。解析後的 Workload 會以 `.workload` 放在範本脈絡上，因此同一節點上稍後評估的範本可以讀取它。"
+  },
   "e805a42f8bd1471e": {
     "at": "2026-11-18T11:36:26.060Z",
     "job": "session-0004-20261118113626",
@@ -6190,6 +7156,13 @@
     "srcHash": "e8439b54ee1a97e7",
     "status": "machine",
     "text": "`uses` 區塊把跨元件相依性宣告為純粹的拓撲：Component A 依賴 Component B 的公開 `provides` 契約，而不是 Component B 的實體位址或連線細節。拓撲存在於 `uses`；設定存在於 `values`。這種分離讓編譯器能明確看見所有跨元件的邊，而不必從 `values` 的內容推斷它們。"
+  },
+  "e8786cb6b4ab55f8": {
+    "at": "2026-11-18T12:24:04.851Z",
+    "job": "session-0006-20261118122404",
+    "srcHash": "e8786cb6b4ab55f8",
+    "status": "machine",
+    "text": "**自訂 Rust/TypeScript 驗證：** 安全團隊可以用標準語言撰寫量身訂做的組織原則，並將其編譯為 Wasm，作為驗證閘門。"
   },
   "e942332eb235ddc8": {
     "at": "2026-11-18T11:36:26.060Z",
@@ -6211,6 +7184,13 @@
     "srcHash": "ea4920671fda1b5e",
     "status": "machine",
     "text": "**你登入所取得的範圍未涵蓋的工具，仍然在工具清單中。** 呼叫它會被拒絕，並指出能允許它的範圍，而實作該通訊協定逐步提升驗證的用戶端，會以要求你為該範圍重新登入來回應該拒絕。未實作逐步提升驗證的用戶端仍可被授予寫入範圍：執行授權伺服器的人會讓它們成為該用戶端的預設範圍，因此它第一次登入就帶有這些範圍——代價是透過該用戶端的每次登入都因此帶有寫入的存取範圍。[呼叫者可存取的範圍](../language-reference/cli/aggrega-mcp.md#what-a-caller-may-reach)說明每個範圍允許什麼，以及該設定在每次連線都重新自行登錄的用戶端上如何運作。"
+  },
+  "ea51efea0d870d43": {
+    "at": "2026-11-18T12:24:04.851Z",
+    "job": "session-0006-20261118122404",
+    "srcHash": "ea51efea0d870d43",
+    "status": "machine",
+    "text": "B. 部署時期與執行階段：執行交接與強制"
   },
   "eb6cc74a6b32b4ed": {
     "at": "2026-11-18T11:27:19.320Z",
@@ -6287,6 +7267,27 @@
     "status": "machine",
     "text": "**8. Release：** 路由器。它將 `aggregate` 繫結到 `manifest`，並將元件對應到實體邊界（例如 `aws-eks-production`）。為了維持 DRY 的工作流程，Releases 透過 `extends` 關鍵字支援繼承，讓特定環境的 Releases 能乾淨地繼承全域的基底 Release。它嚴格地只透過 `parameters` 區塊注入實體現實，以滿足抽象的 Aggregate 契約，並透過 `infra` 平行命名空間注入實體規格（例如 CPU 或連接埠）。為了保護 Aggregate 作為單一事實來源（Single Source of Truth），Release 結構描述以機制禁止 `values:` 區塊——維運人員無法在 Release 中對任何 Component 或 Feature 宣告 `values`。面向開發者的值若要依環境變化，則透過**參數提升（Parameter Hoisting）**：開發者在 Aggregate 中公開一個具型別的 `parameters.*` 欄位，Component 的 `values` 範本參照它，而 Release 為其環境滿足該參數。各環境渲染出的值各不相同，而 Aggregate——也就是決定*哪些*值存在、以及它們*如何*流動的撰寫介面——仍是單一事實來源。結構描述層級對此禁令的明確陳述，請參閱[架構限制與建議模式](06-data-taxonomy-and-composition.md#8-architectural-constraints-and-recommended-patterns)下的限制 4「Release 不得覆寫開發者的值」。關鍵在於，為了防止無法追溯的「變更 Aggregate 的」Releases，當 Release 使用 `extends` 時，宣告 `aggregate` 會被 Release 結構描述拒絕（結構描述限制在使用 `extends` 時不允許宣告 `aggregate`）。子 Release 必須對應到與其父層完全相同的開發者意圖。不過，`manifest` 會變成選用，從而開啟「延遲繫結（Late Binding）」——讓維運人員繼承整個實體拓撲，卻能精準地抽換相依性鎖定檔。"
   },
+  "ed6de88fa63e64c1": {
+    "at": "2026-11-18T12:24:04.851Z",
+    "job": "session-0006-20261118122404",
+    "srcHash": "ed6de88fa63e64c1",
+    "status": "machine",
+    "text": "不應強迫開發者手動在其 `Aggregate` 中輸入環境合規標籤（例如 `environment: production` 或 `soc2_in_scope: true`），因為這些會依 GitOps 目標而變。"
+  },
+  "ee01e443fb559136": {
+    "at": "2026-11-18T12:24:04.851Z",
+    "job": "session-0006-20261118122404",
+    "srcHash": "ee01e443fb559136",
+    "status": "machine",
+    "text": "**Aggrega 的解法：** 企業可以疊加兩種特定模式："
+  },
+  "ee79739d342d3342": {
+    "at": "2026-11-18T12:24:04.851Z",
+    "job": "session-0006-20261118122404",
+    "srcHash": "ee79739d342d3342",
+    "status": "machine",
+    "text": "**成品交接（部署時期）：** 外部的部署控制器接手，將成品推進實際環境。這*可以*是嚴格的 GitOps 控制器（如 ArgoCD 或 Flux）將檔案同步到 Kubernetes 叢集，但同樣可以是執行 `terraform apply` 的標準 CI/CD 管線，或是開發者針對 Docker Compose 執行本機 shell 指令碼。"
+  },
   "ee9a874bf8dd52f6": {
     "at": "2026-11-18T07:06:16.115Z",
     "job": "session-0001-20261118070616",
@@ -6342,6 +7343,13 @@
     "srcHash": "f0ab36e6f8337833",
     "status": "machine",
     "text": "**伺服器會回報套件啟動的是哪一個 `aggrega`。** Claude Desktop 的擴充功能設定列出的是套件本身的版本——也就是它所屬發行版本的版本——而不是它所啟動可執行檔的版本。兩者是分開安裝的，因此可能來自不同的發行版本。套件會把它自己的版本以環境中的 `AGGREGA_BUNDLE_VERSION` 變數交給伺服器，而伺服器會同時回報兩者：不帶引數呼叫 `describe-capabilities` 的回答——助理藉由這個工具了解伺服器提供什麼——開頭有一行指出可執行檔的版本與套件的版本，並在其結構化部分以 `version_summary` 帶有同一行，因此當助理被問到正在執行哪個版本的 Aggrega 時，不論應用程式交給它回答的哪一部分，它都能在那裡讀到兩者。若兩者來自不同的發行版本，該行會說明這一點並指出兩者，而伺服器在連線時交給助理的指引也以同一句話開頭。沒有任何東西會因為差異而拒絕，伺服器照常回答每個請求；回報它是為了讓你知道套件執行的是哪個可執行檔。若要讓兩者一致，請安裝你的可執行檔所屬發行版本的 `aggrega-<version>.mcpb`——在終端機執行 `aggrega version` 會印出該版本——或將 **Path to the aggrega executable** 設為套件所屬發行版本的 `aggrega` 的完整路徑，然後如步驟 4 重新啟動應用程式。"
+  },
+  "f0c134377e21ddf5": {
+    "at": "2026-11-18T12:24:04.851Z",
+    "job": "session-0006-20261118122404",
+    "srcHash": "f0c134377e21ddf5",
+    "status": "machine",
+    "text": "**問題：** 擁有數十個相互連接的模型、向量與工具的複雜 AI 架構，規模太大，人類無法手動稽核其可遞移的弱點（例如「代理程式 A 能否與工具 B 通訊，而工具 B 又與代理程式 C 通訊，代理程式 C 又能存取資料庫 D？」）。"
   },
   "f12d249957841fac": {
     "at": "2026-11-18T07:06:16.115Z",
@@ -6412,6 +7420,13 @@
     "status": "machine",
     "text": "安裝 Aggrega，將一個可執行的範例寫入資料夾並在你的機器上執行，接著一步步擴充：在本機模型上執行的 AI 代理程式，或使用 PostgreSQL 的網頁應用程式。"
   },
+  "f43278ac45ffe439": {
+    "at": "2026-11-18T12:24:04.851Z",
+    "job": "session-0006-20261118122404",
+    "srcHash": "f43278ac45ffe439",
+    "status": "machine",
+    "text": "這個角色上的原則會**指名標籤**——節點、鍵，以及它所取的值——而不是寫出建置所套用的編輯指令。這個差別對撰寫的人很重要：指令是以路徑定址標籤，而 Aggrega 的標籤鍵經常含有 `/`，也就是路徑分隔符號，因此手寫的路徑會定址到巢狀位置，而不是單一標籤。建置會定址該決定所指名的標籤，而這個角色收到的節點投影，會比針對整個圖的判定少一層。"
+  },
   "f468b9209d190bd0": {
     "at": "2026-11-18T11:36:26.060Z",
     "job": "session-0004-20261118113626",
@@ -6460,6 +7475,13 @@
     "status": "machine",
     "text": "混合關注點（當企業目錄需要時，由架構師直接將法遵標籤寫死在 `core/*` Components 上）。"
   },
+  "f6c07f624473c359": {
+    "at": "2026-11-18T12:24:04.851Z",
+    "job": "session-0006-20261118122404",
+    "srcHash": "f6c07f624473c359",
+    "status": "machine",
+    "text": "**機制：** 渲染前攔截（`injectMapping`）、晚期綁定（`valuesMapping`），以及 Wasm 渲染插槽（`pipeline`）。"
+  },
   "f6d0bf4f655a6c99": {
     "at": "2026-11-18T07:06:16.115Z",
     "job": "session-0001-20261118070616",
@@ -6473,6 +7495,13 @@
     "srcHash": "f70d275d677cd77d",
     "status": "machine",
     "text": "為了維持不預設立場的核心目錄，官方元件遵循這項標準：**讓基底保持裸露（Keep the Base Naked），並為邊緣添加風味（Flavor the Edges）。**"
+  },
+  "f70e88c62385998d": {
+    "at": "2026-11-18T12:24:04.851Z",
+    "job": "session-0006-20261118122404",
+    "srcHash": "f70e88c62385998d",
+    "status": "machine",
+    "text": "B. 防禦 MCP 投毒（信任與隔離）"
   },
   "f7161bf8cdc23a96": {
     "at": "2026-11-18T11:36:26.060Z",
@@ -6522,6 +7551,13 @@
     "status": "machine",
     "text": "生態系理念"
   },
+  "f892a7d9463795c6": {
+    "at": "2026-11-18T12:24:04.851Z",
+    "job": "session-0006-20261118122404",
+    "srcHash": "f892a7d9463795c6",
+    "status": "machine",
+    "text": "原則收集在其 deny 鍵下的決定即為拒絕，建置會因此中止。"
+  },
   "f8ff339a19f527bb": {
     "at": "2026-11-18T07:13:03.194Z",
     "job": "session-0002-20261118071303",
@@ -6563,6 +7599,13 @@
     "srcHash": "f9eef4ae13f05939",
     "status": "machine",
     "text": "逐位元組相同輸出的保證，其範圍限於鎖定檔中固定的成品——也就是透過登錄庫成品解析的實體，其摘要由鎖定檔記錄（即[三層實體解析模型](13-catalog-and-registry.md#5-the-three-tier-entity-resolution-model)中的登錄庫層）。當建置依路徑讀取 Release 所指名的檔案（以 `./` 或 `../` 開頭的本機路徑），或讀取工作區目錄資料夾中的實體（`catalog_dirs:`，屬於工作區與快取層）時，不變性取決於這些檔案在各次建置之間維持不變。鎖定檔以文件的摘要及其所宣告檔案的摘要，記錄工作區目錄資料夾中的實體，因此建置遇到自拉取後已變更的實體時會中止，而不是渲染它——但有一個例外：Manifest 以某個參照指名的 Recipe 或 FeatureRecipe，若該參照同時也是某個 Component 或 Feature 的名稱，就會以該參照記錄為該 Component 或 Feature，因此它的輸入只由旁邊鎖定檔中的固定項目所掌握，對其自身文件的編輯並不會被偵測到。讓檔案維持原樣是原始碼控制系統（通常是 Git）的責任。"
+  },
+  "fa0c89f250d87264": {
+    "at": "2026-11-18T12:24:04.851Z",
+    "job": "session-0006-20261118122404",
+    "srcHash": "fa0c89f250d87264",
+    "status": "machine",
+    "text": "**目錄契約：** 企業建立一份要求特定標籤、但不佈建任何基礎架構的基準。"
   },
   "fa3d7932014efd6b": {
     "at": "2026-11-18T07:06:16.115Z",
@@ -6641,6 +7684,13 @@
     "status": "machine",
     "text": "將安全與執行解耦（「既有環境」情境）"
   },
+  "fe7e087e23c67aa5": {
+    "at": "2026-11-18T12:24:04.851Z",
+    "job": "session-0006-20261118122404",
+    "srcHash": "fe7e087e23c67aa5",
+    "status": "machine",
+    "text": "**階段 2——`spec.templates` 與 `$instantiate:` 解析。** 對於撰寫為範本參照的 SchemaLibrary 項目，編譯器會走訪每個以 `$args:` 叫用 `$instantiate:` 的程式庫項目，將參數值以字面純量取代的方式代入，並產生具體的結構描述項目。代入在每次程式庫載入時執行一次；已解析的項目會被快取。程式庫實體的撰寫形狀請見 [`language-reference/entities/schemalibrary.md`](../language-reference/entities/schemalibrary.md)。"
+  },
   "fea6b72f3f7df8c3": {
     "at": "2026-11-18T07:13:03.194Z",
     "job": "session-0002-20261118071303",
@@ -6655,6 +7705,13 @@
     "status": "machine",
     "text": "**範圍：** 定義於 `Aggregate` 的根部；由 `Release`（CI/CD）以內嵌方式在 `parameters:` 之下滿足，或透過 `parameters: { $import: <path> }` 指向外部的參數檔來滿足。"
   },
+  "ff0996d8a67a5af8": {
+    "at": "2026-11-18T12:24:04.851Z",
+    "job": "session-0006-20261118122404",
+    "srcHash": "ff0996d8a67a5af8",
+    "status": "machine",
+    "text": "**抽象信任驗證：** 因為 `values` 區塊具有廣泛的可延伸性，架構師可以強制要求像 `tls_pinning` 或 `required_signatures: 2`（用於法定人數共識）這類抽象指令。核心編譯器將這些經過結構描述驗證的物件逐字傳入扁平的 IR 圖。自訂的 Wasm 渲染外掛程式接著可以讀取這些值，為硬體層級的 Human-in-the-Loop（HITL）核准閘門產生成品。如果應用程式嘗試繞過共識規則，實際部署的代理會阻擋執行，直到收到 webhook 核准為止。"
+  },
   "ff2f778fc9d75fc9": {
     "at": "2026-11-18T07:13:03.194Z",
     "job": "session-0002-20261118071303",
@@ -6668,5 +7725,12 @@
     "srcHash": "ff5ffaf9ba47e92c",
     "status": "machine",
     "text": "文件"
+  },
+  "ffa21194bc71c0c9": {
+    "at": "2026-11-18T12:24:04.851Z",
+    "job": "session-0006-20261118122404",
+    "srcHash": "ffa21194bc71c0c9",
+    "status": "machine",
+    "text": "**沒有隨機來源，沒有外部狀態。** 轉換是針對其宣告輸入（實體內容、父鏈、鎖定檔）的純函式。外部狀態只在解析期間查詢（OCI 成品擷取），而已解析的內容依摘要做內容定址。"
   }
 }
