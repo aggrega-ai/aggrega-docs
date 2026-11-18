@@ -30581,6 +30581,17 @@
     "status": "machine",
     "text": "A provider returned two output files under one path (Một provider trả về hai tệp đầu ra dưới cùng một đường dẫn)"
   },
+  "28b11a6fb06cc828": {
+    "at": "2026-11-18T15:16:18.753Z",
+    "job": "session-0002-20261118151618",
+    "revision": {
+      "from": "24f61487be163b4e",
+      "reviewed": false
+    },
+    "srcHash": "28b11a6fb06cc828",
+    "status": "machine",
+    "text": "`dist/` được commit bên cạnh các Releases build ra nó — `dist/one-deployment/`, `dist/two-deployments-database/` và `dist/two-deployments-server/` — nên một thay đổi trong các Recipes hiện ra dưới dạng diff của các template. Hai mục phiên bản trong mỗi khối xuất xứ thay đổi theo trình biên dịch build, như các đoạn trích ở trên đã lưu ý. Các tệp `*.lock` được sinh ra và không được commit; chúng được tạo lại từ các tệp được commit."
+  },
   "28b150b26807064d": {
     "at": "2026-10-22T23:44:18.033086+00:00",
     "job": "msgbatch_01RW6fe423uAAc5jf8jBuLb6",
@@ -33196,6 +33207,17 @@
     "status": "machine",
     "text": "Thứ đã tạo ra phát hiện."
   },
+  "2c5e2ee1e5c0a28b": {
+    "at": "2026-11-18T15:16:18.753Z",
+    "job": "session-0002-20261118151618",
+    "revision": {
+      "from": "49c15bd9c7c1d474",
+      "reviewed": false
+    },
+    "srcHash": "2c5e2ee1e5c0a28b",
+    "status": "machine",
+    "text": "**Soạn một giá trị được chuyển giao.** Một thành phần có thể viết giá trị của thành phần lân cận theo bất kỳ cách nào dưới đây, và cùng một văn bản hoạt động ở bất cứ nơi nào thành phần lân cận được đặt:"
+  },
   "2c609e026d9fbaf4": {
     "at": "2026-10-22T10:27:55.857345+00:00",
     "job": "msgbatch_01St5AJWD4JFUsFvC38dR1rN",
@@ -33423,6 +33445,17 @@
     "srcHash": "2c97b90653a4b14e",
     "status": "machine",
     "text": "Tên Recipe KHÔNG bao gồm tiền tố `ops/` hay tên năng lực. Thư mục kiểu thực thể và thư mục năng lực đã cung cấp mọi ngữ cảnh cần thiết."
+  },
+  "2ca1c4e75196fc8c": {
+    "at": "2026-11-18T15:16:18.753Z",
+    "job": "session-0002-20261118151618",
+    "revision": {
+      "from": "f3707e8dfcfd5999",
+      "reviewed": false
+    },
+    "srcHash": "2ca1c4e75196fc8c",
+    "status": "machine",
+    "text": "`provides` của một Recipe chỉ đến được `outputs` của template khi một bên tiêu thụ trong template khác đọc chúng (xem [Liên kết giữa các lần triển khai](#linking-across-deployments)); một bên tiêu thụ trong cùng template đọc trực tiếp giá trị `provides`, một biểu thức ARM như `[reference('PaymentsDb').outputs.fqdn.value]`. Một giá trị cần xuất hiện trong các output của template, để người vận hành đọc sau khi template được triển khai, được viết trong phần `outputs` của đoạn."
   },
   "2ca311807afaaf38": {
     "at": "2026-10-22T23:53:38.624924+00:00",
@@ -51738,6 +51771,17 @@
     "srcHash": "45bbcc76f0231eb6",
     "status": "machine",
     "text": "Tài liệu đó có phải là tài liệu mà mọi workspace trên máy phân giải qua hay không."
+  },
+  "45c04f3689f14590": {
+    "at": "2026-11-18T15:16:18.753Z",
+    "job": "session-0002-20261118151618",
+    "revision": {
+      "from": "fa7b2676e6d387ba",
+      "reviewed": false
+    },
+    "srcHash": "45c04f3689f14590",
+    "status": "machine",
+    "text": "**Trạng thái hiện tại:** **đã có** cho mọi provider của thư viện chuẩn. Guest helm kết xuất các chart có nguồn (phân giải thư mục gốc của chart), các workload được tổng hợp và các artifact độc lập thành các manifest Kubernetes phẳng. Guest helm-chart lắp ráp một umbrella chart, lồng chart có nguồn của mỗi node làm một sub-chart, và mang một patch codec trung thực từng byte cùng các dấu phân cách artifact dạng ngoặc vuông (`[[ ]]`). Guest compose kết xuất các tệp compose có nguồn và các workload được tổng hợp, gộp một nhóm dispatch thành một `docker-compose.yaml`, và đưa một service vào các mạng của những component mà `x-aggrega-networks-of` của nó nêu tên. Guest terraform phát ra cấu hình Terraform nguyên văn (HCL hoặc JSON) hoặc vendor một module có nguồn và cung cấp đầu vào của nó dưới dạng các đối số module-block của component đó, kiểm tra cấu trúc HCL của một module có nguồn trước khi kết xuất, và hợp thành một ranh giới thành một cấu hình gốc duy nhất khai báo mỗi component là một module block lấy nguồn từ thư mục con riêng của component đó. Guest cloudformation kết xuất các template có nguồn và các mảnh stack độc lập, gộp một nhóm dispatch thành một template stack, và nối một cạnh `uses` xuyên ranh giới thông qua `link_publish` và `link_resolve`. Guest arm kết xuất các template đã biên dịch có nguồn, được bọc thành các lần triển khai lồng nhau, cùng các mảnh template độc lập, gộp một nhóm dispatch thành một `arm-template.json`, và nối một cạnh `uses` xuyên ranh giới thông qua `link_publish` và `link_resolve`. Mỗi guest kết xuất ngoại tuyến và một cách tất định."
   },
   "45c27a1aac4a8191": {
     "at": "2026-10-17T19:13:54.748Z",
@@ -76932,6 +76976,17 @@
     "status": "machine",
     "text": "Pool phụ cho thấy những gì ánh xạ đã trao cho chart — ba bản sao và các volume `200Gi` của Release, node selector được xây dựng từ `infra.cpu_arch`, và các tài nguyên mà giá trị mặc định của thư viện đã điền:"
   },
+  "675ebf9a4fa588ca": {
+    "at": "2026-11-18T15:16:18.753Z",
+    "job": "session-0002-20261118151618",
+    "revision": {
+      "from": "31f6e14c878a6367",
+      "reviewed": false
+    },
+    "srcHash": "675ebf9a4fa588ca",
+    "status": "machine",
+    "text": "Provider `arm` kết xuất Aggrega Recipes thành các mẫu Azure Resource Manager (ARM) ở phạm vi nhóm tài nguyên, hoặc ở phạm vi đăng ký hay phạm vi nhóm quản lý khi chú thích `aggrega.ai/azure-deployment-scope` của một ranh giới chỉ định như vậy; xem [Triển khai ở phạm vi đăng ký](#deploying-at-subscription-scope) và [Triển khai ở phạm vi nhóm quản lý](#deploying-at-management-group-scope). Mọi thành phần được kết xuất vào cùng một thư mục đầu ra dưới provider này đều được lắp ráp thành một mẫu duy nhất, ghi thành `arm-template.json` trong thư mục đầu ra của ranh giới: một tài liệu JSON duy nhất theo ngôn ngữ mẫu phiên bản 2.0, với các tài nguyên được đánh khóa theo tên biểu tượng. Vì vậy, trong trường hợp thông thường, một ranh giới trở thành một mẫu — và hai ranh giới có `directory:` phân giải về cùng một đường dẫn sẽ được lắp ráp cùng nhau thành một mẫu, dùng chung các tên của nó. Giống mọi provider của Aggrega, nó chạy ngoại tuyến và kín: một bản dựng Aggrega là biên dịch trước (ahead-of-time), nên provider không bao giờ gọi Azure, không bao giờ phân giải địa chỉ thực và không bao giờ chạy ARM. Các giá trị chỉ có khi chạy vẫn là biểu thức mẫu ARM (`reference()`, `resourceId()`, `parameters()`) mà ARM đánh giá khi mẫu được triển khai."
+  },
   "675ef625180d8ba3": {
     "at": "2026-11-12T07:54:52.875Z",
     "job": "session-0003-20261112075452",
@@ -93580,6 +93635,17 @@
     "status": "machine",
     "text": "Các thiết lập hành vi của daemon (`aggrega serve`) cho trình biên dịch dạng dịch vụ được các tích hợp IDE sử dụng."
   },
+  "7d9c54551a48b299": {
+    "at": "2026-11-18T15:16:18.753Z",
+    "job": "session-0002-20261118151618",
+    "revision": {
+      "from": "d13f5a5bb3dc8c70",
+      "reviewed": false
+    },
+    "srcHash": "7d9c54551a48b299",
+    "status": "machine",
+    "text": "Một template có nguồn được xác thực trước khi render. Một template không thể đọc dưới dạng JSON — dấu thứ tự byte, kết thúc dòng CRLF và chú thích JSONC trong template do công cụ Windows lưu thì được đọc, còn mọi thứ khác thì không — báo mã xác thực `arm-template-parse`. Một tài liệu đọc được dưới dạng JSON nhưng không phải template ARM báo `arm-template-shape`: không phải đối tượng, không có `$schema`, một schema không nêu phạm vi template nào hoặc nêu một tenant, hoặc một `resources` có dạng sai so với phiên bản ngôn ngữ của nó (một danh sách với `languageVersion` 2.x, một đối tượng khi không có). Cả hai mã xác thực đều nêu tên tệp và điều cần sửa. Một template vượt qua xác thực không vì thế mà được mang theo nguyên vẹn: những gì đến được template đã lắp ráp được quyết định tại [Template có nguồn](#sourced-templates)."
+  },
   "7d9d484c16cfaf0a": {
     "at": "2026-10-22T23:34:49.752518+00:00",
     "job": "msgbatch_01TcV2pobuFt4qNmD9rzSXon",
@@ -105057,6 +105123,13 @@
     "srcHash": "8d4dd80e47b3c0e6",
     "status": "machine",
     "text": "Thông báo được phát ra. Điều kiện đứng đầu, sau đó là từng mục tham chiếu, đơn vị mà nó nêu tên và trường chứa tham chiếu:"
+  },
+  "8d4facfb1a95e580": {
+    "at": "2026-11-18T15:16:18.753Z",
+    "job": "session-0002-20261118151618",
+    "srcHash": "8d4facfb1a95e580",
+    "status": "machine",
+    "text": "Provider `arm` luôn ghi `resources` thành đối tượng đó. `is_object` giữ mệnh đề này không áp dụng cho bất kỳ tài liệu nào khác của bản dựng mà `resources` cấp cao nhất chứa một danh sách."
   },
   "8d52027af7b733c7": {
     "at": "2026-10-22T22:51:16.626703+00:00",
@@ -129845,6 +129918,17 @@
     "status": "machine",
     "text": "**Cách khắc phục:** thêm loại đầu vào phù hợp với ý định soạn thảo của Recipe. Một Recipe cho một service mà build không cấp phát — một cơ sở dữ liệu hoặc một API đã chạy ở nơi khác — khai báo một `workload:` có `form: reference` cùng `endpoint` của nó (và tùy chọn `port`), và publish các giá trị kết nối của nó dưới `provides:` như mọi Recipe: `helm` kết xuất nó thành một ExternalName Service, `compose` không kết xuất gì cho nó, và trên cả hai, các bên sử dụng nó đọc các giá trị đã được publish."
   },
+  "ae4c33e78a3913fd": {
+    "at": "2026-11-18T15:16:18.753Z",
+    "job": "session-0002-20261118151618",
+    "revision": {
+      "from": "a7a906ffe426aff1",
+      "reviewed": false
+    },
+    "srcHash": "ae4c33e78a3913fd",
+    "status": "machine",
+    "text": "ID được dựng từ subscription và nhóm tài nguyên của chính máy chủ, điều này giả định cơ sở dữ liệu được triển khai vào cùng nhóm tài nguyên. Khi ranh giới của cơ sở dữ liệu khai báo `aggrega.ai/azure-subscription` hoặc `aggrega.ai/azure-resource-group` trong `annotations` của nó, ranh giới đó chỉ ra nơi template của nó được triển khai, và khi đó phần đọc gọi tên các giá trị này dưới dạng chuỗi."
+  },
   "ae4f59e00ada59cc": {
     "at": "2026-10-22T23:26:42.562574+00:00",
     "job": "msgbatch_01Gwcz9eKAWPkMYYYxx6Quyc",
@@ -137637,6 +137721,17 @@
     "srcHash": "b8233a546c680c64",
     "status": "machine",
     "text": "Self-inject cấp component. Inject các giá trị riêng của component (qua 'value:') hoặc các khóa provides riêng của nó (qua 'from:') trực tiếp vào đường ống phân phối (.context.inject). Chỉ được phép nếu thực thể catalog Component khai báo 'spec.inject' với các cơ chế tương ứng. Trình biên dịch xác thực rằng không có khóa inject nào trùng với các khóa được khai báo trong uses[].inject — xung đột sẽ gây ra lỗi dừng nghiêm trọng ErrInjectKeyCollision."
+  },
+  "b824e9e2bf32bc06": {
+    "at": "2026-11-18T15:16:18.753Z",
+    "job": "session-0002-20261118151618",
+    "revision": {
+      "from": "875659bf01bcdfd0",
+      "reviewed": false
+    },
+    "srcHash": "b824e9e2bf32bc06",
+    "status": "machine",
+    "text": "đầu ra Terraform, CloudFormation hoặc ARM cho các dịch vụ đám mây được quản lý."
   },
   "b82747fb1c1388e7": {
     "at": "2026-10-22T23:16:14.159554+00:00",
@@ -175179,6 +175274,17 @@
     "srcHash": "e95489047a9e96c3",
     "status": "machine",
     "text": "**Bản vá RFC 6902** mà công cụ áp dụng áp lên các tài liệu được nhắm tới trong tập đã kết xuất (ví dụ: thêm một container sidecar, gắn một volume secret, viết lại một biến môi trường trên Deployment được tổng hợp)."
+  },
+  "e957cd7364f6716e": {
+    "at": "2026-11-18T15:16:18.753Z",
+    "job": "session-0002-20261118151618",
+    "revision": {
+      "from": "ac31ea27ac448284",
+      "reviewed": false
+    },
+    "srcHash": "e957cd7364f6716e",
+    "status": "machine",
+    "text": "**Một template Azure Resource Manager được đọc như JSON.** Provider `arm` ghi ra `arm-template.json`, mà `documents` của nó chứa một đối tượng. `resources` của nó là một đối tượng được khóa theo tên ký hiệu, nên một chính sách đọc `input.artifacts[_].documents[_].resources.<symbol>` hoặc duyệt `resources` bằng `some resource in doc.resources`. Provider luôn ghi đối tượng đó; `is_object(doc.resources)` giữ một quy tắc không áp dụng cho bất kỳ tài liệu nào khác của bản dựng mà `resources` cấp cao nhất chứa một danh sách. Một tài nguyên mà một Recipe lấy từ một module là một lần triển khai lồng nhau, thuộc kiểu `Microsoft.Resources/deployments`, và các tham số của nó nằm ở `properties.parameters.<name>.value`, nên một chính sách trên các tài nguyên đó đọc chúng ở đó chứ không phải trong số các tài nguyên riêng của module. [`policy-render-verdict`](../examples/policy-render-verdict/README.md) đọc các image container theo cách này."
   },
   "e95c2288f8c7d4a0": {
     "at": "2026-10-22T23:34:49.752518+00:00",
