@@ -119,7 +119,8 @@ You can run an import with the commands below, or
 1. **Start from a workspace.** An import writes its drafts beneath the root of
    the workspace it runs in — the folder holding an `.aggrega-config.yaml` with a
    `workspace` key — or beneath the directory `--output-dir` names. It never
-   writes over an Aggregate already there.
+   writes over an Aggregate, Component, Feature, Recipe or FeatureRecipe
+   already there.
 2. **The catalog it weighs against.** The import scores your source against
    the Components of the workspace's catalog, and nothing else. Where the
    workspace names no catalog folder of its own, that is the standard-library
@@ -133,15 +134,18 @@ You can run an import with the commands below, or
    catalog's Recipes. With no catalog, the import has nothing to match, and
    `--target` is refused, since no Recipe binds to the target.
 
-   A workspace that names its own catalog folders imports against those
-   instead, and fetches no snapshot: the directories `workspace.catalog_dirs`
-   lists, a `catalog` folder at the workspace root, or the directories
-   `AGGREGA_CATALOG_DIRS` names. The standard-library catalog's own files are
+   A workspace that names its own catalog folders — the directories
+   `workspace.catalog_dirs` lists, a `catalog` folder at the workspace root, or
+   the directories `AGGREGA_CATALOG_DIRS` names — reads those first, and the
+   published snapshot behind them: an entity a folder holds is read in place of
+   the published one of the same identity, and every other published entity
+   stays in view. Where the snapshot cannot be read, an import over folders
+   imports against them alone, and a warning says why. The standard-library catalog's own files are
    the `aggrega-catalog` folder of the `aggrega-hub` repository,
    <https://github.com/aggrega-ai/aggrega-hub>, for a workspace that wants them
    as a folder. `--upgrade` fetches the newest snapshot the registry publishes
-   and imports against it from then on; under `--offline`, an import that would
-   have to fetch a snapshot stops and names what to run.
+   and imports against it from then on; under `--offline`, an import over no
+   folder that would have to fetch a snapshot stops and names what to run.
 
 3. **Run the import.** Name the file or the directory:
 
@@ -297,6 +301,17 @@ names the two ways to put it on the machine.
 [Core importers](../../language-reference/plugins/core-importers.md) describes
 each importer in full, and the settings an importer is given through a
 `plugins.importer` entry.
+
+## A service the catalog does not have
+
+The formats below are projects. A vendor's description of a cloud service's
+resource type is a source too: `aggrega import` reads a CloudFormation resource
+type, a Terraform provider's schema or an Azure Bicep type file, and drafts a
+Component that declares the type's settings and a Recipe that realizes it for
+`cloudformation`, `terraform` or `arm`. They are drafted into your workspace's
+`catalog` folder, for you to review, and you write the Aggregate and Release
+lines that use them. [Deploy a service the catalog does not have](resource-schemas.md)
+works it from the vendor's export to a build.
 
 ## The formats
 

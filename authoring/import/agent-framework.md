@@ -94,8 +94,7 @@ the registry it fetches its importer from: a signed snapshot of the published
 catalog, fetched, verified and kept in the workspace's content cache by the
 first import, and named by its digest in the record the import writes beside its
 drafts. A workspace that names its own catalog folders — in
-`AGGREGA_CATALOG_DIRS`, or under `workspace.catalog_dirs` — imports against
-those instead.
+`AGGREGA_CATALOG_DIRS`, or under `workspace.catalog_dirs` — reads those first, with the published snapshot behind them.
 
 ### What the import asks for
 

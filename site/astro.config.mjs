@@ -295,6 +295,7 @@ export default defineConfig({
             "authoring/import/langgraph",
             "authoring/import/google-adk",
             "authoring/import/agent-framework",
+            "authoring/import/resource-schemas",
           ],
         }),
         // Working with Aggrega in Visual Studio Code: what the extension needs,

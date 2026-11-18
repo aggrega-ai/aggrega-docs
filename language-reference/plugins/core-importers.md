@@ -1,6 +1,6 @@
 # Core importers
 
-The compiler's repository builds ten importer plugins of its own, one for each source format, and
+The compiler's repository builds importer plugins of its own, one for each source format, and
 publishes them with every compiler release:
 
 | Plugin | Serves | Reads |
@@ -15,6 +15,9 @@ publishes them with every compiler release:
 | `importer/langgraph` | `import:langgraph` | a LangGraph application's configuration, `langgraph.json`, as JSON, and, of an environment file the configuration names, the variables' names alone, where the import is handed that file under `with.sources` |
 | `importer/google-adk` | `import:google-adk` | the agents declared in the Agent Config files of an application built on Google ADK — `root_agent.yaml` and the configurations its sub-agents name — as YAML |
 | `importer/agent-framework` | `import:agent-framework` | a Microsoft Agent Framework declarative agent, a document of kind `Prompt` under any name, as YAML |
+| `importer/cloudformation-schema` | `import:cloudformation-schema` | a CloudFormation resource type — a provider schema file, or the output of `aws cloudformation describe-type` — as JSON, drafting a Component and a Recipe for the `cloudformation` provider |
+| `importer/terraform-schema` | `import:terraform-schema` | a Terraform or OpenTofu provider schema, the output of `terraform providers schema -json`, as JSON, drafting a Component and a Recipe for the `terraform` provider |
+| `importer/arm-schema` | `import:arm-schema` | an Azure resource provider's Bicep type file, `types.json`, as JSON, drafting a Component and a Recipe for the `arm` provider |
 
 Each is built from the compiler's own sources and stamped with the compiler's version, so the
 importers released with the compiler at `X.Y.Z` report version `X.Y.Z`, and their Plugin entities
@@ -22,7 +25,7 @@ record it. Unlike the plugins listed on [Embedded plugins](embedded-plugins.md),
 into the binary. The binary carries each one's Plugin entity and the digest of the one module it
 accepts for it, so each serves its format in every workspace, with no entry in its catalog.
 
-All ten are built on the Go kit's importer package, `github.com/aggrega-ai/aggrega-pdk/go/pkg/importer`.
+They are built on the Go kit's importer package, `github.com/aggrega-ai/aggrega-pdk/go/pkg/importer`.
 For the Langflow, Flowise and n8n importers, everything an importer does whatever its format — scoring
 the workspace catalog's Components against each node, deciding whether to reference one or draft a
 new one, laying the draft out, carrying the credential values it holds or writing them empty as a
@@ -48,7 +51,10 @@ API, and shares the rest as the MCP importer does, as [The Google ADK importer](
 importer drafts an instance of the standard library's Agent Framework agent per declarative agent,
 wired to the OpenAI model it names — each MCP server it names written in comments, since the model's
 provider reaches it as a hosted tool — and shares the rest as the MCP importer does, as
-[The Agent Framework importer](#the-agent-framework-importer) describes. How the
+[The Agent Framework importer](#the-agent-framework-importer) describes. The three
+resource-schema importers read a vendor's description of a resource type rather than a project, and
+draft a Component and a Recipe for it through the same package, as
+[The resource-schema importers](#the-resource-schema-importers) describes. How the
 importer socket works, and
 what it is handed, is described under
 [The importer socket](plugin-contract.md#the-importer-socket--draft-authoring-output).
@@ -99,7 +105,7 @@ rules every importer is selected by, which
 sets out:
 
 - Within one name, the highest version runs, or the version a `plugins.importer` entry names.
-- Where your catalog holds an importer of another name for `langflow`, `flowise`, `n8n`, `mcp`, `compose`, `dify`, `crewai`, `langgraph`, `google-adk` or `agent-framework`, two importers
+- Where your catalog holds an importer of another name for `langflow`, `flowise`, `n8n`, `mcp`, `compose`, `dify`, `crewai`, `langgraph`, `google-adk`, `agent-framework`, `cloudformation-schema`, `terraform-schema` or `arm-schema`, two importers
   advertise the format, and an import that attaches neither is refused naming both, under
   [A parse or import format is advertised by more than one plugin](../errors/fatal-halts.md#a-parse-or-import-format-is-advertised-by-more-than-one-plugin).
   A `plugins.importer` entry naming the one you want settles it.
@@ -166,8 +172,16 @@ declares:
   declarative agent naming no model, or writing its kind in another letter case or as `Agent`, is
   imported by naming `--format agent-framework`.
 
+- **CloudFormation resource types** — a source of any `.json` name that parses as JSON and carries a text
+  at `typeName` and an object at `properties`, a provider schema; or a text at `TypeName` and a text at
+  `Schema`, the output of `aws cloudformation describe-type`.
+- **Terraform provider schemas** — a source of any `.json` name that parses as JSON and carries a text
+  at `format_version` and an object at `provider_schemas`.
+- **Azure Bicep types** — a source named `types.json` that parses as JSON and carries a text at `0.$type`,
+  the first entry of a Bicep type file.
+
 A source matching two of them is refused naming both formats, and is imported by naming the one with
-`--format`. The Langflow, Flowise, n8n and LangGraph importers read their source
+`--format`. The Langflow, Flowise, n8n, LangGraph and resource-schema importers read their source
 through the parser that serves `parse:json`, the MCP importer a configuration listing its servers under
 `servers` through the one that serves `parse:jsonc` and every other source through the one that serves
 `parse:json`, the Compose, Dify, Google ADK and Agent Framework importers through the one that serves `parse:yaml`, and the
@@ -187,7 +201,9 @@ nothing else; the LangGraph importer declares `langgraph.json`, so an applicatio
 read through its configuration alone, and neither its code nor an environment file is ever read; and
 the Google ADK importer declares `root_agent.yaml`, so an application's directory is read through its
 root configuration alone — the configurations its sub-agents name reaching the importer only under
-its attachment's `with.sources` — and neither its code nor its environment file is ever read. A
+its attachment's `with.sources` — and neither its code nor its environment file is ever read; and the
+resource-schema importers declare `*.json`, and `types.json` for Azure, so a directory is read through
+every file of that pattern it holds, at any depth, and no other. A
 signature naming no file — the Langflow,
 Flowise and n8n importers', the MCP importer's for a registry server description, the LangGraph
 importer's for a configuration naming its schema, the Dify importer's and the Agent Framework importer's — applies to every file imported on its own: an import naming no format reads such a file
@@ -198,7 +214,7 @@ not parse as JSON, so no signature reading JSON recognises it; the CrewAI import
 `.vscode/mcp.json`, read JSON with comments, through the parser the compiler carries for that syntax
 where your catalog serves none.
 
-A source its parser refuses — for the Langflow, Flowise, n8n and LangGraph importers one that is not
+A source its parser refuses — for the Langflow, Flowise, n8n, LangGraph and resource-schema importers one that is not
 JSON, for the MCP importer one that is not JSON with comments or, unless it lists its servers under
 `servers`, not JSON, for the Compose, Dify and Agent Framework importers one that
 is not YAML, for the CrewAI importer a declaration that is not YAML or not JSON with comments, and for
@@ -209,8 +225,9 @@ the importer asks for the source's tree, and the parser's refusal is the answer 
 
 ## How a draft is named
 
-Every importer names the Aggregate it drafts, and the Release beside it where it drafts one,
-`<target_namespace>/<name>`. The first part is the [`target_namespace` setting](#settings), `imported`
+Every importer but the resource-schema importers, which draft no Aggregate and name a Component and a
+Recipe as [What is drafted](#what-is-drafted) describes, names the Aggregate it drafts, and the Release
+beside it where it drafts one, `<target_namespace>/<name>`. The first part is the [`target_namespace` setting](#settings), `imported`
 unless you set another. `<name>` is the first of these that is not empty:
 
 - the name the source gives itself, in the field its format declares it in:
@@ -2684,6 +2701,196 @@ and never written.
 The Agent Framework importer reads `target_namespace`, `empty_credentials` and `render_mode`, as
 [Settings](#settings) describes them, and no other setting.
 
+## The resource-schema importers
+
+The `importer/cloudformation-schema`, `importer/terraform-schema` and `importer/arm-schema` importers
+read a vendor's description of a resource type rather than a project, and draft what the catalog needs
+to deploy that type: a Component and a Recipe, written under `catalog/` in the standard library's layout,
+so the workspace's `catalog` folder holds them at the next validate and build. They draft no Aggregate,
+no Release and no Manifest, and `--target` composes nothing for them: the format implies the provider,
+which is the Recipe's `capability` — `cloudformation`, `terraform` or `arm`. One named resource type
+drafts one resource, and nothing else is written into the Recipe. [Deploy a service the catalog does not
+have](../../authoring/import/resource-schemas.md) works the three from a schema to a build.
+
+The importers share one reading of a type — its name, description, a tree of properties and each
+property's flags — and differ in how each format is read and how each provider's Recipe is written.
+
+### What they read
+
+| Plugin | Recognised by | Directory |
+| --- | --- | --- |
+| `importer/cloudformation-schema` | a `*.json` file holding a string at `typeName` and an object at `properties`, a provider schema; or a string at `TypeName` and a string at `Schema`, the output of `aws cloudformation describe-type`, whose `Schema` the importer reads as a second source | every `*.json` it holds |
+| `importer/arm-schema` | a file named `types.json` whose first entry holds a string at `$type`: a Bicep type file, one for each resource provider namespace at one API version, from the Azure/bicep-types-az repository | every `types.json` it holds |
+| `importer/terraform-schema` | a `*.json` file holding a string at `format_version` and an object at `provider_schemas`, the output of `terraform providers schema -json` or `tofu providers schema -json` | every `*.json` it holds, though one export suffices |
+
+Each reads its source through the parser that serves `parse:json`. Several schema files of one format
+go in one directory imported once, so that one entry of the record covers them. A `describe-type` output
+whose `Type` is other than `RESOURCE`, or whose `ProvisioningType` is `NON_PROVISIONABLE`, is refused by
+name under `resource-type-refused`, as is a source that parses but is not the format's schema shape,
+under `resource-schema-unreadable`, naming the member it lacks. An export is a file the author holds:
+nothing is fetched, and no cloud account is reached.
+
+### Which types are drafted
+
+The `resource_types` [setting](#settings) lists them. Each entry is a type's name, or an object with the
+`type` and a `component` that names the Component the type is drafted as.
+
+- A name is matched exactly for CloudFormation (`AWS::SQS::Queue`) and Terraform (`aws_sqs_queue`), and
+  without regard to case for Azure (`Microsoft.Storage/storageAccounts`, optionally followed by
+  `@<apiVersion>`), as Azure Resource Manager reads types. The draft keeps the file's spelling.
+- With no list, and sources holding one type, that type is drafted. With no list and several, the import
+  stops under `resource-type-not-named`, listing them for CloudFormation and Azure, and, for Terraform,
+  giving how many and where to write the list.
+- A listed type the sources do not hold stops the import under `resource-type-not-found`, naming it
+  and up to five of the nearest names. The list is the import's whole: a type of another file is drafted
+  by importing that file with this one. An Azure type named with an API version the file does not hold
+  stops it under the same code, naming the one it holds.
+- A Terraform type that more than one provider of the export carries is drafted from the non-beta provider
+  where exactly two carry it and one is the other's `-beta` sibling — `hashicorp/google` and
+  `hashicorp/google-beta`, the same registry host and namespace and the type name plus `-beta` — and
+  `beta-provider-passed-over` names the one passed over. Any other case stops under
+  `resource-type-ambiguous`, naming the providers and the remedy: export again from a configuration that
+  requires only one of them.
+- A `resource_types` value that is not a list of names and objects with a `type` and a `component` stops
+  the import under `resource-types-unreadable`, so a wrong value never reads as no list.
+
+A halt drafts nothing: no file is written, and no record is left.
+
+### How each property is placed
+
+A property of the type is placed by the first of these rules that holds, and a comment beside each
+drafted key names the rule:
+
+1. **Read back only** — a CloudFormation `readOnlyProperties` entry, an Azure `ReadOnly` flag, a Terraform
+   attribute that is computed and not optional: never an input. A scalar at the top of the type becomes a
+   key under `provides` — in CloudFormation a nested one too, as a `GetAtt` path. A property that is not a
+   scalar is not provided, and a sensitive one is withheld from `provides`, which is piped to a consumer
+   as a plain string.
+2. **Secret** — an Azure `sensitive` property, a writable Terraform `sensitive` attribute, or a
+   CloudFormation string property whose name holds a credential word — Password, Secret, Token,
+   Credential, PrivateKey, ApiKey or Passphrase — and does not end in `Arn`, `Id`, `Name` or `Ref`. The
+   CloudFormation reading is a convention of the draft, so review it. A secret is drafted as
+   [Secrets](#secrets-in-the-drafts) describes.
+3. **Placement**, to a typed key of `infra` — Azure's root `location`; Terraform's `region` on `aws`,
+   `location` and `resource_group_name` on `azurerm`, and `project`, `region`, `zone` and `location` on
+   `google`. A CloudFormation type has none, since a stack's resources live in the Region it is deployed to.
+   A placement key is required where the vendor requires it.
+4. **Identity**, to `values` — the resource's own name and identifier only: for CloudFormation the
+   `primaryIdentifier` properties, `Name` and `<Leaf>Name`; for Azure `name`; for Terraform `name`,
+   `identifier` and the attribute named after the type's last word, such as `bucket` for `aws_s3_bucket`. Any
+   other create-only property is not identity: it falls to the next rules, with a comment saying it is
+   replaced on change, so an operator can still set a subnet group or a key per environment.
+5. **Any other required property**, to a typed, required key of `infra`.
+6. **Every other writable property**, under `infra.overrides`, an open map that keeps the vendor's own
+   spelling at every depth. The Recipe's `overrides_this_recipe_reads` assertion admits exactly those names
+   and halts naming any other key; a deprecated property is admitted and marked so.
+
+Keys of `values` and `infra` are written in snake_case at every depth, and the Recipe maps each back to
+the vendor's spelling. A constraint is carried as the Component's own: `enum`, `pattern` where Go's regular
+expressions compile it, minimum and maximum, length bounds, `format` where it is one of the eight names the
+compiler checks, and a union as the open union of its branches' types. A vendor constraint not carried is
+reported under `constraint-dropped` naming the property, the constraint and why; so is a shape cut where a
+definition refers back to itself, or nests deeper than six levels, which is drafted as an open object. A
+Terraform map, tuple or object whose element shapes are not carried is reported the same way. A vendor
+default is not carried, and a description is carried as its first paragraph.
+
+A Terraform resource's legacy top-level `id` attribute is read back and provided, never an input. A Terraform variable whose name the module reserves — `source`, `version`,
+`providers`, `count`, `for_each`, `lifecycle`, `depends_on`, `locals` and `provider` — is written
+`<name>_value`.
+
+### What is drafted
+
+The Component is labelled `component.aggrega.ai/type: resource`, `component.aggrega.ai/hosting: managed`
+and a `component.aggrega.ai/category`, and declares `spec.schema.values`, `spec.schema.infra`, which holds
+`overrides` always, and `spec.schema.provides`. A Component for a secret on Terraform declares a
+`featuresSchema` slot, `selector: "feature.aggrega.ai/kind=secret"`, `sensitive: true`. A Component is
+named `<target_namespace>/<category>/<name>`: the `target_namespace` [setting](#settings) is `imported`
+unless you set another; `<name>` is the type's name written in lowercase with each run of other characters
+than ASCII letters and digits as one hyphen, such as `aws-sqs-queue` for `AWS::SQS::Queue` and
+`microsoft-dbforpostgresql-flexibleservers` for `Microsoft.DBforPostgreSQL/flexibleServers`; `<category>` is
+chosen by the importer from the vendor's service or provider namespace among the catalog's categories,
+and is `component` where it chooses none. An entry's `component` names the Component instead. The Recipe is
+named after the Component's last segment, and implements the Component at `0.1.0`.
+
+Where the name a draft would take is already held by a Component of the workspace's folders or the
+published catalog with other `values` keys, the import stops under `component-exists`, naming the
+Component, the differing keys and `component` as the remedy. A Component held with the same keys is the
+same draft refreshed, and the import goes on. A plain import never writes over a Component or Recipe file already in place, and `aggrega import --sync`
+refreshes the ones the record lists, stopping at one you edited.
+
+A text taken from a vendor's schema — a description, a line of the Recipe's header quoting one —
+opens with `[vendor schema text]`, so the drafts can be searched for it; text the import writes itself
+carries no marker.
+
+| Provider | Artifact | The resource | `provides` |
+| --- | --- | --- | --- |
+| `cloudformation` | `template.yaml` | `Resources.<logical id>`, the instance's name in capitalized words, with its `Type` and its `Properties` | `!Ref` for the primary identifier and `!GetAtt <logical id>.<Attribute>`, repeated under the fragment's `provides` block that the provider projects into the stack's Outputs |
+| `terraform` | `spec.source: ./module` and `module/main.tf.json` beside the Recipe; `spec.valuesMapping` fills the module's variables | `resource.<type>.this`, each argument read from a variable, each block type a `dynamic` block over its variable, and `terraform.required_providers` from the export's provider address; an `azurerm` module adds `provider-azurerm.tf` with `features {}` | `${module.<instance>.<attribute>}`, one `output` of the module for each attribute read back |
+| `arm` | `template.yaml`, a fragment keyed by the symbolic name `locals.symbol` holds, with `type`, `apiVersion` — the file's — `name`, the root keys the type has and `properties` | the resource under that symbolic name | an ARM expression, `[reference('<symbolic name>').<path>]` or the resource's id, evaluated when the template deploys |
+
+The Azure fragment takes the form [the `arm` provider](../providers/arm.md) merges into the template of
+the instance's boundary. A type writable only at the subscription or the management-group scope is drafted
+for that scope, and the Recipe's header names the boundary annotation the Release sets, as
+[Deploying at subscription scope](../providers/arm.md#deploying-at-subscription-scope) and
+[Deploying at management-group scope](../providers/arm.md#deploying-at-management-group-scope) describe. A
+type writable only at the tenant scope, or only as an extension of another resource, or at no scope the
+provider deploys at, is refused under `resource-type-refused`. The root `systemData` Azure keeps on a
+resource is read back and not provided. A Terraform export carries no provider version, so the module
+requires the provider with no constraint and the import warns under `provider-version-unconstrained`,
+naming where to add one. A Terraform provider's source is written in its short form for
+`registry.terraform.io` and `registry.opentofu.org`, and in full for another registry host.
+
+A drafted Terraform Recipe reads a source beside it, so a pull admits it only once an `entity.lock`
+records the module's digest: run [`aggrega pin`](../cli/aggrega-pin.md) on the Recipe's `recipe.yaml`,
+or pull with `--pin-sources`. A pull without it halts naming `aggrega pin`. The import writes no
+`entity.lock`, and re-drafting the module changes its digest, so pin again after each re-draft.
+
+### Secrets in the drafts
+
+A secret value is never written into a draft. On `arm`, a top-level `securestring` parameter of the
+fragment, named after the symbolic name and the property and supplied when the template deploys. On
+`cloudformation`, a `Parameters` entry with `Type: String` and `NoEcho: true`, named the same way and read
+with `!Ref`; an optional secret is a required parameter. On `terraform`, the Component's slot and a
+module variable carrying its own `sensitive: true`, filled from the value the attachment to the slot
+delivers; no `aggrega_override.tf.json` is written for such a Recipe.
+
+### Drafting a Recipe alone
+
+Where an entry's `component` names a Component the import's catalog holds — the workspace's folders
+first, then the published catalog — only the Recipe is drafted, named
+`<last segment of the Component's name>-<name>` so it never takes a curated Recipe's name, and
+implementing the Component at the version the catalog holds.
+
+- Each of the Component's `values` keys equal, after snake_casing, to a property of the type is written
+  from `.values`.
+- A property the vendor requires that no such key matches is read from `infra.overrides.<VendorName>`,
+  with an assertion that halts the build until the Release sets it.
+- A `values` key of the Component that matches nothing is listed in the Recipe's header comment.
+- A key of the Component's `provides` that names a read-back attribute is written from it. Every other
+  is written as a template that fails, naming the key and the attributes read back, so a build halts
+  until you map it, and the import warns under `provides-unmapped`.
+- The draft sees no `infra` key of the Component. Where the Component declares no `infra.overrides`, the
+  Release cannot set the overrides the Recipe reads, and the assertion naming them says so.
+
+A `component` that neither the workspace's folders nor the published catalog holds is drafted as a new
+Component under that name, with `component-drafted-new`, since a registry the workspace pulls from may
+publish a Component of that name, which the draft then shadows in this workspace.
+
+### Limits
+
+Each importer runs in a limit of memory and of time its Plugin entity declares. A large export, such as a provider's whole Terraform schema, is read within them: the JSON parser at
+16384 pages of memory, `importer/terraform-schema` at 8192 pages and 150000 milliseconds, and the other two
+importers at 4096 pages and 60000 milliseconds. Only the selected types' parts of a source are decoded, so
+naming the types with `resource_types` keeps a large export inside them, and `--format` names the format, so
+the import does not recognise it first.
+
+### The settings they read
+
+They read `resource_types`, `target_namespace`, `emit_hints` and `render_mode`, as [Settings](#settings)
+describes them, and no other setting. Under `render_mode: llm` the decision record, which holds the
+catalog Component each type resembles as `swapHint`, is written alone as `import-decisions.json`, and no
+draft is.
+
 ## What a target adds
 
 An import given a target — `--target` on `aggrega import`, or `target` on the assistant's import tool
@@ -2742,6 +2949,7 @@ plugins:
 | `mapping_overrides` | none | Mappings layered over the importer's own table, keyed by format and then by node type — for the Compose importer, by image repository. Each entry names the `component` a node of that type maps to and, optionally, its `category`, the `traits` — labels and their values — a matching Component carries, and a `vendor` word its name carries. An entry for a node type the table already maps takes the table row's place. Only the entries under the format being imported are read. |
 | `layout` | `platform` | `platform` drafts the platform that runs the flow, carrying the flow, with each part of it a Component of its own wired to the platform, as [The platform carrying the flow](#the-platform-carrying-the-flow) describes. `nodes` drafts every node as a Component of its own, as [Node by node](#node-by-node) describes. For the Dify importer, `platform` drafts the Dify installation carrying the application, as [What an application becomes](#what-an-application-becomes) describes. Any other value drafts as `platform`, and the import warns with `unknown-layout`. |
 | `empty_credentials` | `none` | Which credential values the flow the platform carries has written empty, as [Credential values the flow holds](#credential-values-the-flow-holds) lists them, which the Release the MCP importer drafts has written empty, as [Credential values a server holds](#credential-values-a-server-holds) lists them, which the Release the Compose importer drafts has written empty, as [Credential values a service holds](#credential-values-a-service-holds) lists them, which the application the Dify importer carries has written empty, as [Credential values an application holds](#credential-values-an-application-holds) lists them, which the Release the CrewAI importer drafts has written empty, as [Credential values a declaration holds](#credential-values-a-declaration-holds) lists them, which the Release the LangGraph importer drafts has written empty, as [The environment a configuration states](#the-environment-a-configuration-states) lists them, which the Release the Google ADK importer drafts has written empty, as [Credential values a configuration holds](#credential-values-a-configuration-holds) lists them, and which the Release the Agent Framework importer drafts has written empty, as [Credential values a declarative agent holds](#credential-values-a-declarative-agent-holds) lists them. `none` writes none empty: each is carried as written and named in a `credential-carried` warning. `marked` writes empty what a format marks as a credential and every member of an MCP server's configuration. `all` writes empty the inputs a format marks as no credential that can carry one as well — request headers, query parameters, a request written as a command line, an input named for a key. What the draft writes so that a node reaches its connection is written whatever this says. Any other value halts the import, which drafts nothing, with `unknown-empty-credentials`. A draft made node by node reads no value, and so does not read this setting. |
+| `resource_types` | none | The resource types a resource-schema importer drafts: a list whose entries are a type's name, or an object with the `type` and a `component` that names the Component the type is drafted as, as [Which types are drafted](#which-types-are-drafted) describes. With no list, the one type the sources hold is drafted. Any other value halts the import, which drafts nothing, with `resource-types-unreadable`. Read by the resource-schema importers alone. |
 | `attach_egress_allowlist` | `false` | `true` attaches the standard library's `core/egress-allowlist` Feature to each platform instance the draft writes, as `egress-allowlist`, setting none of its `infra`, as [What the draft leaves for the Release](#what-the-draft-leaves-for-the-release) describes. `false` attaches nothing. A draft that writes no platform, under `layout: nodes`, and the Dify importer's draft, whose entry for the Dify installation takes no Feature, attach nothing whatever this says, and with it `true` the import warns with `feature-not-attached`. Any value that is not a boolean reads as `false`. |
 
 A setting an importer does not know is ignored.
@@ -2785,6 +2993,18 @@ with its `code` as well.
 | `feature-not-attached` | `warn` | `attach_egress_allowlist` is `true` and the draft writes no platform, or composes the Dify installation, whose entry takes no Feature, so nothing is attached. |
 | `part-configured-in-platform` | `warn` | A node of a Dify application names what Dify configures for itself — a model and its provider, a tool, a knowledge base, an agent strategy, a plugin — so the draft wires no part for it. |
 | `dsl-version-newer` | `warn` | A Dify application is written in a version of the DSL newer than the one the Dify version `core/ai-agent/dify` runs by default writes. |
+| `resource-type-not-named` | `halt` | A resource-schema importer's sources hold several types and `resource_types` names none; the types are listed, or, for Terraform, counted. |
+| `resource-type-not-found` | `halt` | A type `resource_types` lists is not in the sources, or an Azure type named with an API version the file does not hold; the nearest names, or the version held, are named. |
+| `resource-type-ambiguous` | `halt` | More than one provider of a Terraform export carries the type, other than one provider and its `-beta` sibling; the providers and the remedy are named. |
+| `beta-provider-passed-over` | `info` | Exactly a Terraform provider and its `-beta` sibling carry the type, and the non-beta provider's is drafted. |
+| `resource-types-unreadable` | `halt` | `resource_types` is not a list of names and objects with a `type` and a `component`. |
+| `resource-schema-unreadable` | `halt` | A source parses but is not the format's schema shape; the missing member is named. |
+| `resource-type-refused` | `halt` | The provider cannot realize the type: a CloudFormation `MODULE`, `HOOK` or `NON_PROVISIONABLE` type, or an Azure type writable only at a scope the `arm` provider does not deploy at, or an input it cannot read from another resource. |
+| `component-exists` | `halt` | The Component name a draft would take is held, in the workspace's folders or the published catalog, with other `values` keys; the keys and `component` as the remedy are named. |
+| `constraint-dropped` | `warn` | A vendor constraint is not carried, or a shape is cut where a definition refers back to itself or nests too deep; the property, the constraint and why are named. |
+| `provider-version-unconstrained` | `warn` | A Terraform export carries no provider version, so the drafted module requires the provider with no constraint. |
+| `provides-unmapped` | `warn` | Drafting a Recipe alone: a key the named Component provides matches no attribute the type reads back, so the Recipe's `provides` halts the build for it until it is mapped. |
+| `component-drafted-new` | `warn` | An entry's `component` names a Component neither the workspace's folders nor the published catalog holds, so it is drafted new under that name. |
 
 An import given a target reports, after the importer's diagnostics, what drafting the Manifest found:
 a `warn` naming each component or feature type the Manifest leaves unmapped and why, and an `info`
@@ -2797,9 +3017,9 @@ drafted a Release and owes nothing, an `info` naming the `aggrega pull` to run n
 
 ## Published with each compiler release
 
-Each compiler release builds the ten importers from the tagged sources and generates their Plugin
+Each compiler release builds the importers from the tagged sources and generates their Plugin
 entities from the importers themselves, so an entity's capability, recognition signatures, host
-functions and description are what its importer reports. The release signs and publishes all ten,
-`importer/langflow`, `importer/flowise`, `importer/n8n`, `importer/mcp`, `importer/compose`, `importer/dify`, `importer/crewai`, `importer/langgraph`, `importer/google-adk` and `importer/agent-framework` at the release's version, beside the other
+functions and description are what its importer reports. The release signs and publishes them,
+`importer/langflow`, `importer/flowise`, `importer/n8n`, `importer/mcp`, `importer/compose`, `importer/dify`, `importer/crewai`, `importer/langgraph`, `importer/google-adk`, `importer/agent-framework`, `importer/cloudformation-schema`, `importer/terraform-schema` and `importer/arm-schema` at the release's version, beside the other
 core plugins, and records their entities with the other core plugins' entities for the standard
 catalog.
