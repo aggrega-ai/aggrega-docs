@@ -24673,6 +24673,17 @@
     "status": "machine",
     "text": "Layer 1（信封）和 Layer 2（支柱 schema）的错误在解析阶段以无前缀形式出现——它们在任何带 Aggrega 前缀的哨兵错误机制生效之前触发，因此 YAML 库或 schema 验证器的原生错误会被包装上一个位置前缀（`unmarshal <kind> \"<path>\": ...`、`<field-path>: <schema rule violated>`）。"
   },
+  "20d2b3586fc60692": {
+    "at": "2026-11-18T15:22:42.569Z",
+    "job": "session-0003-20261118152242",
+    "revision": {
+      "from": "c8c999961370b186",
+      "reviewed": false
+    },
+    "srcHash": "20d2b3586fc60692",
+    "status": "machine",
+    "text": "**从边界未指明 ID 所需位置的生产方读取的值，而读取的层级自身没有可取用的位置。** 请在生产方的边界上添加注解：对资源组范围的生产方在订阅或管理组范围读取时，使用 `aggrega.ai/azure-resource-group`；对资源组或订阅范围的生产方在管理组范围读取时，使用 `aggrega.ai/azure-subscription`；对管理组范围的生产方在资源组或订阅范围读取时，使用 `aggrega.ai/azure-management-group`。"
+  },
   "20d4155e7965d054": {
     "at": "2026-11-05T20:08:38.916Z",
     "job": "session-0019-20261105200838",
@@ -28262,6 +28273,17 @@
     "srcHash": "2593a178f085289d",
     "status": "machine",
     "text": "[选择你要处理的 Release](releases.md)——编辑器所作用的唯一一个 Release，以及如何选择它。"
+  },
+  "259bdac8de1edc6b": {
+    "at": "2026-11-18T15:22:42.569Z",
+    "job": "session-0003-20261118152242",
+    "revision": {
+      "from": "32a7ba8b64d1b125",
+      "reviewed": false
+    },
+    "srcHash": "259bdac8de1edc6b",
+    "status": "machine",
+    "text": "生产方边界上的这些注解决定其部署位置，它们被当作不透明字符串读取："
   },
   "259d559929989783": {
     "at": "2026-10-22T08:15:42.630087+00:00",
@@ -78241,6 +78263,17 @@
     "status": "machine",
     "text": "在本次调用中强制 allow_id_overrides=true"
   },
+  "692e45455bbaf38a": {
+    "at": "2026-11-18T15:22:42.569Z",
+    "job": "session-0003-20261118152242",
+    "revision": {
+      "from": "38900e47a6794b4d",
+      "reviewed": false
+    },
+    "srcHash": "692e45455bbaf38a",
+    "status": "machine",
+    "text": "**波次决定每个层级的顺序。** 嵌套部署内部的资源按波次排序，方式与[部署顺序](#deployment-ordering)相同。在顶层，嵌套部署是一个资源，位于其内部各组件中最早的波次，并将它们全部作为一个整体容纳。位于该最早波次的顶层资源，若嵌套部署还包含更晚波次的组件，会被添加到嵌套部署的 `dependsOn` 中，使更晚的组件排在它之后；位于嵌套部署最晚波次或其后的顶层资源则等待嵌套部署。有两种波次顺序无法写到它上面，它们会中止构建，而不是削弱顺序：一种是位于嵌套部署内各组件最早波次与最晚波次之间（严格介于两者之间）的某个波次中的顶层资源，它既要排在一部分组件之后，又要排在另一部分之前；另一种是依赖声明其资源组的那个资源的嵌套部署，而该资源所在波次晚于该部署的最早波次，这会让两者互相依赖。中止信息会指出该嵌套部署和各波次；请把声明资源组的组件放到更早的波次，或把嵌套部署的各组件放到同一个波次。"
+  },
   "69313192e2b26924": {
     "at": "2026-10-29T23:14:13.329Z",
     "job": "session-0033-20261029231413",
@@ -98102,6 +98135,17 @@
     "status": "machine",
     "text": "将示例写入一个以它命名的新文件夹，然后进入其 `source` 文件夹，该文件夹包含本页导入的内容，也是运行导入的位置："
   },
+  "83b0bd916b415902": {
+    "at": "2026-11-18T15:22:42.569Z",
+    "job": "session-0003-20261118152242",
+    "revision": {
+      "from": "06495f85a523b90b",
+      "reviewed": false
+    },
+    "srcHash": "83b0bd916b415902",
+    "status": "machine",
+    "text": "**包装。** 模板成为一个嵌套部署资源的 `properties.template`，以排序后的键写入。嵌套部署在自己的作用域中求值（`expressionEvaluationOptions.scope` 为 `inner`），并以增量方式部署；其 `name` 为 `[format('<Symbol>-{0}', uniqueString(deployment().name))]`，因此对于同一个外层部署是稳定的。引入的模板按读取时的原样携带，只有 `omits:` 条目移除的资源除外。1.0 语言的模板嵌套在 2.0 的外层模板内。`$schema` 为订阅或管理组编写的模板属于该作用域的内容：其嵌套部署使用 `location: \"[deployment().location]\"`，即 ARM 要求这些作用域中的部署使用的位置，并放置在边界的作用域放置该内容的位置。订阅模板位于订阅作用域模板的顶层，在管理组作用域模板中则位于 `_subscription` 内；管理组模板位于管理组作用域模板的顶层；参见[在订阅作用域部署](#deploying-at-subscription-scope)和[在管理组作用域部署](#deploying-at-management-group-scope)。在以比其 `$schema` 所指范围更窄的作用域部署的边界中，构建会中止，与任何更宽范围的内容一样。"
+  },
   "83b2180992e7a531": {
     "at": "2026-10-30T00:24:07.272Z",
     "job": "session-0038-20261030002407",
@@ -98112,6 +98156,17 @@
     "srcHash": "83b2180992e7a531",
     "status": "machine",
     "text": "`core/datastore/postgres` 公开两个可选的开发者值，用于决定数据库首次启动时的形态：`init_scripts`（在初始化时运行一次的 SQL 或 shell）和 `custom_config`（一个 `postgresql.conf` 片段）。在合成 helm 目标上，Recipe 将它们以挂载的 ConfigMap 形式带入容器。本示例表明该功能是**增量式**的：两个值都不设置的 Aggregate，其渲染结果与最小数据库完全相同；设置了它们的 Aggregate 则获得 ConfigMap、卷和挂载，其他一切不受影响。"
+  },
+  "83b829696dc4e968": {
+    "at": "2026-11-18T15:22:42.569Z",
+    "job": "session-0003-20261118152242",
+    "revision": {
+      "from": "16d5bc06c7459887",
+      "reviewed": false
+    },
+    "srcHash": "83b829696dc4e968",
+    "status": "machine",
+    "text": "**Bicep 的注册表引用。** Bicep 将模块写作 `br:<registry>/<path>:<tag>`；源则将相同的坐标写作 `url: oci://<registry>/<path>` 和 `version: <tag>`。Bicep 的 `br/public:<path>` 别名就是注册表 `mcr.microsoft.com/bicep`，因此写作 `url: oci://mcr.microsoft.com/bicep/<path>`。Aggrega 不读取 `br:` 引用。"
   },
   "83bcd35ffda225ec": {
     "at": "2026-11-15T00:01:27.771Z",
@@ -105637,6 +105692,17 @@
     "srcHash": "8e178aaa82b325de",
     "status": "machine",
     "text": "resolve: parse template at `<name>:<version>`.spec.locals.`<key>`, read by `<name>:<version>`.spec.source.`<field>`: resolve: source-template parse error (cause: template: `<name>:<version>`.spec.locals.`<key>`:1: function `\"<function>\"` not defined); a source field, and every locals entry it reads, is evaluated when the source is resolved with Aggrega's own helpers only (optional, capitalizedWords and index), not the Sprig functions a render adds; write the value without that function, or move the value into a locals entry no source field reads"
+  },
+  "8e185835e71782fa": {
+    "at": "2026-11-18T15:22:42.569Z",
+    "job": "session-0003-20261118152242",
+    "revision": {
+      "from": "7a27c9c22525a423",
+      "reviewed": false
+    },
+    "srcHash": "8e185835e71782fa",
+    "status": "machine",
+    "text": "**精确叶子读取。** Recipe 的 `valuesMapping` 只有在读取声明为敏感的值，或包含这类值的整个对象或映射时，才会将自身标记为敏感。因此，Recipe 按精确的叶子读取附件和注入管道——`.features.password.provides.name`、`.features.password.type`——而绝不遍历 `.features`、整体读取 `.features.password`，也不读取 `default dict .features`，其中任何一种都会标记该映射。Feature 的 `provides.name` 发布的叶子是定位符，不是密钥，因此读取它不会标记映射，Recipe 的其他字面量——SKU、`enableTelemetry: false`——会正常绑定。像 Container Apps Recipes 那样整体透传该管道的 Recipe，只要其上的某次交付被声明为敏感，就会被标记；参见[Key Vault 路由](#key-vault-routes)。"
   },
   "8e1862545fe5badb": {
     "at": "2026-10-22T02:24:43.656154+00:00",
@@ -159675,6 +159741,17 @@
     "status": "machine",
     "text": "`boundaries`——放置在边界中的组件或模块，以及跨越边界的内容。"
   },
+  "d4c622235c4da8aa": {
+    "at": "2026-11-18T15:22:42.569Z",
+    "job": "session-0003-20261118152242",
+    "revision": {
+      "from": "afc9e32a2999c96e",
+      "reviewed": false
+    },
+    "srcHash": "d4c622235c4da8aa",
+    "status": "machine",
+    "text": "**资源组由边界指定。** 有资源组内容时，`aggrega.ai/azure-resource-group` 是必需的：缺失或为空时，构建会中止并指出该注解；两个组件指定了不同的资源组时，构建会中止并指出这两者。附加到整个边界的 Feature 采用其边界内各组件解析为同一个值的作用域、订阅和资源组，因此其内容与这些组件的内容一起放置。嵌套部署运行时，资源组必须已经存在。如果模板自身声明了它（一个 `name` 恰好等于该注解的值、且未声明为 `existing: true` 的 `Microsoft.Resources/resourceGroups` 资源），嵌套部署就依赖该资源，因此该资源组会先部署。以其他任何方式指定的资源组，例如通过表达式，不会被匹配，也不会添加任何内容：此时需要你自己创建该资源组。"
+  },
   "d4c8f9ea77449077": {
     "at": "2026-10-22T04:05:10.557953+00:00",
     "job": "msgbatch_01Pqt8yvyetbk47g1hoiAyit",
@@ -177014,6 +177091,17 @@
     "status": "machine",
     "text": "ToolchainCorePlugin[]"
   },
+  "eb9ac719b06b4bdf": {
+    "at": "2026-11-18T15:22:42.569Z",
+    "job": "session-0003-20261118152242",
+    "revision": {
+      "from": "e103a38891bc92c6",
+      "reviewed": false
+    },
+    "srcHash": "eb9ac719b06b4bdf",
+    "status": "machine",
+    "text": "**参数只在顶层提供一次。** 资源组内容声明的每个参数，也会在顶层以相同的名称和相同的主体声明，并以 `{\"value\": \"[parameters('<name>')]\"}` 的形式向下传递。订阅片段若以另一个主体声明该名称，构建会中止并指出这两个组件。此类参数的类型通过 `$ref`（`#/definitions/<name>`）指向的定义，以及该定义依次指向的每个定义，也会按相同条件在顶层声明；订阅片段若以另一个主体声明该定义，构建会中止并指出这两个组件。`defaultValue` 调用用户定义函数的资源组参数会让构建中止，并指出该参数、该函数和嵌套部署，因为这些函数保留在嵌套部署中：请声明时不带该默认值，并在部署时提供。ARM 不接受在部署到订阅的模板中使用 `resourceGroup()`，因此 `defaultValue` 调用它的资源组参数无法在此作用域部署：请声明时不带该默认值，并在部署时提供。"
+  },
   "eb9f93653dff190f": {
     "at": "2026-10-22T04:56:15.693842+00:00",
     "job": "msgbatch_01WhSSFNVABxaLkxubBM2sHx",
@@ -190372,6 +190460,17 @@
     "srcHash": "fc9bbb9411e6ed27",
     "status": "machine",
     "text": "**如何修复：**将该键重命名为消息建议的名称，或其列出的名称之一——对于附件，应使用它所写在其下的名称，而不是其组件的名称。如果不再需要该条目，就将其删除；该类型的实例随后会通过 `type` 层解析。"
+  },
+  "fc9c7afa9462fb84": {
+    "at": "2026-11-18T15:22:42.569Z",
+    "job": "session-0003-20261118152242",
+    "revision": {
+      "from": "a7979e9fbe87d29c",
+      "reviewed": false
+    },
+    "srcHash": "fc9c7afa9462fb84",
+    "status": "machine",
+    "text": "`infra.resource_group_name`；写入策略元素的 Feature：`core/semantic-caching`、`core/period-budget`、`core/prompt-injection-shield` 和 `core/retry-policy`"
   },
   "fc9fcb632f4a19a4": {
     "at": "2026-10-30T02:01:48.260Z",

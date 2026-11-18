@@ -22354,6 +22354,17 @@
     "status": "machine",
     "text": "**Forma dell’output.** Un file per ogni voce di artefatto, nominato secondo la chiave della voce nella mappa `artifacts:`. L’autore della Recipe stabilisce direttamente nome del file e contenuto."
   },
+  "20d2b3586fc60692": {
+    "at": "2026-11-18T15:22:42.569Z",
+    "job": "session-0003-20261118152242",
+    "revision": {
+      "from": "c8c999961370b186",
+      "reviewed": false
+    },
+    "srcHash": "20d2b3586fc60692",
+    "status": "machine",
+    "text": "**Un valore letto da un produttore il cui confine non indica il luogo di cui l’ID ha bisogno, dove il livello che legge non ne ha uno proprio da prendere.** Annota il confine del produttore con `aggrega.ai/azure-resource-group` per una lettura a livello di sottoscrizione o di gruppo di gestione di un produttore a livello di gruppo di risorse, con `aggrega.ai/azure-subscription` per una lettura a livello di gruppo di gestione di un produttore a livello di gruppo di risorse o di sottoscrizione, e con `aggrega.ai/azure-management-group` per una lettura a livello di gruppo di risorse o di sottoscrizione di un produttore a livello di gruppo di gestione."
+  },
   "20d4155e7965d054": {
     "at": "2026-11-05T16:30:43.236Z",
     "job": "session-0003-20261105163043",
@@ -25584,6 +25595,17 @@
     "srcHash": "2593a178f085289d",
     "status": "machine",
     "text": "[Scegliere la Release su cui lavori](releases.md) — l’unica Release su cui agisce l’editor, e come selezionarla."
+  },
+  "259bdac8de1edc6b": {
+    "at": "2026-11-18T15:22:42.569Z",
+    "job": "session-0003-20261118152242",
+    "revision": {
+      "from": "32a7ba8b64d1b125",
+      "reviewed": false
+    },
+    "srcHash": "259bdac8de1edc6b",
+    "status": "machine",
+    "text": "Queste annotazioni sul confine del produttore ne stabiliscono la posizione di distribuzione e vengono lette come stringhe opache:"
   },
   "259fb65d2eb5b745": {
     "at": "2026-11-04T07:09:47.104Z",
@@ -70971,6 +70993,17 @@
     "status": "machine",
     "text": "Forza allow_id_overrides=true per questa invocazione"
   },
+  "692e45455bbaf38a": {
+    "at": "2026-11-18T15:22:42.569Z",
+    "job": "session-0003-20261118152242",
+    "revision": {
+      "from": "38900e47a6794b4d",
+      "reviewed": false
+    },
+    "srcHash": "692e45455bbaf38a",
+    "status": "machine",
+    "text": "**Le ondate ordinano ogni livello.** Le risorse all’interno della distribuzione annidata sono ordinate per ondata come in [Ordine di distribuzione](#deployment-ordering). Al livello superiore la distribuzione annidata è una sola risorsa, nell’ondata più precoce tra quelle dei componenti al suo interno, e li contiene tutti come un’unica unità. Una risorsa di livello superiore in quell’ondata più precoce, quando la distribuzione annidata contiene anche componenti di un’ondata successiva, viene aggiunta al `dependsOn` della distribuzione annidata, così che i componenti successivi la seguano; una risorsa di livello superiore nella sua ondata più tardiva o dopo la attende. Due ordinamenti di ondate non possono esserle applicati, e interrompono la build invece di indebolire l’ordine: una risorsa di livello superiore in un’ondata strettamente compresa tra la più precoce e la più tardiva delle ondate dei componenti all’interno della distribuzione annidata, che dovrebbe seguirne alcuni e precederne altri, e una distribuzione annidata che dipende dalla risorsa che dichiara il suo gruppo di risorse quando quella risorsa si trova in un’ondata successiva alla più precoce della distribuzione, il che farebbe dipendere ciascuna dall’altra. Le interruzioni nominano la distribuzione annidata e le ondate; metti il componente che dichiara il gruppo di risorse in un’ondata precedente, oppure i componenti della distribuzione annidata in un’unica ondata."
+  },
   "69313192e2b26924": {
     "at": "2026-11-03T12:27:39.720Z",
     "job": "session-0104-20261103122739",
@@ -89065,12 +89098,34 @@
     "status": "machine",
     "text": "Scrivi l’esempio in una nuova cartella che porta il suo nome e spostati nella sua cartella `source`, che contiene ciò che questa pagina importa ed è dove viene eseguita l’importazione:"
   },
+  "83b0bd916b415902": {
+    "at": "2026-11-18T15:22:42.569Z",
+    "job": "session-0003-20261118152242",
+    "revision": {
+      "from": "06495f85a523b90b",
+      "reviewed": false
+    },
+    "srcHash": "83b0bd916b415902",
+    "status": "machine",
+    "text": "**Incapsulamento.** Il template diventa il `properties.template` di un’unica risorsa di distribuzione annidata, scritta con le chiavi ordinate. La distribuzione annidata viene valutata nel proprio ambito (`expressionEvaluationOptions.scope` `inner`) e viene distribuita in modo incrementale; il suo `name` è `[format('<Symbol>-{0}', uniqueString(deployment().name))]`, quindi è stabile per una stessa distribuzione esterna. Il template importato viene riportato così come è stato letto, a parte le risorse che una voce `omits:` rimuove. Un template in linguaggio 1.0 si annida nel template esterno 2.0. Un template il cui `$schema` è scritto per una sottoscrizione o per un gruppo di gestione è contenuto di quell’ambito: la sua distribuzione annidata riceve `location: \"[deployment().location]\"`, la posizione che ARM richiede a una distribuzione in quegli ambiti, e viene collocata dove l’ambito del confine colloca quel contenuto. Un template di sottoscrizione si colloca al livello superiore di un template di ambito sottoscrizione e dentro `_subscription` in uno di ambito gruppo di gestione; un template di gruppo di gestione si colloca al livello superiore di un template di ambito gruppo di gestione; vedi [Distribuire nell’ambito della sottoscrizione](#deploying-at-subscription-scope) e [Distribuire nell’ambito del gruppo di gestione](#deploying-at-management-group-scope). In un confine distribuito in un ambito più ristretto di quello che il suo `$schema` nomina, la build si interrompe, come per qualunque contenuto di ambito più ampio."
+  },
   "83b2180992e7a531": {
     "at": "2026-11-03T17:08:32.496Z",
     "job": "session-0133-20261103170832",
     "srcHash": "83b2180992e7a531",
     "status": "machine",
     "text": "`core/datastore/postgres` espone due valori facoltativi dello sviluppatore che determinano il primo avvio del database: `init_scripts` (SQL o shell eseguiti una sola volta all’inizializzazione) e `custom_config` (un frammento di `postgresql.conf`). Sul target helm sintetizzato, la Recipe li porta nel container come ConfigMap montate. Questo esempio mostra che la funzionalità è **additiva**: un Aggregate che non imposta nessuno dei due valori viene renderizzato esattamente come un database minimo, e un Aggregate che li imposta ottiene le ConfigMap, i volumi e i mount senza che nient’altro venga toccato."
+  },
+  "83b829696dc4e968": {
+    "at": "2026-11-18T15:22:42.569Z",
+    "job": "session-0003-20261118152242",
+    "revision": {
+      "from": "16d5bc06c7459887",
+      "reviewed": false
+    },
+    "srcHash": "83b829696dc4e968",
+    "status": "machine",
+    "text": "**I riferimenti di registro di Bicep.** Bicep scrive un modulo come `br:<registry>/<path>:<tag>`; la sorgente scrive le stesse coordinate come `url: oci://<registry>/<path>` e `version: <tag>`. L’alias `br/public:<path>` di Bicep è il registro `mcr.microsoft.com/bicep`, quindi si scrive `url: oci://mcr.microsoft.com/bicep/<path>`. Aggrega non legge i riferimenti `br:`."
   },
   "83bcd35ffda225ec": {
     "at": "2026-11-15T00:01:27.771Z",
@@ -96015,6 +96070,17 @@
     "srcHash": "8e178aaa82b325de",
     "status": "machine",
     "text": "resolve: parse template at `<name>:<version>`.spec.locals.`<key>`, read by `<name>:<version>`.spec.source.`<field>`: resolve: source-template parse error (cause: template: `<name>:<version>`.spec.locals.`<key>`:1: function `\"<function>\"` not defined); a source field, and every locals entry it reads, is evaluated when the source is resolved with Aggrega's own helpers only (optional, capitalizedWords and index), not the Sprig functions a render adds; write the value without that function, or move the value into a locals entry no source field reads (risoluzione: parsing del template alla voce di locals indicata, letta dal campo source indicato: risoluzione: errore di parsing del template della sorgente (causa: la funzione indicata non è definita); un campo source, e ogni voce di locals che legge, viene valutato quando la sorgente viene risolta solo con gli helper propri di Aggrega (optional, capitalizedWords e index), non con le funzioni di Sprig che un rendering aggiunge; scrivi il valore senza quella funzione, oppure sposta il valore in una voce di locals che nessun campo source legge)"
+  },
+  "8e185835e71782fa": {
+    "at": "2026-11-18T15:22:42.569Z",
+    "job": "session-0003-20261118152242",
+    "revision": {
+      "from": "7a27c9c22525a423",
+      "reviewed": false
+    },
+    "srcHash": "8e185835e71782fa",
+    "status": "machine",
+    "text": "**Letture a foglia esatta.** Il `valuesMapping` di una Recipe si contrassegna come sensibile solo leggendo un valore dichiarato sensibile, oppure un intero oggetto o una intera mappa che ne contenga uno. Una Recipe legge quindi un allegato e la pipe di inject a foglia esatta — `.features.password.provides.name`, `.features.password.type` — e non scorre mai `.features`, non legge mai `.features.password` per intero e non legge mai `default dict .features`, ciascuno dei quali contrassegna la mappatura. La foglia che il `provides.name` di una Feature pubblica è un localizzatore, non un segreto, quindi leggerla lascia la mappatura non contrassegnata e gli altri letterali della Recipe — SKU, `enableTelemetry: false` — vengono associati normalmente. Una Recipe che inoltra l’intera pipe così com’è, come fanno le Recipes di Container Apps, viene contrassegnata ogni volta che una consegna su di essa è dichiarata sensibile; vedi [Route di Key Vault](#key-vault-routes)."
   },
   "8e1862545fe5badb": {
     "at": "2026-10-30T06:59:34.584Z",
@@ -145091,6 +145157,17 @@
     "status": "machine",
     "text": "`boundaries` — componenti o moduli collocati in confini, e ciò che passa tra di essi."
   },
+  "d4c622235c4da8aa": {
+    "at": "2026-11-18T15:22:42.569Z",
+    "job": "session-0003-20261118152242",
+    "revision": {
+      "from": "afc9e32a2999c96e",
+      "reviewed": false
+    },
+    "srcHash": "d4c622235c4da8aa",
+    "status": "machine",
+    "text": "**Il gruppo di risorse è nominato dal confine.** Con contenuto di gruppo di risorse, `aggrega.ai/azure-resource-group` è obbligatorio: se è assente o vuoto, la build si interrompe nominando l’annotazione, e se due componenti nominano gruppi di risorse diversi, si interrompe nominandoli entrambi. Una Feature collegata all’intero confine assume l’ambito, la sottoscrizione e il gruppo di risorse che i componenti del suo confine risolvono in un unico valore, così il suo contenuto viene collocato insieme al loro. Il gruppo di risorse deve esistere quando la distribuzione annidata viene eseguita. Quando è il template stesso a dichiararlo — una risorsa `Microsoft.Resources/resourceGroups` il cui `name` è esattamente il valore dell’annotazione e che non è dichiarata `existing: true` —, la distribuzione annidata dipende da quella risorsa, così il gruppo viene distribuito per primo. Un gruppo nominato in qualsiasi altro modo, per esempio con un’espressione, non viene riconosciuto e non viene aggiunto nulla: il gruppo è allora da creare a tuo carico."
+  },
   "d4c8f9ea77449077": {
     "at": "2026-11-03T17:48:59.915Z",
     "job": "session-0137-20261103174859",
@@ -160906,6 +160983,17 @@
     "status": "machine",
     "text": "ToolchainCorePlugin[]"
   },
+  "eb9ac719b06b4bdf": {
+    "at": "2026-11-18T15:22:42.569Z",
+    "job": "session-0003-20261118152242",
+    "revision": {
+      "from": "e103a38891bc92c6",
+      "reviewed": false
+    },
+    "srcHash": "eb9ac719b06b4bdf",
+    "status": "machine",
+    "text": "**I parametri vengono forniti una sola volta, al livello superiore.** Ogni parametro che il contenuto di gruppo di risorse dichiara viene dichiarato anche al livello superiore, con lo stesso nome e lo stesso corpo, e passato verso il basso come `{\"value\": \"[parameters('<name>')]\"}`. Un frammento di sottoscrizione che dichiara quel nome con un altro corpo interrompe la build nominando entrambi i componenti. Una definizione che il tipo di un tale parametro nomina tramite `$ref` (`#/definitions/<name>`), e ogni definizione che questa a sua volta nomina, viene dichiarata anche al livello superiore, alle stesse condizioni; un frammento di sottoscrizione che dichiara quella definizione con un altro corpo interrompe la build nominando entrambi i componenti. Un parametro di gruppo di risorse il cui `defaultValue` chiama una funzione definita dall’utente interrompe la build nominando il parametro, la funzione e la distribuzione annidata, perché le funzioni restano nella distribuzione annidata: dichiaralo senza quel valore predefinito e forniscilo al momento della distribuzione. ARM rifiuta `resourceGroup()` in un template distribuito in una sottoscrizione, quindi un parametro di gruppo di risorse il cui `defaultValue` lo chiama non si distribuisce a questo livello: dichiaralo senza quel valore predefinito e forniscilo al momento della distribuzione."
+  },
   "eb9f93653dff190f": {
     "at": "2026-11-04T01:29:35.126Z",
     "job": "session-0186-20261104012935",
@@ -173244,6 +173332,17 @@
     "srcHash": "fc9bbb9411e6ed27",
     "status": "machine",
     "text": "**Come risolvere:** rinomina la chiave con il nome suggerito dal messaggio, o con uno dei nomi che elenca — per un’associazione, il nome sotto cui è scritta, non quello del suo componente. Se la voce non serve più, rimuovila; le istanze di quel tipo si risolvono allora tramite il livello `type`."
+  },
+  "fc9c7afa9462fb84": {
+    "at": "2026-11-18T15:22:42.569Z",
+    "job": "session-0003-20261118152242",
+    "revision": {
+      "from": "a7979e9fbe87d29c",
+      "reviewed": false
+    },
+    "srcHash": "fc9c7afa9462fb84",
+    "status": "machine",
+    "text": "`infra.resource_group_name`; una Feature che scrive un elemento di policy: `core/semantic-caching`, `core/period-budget`, `core/prompt-injection-shield` e `core/retry-policy`"
   },
   "fc9fcb632f4a19a4": {
     "at": "2026-11-04T05:50:41.976Z",

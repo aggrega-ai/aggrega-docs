@@ -22362,6 +22362,17 @@
     "status": "machine",
     "text": "**Forme de la sortie.** Un fichier par entrée d’artefact, nommé d’après la clé de l’entrée dans la map `artifacts:`. L’auteur de la Recipe dicte directement le nom de fichier et le contenu."
   },
+  "20d2b3586fc60692": {
+    "at": "2026-11-18T15:22:42.569Z",
+    "job": "session-0003-20261118152242",
+    "revision": {
+      "from": "c8c999961370b186",
+      "reviewed": false
+    },
+    "srcHash": "20d2b3586fc60692",
+    "status": "machine",
+    "text": "**Une valeur lue depuis un producteur dont la frontière ne nomme pas l’emplacement dont l’ID a besoin, alors que le niveau consommateur n’en a pas de propre à prendre.** Annotez la frontière du producteur avec `aggrega.ai/azure-resource-group` pour une lecture à la portée d’un abonnement ou d’un groupe d’administration d’un producteur à la portée d’un groupe de ressources, avec `aggrega.ai/azure-subscription` pour une lecture à la portée d’un groupe d’administration d’un producteur à la portée d’un groupe de ressources ou d’un abonnement, et avec `aggrega.ai/azure-management-group` pour une lecture à la portée d’un groupe de ressources ou d’un abonnement d’un producteur à la portée d’un groupe d’administration."
+  },
   "20d4155e7965d054": {
     "at": "2026-11-05T16:30:43.236Z",
     "job": "session-0003-20261105163043",
@@ -25586,6 +25597,17 @@
     "srcHash": "2593a178f085289d",
     "status": "machine",
     "text": "[Choisir la Release sur laquelle vous travaillez](releases.md) — l’unique Release sur laquelle agit l’éditeur, et comment la sélectionner."
+  },
+  "259bdac8de1edc6b": {
+    "at": "2026-11-18T15:22:42.569Z",
+    "job": "session-0003-20261118152242",
+    "revision": {
+      "from": "32a7ba8b64d1b125",
+      "reviewed": false
+    },
+    "srcHash": "259bdac8de1edc6b",
+    "status": "machine",
+    "text": "Ces annotations sur la frontière du producteur situent son déploiement, et elles sont lues comme des chaînes opaques :"
   },
   "259fb65d2eb5b745": {
     "at": "2026-11-04T07:09:47.104Z",
@@ -70961,6 +70983,17 @@
     "status": "machine",
     "text": "Force allow_id_overrides=true pour cette invocation"
   },
+  "692e45455bbaf38a": {
+    "at": "2026-11-18T15:22:42.569Z",
+    "job": "session-0003-20261118152242",
+    "revision": {
+      "from": "38900e47a6794b4d",
+      "reviewed": false
+    },
+    "srcHash": "692e45455bbaf38a",
+    "status": "machine",
+    "text": "**Les vagues ordonnent chaque niveau.** Les ressources du déploiement imbriqué sont ordonnées par vague comme dans [Ordre de déploiement](#deployment-ordering). Au niveau supérieur, le déploiement imbriqué est une seule ressource, placée dans la plus précoce des vagues des composants qu’il contient, et il les contient tous comme une seule unité. Une ressource de niveau supérieur dans cette vague la plus précoce, lorsque le déploiement imbriqué contient aussi des composants d’une vague plus tardive, est ajoutée au `dependsOn` du déploiement imbriqué, de sorte que les composants plus tardifs la suivent ; une ressource de niveau supérieur dans sa vague la plus tardive ou après l’attend. Deux ordres de vagues ne peuvent pas lui être appliqués, et ils interrompent le build plutôt que d’affaiblir l’ordre : une ressource de niveau supérieur dans une vague strictement comprise entre la plus précoce et la plus tardive des vagues des composants du déploiement imbriqué, qui devrait suivre certains d’entre eux et précéder les autres, et un déploiement imbriqué qui dépend de la ressource déclarant son groupe de ressources lorsque cette ressource se trouve dans une vague plus tardive que la plus précoce du déploiement, ce qui ferait dépendre chacun de l’autre. Les interruptions nomment le déploiement imbriqué et les vagues ; placez le composant qui déclare le groupe de ressources dans une vague plus précoce, ou les composants du déploiement imbriqué dans une seule vague."
+  },
   "69313192e2b26924": {
     "at": "2026-11-03T12:27:39.720Z",
     "job": "session-0104-20261103122739",
@@ -89067,12 +89100,34 @@
     "status": "machine",
     "text": "Écrivez l’exemple dans un nouveau dossier qui porte son nom, puis placez-vous dans son dossier `source`, qui contient ce que cette page importe et où s’exécute l’import :"
   },
+  "83b0bd916b415902": {
+    "at": "2026-11-18T15:22:42.569Z",
+    "job": "session-0003-20261118152242",
+    "revision": {
+      "from": "06495f85a523b90b",
+      "reviewed": false
+    },
+    "srcHash": "83b0bd916b415902",
+    "status": "machine",
+    "text": "**Encapsulation.** Le modèle devient le `properties.template` d’une ressource de déploiement imbriqué unique, écrit avec des clés triées. Le déploiement imbriqué est évalué dans sa propre portée (`expressionEvaluationOptions.scope` `inner`) et se déploie de façon incrémentale ; son `name` est `[format('<Symbol>-{0}', uniqueString(deployment().name))]`, ce qui le rend stable pour un même déploiement externe. Le modèle importé est repris tel qu’il a été lu, hormis les ressources qu’une entrée `omits:` supprime. Un modèle en langage 1.0 s’imbrique dans le modèle externe 2.0. Un modèle dont le `$schema` est écrit pour un abonnement ou un groupe d’administration est un contenu de cette portée : son déploiement imbriqué reçoit `location: \"[deployment().location]\"`, l’emplacement qu’ARM exige d’un déploiement à ces portées, et il est placé là où la portée de la frontière place ce contenu. Un modèle d’abonnement se place au niveau supérieur d’un modèle de portée abonnement et dans `_subscription` dans un modèle de portée groupe d’administration ; un modèle de groupe d’administration se place au niveau supérieur d’un modèle de portée groupe d’administration ; voir [Déployer à la portée de l’abonnement](#deploying-at-subscription-scope) et [Déployer à la portée du groupe d’administration](#deploying-at-management-group-scope). Dans une frontière déployée à une portée plus étroite que celle que nomme son `$schema`, le build s’interrompt, comme pour tout contenu de portée plus large."
+  },
   "83b2180992e7a531": {
     "at": "2026-11-03T17:08:32.496Z",
     "job": "session-0133-20261103170832",
     "srcHash": "83b2180992e7a531",
     "status": "machine",
     "text": "`core/datastore/postgres` expose deux valeurs facultatives du développeur qui déterminent le premier démarrage de la base de données : `init_scripts` (du SQL ou du shell exécuté une seule fois à l’initialisation) et `custom_config` (un fragment de `postgresql.conf`). Sur la cible helm synthétisée, la Recipe les transporte dans le conteneur sous forme de ConfigMaps montées. Cet exemple montre que la fonctionnalité est **additive** : un Aggregate qui ne définit aucune des deux valeurs est rendu exactement comme une base de données minimale, et un Aggregate qui les définit obtient les ConfigMaps, les volumes et les montages sans que rien d’autre ne soit perturbé."
+  },
+  "83b829696dc4e968": {
+    "at": "2026-11-18T15:22:42.569Z",
+    "job": "session-0003-20261118152242",
+    "revision": {
+      "from": "16d5bc06c7459887",
+      "reviewed": false
+    },
+    "srcHash": "83b829696dc4e968",
+    "status": "machine",
+    "text": "**Les références de registre de Bicep.** Bicep écrit un module sous la forme `br:<registry>/<path>:<tag>` ; la source écrit les mêmes coordonnées sous la forme `url: oci://<registry>/<path>` et `version: <tag>`. L’alias `br/public:<path>` de Bicep est le registre `mcr.microsoft.com/bicep`, il s’écrit donc `url: oci://mcr.microsoft.com/bicep/<path>`. Aggrega ne lit pas les références `br:`."
   },
   "83bcd35ffda225ec": {
     "at": "2026-11-15T00:01:27.771Z",
@@ -96023,6 +96078,17 @@
     "srcHash": "8e178aaa82b325de",
     "status": "machine",
     "text": "resolve: parse template at `<name>:<version>`.spec.locals.`<key>`, read by `<name>:<version>`.spec.source.`<field>`: resolve: source-template parse error (cause: template: `<name>:<version>`.spec.locals.`<key>`:1: function `\"<function>\"` not defined); a source field, and every locals entry it reads, is evaluated when the source is resolved with Aggrega's own helpers only (optional, capitalizedWords and index), not the Sprig functions a render adds; write the value without that function, or move the value into a locals entry no source field reads (résolution : analyse du template à l’entrée de locals indiquée, lue par le champ source indiqué : résolution : erreur d’analyse du template de source (cause : la fonction indiquée n’est pas définie) ; un champ source, et chaque entrée de locals qu’il lit, est évalué lorsque la source est résolue avec les seuls helpers propres à Aggrega (optional, capitalizedWords et index), et non avec les fonctions de Sprig qu’ajoute un rendu ; écrivez la valeur sans cette fonction, ou déplacez la valeur dans une entrée de locals qu’aucun champ source ne lit)"
+  },
+  "8e185835e71782fa": {
+    "at": "2026-11-18T15:22:42.569Z",
+    "job": "session-0003-20261118152242",
+    "revision": {
+      "from": "7a27c9c22525a423",
+      "reviewed": false
+    },
+    "srcHash": "8e185835e71782fa",
+    "status": "machine",
+    "text": "**Lectures de feuille exacte.** Le `valuesMapping` d’une Recipe ne se marque lui-même comme sensible qu’en lisant une valeur déclarée sensible, ou un objet ou une map entière qui en contient une. Une Recipe lit donc un rattachement et le tube d’injection par feuille exacte — `.features.password.provides.name`, `.features.password.type` — et ne parcourt jamais `.features`, ne lit jamais `.features.password` en entier et ne lit jamais `default dict .features`, chacun de ces cas marquant le mappage. La feuille que publie le `provides.name` d’une Feature est un localisateur, non un secret : la lire laisse donc le mappage non marqué, et les autres littéraux de la Recipe — SKU, `enableTelemetry: false` — se lient normalement. Une Recipe qui transmet le tube entier tel quel, comme le font les Recipes Container Apps, est marquée dès qu’une livraison sur elle est déclarée sensible ; voir [Routes Key Vault](#key-vault-routes)."
   },
   "8e1862545fe5badb": {
     "at": "2026-10-30T06:59:34.584Z",
@@ -145117,6 +145183,17 @@
     "status": "machine",
     "text": "`boundaries` — des composants ou des modules placés dans des frontières, et ce qui passe de l’une à l’autre."
   },
+  "d4c622235c4da8aa": {
+    "at": "2026-11-18T15:22:42.569Z",
+    "job": "session-0003-20261118152242",
+    "revision": {
+      "from": "afc9e32a2999c96e",
+      "reviewed": false
+    },
+    "srcHash": "d4c622235c4da8aa",
+    "status": "machine",
+    "text": "**Le groupe de ressources est nommé par la frontière.** Avec du contenu de groupe de ressources, `aggrega.ai/azure-resource-group` est obligatoire : absente ou vide, l’annotation interrompt le build en étant nommée, et deux composants qui nomment des groupes de ressources différents l’interrompent en les nommant tous les deux. Une Feature rattachée à toute la frontière prend la portée, l’abonnement et le groupe de ressources que les composants de sa frontière résolvent en une seule valeur, de sorte que son contenu est placé avec le leur. Le groupe de ressources doit exister lorsque le déploiement imbriqué s’exécute. Lorsque le template le déclare lui-même — une ressource `Microsoft.Resources/resourceGroups` dont le `name` est exactement la valeur de l’annotation, non déclarée `existing: true` —, le déploiement imbriqué dépend de cette ressource, de sorte que le groupe est déployé en premier. Un groupe nommé de toute autre manière, par une expression par exemple, n’est pas reconnu et rien n’est ajouté : c’est alors à vous de créer le groupe."
+  },
   "d4c8f9ea77449077": {
     "at": "2026-11-03T17:48:59.915Z",
     "job": "session-0137-20261103174859",
@@ -160934,6 +161011,17 @@
     "status": "machine",
     "text": "ToolchainCorePlugin[]"
   },
+  "eb9ac719b06b4bdf": {
+    "at": "2026-11-18T15:22:42.569Z",
+    "job": "session-0003-20261118152242",
+    "revision": {
+      "from": "e103a38891bc92c6",
+      "reviewed": false
+    },
+    "srcHash": "eb9ac719b06b4bdf",
+    "status": "machine",
+    "text": "**Les paramètres sont fournis une seule fois, au niveau supérieur.** Chaque paramètre que déclare le contenu de groupe de ressources est aussi déclaré au niveau supérieur, sous le même nom et avec le même corps, puis transmis vers le bas sous la forme `{\"value\": \"[parameters('<name>')]\"}`. Un fragment d’abonnement qui déclare ce nom avec un autre corps interrompt le build en nommant les deux composants. Une définition que le type d’un tel paramètre nomme par `$ref` (`#/definitions/<name>`), et chaque définition que celle-ci nomme à son tour, est aussi déclarée au niveau supérieur, dans les mêmes conditions ; un fragment d’abonnement qui déclare cette définition avec un autre corps interrompt le build en nommant les deux composants. Un paramètre de groupe de ressources dont le `defaultValue` appelle une fonction définie par l’utilisateur interrompt le build en nommant le paramètre, la fonction et le déploiement imbriqué, car les fonctions restent dans le déploiement imbriqué : déclarez-le sans cette valeur par défaut et fournissez-le au moment du déploiement. ARM refuse `resourceGroup()` dans un template déployé dans un abonnement, de sorte qu’un paramètre de groupe de ressources dont le `defaultValue` l’appelle ne se déploie pas à cette portée : déclarez-le sans cette valeur par défaut et fournissez-le au moment du déploiement."
+  },
   "eb9f93653dff190f": {
     "at": "2026-11-04T01:29:35.126Z",
     "job": "session-0186-20261104012935",
@@ -173278,6 +173366,17 @@
     "srcHash": "fc9bbb9411e6ed27",
     "status": "machine",
     "text": "**Comment corriger :** renommez la clé avec le nom que suggère le message, ou avec l’un des noms qu’il liste — pour un rattachement, le nom sous lequel il est écrit, et non celui de son composant. Si l’entrée n’est plus voulue, supprimez-la ; les instances de ce type se résolvent alors par le niveau `type`."
+  },
+  "fc9c7afa9462fb84": {
+    "at": "2026-11-18T15:22:42.569Z",
+    "job": "session-0003-20261118152242",
+    "revision": {
+      "from": "a7979e9fbe87d29c",
+      "reviewed": false
+    },
+    "srcHash": "fc9c7afa9462fb84",
+    "status": "machine",
+    "text": "`infra.resource_group_name` ; une Feature qui écrit un élément de politique : `core/semantic-caching`, `core/period-budget`, `core/prompt-injection-shield` et `core/retry-policy`"
   },
   "fc9fcb632f4a19a4": {
     "at": "2026-11-04T05:50:41.976Z",

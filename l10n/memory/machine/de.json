@@ -22350,6 +22350,17 @@
     "status": "machine",
     "text": "**Ausgabeform.** Eine Datei pro Artefakteintrag, benannt nach dem Schlüssel des Eintrags in der `artifacts:`-Map. Der Autor des Recipe bestimmt Dateiname und Inhalt direkt."
   },
+  "20d2b3586fc60692": {
+    "at": "2026-11-18T15:22:42.569Z",
+    "job": "session-0003-20261118152242",
+    "revision": {
+      "from": "c8c999961370b186",
+      "reviewed": false
+    },
+    "srcHash": "20d2b3586fc60692",
+    "status": "machine",
+    "text": "**Ein Wert, der von einem Produzenten gelesen wird, dessen Grenze den Ort, den die ID benötigt, nicht nennt, obwohl die lesende Ebene keinen eigenen hat, den sie übernehmen könnte.** Annotieren Sie die Grenze des Produzenten mit `aggrega.ai/azure-resource-group` für ein Lesen im Geltungsbereich eines Abonnements oder einer Verwaltungsgruppe von einem Produzenten im Geltungsbereich einer Ressourcengruppe, mit `aggrega.ai/azure-subscription` für ein Lesen im Geltungsbereich einer Verwaltungsgruppe von einem Produzenten im Geltungsbereich einer Ressourcengruppe oder eines Abonnements und mit `aggrega.ai/azure-management-group` für ein Lesen im Geltungsbereich einer Ressourcengruppe oder eines Abonnements von einem Produzenten im Geltungsbereich einer Verwaltungsgruppe."
+  },
   "20d4155e7965d054": {
     "at": "2026-11-05T16:30:43.236Z",
     "job": "session-0003-20261105163043",
@@ -25580,6 +25591,17 @@
     "srcHash": "2593a178f085289d",
     "status": "machine",
     "text": "[Das Release wählen, an dem Sie arbeiten](releases.md) — das eine Release, auf das der Editor wirkt, und wie Sie es auswählen."
+  },
+  "259bdac8de1edc6b": {
+    "at": "2026-11-18T15:22:42.569Z",
+    "job": "session-0003-20261118152242",
+    "revision": {
+      "from": "32a7ba8b64d1b125",
+      "reviewed": false
+    },
+    "srcHash": "259bdac8de1edc6b",
+    "status": "machine",
+    "text": "Diese Annotationen an der Grenze des Produzenten legen fest, wo seine Bereitstellung liegt, und sie werden als opake Strings gelesen:"
   },
   "259fb65d2eb5b745": {
     "at": "2026-11-04T07:09:47.104Z",
@@ -70955,6 +70977,17 @@
     "status": "machine",
     "text": "Erzwingt allow_id_overrides=true für diesen Aufruf"
   },
+  "692e45455bbaf38a": {
+    "at": "2026-11-18T15:22:42.569Z",
+    "job": "session-0003-20261118152242",
+    "revision": {
+      "from": "38900e47a6794b4d",
+      "reviewed": false
+    },
+    "srcHash": "692e45455bbaf38a",
+    "status": "machine",
+    "text": "**Wellen ordnen jede Ebene.** Die Ressourcen innerhalb der verschachtelten Bereitstellung werden wie unter [Reihenfolge der Bereitstellung](#deployment-ordering) nach Wellen geordnet. Auf der obersten Ebene ist die verschachtelte Bereitstellung eine einzelne Ressource in der frühesten Welle der darin enthaltenen Components, und sie fasst alle als eine Einheit zusammen. Eine Ressource der obersten Ebene in dieser frühesten Welle wird, wo die verschachtelte Bereitstellung auch Components einer späteren Welle enthält, dem `dependsOn` der verschachtelten Bereitstellung hinzugefügt, sodass die späteren Components ihr folgen; eine Ressource der obersten Ebene in der spätesten Welle der verschachtelten Bereitstellung oder danach wartet auf sie. Zwei Wellenreihenfolgen lassen sich darauf nicht abbilden; sie brechen den Build ab, statt die Reihenfolge abzuschwächen: eine Ressource der obersten Ebene in einer Welle, die streng zwischen der frühesten und der spätesten Welle der Components in der verschachtelten Bereitstellung liegt und daher manchen von ihnen folgen und anderen vorausgehen müsste, sowie eine verschachtelte Bereitstellung, die von der Ressource abhängt, die ihre Ressourcengruppe deklariert, wenn diese Ressource in einer späteren Welle liegt als die früheste der Bereitstellung, wodurch beide voneinander abhingen. Die Abbrüche nennen die verschachtelte Bereitstellung und die Wellen; legen Sie die Component, die die Ressourcengruppe deklariert, in eine frühere Welle oder die Components der verschachtelten Bereitstellung in eine einzige Welle."
+  },
   "69313192e2b26924": {
     "at": "2026-11-03T12:27:39.720Z",
     "job": "session-0104-20261103122739",
@@ -89059,12 +89092,34 @@
     "status": "machine",
     "text": "Schreiben Sie das Beispiel in einen neuen Ordner, der nach ihm benannt ist, und wechseln Sie in seinen Ordner `source`, der enthält, was diese Seite importiert, und in dem der Import läuft:"
   },
+  "83b0bd916b415902": {
+    "at": "2026-11-18T15:22:42.569Z",
+    "job": "session-0003-20261118152242",
+    "revision": {
+      "from": "06495f85a523b90b",
+      "reviewed": false
+    },
+    "srcHash": "83b0bd916b415902",
+    "status": "machine",
+    "text": "**Einbettung.** Die Vorlage wird zum `properties.template` einer einzelnen Ressource für eine verschachtelte Bereitstellung, geschrieben mit sortierten Schlüsseln. Die verschachtelte Bereitstellung wird in ihrem eigenen Geltungsbereich ausgewertet (`expressionEvaluationOptions.scope` `inner`) und inkrementell bereitgestellt; ihr `name` lautet `[format('<Symbol>-{0}', uniqueString(deployment().name))]` und ist damit für eine äußere Bereitstellung stabil. Die mitgelieferte Vorlage wird so übernommen, wie sie gelesen wurde, abgesehen von den Ressourcen, die ein `omits:`-Eintrag entfernt. Eine Vorlage der Sprachversion 1.0 wird in die äußere Vorlage der Version 2.0 eingebettet. Eine Vorlage, deren `$schema` für ein Abonnement oder eine Verwaltungsgruppe geschrieben ist, ist Inhalt dieses Geltungsbereichs: Ihre verschachtelte Bereitstellung erhält `location: \"[deployment().location]\"`, den Speicherort, den ARM für eine Bereitstellung in diesen Geltungsbereichen verlangt, und sie wird dort platziert, wo der Geltungsbereich der Grenze diesen Inhalt platziert. Eine Abonnement-Vorlage steht auf der obersten Ebene einer Vorlage im Abonnement-Geltungsbereich und in einer Vorlage im Verwaltungsgruppen-Geltungsbereich innerhalb von `_subscription`; eine Verwaltungsgruppen-Vorlage steht auf der obersten Ebene einer Vorlage im Verwaltungsgruppen-Geltungsbereich; siehe [Bereitstellung im Abonnement-Geltungsbereich](#deploying-at-subscription-scope) und [Bereitstellung im Verwaltungsgruppen-Geltungsbereich](#deploying-at-management-group-scope). In einer Grenze, die in einem engeren Geltungsbereich bereitgestellt wird, als ihr `$schema` ihn nennt, bricht der Build ab, wie bei jedem Inhalt mit weiterem Geltungsbereich."
+  },
   "83b2180992e7a531": {
     "at": "2026-11-03T17:08:32.496Z",
     "job": "session-0133-20261103170832",
     "srcHash": "83b2180992e7a531",
     "status": "machine",
     "text": "`core/datastore/postgres` stellt zwei optionale Entwicklerwerte bereit, die den ersten Start der Datenbank bestimmen: `init_scripts` (SQL oder Shell, einmalig bei der Initialisierung ausgeführt) und `custom_config` (ein Fragment von `postgresql.conf`). Auf dem synthetisierten helm-Ziel trägt das Recipe sie als eingehängte ConfigMaps in den Container. Dieses Beispiel zeigt, dass die Funktion **additiv** ist: Ein Aggregate, das keinen der beiden Werte setzt, wird genau wie eine minimale Datenbank gerendert, und ein Aggregate, das sie setzt, erhält die ConfigMaps, Volumes und Mounts, ohne dass etwas anderes gestört wird."
+  },
+  "83b829696dc4e968": {
+    "at": "2026-11-18T15:22:42.569Z",
+    "job": "session-0003-20261118152242",
+    "revision": {
+      "from": "16d5bc06c7459887",
+      "reviewed": false
+    },
+    "srcHash": "83b829696dc4e968",
+    "status": "machine",
+    "text": "**Registry-Referenzen von Bicep.** Bicep schreibt ein Modul als `br:<registry>/<path>:<tag>`; die Quelle schreibt dieselben Koordinaten als `url: oci://<registry>/<path>` und `version: <tag>`. Der Alias `br/public:<path>` von Bicep ist die Registry `mcr.microsoft.com/bicep`, also lautet er `url: oci://mcr.microsoft.com/bicep/<path>`. Aggrega liest keine `br:`-Referenzen."
   },
   "83bcd35ffda225ec": {
     "at": "2026-11-15T00:01:27.771Z",
@@ -96003,6 +96058,17 @@
     "srcHash": "8e178aaa82b325de",
     "status": "machine",
     "text": "resolve: parse template at `<name>:<version>`.spec.locals.`<key>`, read by `<name>:<version>`.spec.source.`<field>`: resolve: source-template parse error (cause: template: `<name>:<version>`.spec.locals.`<key>`:1: function `\"<function>\"` not defined); a source field, and every locals entry it reads, is evaluated when the source is resolved with Aggrega's own helpers only (optional, capitalizedWords and index), not the Sprig functions a render adds; write the value without that function, or move the value into a locals entry no source field reads (Auflösung: Parsen des Templates am angegebenen locals-Eintrag, gelesen vom angegebenen source-Feld: Auflösung: Parse-Fehler des Source-Templates (Ursache: die angegebene Funktion ist nicht definiert); ein source-Feld und jeder locals-Eintrag, den es liest, wird beim Auflösen der Quelle nur mit den eigenen Helpern von Aggrega (optional, capitalizedWords und index) ausgewertet, nicht mit den Sprig-Funktionen, die ein Rendering hinzufügt; schreiben Sie den Wert ohne diese Funktion, oder verschieben Sie den Wert in einen locals-Eintrag, den kein source-Feld liest)"
+  },
+  "8e185835e71782fa": {
+    "at": "2026-11-18T15:22:42.569Z",
+    "job": "session-0003-20261118152242",
+    "revision": {
+      "from": "7a27c9c22525a423",
+      "reviewed": false
+    },
+    "srcHash": "8e185835e71782fa",
+    "status": "machine",
+    "text": "**Lesezugriffe auf exakte Blätter.** Das `valuesMapping` eines Recipe markiert sich nur dadurch als vertraulich, dass es einen als vertraulich deklarierten Wert liest oder ein ganzes Objekt oder eine Map, die einen solchen enthält. Ein Recipe liest daher einen Anhang und die Inject-Pipe über das exakte Blatt — `.features.password.provides.name`, `.features.password.type` — und läuft nie über `.features`, liest `.features.password` nie als Ganzes und liest nie `default dict .features`; jedes davon markiert das Mapping. Das Blatt, das das `provides.name` eines Feature veröffentlicht, ist ein Locator, kein Geheimnis; sein Lesen lässt das Mapping daher unmarkiert, und die übrigen Literale des Recipe — SKUs, `enableTelemetry: false` — werden normal gebunden. Ein Recipe, das die gesamte Pipe unverändert durchreicht, wie es die Container Apps Recipes tun, wird immer dann markiert, wenn eine Auslieferung darauf als vertraulich deklariert ist; siehe [Key-Vault-Routen](#key-vault-routes)."
   },
   "8e1862545fe5badb": {
     "at": "2026-10-30T06:59:34.584Z",
@@ -145053,6 +145119,17 @@
     "status": "machine",
     "text": "`boundaries` — in Boundaries platzierte Komponenten oder Module und was zwischen ihnen übertritt."
   },
+  "d4c622235c4da8aa": {
+    "at": "2026-11-18T15:22:42.569Z",
+    "job": "session-0003-20261118152242",
+    "revision": {
+      "from": "afc9e32a2999c96e",
+      "reviewed": false
+    },
+    "srcHash": "d4c622235c4da8aa",
+    "status": "machine",
+    "text": "**Die Ressourcengruppe wird von der Grenze benannt.** Bei Inhalten für Ressourcengruppen ist `aggrega.ai/azure-resource-group` erforderlich: Fehlt die Annotation oder ist sie leer, bricht der Build ab und nennt die Annotation; benennen zwei Components unterschiedliche Ressourcengruppen, bricht der Build ab und nennt beide. Ein Feature, das an die gesamte Grenze angehängt ist, übernimmt den Geltungsbereich, das Abonnement und die Ressourcengruppe, auf die sich die Components seiner Grenze zu einem einzigen Wert auflösen, sodass sein Inhalt zusammen mit deren Inhalt platziert wird. Die Ressourcengruppe muss existieren, wenn die verschachtelte Bereitstellung ausgeführt wird. Deklariert das Template sie selbst – eine `Microsoft.Resources/resourceGroups`-Ressource, deren `name` genau dem Wert der Annotation entspricht und die nicht mit `existing: true` deklariert ist –, hängt die verschachtelte Bereitstellung von dieser Ressource ab, sodass die Gruppe zuerst bereitgestellt wird. Eine Gruppe, die auf andere Weise benannt wird, etwa durch einen Ausdruck, wird nicht erkannt, und es wird nichts hinzugefügt: Die Gruppe müssen dann Sie selbst anlegen."
+  },
   "d4c8f9ea77449077": {
     "at": "2026-11-03T17:48:59.915Z",
     "job": "session-0137-20261103174859",
@@ -160858,6 +160935,17 @@
     "status": "machine",
     "text": "ToolchainCorePlugin[]"
   },
+  "eb9ac719b06b4bdf": {
+    "at": "2026-11-18T15:22:42.569Z",
+    "job": "session-0003-20261118152242",
+    "revision": {
+      "from": "e103a38891bc92c6",
+      "reviewed": false
+    },
+    "srcHash": "eb9ac719b06b4bdf",
+    "status": "machine",
+    "text": "**Parameter werden einmal auf der obersten Ebene angegeben.** Jeder Parameter, den die Inhalte für Ressourcengruppen deklarieren, wird auch auf der obersten Ebene deklariert, unter demselben Namen und mit demselben Inhalt, und als `{\"value\": \"[parameters('<name>')]\"}` nach unten durchgereicht. Ein Abonnement-Fragment, das diesen Namen mit einem anderen Inhalt deklariert, bricht den Build ab und nennt beide Components. Eine Definition, die der Typ eines solchen Parameters über `$ref` (`#/definitions/<name>`) benennt, und jede Definition, die diese wiederum benennt, wird ebenfalls auf der obersten Ebene deklariert, zu denselben Bedingungen; ein Abonnement-Fragment, das diese Definition mit einem anderen Inhalt deklariert, bricht den Build ab und nennt beide Components. Ein Ressourcengruppen-Parameter, dessen `defaultValue` eine benutzerdefinierte Funktion aufruft, bricht den Build ab und nennt den Parameter, die Funktion und die verschachtelte Bereitstellung, weil die Funktionen in der verschachtelten Bereitstellung bleiben: Deklarieren Sie ihn ohne diesen Standardwert und geben Sie ihn bei der Bereitstellung an. ARM lehnt `resourceGroup()` in einem Template ab, das in einem Abonnement bereitgestellt wird; ein Ressourcengruppen-Parameter, dessen `defaultValue` diese Funktion aufruft, lässt sich daher in diesem Geltungsbereich nicht bereitstellen: Deklarieren Sie ihn ohne diesen Standardwert und geben Sie ihn bei der Bereitstellung an."
+  },
   "eb9f93653dff190f": {
     "at": "2026-11-04T01:29:35.126Z",
     "job": "session-0186-20261104012935",
@@ -173184,6 +173272,17 @@
     "srcHash": "fc9bbb9411e6ed27",
     "status": "machine",
     "text": "**So beheben Sie es:** Benennen Sie den Schlüssel in den Namen um, den die Meldung vorschlägt, oder in einen der Namen, die sie aufführt — bei einer Anbindung den Namen, unter dem sie geschrieben ist, nicht den ihrer Komponente. Wird der Eintrag nicht mehr gebraucht, entfernen Sie ihn; die Instanzen dieses Typs werden dann über die Ebene `type` aufgelöst."
+  },
+  "fc9c7afa9462fb84": {
+    "at": "2026-11-18T15:22:42.569Z",
+    "job": "session-0003-20261118152242",
+    "revision": {
+      "from": "a7979e9fbe87d29c",
+      "reviewed": false
+    },
+    "srcHash": "fc9c7afa9462fb84",
+    "status": "machine",
+    "text": "`infra.resource_group_name`; ein Feature, das ein Richtlinienelement schreibt: `core/semantic-caching`, `core/period-budget`, `core/prompt-injection-shield` und `core/retry-policy`"
   },
   "fc9fcb632f4a19a4": {
     "at": "2026-11-04T05:50:41.976Z",

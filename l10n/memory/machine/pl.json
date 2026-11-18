@@ -24673,6 +24673,17 @@
     "status": "machine",
     "text": "Błędy warstwy 1 (koperta) i warstwy 2 (schematy filarów) pojawiają się podczas rozwiązywania bez prefiksu — występują, zanim zacznie obowiązywać jakakolwiek dyscyplina sentineli z prefiksem Aggrega, więc natywny błąd biblioteki YAML lub walidatora schematu jest opakowywany prefiksem pozycyjnym (`unmarshal <kind> \"<path>\": ...`, `<field-path>: <schema rule violated>`)."
   },
+  "20d2b3586fc60692": {
+    "at": "2026-11-18T15:22:42.569Z",
+    "job": "session-0003-20261118152242",
+    "revision": {
+      "from": "c8c999961370b186",
+      "reviewed": false
+    },
+    "srcHash": "20d2b3586fc60692",
+    "status": "machine",
+    "text": "**Wartość odczytywana od producenta, którego granica nie wskazuje miejsca potrzebnego identyfikatorowi, gdy poziom odczytujący nie ma własnego, które mógłby przyjąć.** Granicę producenta należy opatrzyć adnotacją `aggrega.ai/azure-resource-group` dla odczytu w zakresie subskrypcji lub grupy zarządzania od producenta w zakresie grupy zasobów, `aggrega.ai/azure-subscription` dla odczytu w zakresie grupy zarządzania od producenta w zakresie grupy zasobów lub subskrypcji oraz `aggrega.ai/azure-management-group` dla odczytu w zakresie grupy zasobów lub subskrypcji od producenta w zakresie grupy zarządzania."
+  },
   "20d4155e7965d054": {
     "at": "2026-11-05T16:30:43.236Z",
     "job": "session-0003-20261105163043",
@@ -28262,6 +28273,17 @@
     "srcHash": "2593a178f085289d",
     "status": "machine",
     "text": "[Wybór encji Release, nad którą się pracuje](releases.md) — jedyna encja Release, na której działa edytor, i sposób jej wyboru."
+  },
+  "259bdac8de1edc6b": {
+    "at": "2026-11-18T15:22:42.569Z",
+    "job": "session-0003-20261118152242",
+    "revision": {
+      "from": "32a7ba8b64d1b125",
+      "reviewed": false
+    },
+    "srcHash": "259bdac8de1edc6b",
+    "status": "machine",
+    "text": "Te adnotacje na granicy producenta wskazują miejsce jego wdrożenia i są odczytywane jako nieprzezroczyste stringi:"
   },
   "259d559929989783": {
     "at": "2026-10-23T00:02:44.489841+00:00",
@@ -78236,6 +78258,17 @@
     "status": "machine",
     "text": "Wymusza allow_id_overrides=true dla tego wywołania"
   },
+  "692e45455bbaf38a": {
+    "at": "2026-11-18T15:22:42.569Z",
+    "job": "session-0003-20261118152242",
+    "revision": {
+      "from": "38900e47a6794b4d",
+      "reviewed": false
+    },
+    "srcHash": "692e45455bbaf38a",
+    "status": "machine",
+    "text": "**Fale porządkują każdy poziom.** Zasoby wewnątrz zagnieżdżonego wdrożenia są porządkowane według fal, jak w [Kolejność wdrażania](#deployment-ordering). Na najwyższym poziomie zagnieżdżone wdrożenie jest jednym zasobem, w najwcześniejszej fali spośród komponentów, które zawiera, i obejmuje je wszystkie jako jedną całość. Zasób najwyższego poziomu w tej najwcześniejszej fali, gdy zagnieżdżone wdrożenie zawiera także komponenty z późniejszej fali, jest dodawany do `dependsOn` zagnieżdżonego wdrożenia, więc późniejsze komponenty następują po nim; zasób najwyższego poziomu w jego najpóźniejszej fali lub po niej czeka na to wdrożenie. Dwóch porządków fal nie da się na nim zapisać, a zamiast osłabiać kolejność, przerywają one budowanie: zasób najwyższego poziomu w fali leżącej ściśle między najwcześniejszą a najpóźniejszą falą komponentów wewnątrz zagnieżdżonego wdrożenia, który musiałby następować po części z nich i poprzedzać pozostałe, oraz zagnieżdżone wdrożenie zależne od zasobu deklarującego jego grupę zasobów, gdy ten zasób znajduje się w fali późniejszej niż najwcześniejsza fala wdrożenia, co sprawiłoby, że każde zależałoby od drugiego. Przerwania wskazują zagnieżdżone wdrożenie i fale; komponent deklarujący grupę zasobów należy umieścić we wcześniejszej fali albo komponenty zagnieżdżonego wdrożenia w jednej fali."
+  },
   "69313192e2b26924": {
     "at": "2026-10-29T23:14:13.329Z",
     "job": "session-0033-20261029231413",
@@ -98091,6 +98124,17 @@
     "status": "machine",
     "text": "Należy zapisać przykład w nowym folderze nazwanym tak jak on i przejść do jego folderu `source`, który zawiera to, co importuje ta strona, i w którym uruchamia się import:"
   },
+  "83b0bd916b415902": {
+    "at": "2026-11-18T15:22:42.569Z",
+    "job": "session-0003-20261118152242",
+    "revision": {
+      "from": "06495f85a523b90b",
+      "reviewed": false
+    },
+    "srcHash": "83b0bd916b415902",
+    "status": "machine",
+    "text": "**Opakowanie.** Szablon staje się `properties.template` jednego zagnieżdżonego zasobu wdrożenia, zapisanego z posortowanymi kluczami. Zagnieżdżone wdrożenie jest oceniane we własnym zakresie (`expressionEvaluationOptions.scope` `inner`) i wdrażane przyrostowo; jego `name` to `[format('<Symbol>-{0}', uniqueString(deployment().name))]`, więc jest stabilne dla jednego wdrożenia zewnętrznego. Dołączony szablon jest przenoszony w takiej postaci, w jakiej został odczytany, z wyjątkiem zasobów usuwanych przez wpis `omits:`. Szablon w języku 1.0 jest zagnieżdżany wewnątrz zewnętrznego szablonu 2.0. Szablon, którego `$schema` jest zapisany dla subskrypcji lub grupy zarządzania, jest treścią tego zakresu: jego zagnieżdżone wdrożenie otrzymuje `location: \"[deployment().location]\"`, czyli lokalizację, której ARM wymaga od wdrożenia w tych zakresach, i jest umieszczany tam, gdzie zakres granicy umieszcza tę treść. Szablon subskrypcji znajduje się na najwyższym poziomie szablonu w zakresie subskrypcji, a w szablonie w zakresie grupy zarządzania wewnątrz `_subscription`; szablon grupy zarządzania znajduje się na najwyższym poziomie szablonu w zakresie grupy zarządzania; zobacz [Wdrażanie w zakresie subskrypcji](#deploying-at-subscription-scope) i [Wdrażanie w zakresie grupy zarządzania](#deploying-at-management-group-scope). W granicy wdrażanej w węższym zakresie, niż wskazuje jej `$schema`, budowanie zostaje przerwane, jak przy każdej szerszej treści."
+  },
   "83b2180992e7a531": {
     "at": "2026-10-30T00:24:07.272Z",
     "job": "session-0038-20261030002407",
@@ -98101,6 +98145,17 @@
     "srcHash": "83b2180992e7a531",
     "status": "machine",
     "text": "`core/datastore/postgres` udostępnia dwie opcjonalne wartości deweloperskie, które kształtują pierwsze uruchomienie bazy danych: `init_scripts` (SQL lub skrypty powłoki uruchamiane raz przy inicjalizacji) oraz `custom_config` (fragment `postgresql.conf`). W syntetyzowanym celu helm Recipe przekazuje je do kontenera jako zamontowane ConfigMapy. Ten przykład pokazuje, że ta funkcja jest **addytywna**: encja Aggregate, która nie ustawia żadnej z wartości, renderuje się dokładnie tak jak minimalna baza danych, a encja Aggregate, która je ustawia, zyskuje ConfigMapy, wolumeny i punkty montowania, a nic poza tym się nie zmienia."
+  },
+  "83b829696dc4e968": {
+    "at": "2026-11-18T15:22:42.569Z",
+    "job": "session-0003-20261118152242",
+    "revision": {
+      "from": "16d5bc06c7459887",
+      "reviewed": false
+    },
+    "srcHash": "83b829696dc4e968",
+    "status": "machine",
+    "text": "**Odwołania do rejestru w Bicep.** Bicep zapisuje moduł jako `br:<registry>/<path>:<tag>`; źródło zapisuje te same współrzędne jako `url: oci://<registry>/<path>` i `version: <tag>`. Alias `br/public:<path>` w Bicep to rejestr `mcr.microsoft.com/bicep`, więc zapisuje się go jako `url: oci://mcr.microsoft.com/bicep/<path>`. Aggrega nie odczytuje odwołań `br:`."
   },
   "83bcd35ffda225ec": {
     "at": "2026-11-15T00:01:27.771Z",
@@ -105616,6 +105671,17 @@
     "srcHash": "8e178aaa82b325de",
     "status": "machine",
     "text": "resolve: parse template at `<name>:<version>`.spec.locals.`<key>`, read by `<name>:<version>`.spec.source.`<field>`: resolve: source-template parse error (cause: template: `<name>:<version>`.spec.locals.`<key>`:1: function `\"<function>\"` not defined); a source field, and every locals entry it reads, is evaluated when the source is resolved with Aggrega's own helpers only (optional, capitalizedWords and index), not the Sprig functions a render adds; write the value without that function, or move the value into a locals entry no source field reads (rozwiązywanie: parsowanie szablonu w .spec.locals., odczytywanego przez .spec.source.: rozwiązywanie: błąd parsowania szablonu źródła (przyczyna: szablon: .spec.locals.:1: funkcja nie jest zdefiniowana); pole źródła i każdy odczytywany przez nie wpis locals są obliczane podczas rozwiązywania źródła wyłącznie z własnymi funkcjami pomocniczymi Aggrega (optional, capitalizedWords i index), bez funkcji Sprig dodawanych przy renderowaniu; należy zapisać wartość bez tej funkcji lub przenieść ją do wpisu locals, którego nie odczytuje żadne pole źródła)"
+  },
+  "8e185835e71782fa": {
+    "at": "2026-11-18T15:22:42.569Z",
+    "job": "session-0003-20261118152242",
+    "revision": {
+      "from": "7a27c9c22525a423",
+      "reviewed": false
+    },
+    "srcHash": "8e185835e71782fa",
+    "status": "machine",
+    "text": "**Odczyty dokładnego liścia.** `valuesMapping` Recipe oznacza się jako wrażliwe tylko przez odczyt wartości zadeklarowanej jako wrażliwa albo całego obiektu lub mapy, które taką zawierają. Recipe odczytuje zatem załącznik i potok inject po dokładnym liściu — `.features.password.provides.name`, `.features.password.type` — i nigdy nie przegląda `.features`, nie odczytuje całego `.features.password` ani nie odczytuje `default dict .features`; każde z nich oznacza mapowanie. Liść publikowany przez `provides.name` danego Feature jest lokalizatorem, a nie sekretem, więc jego odczyt pozostawia mapowanie nieoznaczone, a pozostałe literały Recipe — SKU, `enableTelemetry: false` — są wiązane normalnie. Recipe, który przekazuje cały potok bez zmian, jak robią to Container Apps Recipes, jest oznaczany zawsze wtedy, gdy dostarczenie na nim zostanie zadeklarowane jako wrażliwe; zob. [Trasy Key Vault](#key-vault-routes)."
   },
   "8e1862545fe5badb": {
     "at": "2026-10-22T09:56:04.106489+00:00",
@@ -159608,6 +159674,17 @@
     "status": "machine",
     "text": "`boundaries` — komponenty lub moduły umieszczone w granicach oraz to, co przechodzi między nimi."
   },
+  "d4c622235c4da8aa": {
+    "at": "2026-11-18T15:22:42.569Z",
+    "job": "session-0003-20261118152242",
+    "revision": {
+      "from": "afc9e32a2999c96e",
+      "reviewed": false
+    },
+    "srcHash": "d4c622235c4da8aa",
+    "status": "machine",
+    "text": "**Grupę zasobów nazywa granica.** Przy zawartości grupy zasobów `aggrega.ai/azure-resource-group` jest wymagane: jeśli adnotacji brakuje lub jest pusta, budowanie zostaje przerwane ze wskazaniem adnotacji, a gdy dwa komponenty wskazują różne grupy zasobów, zostaje przerwane ze wskazaniem obu. Feature dołączony do całej granicy przyjmuje zakres, subskrypcję i grupę zasobów, które komponenty jego granicy rozstrzygają do jednej wartości, więc jego treść jest umieszczana razem z ich treścią. Grupa zasobów musi istnieć w chwili uruchomienia zagnieżdżonego wdrożenia. Jeśli deklaruje ją sam szablon — zasób `Microsoft.Resources/resourceGroups`, którego `name` jest dokładnie wartością adnotacji i który nie jest zadeklarowany jako `existing: true` — zagnieżdżone wdrożenie zależy od tego zasobu, więc grupa jest wdrażana jako pierwsza. Grupa nazwana w jakikolwiek inny sposób, na przykład wyrażeniem, nie jest dopasowywana i nic nie jest dodawane: grupę należy wtedy utworzyć samodzielnie."
+  },
   "d4c8f9ea77449077": {
     "at": "2026-10-22T23:16:15.323655+00:00",
     "job": "msgbatch_01WVATwUq8stCTbJGJnupwwy",
@@ -176947,6 +177024,17 @@
     "status": "machine",
     "text": "ToolchainCorePlugin[]"
   },
+  "eb9ac719b06b4bdf": {
+    "at": "2026-11-18T15:22:42.569Z",
+    "job": "session-0003-20261118152242",
+    "revision": {
+      "from": "e103a38891bc92c6",
+      "reviewed": false
+    },
+    "srcHash": "eb9ac719b06b4bdf",
+    "status": "machine",
+    "text": "**Parametry podaje się raz, na najwyższym poziomie.** Każdy parametr, który deklaruje zawartość grupy zasobów, jest deklarowany także na najwyższym poziomie, pod tą samą nazwą i z tą samą treścią, i przekazywany w dół jako `{\"value\": \"[parameters('<name>')]\"}`. Fragment subskrypcji deklarujący tę nazwę z inną treścią przerywa budowanie ze wskazaniem obu komponentów. Definicja, którą typ takiego parametru wskazuje przez `$ref` (`#/definitions/<name>`), oraz każda definicja, którą ta z kolei wskazuje, jest deklarowana także na najwyższym poziomie, na tych samych zasadach; fragment subskrypcji deklarujący tę definicję z inną treścią przerywa budowanie ze wskazaniem obu komponentów. Parametr grupy zasobów, którego `defaultValue` wywołuje funkcję zdefiniowaną przez użytkownika, przerywa budowanie ze wskazaniem parametru, funkcji i zagnieżdżonego wdrożenia, ponieważ funkcje pozostają w zagnieżdżonym wdrożeniu: należy zadeklarować go bez tej wartości domyślnej i podać przy wdrażaniu. ARM odrzuca `resourceGroup()` w szablonie wdrażanym w subskrypcji, więc parametr grupy zasobów, którego `defaultValue` ją wywołuje, nie zostanie wdrożony w tym zakresie: należy zadeklarować go bez tej wartości domyślnej i podać przy wdrażaniu."
+  },
   "eb9f93653dff190f": {
     "at": "2026-10-22T23:44:16.479857+00:00",
     "job": "msgbatch_01EAGuW4hKxXTyUyLvxe4k5v",
@@ -190303,6 +190391,17 @@
     "srcHash": "fc9bbb9411e6ed27",
     "status": "machine",
     "text": "**Jak naprawić:** należy zmienić nazwę klucza na nazwę sugerowaną w komunikacie lub na jedną z wymienionych w nim nazw — dla dołączenia jest to nazwa, pod którą jest ono zapisane, a nie nazwa jego komponentu. Jeśli wpis nie jest już potrzebny, należy go usunąć; instancje tego typu będą wtedy rozwiązywane przez poziom `type`."
+  },
+  "fc9c7afa9462fb84": {
+    "at": "2026-11-18T15:22:42.569Z",
+    "job": "session-0003-20261118152242",
+    "revision": {
+      "from": "a7979e9fbe87d29c",
+      "reviewed": false
+    },
+    "srcHash": "fc9c7afa9462fb84",
+    "status": "machine",
+    "text": "`infra.resource_group_name`; Feature, który zapisuje element polityki: `core/semantic-caching`, `core/period-budget`, `core/prompt-injection-shield` i `core/retry-policy`"
   },
   "fc9fcb632f4a19a4": {
     "at": "2026-10-30T02:01:48.260Z",
