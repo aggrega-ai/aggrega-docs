@@ -143,6 +143,13 @@
 # it elsewhere, that file is compared like the rest and the check fails on it
 # as a file written and not in draft/, rather than passing over it.
 #
+# The import record. A record's "catalogSnapshot" digest names the newest
+# catalog snapshot the hub publishes when the import runs, which nothing in
+# source/ pins, so step 2 reads each "catalogSnapshot" value as
+# <catalog-snapshot> on both sides, as it writes the temporary directory as
+# <workspace>; every other field is compared as written. draft/ holds the digest
+# the run wrote, and --update writes it so.
+#
 # draft/ therefore holds what the import itself drafts and prints, on either
 # route, and --update writes it so.
 #
@@ -319,11 +326,24 @@ if ! cmp -s "$WORK/expected" "$WORK/written"; then
   diff "$WORK/expected" "$WORK/written" | sed -n 's/^</  only in draft\/:/p; s/^>/  only written:/p'
   rc=1
 fi
+# A file is compared as read, except an import record's snapshot digests: each
+# "catalogSnapshot" value is read as <catalog-snapshot> on both sides, since the
+# digest names whichever catalog snapshot the hub publishes when the check runs.
+masked() {
+  case "$1" in
+    */.aggrega-import.json) sed -E 's/("catalogSnapshot": *)"[^"]*"/\1"<catalog-snapshot>"/' "$1" ;;
+    *) cat "$1" ;;
+  esac
+}
 while IFS= read -r f; do
-  if [ -f "$EXAMPLE/draft/$f" ] && ! cmp -s "$EXAMPLE/draft/$f" "$WS/$f"; then
-    printf 'check-import: %s differs from draft/%s:\n' "${f#./}" "${f#./}"
-    diff -u "$EXAMPLE/draft/$f" "$WS/$f" | head -40
-    rc=1
+  if [ -f "$EXAMPLE/draft/$f" ]; then
+    masked "$EXAMPLE/draft/$f" > "$WORK/cmp-draft"
+    masked "$WS/$f" > "$WORK/cmp-written"
+    if ! cmp -s "$WORK/cmp-draft" "$WORK/cmp-written"; then
+      printf 'check-import: %s differs from draft/%s:\n' "${f#./}" "${f#./}"
+      diff -u "$WORK/cmp-draft" "$WORK/cmp-written" | head -40
+      rc=1
+    fi
   fi
 done < "$WORK/written"
 for printed in stdout.txt import.txt; do
