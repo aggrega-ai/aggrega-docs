@@ -64,8 +64,8 @@ carrying the same detail.
 
 With --licenses, the output is the third-party notices of everything
 compiled into the binary: the host and each embedded guest, every
-dependency with its version, licence and copyright lines, then each
-licence text once. It is printed as plain text, so --licenses cannot be
+dependency with its version, license and copyright lines, then each
+license text once. It is printed as plain text, so --licenses cannot be
 combined with -o json or --verbose.
 
 Version strings are v-less (1.0.0, not v1.0.0), homogeneous with the
