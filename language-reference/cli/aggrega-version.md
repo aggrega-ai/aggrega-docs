@@ -63,7 +63,7 @@ under a header naming the count and their shared version. With
 carrying the same detail.
 
 With --licenses, the output is the third-party notices of everything
-compiled into the binary: the host and each embedded guest, every
+compiled into the binary: the host and each embedded plugin, every
 dependency with its version, license and copyright lines, then each
 license text once. It is printed as plain text, so --licenses cannot be
 combined with -o json or --verbose.
