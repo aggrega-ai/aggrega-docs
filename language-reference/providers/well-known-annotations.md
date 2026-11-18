@@ -32,7 +32,7 @@ Every cell in that grid carries one of three tiers:
 Two scopes, and only one of them makes input kind a meaningful axis:
 
 - **Node-scoped** — `aggrega.ai/namespace`, `aggrega.ai/image-registry`, `aggrega.ai/image-pull-secret`, `aggrega.ai/service-account` and `aggrega.ai/kubernetes-version` shape one component's own rendered output, which the path its input kind selects produces. These are the grid's columns.
-- **Assembly- and reference-scoped** — `aggrega.ai/chart-name` is resolved once when an umbrella chart is assembled, `aggrega.ai/azure-deployment-scope` and `aggrega.ai/azure-resource-group` when an `arm` template is assembled, and the `aggrega.ai/aws-*` and `aggrega.ai/azure-*` keys a provider reads when a reference crosses a boundary. Input kind is not an axis for any of them: the value is read at the assembly or at the reference, however each contributing node was rendered. They have their own table at [Keys resolved per assembly and per reference](#keys-resolved-per-assembly-and-per-reference).
+- **Assembly- and reference-scoped** — `aggrega.ai/chart-name` is resolved once when an umbrella chart is assembled, `aggrega.ai/azure-deployment-scope`, `aggrega.ai/azure-subscription` and `aggrega.ai/azure-resource-group` when an `arm` template is assembled, and the `aggrega.ai/aws-*` and `aggrega.ai/azure-*` keys a provider reads when a reference crosses a boundary. Input kind is not an axis for any of them: the value is read at the assembly or at the reference, however each contributing node was rendered. They have their own table at [Keys resolved per assembly and per reference](#keys-resolved-per-assembly-and-per-reference).
 
 ### Category 1 — Placement
 
@@ -109,14 +109,15 @@ Release or declared in the Aggregate, and the runtime environment resolves the f
 annotation is absent, the provider treats the peer as same-account and same-region
 and supplies no role.
 
-The `arm` provider reads two annotations in the same way. Each Azure boundary renders
+The `arm` provider reads its placement annotations in the same way. Each Azure boundary renders
 into one deployment. When a `uses` edge crosses from one boundary to another,
 `aggrega.ai/azure-subscription` and `aggrega.ai/azure-resource-group` name where the
 producing deployment lives, and the provider builds that deployment's resource ID from
 them. They resolve through the same annotation cascade and are opaque scalar strings;
 the provider never resolves them against live Azure state. When one is absent, the
-producer is taken to be in the consuming deployment's own subscription or resource
-group.
+producer is taken to be in the consuming deployment's own subscription, resource group
+or management group; where the consuming level has none of its own, the build halts
+naming the annotation.
 
 `aggrega.ai/azure-deployment-scope` chooses the scope an `arm` boundary's template
 deploys at: `resourceGroup`, the default, `subscription` or `managementGroup`. At
@@ -203,7 +204,7 @@ The assembly- and reference-scoped keys are not node-scoped, so they sit outside
 | `aggrega.ai/azure-deployment-scope` | `arm` | The scope the boundary's template deploys at, resourceGroup, subscription or managementGroup. At subscription scope the template's resource-group content deploys as one nested deployment into the resource group aggrega.ai/azure-resource-group names; at management-group scope the subscription content and the resource-group content deploy as two nested deployments, to the subscription aggrega.ai/azure-subscription names. | The template deploys at resource-group scope. |
 <!-- END GENERATED: well-known-annotation-boundary-scope -->
 
-**When each is resolved**, which the declaration itself does not carry. `aggrega.ai/chart-name` is resolved once per umbrella-chart assembly, from the boundary annotation cascade; every contributor to one assembly must resolve it to the same value, and disagreement halts the build naming the boundaries. The `aggrega.ai/aws-*` keys and the `aggrega.ai/azure-*` keys the `arm` provider reads are resolved per cross-boundary reference from the producing component's own annotation set, in which a component's Release entry wins over its boundary's and a value the Release writes wins over one the Aggregate writes; Category 6 above describes the reference each one shapes. `aggrega.ai/azure-deployment-scope` and `aggrega.ai/azure-resource-group` are also resolved once per `arm` template, from the annotation set of each component assembling into it: every component must resolve the scope to the same value, and every component writing resource-group content into a subscription-scope or management-group-scope template the resource group, and every component writing subscription or resource-group content into a management-group-scope template the subscription, or the build halts naming two that disagree.
+**When each is resolved**, which the declaration itself does not carry. `aggrega.ai/chart-name` is resolved once per umbrella-chart assembly, from the boundary annotation cascade; every contributor to one assembly must resolve it to the same value, and disagreement halts the build naming the boundaries. The `aggrega.ai/aws-*` keys and the `aggrega.ai/azure-*` keys the `arm` provider reads are resolved per cross-boundary reference from the producing component's own annotation set, in which a component's Release entry wins over its boundary's and a value the Release writes wins over one the Aggregate writes; Category 6 above describes the reference each one shapes. `aggrega.ai/azure-deployment-scope`, `aggrega.ai/azure-subscription` and `aggrega.ai/azure-resource-group` are also resolved once per `arm` template, from the annotation set of each component assembling into it: every component must resolve the scope to the same value, and every component writing resource-group content into a subscription-scope or management-group-scope template the resource group, and every component writing subscription or resource-group content into a management-group-scope template the subscription, or the build halts naming two that disagree.
 
 ### Reserved names no provider reads
 

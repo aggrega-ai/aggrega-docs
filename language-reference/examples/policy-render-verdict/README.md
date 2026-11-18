@@ -325,8 +325,9 @@ deny contains msg if {
 }
 ```
 
-`is_object` keeps the clause off a template whose `resources` is a list, the
-form a template without symbolic names has.
+The `arm` provider always writes `resources` as that object. `is_object` keeps
+the clause off any other document of the build whose top-level `resources`
+holds a list.
 
 ## Why the CEL rule is written differently
 

@@ -5634,15 +5634,15 @@ Emitted message:
 
 <!-- covers: internal/plugincondition.ErrPluginRequiredInputUnresolved -->
 
-Within one assembled template, every symbolic name a `reference()` call, a `dependsOn` entry or a `list*` call names must be a resource the template declares, and every `parameters()` or `variables()` argument must be a declaration the template makes. A name that matches nothing would fail when the template deploys. The usual causes are a typo — symbolic names are case-sensitive — and a symbolic name written by hand for a resource that another boundary's template declares. A value a `uses` edge delivers from another boundary is wired by the link and never reaches this check as a bare symbolic name; see [arm → Linking across deployments](../providers/arm.md#linking-across-deployments).
+Within one level of an assembled template — its top level, or a nested deployment holding the content written for a narrower scope — every symbolic name a `reference()` call, a `dependsOn` entry or a `list*` call names must be a resource that level declares, and every `parameters()` or `variables()` argument must be a declaration that level makes. A name that matches nothing would fail when the template deploys. The usual causes are a typo — symbolic names are case-sensitive — and a symbolic name written by hand for a resource that another boundary's template declares. A value a `uses` edge delivers from another boundary is wired by the link and never reaches this check as a bare symbolic name; see [arm → Linking across deployments](../providers/arm.md#linking-across-deployments).
 
 Emitted message. The condition leads, then which name matched nothing:
 > a plugin could not resolve something it requires to exactly one value
-> arm-provider: at JSON pointer `<pointer>`, `<function or dependsOn>` names the resource `"<name>"`, which no resource in this template declares by that symbolic name; correct the name (symbolic names are case-sensitive), declare the resource in this template, or name a resource deployed elsewhere by its resource ID
+> arm-provider: at JSON pointer `<pointer>` in the fragment of `"<contributor>"`, `<function or dependsOn>` names the resource `"<name>"`, which no resource in this template declares by that symbolic name; correct the name (symbolic names are case-sensitive), declare the resource in this template, or name a resource deployed elsewhere by its resource ID
 
 A parameter or variable that is not declared reports in the same shape, naming the section to declare it under.
 
-**How to fix:** correct the name, declare the resource, parameter or variable in a fragment of the same template, or keep the two components in one boundary so that they assemble into one template. To read a value another boundary's template produces, declare a `uses` edge and read the provided value; see [arm → Linking across deployments](../providers/arm.md#linking-across-deployments).
+**How to fix:** correct the name, declare the resource, parameter or variable in a fragment of the same template level, or keep the two components in one boundary so that they assemble into one template. To read a value another boundary's template produces, declare a `uses` edge and read the provided value; see [arm → Linking across deployments](../providers/arm.md#linking-across-deployments).
 
 ### A secret is read across deployments
 
