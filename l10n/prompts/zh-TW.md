@@ -13,6 +13,7 @@ Translate into Traditional Chinese, as written in Taiwan. Each choice below is a
 - Chinese text takes full-width punctuation (，。：；？！、); inline code, a URL and an English term keep their own punctuation.
 - A quoted phrase takes corner brackets, 「這樣」, and a quotation inside it takes 『這樣』.
 - Put a space between Chinese characters and a Latin-letter term or a number: 使用 Component 宣告, 共 3 個.
+- Parentheses in Chinese text are full-width, （這樣）, with no space around them; an English name given in parentheses takes them too: 幽靈基礎架構（Ghost Infrastructure）.
 - Numbers take Western digits (0–9).
 - Inline code is never put in quotation marks: it keeps its backticks.
 
@@ -54,7 +55,7 @@ Where English has two senses, the list names both: catalog and directory are bot
 - A kept term keeps the source's number inside a compound too.
 - The four domains are always translated, with the English in parentheses at a page's first occurrence: Developer 開發者, Platform Architect 平台架構師, Platform Ops 平台維運, Platform Operator 平台操作員.
 - The named mechanisms are written the same way: Ghost Infrastructure 幽靈基礎架構, Loud Guardrails 明示護欄, String Pipe 字串管道, Parameter Hoisting 參數提升.
-- A heading on an error or warnings page, and the text of every link to such a heading, is the English name first, then the Chinese in parentheses: "Ghost Infrastructure Tracker (幽靈基礎架構追蹤器)".
+- A heading on an error or warnings page, and the text of every link to such a heading, is the English name first, then the Chinese in parentheses: "Ghost Infrastructure Tracker（幽靈基礎架構追蹤器）".
 - The text of a link to a heading is that heading's own translation, word for word.
 - A label an editor or a client shows on screen stays in English exactly as the screen shows it.
 - A status label in inline code stays as it is; in plain text it is translated.
