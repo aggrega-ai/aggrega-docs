@@ -144,7 +144,7 @@ export default defineConfig({
       // language picker is a drop-down menu of links, each language other than
       // the page's described by its name in the page's language. The header
       // carries the Aggrega menu the home site and the catalog show
-      // (src/site-nav.mjs), its wordmark leads to the home page, and its theme
+      // (src/site-nav.mjs), its brand leads to the home page, and its theme
       // switch is one button. The narrow-screen menu's footer holds the theme switch
       // and the social icons, the language picker being in the header.
       components: {
