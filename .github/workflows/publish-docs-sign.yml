@@ -59,9 +59,18 @@ on:
   # version or else the newest earlier release, never another version's
   # pre-release. The tag is v-prefixed; the bundle publishes under the v-less
   # version (see below).
+  #
+  # A fourth number, vMAJOR.MINOR.PATCH.REVISION such as v0.9.3.1, is a
+  # documentation revision: it republishes the documentation of release 0.9.3
+  # with changed pages or translations, and the release it revises is unchanged.
+  # The release's own CLI, tools/aggrega:0.9.3, packs it, and the bundle lands
+  # under the revision's own version, docs/aggrega-docs:0.9.3.1. The CLI reads
+  # the bundle of its own version or else the newest release below it, and
+  # never a four-number version, so a CLI keeps reading its release's bundle.
   push:
     tags:
       - "v[0-9]+.[0-9]+.[0-9]+"
+      - "v[0-9]+.[0-9]+.[0-9]+.[0-9]+"
       - "v[0-9]+.[0-9]+.[0-9]+-*"
   workflow_dispatch:
     inputs:
@@ -71,7 +80,7 @@ on:
         default: true
         type: boolean
       tag:
-        description: "The release tag (vMAJOR.MINOR.PATCH, or a pre-release such as v0.9.0-rc.3) to build and publish on a manual run; required for a real manual publish, ignored on a tag push (which uses the pushed tag)."
+        description: "The release tag (vMAJOR.MINOR.PATCH, a pre-release such as v0.9.0-rc.3, or a documentation revision such as v0.9.3.1) to build and publish on a manual run; required for a real manual publish, ignored on a tag push (which uses the pushed tag)."
         required: false
         default: ""
         type: string
@@ -139,11 +148,13 @@ jobs:
         # The publish job runs inside hub.aggrega.ai/tools/aggrega, which only
         # the CLI's release publisher creates, tagging each release's image with
         # that release's v-less version. On a tag push the image is the tag's
-        # own version, the pushed tag without its leading v, the same version
-        # the bundle publishes under: a push of v0.9.0-rc.3 runs inside
-        # tools/aggrega:0.9.0-rc.3, so every bundle a tag publishes is packed
-        # and published by the CLI of its own release. On a manual dispatch the
-        # image is the one the TOOLING_IMAGE_TAG variable names.
+        # release version, the pushed tag without its leading v and, for a
+        # documentation revision, without its fourth number: a push of
+        # v0.9.0-rc.3 runs inside tools/aggrega:0.9.0-rc.3 and a push of
+        # v0.9.3.1 runs inside tools/aggrega:0.9.3, so every bundle a tag
+        # publishes is packed and published by the CLI of the release it
+        # documents. On a manual dispatch the image is the one the
+        # TOOLING_IMAGE_TAG variable names.
         #
         # A tag pushed before its release's CLI is published waits for that
         # image: a check every 30 seconds for at most 30 minutes, long enough
@@ -162,6 +173,8 @@ jobs:
         run: |
           if [ "$EVENT_NAME" = "workflow_dispatch" ]; then
             image_tag="$TOOLING_IMAGE_TAG"
+          elif [[ "$REF_NAME" =~ ^v([0-9]+\.[0-9]+\.[0-9]+)\.[0-9]+$ ]]; then
+            image_tag="${BASH_REMATCH[1]}"
           else
             image_tag="${REF_NAME#v}"
           fi
@@ -206,11 +219,12 @@ jobs:
     # PIN SEAM — the registry job composes the execution image from the fixed
     # registry-and-name prefix hub.aggrega.ai/tools/aggrega and a tag, and hands
     # it to this job once the image exists. On a tag push the tag is the
-    # release's own version, the pushed tag without its leading v, which is the
-    # tag the CLI's release publisher gives that release's image: the bundle of
-    # a release, a release candidate's included, is published by the CLI of the
-    # same release. A documentation tag pushed before that CLI is published
-    # waits for its image, and never runs inside another release's CLI.
+    # release's own version, the pushed tag without its leading v and without a
+    # revision's fourth number, which is the tag the CLI's release publisher
+    # gives that release's image: the bundle of a release, a release candidate's
+    # or a documentation revision's included, is published by the CLI of the
+    # release it documents. A documentation tag pushed before that CLI is
+    # published waits for its image, and never runs inside another release's CLI.
     #
     # On a manual dispatch the tag comes from the TOOLING_IMAGE_TAG repository
     # variable, which the operator sets once (for example, to `stable`, the
