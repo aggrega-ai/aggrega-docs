@@ -250,11 +250,21 @@ Given the same inputs the provider emits a byte-identical template across runs: 
 
 ## Linking across deployments
 
-A `uses` edge between two `arm` boundaries that resolve to different output directories joins two templates, each deployed as its own deployment. The edge is wired in both templates. A boundary at resource-group scope can be a producer: the template of the component a `uses` edge points at.
+A `uses` edge between two `arm` boundaries that resolve to different output directories joins two templates, each deployed as its own deployment. The edge is wired in both templates. A boundary at resource-group, subscription or management-group scope can be a producer: the template of the component a `uses` edge points at.
 
 **The producing template exposes what the consumer reads as outputs.** For each provided value the consuming component reads, the producing template gains a string output named for the component and the key, as for any [output the provider writes](#top-level-sections-in-the-assembled-template). A provided value that is an expression crosses as `[string(<expression>)]`, so every value reaches the consumer as text; a plain literal crosses as written. Several consumers of one value share one output.
 
-**The consuming template reads the producer's deployment by its resource ID.** A value wired to the consumer becomes `reference(format('/subscriptions/{0}/resourceGroups/{1}/providers/Microsoft.Resources/deployments/{2}', <subscription>, <resource group>, '<name>'), '2025-04-01').outputs.<output>.value`, written in a resource's `properties`, an output's `value` or the input of an output's `copy` loop, the places ARM evaluates `reference()`. The compiler contacts nothing: the ID is a string it builds from names, and ARM reads the deployment when the consumer is deployed.
+**A producer in a nested deployment is re-exposed at the top level.** In a template deployed at subscription or management-group scope, a component's resources can sit in the `_resourceGroup` deployment, or, at management-group scope, in the `_subscription` deployment. The component's provided expression is evaluated where its resources are, so the output is written in that nested deployment's template, and the top level gains an output of the same name, `[reference('<nested symbol>').outputs.<output>.value]`, because the consumer reads only the top level. The nested deployment is found by the component identity each resource carries in its [provenance](#provenance); a provided value written as a literal is written at the top level. A component whose resources sit in more than one level halts the build unless the resources its expression names are all declared in exactly one of those levels.
+
+**The consuming template reads the producer's deployment by its resource ID.** A value wired to the consumer becomes `reference(<ID>, '2025-04-01').outputs.<output>.value`, where the ID follows the scope the producer's boundary deploys at:
+
+| Producer's scope | ID |
+| --- | --- |
+| Resource group | `format('/subscriptions/{0}/resourceGroups/{1}/providers/Microsoft.Resources/deployments/{2}', <subscription>, <resource group>, '<name>')` |
+| Subscription | `format('/subscriptions/{0}/providers/Microsoft.Resources/deployments/{1}', <subscription>, '<name>')` |
+| Management group | `format('/providers/Microsoft.Management/managementGroups/{0}/providers/Microsoft.Resources/deployments/{1}', <management group>, '<name>')` |
+
+The value is written in a resource's `properties`, an output's `value` or the input of an output's `copy` loop, the places ARM evaluates `reference()`. The compiler contacts nothing: the ID is a string it builds from names, and ARM reads the deployment when the consumer is deployed.
 
 ### The deployment name
 
@@ -275,18 +285,28 @@ az deployment group create --resource-group <group> -n <recorded-name> --templat
 az deployment group create --resource-group <group> -n <name> --template-file <consumer>/arm-template.json
 ```
 
+A producer whose boundary deploys at subscription or management-group scope is deployed at that scope, under the same recorded name, before its consumers:
+
+```bash
+az deployment sub create --location <location> -n <recorded-name> --template-file <producer>/arm-template.json
+az deployment mg create --management-group-id <management group> --location <location> -n <recorded-name> --template-file <producer>/arm-template.json
+```
+
 ### Where the producer is deployed
 
-Two annotations on the producer's boundary place its deployment, and they are read as opaque strings:
+Three annotations on the producer's boundary place its deployment, and they are read as opaque strings:
 
 | Annotation | What it names | When absent |
 | --- | --- | --- |
 | `aggrega.ai/azure-subscription` | The subscription ID the producing template is deployed into | The consumer's own subscription |
 | `aggrega.ai/azure-resource-group` | The resource group the producing template is deployed into | The consumer's own resource group |
+| `aggrega.ai/azure-management-group` | The management group the producing template is deployed to | The consumer's own management group, which only a consuming template deployed at management-group scope has |
+
+The ID of a producer at resource-group scope reads the subscription and the resource group, one at subscription scope reads the subscription, and one at management-group scope reads the management group; an annotation the ID does not read is not needed.
 
 A component's own value wins over a boundary's within the Release, and a value the Release writes wins over one the Aggregate writes; see [Well-known annotations](well-known-annotations.md). Because the compiler does not look the placement up, the annotations must match where the operator deploys the producer.
 
-`arm` links to a producer deployed at resource-group scope: the resource ID above is the ID of a deployment to a resource group. A link to a producer whose boundary deploys at subscription or management-group scope halts the build, naming the link. A consumer may deploy at subscription or management-group scope. A value its resource-group content reads is read inside the `_resourceGroup` deployment, where the consumer's own resource group is that deployment's. A value its subscription content reads needs the producer's boundary to name `aggrega.ai/azure-resource-group`, because a subscription-scope template has no resource group of its own; without it the build halts naming the annotation. At management-group scope the same holds for the `_subscription` deployment, and a value the management-group content itself reads needs the producer's boundary to name `aggrega.ai/azure-subscription` too, because a management-group-scope template has no subscription of its own.
+A consumer may deploy at resource-group, subscription or management-group scope, and each level of its template reads at the scope that level deploys at. A value its resource-group content reads is read inside the `_resourceGroup` deployment, where the consumer's own resource group is that deployment's. A value its subscription content reads from a producer at resource-group scope needs the producer's boundary to name `aggrega.ai/azure-resource-group`, because a subscription-scope template has no resource group of its own; without it the build halts naming the annotation. At management-group scope the same holds for the `_subscription` deployment, and a value the management-group content itself reads from a producer at resource-group or subscription scope needs the producer's boundary to name `aggrega.ai/azure-subscription` too, because a management-group-scope template has no subscription of its own. A value read from a producer at management-group scope by a template deployed at any other scope, or by a nested deployment, needs the producer's boundary to name `aggrega.ai/azure-management-group`, because only a management-group-scope template has a management group of its own.
 
 ### What the operator owns
 
@@ -295,14 +315,14 @@ The links rest on deployments that already exist in Azure, so these are the oper
 - **A deployment name keeps its location.** At a scope whose deploy command takes a location, a name reused with another location is refused by Azure.
 - **Deployment history is limited to 800 entries per scope.** Above 700, Azure deletes the oldest down to 600. A producer's entry that is groomed away fails the consumer's deploy. Redeploying the producer under its recorded name moves its entry to the newest place, so redeploy it before its consumers when its scope is busy.
 - **A CanNotDelete lock stops the grooming.** Under a lock nothing is deleted, and once the history reaches 800 entries further deploys fail until entries are removed.
-- **A producer deployed as a deployment stack is not reachable.** A stack names its own deployments, so no name the template records can be reached; deploy a producer with `az deployment group create`. A consumer may be deployed either way.
+- **A producer deployed as a deployment stack is not reachable.** A stack names its own deployments, so no name the template records can be reached; deploy a producer with `az deployment group create`, `az deployment sub create` or `az deployment mg create`, as its scope requires. A consumer may be deployed either way.
 
 ### What halts
 
 - **A secret read across deployments.** A provided value that reads a secret (a `list*` function, `listOutputsWithSecureValues`, or a `securestring` or `secureObject` parameter's value) would be recorded in the producer's deployment history. Store the secret in Key Vault and attach `core/referenced-secret` on both ends. See [A secret is read across deployments](../errors/fatal-halts.md#a-secret-is-read-across-deployments).
 - **A value read from another deployment written where ARM does not evaluate it.** Outside a resource's `properties`, an output's `value` or an output's `copy` input. See [A value read from another deployment is written where ARM does not evaluate it](../errors/fatal-halts.md#a-value-read-from-another-deployment-is-written-where-arm-does-not-evaluate-it).
-- **A producer deployed at subscription or management-group scope.** Place the producer in a boundary deployed at resource-group scope.
-- **A value read at subscription or management-group scope from a producer whose boundary names no resource group, or at management-group scope none subscription.** Annotate the producer's boundary with `aggrega.ai/azure-resource-group`, and `aggrega.ai/azure-subscription` where the read is at management-group scope.
+- **A value read from a producer whose boundary names the place the ID needs, where the consuming level has none of its own to take.** Annotate the producer's boundary with `aggrega.ai/azure-resource-group` for a read below resource-group scope of a producer at resource-group scope, `aggrega.ai/azure-subscription` for a read at management-group scope of a producer at resource-group or subscription scope, and `aggrega.ai/azure-management-group` for a read below management-group scope of a producer at management-group scope.
+- **A producer component whose resources sit in more than one level of its template.** Write the provided expression over resources declared in one level, or deploy the component's resources at one scope.
 - **A provided value that splices a call into literal text.** Write the provided value as one expression, `[format('postgres://{0}:5432', reference('Db').outputs.fqdn.value)]`. See [A provided value splices a call into literal text across deployments](../errors/fatal-halts.md#a-provided-value-splices-a-call-into-literal-text-across-deployments).
 
 A Recipe publishes a provided value as one whole expression or as a plain literal. Within one template, text around a value still composes into `format()` as described under [Writing ARM text](#writing-arm-text).
@@ -498,7 +518,7 @@ With `policy` a policy definition written for a management group, `group` declar
 
 **Each nested deployment is assembled as the top level is.** All subscription content of the boundary is assembled into `_subscription`, and all resource-group content into `_resourceGroup`, on the terms of [Top-level sections in the assembled template](#top-level-sections-in-the-assembled-template) and of [Deploying at subscription scope](#deploying-at-subscription-scope): the same merge, the same parameters declared at the top level and passed down, the same rule that a reference reaches only its own level, the same waves. Each deploys incrementally, evaluated in its own scope, under the names `[format('sub-{0}', uniqueString(deployment().name))]` and `[format('rg-{0}', uniqueString(deployment().name))]`. A boundary whose components write no content for a scope has no deployment for it. The symbolic names `_subscription` and `_resourceGroup` are the provider's at the top level of a management-group-scope template; a management-group fragment declaring a resource under either halts.
 
-**The subscription and the resource group are named by the boundary.** `_subscription` takes `subscriptionId` from `aggrega.ai/azure-subscription` and `location: "[deployment().location]"`. `_resourceGroup` takes `subscriptionId` from the same annotation and `resourceGroup` from `aggrega.ai/azure-resource-group`. An annotation a nested deployment needs that is absent or empty halts the build naming it, and two components whose content lands in one nested deployment naming different values halt naming both. The management group itself is not written into the template; it is the target of the deploy command. `aggrega.ai/azure-management-group` is not read.
+**The subscription and the resource group are named by the boundary.** `_subscription` takes `subscriptionId` from `aggrega.ai/azure-subscription` and `location: "[deployment().location]"`. `_resourceGroup` takes `subscriptionId` from the same annotation and `resourceGroup` from `aggrega.ai/azure-resource-group`. An annotation a nested deployment needs that is absent or empty halts the build naming it, and two components whose content lands in one nested deployment naming different values halt naming both. The management group itself is not written into the template; it is the target of the deploy command. `aggrega.ai/azure-management-group` names it for a link from another template: a consumer reads the management-group deployment that group holds, and a consumer at management-group scope without the annotation takes its own.
 
 **The resource group level follows the subscription level that declares its group.** Where `_subscription` holds a `Microsoft.Resources/resourceGroups` resource whose `name` is exactly the annotation's value, not declared `existing: true`, and both deploy to the same subscription, `_resourceGroup` depends on `_subscription`, so the group is deployed first. Otherwise nothing is added: the group is yours to create. As at subscription scope, a wave order that cannot be written onto either nested deployment halts; see [Waves order each level](#deploying-at-subscription-scope).
 

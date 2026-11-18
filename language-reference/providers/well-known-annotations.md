@@ -89,7 +89,7 @@ Two scopes, and only one of them makes input kind a meaningful axis:
 | `aggrega.ai/aws-assume-role-arn` | `cloudformation` — per cross-boundary reference | IAM role ARN a cross-account stack read assumes to reach a peer stack's exported values | No role is supplied on a cross-account reference |
 | `aggrega.ai/azure-subscription` | `arm` — per cross-boundary reference, and per assembly at management-group scope | Azure subscription the boundary's template deploys into; at management-group scope, the subscription its subscription and resource-group content deploys to | The producer is taken to be in the consuming deployment's own subscription |
 | `aggrega.ai/azure-resource-group` | `arm` — per cross-boundary reference, and per assembly at subscription and management-group scope | Azure resource group the boundary's template deploys into | The producer is taken to be in the consuming deployment's own resource group; a subscription-scope or management-group-scope template with resource-group content halts |
-| `aggrega.ai/azure-management-group` | reserved; no provider reads it | Reserved for the Azure management group a boundary's template deploys into | — |
+| `aggrega.ai/azure-management-group` | `arm` — per cross-boundary reference to a producer at management-group scope | Azure management group the boundary's template deploys to | The producer is taken to be in the consuming deployment's own management group, which only a consuming template deployed at management-group scope has; a reference from any other scope halts |
 | `aggrega.ai/azure-deployment-scope` | `arm` — per assembly and per cross-boundary reference | Scope the boundary's template deploys at: `resourceGroup`, `subscription` or `managementGroup` | Resource-group scope |
 
 Each CloudFormation boundary renders into one stack. When a `uses` edge crosses
@@ -128,8 +128,10 @@ written for a resource group are deployed as two nested deployments to the
 subscription `aggrega.ai/azure-subscription` names, the second into the resource
 group `aggrega.ai/azure-resource-group` names, so both annotations are then
 required. A value naming no scope halts the build. A `uses` edge reads a producer
-deployed at resource-group scope; a producer whose boundary deploys at
-subscription or management-group scope halts the build. The arm provider
+deployed at resource-group, subscription or management-group scope; the
+resource ID the consumer reads it by takes `aggrega.ai/azure-subscription`,
+`aggrega.ai/azure-resource-group` or `aggrega.ai/azure-management-group`, as the
+producer's scope requires. The arm provider
 reference documents the templates for [subscription](arm.md#deploying-at-subscription-scope)
 and [management-group](arm.md#deploying-at-management-group-scope) scope.
 
@@ -195,9 +197,10 @@ The assembly- and reference-scoped keys are not node-scoped, so they sit outside
 | `aggrega.ai/aws-account` | `cloudformation` | The AWS account the stack (boundary) deploys into. A cross-boundary reference reads it to decide whether a peer stack sits in the same account. | The peer is treated as same-account, and a cross-stack reference resolves through a same-account stack-export import rather than a cross-account stack-output read. |
 | `aggrega.ai/aws-region` | `cloudformation` | The AWS region the stack (boundary) deploys into. A cross-boundary reference reads it to decide whether a peer stack sits in the same region. | The peer is treated as same-region, and a cross-stack reference resolves through a same-region stack-export import. |
 | `aggrega.ai/aws-assume-role-arn` | `cloudformation` | The IAM role ARN a cross-account stack read assumes to reach a peer stack's exported values. | No role is supplied, and a cross-account reference carries no assume-role. |
-| `aggrega.ai/azure-subscription` | `arm` | The Azure subscription the boundary's template deploys into. A cross-boundary reference reads it to build the producing deployment's resource ID, and a boundary deployed at management-group scope deploys its subscription and resource-group content to it. | The producer is taken to be in the consuming deployment's own subscription. |
+| `aggrega.ai/azure-subscription` | `arm` | The Azure subscription the boundary's template deploys into. A cross-boundary reference to a boundary deployed at resource-group or subscription scope reads it to build the producing deployment's resource ID, and a boundary deployed at management-group scope deploys its subscription and resource-group content to it. | The producer is taken to be in the consuming deployment's own subscription. |
 | `aggrega.ai/azure-resource-group` | `arm` | The Azure resource group the boundary's template deploys into. A cross-boundary reference reads it to build the producing deployment's resource ID, and a boundary deployed at subscription or management-group scope deploys its resource-group content into it. | The producer is taken to be in the consuming deployment's own resource group; a boundary deployed at subscription or management-group scope with resource-group content halts naming the annotation. |
-| `aggrega.ai/azure-deployment-scope` | `arm` | The scope the boundary's template deploys at, resourceGroup, subscription or managementGroup. At subscription scope the template's resource-group content deploys as one nested deployment into the resource group aggrega.ai/azure-resource-group names; at management-group scope the subscription content and the resource-group content deploy as two nested deployments, to the subscription aggrega.ai/azure-subscription names. A cross-boundary reference to a component of a boundary deployed at subscription or management-group scope halts. | The template deploys at resource-group scope. |
+| `aggrega.ai/azure-management-group` | `arm` | The Azure management group the boundary's template deploys to. A cross-boundary reference to a boundary deployed at management-group scope reads it to build the producing deployment's resource ID. | The producer is taken to be in the consuming deployment's own management group, which only a consuming template deployed at management-group scope has; a reference from any other scope halts naming the annotation. |
+| `aggrega.ai/azure-deployment-scope` | `arm` | The scope the boundary's template deploys at, resourceGroup, subscription or managementGroup. At subscription scope the template's resource-group content deploys as one nested deployment into the resource group aggrega.ai/azure-resource-group names; at management-group scope the subscription content and the resource-group content deploy as two nested deployments, to the subscription aggrega.ai/azure-subscription names. | The template deploys at resource-group scope. |
 <!-- END GENERATED: well-known-annotation-boundary-scope -->
 
 **When each is resolved**, which the declaration itself does not carry. `aggrega.ai/chart-name` is resolved once per umbrella-chart assembly, from the boundary annotation cascade; every contributor to one assembly must resolve it to the same value, and disagreement halts the build naming the boundaries. The `aggrega.ai/aws-*` keys and the `aggrega.ai/azure-*` keys the `arm` provider reads are resolved per cross-boundary reference from the producing component's own annotation set, in which a component's Release entry wins over its boundary's and a value the Release writes wins over one the Aggregate writes; Category 6 above describes the reference each one shapes. `aggrega.ai/azure-deployment-scope` and `aggrega.ai/azure-resource-group` are also resolved once per `arm` template, from the annotation set of each component assembling into it: every component must resolve the scope to the same value, and every component writing resource-group content into a subscription-scope or management-group-scope template the resource group, and every component writing subscription or resource-group content into a management-group-scope template the subscription, or the build halts naming two that disagree.
@@ -208,9 +211,7 @@ These keys in the matrix above are marked *reserved; no provider reads it*:
 `aggrega.ai/project-name`, `aggrega.ai/region`, `aggrega.ai/account-id`,
 `aggrega.ai/cluster-domain`, `aggrega.ai/ingress-class`,
 `aggrega.ai/service-mesh`, `aggrega.ai/pod-security-standard`,
-`aggrega.ai/iam-role`, `aggrega.ai/chart-version`, `aggrega.ai/stack-name`,
-`aggrega.ai/tf-backend` and `aggrega.ai/azure-management-group` (the Azure management group a
-boundary's template deploys into).
+`aggrega.ai/iam-role`, `aggrega.ai/chart-version`, `aggrega.ai/stack-name` and `aggrega.ai/tf-backend`.
 
 Setting one of these on a Release or in an Aggregate has **no effect on rendered output**. No
 provider reads them, and no default is applied on their behalf — in
