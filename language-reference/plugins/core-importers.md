@@ -2752,7 +2752,8 @@ The `resource_types` [setting](#settings) lists them. Each entry is a type's nam
   `resource-type-ambiguous`, naming the providers and the remedy: export again from a configuration that
   requires only one of them.
 - A `resource_types` value that is not a list of names and objects with a `type` and a `component` stops
-  the import under `resource-types-unreadable`, so a wrong value never reads as no list.
+  the import under `resource-types-unreadable`, so a wrong value never reads as no list; so does an entry
+  whose `component` is empty, which names no Component, rather than reading as one with no `component`.
 
 A halt drafts nothing: no file is written, and no record is left.
 
@@ -3012,7 +3013,7 @@ with its `code` as well.
 | `resource-type-not-found` | `halt` | A type `resource_types` lists is not in the sources, or an Azure type named with an API version the file does not hold; the nearest names, or the version held, are named. |
 | `resource-type-ambiguous` | `halt` | More than one provider of a Terraform export carries the type, other than one provider and its `-beta` sibling; the providers and the remedy are named. |
 | `beta-provider-passed-over` | `info` | Exactly a Terraform provider and its `-beta` sibling carry the type, and the non-beta provider's is drafted. |
-| `resource-types-unreadable` | `halt` | `resource_types` is not a list of names and objects with a `type` and a `component`. |
+| `resource-types-unreadable` | `halt` | `resource_types` is not a list of names and objects with a `type` and a `component`, or an entry's `component` is empty. |
 | `resource-schema-unreadable` | `halt` | A source parses but is not the format's schema shape; the missing member is named. |
 | `resource-type-refused` | `halt` | The provider cannot realize the type: a CloudFormation `describe-type` output whose `Type` is not `RESOURCE` or whose `ProvisioningType` is `NON_PROVISIONABLE`, or an Azure type writable only at the tenant scope or only as an extension of another resource. |
 | `component-exists` | `halt` | The Component name a draft would take is held, in the workspace's folders or the published catalog, with other `values` keys; the keys and `component` as the remedy are named. |
