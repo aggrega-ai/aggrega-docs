@@ -1203,6 +1203,13 @@
     "status": "machine",
     "text": "**本機尚未持有的核心匯入器，會由第一次需要它的匯入取得一次。** 它來自工作區的預設登錄庫，限定為編譯器的發行版本所發布的模組，並像 pull 驗證其取得的外掛程式那樣驗證——在該登錄庫的信任原則下驗證其簽章與它所用的主機函式——並保存在工作區的內容快取中，這是為它寫入的唯一東西：沒有鎖定檔，也沒有受信任外掛程式的記錄。之後每次匯入都從那裡讀取，不連到任何登錄庫。未通過驗證的模組是帶有其條件代碼的錯誤，且不保存任何東西；無法取得的——工作區離線、其登錄庫無法連線，或登錄庫未持有它——則是 [A plugin's `.wasm` is not on this machine（外掛程式的模組檔不在本機上）](../errors/fatal-halts.md#a-plugins-wasm-is-not-on-this-machine) 之下的錯誤，並指名該匯入器、其版本，以及什麼能把其模組放到機器上。請求本身不指名任何登錄庫，而匯入器與所讀取的目錄都已在機器上的匯入完全不連上網路。"
   },
+  "0281439f655aae29": {
+    "at": "2026-11-19T09:01:32.422Z",
+    "job": "session-0088-20261119090132",
+    "srcHash": "0281439f655aae29",
+    "status": "machine",
+    "text": "範本部署的每個資源，都在自己的 `metadata` 上帶有建置的出處，位於唯一保留的鍵 `aggrega.ai/provenance` 之下，並合併在資源原已寫入的任何 `metadata` 旁。宣告為 `existing: true` 的資源不會被加上標記，因為範本不會部署它。來源式範本的標記只落在巢狀部署資源上，絕不會落在 vendored 範本內部，後者依讀入時的樣子原樣帶入。`metadata` 不是物件的資源維持原樣，並由警告指名它；沒有部署任何資源的片段會收到警告，說明其出處沒有資源可描述。"
+  },
   "02838b846c24bc11": {
     "at": "2026-11-18T18:45:13.017Z",
     "job": "session-0053-20261118184513",
@@ -1401,6 +1408,13 @@
     "srcHash": "02d1bfd99daceca6",
     "status": "machine",
     "text": "a Release attachment takes the name of an attachment one of a component's connections carries (Release `<release-name>`, at `.spec.boundaries.<boundary>.features`, `\"<alias>.<slot>\"`, of component `\"<component>\"`, on the connection `\"<alias>\"`, through socket `\"<socket>\"`, in the slot `\"<slot>\"`). Write it on component `\"<component>\"`'s connection entry, under `uses.<socket>.<alias>.features.<slot>`, and remove `\"<alias>.<slot>\"` from this boundary's features: an attachment a connection carries is written on that connection and nowhere else.（Release 附加項目採用了元件某條連線所帶之附加項目的名稱。請把它寫在該元件的連線項目上，並從此邊界的功能中移除該名稱：連線所帶的附加項目寫在該連線上，不寫在其他任何地方）"
+  },
+  "02d2aabdac6634e9": {
+    "at": "2026-11-19T09:01:32.422Z",
+    "job": "session-0088-20261119090132",
+    "srcHash": "02d2aabdac6634e9",
+    "status": "machine",
+    "text": "**巢狀部署中的生產端會在頂層重新公開。** 在訂閱或管理群組範圍部署的範本中，元件的資源可以位於 `_resourceGroup` 部署中，或在管理群組範圍時位於 `_subscription` 部署中。元件的提供運算式在其資源所在之處求值，因此輸出寫在該巢狀部署的範本中，而頂層會多出一個同名的輸出 `[reference('<nested symbol>').outputs.<output>.value]`，因為使用端只讀取頂層。巢狀部署是依每個資源在其[出處](#provenance)中帶有的元件身分找到的；若元件沒有任何資源帶有出處（例如只宣告 `existing: true` 資源的元件），則由宣告了其運算式所指名資源的層級來負責；寫成字面值的提供值則寫在頂層。運算式若指名了所選層級未宣告的資源、參數或變數，會使建置中止，並指名元件、鍵與層級。元件的資源若位於多個層級，除非其運算式所指名的資源全都宣告在其中同一個層級，否則會使建置中止。"
   },
   "02d319e6c1217af6": {
     "at": "2026-11-19T04:25:53.489Z",
@@ -1746,6 +1760,13 @@
     "srcHash": "0374b38b96896edd",
     "status": "machine",
     "text": "例如 `finance`、`ai-research`"
+  },
+  "0378f7650dc45678": {
+    "at": "2026-11-19T09:01:32.422Z",
+    "job": "session-0088-20261119090132",
+    "srcHash": "0378f7650dc45678",
+    "status": "machine",
+    "text": "唯一性與字元集是兩項各自獨立的要求，一組名稱可能滿足第一項卻不滿足第二項。因為提供者完全依 Recipe 所寫的樣子發出資源邏輯 ID，所以 Recipe 撰寫的 ID 必須是 CloudFormation 範本本身就能容納的：字母與數字，沒有別的。"
   },
   "037ba9ca1a0f5b59": {
     "at": "2026-11-19T03:23:28.993Z",
@@ -3962,6 +3983,13 @@
     "status": "machine",
     "text": "執行匯入"
   },
+  "08157c8dc0e33c85": {
+    "at": "2026-11-19T09:01:32.422Z",
+    "job": "session-0088-20261119090132",
+    "srcHash": "08157c8dc0e33c85",
+    "status": "machine",
+    "text": "**沒有產生器。** ARM 沒有機密產生器，因此 `core/generated-secret` 與 `core/random-password` 沒有 `arm` FeatureRecipe，繫結其中任一者的建置會因缺少 Recipe 而中止；請參閱[認證模型](../../architecture/08-credential-model.md#a-credential-the-target-generates)。"
+  },
   "0818d221561d8d10": {
     "at": "2026-11-18T18:45:13.017Z",
     "job": "session-0053-20261118184513",
@@ -4127,6 +4155,13 @@
     "srcHash": "086d32390b543284",
     "status": "machine",
     "text": "**Provider 依元件型別選擇。** 渲染每個元件的 Recipe，就是目標的 Manifest 將該元件的*型別*對應到的那一個，取自建置所載入的任何目錄層。"
+  },
+  "086fbc137da78dd0": {
+    "at": "2026-11-19T09:01:32.422Z",
+    "job": "session-0088-20261119090132",
+    "srcHash": "086fbc137da78dd0",
+    "status": "machine",
+    "text": "字元集拒絕底線"
   },
   "08750920c3e3b0c1": {
     "at": "2026-11-18T17:22:53.980Z",
@@ -4613,6 +4648,13 @@
     "srcHash": "097bdce1f44e43ca",
     "status": "machine",
     "text": "三個座標，各自回答不同的問題："
+  },
+  "09835e997b472a9a": {
+    "at": "2026-11-19T09:01:32.422Z",
+    "job": "session-0088-20261119090132",
+    "srcHash": "09835e997b472a9a",
+    "status": "machine",
+    "text": "`avm/res/cognitive-services/account` 0.19.2：一個位於 Release 所指名之自訂子網域下的 Azure OpenAI 帳戶，以及一個聊天模型部署"
   },
   "0983b83f3da74763": {
     "at": "2026-11-18T12:33:55.728Z",
@@ -5277,6 +5319,13 @@
     "srcHash": "0b0e25c256217510",
     "status": "machine",
     "text": "**登錄庫伺服器描述。** MCP 登錄庫發布的 `server.json`：其 `name`，以及其第一個套件，或在沒有列出任何套件時，其第一個遠端。npm 或 PyPI 套件會從以下各項組成的命令列啟動：其啟動器（其 `runtimeHint`，或 npm 用 `npx`、PyPI 用 `uvx`）、其 `runtimeArguments`、帶有版本的套件（npm 寫成 `<identifier>@<version>`，PyPI 寫成 `<identifier>==<version>`），以及其 `packageArguments`，並以其 `environmentVariables` 作為環境。位置引數是其 `value` 或其 `default`；具名引數在有其中任一者時寫成 `<name>=<value>`，兩者都沒有時寫成其 `name`。OCI 套件從其 `identifier` 所指名的映像檔執行。遠端在其 `url` 到達，並送出其 `headers`。描述所列的每個其他套件與遠端都在註解中指名，因為一個實例只執行其中之一。"
+  },
+  "0b1192589d3ccc8b": {
+    "at": "2026-11-19T09:01:32.422Z",
+    "job": "session-0088-20261119090132",
+    "srcHash": "0b1192589d3ccc8b",
+    "status": "machine",
+    "text": "此方案保留一個字元用來開啟跳脫——大寫的 `X`——其他一切都照你輸入的樣子寫出，大寫字母也不例外。只有大寫被保留，因此像 `nginx-proxy` 這樣的名稱中的小寫 `x`，會照你所寫原樣帶過去："
   },
   "0b11f421c7c2a712": {
     "at": "2026-11-19T03:10:05.727Z",
@@ -7887,6 +7936,13 @@
     "status": "machine",
     "text": "或者從終端機詢問。告訴代理程式你的名字並問它一個問題，重新啟動它，然後在同一段對話上問它你的名字："
   },
+  "109371d74273fbd2": {
+    "at": "2026-11-19T09:01:32.422Z",
+    "job": "session-0088-20261119090132",
+    "srcHash": "109371d74273fbd2",
+    "status": "machine",
+    "text": "不論兩個項目是否帶有相同的值，這都成立。值相同的兩個項目仍然描述作者所要求的兩個輸出，因此把它們合併成一個，會讓寫下的兩個輸出之一不存在於堆疊中。"
+  },
   "1093d8e9a6ac59ce": {
     "at": "2026-11-19T04:25:53.489Z",
     "job": "session-0072-20261119042553",
@@ -8433,6 +8489,13 @@
     "srcHash": "11acc8d8d119db25",
     "status": "machine",
     "text": "將閘道與後端型別對應到它們的 synth helm Recipes。"
+  },
+  "11b0ae8e2634e65c": {
+    "at": "2026-11-19T09:01:32.422Z",
+    "job": "session-0088-20261119090132",
+    "srcHash": "11b0ae8e2634e65c",
+    "status": "machine",
+    "text": "資源群組"
   },
   "11b0c6b7cc9d2193": {
     "at": "2026-11-18T07:06:16.115Z",
@@ -9116,6 +9179,13 @@
     "srcHash": "1318d63607ea2de0",
     "status": "machine",
     "text": "**合成式**"
+  },
+  "131a5e7a46f48ca3": {
+    "at": "2026-11-19T09:01:32.422Z",
+    "job": "session-0088-20261119090132",
+    "srcHash": "131a5e7a46f48ca3",
+    "status": "machine",
+    "text": "由其生產端宣告為敏感的傳遞值、以文字寫入的登錄庫密碼"
   },
   "132138f55b93b962": {
     "at": "2026-11-18T12:33:55.728Z",
@@ -10006,6 +10076,13 @@
     "status": "machine",
     "text": "持有目錄與成品本機副本的氣隙機器，正是這種區分所要持續維持運作的情況：這樣的工作區是離線的，而它所做的幾乎一切仍然可以被滿足。"
   },
+  "154055b6b4503573": {
+    "at": "2026-11-19T09:01:32.422Z",
+    "job": "session-0088-20261119090132",
+    "srcHash": "154055b6b4503573",
+    "status": "machine",
+    "text": "不存在時"
+  },
   "1546d5bb323044e2": {
     "at": "2026-11-18T18:53:29.748Z",
     "job": "session-0054-20261118185329",
@@ -10215,6 +10292,13 @@
     "srcHash": "15a04febf27a607a",
     "status": "machine",
     "text": "**把每個相符的單元從它回傳的所有內容中排除**——它的 `files`、它在 `derived_keys` 中宣告的名稱，以及它在 `render_facts` 中回報的事實——使編譯器收到的任何內容都不再描述它。"
+  },
+  "15a0c9b307c5478d": {
+    "at": "2026-11-19T09:01:32.422Z",
+    "job": "session-0088-20261119090132",
+    "srcHash": "15a0c9b307c5478d",
+    "status": "machine",
+    "text": "Recipe 在範本中組成的名稱不在此涵蓋範圍內"
   },
   "15a26708702d75b7": {
     "at": "2026-11-18T15:43:56.416Z",
@@ -10520,6 +10604,13 @@
     "srcHash": "1640da2365d9fffd",
     "status": "machine",
     "text": "發出的訊息，指名外掛程式、它所回報的版本與補救方式："
+  },
+  "164c5d17ad8f9bc4": {
+    "at": "2026-11-19T09:01:32.422Z",
+    "job": "session-0088-20261119090132",
+    "srcHash": "164c5d17ad8f9bc4",
+    "status": "machine",
+    "text": "**範圍比邊界更廣的內容會中止。** 為訂閱撰寫的片段若位於部署在資源群組範圍的邊界中，會被拒絕並指名元件與註記：請把邊界標註為 `aggrega.ai/azure-deployment-scope: subscription` 或 `managementGroup`，或把資源寫在資源群組範本中。為管理群組撰寫的片段位於任何更窄範圍的邊界中，也以同樣方式被拒絕。"
   },
   "1656ddbf35f5f83a": {
     "at": "2026-11-18T17:28:02.111Z",
@@ -11950,6 +12041,13 @@
     "status": "machine",
     "text": "沒有終端機時"
   },
+  "1983f0f4acd509f8": {
+    "at": "2026-11-19T09:01:32.422Z",
+    "job": "session-0088-20261119090132",
+    "srcHash": "1983f0f4acd509f8",
+    "status": "machine",
+    "text": "保留用來開啟跳脫，因此以碼位拼寫出來"
+  },
   "19861c7bff139c88": {
     "at": "2026-11-18T12:59:22.923Z",
     "job": "session-0013-20261118125922",
@@ -12639,6 +12737,13 @@
     "status": "machine",
     "text": "**呼叫絕不會寫在輸出目錄中已有的 Aggregate 之上**。Aggregate 是作者在草擬之後會繼續編輯的文件，所以其中某個草稿會落在讀起來是 Aggregate 的檔案上的呼叫，會被拒絕並指名該草稿與目錄，且完全不寫入任何東西——在 `dry_run` 下也一樣，因為試執行會拒絕寫入所拒絕的。已在草擬路徑上的每個其他檔案會被寫過，而先前匯入所草擬、此次匯入未草擬的檔案則留在原處。"
   },
+  "1afed88ea404dcfe": {
+    "at": "2026-11-19T09:01:32.422Z",
+    "job": "session-0088-20261119090132",
+    "srcHash": "1afed88ea404dcfe",
+    "status": "machine",
+    "text": "剖析也不會詢問範本的參照是否能解析。`Ref` 是否指名了參數，或 `Fn::FindInMap` 是否指名了對應，是關於組裝後堆疊而非任何單一輸入文件的問題，要由 CloudFormation 在部署時回答。建置只說明它沒有帶入什麼，而不是判斷結果參照了什麼。它確實判斷的參照，是建置本身讓它懸空的那些：一個指向來源式範本的繫結所填入之參數的參照（下一節涵蓋），以及一個指向被 `omits:` 項目從範本中省略之資源的參照（再下一節涵蓋）。"
+  },
   "1b049314259c4fc6": {
     "at": "2026-11-19T08:12:17.812Z",
     "job": "session-0082-20261119081217",
@@ -12729,6 +12834,13 @@
     "srcHash": "1b1d76bbd03d22eb",
     "status": "machine",
     "text": "在註記注入角色，原則會在 `annotations` 之下為每個註記收集一項決策，以目標本身帶有的座標指名目標，再加上鍵與它的值："
+  },
+  "1b268a591c9e7941": {
+    "at": "2026-11-19T09:01:32.422Z",
+    "job": "session-0088-20261119090132",
+    "srcHash": "1b268a591c9e7941",
+    "status": "machine",
+    "text": "`infra.published_port`、由其生產端宣告為敏感的傳遞值、以文字寫入的登錄庫密碼"
   },
   "1b2bec79e86da481": {
     "at": "2026-11-19T08:12:17.812Z",
@@ -13074,6 +13186,13 @@
     "status": "machine",
     "text": "以其文件發布"
   },
+  "1c02cb384d1f887a": {
+    "at": "2026-11-19T09:01:32.422Z",
+    "job": "session-0088-20261119090132",
+    "srcHash": "1c02cb384d1f887a",
+    "status": "machine",
+    "text": "邊界部署在訂閱或管理群組範圍的生產端，會在該範圍以相同的記錄名稱部署，且先於它的使用端："
+  },
   "1c072b6edf5191a9": {
     "at": "2026-11-19T03:15:13.861Z",
     "job": "session-0064-20261119031513",
@@ -13199,6 +13318,13 @@
     "status": "machine",
     "text": "每個渲染的 YAML 成品——docker-compose 檔案、Helm chart 範本與值，以及 Kubernetes 資訊清單——都以統一的縮排寬度發出。寬度由 `.aggrega-config.yaml` 中的 `build.yaml_indent` 設定，預設為 **2**（這些格式的慣用寬度）："
   },
+  "1c3adb087da05755": {
+    "at": "2026-11-19T09:01:32.422Z",
+    "job": "session-0088-20261119090132",
+    "srcHash": "1c3adb087da05755",
+    "status": "machine",
+    "text": "因為它們落在組裝後的堆疊中，所以共用其名稱。附加的 Feature 的資源邏輯 ID，與宿主元件的以及同時附加的其他每個 Feature 的資源邏輯 ID 位於同一個空間，因此[組裝後堆疊中的名稱](#names-in-the-assembled-stack)原封不動地適用於它們。當兩個貢獻者在同一個名稱上相遇時，中止會指名元件與該 Feature 附加時所用的鍵，因此衝突的兩端都能在你自己的檔案中搜尋到。"
+  },
   "1c3b55e633e84596": {
     "at": "2026-11-19T07:35:31.572Z",
     "job": "session-0079-20261119073531",
@@ -13233,6 +13359,13 @@
     "srcHash": "1c4740a0555a9b3d",
     "status": "machine",
     "text": "工具持有位址，但不含其金鑰"
+  },
+  "1c4b8ff60530a1bf": {
+    "at": "2026-11-19T09:01:32.422Z",
+    "job": "session-0088-20261119090132",
+    "srcHash": "1c4b8ff60530a1bf",
+    "status": "machine",
+    "text": "出處"
   },
   "1c4c18caeb11ff54": {
     "at": "2026-11-18T17:53:16.128Z",
@@ -13512,6 +13645,13 @@
     "status": "machine",
     "text": "在 `arm` 上沒有這樣的資源；請參閱下方的 **在 `arm` 上，產生型式會中止**。"
   },
+  "1ce8538af629642a": {
+    "at": "2026-11-19T09:01:32.422Z",
+    "job": "session-0088-20261119090132",
+    "srcHash": "1ce8538af629642a",
+    "status": "machine",
+    "text": "**堆疊中沒有其他東西可以參照已填入的參數。** 來源之外的內容——同一堆疊中另一個元件的片段或來源式範本——若透過 `Ref`、`Fn::Sub` 變數或規則的 `Fn::ValueOf` 指名來源的繫結所填入的參數，就會指名組裝後的堆疊不再宣告的東西，而 CloudFormation 在堆疊部署時會拒絕它。因此建置會中止，指名每個元件、它的範本與參數，以及其 `valuesMapping` 填入它的元件——Recipe 的，或附加 Feature 的 FeatureRecipe 的；附加到元件的 Feature 以該元件指名，附加到邊界的 Feature 則以其資源所帶的身分 `aggrega.ai/component-id` 指名，該身分由邊界的路徑與附加項目的名稱組成（邊界 `stack` 上的附加項目 `aux` 為 `bfr--stack--aux`）。Feature 所附加之元件的片段，或其所附加之邊界中元件的片段，若參照附加項目的繫結所填入的參數，同樣會使建置中止。堆疊仍宣告的名稱不受影響：當另一個元件自己宣告了該名稱的參數，或資源以它作為邏輯 ID 時，它的參照會解析到該宣告，並保持原樣。要傳遞該值，可讓填入的元件發布它、在參照它的範本中宣告該參數，或從 `valuesMapping` 移除該鍵。"
+  },
   "1ce93fb8ceaba459": {
     "at": "2026-11-18T16:53:15.809Z",
     "job": "session-0030-20261118165315",
@@ -13553,6 +13693,13 @@
     "srcHash": "1d0dcdb4f4da0e61",
     "status": "machine",
     "text": "沒有其他東西決定草擬什麼：整個應用程式都會被攜帶。"
+  },
+  "1d150192671c7fbc": {
+    "at": "2026-11-19T09:01:32.422Z",
+    "job": "session-0088-20261119090132",
+    "srcHash": "1d150192671c7fbc",
+    "status": "machine",
+    "text": "**只指名，不帶入。** `Description` 是對整個範本的單一陳述，而不是你所選名稱的對應表，因此取自多個元件的組裝對它沒有答案：兩份描述是對同一個問題的兩個答案，兩者都不是堆疊的。`Hooks` 只由 `AWS::CodeDeployBlueGreen` 轉換讀取，而組裝後的堆疊絕不帶入該轉換（見下文）。因此組裝後的堆疊兩者都不帶入，撰寫了其中之一的每個元件都會得到指名該元件與區段的警告。寫入 `Globals` 卻未宣告讀取它的 `AWS::Serverless-2016-10-31` 轉換的元件也一樣。該警告是提示性質且屬於頻外：發出的範本與沒有它時逐位元組相同，而 `--no-unsupported-field-warnings` 會連同該類別的其餘警告一併關閉。"
   },
   "1d19270a4a2d4418": {
     "at": "2026-11-19T08:20:57.425Z",
@@ -14002,6 +14149,13 @@
     "srcHash": "1e11ea39ec6c5af4",
     "status": "machine",
     "text": "匯入 Langflow 流程——Basic Prompting 入門專案"
+  },
+  "1e1234f4653490a6": {
+    "at": "2026-11-19T09:01:32.422Z",
+    "job": "session-0088-20261119090132",
+    "srcHash": "1e1234f4653490a6",
+    "status": "machine",
+    "text": "部署範本是操作員的事：建置看不到訂閱的配額，也看不到各區域提供的項目，因此 Azure 拒絕的值會在範本部署時才浮現。"
   },
   "1e13cde130afc9b1": {
     "at": "2026-11-19T07:22:53.221Z",
@@ -15411,6 +15565,13 @@
     "status": "machine",
     "text": "**結構形態：根部用對應表，酬載中用陣列。** 根拓撲區塊——`components`、`features`、`aggregates`、`subsystems`、`boundaries`——是 YAML 對應表，其以使用者自訂的鍵作為穩定的實例 ID。這些位置不允許使用陣列；對應表的鍵就是編譯器用於交叉參照（`target: my-db`）、圖節點建構與 Manifest 解析的身分。在不透明的酬載區塊（`values`、`infra`、`parameters`）內，陣列完全允許——開發者可以在 Component 的 `values` 內撰寫 `tools_allowed: [\"sql\", \"web\"]` 或 `hostnames: [\"stripe.com\", \"twilio.com\"]`。Aggregate 結構描述將這些酬載區塊宣告為 `additionalProperties: true`，因此它們對 Go 編譯器是不透明的，完全由目錄內嵌的 `schema:` 宣告驗證。這讓框架的易變性（新的 AI API 形態、新的雲端原生酬載格式）留在目錄領域內，可獨立演進，而 Go 編譯器在結構根部則維持只能以可定址的鍵運作。"
   },
+  "20a81bca5a5b730a": {
+    "at": "2026-11-19T09:01:32.422Z",
+    "job": "session-0088-20261119090132",
+    "srcHash": "20a81bca5a5b730a",
+    "status": "machine",
+    "text": "Recipe 會把提供值發布為單一完整的運算式或單純的字面值。在同一個範本內，值周圍的文字仍會組合成 `format()`，如[撰寫 ARM 文字](#writing-arm-text)所述。"
+  },
   "20aa98e40cb9a0cf": {
     "at": "2026-11-18T13:54:14.793Z",
     "job": "session-0017-20261118135414",
@@ -15473,6 +15634,13 @@
     "status": "machine",
     "text": "`aggrega explain E0209` 會將該代碼轉成它所指的條件以及撰寫修正的逐步說明："
   },
+  "20d2b3586fc60692": {
+    "at": "2026-11-19T09:01:32.422Z",
+    "job": "session-0088-20261119090132",
+    "srcHash": "20d2b3586fc60692",
+    "status": "machine",
+    "text": "**從生產端讀取的值，其邊界沒有指名 ID 所需的位置，而使用端層級自己也沒有可採用的位置。** 當在訂閱或管理群組範圍讀取資源群組範圍的生產端時，請在生產端的邊界標註 `aggrega.ai/azure-resource-group`；在管理群組範圍讀取資源群組或訂閱範圍的生產端時，標註 `aggrega.ai/azure-subscription`；在資源群組或訂閱範圍讀取管理群組範圍的生產端時，標註 `aggrega.ai/azure-management-group`。"
+  },
   "20d906190436740c": {
     "at": "2026-11-18T07:13:03.194Z",
     "job": "session-0002-20261118071303",
@@ -15513,6 +15681,13 @@
     "srcHash": "210397d6afeb4461",
     "status": "machine",
     "text": "鎖定檔是產生出來的，而不是隨附的，因此新的複製沒有鎖定檔，而第一次建置需要一個。`aggrega build` 預設是唯讀的：沒有鎖定檔時，它會中止，並指出兩條前進的路。第一次建置傳入 `--auto-pull`——`aggrega build --release release.yaml --auto-pull`——以便在建置期間解析鎖定檔；事先執行一次 `aggrega pull --release <release file>` 也做同樣的事，並讓之後的每次建置都不需任何旗標。"
+  },
+  "210df09f50add506": {
+    "at": "2026-11-19T09:01:32.422Z",
+    "job": "session-0088-20261119090132",
+    "srcHash": "210df09f50add506",
+    "status": "machine",
+    "text": "生產端的範圍"
   },
   "21122fa24ac8d2e0": {
     "at": "2026-11-18T12:54:50.695Z",
@@ -15605,6 +15780,13 @@
     "status": "machine",
     "text": "預設範圍模式請見 [architecture/06-data-taxonomy-and-composition.md §7](../../architecture/06-data-taxonomy-and-composition.md)。"
   },
+  "21655eacf218945c": {
+    "at": "2026-11-19T09:01:32.422Z",
+    "job": "session-0088-20261119090132",
+    "srcHash": "21655eacf218945c",
+    "status": "machine",
+    "text": "你分開寫的兩個項目名稱仍然分開"
+  },
   "2176be28002dc6db": {
     "at": "2026-11-18T18:53:30.310Z",
     "job": "session-0055-20261118185330",
@@ -15659,6 +15841,13 @@
     "srcHash": "218da04b56e5b8fd",
     "status": "machine",
     "text": "發出的訊息，當各處都沒有符合項目時："
+  },
+  "218fbba77facc98e": {
+    "at": "2026-11-19T09:01:32.422Z",
+    "job": "session-0088-20261119090132",
+    "srcHash": "218fbba77facc98e",
+    "status": "machine",
+    "text": "部署命令會採用部署記錄所儲存的位置，巢狀部署也採用同一個位置："
   },
   "2190cdc00b0b351c": {
     "at": "2026-11-18T15:53:57.460Z",
@@ -15727,6 +15916,13 @@
     "srcHash": "21ad89ba58d8d202",
     "status": "machine",
     "text": "建置把 Tempo 伺服器發出為四個 Kubernetes 物件："
+  },
+  "21af8d850b4b2f13": {
+    "at": "2026-11-19T09:01:32.422Z",
+    "job": "session-0088-20261119090132",
+    "srcHash": "21af8d850b4b2f13",
+    "status": "machine",
+    "text": "每一次這類拒絕都會指名參數，而且不引用任何值。"
   },
   "21b111cbfe6e8fca": {
     "at": "2026-11-18T12:49:35.296Z",
@@ -16006,6 +16202,13 @@
     "status": "machine",
     "text": "它之所以中止而不是照樣嘗試，原因在於各種類並不共用介面。另一種種類的外掛程式會透過它沒有的匯出被呼叫，而傳回來的內容會依它從未產生過的形狀被讀取。"
   },
+  "22347b7be7a1c81e": {
+    "at": "2026-11-19T09:01:32.422Z",
+    "job": "session-0088-20261119090132",
+    "srcHash": "22347b7be7a1c81e",
+    "status": "machine",
+    "text": "來源式範本參數的值"
+  },
   "2237ee7e5d842dc4": {
     "at": "2026-11-18T15:38:54.285Z",
     "job": "session-0018-20261118153854",
@@ -16215,6 +16418,13 @@
     "srcHash": "22a1093cb00328ee",
     "status": "machine",
     "text": "[schema/other/aggrega-config.md](../schema/other/aggrega-config.md) 列出這些鍵，並在有預設值的地方一併列出。"
+  },
+  "22a86b816979d3c5": {
+    "at": "2026-11-19T09:01:32.422Z",
+    "job": "session-0088-20261119090132",
+    "srcHash": "22a86b816979d3c5",
+    "status": "machine",
+    "text": "重述一個名稱本身並不構成衝突。以相同內容寫了不只一次的名稱，無論如何都定址同一件事，因此重述會合併成單一項目，建置繼續進行——一般的重複不會有任何代價。會中止的是會失去內容的情況：兩個本體之一必須被丟棄，而 Recipe 所宣告的資源或輸出就會從堆疊中缺少。重新命名其中任一個即可排除。"
   },
   "22b19b47f680f616": {
     "at": "2026-11-18T17:11:56.321Z",
@@ -16480,6 +16690,13 @@
     "srcHash": "233aecbb86b1a156",
     "status": "machine",
     "text": "拓撲已建立——uses 圖與順序已計算。"
+  },
+  "233b1e4f2dd3e905": {
+    "at": "2026-11-19T09:01:32.422Z",
+    "job": "session-0088-20261119090132",
+    "srcHash": "233b1e4f2dd3e905",
+    "status": "machine",
+    "text": "在管理群組範圍部署"
   },
   "233e1b0bbb718cd0": {
     "at": "2026-11-19T02:53:52.874Z",
@@ -16791,6 +17008,13 @@
     "srcHash": "23d23866c2323c2e",
     "status": "machine",
     "text": "**修正方式：** 依 compose 檔案的方式指名單元——`kind: service`、`volume` 或 `config`，以及 `name:` 為其在該區段下的鍵——並移除 `namespace:`。請參閱 [compose → 來源式模式](../providers/compose.md#sourced-mode)。"
+  },
+  "23d6930b189e42a9": {
+    "at": "2026-11-19T09:01:32.422Z",
+    "job": "session-0088-20261119090132",
+    "srcHash": "23d6930b189e42a9",
+    "status": "machine",
+    "text": "**來源式輸入。** Recipe 參照既有的 CloudFormation 範本（YAML 或 JSON）；提供者會把它正規化為長格式 JSON，並在組裝前驗證其結構，依 Recipe 的 `valuesMapping` 填入範本所宣告的參數——請參閱[來源式範本參數的值](#values-for-a-sourced-templates-parameters)——並省略 Recipe 的 `omits:` 項目所指名的任何資源——請參閱[從來源式範本中省略資源](#leaving-resources-out-of-a-sourced-template)。"
   },
   "23d928613a41e4fb": {
     "at": "2026-11-19T08:52:30.848Z",
@@ -17318,6 +17542,13 @@
     "status": "machine",
     "text": "在文件存放庫的檢出中，大多數工作區也帶有 `build-release.sh` 輔助程式，存放庫自己的檢查透過它建置。它為一個 Release 執行 `aggrega build`，先把命令印出，並回報它所用的 `aggrega` 二進位檔，以及該二進位檔來自何處；設定 `AGGREGA_BIN` 可選擇二進位檔。由 `aggrega draft --example` 寫出的副本帶有該輔助程式，但沒有它所呼叫的共用指令碼，因此這類副本要直接以 `aggrega build` 建置。"
   },
+  "24e909bd3f1a6bce": {
+    "at": "2026-11-19T09:01:32.422Z",
+    "job": "session-0088-20261119090132",
+    "srcHash": "24e909bd3f1a6bce",
+    "status": "machine",
+    "text": "字元集拒絕斜線，而巢狀元件身分帶有斜線"
+  },
   "24ea5bbfd32ec437": {
     "at": "2026-11-18T12:45:41.103Z",
     "job": "session-0010-20261118124541",
@@ -17594,6 +17825,13 @@
     "srcHash": "2593a178f085289d",
     "status": "machine",
     "text": "[選擇你要處理的 Release](releases.md) — 編輯器所作用的那個 Release，以及如何選取它。"
+  },
+  "259bdac8de1edc6b": {
+    "at": "2026-11-19T09:01:32.422Z",
+    "job": "session-0088-20261119090132",
+    "srcHash": "259bdac8de1edc6b",
+    "status": "machine",
+    "text": "生產端邊界上的這些註記決定其部署的位置，並且會被當作不透明字串讀取："
   },
   "25a0089e27c1eaf1": {
     "at": "2026-11-18T07:06:16.115Z",
@@ -17905,6 +18143,13 @@
     "status": "machine",
     "text": "Either token may be absent, and an absent one is omitted（任一個 token 都可能不存在，不存在的 token 會被省略）"
   },
+  "264157460d899318": {
+    "at": "2026-11-19T09:01:32.422Z",
+    "job": "session-0088-20261119090132",
+    "srcHash": "264157460d899318",
+    "status": "machine",
+    "text": "兩個解析到不同輸出目錄的 `arm` 邊界之間的 `uses` 邊，會連結兩個範本，每個範本都以自己的部署來部署。該邊在兩個範本中都有連接。位於資源群組、訂閱或管理群組範圍的邊界都可以是生產端：即 `uses` 邊所指向之元件的範本。"
+  },
   "2643f125b3923da6": {
     "at": "2026-11-19T07:39:19.402Z",
     "job": "session-0080-20261119073919",
@@ -18049,6 +18294,20 @@
     "srcHash": "268f14bbfe119c1e",
     "status": "machine",
     "text": "診斷"
+  },
+  "2696eb8356977713": {
+    "at": "2026-11-19T09:01:32.422Z",
+    "job": "session-0088-20261119090132",
+    "srcHash": "2696eb8356977713",
+    "status": "machine",
+    "text": "**以部署堆疊方式部署的生產端無法被連到。** 堆疊會為自己的部署命名，因此範本所記錄的名稱無法被連到；請依其範圍所需，以 `az deployment group create`、`az deployment sub create` 或 `az deployment mg create` 部署生產端。使用端則兩種方式都可以部署。"
+  },
+  "269ac827bd5cf9f4": {
+    "at": "2026-11-19T09:01:32.422Z",
+    "job": "session-0088-20261119090132",
+    "srcHash": "269ac827bd5cf9f4",
+    "status": "machine",
+    "text": "**CanNotDelete 鎖定會使清除停止。** 在鎖定之下不會刪除任何東西，一旦記錄達到 800 個項目，後續的部署就會失敗，直到項目被移除。"
   },
   "269d6e8f272f12ac": {
     "at": "2026-11-18T11:27:19.320Z",
@@ -19163,6 +19422,13 @@
     "status": "machine",
     "text": "**它刻意與簽署者不受信任的簽章區分開來。** 後者在結構上是完好的，只是由錯誤的簽署者所簽；而此處的簽章則是完全沒有通過檢查。把兩者分開，才能讓你分辨「成品不是被簽署的那一個」與「成品由你尚未接受的人簽署」。"
   },
+  "28f0a6354f232467": {
+    "at": "2026-11-19T09:01:32.422Z",
+    "job": "session-0088-20261119090132",
+    "srcHash": "28f0a6354f232467",
+    "status": "machine",
+    "text": "Feature 貢獻的每個資源，在建置寫到它上面的出處中，保有為該附加項目組成的身分，而非宿主元件的身分，因此兩者在雙方都有貢獻的堆疊內仍可區分。[標籤與註記](../vocabulary/labels-and-annotations.md)說明該身分如何組成。"
+  },
   "28f1c3001b45c340": {
     "at": "2026-11-18T12:29:00.520Z",
     "job": "session-0007-20261118122900",
@@ -19197,6 +19463,13 @@
     "srcHash": "29051eca858a5664",
     "status": "machine",
     "text": "對於預設依撰寫原樣的種類，`--raw` 是無操作，而 `--resolved` 會觸發該種類所支援的解析。對於預設為已解析的種類，`--raw` 是依撰寫原樣的繞過方式。"
+  },
+  "2907a78198a2c21b": {
+    "at": "2026-11-19T09:01:32.422Z",
+    "job": "session-0088-20261119090132",
+    "srcHash": "2907a78198a2c21b",
+    "status": "machine",
+    "text": "Provider 渲染由具有 `pluginType: provider` 的 Plugin 負責。提供者渲染 Plugin："
   },
   "290d8e247febe1dd": {
     "at": "2026-11-18T15:49:09.302Z",
@@ -19828,6 +20101,13 @@
     "status": "machine",
     "text": "在任何一種交付下，它都不解析任何相依性、不觸及登錄庫，也不碰觸網路。"
   },
+  "2a5ae4b37a9b7cec": {
+    "at": "2026-11-19T09:01:32.422Z",
+    "job": "session-0088-20261119090132",
+    "srcHash": "2a5ae4b37a9b7cec",
+    "status": "machine",
+    "text": "來源式範本的資源屬於它自己：值只能透過它所宣告的參數進入，因此從 git 存放庫取得的範本若宣告了 Release 不得建立的資源——例如平台在別處提供的診斷設定、操作員已擁有的金鑰保存庫——就無法用值來改變。這正是 Recipe 或 FeatureRecipe 的 [`omits:`](../entities/recipe.md#the-omits-field--leaving-rendered-documents-out-of-a-source) 項目的用途。此提供者只對來源式範本遵守它們，對其他一律不適用：`artifacts:` 項目所撰寫的片段渲染時不套用這些項目。"
+  },
   "2a5db71a6c7a0ea5": {
     "at": "2026-11-19T01:10:37.674Z",
     "job": "session-0059-20261119011037",
@@ -20181,6 +20461,13 @@
     "status": "machine",
     "text": "**未帶實體載入的外掛程式不在此檢查。** 記錄位於實體上，所以直接載入的位元組沒有記錄，比對也就沒有可執行的對象。"
   },
+  "2b1ecb4d620a8048": {
+    "at": "2026-11-19T09:01:32.422Z",
+    "job": "session-0088-20261119090132",
+    "srcHash": "2b1ecb4d620a8048",
+    "status": "machine",
+    "text": "組裝後堆疊中的頂層區段"
+  },
   "2b260a264877b2ff": {
     "at": "2026-11-19T02:53:52.874Z",
     "job": "session-0060-20261119025352",
@@ -20471,6 +20758,13 @@
     "srcHash": "2bdaa1b98290c669",
     "status": "machine",
     "text": "組裝成範本的片段"
+  },
+  "2be23c585f15e5fd": {
+    "at": "2026-11-19T09:01:32.422Z",
+    "job": "session-0088-20261119090132",
+    "srcHash": "2be23c585f15e5fd",
+    "status": "machine",
+    "text": "原因"
   },
   "2be3594cb48be18b": {
     "at": "2026-11-18T18:53:30.310Z",
@@ -21337,6 +21631,13 @@
     "status": "machine",
     "text": "**`release.yaml`** — 操作員針對各環境的履行：*規模多大、部署在哪裡*。`infra:` 區塊（引擎版本、儲存體大小、發布的連接埠）屬於操作員；Aggregate 從不攜帶這些內容。"
   },
+  "2db6779d7caf9145": {
+    "at": "2026-11-19T09:01:32.422Z",
+    "job": "session-0088-20261119090132",
+    "srcHash": "2db6779d7caf9145",
+    "status": "machine",
+    "text": "它所指名的內容"
+  },
   "2db6a80ffbfb385a": {
     "at": "2026-11-19T03:28:20.167Z",
     "job": "session-0066-20261119032820",
@@ -21542,6 +21843,13 @@
     "srcHash": "2e1635c670e2447c",
     "status": "machine",
     "text": "把管理主控台加入 Aggregate，並把它放進 Release："
+  },
+  "2e19268473201e89": {
+    "at": "2026-11-19T09:01:32.422Z",
+    "job": "session-0088-20261119090132",
+    "srcHash": "2e19268473201e89",
+    "status": "machine",
+    "text": "**這些名稱比你所寫的元件名稱更長，也不那麼一目了然，這就是取捨。** 能恰好識別一個項目的名稱，比兩者都無法識別的較短名稱更有價值——而且你是透過匯出名稱而非輸入這個名稱來定址輸出，因此它的代價只是在閱讀發出的範本時需要多看一眼。"
   },
   "2e1cfa82b035c26c": {
     "at": "2026-11-19T07:28:26.849Z",
@@ -23761,6 +24069,13 @@
     "status": "machine",
     "text": "回呼"
   },
+  "32ecfa57bc562200": {
+    "at": "2026-11-19T09:01:32.422Z",
+    "job": "session-0088-20261119090132",
+    "srcHash": "32ecfa57bc562200",
+    "status": "machine",
+    "text": "因為轉換會處理整個範本，帶入一個轉換就會改變其他每個元件內容的部署方式，除非它的作用僅限於為它撰寫的內容。因此每個轉換都採取 CloudFormation 自己對它的文件所支援的處置，而堆疊無法帶入的組合會使建置中止，並指名該轉換與堆疊中的每個元件："
+  },
   "32fc57a3b7af5160": {
     "at": "2026-11-19T01:03:08.499Z",
     "job": "session-0058-20261119010308",
@@ -24705,6 +25020,13 @@
     "status": "machine",
     "text": "**沒有實現部分**，表示 Manifest 沒有把附加項目繫結到目錄所持有的任何 FeatureRecipe。"
   },
+  "3545af7915095dba": {
+    "at": "2026-11-19T09:01:32.422Z",
+    "job": "session-0088-20261119090132",
+    "srcHash": "3545af7915095dba",
+    "status": "machine",
+    "text": "[Plugin 契約](plugin-contract.md) — 每個插槽的輸入與輸出形狀，以及各自採用的編碼。"
+  },
   "354bb0a3b92bf84c": {
     "at": "2026-11-18T17:22:53.567Z",
     "job": "session-0036-20261118172253",
@@ -25088,6 +25410,13 @@
     "srcHash": "363a9c524f9209f2",
     "status": "machine",
     "text": "這條規則只判斷路徑在磁碟上指向何處，沒有其他。它不讀取任何值，也不從名稱推斷任何事。"
+  },
+  "363bed5f9d96d322": {
+    "at": "2026-11-19T09:01:32.422Z",
+    "job": "session-0088-20261119090132",
+    "srcHash": "363bed5f9d96d322",
+    "status": "machine",
+    "text": "`group` 宣告資源群組 `orders-rg`，`store` 是為資源群組撰寫的儲存體帳戶，範本如下，已省略出處與儲存體帳戶的其他欄位："
   },
   "363c04b300b6ad6e": {
     "at": "2026-11-19T04:45:51.548Z",
@@ -25922,6 +26251,13 @@
     "status": "machine",
     "text": "Dify 的模型提供者是外掛程式，而新的安裝沒有任何提供者。安裝 Dify 的 OpenAI 提供者，版本 1.1.0，也就是該次執行所安裝的版本；外掛程式執行階段會從 Dify 的市集取得它，而草稿的 `marketplace_enabled` 讓安裝可以連到市集，所以該安裝必須能連上網際網路："
   },
+  "381e90165b8d5e85": {
+    "at": "2026-11-19T09:01:32.422Z",
+    "job": "session-0088-20261119090132",
+    "srcHash": "381e90165b8d5e85",
+    "status": "machine",
+    "text": "包裝或撰寫的內容"
+  },
   "3820015ce4ee9683": {
     "at": "2026-11-19T03:03:07.852Z",
     "job": "session-0062-20261119030307",
@@ -25997,6 +26333,13 @@
     "status": "machine",
     "text": "`aggrega/skillsInstall` — 將此二進位檔內建的 Aggrega 技能寫入請求所指名之每個助理的技能資料夾，與 [`aggrega skills install`](aggrega-skills.md) 在終端機執行的安裝相同。`agents` 以識別碼列出助理，即 `aggrega/skillsList` 所回報的識別碼；給了兩次的識別碼只安裝一次，而當所指名的數個助理讀取同一個共用資料夾時，技能只寫入那裡一次。專案安裝需要它。未指名任何助理的 `global` 請求，會為這台機器上找到的助理安裝，如同 `aggrega skills install --global` 在沒有 `--agent` 時所做——每個其設定資料夾位於主目錄中，或其命令位於常駐程式環境之 `PATH` 上的助理——而在找不到任何助理時會被拒絕且不寫入任何東西；不會提示任何東西，且 `installed` 指名所寫入的助理。沒有 `global` 時，技能落在每個助理位於**請求所指名之工作區內**的專案資料夾，絕不會落在常駐程式啟動時所在的目錄；使用 `global: true` 時，它落在每個助理位於常駐程式環境所指名之主目錄（`HOME`，或在 Windows 上為 `USERPROFILE`）下的每使用者資料夾。每個目標都在任何東西被寫入之前被檢查，因此拒絕會讓每個資料夾維持原樣：不知道其技能資料夾的識別碼會被拒絕，並指名它與已知的識別碼，而目標上不帶有每份寫入之技能副本所帶之註解行的檔案，會被拒絕並指名其路徑。帶有該行的副本——較早的安裝所寫入的，或取自已發布技能存放庫的——會被取代，較新的 `aggrega` 就是這樣讓技能升到它自己的版本。經由通往工作區之外之連結抵達的專案資料夾會被拒絕且不寫入任何東西，如同常駐程式在工作區中所做的每次寫入——請見 [工作區邊界](workspace-boundary.md)。答案帶有 `skill`、`installed`——每個被寫入的資料夾一個項目，依助理被指名的順序，各附上讀取它的 `agents`、絕對的 `folder` 與 `replaced`——以及 `scope`。**使用 `global` 時，這會寫入機器上每個專案都讀取的資料夾**——請見 [連到登錄庫與寫入](#reaching-a-registry-and-writing)。"
   },
+  "3843971dcfdee508": {
+    "at": "2026-11-19T09:01:32.422Z",
+    "job": "session-0088-20261119090132",
+    "srcHash": "3843971dcfdee508",
+    "status": "machine",
+    "text": "ID"
+  },
   "3847b009a1cda716": {
     "at": "2026-11-18T15:53:57.460Z",
     "job": "session-0021-20261118155357",
@@ -26046,6 +26389,13 @@
     "status": "machine",
     "text": "Feature 所畫出的連線也是如此：Feature 自己的 `uses:` 區塊中的連線不帶有附加項目，因此這類連線所需的認證，是 Feature 所宣告、並填入在 Feature 旁邊的槽位。"
   },
+  "3875f648ea7aa3b6": {
+    "at": "2026-11-19T09:01:32.422Z",
+    "job": "session-0088-20261119090132",
+    "srcHash": "3875f648ea7aa3b6",
+    "status": "machine",
+    "text": "**使用端範本以資源 ID 讀取生產端的部署。** 連接到使用端的值會變成 `reference(<ID>, '2025-04-01').outputs.<output>.value`，其中 ID 依生產端邊界所部署的範圍而定："
+  },
   "387eab5d60ea58db": {
     "at": "2026-11-19T04:17:55.611Z",
     "job": "session-0071-20261119041755",
@@ -26059,6 +26409,13 @@
     "srcHash": "388cbfbec67ddb7b",
     "status": "machine",
     "text": "伺服器提供助理在撰寫 YAML 之前閱讀的參考資料：實體的 JSON Schema（`schema://<kind>`）、任何語言參考頁面（`langref://<path>`）、撰寫指南（`authoring://<topic>`）、目錄實體所撰寫的 YAML（`catalog://<kind>/<name>`），以及任何命令的說明（`cli://<command>`）。結構描述內建於二進位檔中，而頁面來自伺服器存放在你機器快取中的一份文件副本。[功能說明](../language-reference/cli/aggrega-mcp.md#what-it-does)列出每一類。"
+  },
+  "38926ddad28f784f": {
+    "at": "2026-11-19T09:01:32.422Z",
+    "job": "session-0088-20261119090132",
+    "srcHash": "38926ddad28f784f",
+    "status": "machine",
+    "text": "來源式 CloudFormation 範本在渲染前會先做結構驗證：提供者會剖析範本並正規化其內建函式，當範本格式錯誤時，會以指名出問題節點的清楚訊息使建置中止。剖析檢查的是形狀，而不是語意——它不會連絡 AWS、解析參照或對內建函式求值。"
   },
   "38944e21944f1ed7": {
     "at": "2026-11-19T03:15:13.861Z",
@@ -26143,6 +26500,13 @@
     "srcHash": "38b01de2ff819941",
     "status": "machine",
     "text": "[import-flowise](import-flowise/README.md)（`start`）——一個 Flowise chatflow——ChatOpenAI 節點、Buffer Memory 與 Conversation Chain——由 `aggrega import` 匯入為一個 Aggregate、一個 Release 與一個 Manifest，可照原樣為 Docker Compose 建置。"
+  },
+  "38b39d6a687b0716": {
+    "at": "2026-11-19T09:01:32.422Z",
+    "job": "session-0088-20261119090132",
+    "srcHash": "38b39d6a687b0716",
+    "status": "machine",
+    "text": "為管理群組撰寫的片段若位於部署在訂閱範圍的邊界中，會使建置中止；請參閱 [`arm` 不做的事](#what-arm-does-not-do)。"
   },
   "38b5f9ccd30bc60b": {
     "at": "2026-11-18T16:06:03.597Z",
@@ -26505,6 +26869,13 @@
     "status": "machine",
     "text": "在同一台機器上用瀏覽器開啟 [http://127.0.0.1:8080/](http://127.0.0.1:8080/)，即可看到應用程式的頁面。它會指出應用程式所連接的資料庫與快取，並讓你新增筆記並讀取。每次讀取都會說明它來自哪裡，「from PostgreSQL」或「from the cache」。在還沒有連接快取時，頁面會顯示「No cache is wired to the app, so every read comes from PostgreSQL.」"
   },
+  "396b7f77cd34d0de": {
+    "at": "2026-11-19T09:01:32.422Z",
+    "job": "session-0088-20261119090132",
+    "srcHash": "396b7f77cd34d0de",
+    "status": "machine",
+    "text": "`avm/res/app/container-app` 0.23.1：一個不含入口的 Container Apps 應用程式，位於操作員的環境中"
+  },
   "396b894ea9621e96": {
     "at": "2026-11-19T04:17:55.611Z",
     "job": "session-0071-20261119041755",
@@ -26623,6 +26994,13 @@
     "srcHash": "3995ccf3a5dff2be",
     "status": "machine",
     "text": "讀取的內容"
+  },
+  "399a4de6d41b9ee2": {
+    "at": "2026-11-19T09:01:32.422Z",
+    "job": "session-0088-20261119090132",
+    "srcHash": "399a4de6d41b9ee2",
+    "status": "machine",
+    "text": "**值是什麼，決定什麼會抵達範本。**"
   },
   "399dde30295153a1": {
     "at": "2026-11-18T17:53:16.128Z",
@@ -26864,6 +27242,13 @@
     "status": "machine",
     "text": "[configuration.md](configuration.md) — 設定屬於哪個檔案，以及這些變數所處的完整優先順序模型。"
   },
+  "3a11097ee0538fa9": {
+    "at": "2026-11-19T09:01:32.422Z",
+    "job": "session-0088-20261119090132",
+    "srcHash": "3a11097ee0538fa9",
+    "status": "machine",
+    "text": "**附加它，讓它只回報。** 此原則收集在 `deny` 之下，預設會中止。一個只指名 `deny`、層級為 `warn` 的 `translation`，會把它的每項判定當作警告回報，並讓建置完成；`info` 則改為記錄這些判定。原則本身維持日後強制執行時的樣子："
+  },
   "3a15cf92c6c9e1a1": {
     "at": "2026-11-18T16:14:01.937Z",
     "job": "session-0025-20261118161401",
@@ -27023,6 +27408,13 @@
     "srcHash": "3a669a6005b623a3",
     "status": "machine",
     "text": "**1. 領域 1（Aggregate）：開發者意圖**\n開發者請求一個舊有的 Oracle 資料庫。他們不在乎它在哪裡；他們只規定呼叫端的代理程式預期連線字串以環境變數的方式交付。由於 IP 是靜態的、事先已知，他們透過 parameters 傳入。"
+  },
+  "3a6ad0d9f5a7b3d9": {
+    "at": "2026-11-19T09:01:32.422Z",
+    "job": "session-0088-20261119090132",
+    "srcHash": "3a6ad0d9f5a7b3d9",
+    "status": "machine",
+    "text": "完全是單一 CloudFormation 內建函式的值，會以該內建函式的形式抵達參照位置，留給 CloudFormation 在堆疊部署時求值：例如長格式對應 `{\"Fn::GetAtt\": [Queue, Arn]}`，或恰好是一種短格式的字串——`!GetAtt Queue.Arn`、`!Ref Bucket`、`!Sub …` 以及 CloudFormation 所定義的其他格式。另一個元件所發布的參照就是這樣抵達參數的：目錄中的 CloudFormation Recipes 把這類參照發布為短格式文字，而從注入情境讀取它的 `valuesMapping` 會把它傳下去。拼接的參照無論加引號或不加，讀法都相同。加引號——`\"{{ .context.inject.env.BUCKET_NAME }}\"`——時，對應會傳下字串 `!GetAtt Queue.Arn`；不加引號時，對應自己的 YAML 會把 `!GetAtt Queue.Arn` 讀成標籤，而該標籤會連同其引數保留，而不是被丟棄。兩者都以內建函式的形式抵達參數。只是以驚嘆號開頭、或沒有指名任何 CloudFormation 短格式的值，仍然是文字。"
   },
   "3a6d5e5625037021": {
     "at": "2026-11-18T17:53:16.128Z",
@@ -27347,6 +27739,13 @@
     "srcHash": "3b20e64dd3d1d314",
     "status": "machine",
     "text": "**簡寫** — `mariadb:1.0.0`。當目錄中恰好有一個 recipe 帶有該名稱時解析；實務上的主流形式。"
+  },
+  "3b22a535c4cbd867": {
+    "at": "2026-11-19T09:01:32.422Z",
+    "job": "session-0088-20261119090132",
+    "srcHash": "3b22a535c4cbd867",
+    "status": "machine",
+    "text": "**一個巢狀部署容納所有資源群組內容。** 邊界的每個資源群組片段，都依[組裝後範本中的頂層區段](#top-level-sections-in-the-assembled-template)的條件組裝進其中，其變數、定義、函式、輸出與中繼資料也都留在其中：資源群組片段所撰寫的輸出，就是該巢狀部署的輸出。它以增量方式部署，在自己的範圍中求值，名稱為 `[format('rg-{0}', uniqueString(deployment().name))]`。元件沒有寫入任何資源群組內容的邊界，就沒有這樣的部署。符號名稱 `_resourceGroup` 在訂閱範圍範本的頂層是提供者專用的；訂閱片段若在其下宣告資源會中止。"
   },
   "3b24fa9648a9531d": {
     "at": "2026-11-19T03:03:07.852Z",
@@ -27776,6 +28175,13 @@
     "status": "machine",
     "text": "發布於該座標的實體，從其登錄庫讀取，並以該種類的檔案所得到的檢視渲染。參見[讀取已發布的實體](#reading-a-published-entity)。"
   },
+  "3c2a399ef6c3948a": {
+    "at": "2026-11-19T09:01:32.422Z",
+    "job": "session-0088-20261119090132",
+    "srcHash": "3c2a399ef6c3948a",
+    "status": "machine",
+    "text": "即使單獨存在也會中止：它在堆疊部署時插入從 S3 取得的內容，而建置無法讀取。"
+  },
   "3c2b2586db860718": {
     "at": "2026-11-19T07:28:26.849Z",
     "job": "session-0078-20261119072826",
@@ -27866,6 +28272,13 @@
     "srcHash": "3c4f9c3c460fe265",
     "status": "machine",
     "text": "它所服務的模型"
+  },
+  "3c50c120c6f372f8": {
+    "at": "2026-11-19T09:01:32.422Z",
+    "job": "session-0088-20261119090132",
+    "srcHash": "3c50c120c6f372f8",
+    "status": "machine",
+    "text": "讓 Recipe 撰寫自己的邏輯 ID，而不是直接傳遞名稱。標準程式庫的 CloudFormation Recipes 就採取這條路——它們把實例名稱的分隔字元視為詞的邊界，因此實例 `payments-db` 把它的資源命名為 `PaymentsDb`，而你保留所選的元件名稱。以這種方式衍生 ID，是用這次中止換來上述的衝突規則：僅在標點上不同的兩個實例名稱會衍生出同一個資源名稱。"
   },
   "3c511e9b0c6da3d2": {
     "at": "2026-11-19T04:30:28.102Z",
@@ -28200,6 +28613,13 @@
     "srcHash": "3ced1b83504865da",
     "status": "machine",
     "text": "每個服務都是獨立的公開。常見模式：連接埠 8080 上的 HTTP 服務（ClusterIP 內部）+ 連接埠 9090 上的指標服務（ClusterIP）+ 連接埠 9901 上的管理端點（LoadBalancer）："
+  },
+  "3cf05fe28640750a": {
+    "at": "2026-11-19T09:01:32.422Z",
+    "job": "session-0088-20261119090132",
+    "srcHash": "3cf05fe28640750a",
+    "status": "machine",
+    "text": "管理群組"
   },
   "3cf4842abee26df9": {
     "at": "2026-11-18T18:26:43.841Z",
@@ -29485,6 +29905,13 @@
     "srcHash": "3f6dc166f9945e01",
     "status": "machine",
     "text": "三種輸入種類"
+  },
+  "3f6e6367ee0d581a": {
+    "at": "2026-11-19T09:01:32.422Z",
+    "job": "session-0088-20261119090132",
+    "srcHash": "3f6e6367ee0d581a",
+    "status": "machine",
+    "text": "**從另一個部署讀取的值被寫在 ARM 不會求值的位置。** 即資源的 `properties`、輸出的 `value` 或輸出的 `copy` 輸入之外。請參閱 [A value read from another deployment is written where ARM does not evaluate it（從另一個部署讀取的值被寫在 ARM 不會求值的位置）](../errors/fatal-halts.md#a-value-read-from-another-deployment-is-written-where-arm-does-not-evaluate-it)。"
   },
   "3f7180faaddfd3cb": {
     "at": "2026-11-18T12:33:55.728Z",
@@ -32566,6 +32993,13 @@
     "status": "machine",
     "text": "只能寫入 `true`，因此省略此欄位仍是表示沒有任何主張的唯一方式。它不能與 `wellKnownAnnotations` 一起寫入：讀取部分鍵的提供者會改為在那裡列出這些鍵。這兩種拒絕都是結構描述層級的，因此 Plugin 在被讀取時就會被拒絕。"
   },
+  "466a0e500422e400": {
+    "at": "2026-11-19T09:01:32.422Z",
+    "job": "session-0088-20261119090132",
+    "srcHash": "466a0e500422e400",
+    "status": "machine",
+    "text": "`avm/res/db-for-postgre-sql/flexible-server` 0.16.2：一個具私人存取的彈性伺服器，位於操作員委派的子網路與私人 DNS 區域中"
+  },
   "466ae0f893bbc681": {
     "at": "2026-11-18T15:38:54.285Z",
     "job": "session-0018-20261118153854",
@@ -32864,6 +33298,13 @@
     "status": "machine",
     "text": "**來源是以一組檔案的方式比較。** 內容變動的檔案、加入來源的檔案，以及從中移除的檔案，各自都會改變實體渲染所依據的內容，所以每一種都會回報，並附上檔案現在的摘要與為它記錄的摘要。實體旁、但來源並未貢獻的檔案，例如 Recipe 旁的筆記或 README，不會被比較。寫成範本的來源，例如 `./charts/{{ .values.flavour }}`，會貢獻實體目錄中的每個檔案，因為它指名哪個目錄，是由每個 Release 決定；對這種形狀，目錄中任何檔案的編輯都會被回報。"
   },
+  "470d7434387770bb": {
+    "at": "2026-11-19T09:01:32.422Z",
+    "job": "session-0088-20261119090132",
+    "srcHash": "470d7434387770bb",
+    "status": "machine",
+    "text": "兩個元件在這些區段之一中宣告不同的名稱，兩者都會落地。兩個元件以相同內容宣告同一個名稱，會合併成單一項目，建置繼續進行。兩個元件以**不同**內容宣告同一個名稱，會使建置中止，並指名區段、名稱與兩個元件——因為兩個本體之一否則會被丟棄，使寫下它的元件留下堆疊並未帶入的宣告。這與資源和輸出名稱所遵循的協調方式相同，重新命名其中任一個即可排除。"
+  },
   "470f2328d524ddf6": {
     "at": "2026-11-19T04:25:53.489Z",
     "job": "session-0072-20261119042553",
@@ -32989,6 +33430,13 @@
     "srcHash": "4745b26a58b4b741",
     "status": "machine",
     "text": "拒絕使這一點變得可見。讓其中一個繫結悄悄勝出，會使渲染輸出取決於哪一層碰巧最後被讀取。"
+  },
+  "4747f7d3124a399c": {
+    "at": "2026-11-19T09:01:32.422Z",
+    "job": "session-0088-20261119090132",
+    "srcHash": "4747f7d3124a399c",
+    "status": "machine",
+    "text": "**無網路存取。** Plugins 具確定性且封閉，不會自行開啟任何連線。外掛程式在渲染時需要的外部輸入——例如 chart 的值所參照的遠端結構描述——會透過編譯器的外部輸入主機函式請求，該函式依工作區為該參照所固定的內容來回應。"
   },
   "474916bc0739b51e": {
     "at": "2026-11-18T18:26:44.273Z",
@@ -34089,6 +34537,13 @@
     "status": "machine",
     "text": "鎖定檔是每個 Release 各一份：解析 `release.yaml` 會在它旁邊寫出 `release.lock`（Release 檔案的主檔名加上 `.lock`）。`aggrega pull` 解析相依性並寫出鎖定檔；`aggrega build` 讀取它，並使用固定的版本，而不論建置時登錄庫的狀態如何。當跨機器的建置可重現性很重要時，工作區會提交鎖定檔；在工作區中的實體、程式庫、外掛程式或 Release 本身變更之後，`aggrega pull --release <release>` 會更新它，重新解析有變更的部分，同時保留其他所有固定項目，而 `aggrega pull --upgrade --release <release>` 則是採用登錄庫現在提供的較新版本的方式。鎖定檔記錄每個已解析的實體，包含其種類、撰寫時的 URI、解析出的版本、內容摘要，以及參照它的位置。種類與 URI 一起識別一個項目，因此 Aggregate 與 Manifest 同名的 Release 會為各自記錄一個項目，而對任一者的編輯會讓下一次建置中止，直到拉取記錄它為止："
   },
+  "4999c6c6c7badf45": {
+    "at": "2026-11-19T09:01:32.422Z",
+    "job": "session-0088-20261119090132",
+    "srcHash": "4999c6c6c7badf45",
+    "status": "machine",
+    "text": "訂閱"
+  },
   "49a101756e76c53f": {
     "at": "2026-11-18T17:28:02.525Z",
     "job": "session-0039-20261118172802",
@@ -34869,6 +35324,13 @@
     "status": "machine",
     "text": "[Feature](entities/feature.md)——平台架構師撰寫的目錄實體，用於橫切關注點（監控 sidecar、資料遮罩、路由原則）。宣告它的 `values` 與 `infra` 結構描述（各為 JSON Schema 2020-12 宣告）、`appliesTo` 附加選擇器，以及互通性限制。"
   },
+  "4b60ad7c5bc3415f": {
+    "at": "2026-11-19T09:01:32.422Z",
+    "job": "session-0088-20261119090132",
+    "srcHash": "4b60ad7c5bc3415f",
+    "status": "machine",
+    "text": "**不要連接兩個各自可能含有對方分隔字元的值。** 當名稱必須帶有兩個部分時，讓其中一個成為另一個不可能含有的固定字面值。"
+  },
   "4b60c655cc42ae8d": {
     "at": "2026-11-18T07:13:03.194Z",
     "job": "session-0002-20261118071303",
@@ -35323,6 +35785,13 @@
     "status": "machine",
     "text": "把它限定為二進位檔所攜帶的摘要，因此只有編譯器發行版本所發布的模組才會執行；"
   },
+  "4c72f4704210235f": {
+    "at": "2026-11-19T09:01:32.422Z",
+    "job": "session-0088-20261119090132",
+    "srcHash": "4c72f4704210235f",
+    "status": "machine",
+    "text": "即使單獨存在也會中止：CloudFormation 在宣告它的範本中任何位置都拒絕 `Outputs` 與 `Fn::ImportValue`，而組裝後的堆疊會帶入其元件所發布的輸出。"
+  },
   "4c731b2aae09dc49": {
     "at": "2026-11-19T04:10:48.635Z",
     "job": "session-0070-20261119041048",
@@ -35411,6 +35880,13 @@
     "srcHash": "4ca648868dacdae3",
     "status": "machine",
     "text": "Recipe `implements` does not match the mapped component type（Recipe 的 implements 與所對應的元件型別不符）"
+  },
+  "4ca65efb54f3c554": {
+    "at": "2026-11-19T09:01:32.422Z",
+    "job": "session-0088-20261119090132",
+    "srcHash": "4ca65efb54f3c554",
+    "status": "machine",
+    "text": "**仍指名已移除資源的參照會中止。** ARM 會拒絕指名了它未宣告之資源的範本，因此在各項目的資源被移除後，提供者會讀取剩餘內容中對它們的參照，並中止，指名範本、資源、形式與 JSON 指標。在 2.x 範本中，它讀取 `dependsOn` 項目（`parent::child` 項目也依其開頭讀取），以及 `reference`、`references`、`resourceInfo` 與 `list*` 函式的符號式第一個引數；在沒有語言版本的範本中，則讀取 `dependsOn` 名稱、`reference('<name>')`，以及字面型別與最後名稱為已移除資源之 `resourceId(…)` 呼叫。範本中符合某個項目、看起來是運算式但無法剖析的字串也會中止，而不是讓未經證明的參照通過。請把同樣指名該資源的內容一併省略，或移除該項目。範本的其他部分不會有任何變動。"
   },
   "4ca9343eeb3499f9": {
     "at": "2026-11-18T12:29:00.520Z",
@@ -35791,6 +36267,13 @@
     "srcHash": "4deadb52bc15e501",
     "status": "machine",
     "text": "附加了卻沒有 `inject:` 傳遞契約的認證 Feature 不是編譯錯誤。核心編譯器會在 IR 圖中保留該宣告，且不發出警告。企業 linter 外掛程式可以偵測並對此模式發出警告；企業渲染器也可以選擇在它們自己的 Black-Box 慣例下隱含地掛載孤立的機密。由於兩種詮釋都有效，核心編譯器不偏袒任何一方。"
+  },
+  "4dee03a42a78a877": {
+    "at": "2026-11-19T09:01:32.422Z",
+    "job": "session-0088-20261119090132",
+    "srcHash": "4dee03a42a78a877",
+    "status": "machine",
+    "text": "在訂閱範圍部署"
   },
   "4df03f6b4ef4e9ee": {
     "at": "2026-11-18T11:27:19.320Z",
@@ -36915,6 +37398,13 @@
     "status": "machine",
     "text": "發現會定位在作者必須撰寫的插槽項目 `.spec.components.<instance>.uses.<socket>` 上。其中的實例名稱是元件在宣告它的文件中所帶的名稱，所以對於匯入之 Aggregate 所貢獻的元件，定位器指名的是該 Aggregate 自己檔案所含的鍵，而不是組合給它的帶前綴名稱。"
   },
+  "503379c38ad4725e": {
+    "at": "2026-11-19T09:01:32.422Z",
+    "job": "session-0088-20261119090132",
+    "srcHash": "503379c38ad4725e",
+    "status": "machine",
+    "text": "生產端部署的位置"
+  },
   "5036f0c48e8509a2": {
     "at": "2026-11-19T04:17:55.611Z",
     "job": "session-0071-20261119041755",
@@ -37785,6 +38275,13 @@
     "status": "machine",
     "text": "若你已安裝外掛程式，你就已連線到 Aggrega MCP 伺服器。否則，請依 `https://aggrega.ai/docs/ai-assistants/mcp-server/` 為你描述的方式，以加入 MCP 伺服器的做法，讓自己連線到 Aggrega MCP 伺服器，也就是命令 `aggrega mcp`。若需要重新啟動或重新載入才能載入外掛程式或伺服器，請告訴我該怎麼做。"
   },
+  "523321d6e487de28": {
+    "at": "2026-11-19T09:01:32.422Z",
+    "job": "session-0088-20261119090132",
+    "srcHash": "523321d6e487de28",
+    "status": "machine",
+    "text": "使用端自己的資源群組"
+  },
   "524268b076ee165b": {
     "at": "2026-11-19T07:35:31.572Z",
     "job": "session-0079-20261119073531",
@@ -38262,6 +38759,13 @@
     "status": "machine",
     "text": "**發出的訊息。** 每則都以條件開頭——提供者所發出的內容中沒有對應表示的值——接著指出資源、該值是請求或限制、它在 Workload 中的路徑以及值。不是數量的值之後會接著說明它為何不是，以及數量所採的形式："
   },
+  "5308665013b0e1a1": {
+    "at": "2026-11-19T09:01:32.422Z",
+    "job": "session-0088-20261119090132",
+    "srcHash": "5308665013b0e1a1",
+    "status": "machine",
+    "text": "**為訂閱撰寫的來源式範本位於頂層。** 它的巢狀部署採用 `location: \"[deployment().location]\"`，因此它把部署記錄在與外層部署相同的位置。來源式資源群組範本則像任何其他資源群組內容一樣位於 `_resourceGroup` 內。"
+  },
   "530df1e2b4435887": {
     "at": "2026-11-19T08:42:24.489Z",
     "job": "session-0085-20261119084224",
@@ -38686,6 +39190,13 @@
     "status": "machine",
     "text": "**模式完全依撰寫的樣子送達閘道。** 它在閘道內比對，忽略字母大小寫，每個符合的部分都會永久被模式名稱（大寫、置於方括號中）取代：`[TICKET_REDACTED]`。閘道在啟動時編譯該運算式，無法編譯的運算式會使它無法啟動——編譯器在不讀取內容的情況下將字串傳遞過去。"
   },
+  "53f1114bfb9ea3f0": {
+    "at": "2026-11-19T09:01:32.422Z",
+    "job": "session-0088-20261119090132",
+    "srcHash": "53f1114bfb9ea3f0",
+    "status": "machine",
+    "text": "CloudFormation 邏輯 ID 在單一範本內是唯一的，且只接受字母與數字，組裝進該範本的每個元件都共用它的名稱——包括來自第二個邊界的元件，當兩者解析到同一個輸出目錄時。因此堆疊用來定址某物的每個名稱，在貢獻它的所有元件之間都必須是不同的，而貢獻者的集合並不一定只是單一邊界。"
+  },
   "53f11ff2061bff34": {
     "at": "2026-11-18T12:33:55.728Z",
     "job": "session-0008-20261118123355",
@@ -38852,6 +39363,13 @@
     "status": "machine",
     "text": "開放原始碼的 Aggrega 標準程式庫目錄建議在 Components 的認知層中省略實體連接埠宣告，改由維運 Recipe 來決定連接埠的選擇。遵循此建議的作者能避免跨部署目標的連接埠衝突、防止繞過注入契約（Injection Contract）的後門 API，並讓網路拓撲在各提供者之間保持彈性。編譯器本身與連接埠無關——它傳遞解析後的 JSON Schema 所允許的任何值。這項慣例附有明確的逃生艙口，供實體連接埠無法移動的舊有系統使用。"
   },
+  "542990528bc10989": {
+    "at": "2026-11-19T09:01:32.422Z",
+    "job": "session-0088-20261119090132",
+    "srcHash": "542990528bc10989",
+    "status": "machine",
+    "text": "**生產端元件的資源位於其範本的多個層級。** 請把提供運算式寫在宣告於單一層級的資源之上，或把該元件的資源部署在單一範圍。"
+  },
   "5429fc7a19d90e2e": {
     "at": "2026-11-19T04:25:53.489Z",
     "job": "session-0072-20261119042553",
@@ -38934,6 +39452,13 @@
     "srcHash": "544f1791594a616f",
     "status": "machine",
     "text": "**在同一個區塊中攜帶它的提供者插槽中繼資料**——`spec.provider` 連同提供者其餘的宣告，一併持有上述的能力清單。`spec.provider.workloadSchema` 是一個 JSON Schema 2020-12 宣告，記載平台擁有的 Workload 種類如何轉譯成這個提供者的原生輸出；標準程式庫目錄在會合成的提供者上宣告它，作為已記載的轉譯契約。`spec.provider.wellKnownAnnotations` 列舉提供者所讀取的 `aggrega.ai/` 邊界註記。合成式輸入（`workload:`）的支援是提供者的屬性，於渲染時強制執行——而不是由 `workloadSchema` 是否存在來決定。"
+  },
+  "544f2c6ea7b558b1": {
+    "at": "2026-11-19T09:01:32.422Z",
+    "job": "session-0088-20261119090132",
+    "srcHash": "544f2c6ea7b558b1",
+    "status": "machine",
+    "text": "多個元件會組裝成一個堆疊，因此 CloudFormation 範本接受的每個頂層區段都必須由組裝來交代——包括 `Globals` 與 `Hooks`，這是 CloudFormation 所託管的轉換為範本語言加入的兩個區段。每個區段都恰好落在下列其中一組，而元件寫入、根本不是區段的頂層鍵，會得到指名該元件與該鍵的警告，因此沒有任何東西會被悄悄丟棄。"
   },
   "54535f4b224179f0": {
     "at": "2026-11-18T13:48:20.770Z",
@@ -40327,6 +40852,13 @@
     "status": "machine",
     "text": "`aggrega auth token` 執行一次互動式 OIDC 流程，並將原始身分權杖印出到 stdout，讓你只需取得一次身分，就能在一批無金鑰簽章中重複使用，不必為每個成品各走一趟瀏覽器。"
   },
+  "57171f6a788d1ad5": {
+    "at": "2026-11-19T09:01:32.422Z",
+    "job": "session-0088-20261119090132",
+    "srcHash": "57171f6a788d1ad5",
+    "status": "machine",
+    "text": "**參照只及於自己的層級。** 對 ARM 而言，頂層與巢狀部署是兩個範本，因此其中一個所宣告的名稱不會在另一個中宣告。訂閱資源若以符號名稱指名資源群組資源、指名只有資源群組內容才宣告的參數，或指名另一個層級的變數，會使建置中止並指名 JSON 指標與名稱，反過來也一樣。請以另一個層級資源的資源 ID 來指名它。"
+  },
   "57195292eab6ba2a": {
     "at": "2026-11-18T15:38:54.285Z",
     "job": "session-0018-20261118153854",
@@ -40464,6 +40996,13 @@
     "srcHash": "57646df8597dd8de",
     "status": "machine",
     "text": "抽象層必須能描述完整的工作負載形狀，而不是固定的鍵集合。下面說明的三種輸入種類就是這個抽象：Recipe 以累加方式組合其輸出，來源包括外部載入的 chart 或模組（`source:`）、由提供者合成為提供者原生資訊清單的抽象 Workload 規格（`workload:`），以及 Recipe 直接輸出的範本化提供者原生資訊清單（`artifacts:`）。"
+  },
+  "5766305e321c179e": {
+    "at": "2026-11-19T09:01:32.422Z",
+    "job": "session-0088-20261119090132",
+    "srcHash": "5766305e321c179e",
+    "status": "machine",
+    "text": "帶入，並附上宣告它的元件的 `Globals`。當這些 `Globals` 會觸及另一個元件的無伺服器資源，以及它的某個資源的事件來源指名了另一個元件所宣告的資源時，會中止，因為該轉換會改寫事件所指名的資源。"
   },
   "5766c1dbb157b4e8": {
     "at": "2026-11-19T04:30:28.102Z",
@@ -40906,6 +41445,13 @@
     "status": "machine",
     "text": "`Recipe.spec.workload:` 宣告編譯器要合成為提供者原生資源的 Workload 本文。它是 Recipe 可與 `source:`（有來源渲染）及 `artifacts:`（輔助資訊清單）並列宣告的三種輸入種類之一。每個提供者上，三者至少必須有一個；不由建置佈建的服務，會宣告 `form: reference` 的 `workload:`。"
   },
+  "5860a46450cf6005": {
+    "at": "2026-11-19T09:01:32.422Z",
+    "job": "session-0088-20261119090132",
+    "srcHash": "5860a46450cf6005",
+    "status": "machine",
+    "text": "附加到元件的 Feature，會把它的資源貢獻到其宿主元件所組裝成的堆疊中，條件與宿主元件自己的 Recipe 相同。旁邊沒有另一個獨立的範本：組裝後的堆疊就是此提供者為一個輸出目錄所發出的全部內容，因此附加的 Feature 的資源不是在該堆疊中，就是完全不會被部署。卸除該 Feature 只會移除那些資源，宿主元件自己的資源不受影響。"
+  },
   "5863d601576bf494": {
     "at": "2026-11-18T16:43:37.827Z",
     "job": "session-0028-20261118164337",
@@ -41132,6 +41678,13 @@
     "srcHash": "58ac6f2921b7a6cb",
     "status": "machine",
     "text": "它一律寫入鍵 `tag`；該鍵不可設定。"
+  },
+  "58b149d5f97a3be2": {
+    "at": "2026-11-19T09:01:32.422Z",
+    "job": "session-0088-20261119090132",
+    "srcHash": "58b149d5f97a3be2",
+    "status": "machine",
+    "text": "`Xzx` 加上該字元的碼位"
   },
   "58b44fc7933b3220": {
     "at": "2026-11-18T15:43:56.416Z",
@@ -41799,6 +42352,13 @@
     "status": "machine",
     "text": "`db-default.backend`（由呼叫端限定）"
   },
+  "59f9c4c2c86aaeb0": {
+    "at": "2026-11-19T09:01:32.422Z",
+    "job": "session-0088-20261119090132",
+    "srcHash": "59f9c4c2c86aaeb0",
+    "status": "machine",
+    "text": "資源群組範圍之生產端的 ID 會讀取訂閱與資源群組，訂閱範圍的生產端讀取訂閱，管理群組範圍的生產端讀取管理群組；ID 不讀取的註記則不需要。"
+  },
   "59faa59d189084ea": {
     "at": "2026-11-18T17:53:16.128Z",
     "job": "session-0041-20261118175316",
@@ -41902,6 +42462,13 @@
     "srcHash": "5a3d206622f00bff",
     "status": "machine",
     "text": "`key` 欄位是讓多金鑰機密能被合成式 Workload 使用的關鍵。當項目省略 `key` 時，它會改為讀取槽位唯一發布的資料鍵 — 單金鑰認證（`core/referenced-secret`）所用的形態，它同時發布定位器與一把金鑰。"
+  },
+  "5a41ac42ee7e1b07": {
+    "at": "2026-11-19T09:01:32.422Z",
+    "job": "session-0088-20261119090132",
+    "srcHash": "5a41ac42ee7e1b07",
+    "status": "machine",
+    "text": "其本身"
   },
   "5a4b7d73640f0bd0": {
     "at": "2026-11-19T08:42:24.489Z",
@@ -42012,6 +42579,13 @@
     "srcHash": "5a7d5db2cf512c1a",
     "status": "machine",
     "text": "附加到成品的棄用標記"
+  },
+  "5a7dd6da85eb8721": {
+    "at": "2026-11-19T09:01:32.422Z",
+    "job": "session-0088-20261119090132",
+    "srcHash": "5a7dd6da85eb8721",
+    "status": "machine",
+    "text": "`avm/res/cache/redis-enterprise` 0.5.2：一個 Azure Managed Redis 執行個體，含其唯一的資料庫"
   },
   "5a8473b4157699db": {
     "at": "2026-11-18T18:36:37.552Z",
@@ -42256,6 +42830,20 @@
     "status": "machine",
     "text": "只有觸發的判定會出現；放行的評估會回傳空陣列。主機走訪判定，並把每個嚴重度對應到一個動作：`halt` 中止建置（並呈現每則 `halt` 訊息），`warn` 標記該判定並讓建置繼續，`info` 記錄它而不影響結果。`halt` 經由與選擇器或 `appliesTo` 違規相同的關卡中止。"
   },
+  "5aff6e4e5af64a18": {
+    "at": "2026-11-19T09:01:32.422Z",
+    "job": "session-0088-20261119090132",
+    "srcHash": "5aff6e4e5af64a18",
+    "status": "machine",
+    "text": "CloudFormation Provider"
+  },
+  "5b047fed69d8aa98": {
+    "at": "2026-11-19T09:01:32.422Z",
+    "job": "session-0088-20261119090132",
+    "srcHash": "5b047fed69d8aa98",
+    "status": "machine",
+    "text": "部署命令會採用管理群組與部署記錄所儲存的位置，巢狀部署也採用同一個位置："
+  },
   "5b07b3136dee25cd": {
     "at": "2026-11-19T07:35:31.572Z",
     "job": "session-0079-20261119073531",
@@ -42419,6 +43007,13 @@
     "srcHash": "5b4b50449188d228",
     "status": "machine",
     "text": "Compose 檔案及其覆寫檔案，或存放它們的目錄"
+  },
+  "5b4ec0fc3ccca061": {
+    "at": "2026-11-19T09:01:32.422Z",
+    "job": "session-0088-20261119090132",
+    "srcHash": "5b4ec0fc3ccca061",
+    "status": "machine",
+    "text": "**資源邏輯 ID 來自 Recipe。** 提供者完全依撰寫的樣子發出它們，也不改寫其中任何一個，因此你在組裝後範本中讀到的名稱，就是 Recipe 所寫的名稱。標準程式庫的 CloudFormation Recipes 從元件實例自己的名稱衍生它，把該名稱的分隔字元視為詞的邊界：實例 `payments-db` 把它的資源命名為 `PaymentsDb`。因此同一型別的兩個實例描述的是兩個資源，而不是爭奪同一個。"
   },
   "5b537d6693d29507": {
     "at": "2026-11-18T12:45:41.103Z",
@@ -43228,6 +43823,13 @@
     "status": "machine",
     "text": "回報的路徑如何表示"
   },
+  "5d262018e21383fc": {
+    "at": "2026-11-19T09:01:32.422Z",
+    "job": "session-0088-20261119090132",
+    "srcHash": "5d262018e21383fc",
+    "status": "machine",
+    "text": "**生產端範本把使用端讀取的內容公開為輸出。** 對使用端元件讀取的每個提供值，生產端範本會多出一個以該元件與鍵命名的字串輸出，一如任何[提供者寫入的輸出](#top-level-sections-in-the-assembled-template)。屬於運算式的提供值會以 `[string(<expression>)]` 跨越，因此每個值都以文字形式抵達使用端；單純的字面值則照所寫跨越。同一個值的多個使用端共用一個輸出。"
+  },
   "5d2a14f0822bc88d": {
     "at": "2026-11-18T11:27:19.320Z",
     "job": "session-0003-20261118112719",
@@ -43375,6 +43977,13 @@
     "status": "machine",
     "text": "以某個 Release 的角度提問"
   },
+  "5d7b1d52f72959bb": {
+    "at": "2026-11-19T09:01:32.422Z",
+    "job": "session-0088-20261119090132",
+    "srcHash": "5d7b1d52f72959bb",
+    "status": "machine",
+    "text": "**可能帶有機密的字面值會被拒絕；內建函式則照所給寫出。** 寫入範本的值，任何能讀取該堆疊範本的人都讀得到："
+  },
   "5d810a7dd9d56cbe": {
     "at": "2026-11-19T04:04:26.043Z",
     "job": "session-0069-20261119040426",
@@ -43427,6 +44036,13 @@
     "srcHash": "5d97ed45f19cfb55",
     "status": "machine",
     "text": "the entity's name does not follow the documented name shape for its kind（實體名稱不符合其種類已記載的名稱形狀）"
+  },
+  "5d9dea8b36bb1bdf": {
+    "at": "2026-11-19T09:01:32.422Z",
+    "job": "session-0088-20261119090132",
+    "srcHash": "5d9dea8b36bb1bdf",
+    "status": "machine",
+    "text": "8. 附加它，然後建置"
   },
   "5d9f95fed944474e": {
     "at": "2026-11-18T18:36:37.552Z",
@@ -44083,6 +44699,13 @@
     "status": "machine",
     "text": "**Feature 所繪出的連線不帶有任何附加項目。** 附加的 Feature 自己的 `uses:` 區塊——在元件或子系統上——以相同的形狀撰寫，但在文件載入時會拒絕 `features:`。這種連線所需的認證，要填入 Feature 在自己的 `featuresSchema` 中宣告、並附加在該 Feature 旁的槽位；參閱 [Feature 自己的認證](../examples/04-secrets.md#a-features-own-credential)。"
   },
+  "5f0ef7945a4abcb0": {
+    "at": "2026-11-19T09:01:32.422Z",
+    "job": "session-0088-20261119090132",
+    "srcHash": "5f0ef7945a4abcb0",
+    "status": "machine",
+    "text": "中止的情況"
+  },
   "5f0f6660445613e6": {
     "at": "2026-11-18T12:38:48.225Z",
     "job": "session-0009-20261118123848",
@@ -44109,6 +44732,13 @@
     "srcHash": "5f11d248090abcc9",
     "status": "machine",
     "text": "兩個 Releases，只差一個變數：同樣的受管理資料庫、同樣必要的認證槽位，由兩個不同的 Features 填入——一個由開發者附加在 Aggregate 中，另一個由操作員附加在 Release 中。由操作員撰寫的原則拒絕其中一個，並允許另一個。這一對值得執行的原因在於**兩個附加項目都處理機密內容**——所以規則無法針對「這個附加項目是否敏感？」這個問題來撰寫，而下面的對照原則顯示了你這麼做時會發生什麼。"
+  },
+  "5f1c44991e2afcad": {
+    "at": "2026-11-19T09:01:32.422Z",
+    "job": "session-0088-20261119090132",
+    "srcHash": "5f1c44991e2afcad",
+    "status": "machine",
+    "text": "動態參照在其參數於資源的 `UserData` 屬性、`AWS::CloudFormation::Init` 中繼資料或 `Outputs` 中被參照時，會使建置中止：CloudFormation 不會解析 EC2 使用者資料或該中繼資料中的動態參照，並且會把 `Outputs` 顯示給任何讀取該堆疊的人。"
   },
   "5f1f74ec72b5e7c0": {
     "at": "2026-11-19T01:03:08.499Z",
@@ -45487,6 +46117,13 @@
     "status": "machine",
     "text": "oci: unbundle gzip: `<archive error>`: oci: published bundle cannot be unpacked（oci：解開 gzip：封存檔錯誤：oci：已發布的組合包無法解開）"
   },
+  "6212f7905679a86d": {
+    "at": "2026-11-19T09:01:32.422Z",
+    "job": "session-0088-20261119090132",
+    "srcHash": "6212f7905679a86d",
+    "status": "machine",
+    "text": "**提供者會拒絕；它不會悄悄修復。** 代你改寫 ID 看起來像是幫忙，但其實不是。邏輯 ID 是 CloudFormation 在多次更新之間識別資源的方式，因此更改一個 ID 不是重新命名——它定址的是另一個資源。提供者替換的 ID 會指向已部署在你所寫 ID 之下的資源以外的地方，而這個替換是你從未要求、且得從發出的範本中才能發現的。停止的建置會在問題仍由你修正時指名它。"
+  },
   "62130b3d78b64822": {
     "at": "2026-11-18T15:53:57.460Z",
     "job": "session-0021-20261118155357",
@@ -45887,6 +46524,13 @@
     "status": "machine",
     "text": "沒有網路通訊端；"
   },
+  "630593e492503235": {
+    "at": "2026-11-19T09:01:32.422Z",
+    "job": "session-0088-20261119090132",
+    "srcHash": "630593e492503235",
+    "status": "machine",
+    "text": "在資源群組範圍部署"
+  },
   "630b6c5346ba6035": {
     "at": "2026-11-18T15:43:56.416Z",
     "job": "session-0019-20261118154356",
@@ -46260,6 +46904,13 @@
     "status": "machine",
     "text": "**外掛程式不能擁有的某些東西不在這裡檢查，因為它們從未被授予。** 主機給客體的是凍結的時鐘、沒有檔案系統、沒有環境，且沒有地方可放它自己的輸出，因此試圖存取其中任何一項的客體，會在嘗試時失敗，而不是事先被拒絕。此條件涵蓋的是外掛程式對自身所做的回報，在它啟動之前檢查。"
   },
+  "63cab7e9c7225711": {
+    "at": "2026-11-19T09:01:32.422Z",
+    "job": "session-0088-20261119090132",
+    "srcHash": "63cab7e9c7225711",
+    "status": "machine",
+    "text": "字元集接受它"
+  },
   "63cac640e8fd3e75": {
     "at": "2026-11-18T15:58:06.819Z",
     "job": "session-0022-20261118155806",
@@ -46603,6 +47254,13 @@
     "status": "machine",
     "text": "**指向無處或繞成迴圈的連結，不算存在。** 改為判斷存放它的目錄，且不會跟隨任何東西來找出該連結原本要指向何處。當這樣的連結恰好位於即將建立檔案的位置時，它所指向的地方也會被檢查，因為那是檔案會落下的地方。"
   },
+  "64ac9b9886202839": {
+    "at": "2026-11-19T09:01:32.422Z",
+    "job": "session-0088-20261119090132",
+    "srcHash": "64ac9b9886202839",
+    "status": "machine",
+    "text": "**無法從已部署的資源回讀出處。** ARM 把資源的 `metadata` 保留在宣告它的範本中，不會隨資源一併回傳，因此 `az resource show` 與入口網站都不會顯示該標記。請在發出的 `arm-template.json` 或建置的其他輸出中讀取。[標籤與註記](../vocabulary/labels-and-annotations.md)說明出處包含什麼。"
+  },
   "64ae3765169a7085": {
     "at": "2026-11-18T18:17:18.156Z",
     "job": "session-0046-20261118181718",
@@ -46706,6 +47364,13 @@
     "srcHash": "64d1f62c7ce83ed3",
     "status": "machine",
     "text": "發出的訊息（找不到路徑的變體）："
+  },
+  "64e395751be3bcd2": {
+    "at": "2026-11-19T09:01:32.422Z",
+    "job": "session-0088-20261119090132",
+    "srcHash": "64e395751be3bcd2",
+    "status": "machine",
+    "text": "**機密在部署之間被讀取。** 讀取機密的提供值（`list*` 函式、`listOutputsWithSecureValues`，或 `securestring` 或 `secureObject` 參數的值）會被記錄在生產端的部署記錄中。請把機密存放在 Key Vault，並在兩端附加 `core/referenced-secret`。請參閱 [A secret is read across deployments（機密在部署之間被讀取）](../errors/fatal-halts.md#a-secret-is-read-across-deployments)。"
   },
   "64f18b5971e46ec3": {
     "at": "2026-11-18T17:16:50.032Z",
@@ -47602,6 +48267,13 @@
     "status": "machine",
     "text": "搜尋已發布的目錄是此面板的第一列 **Search catalog**：它要求一個篩選條件，並複製你所選項目的參照。草擬新實體是它的第二列 **Draft entity**：它以供你挑選的清單詢問種類，並在索引標籤中開啟起始文件，而不在磁碟上寫入任何東西。此面板自己的標題列只帶有重新整理。作用於單一實體的操作位於該實體的那一列，而且只有當編譯器接受該操作用於該列的種類時，該列才提供它。每個操作接受哪些種類，是語言伺服器自己的答案，每次都隨清單重新讀取，因此各列跟隨的是你所執行的編譯器，而不是擴充功能中保存的清單。檢視實體解析成什麼，是不必開啟該列選單就能到達的那一個：它以實體的名稱定址，而每一列都帶有名稱，因此無論工作區是否持有它的文件，只要編譯器將名稱解析為該種類的實體，這一列就會提供它，而且它不改變任何東西。"
   },
+  "66dd8211a8629bfb": {
+    "at": "2026-11-19T09:01:32.422Z",
+    "job": "session-0088-20261119090132",
+    "srcHash": "66dd8211a8629bfb",
+    "status": "machine",
+    "text": "帶入：它們只處理要求它們的輪替排程。"
+  },
   "66e03587d85d0cc0": {
     "at": "2026-11-19T04:37:57.244Z",
     "job": "session-0074-20261119043757",
@@ -47790,6 +48462,13 @@
     "srcHash": "673fb9298884faab",
     "status": "machine",
     "text": "沒有分派路徑的分派群組會被略過。寫在沒有路徑之處的輸出是逐節點輸出，所以那裡沒有任何東西被組裝，也就沒有關於合併的宣稱可管轄。"
+  },
+  "6742451f7e0a477a": {
+    "at": "2026-11-19T09:01:32.422Z",
+    "job": "session-0088-20261119090132",
+    "srcHash": "6742451f7e0a477a",
+    "status": "machine",
+    "text": "項目的 `kind` 就是資源的 `type`。它的 `name` 在 `languageVersion` 為 2.x 的範本中是資源的符號名稱，在沒有語言版本的範本中則是資源的 `name` 屬性，且須與所寫完全一致；兩者都以完全相符比對。指名 `namespace` 或 `subchart` 的項目會中止，因為範本兩者都沒有。每個沒有比對到任何資源的項目都會中止，一如每個提供者的 omits：什麼都沒省略的項目是該修正的錯誤，而不是無作用。"
   },
   "6742c45abd57af6e": {
     "at": "2026-11-18T17:53:15.721Z",
@@ -48513,6 +49192,20 @@
     "status": "machine",
     "text": "它在 **`input.compilation_context`** 讀取 Release：`release_name` 與 `environment`。這就是讓一個原則能針對每個環境作出不同決定的原因。"
   },
+  "6915004a301cfa07": {
+    "at": "2026-11-19T09:01:32.422Z",
+    "job": "session-0088-20261119090132",
+    "srcHash": "6915004a301cfa07",
+    "status": "machine",
+    "text": "**先部署每個生產端，並把 `-n` 設為所記錄的名稱**，再部署它的使用端；使用端自己的名稱可由你選擇，因為沒有任何東西會讀取它們："
+  },
+  "6915da756415cd33": {
+    "at": "2026-11-19T09:01:32.422Z",
+    "job": "session-0088-20261119090132",
+    "srcHash": "6915da756415cd33",
+    "status": "machine",
+    "text": "鍵名在文件中不同位置重複出現是正常的，也不受影響：`Type` 在每個資源中出現一次，`Value` 在每個輸出中出現一次，不論片段帶有多少資源與輸出。只有在同一個對應表內的重複才會失去一個本體。"
+  },
   "691ef79f56547545": {
     "at": "2026-11-19T04:04:26.043Z",
     "job": "session-0069-20261119040426",
@@ -48580,6 +49273,13 @@
     "srcHash": "692cabfb3050c8ae",
     "status": "machine",
     "text": "本次呼叫強制 allow_id_overrides=true"
+  },
+  "692e45455bbaf38a": {
+    "at": "2026-11-19T09:01:32.422Z",
+    "job": "session-0088-20261119090132",
+    "srcHash": "692e45455bbaf38a",
+    "status": "machine",
+    "text": "**波次為每個層級排序。** 巢狀部署內的資源依波次排序，如[部署順序](#deployment-ordering)所述。在頂層，巢狀部署是一個資源，位於其內元件最早的波次，並把它們全部當作一個單位容納。位於該最早波次的頂層資源，若巢狀部署同時含有較晚波次的元件，會被加入巢狀部署的 `dependsOn`，使較晚的元件跟在它之後；位於其最晚波次或之後的頂層資源則等待它。兩種波次順序無法寫到它上面，會使建置中止，而不是削弱順序：一是位於巢狀部署內元件最早與最晚波次之間（嚴格介於兩者之間）的頂層資源，它得跟在某些元件之後又先於另一些元件；二是相依於宣告其資源群組之資源的巢狀部署，而該資源所在波次晚於部署最早的波次，這會讓兩者彼此相依。這些中止會指名巢狀部署與波次；請把宣告資源群組的元件放在較早的波次，或把巢狀部署的元件放在同一個波次。"
   },
   "6931adf933d30872": {
     "at": "2026-11-18T15:43:56.416Z",
@@ -49661,6 +50361,13 @@
     "status": "machine",
     "text": "每個鍵各自獨立"
   },
+  "6b58c1e19f7ab675": {
+    "at": "2026-11-19T09:01:32.422Z",
+    "job": "session-0088-20261119090132",
+    "srcHash": "6b58c1e19f7ab675",
+    "status": "machine",
+    "text": "在已存在的 API Management 執行個體上撰寫 API、其聊天補全操作、其後端與其原則；它不會建立執行個體"
+  },
   "6b5a4af2e8940b9c": {
     "at": "2026-11-18T12:49:35.296Z",
     "job": "session-0011-20261118124935",
@@ -50026,6 +50733,13 @@
     "status": "machine",
     "text": "**修正方式：** 若該值是你所寫的——Recipe 或 FeatureRecipe 的 `source.version`、`url` 或 `module_subdir`——請將它修正為指名單一目錄，或是停留在其位置之內的路徑；訊息會引用該值及其讀取來源的鍵。若是由登錄庫提供的，則已發布的實體帶有不是版本或座標的版本或座標，這不是你的任何變更所能修正的：訊息會指出擷取到的內容，而補救方式在於發布它的人。"
   },
+  "6c28ba8d9cc67610": {
+    "at": "2026-11-19T09:01:32.422Z",
+    "job": "session-0088-20261119090132",
+    "srcHash": "6c28ba8d9cc67610",
+    "status": "machine",
+    "text": "字面值——字串、數字、布林值，或它們的清單——會寫入範本，並依 CloudFormation 在堆疊部署時對傳給該參數的 `Type` 的相同值所做的轉換方式轉換：`Number` 會變成對它的 `Ref` 所產生的字串，因此 `7` 抵達時是 `\"7\"`；`CommaDelimitedList` 或 `List<…>` 型別會變成字串清單，接受清單或以逗號分隔、成員會被修剪空白的字串；其他每種型別都接受一個字串。字面值會依參數自己的 `AllowedValues`、`AllowedPattern`、`MinLength`、`MaxLength`、`MinValue` 與 `MaxValue` 檢查，被它們拒絕的字面值會使建置中止，並指名參數與限制條件，因此填入參數不會移除範本所宣告的任何檢查。以建置無法讀取的正規表示式語法所寫的模式，則留給 CloudFormation 在堆疊部署時檢查。"
+  },
   "6c2ece1b36561dac": {
     "at": "2026-11-19T07:22:53.221Z",
     "job": "session-0077-20261119072253",
@@ -50192,6 +50906,13 @@
     "status": "machine",
     "text": "拒絕的對象是遞迴，絕非重複使用或深度。錨定共用內容並從多處參照是受支援的撰寫模式——請見 [../entities/aggregate.md](../entities/aggregate.md) 的「YAML anchor patterns (`defs:` block)」與 [../entities/manifest.md](../entities/manifest.md) 的「YAML anchors for DRY manifests」——而能展開並終止的參照可正常載入，不論它出現多少次、文件巢狀多深；深度本身絕不構成這個中止的理由。會中止的是建置仍身處某個錨點之內時又抵達該錨點，包括透過宣告在其下方的第二個錨點間接抵達的情況。訊息會指出迴圈所閉合回去的錨點，它不一定是文件中最外層的錨點。"
   },
+  "6c86e2ab129a4f41": {
+    "at": "2026-11-19T09:01:32.422Z",
+    "job": "session-0088-20261119090132",
+    "srcHash": "6c86e2ab129a4f41",
+    "status": "machine",
+    "text": "使用端自己的管理群組，只有部署在管理群組範圍的使用端範本才有"
+  },
   "6c8ae998a9d27e62": {
     "at": "2026-11-18T17:22:53.567Z",
     "job": "session-0036-20261118172253",
@@ -50212,6 +50933,13 @@
     "srcHash": "6c8b9e77d717c95b",
     "status": "machine",
     "text": "發出的訊息。條件自己的句子在開頭，接著是辨識成品的內容："
+  },
+  "6c8ff243913d5d77": {
+    "at": "2026-11-19T09:01:32.422Z",
+    "job": "session-0088-20261119090132",
+    "srcHash": "6c8ff243913d5d77",
+    "status": "machine",
+    "text": "僅在標點上不同的項目。同時發布 `db-host` 與 `db_host` 的元件會得到 `dbXzhhost` 與 `dbXzuhost`。"
   },
   "6c980b4d8ab6d2db": {
     "at": "2026-11-19T08:52:30.848Z",
@@ -50380,6 +51108,13 @@
     "status": "machine",
     "text": "`Manifest`"
   },
+  "6cfc4f725c2f8e79": {
+    "at": "2026-11-19T09:01:32.422Z",
+    "job": "session-0088-20261119090132",
+    "srcHash": "6cfc4f725c2f8e79",
+    "status": "machine",
+    "text": "有三種項目名稱靠得夠近，可能在單一輸出名稱上相遇，而且沒有一種是罕見的。由於兩半是被編碼而不是被摺疊，並在兩半都不可能含有的序列上相遇，這三種都會得到各自的名稱："
+  },
   "6d060c93762ee7e6": {
     "at": "2026-11-18T17:59:53.471Z",
     "job": "session-0042-20261118175953",
@@ -50405,6 +51140,13 @@
     "srcHash": "6d0a59049e17999f",
     "status": "machine",
     "text": "發出的訊息：其上方的框架會指名元件實例與範本，例如 `recipe \"<recipe>\" workload template` 或 `Recipe \"<recipe>\" locals[\"<key>\"]`，而範本引擎自己的一行接在其下："
+  },
+  "6d0ff9b178ff847b": {
+    "at": "2026-11-19T09:01:32.422Z",
+    "job": "session-0088-20261119090132",
+    "srcHash": "6d0ff9b178ff847b",
+    "status": "machine",
+    "text": "單獨帶入，或與來自同一元件的 `AWS::Serverless-2016-10-31` 一起帶入。與另一個元件的無伺服器內容並存時會中止，因為語言擴充功能一旦解析了其值，無伺服器轉換對其所產生內容的命名就會不同。"
   },
   "6d128fe7fbe98d0c": {
     "at": "2026-11-18T12:38:48.225Z",
@@ -51364,6 +52106,13 @@
     "status": "machine",
     "text": "複製進管線的覆蓋層後，同一個命令會中止："
   },
+  "6efc9be8d62beb55": {
+    "at": "2026-11-19T09:01:32.422Z",
+    "job": "session-0088-20261119090132",
+    "srcHash": "6efc9be8d62beb55",
+    "status": "machine",
+    "text": "從來源式範本中省略資源"
+  },
   "6f010645dc3b29e8": {
     "at": "2026-11-18T18:45:12.510Z",
     "job": "session-0052-20261118184512",
@@ -51978,6 +52727,13 @@
     "status": "machine",
     "text": "**其他一切都保持各自的支柱。** `key` 仍是 `values` 葉項，因此只有 Release 建立的附加項目會讀取預設資料鍵 `value`。在兩個支柱中都宣告 `origin`，正是支柱重疊提示所要找的，因此載入這些 Features 時會回報它——`LINT: Feature \"core/referenced-secret\" ... declares property \"origin\" in both\nvalues: and infra: pillars`。在這裡，重疊就是契約；該提示不改變任何判定，也不改變任何渲染位元組。"
   },
+  "703a30ee0bf4e937": {
+    "at": "2026-11-19T09:01:32.422Z",
+    "job": "session-0088-20261119090132",
+    "srcHash": "703a30ee0bf4e937",
+    "status": "machine",
+    "text": "只有生產端範本會在其 `metadata` 中記錄必須採用的部署名稱："
+  },
   "703bdfaa682b8112": {
     "at": "2026-11-19T02:58:11.752Z",
     "job": "session-0061-20261119025811",
@@ -52157,6 +52913,13 @@
     "srcHash": "70a78d2178a230e7",
     "status": "machine",
     "text": "[kong-stack](kong-stack/README.md)（`start`）——此範例把一個小型的真實堆疊——**資料庫支援的 API 閘道**——從一個由開發者撰寫的 `Aggregate` 編譯為合成的 Kubernetes 資訊清單。"
+  },
+  "70a9beb65604e778": {
+    "at": "2026-11-19T09:01:32.422Z",
+    "job": "session-0088-20261119090132",
+    "srcHash": "70a9beb65604e778",
+    "status": "machine",
+    "text": "這使它也成為對元件名稱的限制，只要 Recipe 把元件實例的名稱直接寫進邏輯 ID。元件名稱可以含連字號或底線；邏輯 ID 則不可以。**因此，你透過這類 Recipe 指向此提供者的元件，名稱只能使用字母與數字**——`paymentsdb` 而非 `payments-db`——任何其他寫法都會使建置中止。"
   },
   "70ac56097cb95ed5": {
     "at": "2026-11-19T04:17:55.611Z",
@@ -52339,6 +53102,13 @@
     "status": "machine",
     "text": "Component、Feature、Recipe、FeatureRecipe、SchemaLibrary、MappingLibrary、Aggregate 與 Plugin（編譯器內建的外掛程式不做比較）；對任何其他種類的變更，一律分類為 `MAJOR`。"
   },
+  "71143feef73dc081": {
+    "at": "2026-11-19T09:01:32.422Z",
+    "job": "session-0088-20261119090132",
+    "srcHash": "71143feef73dc081",
+    "status": "machine",
+    "text": "附加的密碼、`maxmemory`、`databases`、其他連接埠、映像檔、伺服器憑證"
+  },
   "7116fa2884a3e09f": {
     "at": "2026-11-19T01:10:37.674Z",
     "job": "session-0059-20261119011037",
@@ -52359,6 +53129,13 @@
     "srcHash": "712bd726d8c030e7",
     "status": "machine",
     "text": "該 Release 的堆疊無法解析的名稱會被拒絕，而且說明本機實體從哪裡讀取的說明，會指名該 Release 在 `workspace.releases` 之下的項目，因為查找所讀取的就是那個項目。`--release` 選擇名稱所查找的堆疊，所以它只適用於單獨的名稱：檔案路徑與登錄庫參照是照原樣讀取，並拒絕它。指名不存在之檔案或指名目錄的 `--release`，會在查找任何東西之前被拒絕。"
+  },
+  "712cdc607bf1d74c": {
+    "at": "2026-11-19T09:01:32.422Z",
+    "job": "session-0088-20261119090132",
+    "srcHash": "712cdc607bf1d74c",
+    "status": "machine",
+    "text": "在 Release 中，元件自己的值優先於邊界的值，Release 所寫的值優先於 Aggregate 所寫的值；請參閱[知名註記](well-known-annotations.md)。由於編譯器不會查詢部署位置，這些註記必須與操作員部署生產端的位置相符。"
   },
   "713166971d730f81": {
     "at": "2026-11-18T15:38:54.285Z",
@@ -52629,12 +53406,26 @@
     "status": "machine",
     "text": "認證 Feature 家族"
   },
+  "71cd67ca75bb8df8": {
+    "at": "2026-11-19T09:01:32.422Z",
+    "job": "session-0088-20261119090132",
+    "srcHash": "71cd67ca75bb8df8",
+    "status": "machine",
+    "text": "若 Recipe 確實直接傳遞名稱，請把它所傳遞的內容改名為只含字母與數字。對元件自己的 Recipe 而言，那就是元件名稱。附加到元件的 Feature 是從它自己的 FeatureRecipe 為資源命名，因此重新命名宿主元件並不會影響它們——必須更改的是該 Recipe 所寫的 ID。"
+  },
   "71ce0a82d6252ce0": {
     "at": "2026-11-19T03:40:49.770Z",
     "job": "session-0068-20261119034049",
     "srcHash": "71ce0a82d6252ce0",
     "status": "machine",
     "text": "`ai-controller` 目錄持有 Recipe 在 chart 旁發出的六個 AI Gateway 資源定義。以同樣方式建置的 `release-own-certificate.yaml` 會印出："
+  },
+  "71d09b6f486e745c": {
+    "at": "2026-11-19T09:01:32.422Z",
+    "job": "session-0088-20261119090132",
+    "srcHash": "71d09b6f486e745c",
+    "status": "machine",
+    "text": "字元集拒絕句點"
   },
   "71d87de422f76de4": {
     "at": "2026-11-19T08:04:12.886Z",
@@ -53590,6 +54381,13 @@
     "status": "machine",
     "text": "[credential-shape-per-target](credential-shape-per-target/README.md)（`authoring`）——認證如何到達執行中的容器，是**你部署在哪裡**的屬性，而不是應用程式的屬性。"
   },
+  "73b87553e8093f6c": {
+    "at": "2026-11-19T09:01:32.422Z",
+    "job": "session-0088-20261119090132",
+    "srcHash": "73b87553e8093f6c",
+    "status": "machine",
+    "text": "不是 Key Vault 機密之資源 ID 的 `origin`"
+  },
   "73c0e54cb1d19261": {
     "at": "2026-11-19T08:12:17.812Z",
     "job": "session-0082-20261119081217",
@@ -53762,6 +54560,13 @@
     "srcHash": "7419e4815e992f6f",
     "status": "machine",
     "text": "它每次建置印出一行，接著是標籤，若有任何結果不同則以 1 結束，並印出該次建置的輸出："
+  },
+  "741f23705aa3e40b": {
+    "at": "2026-11-19T09:01:32.422Z",
+    "job": "session-0088-20261119090132",
+    "srcHash": "741f23705aa3e40b",
+    "status": "machine",
+    "text": "此值寫在資源的 `properties`、輸出的 `value` 或輸出之 `copy` 迴圈的輸入中，也就是 ARM 對 `reference()` 求值的位置。編譯器不會連絡任何對象：ID 是它由名稱組成的字串，而 ARM 在使用端部署時讀取該部署。"
   },
   "7421856277e587d3": {
     "at": "2026-11-18T12:24:04.851Z",
@@ -53968,6 +54773,13 @@
     "srcHash": "74a883a037bc227f",
     "status": "machine",
     "text": "設定"
+  },
+  "74a8caa1458d7dc4": {
+    "at": "2026-11-19T09:01:32.422Z",
+    "job": "session-0088-20261119090132",
+    "srcHash": "74a8caa1458d7dc4",
+    "status": "machine",
+    "text": "因此，僅在標點位置上不同的三個名稱仍然各自分開："
   },
   "74b3809869ea63be": {
     "at": "2026-11-18T07:06:16.115Z",
@@ -54291,12 +55103,26 @@
     "status": "machine",
     "text": "**還有一種形狀也在此回報，而且它不是拼寫錯誤。** ArtifactLibrary 套組本身的檔案本文，不能本身又是另一個套組的 `$import:`：一個檔案槽位無法展開成多個檔案，所以巢狀匯入會被拒絕，而不是被解析成作者沒有寫過的東西。請改在使用它們的位置組合這些套組。"
   },
+  "751d22296612a235": {
+    "at": "2026-11-19T09:01:32.422Z",
+    "job": "session-0088-20261119090132",
+    "srcHash": "751d22296612a235",
+    "status": "machine",
+    "text": "組裝後的範本是資源群組範本，提供者不寫入參數檔：其 `parameters` 正是各貢獻者所宣告的那些，於範本部署時提供。部署時的機密是頂層的 `securestring` 參數，以 `--parameters` 或你撰寫的參數檔提供，靜態的 Key Vault 參照也放在那裡。"
+  },
   "75239700e2644177": {
     "at": "2026-11-19T07:28:26.849Z",
     "job": "session-0078-20261119072826",
     "srcHash": "75239700e2644177",
     "status": "machine",
     "text": "與來源檔案位於同一目錄中的 `import-answers.yaml`"
+  },
+  "75251c6026fd3a6b": {
+    "at": "2026-11-19T09:01:32.422Z",
+    "job": "session-0088-20261119090132",
+    "srcHash": "75251c6026fd3a6b",
+    "status": "machine",
+    "text": "**以提供者限定範圍的名稱組裝，或照所寫讀取。** `Resources` 與 `Outputs`，由[組裝後堆疊中的名稱](#names-in-the-assembled-stack)完整說明。`AWSTemplateFormatVersion` 由提供者寫入，而不是從任何元件讀取：範本語言對它只接受單一值，因此沒有任何東西需要元件決定。"
   },
   "75294cf15e825d06": {
     "at": "2026-11-19T03:23:28.993Z",
@@ -54655,6 +55481,13 @@
     "status": "machine",
     "text": "答案檔指名了這次匯入沒有詢問的兩個 Secret：它沒有為它們留下任何空白，所以兩者都不套用，並讓檔案保持原樣。"
   },
+  "75b45c7e007254c5": {
+    "at": "2026-11-19T09:01:32.422Z",
+    "job": "session-0088-20261119090132",
+    "srcHash": "75b45c7e007254c5",
+    "status": "machine",
+    "text": "`arm/key-vault-secret`（FeatureRecipe）"
+  },
   "75b47a9c19b03571": {
     "at": "2026-11-18T18:17:18.156Z",
     "job": "session-0046-20261118181718",
@@ -54791,6 +55624,13 @@
     "srcHash": "75fdf0bc21213e27",
     "status": "machine",
     "text": "`core/referenced-secret`（見 `credential-secretkeyref` 範例）是同一族中的單鍵成員：它包裝一個由呼叫者命名的資料鍵，並發布資源名稱與該鍵，供以 `secretKeyRef` 參照單一鍵的使用端。當使用的目標從它整體命名的一個 Secret 讀取一組固定的鍵時，請改用 `core/referenced-secret-set`，如 Bitnami chart 那樣。"
+  },
+  "75fea72d4917cba8": {
+    "at": "2026-11-19T09:01:32.422Z",
+    "job": "session-0088-20261119090132",
+    "srcHash": "75fea72d4917cba8",
+    "status": "machine",
+    "text": "在組裝後的堆疊中"
   },
   "7600fc640cae6f68": {
     "at": "2026-11-19T04:17:55.611Z",
@@ -54971,6 +55811,13 @@
     "srcHash": "7643d84d4bdb292e",
     "status": "machine",
     "text": "當你所指名的版本已被撤回時，pull 會明確說出來，讓已經選定它的建置能繼續運作，同時你仍可看出為什麼可能想要移到別的版本。"
+  },
+  "7652d1825b71bb86": {
+    "at": "2026-11-19T09:01:32.422Z",
+    "job": "session-0088-20261119090132",
+    "srcHash": "7652d1825b71bb86",
+    "status": "machine",
+    "text": "當 `valuesMapping` 讀取作者宣告為敏感的值時，它的任何輸出都無法追溯回其來源的值，因此它繫結的每個字面值都會使建置中止。它所繫結的動態參照與內建函式照所給寫出——包括內建函式內部的文字。例如，對應拼接進 `Fn::Sub` 文字中的機密，因此會以該文字抵達範本：只有動態參照能讓機密本身不出現在範本中。這類建置若繼續進行，它也會為每個已宣告的葉節點印出一則提示，Recipe 的對應與附加到元件的 Feature 的 FeatureRecipe 的對應皆然，並指名該葉節點與該對應所屬的實體——請參閱 [A declared-sensitive value reaches the target through a values mapping（宣告為敏感的值透過值對應抵達目標）](../errors/warnings.md#a-declared-sensitive-value-reaches-the-target-through-a-values-mapping)。"
   },
   "765a2c2fec260656": {
     "at": "2026-11-18T17:28:02.525Z",
@@ -55194,6 +56041,13 @@
     "status": "machine",
     "text": "**處理程序自己終止 TLS。** 將 `mcp.tls.cert_file` 設為 PEM 憑證鏈，並將 `mcp.tls.key_file` 設為其私密金鑰，監聽器就會在你給它的任何位址上直接提供 HTTPS。兩個檔案都在處理程序啟動時讀取，因此更換憑證需要重新啟動處理程序才會生效。只設定其中一個而不設定另一個，會在啟動時被拒絕，而不是退回其他行為：沒有金鑰的憑證無法出示，沒有憑證的金鑰則不指向任何東西，而且其中一個路徑打錯，並不是開始提供未加密流量的理由。"
   },
+  "76bfcfec38e003f4": {
+    "at": "2026-11-19T09:01:32.422Z",
+    "job": "session-0088-20261119090132",
+    "srcHash": "76bfcfec38e003f4",
+    "status": "machine",
+    "text": "**每個範圍的部署記錄上限為 800 個項目。** 超過 700 個時，Azure 會刪除最舊的，直到剩下 600 個。生產端的項目若被清除，使用端的部署就會失敗。以其記錄名稱重新部署生產端，會把它的項目移到最新的位置，因此當範圍繁忙時，請在使用端之前先重新部署它。"
+  },
   "76c3ea18a0c56ae1": {
     "at": "2026-11-18T13:42:42.603Z",
     "job": "session-0015-20261118134242",
@@ -55248,6 +56102,13 @@
     "srcHash": "76d2dc21e17e28d9",
     "status": "machine",
     "text": "依逐步說明執行堆疊後，一個請求就能到達代理程式。下方的路由是逐步說明自己的程式的，那是一個在連接埠 8000 上的小型 HTTP 伺服器；你自己的程式會決定它自己的路由。Release 將代理程式發布在 127.0.0.1:8000 上，所以請求從你的機器發出："
+  },
+  "76d488abdf811435": {
+    "at": "2026-11-19T09:01:32.422Z",
+    "job": "session-0088-20261119090132",
+    "srcHash": "76d488abdf811435",
+    "status": "machine",
+    "text": "只對僅有一個元件的堆疊帶入。與任何其他元件並存時會中止，因為它對範本其餘部分的作用，建置無從得知。"
   },
   "76da6746733b5064": {
     "at": "2026-11-19T07:12:05.895Z",
@@ -56015,6 +56876,13 @@
     "srcHash": "78a2e2953f347487",
     "status": "machine",
     "text": "一份契約，三種實現"
+  },
+  "78a3e9a9b6a12901": {
+    "at": "2026-11-19T09:01:32.422Z",
+    "job": "session-0088-20261119090132",
+    "srcHash": "78a3e9a9b6a12901",
+    "status": "machine",
+    "text": "**附加的 Feature 的輸出以其宿主元件的名稱發布，而它的資源邏輯 ID 則不會。** 堆疊的這兩部分依不同規則命名，因此對此的回答不同。資源邏輯 ID 完全依 FeatureRecipe 所撰寫的樣子發出，一如任何 Recipe 的 ID。輸出則由發布的元件與項目共同命名——對附加到元件的 Feature 而言，發布的元件是**宿主**：附加到 `payments-db` 並發布 `alarm` 的 Feature，會得到 `paymentsXzhdbXXalarm`，與宿主元件自己發布該項目時得到的名稱相同。因此宿主也發布的項目名稱，會在同一個輸出名稱上與附加項目的名稱相遇，建置會中止，並指名該元件與該 Feature 附加時所用的鍵，以及該元件本身。選擇讀起來屬於該 Feature 自己的項目名稱——例如 `backup-alarm` 而非 `alarm`——就能與宿主的名稱區隔開來。"
   },
   "78ace919fc6b028d": {
     "at": "2026-11-19T02:53:52.874Z",
@@ -59108,6 +59976,13 @@
     "status": "machine",
     "text": "數個 FeatureRecipes 可以為同一個目標實作一個 Feature，而由 Manifest 選擇。`core/referenced-secret` 在 Kubernetes 上有三個，而認證存放在哪裡，決定選擇哪一個："
   },
+  "7f8e415377d188d2": {
+    "at": "2026-11-19T09:01:32.422Z",
+    "job": "session-0088-20261119090132",
+    "srcHash": "7f8e415377d188d2",
+    "status": "machine",
+    "text": "**來源是宣告參數的單位。** 目錄來源的範本會組裝成一個堆疊，因此一個範本可以參照同一來源中另一個範本所宣告的參數。填入參數也會在那裡填入它：只參照它的範本會收到該值，其轉換方式與宣告它的來源第一個範本所轉換的相同，來源中沒有任何東西會留下對一個宣告已被繫結移除之參數的參照。"
+  },
   "7f8ec80ef5d206a6": {
     "at": "2026-11-18T19:25:40.298Z",
     "job": "session-0057-20261118192540",
@@ -59617,6 +60492,13 @@
     "status": "machine",
     "text": "**helm-chart 提供者（特殊情況）：** 成品不會以獨立檔案的形式寫到輸出目錄——Helm 擁有渲染管線。取而代之，helm-chart 提供者會把每個 `artifacts:` 項目放進 chart 本身之內，而項目的撰寫形式決定它落在何處。每個項目在任何放置之前，都會先以 Aggrega 的支柱情境進行 Go 範本處理；從這裡開始，兩種形式分道揚鑣。由 `$import:` 載入的項目是 Helm 前的範本檔案：它會在 Helm 渲染之前注入 chart 的 `templates/` 目錄，所以 Helm 會把它與來源 chart 自己的範本一起渲染。內嵌的區塊純量是鬆散的 chart 檔案：它以其撰寫的鍵放在 chart 根目錄，不帶 `templates/` 前綴，也不帶合併的出處標籤，所以 chart 自己的範本可以透過 Helm 的 `.Files.Get` / `.Files.Glob` 讀取它——也就是 ConfigMap-from-files 模式。這讓 helm-chart 提供者擁有與 `artifacts:` 為一般 helm 提供者所提供的相同的擴充機制，同時尊重 Helm 的 chart 模型。"
   },
+  "80ae79c05b679edc": {
+    "at": "2026-11-19T09:01:32.422Z",
+    "job": "session-0088-20261119090132",
+    "srcHash": "80ae79c05b679edc",
+    "status": "machine",
+    "text": "值得注意的拒絕項目"
+  },
   "80aefb273d01b0d7": {
     "at": "2026-11-18T15:38:54.285Z",
     "job": "session-0018-20261118153854",
@@ -60110,6 +60992,13 @@
     "srcHash": "81e534cff3bce8b5",
     "status": "machine",
     "text": "最上層元件註記"
+  },
+  "81ef6750b5321a80": {
+    "at": "2026-11-19T09:01:32.422Z",
+    "job": "session-0088-20261119090132",
+    "srcHash": "81ef6750b5321a80",
+    "status": "machine",
+    "text": "兩個元件以相反的順序宣告同一對轉換，也會使建置中止，並指名兩種順序與兩個元件，因為堆疊只以一種順序執行它們。需要堆疊無法帶入之轉換的元件，要放在它自己的邊界中。"
   },
   "81f06a58901aa4a4": {
     "at": "2026-11-18T13:42:42.603Z",
@@ -60750,6 +61639,13 @@
     "status": "machine",
     "text": "匯入不會草擬 Aggregate、Manifest 或 Release，所以使用草擬的 Component 的內容行由你撰寫。在 Aggregate `aggregate.yaml` 中，加入一個草擬型別的元件，帶有 `values` 支柱所持有的身分："
   },
+  "83466b921c63ae67": {
+    "at": "2026-11-19T09:01:32.422Z",
+    "job": "session-0088-20261119090132",
+    "srcHash": "83466b921c63ae67",
+    "status": "machine",
+    "text": "**把呼叫拼接進字面文字的提供值。** 請把提供值寫成單一運算式 `[format('postgres://{0}:5432', reference('Db').outputs.fqdn.value)]`。請參閱 [A provided value splices a call into literal text across deployments（提供值跨部署把呼叫拼接進字面文字）](../errors/fatal-halts.md#a-provided-value-splices-a-call-into-literal-text-across-deployments)。"
+  },
   "834c44ec3682e41e": {
     "at": "2026-11-19T03:15:13.861Z",
     "job": "session-0064-20261119031513",
@@ -60874,6 +61770,13 @@
     "srcHash": "8385db6add875f51",
     "status": "machine",
     "text": "**`mcp.allowed_origins` 只在請求帶有 `Origin` 標頭時才會被參考**，實務上意味著是瀏覽器送出的。請列出你在那裡提供服務的來源；指名未列出來源的請求會被拒絕，而不帶這種標頭的請求則一律提供服務。不是瀏覽器的用戶端不會送出這種標頭，也不需要項目。項目會與標頭完全比對，因此請照瀏覽器送出的方式來寫：小寫的通訊協定、`://`、小寫的主機，以及 `:` 加上連接埠（僅當連接埠不是該通訊協定的預設值時）——`https://studio.example.com`，或為在你自己機器上提供服務的頁面而寫的 `http://localhost:3000`——不含路徑，也不含結尾的 `/`。任何其他形式的項目都不可能相符，會在載入此檔案時被拒絕，並指出該項目。"
+  },
+  "838bd30641a07743": {
+    "at": "2026-11-19T09:01:32.422Z",
+    "job": "session-0088-20261119090132",
+    "srcHash": "838bd30641a07743",
+    "status": "machine",
+    "text": "**以名稱讀取參數的規則會讓它保持未繫結。** 範本 `Rules` 中的 `Fn::ValueOf` 是以邏輯 ID 指名已宣告的參數，而不是透過 `Ref`，且填入參數會移除它的宣告，因此繫結規則以這種方式讀取的參數，會使建置中止，並指名規則與參數。"
   },
   "838cac8c5525829d": {
     "at": "2026-11-19T03:33:10.421Z",
@@ -62541,6 +63444,13 @@
     "status": "machine",
     "text": "**Recipe 端的使用。** Recipes 在 `valuesMapping:`、`provides:`、`assertions:` 與其他範本介面中，透過 `.values.<field>` 讀取解析後的值——各範本的可用性對照表請見 [entities/recipe.md](recipe.md)。編譯器會在同一個 Component 節點上，將 Component 的 `values` 結構描述與任何 Feature 附加項目的 `values:` 結構描述合併，使解析後的範本情境帶有每個適用的欄位。"
   },
+  "86fa822618c57fdc": {
+    "at": "2026-11-19T09:01:32.422Z",
+    "job": "session-0088-20261119090132",
+    "srcHash": "86fa822618c57fdc",
+    "status": "machine",
+    "text": "當組成的名稱確實衝突時，它是以資源邏輯 ID 而非輸出名稱的身分衝突，因此你遇到的中止是上述的資源名稱那一種。"
+  },
   "86fb62045da61793": {
     "at": "2026-11-19T01:10:37.674Z",
     "job": "session-0059-20261119011037",
@@ -62699,6 +63609,13 @@
     "srcHash": "876020840cf4cbb2",
     "status": "machine",
     "text": "**修正方式：** 把附加項目移到 Release 對該連線的項目上——元件下的 `uses.<socket>.<alias>.features.<slot>`——在那裡只寫 `infra:` 以調整 Aggregate 所宣告之附加項目的大小，或對只有 Release 才有的附加項目寫 `type:` 與 `infra:`；然後從元件或邊界的 `features:` 中移除帶點的鍵。打算用於多個元件之連線的邊界範圍鍵，應在每條連線上各寫一次。"
+  },
+  "876215794f41d013": {
+    "at": "2026-11-19T09:01:32.422Z",
+    "job": "session-0088-20261119090132",
+    "srcHash": "876215794f41d013",
+    "status": "machine",
+    "text": "字母或數字，`X` 除外"
   },
   "876369028c3fffb0": {
     "at": "2026-11-18T11:27:19.320Z",
@@ -63371,6 +64288,13 @@
     "status": "machine",
     "text": "`aggrega-gw` 服務及其設定"
   },
+  "88d45abac1764c5a": {
+    "at": "2026-11-19T09:01:32.422Z",
+    "job": "session-0088-20261119090132",
+    "srcHash": "88d45abac1764c5a",
+    "status": "machine",
+    "text": "**無檔案系統存取。** Plugins 無法從主機檔案系統讀取任意檔案。Recipe 所指名的來源——登錄庫中的 chart、存放庫中的模組——由編譯器在外掛程式執行之前解析；外掛程式會收到該來源只含名稱的清單，並透過主機函式向編譯器索取它所選的檔案，而主機函式只會回應位於該節點來源之下的檔案。"
+  },
   "88d5f6c0ca01f527": {
     "at": "2026-11-18T18:07:34.163Z",
     "job": "session-0045-20261118180734",
@@ -63579,6 +64503,13 @@
     "srcHash": "89474be31420b424",
     "status": "machine",
     "text": "兩個助理保存其執行狀態之處"
+  },
+  "89492d4b6345ae6d": {
+    "at": "2026-11-19T09:01:32.422Z",
+    "job": "session-0088-20261119090132",
+    "srcHash": "89492d4b6345ae6d",
+    "status": "machine",
+    "text": "`origin` 是 Key Vault 機密的資源 ID，`identity` 是獲准讀取它的使用者指派受管理身分。Recipe 會為每個項目寫入一個以 Key Vault 為後盾的應用程式機密，名稱取自變數名稱，轉為小寫並把每個底線改為連字號，其 `keyVaultUrl` 由保存庫與機密的名稱搭配 `environment().suffixes.keyvaultDns` 組成，因此位址是範本所部署之雲端的位址。容器變數以 `secretRef` 指名該應用程式機密，而範本不含任何值。設定 `value` 或 `origin` 與 `identity` 以外任何鍵的項目會中止，不是 Key Vault 機密之資源 ID 的 `origin` 也一樣。"
   },
   "894b19d0cf4f9a65": {
     "at": "2026-11-18T18:53:30.310Z",
@@ -65569,6 +66500,13 @@
     "status": "machine",
     "text": "two things a plugin produced occupy one name in its output > cloudformation-provider: the stack output a cross-boundary link publishes its export on already carries an Export the link did not write: the link derives the export name `<export-name>` for provides key `<provides-key>` of component `<component>` in boundary `<boundary>` of Release `<release>`, and the stack output this provider assembles for that key and component `<what-it-found>`; remove that entry's Export block and let the link publish the export every consumer imports（外掛程式產生的兩個東西在其輸出中佔用同一個名稱 > cloudformation-provider：跨邊界連結用來發布其匯出的堆疊輸出，已帶有連結並未寫入的 Export：該連結為 Release 的邊界中元件的提供鍵衍生出匯出名稱，而此提供者為該鍵與元件組裝的堆疊輸出出現了所發現的情形；請移除該項目的 Export 區塊，讓連結發布每個使用端所匯入的匯出）"
   },
+  "8d68b06a2892cf92": {
+    "at": "2026-11-19T09:01:32.422Z",
+    "job": "session-0088-20261119090132",
+    "srcHash": "8d68b06a2892cf92",
+    "status": "machine",
+    "text": "**它絕不登入 Azure，也不執行 ARM。** 沒有任何建置會連絡 Azure；ARM 在部署時解析的每個值都維持為運算式。"
+  },
   "8d6d3277668511e1": {
     "at": "2026-11-18T13:17:56.240Z",
     "job": "session-0014-20261118131756",
@@ -66593,6 +67531,13 @@
     "srcHash": "8f49288ee4991fc4",
     "status": "machine",
     "text": "**它選擇拒絕而不是擇一，因為之後無法分辨哪個選擇是哪一個。** 保留最後一個會丟棄提供者說要寫的檔案；保留第一個會丟棄之後的檔案。不論哪種，磁碟上的輸出格式都是正確的，只是少了一個檔案，且沒有任何記錄顯示有檔案被丟棄——而留存下來的路徑本來就會留存，因此結果沒有任何東西說明發生過碰撞。兩者哪個才是本意，只有提供者能回答。"
+  },
+  "8f4ddcf4fe501948": {
+    "at": "2026-11-19T09:01:32.422Z",
+    "job": "session-0088-20261119090132",
+    "srcHash": "8f4ddcf4fe501948",
+    "status": "machine",
+    "text": "**讓組成的各部分只含字母與數字**，這樣就沒有東西被丟棄，也沒有東西需要被區分。"
   },
   "8f585837bcc7520f": {
     "at": "2026-11-19T08:20:57.425Z",
@@ -70151,6 +71096,13 @@
     "status": "machine",
     "text": "Aggregate 中的參數插值也會在此條件的代碼下回報同一行。`provides:` 項目是在「A `provides:` template could not be evaluated（提供項目的範本無法求值）」之下回報範本失敗，所以在那裡開頭帶有該條件的代碼，而上一行是它所帶的原因，包括路徑。"
   },
+  "973f775fa521ecb8": {
+    "at": "2026-11-19T09:01:32.422Z",
+    "job": "session-0088-20261119090132",
+    "srcHash": "973f775fa521ecb8",
+    "status": "machine",
+    "text": "跨部署連結"
+  },
   "9744d18e80dbc46c": {
     "at": "2026-11-18T18:07:33.777Z",
     "job": "session-0044-20261118180733",
@@ -70494,6 +71446,13 @@
     "srcHash": "97e9308d6ca8ec90",
     "status": "machine",
     "text": "管線步驟所使用的外掛程式，可以宣告它已針對哪些提供者測試過。該清單是明確的宣稱，而不是隱含的「任何相似的」：對它沒有指名的提供者執行外掛程式，有可能套用為另一種輸出形狀所寫的修補，所以建置會中止，而不是嘗試。"
+  },
+  "97ec9ef7e46ebcae": {
+    "at": "2026-11-19T09:01:32.422Z",
+    "job": "session-0088-20261119090132",
+    "srcHash": "97ec9ef7e46ebcae",
+    "status": "machine",
+    "text": "建置改為中止，指名重複的鍵與它被寫入的兩行。這是整個片段的規則，而不是關於堆疊名稱的規則：它適用於片段中的任何對應表，包括資源的 `Properties`。最常見的觸發方式，是 Recipe 從撰寫的值衍生邏輯 ID，而兩個撰寫的值僅在標點上不同——`app-cache` 與 `app_cache` 都會衍生出 `AppCache`，因此片段寫了 `AppCache` 兩次。"
   },
   "97f202540addc435": {
     "at": "2026-11-18T17:53:15.721Z",
@@ -70997,6 +71956,13 @@
     "status": "machine",
     "text": "中止是在註記照所寫的樣子、展開成 Feature 附加項目之前引發的，旁邊的條件也是如此，因此診斷指名文件與值被寫入的位置。它針對你寫的每個註記詢問一次：寫在邊界或子系統上的值會在那裡被拒絕一次，無論其中的元件是否採用它。建置中每個這樣的值都會被回報，而不只是第一個。建置會把 Release 側註記回報在 `OPS_ERROR` 標記之下，Aggregate 側註記回報在 `DEVELOPER_ERROR` 標記之下，接在寫入它的文件之後。條件是 `a scalar annotation value does not route to exactly one path of its binding`，也就是 [`aggrega explain`](../cli/aggrega-explain.md) 為其代碼所印出的內容。"
   },
+  "9905e110167c39ef": {
+    "at": "2026-11-19T09:01:32.422Z",
+    "job": "session-0088-20261119090132",
+    "srcHash": "9905e110167c39ef",
+    "status": "machine",
+    "text": "使用端自己的訂閱"
+  },
   "990b3a5722e68796": {
     "at": "2026-11-19T04:10:48.635Z",
     "job": "session-0070-20261119041048",
@@ -71044,6 +72010,13 @@
     "srcHash": "991d71e294263b1b",
     "status": "machine",
     "text": "**路徑必須留在輸出根目錄之下。** 爬出輸出根目錄的路徑（`..`、`../escape`、`a/../..`）、絕對路徑，或完全未指名目錄的路徑——空值，或清理後就是輸出根目錄本身——會在寫入任何內容之前中止建置。訊息會指名 Release、邊界、出錯的欄位（`directory:` 或 `subDirectory:`）以及它評估出的值，因為該值通常是範本的結果。"
+  },
+  "99222550ac2c742d": {
+    "at": "2026-11-19T09:01:32.422Z",
+    "job": "session-0088-20261119090132",
+    "srcHash": "99222550ac2c742d",
+    "status": "machine",
+    "text": "中止會指名其 Recipe 撰寫了該 ID 的貢獻者、該 ID 本身，以及其中每個不能出現在那裡的字元，並說明你可以改寫成什麼。有兩件事可以排除它，而第一件是你隨時可用的："
   },
   "992686aa2fe7ab69": {
     "at": "2026-11-18T17:53:15.721Z",
@@ -71818,6 +72791,13 @@
     "srcHash": "9a91e6fec159fa53",
     "status": "machine",
     "text": "只使用 Aggrega 工具，不要自己建立任何資料夾。如果工作區資料夾中還沒有 `envoy-ai-gateway-token-budget` 資料夾，請呼叫一次 `draft` 工具，將 `example` 設為 `envoy-ai-gateway-token-budget`，且不指定 `dir`：它會將範例寫入一個新的 `envoy-ai-gateway-token-budget` 資料夾。接著呼叫 `build` 工具，將 `workspace_root` 設為 `envoy-ai-gateway-token-budget`、`release` 設為 `release.yaml`、`auto_pull` 設為 true，並將 `write` 設為 true。告訴我建置寫出了哪些檔案；它們位於 `envoy-ai-gateway-token-budget/dist/` 之下。"
+  },
+  "9a9881bea9313bf9": {
+    "at": "2026-11-19T09:01:32.422Z",
+    "job": "session-0088-20261119090132",
+    "srcHash": "9a9881bea9313bf9",
+    "status": "machine",
+    "text": "**進入 Container Apps 容器。** 相鄰元件傳遞、且其生產端宣告為敏感的值，會在 `arm/server-container-apps` 與 `arm/worker-container-apps` 中使建置中止；這類認證的路線是 `infra.overrides.secrets`，即一個從容器變數名稱對應到含有 `origin` 與 `identity` 之項目的對應表："
   },
   "9a99bcef5d0368b3": {
     "at": "2026-11-18T17:53:16.128Z",
@@ -73529,6 +74509,13 @@
     "status": "machine",
     "text": "**`published_port`** 是 5678，即 n8n 提供服務的連接埠，所以編輯器在你的機器上於 `http://127.0.0.1:5678` 回應。如其註解所述，這部機器上的任何處理程序都能在那裡連到它，其他任何東西都不能；刪除該行可讓 n8n 只留在堆疊的網路上。`published_port` 若不是 5678，則需要在它旁邊加上 `infra.external_base_url: http://127.0.0.1:<published_port>`，否則 n8n 會以 `localhost:5678` 回報其編輯器與 webhook 位址。"
   },
+  "9e62551645176dfb": {
+    "at": "2026-11-19T09:01:32.422Z",
+    "job": "session-0088-20261119090132",
+    "srcHash": "9e62551645176dfb",
+    "status": "machine",
+    "text": "上述編碼是提供者的，它適用於**提供者**所建立的輸出名稱。**它無法在 Recipe 範本內部供你使用，因此你的範本所組成的名稱不具有它的任何保證。** 直接說清楚很重要，因為這個風險從範本內部看不見：那裡可用的摺疊會把它的引數當作詞來讀，並丟棄詞與詞之間的一切，所以在摺疊*之前*連接兩個值，會連同標點一起遺失連接處。"
+  },
   "9e709629cd2a9931": {
     "at": "2026-11-19T08:20:57.425Z",
     "job": "session-0083-20261119082057",
@@ -73903,6 +74890,13 @@
     "status": "machine",
     "text": "`AGGREGA_SIGNING_KEY_PATH`——指向有金鑰 PEM 的路徑指標（絕不是金鑰內容）。"
   },
+  "9f3f87c62212812f": {
+    "at": "2026-11-19T09:01:32.422Z",
+    "job": "session-0088-20261119090132",
+    "srcHash": "9f3f87c62212812f",
+    "status": "machine",
+    "text": "**檢查在 `copy` 展開之前進行。** 帶有 `copy` 迴圈的資源或輸出只算一次；ARM 在範本部署時才展開它，因此在這裡通過的範本到那時仍可能超出限制，而 `what-if` 會回報它。"
+  },
   "9f432f6edcf8c755": {
     "at": "2026-11-18T18:17:18.156Z",
     "job": "session-0046-20261118181718",
@@ -74265,6 +75259,13 @@
     "srcHash": "a0081ca387d3d9cd",
     "status": "machine",
     "text": "**回報與中止是分開的，而且只有中止可以設定。** 每個已記錄的標記都會被回報，無論嚴重程度為何，任何設定都無法壓下它。標記是否也會*中止*建置，由 `halt_on_deprecated_severity` 決定，做法是依照 `warning` < `error` < `retracted` 的順序，將已記錄的嚴重程度與所設定的門檻比較。未設定門檻時，不會中止，每個標記都只是提示。超出這三者的嚴重程度或門檻，永遠不會相符：格式錯誤的值既不會造成中止，也不會抑制中止。"
+  },
+  "a0083539c0646ea2": {
+    "at": "2026-11-19T09:01:32.422Z",
+    "job": "session-0088-20261119090132",
+    "srcHash": "a0083539c0646ea2",
+    "status": "machine",
+    "text": "**能剖析的範本不代表會被完整帶入。** 剖析只說明文件格式正確；抵達組裝後堆疊的內容是另外逐區段決定的，見[組裝後堆疊中的頂層區段](#top-level-sections-in-the-assembled-stack)——來源式範本與片段經過相同的交代。"
   },
   "a0083d972549d89a": {
     "at": "2026-11-18T18:53:30.310Z",
@@ -74768,6 +75769,13 @@
     "srcHash": "a0de9aac0c002a51",
     "status": "machine",
     "text": "把外來描述轉成草稿實體"
+  },
+  "a0e147657d3f34b9": {
+    "at": "2026-11-19T09:01:32.422Z",
+    "job": "session-0088-20261119090132",
+    "srcHash": "a0e147657d3f34b9",
+    "status": "machine",
+    "text": "`avm/res/cognitive-services/account` 0.19.2：該帳戶與一個嵌入模型部署"
   },
   "a0e98169e69b9b6a": {
     "at": "2026-11-18T12:54:50.695Z",
@@ -75299,6 +76307,13 @@
     "status": "machine",
     "text": "aggrega sign: signing: the references named together need different signing credentials, so nothing was signed (`<registry>` signs with the held key signing.key_path names, `<registry>` signs keyless: no signing.key_path applies). remediation: sign them in separate runs, one per credential: the references on `<registry>`, then the references on `<registry>`; each run signs as it would on its own（aggrega sign：簽署：一併指名的參照需要不同的簽署認證，因此未簽署任何東西（一個登錄庫以 signing.key_path 所指名的持有金鑰簽署，另一個登錄庫以無金鑰方式簽署：沒有適用的 signing.key_path）。補救：分開執行，每個認證各一次：先處理一個登錄庫上的參照，再處理另一個登錄庫上的參照；每次執行都如同單獨執行般簽署）"
   },
+  "a1be6fd94c34496f": {
+    "at": "2026-11-19T09:01:32.422Z",
+    "job": "session-0088-20261119090132",
+    "srcHash": "a1be6fd94c34496f",
+    "status": "machine",
+    "text": "範本宣告為 `NoEcho` 的參數接受動態參照或內建函式，繫結到它的字面值會使建置中止。"
+  },
   "a1c03e064d272ee0": {
     "at": "2026-11-19T04:25:53.489Z",
     "job": "session-0072-20261119042553",
@@ -75478,6 +76493,13 @@
     "srcHash": "a2370859d17f582b",
     "status": "machine",
     "text": "document envelope validation failed (Aggregate, at `<path>`); `<line>`:`<column>`: spec.parameters.`<parameter>`.format: enum: `<format>` does not equal any of: [email uri hostname ipv4 ipv6 uuid date-time date]. correct the document to match its kind's schema（文件封套驗證失敗；列舉：不等於以下任何一個：[email uri hostname ipv4 ipv6 uuid date-time date]。請修正文件以符合其種類的結構描述）"
+  },
+  "a2393b597931f9fb": {
+    "at": "2026-11-19T09:01:32.422Z",
+    "job": "session-0088-20261119090132",
+    "srcHash": "a2393b597931f9fb",
+    "status": "machine",
+    "text": "兩半相遇"
   },
   "a239ab818a1c300e": {
     "at": "2026-11-18T15:38:54.285Z",
@@ -76682,6 +77704,13 @@
     "status": "machine",
     "text": "完整的複合 Aggregates／模組模式討論（包括 Components 不得有子元件的規則），以及 `subsystems` 橫切分組機制，請參閱 [architecture/06-data-taxonomy-and-composition.md §6](../../architecture/06-data-taxonomy-and-composition.md)。具型別的 `parameters` 契約撰寫介面，請參閱 [vocabulary/data-pillars](../vocabulary/data-pillars.md)。"
   },
+  "a4c3f4b12a6f9891": {
+    "at": "2026-11-19T09:01:32.422Z",
+    "job": "session-0088-20261119090132",
+    "srcHash": "a4c3f4b12a6f9891",
+    "status": "machine",
+    "text": "實作"
+  },
   "a4c5579b8ab6123f": {
     "at": "2026-11-19T03:33:10.421Z",
     "job": "session-0067-20261119033310",
@@ -77059,6 +78088,13 @@
     "srcHash": "a5b95186f28effd1",
     "status": "machine",
     "text": "`aggrega lint` 檢查**發布慣例**：命名、類別目錄對齊、註記前綴、結構描述撰寫紀律，以及版本升級幅度。它有三種模式，由引數選定，以三種範圍套用相同的慣例紀律：**整個目錄**（無引數）、單一 **Release 的相依性封閉集**（`--release`），以及**單一實體**檔案（實體路徑，可選擇搭配 `--pre-publish` 發布閘門）。每種範圍回答同一個問題，也就是「這份內容是否遵循目錄的發布紀律？」，只是針對目錄的不同切片。"
+  },
+  "a5b9662c895028ed": {
+    "at": "2026-11-19T09:01:32.422Z",
+    "job": "session-0088-20261119090132",
+    "srcHash": "a5b9662c895028ed",
+    "status": "machine",
+    "text": "它變成的樣子"
   },
   "a5bebd914adfe372": {
     "at": "2026-11-19T08:37:17.957Z",
@@ -77533,6 +78569,13 @@
     "srcHash": "a696305d1d712c08",
     "status": "machine",
     "text": "**建置不接受的已記錄簽章。** 當該列記錄的簽章，其快取的簽章套組在快取它的那次 pull 之後被移除或被更動，或是從另一列複製來的 `signature`（其套組完好無損，但是為另一個成品所製作）時，無論簽署要求怎麼說，建置都會拒絕該列（[A cached signature bundle does not match the digest recorded for it（快取的簽章套組與為它記錄的摘要不符）](../errors/fatal-halts.md#a-cached-signature-bundle-does-not-match-the-digest-recorded-for-it)、[A recorded signature was made for a different artifact（所記錄的簽章是為另一個成品所製作）](../errors/fatal-halts.md#a-recorded-signature-was-made-for-a-different-artifact)）。因此無論要求怎麼說，重新 pull 都會再次向該相依性的登錄庫查詢它的簽章，透過與它所擷取之相依性相同的驗證：驗證的結果會取代該列的簽章，它所指名的套組會再次被快取，不再與其摘要相符的快取副本會被重寫，所以該列與快取所持有的，就是擷取該相依性的那次 pull 所留下的。信任設定不接受的簽章會讓重新 pull 中止，就像它讓擷取了該相依性的 pull 中止一樣，在要求簽章之處登錄庫沒有附加任何簽章時也一樣。當驗證沒有記錄任何東西時（`skip_signature_verification` 在其適用之處，它什麼都不查詢；登錄庫在不要求簽章之處沒有附加簽章；或 `advisory` 登錄庫在沒有任何東西被驗證之處），該列的簽章會被清除，建置在相同的設定下會准許這種情況。"
+  },
+  "a696a165d8f4ca23": {
+    "at": "2026-11-19T09:01:32.422Z",
+    "job": "session-0088-20261119090132",
+    "srcHash": "a696a165d8f4ca23",
+    "status": "machine",
+    "text": "**部署名稱會保有其位置。** 在部署命令需要位置的範圍，名稱若搭配另一個位置重複使用，Azure 會拒絕。"
   },
   "a69e1e25b3803f27": {
     "at": "2026-11-18T17:16:49.357Z",
@@ -78375,6 +79418,13 @@
     "status": "machine",
     "text": "草稿中的機密"
   },
+  "a877501a7ec4be22": {
+    "at": "2026-11-19T09:01:32.422Z",
+    "job": "session-0088-20261119090132",
+    "srcHash": "a877501a7ec4be22",
+    "status": "machine",
+    "text": "生產端範本所部署到的管理群組"
+  },
   "a87a2214fb7fc2a4": {
     "at": "2026-11-19T04:25:53.489Z",
     "job": "session-0072-20261119042553",
@@ -79136,6 +80186,13 @@
     "status": "machine",
     "text": "本指南是架構各章與語言參考的實作搭配讀物。架構說明 Aggrega 為什麼是這樣的形狀，參考規定每個欄位的意義，而本指南教的是*如何坐下來動手撰寫*——該用哪個實體、依什麼順序，以及 CLI 與 AI 助理如何協助你以最少的摩擦得到正確的檔案。"
   },
+  "aa214ea38326805d": {
+    "at": "2026-11-19T09:01:32.422Z",
+    "job": "session-0088-20261119090132",
+    "srcHash": "aa214ea38326805d",
+    "status": "machine",
+    "text": "轉換"
+  },
   "aa255cf29b091969": {
     "at": "2026-11-18T16:18:33.706Z",
     "job": "session-0026-20261118161833",
@@ -79273,6 +80330,13 @@
     "srcHash": "aa5f2490054702ce",
     "status": "machine",
     "text": "inspect 渲染會讀取 IR 的逐支柱 `values_provenance` 與 `infra_provenance` 對應表——在註記展開期間與合成附加項目的注入一併填入——並輸出最能概括各葉節點整體來源的括號形式。inspect 機制是了解特定 Feature 附加項目為何落在特定 Component 上、其值來自何處的標準自我檢視介面。"
+  },
+  "aa6192266b907fa0": {
+    "at": "2026-11-19T09:01:32.422Z",
+    "job": "session-0088-20261119090132",
+    "srcHash": "aa6192266b907fa0",
+    "status": "machine",
+    "text": "來源式範本取得值的方式，與 CloudFormation 本身給範本值的方式相同：透過它所宣告的 `Parameters`。提供來源的任何東西——元件的 Recipe，或附加 Feature 的 FeatureRecipe——的 `valuesMapping`，對它所填入的每個參數寫一個鍵，而提供者會在來源的每個範本中繫結每一個——`Resources`、`Outputs`、`Conditions`、`Rules` 與 SAM 的 `Globals` 中，每個對該參數的 `Ref` 都變成該值，每個把該參數當作變數指名的 `Fn::Sub` 都透過它的變數對應表收到該值，而該參數會離開每個宣告它的範本的 `Parameters`。沒有任何鍵指名的參數，會完全保持範本所寫的樣子，留給堆疊部署時傳入的值或它的 `Default`。"
   },
   "aa66184f20c055e4": {
     "at": "2026-11-19T03:28:20.167Z",
@@ -80151,6 +81215,13 @@
     "status": "machine",
     "text": "**被包裝的 chart。** Recipe 在 `source:` 中指名 chart，並將 `valuesMapping:` 覆蓋其上：值範本就是整個實作，而 Helm 提供者依它渲染 chart 自己的範本。這裡不合成任何工作負載。"
   },
+  "ac42df72db634b78": {
+    "at": "2026-11-19T09:01:32.422Z",
+    "job": "session-0088-20261119090132",
+    "srcHash": "ac42df72db634b78",
+    "status": "machine",
+    "text": "字元集拒絕連字號"
+  },
   "ac43b70728953d60": {
     "at": "2026-11-19T02:53:52.874Z",
     "job": "session-0060-20261119025352",
@@ -80845,6 +81916,13 @@
     "status": "machine",
     "text": "六個附加項目，以及各自渲染什麼"
   },
+  "adbc0893eba33e67": {
+    "at": "2026-11-19T09:01:32.422Z",
+    "job": "session-0088-20261119090132",
+    "srcHash": "adbc0893eba33e67",
+    "status": "machine",
+    "text": "一條規則涵蓋所有其餘字元"
+  },
   "adbda712205c9a74": {
     "at": "2026-11-19T03:03:07.852Z",
     "job": "session-0062-20261119030307",
@@ -80913,6 +81991,13 @@
     "srcHash": "add042f96ced2b40",
     "status": "machine",
     "text": "匯入會在 `source/` 中，於宣告式代理程式旁草擬 Aggrega 檔案。它會將專案與標準程式庫目錄比對，工作區的預設登錄庫將該目錄發布為簽署快照：第一次匯入會擷取它、驗證它，將它保存在工作區的內容快取中，並在寫於草稿旁的記錄中以其摘要指名它。指名自己目錄資料夾的工作區，無論是在 `AGGREGA_CATALOG_DIRS` 中，或是在 `workspace.catalog_dirs` 之下，都改為針對那些目錄匯入。匯入從 `import-answers.yaml` 讀取映像檔，然後 pull 草擬的 Release 所相依的內容，所以建置會立即接續："
+  },
+  "add7b3a331bffcf3": {
+    "at": "2026-11-19T09:01:32.422Z",
+    "job": "session-0088-20261119090132",
+    "srcHash": "add7b3a331bffcf3",
+    "status": "machine",
+    "text": "資源邏輯 ID 超出字元集時中止"
   },
   "add81717091d424f": {
     "at": "2026-11-18T11:36:26.060Z",
@@ -84002,6 +85087,13 @@
     "status": "machine",
     "text": "connection alias is already used by another connection of the same component (`\"<alias>\"`, on component `\"<component>\"`, this connection wired into socket `\"<socket>\"`, with target `\"<target>\"`, written in `\"<file>\"`, at `\"<key path>\"`, the connection already holding the alias wired into socket `\"<socket>\"`, with target `\"<target>\"`, written in `\"<file>\"`, at `\"<key path>\"`). Give one of the two connections an alias of its own: a component reads each connection by its alias, whatever socket it is wired into. A list entry takes its target's name as its alias, so a target listed twice is listed once, or written as two keyed entries under two aliases.（連線別名已被同一元件的另一條連線使用。請為兩條連線之一指定專屬的別名：元件以別名讀取每條連線，無論連接到哪個插槽。清單項目以其目標的名稱作為別名，所以被列出兩次的目標應只列一次，或寫成兩個有鍵項目、使用兩個別名）"
   },
+  "b3c6e8c730161195": {
+    "at": "2026-11-19T09:01:32.422Z",
+    "job": "session-0088-20261119090132",
+    "srcHash": "b3c6e8c730161195",
+    "status": "machine",
+    "text": "部署順序"
+  },
   "b3c95d33a8f526f7": {
     "at": "2026-11-18T16:02:15.115Z",
     "job": "session-0023-20261118160215",
@@ -85592,6 +86684,13 @@
     "status": "machine",
     "text": "[詞彙概觀](04-vocabulary.md)"
   },
+  "b759caf7648d0119": {
+    "at": "2026-11-19T09:01:32.422Z",
+    "job": "session-0088-20261119090132",
+    "srcHash": "b759caf7648d0119",
+    "status": "machine",
+    "text": "初始化指令碼、設定檔、其他連接埠、服務未提供的儲存大小；來自 Key Vault 機密以外任何來源的管理員密碼"
+  },
   "b75bbb47b5388ff6": {
     "at": "2026-11-19T03:15:13.861Z",
     "job": "session-0064-20261119031513",
@@ -86586,6 +87685,13 @@
     "status": "machine",
     "text": "建置沒有寫入的檔案"
   },
+  "b9a55574245d2c74": {
+    "at": "2026-11-19T09:01:32.422Z",
+    "job": "session-0088-20261119090132",
+    "srcHash": "b9a55574245d2c74",
+    "status": "machine",
+    "text": "組裝後的範本是純 JSON。內建函式原樣發出，絕不在建置時求值——編譯器無法解析只在堆疊部署之後才存在的值，而對它求值會破壞預先編譯的契約。"
+  },
   "b9a595fd74b81460": {
     "at": "2026-11-19T08:42:24.489Z",
     "job": "session-0085-20261119084224",
@@ -87122,6 +88228,13 @@
     "status": "machine",
     "text": "當你的 Aggrega 工作區不是你所開啟的資料夾——它位於該資料夾之上，或在其內——Aggrega workspace 列會再帶一個控制項，它會將該工作區開啟為你的專案資料夾。它是被提供而不是替你完成的，而它的名稱說明它的代價以及去向：開啟資料夾會重新載入視窗，因此語言伺服器與此擴充功能都會重新啟動，而視窗中任何未儲存的內容都會隨之消失。當你所開啟的資料夾本身就是 Aggrega 工作區時，沒有東西可開啟，且不會繪製該控制項。"
   },
+  "ba725def2c4fbdab": {
+    "at": "2026-11-19T09:01:32.422Z",
+    "job": "session-0088-20261119090132",
+    "srcHash": "ba725def2c4fbdab",
+    "status": "machine",
+    "text": "cloudformation Recipe 撰寫的是**片段**——由單一元件貢獻的 CloudFormation 資源——而不是完整範本。當邊界的元件渲染時，提供者會把分派群組中的每個片段組裝成一個堆疊範本：資源合併在單一 `Resources` 對應表之下，每個元件的 `provides` 值會浮現為堆疊的 `Outputs`，範本的其他頂層區段則在[組裝後堆疊中的頂層區段](#top-level-sections-in-the-assembled-stack)下逐一說明。可接受兩種撰寫形式："
+  },
   "ba778988bcea48e7": {
     "at": "2026-11-19T07:35:31.572Z",
     "job": "session-0079-20261119073531",
@@ -87453,6 +88566,13 @@
     "srcHash": "bb055208fe22c956",
     "status": "machine",
     "text": "**修正方式：** 若連線已承載的純量值就夠了，就什麼也不用做——這是通知，而不是錯誤。若需要原生連接，兩端就必須透過同一個提供者渲染：將其中一端移到經由另一端提供者路由的邊界，或是以一個提供者同時服務兩種能力。若兩者都不可能，部署所擁有的就是承載值的形式，而連線可以運作。"
+  },
+  "bb05db2f7454482a": {
+    "at": "2026-11-19T09:01:32.422Z",
+    "job": "session-0088-20261119090132",
+    "srcHash": "bb05db2f7454482a",
+    "status": "machine",
+    "text": "`avm/res/app/container-app` 0.23.1：一個具內部入口的 Container Apps 應用程式，位於操作員的環境中"
   },
   "bb0a97e56d6c754a": {
     "at": "2026-11-19T03:15:13.861Z",
@@ -88494,6 +89614,13 @@
     "status": "machine",
     "text": "將 `multi_az = true` 傳給模組"
   },
+  "bd39d0aa9451713d": {
+    "at": "2026-11-19T09:01:32.422Z",
+    "job": "session-0088-20261119090132",
+    "srcHash": "bd39d0aa9451713d",
+    "status": "machine",
+    "text": "你所寫的內容"
+  },
   "bd3a809b4ff7344f": {
     "at": "2026-11-18T12:45:41.103Z",
     "job": "session-0010-20261118124541",
@@ -89086,6 +90213,13 @@
     "status": "machine",
     "text": "`suspend`"
   },
+  "be953d3bda0eaf7f": {
+    "at": "2026-11-19T09:01:32.422Z",
+    "job": "session-0088-20261119090132",
+    "srcHash": "be953d3bda0eaf7f",
+    "status": "machine",
+    "text": "組裝成堆疊的片段配方"
+  },
   "be980ec2f19f1f49": {
     "at": "2026-11-18T18:07:33.777Z",
     "job": "session-0044-20261118180733",
@@ -89380,6 +90514,13 @@
     "srcHash": "bf20a1634d9b28a6",
     "status": "machine",
     "text": "拒絕發生在外掛程式執行之前，被拒絕的外掛程式會在失敗訊息傳出之前就關閉，因此它所要求的任何東西都不會被授予，即使只是片刻也不會。"
+  },
+  "bf22ce118e12a678": {
+    "at": "2026-11-19T09:01:32.422Z",
+    "job": "session-0088-20261119090132",
+    "srcHash": "bf22ce118e12a678",
+    "status": "machine",
+    "text": "`arm` 不做的事"
   },
   "bf2cae3269d0cc41": {
     "at": "2026-11-19T03:33:10.421Z",
@@ -89761,6 +90902,13 @@
     "status": "machine",
     "text": "這一切之所以重要，是因為需要名稱的工具會**拒絕**它們無法解析的名稱，而不是以空的結果回答。這種拒絕是刻意的：空的回答會把打錯的名稱呈現為沒有任何內容可提供的主體，但這也代表手上沒有名稱的呼叫者無法靠猜測取得名稱。列舉才是取得名稱的方法。"
   },
+  "bfe49312f21f1510": {
+    "at": "2026-11-19T09:01:32.422Z",
+    "job": "session-0088-20261119090132",
+    "srcHash": "bfe49312f21f1510",
+    "status": "machine",
+    "text": "另一個元件從不同堆疊發布的值，會以跨堆疊參照的形式抵達範本，與片段所收到的 `Fn::ImportValue` 或 `Fn::GetStackOutput` 相同（請參閱[跨堆疊連接](#cross-stack-wiring)），出現在範本參照該參數的每一個位置。"
+  },
   "bfeb02c78d1495d7": {
     "at": "2026-11-19T03:10:05.727Z",
     "job": "session-0063-20261119031005",
@@ -89821,6 +90969,13 @@
     "srcHash": "c000c7c98f76d361",
     "status": "machine",
     "text": "**來源 URL 不帶認證。** 來源 `url` 在其主機之前寫了使用者的 Recipe 或 FeatureRecipe——`https://user:token@charts.example.com/…`，或單獨寫成 `https://token@charts.example.com/…` 的權杖——會在文件被讀取時以 `E0361` 被拒絕，早於任何擷取：驗證該 Recipe 會拒絕它，每個觸及它的 pull、pin 與建置也是。訊息指名主機而絕不指名認證：[A source URL carries a credential（來源 URL 帶有認證）](../errors/fatal-halts.md#a-source-url-carries-a-credential)。請改把認證放在 netrc 檔案的 `machine` 項目中。透過 SSH 時，單獨寫的使用者——`ssh://git@github.com/…`——指名的是帳號而不是機密，會被接受，而寫在那裡的密碼也會被拒絕。"
+  },
+  "c000f860e90df002": {
+    "at": "2026-11-19T09:01:32.422Z",
+    "job": "session-0088-20261119090132",
+    "srcHash": "c000f860e90df002",
+    "status": "machine",
+    "text": "衍生的名稱與直接傳遞的名稱，就在這裡分道揚鑣。輸出名稱由提供者建立，它會對發布的元件與項目編碼，因此不論你如何拼寫任何一半，輸出名稱都落在字元集之內。資源邏輯 ID 則是直接傳遞，因此 Recipe 寫了什麼，範本就得到什麼。"
   },
   "c006d5d719a03589": {
     "at": "2026-11-19T07:39:19.402Z",
@@ -89906,6 +91061,13 @@
     "status": "machine",
     "text": "它們讀取 `resource_types`、`target_namespace` 與 `render_mode`，如[設定](#settings)所述，不讀取其他設定。在 `render_mode: llm` 下，決定記錄（其中以 `swapHint` 記載每個型別所近似的目錄 Component）會單獨寫成 `import-decisions.json`，不寫任何草稿。"
   },
+  "c029e06a4ca7a121": {
+    "at": "2026-11-19T09:01:32.422Z",
+    "job": "session-0088-20261119090132",
+    "srcHash": "c029e06a4ca7a121",
+    "status": "machine",
+    "text": "給定相同的輸入，提供者在各次執行間會發出位元組完全相同的範本：符號名稱、輸出名稱、區段內容與 `dependsOn` 項目都是確定性的，以排序後的鍵、兩個空格的縮排與一個結尾換行字元寫出。`arm-template.json` 在審查時的差異很乾淨。"
+  },
   "c02be1c7846c9468": {
     "at": "2026-11-18T18:45:13.017Z",
     "job": "session-0053-20261118184513",
@@ -89957,6 +91119,13 @@
     "srcHash": "c041a2c1c668ff6a",
     "status": "machine",
     "text": "目標平台在**機密範圍**內以參照來解析機密：一個資源可以指名另一個資源的邊界。當連線的兩端位於同一個範圍時，兩者參照同一個機密資源。當它們位於不同範圍時，各端持有自己的機密資源，由同一個儲存項目實現。Manifest 選擇各端的實現——對該型別的每個附加項目依 Feature 型別，或對單一附加項目依其名稱。"
+  },
+  "c044f5c7da4a2471": {
+    "at": "2026-11-19T09:01:32.422Z",
+    "job": "session-0088-20261119090132",
+    "srcHash": "c044f5c7da4a2471",
+    "status": "machine",
+    "text": "這裡同一個詞涵蓋兩個不同的位置，其中只有第一個屬於你。上面清單中的 `Metadata` 是範本自己的**頂層區段**，一個由你所選名稱組成的對應表。個別資源也帶有自己的 `Metadata` **屬性**，建置就是在那裡寫入出處——位於單一保留的 `aggrega.ai/` 鍵之下，加在你於該處所寫的任何內容旁，而不是取代它。因此出現在資源內的出處項目，不是你撰寫的，也不是頂層區段所帶入的。"
   },
   "c053f030024399a8": {
     "at": "2026-11-18T07:06:16.115Z",
@@ -90500,6 +91669,13 @@
     "status": "machine",
     "text": "`description`，圖的描述，設定有給時；"
   },
+  "c163175929ca03ba": {
+    "at": "2026-11-19T09:01:32.422Z",
+    "job": "session-0088-20261119090132",
+    "srcHash": "c163175929ca03ba",
+    "status": "machine",
+    "text": "**撰寫的 `dependsOn` 會被擴充，絕不被取代。** 資源所寫的項目維持在前，順序與其所寫相同，波次的項目接在後面。單一符號名稱與清單兩者都會被讀取，合併後的值是清單。兩者皆非的 `dependsOn` 會中止，並指名指標。宣告為 `existing: true` 的資源既不是相依方也不是目標，因為範本不會部署它。"
+  },
   "c16b2dc2a9dcdf20": {
     "at": "2026-11-18T17:16:49.357Z",
     "job": "session-0034-20261118171649",
@@ -90665,6 +91841,13 @@
     "srcHash": "c1c20a17fd4187e1",
     "status": "machine",
     "text": "這樣的一對來自於在各個撰寫介面單獨看都合法的撰寫方式：元件自己的項目與附加項目在同一插槽與別名上；一個清單把同一目標寫了兩次（`models: [llama, llama]`）；同一別名寫在兩個插槽上（`models: { local: … }` 與 `databases: { local: … }` 並列）；兩個附加項目連接同一別名；或是 Release 項目在 Aggregate 留作未繫結的插槽上畫出連線，所用別名卻是 Aggregate 已在另一個插槽上使用過的。有兩種相近的形態不會走到這個中止：在同一個有鍵項目區塊中把一個鍵寫兩次，會使文件無法載入；而 Release 項目位於另一個區塊已畫出的插槽與別名上時，是在設定該連線——或者若指名不同的目標，則作為重新指定目標而中止——而不是畫出第二條。"
+  },
+  "c1c23a28e5018754": {
+    "at": "2026-11-19T09:01:32.422Z",
+    "job": "session-0088-20261119090132",
+    "srcHash": "c1c23a28e5018754",
+    "status": "machine",
+    "text": "生產端範本所部署到的資源群組"
   },
   "c1c50a9cffc9f47e": {
     "at": "2026-11-19T03:10:05.727Z",
@@ -90838,6 +92021,13 @@
     "status": "machine",
     "text": "**服務的連接埠到達多遠。** `type` 說明它，而每個目標以自己的用語渲染："
   },
+  "c21fea20d3826f4f": {
+    "at": "2026-11-19T09:01:32.422Z",
+    "job": "session-0088-20261119090132",
+    "srcHash": "c21fea20d3826f4f",
+    "status": "machine",
+    "text": "目錄中的 `arm` Recipes"
+  },
   "c2240ccfe0478f7e": {
     "at": "2026-11-18T15:58:06.819Z",
     "job": "session-0022-20261118155806",
@@ -90928,6 +92118,13 @@
     "srcHash": "c2647e809c6df765",
     "status": "machine",
     "text": "`release-negative-without-omits.yaml`、`release-negative-stale-omits.yaml` — 自有憑證模式經由各個教學 Recipe；兩者都中止。"
+  },
+  "c2678af44f0314bd": {
+    "at": "2026-11-19T09:01:32.422Z",
+    "job": "session-0088-20261119090132",
+    "srcHash": "c2678af44f0314bd",
+    "status": "machine",
+    "text": "中止會指名其 Recipe 寫下該名稱的貢獻者、寫下該名稱的區段、名稱本身，以及其中每個不能出現在那裡的字元。**區段就是要在你的 Recipes 中搜尋的詞**：這些名稱完全帶入在你寫下它們的區段之下，因此它是同時出現在訊息與你自己檔案中的唯一一個詞。把項目改名為只含字母與數字即可排除，這就是補救的全部——資源邏輯 ID 還有讓 Recipe 衍生 ID 而不是直接傳遞名稱的替代做法，而這裡沒有可衍生的東西，因為區段中的名稱*就是*你所寫的。"
   },
   "c26a6d549aebd15a": {
     "at": "2026-11-19T04:25:53.489Z",
@@ -91835,6 +93032,13 @@
     "status": "machine",
     "text": "**它會寫入工作區內，並觸及實體的來源所指名的主機**——chart 存放庫、Git 主機、URL——所以透過 HTTP 時，帶有可准許 `pull` 之範圍的認證可使用它，只能讀取的認證則被拒絕。透過標準輸入與輸出時，同一項能力也可經由 `cli-pin` 取得，它會執行該命令；透過 HTTP 時該工具不存在。"
   },
+  "c4664205ed93df19": {
+    "at": "2026-11-19T09:01:32.422Z",
+    "job": "session-0088-20261119090132",
+    "srcHash": "c4664205ed93df19",
+    "status": "machine",
+    "text": "`--action-on-unmanage detachAll` 會在後續範本不再宣告某個資源時讓該資源維持原狀，`--deny-settings-mode none` 則不會對堆疊所管理的內容設定拒絕指派；若堆疊應執行更多強制要求，請選擇其他值。提供者不決定其中任何一項——這些命令是操作員的。"
+  },
   "c47394426e829c39": {
     "at": "2026-11-18T11:27:19.320Z",
     "job": "session-0003-20261118112719",
@@ -92401,6 +93605,13 @@
     "status": "machine",
     "text": "攜帶伺服器設定（檔案儲存後端與 API 監聽器）的 `ConfigMap`，"
   },
+  "c5dfa3dbe79ab7d8": {
+    "at": "2026-11-19T09:01:32.422Z",
+    "job": "session-0088-20261119090132",
+    "srcHash": "c5dfa3dbe79ab7d8",
+    "status": "machine",
+    "text": "**完全以你所寫的名稱帶入。** `Parameters`、`Mappings`、`Conditions`、`Metadata` 與 `Rules`。這些每一個都是以你所選名稱為鍵的對應表，因此每個元件的項目都以那些名稱、不經改寫地抵達組裝後的堆疊——這正是讓資源的 `Condition:`、`Fn::FindInMap` 或對參數的 `Ref`，能對照隨之而來的宣告解析的原因。每一個都各自帶入，因為每一個都是各自撰寫的：規則是針對同一份文件的參數做斷言，條件可以完全不參照任何參數，而 CloudFormation 不允許在對應中參照參數。"
+  },
   "c5e8100c83d78af5": {
     "at": "2026-11-18T16:37:22.573Z",
     "job": "session-0027-20261118163722",
@@ -92857,6 +94068,13 @@
     "status": "machine",
     "text": "flow"
   },
+  "c7023e8a9ed110e0": {
+    "at": "2026-11-19T09:01:32.422Z",
+    "job": "session-0088-20261119090132",
+    "srcHash": "c7023e8a9ed110e0",
+    "status": "machine",
+    "text": "註記"
+  },
   "c702647f184f69bd": {
     "at": "2026-11-18T17:22:53.980Z",
     "job": "session-0037-20261118172253",
@@ -93298,6 +94516,13 @@
     "srcHash": "c7c309e8ad1b8a97",
     "status": "machine",
     "text": "附加項目的說明文字說出了位置本身說不出的事：一個元件可以帶有多個附加項目，而宣告在邊界的附加項目會作用到該邊界所含的每個元件。句子本身在兩條路徑上都指名一個 Recipe；位置與附加項目說明文字合起來，才說明該開啟哪個文件。"
+  },
+  "c7d3373f135600ad": {
+    "at": "2026-11-19T09:01:32.422Z",
+    "job": "session-0088-20261119090132",
+    "srcHash": "c7d3373f135600ad",
+    "status": "machine",
+    "text": "不渲染任何資源；將 Key Vault 機密的資源 ID 發布為使用端 Recipe 所用的定位器"
   },
   "c7d61e6454232f9f": {
     "at": "2026-11-19T03:28:20.167Z",
@@ -94244,6 +95469,13 @@
     "status": "machine",
     "text": "**你在工作區之外指名的 Release 或 Manifest，是同一條規則套用在檔案上**：它自己的目錄就是根，因此它以路徑所指名的內容——以及它的 `extends:` 鏈所通往的每個 Release 所指名的內容——都必須留在該目錄之內。與其 Aggregate 和 Manifest 並排存放的 Release，在任何地方都能建置；而位於慣用 `releases/` 結構、指名 `../aggregates/app.yaml` 的 Release，則改由它自己的工作區建置。"
   },
+  "c9a546e733e82fe2": {
+    "at": "2026-11-19T09:01:32.422Z",
+    "job": "session-0088-20261119090132",
+    "srcHash": "c9a546e733e82fe2",
+    "status": "machine",
+    "text": "**單一元件可能兩次佔用同一個名稱。** Recipe 會貢獻多個片段——多個 `artifacts:` 項目，或包含多個範本的來源式目錄——而它們每一個都會組裝進同一個堆疊，因此元件自己的片段彼此共用堆疊的名稱，就如同它們在元件之間共用一樣。兩個片段若為同一個名稱給出兩個不同的本體，會使建置中止，而中止會指名該名稱所在的鍵空間——資源邏輯 ID 或輸出名稱——以及元件與名稱本身。兩個空間都可能以這種方式觸及：兩個片段可以在不同的資源上撰寫同一個資源邏輯 ID，而元件經由兩條路線到達它的輸出名稱，即明確的 `Outputs:` 區塊與它的 `provides:` 項目，因此各帶有同一個名稱的項目也會在那裡相遇。"
+  },
   "c9a596f75b71852c": {
     "at": "2026-11-18T13:17:56.240Z",
     "job": "session-0014-20261118131756",
@@ -94512,6 +95744,13 @@
     "srcHash": "ca201386cf44963a",
     "status": "machine",
     "text": "這使 `--release` 成為真正的建置前檢查：它在建置之前抓出建置會拒絕的東西——即建置的相依性驗證，但不含渲染。它不執行渲染，也不觸發網路 pull：閉包從本機目錄解析（以及 Release 鎖定檔的固定項目，若存在）；需要鎖定檔的登錄庫固定相依性集合，會回報如實的無法解析參照錯誤，而非去擷取。窄化僅作為建議呈現，絕不強制。"
+  },
+  "ca22703387eb8725": {
+    "at": "2026-11-19T09:01:32.422Z",
+    "job": "session-0088-20261119090132",
+    "srcHash": "ca22703387eb8725",
+    "status": "machine",
+    "text": "Release 邊界的 `syncWave:` 值決定該邊界所組裝成之範本中各資源的順序。邊界中的每個元件都繼承該邊界的波次，而當多個邊界解析到同一個輸出目錄時，範本會包含不只一個波次；提供者把它們之間的順序表示為 `dependsOn`。"
   },
   "ca25aa40758742c5": {
     "at": "2026-11-18T12:33:55.728Z",
@@ -94870,6 +96109,13 @@
     "srcHash": "cabd10b117be845d",
     "status": "machine",
     "text": "輸出的訊息依序指名實體與其版本及宣告契約的欄位，接著是該契約所限制的支柱，最後是失敗內容——此處是帶有打錯關鍵字的插槽契約："
+  },
+  "cabd7336c1485a02": {
+    "at": "2026-11-19T09:01:32.422Z",
+    "job": "session-0088-20261119090132",
+    "srcHash": "cabd7336c1485a02",
+    "status": "machine",
+    "text": "**片段（成品）輸入。** Recipe 直接撰寫資源片段；提供者會把它們正規化為純 JSON 長格式內建函式，並合併進組裝後的堆疊。"
   },
   "cac3a7fec22c7151": {
     "at": "2026-11-19T08:42:24.489Z",
@@ -95324,6 +96570,13 @@
     "status": "machine",
     "text": "`check.sh` 先對每個對照組各建置一次，不附加任何原則，作為參照，然後透過 build-release 輔助工具，在每個引擎下建置每個 Release。對照組必須完成，並寫出與其參照逐位元組相同的檔案；刻意放入違規的 Release 必須以 `E0005` 和預期的訊息中止，除此之外沒有其他拒絕，且不寫出 `dist/`。兩個引擎都要符合同一則訊息。它每次建置印出一行，若有任何結果不同就以 1 結束，並印出該建置的輸出："
   },
+  "cbb636e27a700c45": {
+    "at": "2026-11-19T09:01:32.422Z",
+    "job": "session-0088-20261119090132",
+    "srcHash": "cbb636e27a700c45",
+    "status": "machine",
+    "text": "cloudformation 提供者會把 Aggrega Recipes 渲染成 AWS CloudFormation 堆疊範本。在此提供者之下渲染到同一個輸出目錄的每個元件，都會組裝成一個堆疊，並發出為單一純 JSON 範本，使用長格式內建函式。因此在一般情況下，一個邊界會成為一個堆疊——而 `directory:` 解析到同一路徑的兩個邊界，會一起組裝成一個堆疊，共用該範本的名稱。如同每個 Aggrega 提供者，它是離線且封閉的——Aggrega 建置是預先編譯，因此提供者絕不呼叫 AWS、絕不解析帳戶產生的識別碼，也絕不執行 CloudFormation。僅限執行階段的值維持為 CloudFormation 內建函式參照（`Fn::GetAtt`、`Fn::ImportValue`、`Fn::GetStackOutput`），由 CloudFormation 在部署時解析。"
+  },
   "cbc239182ee3e8a7": {
     "at": "2026-11-18T15:38:54.285Z",
     "job": "session-0018-20261118153854",
@@ -95573,6 +96826,13 @@
     "status": "machine",
     "text": "[`aggrega pin`](cli/aggrega-pin.md)——在其旁的 `entity.lock` 中記錄實體外部輸入的內容固定。"
   },
+  "cc3911806ababa0a": {
+    "at": "2026-11-19T09:01:32.422Z",
+    "job": "session-0088-20261119090132",
+    "srcHash": "cc3911806ababa0a",
+    "status": "machine",
+    "text": "`policy` 是為管理群組撰寫的原則定義，`group` 為訂閱宣告資源群組 `orders-rg`，`store` 是為資源群組撰寫的儲存體帳戶，範本如下，已省略出處與未顯示的欄位："
+  },
   "cc455cb7a080fc20": {
     "at": "2026-11-18T18:36:37.552Z",
     "job": "session-0050-20261118183637",
@@ -95816,6 +97076,13 @@
     "srcHash": "ccbb2ad42af913bb",
     "status": "machine",
     "text": "位置是作者所寫的鍵路徑。在 Aggregate 中，元件自己的區塊為 `.spec.components.<component>.inject.<mechanism>`，其某個連線上的區塊為 `.spec.components.<component>.uses.<socket>.<alias>.inject.<mechanism>`，附加項目的為 `.spec.components.<component>.features.<attachment>…`，其中元件或附加項目所宣告的每個子系統以 `.subsystems.<name>` 表示。在 Release 中，是附加項目所繪製的連線上的區塊，經由該附加項目——整個邊界附加的為 `.spec.boundaries.<boundary>.features.<attachment>.uses.<socket>.<alias>.inject.<mechanism>`，元件上的為 `.spec.boundaries.<boundary>.components.<component>.features.<attachment>…`，其中每個巢狀邊界以 `.boundaries.<name>` 表示，元件被指名所經過的每個路由項目以 `.aggregates.<module>` 表示。"
+  },
+  "ccbd34f041a0eb3a": {
+    "at": "2026-11-19T09:01:32.422Z",
+    "job": "session-0088-20261119090132",
+    "srcHash": "ccbd34f041a0eb3a",
+    "status": "machine",
+    "text": "生產端範本所部署到的訂閱 ID"
   },
   "ccc2f7295cd5bf9d": {
     "at": "2026-11-18T07:13:03.194Z",
@@ -96506,6 +97773,17 @@
     "status": "machine",
     "text": "Team Topologies 與四個領域"
   },
+  "ce196454878d9501": {
+    "at": "2026-11-19T09:01:32.422Z",
+    "job": "session-0088-20261119090132",
+    "revision": {
+      "from": "5f0f6660445613e6",
+      "reviewed": false
+    },
+    "srcHash": "ce196454878d9501",
+    "status": "machine",
+    "text": "一個 `arm` Recipe 撰寫的是**片段**——由單一元件貢獻的 ARM 資源——而不是完整範本。當邊界的元件渲染時，提供者會把分派群組中的每個片段組裝成一個範本：資源合併在同一個 `resources` 物件之下，每個片段所撰寫的 `outputs` 會帶入範本的 `outputs`，範本的其他頂層區段則在[組裝後範本中的頂層區段](#top-level-sections-in-the-assembled-template)下逐一說明。可接受兩種撰寫形式："
+  },
   "ce1ee330672f9948": {
     "at": "2026-11-18T18:07:33.777Z",
     "job": "session-0044-20261118180733",
@@ -96815,6 +98093,13 @@
     "srcHash": "ce8c06907a5ad2fc",
     "status": "machine",
     "text": "**獨特之處：填入受標籤選擇器約束。** 槽位可以說明*哪一類東西*可以填入它（`selector: \"feature.aggrega.ai/kind=secret\"`），而不必指名某個特定實作。檢查方式是標籤集合的評估，因此實體可以接受一整個它從未聽過的填入物家族，而新的填入物只要帶有正確的標籤就符合資格。"
+  },
+  "ce959817b4cbae66": {
+    "at": "2026-11-19T09:01:32.422Z",
+    "job": "session-0088-20261119090132",
+    "srcHash": "ce959817b4cbae66",
+    "status": "machine",
+    "text": "部署名稱"
   },
   "ce97a5a035346a19": {
     "at": "2026-11-19T04:25:53.489Z",
@@ -97140,6 +98425,13 @@
     "srcHash": "cf4e8dbad1dda5f8",
     "status": "machine",
     "text": "當維運工程師執行 `aggrega push` 時，CLI 會以該形式發布實體，並在其版本上不可變更。使用端透過三層解析模型擷取它，將它快取在本機的 `.aggrega/cache/` 中，並把它所攜帶的內容放入實體的快取槽位（§4）——封存檔的檔案，或單獨的文件。"
+  },
+  "cf4f27ec370afed6": {
+    "at": "2026-11-19T09:01:32.422Z",
+    "job": "session-0088-20261119090132",
+    "srcHash": "cf4f27ec370afed6",
+    "status": "machine",
+    "text": "帶入的區段名稱超出字元集時中止"
   },
   "cf4f3bcca68cc7d6": {
     "at": "2026-11-18T15:43:56.416Z",
@@ -97654,6 +98946,13 @@
     "status": "machine",
     "text": "`E0321`，出現在實體旁的檔案上"
   },
+  "d03709908c9f8145": {
+    "at": "2026-11-19T09:01:32.422Z",
+    "job": "session-0088-20261119090132",
+    "srcHash": "d03709908c9f8145",
+    "status": "machine",
+    "text": "連續兩個開頭字元，兩半都不可能含有"
+  },
   "d041ff748d017a4c": {
     "at": "2026-11-19T07:12:05.895Z",
     "job": "session-0076-20261119071205",
@@ -98095,6 +99394,13 @@
     "status": "machine",
     "text": "An `active:` toggle does not resolve to true or false（切換開關未解析為 true 或 false）"
   },
+  "d11fd421963c3395": {
+    "at": "2026-11-19T09:01:32.422Z",
+    "job": "session-0088-20261119090132",
+    "srcHash": "d11fd421963c3395",
+    "status": "machine",
+    "text": "Provider 渲染在 WebAssembly 沙箱內執行。Go 編譯器是主機；提供者渲染 Plugin 是客體。對每個節點，編譯器會把該節點的渲染情境交給外掛程式，外掛程式則回傳它所渲染的檔案。這份契約對每個提供者都一致："
+  },
   "d12a34e430ed5f26": {
     "at": "2026-11-19T08:37:17.957Z",
     "job": "session-0084-20261119083717",
@@ -98164,6 +99470,13 @@
     "srcHash": "d152a3d1090a35ae",
     "status": "machine",
     "text": "部署範本"
+  },
+  "d152cd425a6c2b68": {
+    "at": "2026-11-19T09:01:32.422Z",
+    "job": "session-0088-20261119090132",
+    "srcHash": "d152cd425a6c2b68",
+    "status": "machine",
+    "text": "FeatureRecipe 由實例與附加鍵、以空格連接再摺疊來為資源命名，是需要留意的形狀——`app` 加 `cache`，與 `app-cache` 加空無一物，兩者都摺疊成 `AppCache`，兩者在摺疊的任何性質發揮作用之前就衝突了。有兩件事能讓這樣的名稱保持區別，而且兩件都由你而不是提供者負責："
   },
   "d15573c13e7f7c4d": {
     "at": "2026-11-19T03:28:20.167Z",
@@ -99500,6 +100813,13 @@
     "status": "machine",
     "text": "**本機開發橋接模式。** `extends` 的常見用途，是在不更動 Aggregate 的情況下，為本機原型設計換掉認證 FeatureRecipe。在正式環境中，基底 Manifest 在 `features.type` 層將認證 Feature `core/aws-secrets-manager` 對應到正式環境的 FeatureRecipe。為了本機原型設計，平台團隊提供擴充基底的 `local-manifest`，並精準覆寫認證 Feature 的對應，改用 `host-env-injector`——一個本機 FeatureRecipe，將認證以變數參照（例如 `${SECRET_NAME}`）的形式傳遞到 Compose 檔案中，而 Docker Compose 會在堆疊啟動時，從 shell 環境或 `.env` 檔案進行替換。開發者得到標準的本機工作流程，而 Aggregate 對正式環境仍然與能力無關。"
   },
+  "d48742eb93d40438": {
+    "at": "2026-11-19T09:01:32.422Z",
+    "job": "session-0088-20261119090132",
+    "srcHash": "d48742eb93d40438",
+    "status": "machine",
+    "text": "Key Vault 路線"
+  },
   "d48cb06fafd5eb94": {
     "at": "2026-11-18T17:00:35.934Z",
     "job": "session-0031-20261118170035",
@@ -99582,6 +100902,13 @@
     "srcHash": "d4c0eb775416d9b7",
     "status": "machine",
     "text": "`boundaries`——放置在邊界中的元件或模組，以及在它們之間跨越的內容。"
+  },
+  "d4c622235c4da8aa": {
+    "at": "2026-11-19T09:01:32.422Z",
+    "job": "session-0088-20261119090132",
+    "srcHash": "d4c622235c4da8aa",
+    "status": "machine",
+    "text": "**資源群組由邊界指名。** 有資源群組內容時，`aggrega.ai/azure-resource-group` 為必要：不存在或為空時，建置會中止並指名該註記；兩個元件指名不同的資源群組時，會中止並指名兩者。附加到整個邊界的 Feature，其範圍、訂閱與資源群組取其邊界元件所解析出的同一個值，因此它的內容會與那些元件的內容放在一起。巢狀部署執行時，資源群組必須已存在。若範本本身宣告了它——即 `Microsoft.Resources/resourceGroups` 資源，其 `name` 與註記的值完全相同，且未宣告為 `existing: true`——巢狀部署會相依於該資源，因此資源群組會先部署。以任何其他方式指名的群組，例如以運算式指名，則不會被比對，也不會新增任何東西：這時群組要由你自行建立。"
   },
   "d4c8f9ea77449077": {
     "at": "2026-11-19T07:28:26.849Z",
@@ -99740,6 +101067,13 @@
     "srcHash": "d5020edd50066ccf",
     "status": "machine",
     "text": "**這是 `index` 單獨的特性，沒有任何介面的缺少鍵原則會改變它。** 在開放支柱下對未設定鍵的點讀取，在值範本上仍然渲染為空無一物，如上方的「Missing template key — asymmetric policy（缺少範本鍵：非對稱原則）」所述，而測試作者是否提供了這種鍵的範本不受影響。會中止的是對 `index` 要求對應表未包含的鍵。`index` 是範本到達名稱由它計算的鍵的方式，例如以使用的 Recipe 所選的變數名稱讀取認證，而若沒有這個中止，該讀取會把範本引擎的預留位置文字 `<no value>` 放進成品，建置卻成功：伺服器就以該文字作為其金鑰啟動。`index` 給出的其他每個答案都是範本引擎自己的：清單或字串中的位置、超出範圍的位置、對應表所持有的鍵，包括值為 null 的鍵，它會印出 `<no value>`。"
+  },
+  "d503ead5b10c67d6": {
+    "at": "2026-11-19T09:01:32.422Z",
+    "job": "session-0088-20261119090132",
+    "srcHash": "d503ead5b10c67d6",
+    "status": "machine",
+    "text": "操作員所負責的事"
   },
   "d5050b212f9d411d": {
     "at": "2026-11-19T04:45:51.548Z",
@@ -100308,6 +101642,13 @@
     "status": "machine",
     "text": "**不含機密的設定。** 物件儲存體設定選用 AWS SDK 認證鏈，因此渲染出的設定不帶任何機密；認證只以環境變數的形式流動。"
   },
+  "d6983fa1aaf84811": {
+    "at": "2026-11-19T09:01:32.422Z",
+    "job": "session-0088-20261119090132",
+    "srcHash": "d6983fa1aaf84811",
+    "status": "machine",
+    "text": "除了攜帶該名稱的區段之外，還有一個後果，這就是此處中止而不只是警告的原因。這些名稱是資源的 `Condition:`、`Fn::FindInMap` 或對參數的 `Ref` 所要對照解析的對象。因此字元集不接受的名稱，會把指向它的參照連同宣告本身一起從可部署的範本中拿掉，所以單一撰寫的名稱會讓兩者同時無法觸及——而若沒有中止，這會在部署時才被發現，發現的是正在部署的人，而不是寫下該名稱的人。"
+  },
   "d69a7e1c60ce0860": {
     "at": "2026-11-18T18:17:18.645Z",
     "job": "session-0047-20261118181718",
@@ -100356,6 +101697,13 @@
     "srcHash": "d6aa020cfe1d4b62",
     "status": "machine",
     "text": "當實體記錄 `detect` 時，它必須逐個特徵、依序與外掛程式的 `describe()` 所報告的相等：載入匯入器時會拒絕報告不同的外掛程式並指名 `importer.detect`，發布時亦然。未記錄 `detect` 的實體不做主張，也不會被比較，因此無論其外掛程式的 `describe()` 報告什麼特徵都會載入，而其匯入器的格式只有在指名它們時才會被觸及。"
+  },
+  "d6acc56667dd1560": {
+    "at": "2026-11-19T09:01:32.422Z",
+    "job": "session-0088-20261119090132",
+    "srcHash": "d6acc56667dd1560",
+    "status": "machine",
+    "text": "**只有 `valuesMapping` 會填入參數。** 它所寫的鍵就是你為範本所指的參數名稱，因此每個鍵都必須指名來源中某個範本所宣告的參數：沒有指名任何參數的鍵會使建置中止，並指名該鍵與每個範本確實宣告的參數——也就是 CloudFormation 對未知參數會回報的失敗，在它仍由你修正時就回報。未宣告 `valuesMapping` 的 Recipe 或 FeatureRecipe 不填入任何東西：元件或附加項目自己的值以它們自己的名稱抵達提供者，是為其他輸入而寫的，並不會被讀取。"
   },
   "d6ae2910d599b788": {
     "at": "2026-11-18T16:43:37.827Z",
@@ -101571,6 +102919,13 @@
     "status": "machine",
     "text": "無回覆"
   },
+  "d961dab35f1a1567": {
+    "at": "2026-11-19T09:01:32.422Z",
+    "job": "session-0088-20261119090132",
+    "srcHash": "d961dab35f1a1567",
+    "status": "machine",
+    "text": "**`Transform` 取自每個元件所宣告的轉換。** 轉換是 CloudFormation 在部署任何東西之前對整個範本執行的巨集，因此組裝後堆疊的 `Transform` 是其元件所宣告之轉換的聯集——來源式範本與片段所宣告的皆然——依 CloudFormation 文件載明的順序：你的帳戶所定義的巨集在 CloudFormation 所託管的轉換之前，`AWS::LanguageExtensions` 在 `AWS::Serverless-2016-10-31` 之前。每個元件自己的順序會保留，沒有任何東西規定先後的兩個轉換，依元件首次宣告它們的順序執行，因此相同的元件會得到相同的堆疊。單一轉換寫成字串，多個轉換則寫成清單。只有一個元件的堆疊，若它在一個範本或片段中宣告其 `Transform`，則下表所帶入之處都會完全保持其所寫的樣子；而元件都未宣告的堆疊則不帶入任何轉換。元件的轉換不會引發警告：它不是被帶入，就是使建置中止並指名它。"
+  },
   "d96214d55eb4c2b6": {
     "at": "2026-11-18T18:17:18.645Z",
     "job": "session-0047-20261118181718",
@@ -102766,6 +104121,13 @@
     "status": "machine",
     "text": "有兩個工具回答 AI 助理否則只能猜測的問題：哪些 Features 可以附加到某個節點，以及某個節點可以連線到什麼。兩者都執行與編譯器執行的相同的標籤比對，因此 AI 助理提供給你的是建置會比對到的集合，而不是從結構描述推斷出來的集合。"
   },
+  "dbb2994baaa1ffdd": {
+    "at": "2026-11-19T09:01:32.422Z",
+    "job": "session-0088-20261119090132",
+    "srcHash": "dbb2994baaa1ffdd",
+    "status": "machine",
+    "text": "邏輯 ID 不接受分隔字元，因此由你所寫內容建立的名稱，必須想辦法把你的分隔字元帶過去。**直接捨棄它們會有損失**：`payments-db` 與 `payments_db` 是兩個元件，而捨棄標點的名稱兩者都無法識別。因此提供者改為**編碼**字元集所拒絕的字元，把每個被拒絕的字元用字元集接受的字元拼寫出來。"
+  },
   "dbb3f47ab361a1d5": {
     "at": "2026-11-19T04:45:51.548Z",
     "job": "session-0075-20261119044551",
@@ -103073,6 +104435,13 @@
     "status": "machine",
     "text": "**每個請求都指名它所針對的 Release，而常駐程式自己不保留任何 Release。** 語意檢查會解析該 Release 的相依性閉包，並讀取該 Release 的鎖定檔以取得它的固定——或者，對目錄實體而言，讀取該 Release 建置所用的目錄資料夾，如下一段所述——因此指名兩個 Releases 的兩個請求，各自針對它所指名的 Release 回答。兩者之間不會延續任何東西：沒有可更改的已選取 Release，而更改你要依哪個 Release 驗證，是下一個請求上的不同值，而不是常駐程式需要被告知去忘記的任何東西。"
   },
+  "dc3449675cfaf577": {
+    "at": "2026-11-19T09:01:32.422Z",
+    "job": "session-0088-20261119090132",
+    "srcHash": "dc3449675cfaf577",
+    "status": "machine",
+    "text": "**`Parameters`、`Mappings`、`Conditions` 與 `Rules` 以邏輯 ID 命名其項目。** 因為提供者完全依你所寫帶入名稱，邏輯 ID 所接受的字元集也適用於這些區段：四者之一中的名稱若含有字母與數字以外的任何字元，會使建置中止——請參閱[帶入的區段名稱超出字元集時中止](#a-carried-section-name-outside-the-alphabet-halts)。提供者不要求頂層 `Metadata` 區段的名稱符合該字元集：它們命名的是你要儲存的資訊，而不是範本所定址的任何東西。"
+  },
   "dc369ba7b734bee8": {
     "at": "2026-11-19T08:42:24.489Z",
     "job": "session-0085-20261119084224",
@@ -103368,6 +104737,13 @@
     "srcHash": "dcbc67813a278532",
     "status": "machine",
     "text": "在它自己的對話上送出一個模式護欄會拒絕的請求，然後在同一段對話上送出一個普通問題，再把對話讀回來。失敗的一輪會讓它的對話維持該輪之前的樣子，所以被拒絕的訊息不會被保留，該對話的下一輪會得到回答，而對話只保存有得到回答的輪次："
+  },
+  "dcbf0d146192a49d": {
+    "at": "2026-11-19T09:01:32.422Z",
+    "job": "session-0088-20261119090132",
+    "srcHash": "dcbf0d146192a49d",
+    "status": "machine",
+    "text": "這些連結依賴 Azure 中已存在的部署，因此以下由操作員負責維持："
   },
   "dcc0581d670b780b": {
     "at": "2026-11-18T18:17:18.645Z",
@@ -103885,6 +105261,13 @@
     "srcHash": "dda14ea484352a58",
     "status": "machine",
     "text": "發出的訊息，以條件開頭，接著是產生它們的兩個範本，以及它們交會的檔案："
+  },
+  "dda1719fcb15e94d": {
+    "at": "2026-11-19T09:01:32.422Z",
+    "job": "session-0088-20261119090132",
+    "srcHash": "dda1719fcb15e94d",
+    "status": "machine",
+    "text": "輸出名稱如何建立"
   },
   "dda3105e39c81a87": {
     "at": "2026-11-19T04:17:55.611Z",
@@ -105514,6 +106897,13 @@
     "status": "machine",
     "text": "**修正方式：** 重新命名其中一個衝突的鍵，或移除重複的宣告。請注意，FeatureRecipe 的 `injectMapping` 改寫元件自己的 `inject:` 區塊或其某個連線的 `inject:` 區塊所傳遞的鍵，是刻意的攔截，在此處或其他任何地方都不會被標記。"
   },
+  "e09920021811ad3e": {
+    "at": "2026-11-19T09:01:32.422Z",
+    "job": "session-0088-20261119090132",
+    "srcHash": "e09920021811ad3e",
+    "status": "machine",
+    "text": "**兩個項目在真正指名同一件事時仍然會相遇。** 輸出名稱由發布的元件與項目建立，因此兩者都相同的任何東西，無論如何編碼都會得到同一個名稱。你最可能遇到的情況，是同一個 Feature 兩次附加到單一元件：附加項目以其**宿主**發布，因此同一個元件上同一個 Feature 的兩個附加項目，都從 `payments-db` 發布 `alarm-id`，而這一對之中沒有任何東西可以區分。**建置會中止，而不是在寫了兩個之處只發出一個輸出**，並指名雙方各自帶有的元件與附加鍵，因此兩端都能在你自己的檔案中搜尋到。你可以只附加該 Feature 一次，或改用其發布的項目名稱讀起來屬於該附加項目自己的 Feature。"
+  },
   "e0a4ac8ab45ba615": {
     "at": "2026-11-19T02:53:52.874Z",
     "job": "session-0060-20261119025352",
@@ -105680,6 +107070,13 @@
     "srcHash": "e0e7e476cac12eeb",
     "status": "machine",
     "text": "**你已滿足的步驟會被勾選，且不向你要求任何東西。**頁面讀取的是真實的狀況，而不是對每個人都提出同樣的問題，因此若你從命令列建立了設定，然後開啟編輯器，每個步驟到達時都已勾選。"
+  },
+  "e0e8a742819302cf": {
+    "at": "2026-11-19T09:01:32.422Z",
+    "job": "session-0088-20261119090132",
+    "srcHash": "e0e8a742819302cf",
+    "status": "machine",
+    "text": "動態參照——`{{resolve:ssm:…}}`、`{{resolve:ssm-secure:…}}` 或 `{{resolve:secretsmanager:…}}`——會照所寫抵達參照位置，由 CloudFormation 在堆疊部署時解析，因此它所指名的值絕不會出現在範本中。"
   },
   "e0eac7e2bd67b084": {
     "at": "2026-11-18T18:36:37.552Z",
@@ -106405,6 +107802,13 @@
     "srcHash": "e276306f68a99975",
     "status": "machine",
     "text": "`dist/compose/docker-compose.yaml` 中的 `api` 服務會讀取 Compose 專案提供給它的環境，由連線與密碼附件傳遞："
+  },
+  "e27772357f16971c": {
+    "at": "2026-11-19T09:01:32.422Z",
+    "job": "session-0088-20261119090132",
+    "srcHash": "e27772357f16971c",
+    "status": "machine",
+    "text": "同一個對應表中寫了兩次的鍵會中止"
   },
   "e27b2575ed4fe3d4": {
     "at": "2026-11-19T01:10:37.674Z",
@@ -107350,6 +108754,13 @@
     "status": "machine",
     "text": "該連結是提交在來源所指名的存放庫中——訊息會以它在那裡的位置來指名它：請在那裡更改——讓它指向存放庫之內，或改為提交檔案本身——並指名帶有該變更的修訂版。"
   },
+  "e473454b0709f67a": {
+    "at": "2026-11-19T09:01:32.422Z",
+    "job": "session-0088-20261119090132",
+    "srcHash": "e473454b0709f67a",
+    "status": "machine",
+    "text": "**進入來源式模組。** `arm/postgres-flexible-server` 從其 `password` 槽位上的附加項目讀取機密的位置，並把模組的安全密碼參數繫結為 Key Vault 參照物件，如[來源式範本](#sourced-templates)之下所述。若未附加任何項目，或附加的是其他認證，建置會中止並指名該槽位。`arm/azure-api-management` 以同樣方式讀取其 `provider_key` 槽位：範本寫入一個具名值，執行個體以其受管理身分從該機密讀取，而該身分需要對它的讀取權限。"
+  },
   "e4768b0928c8d59e": {
     "at": "2026-11-19T04:45:51.548Z",
     "job": "session-0075-20261119044551",
@@ -107460,6 +108871,13 @@
     "status": "machine",
     "text": "匯入的 Workload 檔案會依與內嵌者相同的情境進行範本化。`artifacts:` 項目所匯入的檔案，在建置讀取它之前就已被固定：`aggrega pin <recipe-dir>/recipe.yaml` 會在 Recipe 旁寫入 `entity.lock`，記錄該檔案的摘要，而當鎖定檔對該檔案沒有記錄任何固定，或檔案不再與它相符時，建置會中止，並指名該命令。[Workload 程式庫匯入——透過 `$import` 共用的 Workload 本文](workload-library-import/README.md)會建置一個其 Workload 為匯入的 Recipe。"
   },
+  "e49e598aa14aeb60": {
+    "at": "2026-11-19T09:01:32.422Z",
+    "job": "session-0088-20261119090132",
+    "srcHash": "e49e598aa14aeb60",
+    "status": "machine",
+    "text": "**每個巢狀部署的組裝方式與頂層相同。** 邊界的所有訂閱內容都組裝進 `_subscription`，所有資源群組內容都組裝進 `_resourceGroup`，依[組裝後範本中的頂層區段](#top-level-sections-in-the-assembled-template)與[在訂閱範圍部署](#deploying-at-subscription-scope)的條件：相同的合併、相同的在頂層宣告並傳下去的參數、參照只及於自己層級的相同規則、相同的波次。每個都以增量方式部署，在自己的範圍中求值，名稱分別為 `[format('sub-{0}', uniqueString(deployment().name))]` 與 `[format('rg-{0}', uniqueString(deployment().name))]`。元件沒有為某範圍寫入任何內容的邊界，就沒有該範圍的部署。符號名稱 `_subscription` 與 `_resourceGroup` 在管理群組範圍範本的頂層是提供者專用的；管理群組片段若在任一者之下宣告資源會中止。"
+  },
   "e49fa30db19cf538": {
     "at": "2026-11-18T15:58:06.819Z",
     "job": "session-0022-20261118155806",
@@ -107557,6 +108975,13 @@
     "status": "machine",
     "text": "**在判定角色附加、由登錄庫提供的外掛程式，是離線驗證與離線 pull 分道揚鑣之處。** 這類外掛程式從不固定在鎖定檔中，因此每次 pull 都從其登錄庫解析它的 `.wasm`，而針對附加了這類外掛程式的工作區所做的離線 pull 就停在這裡，指出該外掛程式是其 `.wasm` 無法解析者——即使內容快取持有它，也不論該登錄庫是否標記為 `advisory` 或略過簽章驗證。離線驗證則改為不向登錄庫詢問任何關於該外掛程式的事：它像建置一樣從內容快取讀取該外掛程式，並在快取未持有其 `.wasm`，或持有的內容已不符合其已發布資訊清單所指名的摘要時停止。它仍會依外掛程式信任記錄檢查該外掛程式的身分，並對照該 `.wasm` 重新檢查其主機函式，任一者不一致就中止，與連線時的驗證完全相同。凡是 pull 不論登錄庫如何回答都會重寫其項目之處，它就會回報該外掛程式，這也是建置因其項目而拒絕該外掛程式之處：原因是沒有記錄簽章——因為其項目沒有記錄，或記錄中沒有它的項目，或因為其項目所記錄的簽章是為另一個成品所做，而 pull 會以該外掛程式自己的簽章取代它。其他每個項目——建置接受其簽章者，以及已快取的簽章套組被移除或改動者——它都以一行指出其簽章未經檢查，並且不回報任何關於該簽章的事："
   },
+  "e4c439758b3fd274": {
+    "at": "2026-11-19T09:01:32.422Z",
+    "job": "session-0088-20261119090132",
+    "srcHash": "e4c439758b3fd274",
+    "status": "machine",
+    "text": "組裝後堆疊中的名稱"
+  },
   "e4c7b4020e01f407": {
     "at": "2026-11-18T18:36:38.050Z",
     "job": "session-0051-20261118183638",
@@ -107619,6 +109044,13 @@
     "srcHash": "e4f2fa8a9f829897",
     "status": "machine",
     "text": "這則警告是準確的，值得閱讀而不是消音。`core/compute/server` Component 提供 CPU 與記憶體的規模調整旋鈕；這個特定的 chart 沒有為它公開任何值，所以 Recipe 在那裡沒有對應任何東西。來源式 Recipe 只對應它所取用的 chart 實際接受的內容，編譯器會回報那個沒有到達任何地方的值，而不是假裝它已落地。"
+  },
+  "e4f68affb4290eaa": {
+    "at": "2026-11-19T09:01:32.422Z",
+    "job": "session-0088-20261119090132",
+    "srcHash": "e4f68affb4290eaa",
+    "status": "machine",
+    "text": "標註為 `aggrega.ai/azure-deployment-scope: managementGroup` 的邊界，會組裝出部署到管理群組的範本。為管理群組撰寫的內容——`$schema` 為 `managementGroupDeploymentTemplate` 的片段——位於範本的頂層。為訂閱撰寫的內容位於一個巢狀部署 `_subscription` 中，為資源群組撰寫的內容則位於另一個 `_resourceGroup` 中。兩者都直接巢狀在管理群組之下，並排而立，因此資源群組層級不在訂閱層級之內："
   },
   "e4f83e8720f30dde": {
     "at": "2026-11-19T03:03:07.852Z",
@@ -107874,6 +109306,13 @@
     "srcHash": "e58212c211c42ecb",
     "status": "machine",
     "text": "Team Topologies 對應"
+  },
+  "e585f0aadf92ec4d": {
+    "at": "2026-11-19T09:01:32.422Z",
+    "job": "session-0088-20261119090132",
+    "srcHash": "e585f0aadf92ec4d",
+    "status": "machine",
+    "text": "**它不產生機密。** 請參閱[認證模型](../../architecture/08-credential-model.md)：在 `arm` 上，會產生機密的 Features 會使建置中止，提供的機密則以 `securestring` 參數或 Key Vault 參照傳遞。"
   },
   "e58747935dbb9819": {
     "at": "2026-11-18T17:28:02.111Z",
@@ -108414,6 +109853,13 @@
     "status": "machine",
     "text": "[團隊拓撲與四個領域](03-team-topologies-and-domains.md)"
   },
+  "e6af97fc4f0fe683": {
+    "at": "2026-11-19T09:01:32.422Z",
+    "job": "session-0088-20261119090132",
+    "srcHash": "e6af97fc4f0fe683",
+    "status": "machine",
+    "text": "表中每個指名模組的 `arm` Recipe，都包裝 Microsoft 的 Azure Verified Modules 之一，位於固定的 tag，每個都從其 git 存放庫在 `entity.lock` 所記錄的 commit 取得，並且每個都繫結 `enableTelemetry: false`；`arm/azure-api-management` 自己撰寫其資源，而 `arm/key-vault-secret` 不渲染任何資源。Recipe 會讀取 Release 的 `infra.overrides` 以取得操作員自己的資源，並在遇到它無法實現的值時依名稱中止。"
+  },
   "e6bb20df7151448c": {
     "at": "2026-11-19T03:40:49.770Z",
     "job": "session-0068-20261119034049",
@@ -108742,6 +110188,13 @@
     "srcHash": "e78ab077a0dcbce8",
     "status": "machine",
     "text": "signing: a recorded signature is not the one a pull would record (`\"<reference>\"`, `<file>` records `<signature>`, made for another artifact, a pull would ask its registry for this artifact's own signature and record it). remediation: run `aggrega pull --release <release>` to bring `<file>` up to date（簽署：所記錄的簽章不是 pull 會記錄的簽章；它是為另一個成品製作的，pull 會向其登錄庫索取此成品自己的簽章並記錄它。補救：執行 pull，使檔案更新到最新）"
+  },
+  "e78b97d71fa4e126": {
+    "at": "2026-11-19T09:01:32.422Z",
+    "job": "session-0088-20261119090132",
+    "srcHash": "e78b97d71fa4e126",
+    "status": "machine",
+    "text": "CloudFormation 片段是以對應表來讀取的，而對應表每個鍵只保有一個值，因此寫了兩次的鍵會保留最後出現的本體，並丟棄另一個。當該對應表是 `Resources` 或 `Outputs` 區塊時，被丟棄的本體就是一個已經寫下、卻不會出現在堆疊中的資源或輸出。"
   },
   "e78e599176d1ef1b": {
     "at": "2026-11-19T08:37:17.957Z",
@@ -110144,6 +111597,13 @@
     "status": "machine",
     "text": "批次進行中身分權杖到期"
   },
+  "ead2eb4eeb19f848": {
+    "at": "2026-11-19T09:01:32.422Z",
+    "job": "session-0088-20261119090132",
+    "srcHash": "ead2eb4eeb19f848",
+    "status": "machine",
+    "text": "**訂閱與資源群組由邊界指名。** `_subscription` 的 `subscriptionId` 取自 `aggrega.ai/azure-subscription`，並採用 `location: \"[deployment().location]\"`。`_resourceGroup` 的 `subscriptionId` 取自同一個註記，`resourceGroup` 取自 `aggrega.ai/azure-resource-group`。巢狀部署所需的註記若不存在或為空，建置會中止並指名它；內容落在同一個巢狀部署的兩個元件若指名不同的值，會中止並指名兩者。管理群組本身不會寫入範本，它是部署命令的目標。`aggrega.ai/azure-management-group` 為來自另一個範本的連結指名它：使用端會讀取該群組所持有的管理群組部署，而管理群組範圍中沒有該註記的使用端則採用自己的。"
+  },
   "ead66c4bb22949dd": {
     "at": "2026-11-18T15:53:57.460Z",
     "job": "session-0021-20261118155357",
@@ -110500,6 +111960,13 @@
     "srcHash": "eb9514cdcc97f021",
     "status": "machine",
     "text": "**`mcp.authorization.trusted_proxy` 從前面的代理伺服器讀取呼叫端，而不是在這裡檢查權杖。** 將 `principal_header` 設為該代理伺服器用來說明呼叫端是誰的標頭，並可選擇將 `scopes_header` 設為攜帶該呼叫端範圍的標頭。兩者都是 HTTP 標頭名稱，例如 `X-Forwarded-User`——標頭名稱可含的字母、數字、連字號與少數其他字元，不含空格或冒號——而任何其他形式的名稱都會在載入此檔案時被拒絕，並指出該鍵，因為沒有任何請求能攜帶它。在此模式下完全不讀取權杖，而沒有主體標頭的請求會被拒絕。由於該標頭此時就是全部的認證，它只有在沒有其他東西能設定它的地方才可信：除非 `mcp.listen` 是回送位址或 Unix 通訊端，否則處理程序會在繫結之前被拒絕。省略此區塊時，此伺服器自行檢查權杖，這是預設做法；`principal_header` 為空的區塊會被拒絕，而不是被當作該預設值來讀取。"
+  },
+  "eb9ac719b06b4bdf": {
+    "at": "2026-11-19T09:01:32.422Z",
+    "job": "session-0088-20261119090132",
+    "srcHash": "eb9ac719b06b4bdf",
+    "status": "machine",
+    "text": "**參數只在頂層提供一次。** 資源群組內容所宣告的每個參數，也會在頂層以相同名稱與相同本體宣告，並以 `{\"value\": \"[parameters('<name>')]\"}` 傳下去。訂閱片段若以另一個本體宣告該名稱，會中止並指名兩個元件。此類參數的型別透過 `$ref`（`#/definitions/<name>`）所指名的定義，以及該定義依序指名的每個定義，也會依相同條件宣告在頂層；訂閱片段若以另一個本體宣告該定義，會中止並指名兩個元件。`defaultValue` 呼叫使用者定義函式的資源群組參數會中止，並指名參數、函式與巢狀部署，因為函式留在巢狀部署中：請宣告它而不帶該預設值，並在部署時提供。ARM 在部署到訂閱的範本中拒絕 `resourceGroup()`，因此 `defaultValue` 呼叫它的資源群組參數無法在此範圍部署：請宣告它而不帶該預設值，並在部署時提供。"
   },
   "eba12558c62ebd07": {
     "at": "2026-11-18T18:26:44.273Z",
@@ -111730,6 +113197,13 @@
     "status": "machine",
     "text": "**只有路由器自己的路由可以連到。** 防護只看得到交給它請求的路由，所以第二個 ConfigMap 的另一個檔案設定的是 pod 的第二個容器，它只掛載該 ConfigMap，並以官方 nginx 映像檔作為路徑允許清單執行。路由器本身監聽 pod 的回送位址，pod 之外的任何東西都連不到它，而允許清單監聽連接埠 4000，也就是下方 Service 指向的連接埠。它只在請求的方法與路徑屬於路由器所提供的路由之一時才轉送——防護檢查的模型請求路由，採用路由器不論別名所提供的寫法，其中包括 `/v1/chat/completions` 與 `/v1/messages`；模型清單；健康檢查；以及其管理路由中的金鑰管理——並對其他每個路徑回應 403，什麼也不轉送。所以代理伺服器的 token 計數路由、通往提供者自己 API 的直通路由、其他管理路由與管理主控台，都無法經由路由器連到，路徑中帶有模型名稱的模型路由也無法，例如 Azure 的用戶端送出的路徑：代理伺服器會讀取路徑中的文字（包括別名）來決定如何記錄請求，而路由器會拒絕針對此對應表自己的 `assistant` 在其上的請求。代理伺服器的指標也不在這些路由之中：連接埠 4000 對 `/metrics` 回應 403。當路由器的 `metrics_enabled` 為 true（如 Aggregate 所設定）時，允許清單也會監聽連接埠 9090，並只將對 `/metrics` 的 GET 轉送到那裡，轉送至代理伺服器在回送位址上為其指標保留的監聽器，並對其他每個請求回應 403。該連接埠不檢查任何呼叫端，而指標會列出路由器將花費歸屬到的雜湊金鑰、金鑰別名與使用者電子郵件。"
   },
+  "edd659878557390a": {
+    "at": "2026-11-19T09:01:32.422Z",
+    "job": "session-0088-20261119090132",
+    "srcHash": "edd659878557390a",
+    "status": "machine",
+    "text": "標註為 `aggrega.ai/azure-deployment-scope: subscription` 的邊界，會組裝出部署到訂閱的範本。為訂閱撰寫的內容——`$schema` 為 `subscriptionDeploymentTemplate` 的片段，或具有該結構描述的來源式範本——位於範本的頂層。為資源群組撰寫的內容位於一個巢狀部署 `_resourceGroup` 中，部署到邊界的 `aggrega.ai/azure-resource-group` 所指名的資源群組："
+  },
   "edd95e12cd1cadda": {
     "at": "2026-11-19T03:15:13.861Z",
     "job": "session-0064-20261119031513",
@@ -112148,6 +113622,13 @@
     "srcHash": "eeda4d1bffb980c2",
     "status": "machine",
     "text": "`function:` 指名 `uri` 所指名的外掛程式上的匯出。判定角色——`ir-verdict` 或 `render-verdict`——中指名了 `function:` 卻沒有 `uri:` 的附加項目，指名的是不屬於任何外掛程式的函式，因此設定在讀取時就會被拒絕，歸於 [`E0224`](../errors/fatal-halts.md#the-workspace-configuration-is-invalid)，指名檔案與該項目在清單中的位置：請加入匯出該函式的外掛程式的 `uri`。"
+  },
+  "eedd0fa5c7a063ac": {
+    "at": "2026-11-19T09:01:32.422Z",
+    "job": "session-0088-20261119090132",
+    "srcHash": "eedd0fa5c7a063ac",
+    "status": "machine",
+    "text": "型別由 CloudFormation 從 Parameter Store 讀取的參數——`AWS::SSM::Parameter::Value<…>`——沒有任何字面值能重現 CloudFormation 對它所做的處理，因此繫結到它的字面值會使建置中止；請繫結 `{{resolve:ssm:…}}` 參照或內建函式，或讓它保持未繫結。繫結到範本以 `Fn::Sub` 變數指名之參數的清單，同樣會使建置中止，因為變數只能替換一個字串。`valuesMapping` 設為 `null` 的鍵，也會使建置中止並指名該參數，因為參數接受一個值，而 `null` 不是值；若要把參數留給堆疊部署時傳入的值或它的 `Default`，請把它的鍵從對應中省略。"
   },
   "eedec69ed4e3db3e": {
     "at": "2026-11-19T04:17:55.611Z",
@@ -112677,6 +114158,13 @@
     "status": "machine",
     "text": "**位於模型前方的 Kong：** `core/gateway/kong`，開放原始碼的 Kong 閘道，透過 Kong 的 AI proxy 提供連接到它自己 `models` 插槽的模型，而在下方的控制中，它只實現提示拒絕模式，作為每個已連接模型的每條路由上的 Kong AI Prompt Guard。每個已連接模型在 `/<alias>/v1` 之下取得一條聊天路由與一條補全路由，由模型所發布的 `endpoint` 與 `model` 寫成，而它的 Recipes 會在閘道啟動前，把這些路由匯入閘道的 PostgreSQL 後端。路由決定模型，所以請求會送到其路徑所指名的模型，無論它攜帶什麼模型名稱。閘道把每條連線自己的認證作為 bearer 權杖出示，其設定依名稱從閘道的環境讀取，而連到 `model.aggrega.ai/api` 不是 `openai` 之模型的連線會中止建置。它把其 `values.model` 所指名之別名的路由發布為其 `endpoint`，並把該別名發布為其 `model`，並帶有 `model.aggrega.ai/api: openai`，所以代理的 `model` 插槽接受它，一如接受 AI 閘道。沒有任何東西連接到該插槽時，閘道不提供任何模型，並把兩個鍵都發布為空，連接到它的代理則讀不到位址也讀不到模型名稱。匯入會新增與更新路由，不移除任何路由，所以其連線已被移除的路由仍會持續回應，而 `core/prompt-deny-patterns` 附加項目所寫的提示防護在附加項目被移除後仍會持續拒絕，直到各自經由 Kong 的 Admin API 刪除為止。基於同樣的原因，閘道不宣告任何呼叫端，其模型路由也不檢查任何呼叫端的金鑰：Kong 只將呼叫端區分為驗證外掛程式所指名的 consumer，而 consumer 及其金鑰一經匯入，在呼叫端從 Release 移除後仍能繼續驗證，輪替後的金鑰也會讓舊金鑰繼續有效；key-auth 的金鑰也無法以參照方式持有，所以呼叫端的金鑰只能以字面值進入渲染後的檔案，才能到達 Kong。"
   },
+  "efe199eda9bb78e2": {
+    "at": "2026-11-19T09:01:32.422Z",
+    "job": "session-0088-20261119090132",
+    "srcHash": "efe199eda9bb78e2",
+    "status": "machine",
+    "text": "**資源邏輯 ID 適用不同的規則**，因為提供者並不建立它們：它發出 Recipe 所寫的內容。標準程式庫的 CloudFormation Recipes 把實例名稱的分隔字元視為詞的邊界來衍生一個——實例 `payments-db` 把它的資源命名為 `PaymentsDb`——而**該衍生會捨棄分隔字元**，因此僅在標點上不同、或僅在字母大小寫上不同的兩個實例名稱，仍會衍生出同一個資源名稱。建置會中止，指名所有得出該名稱的實例以及它們落到的名稱，而不是在宣告了兩個元件之處只發出一個資源。指名的是全部而不是其中一些，因為衝突本身並不會讓某一個實例的衍生成為預期的那個。把其中除一個以外的全部重新命名即可排除。"
+  },
   "efe65c888d007cbd": {
     "at": "2026-11-18T18:45:13.017Z",
     "job": "session-0053-20261118184513",
@@ -113074,6 +114562,13 @@
     "status": "machine",
     "text": "**回答是兩半之一，從不是兩者。**"
   },
+  "f0a6d33edf0df418": {
+    "at": "2026-11-19T09:01:32.422Z",
+    "job": "session-0088-20261119090132",
+    "srcHash": "f0a6d33edf0df418",
+    "status": "machine",
+    "text": "**只有區段自己的名稱要符合字元集，項目內部的鍵則絕不受限。** 對應的第二層鍵可由你自由選擇——`RegionCidr` 對應表下的 `us-east-1` 是常見的例子，它會原封不動地抵達發出的範本。參數、條件或規則本體內的鍵所命名的是屬性、斷言與內建函式，而不是堆疊所定址的任何東西：規則的 `Assertions`，以及寫在其中的 `Fn::Contains`，都是這類鍵。它們都不是邏輯 ID，也都不會被檢查。"
+  },
   "f0ab36e6f8337833": {
     "at": "2026-11-18T07:06:16.115Z",
     "job": "session-0001-20261118070616",
@@ -113461,12 +114956,26 @@
     "status": "machine",
     "text": "閉包不是圖"
   },
+  "f180e219d2d02035": {
+    "at": "2026-11-19T09:01:32.422Z",
+    "job": "session-0088-20261119090132",
+    "srcHash": "f180e219d2d02035",
+    "status": "machine",
+    "text": "你的帳戶所定義的巨集"
+  },
   "f181cebd0df2ab28": {
     "at": "2026-11-19T03:23:28.993Z",
     "job": "session-0065-20261119032328",
     "srcHash": "f181cebd0df2ab28",
     "status": "machine",
     "text": "An import stopped partway through translating a source（匯入在轉換來源的途中停止）"
+  },
+  "f1836a52e68bc710": {
+    "at": "2026-11-19T09:01:32.422Z",
+    "job": "session-0088-20261119090132",
+    "srcHash": "f1836a52e68bc710",
+    "status": "machine",
+    "text": "**輸出名稱的範圍由發布它們的元件界定。** 每個 `provides` 項目都浮現為一個以發布的元件與項目共同命名的輸出——元件 `payments-db` 發布 `host` 會浮現為 `paymentsXzhdbXXhost`——因此發布同一項目的兩個元件會得到兩個獨立的輸出，而當另一個元件加入堆疊時，輸出的意義不會改變。同一帳戶與區域中的跨堆疊使用端是依匯出名稱而非此名稱匯入，因此匯出名稱不受影響；跨帳戶或跨區域的讀取則指名此輸出，如提供者為你寫出的樣子（請參閱[跨堆疊連接](#cross-stack-wiring)）。"
   },
   "f184c95e89219a87": {
     "at": "2026-11-18T11:36:26.060Z",
@@ -114219,6 +115728,13 @@
     "srcHash": "f335b76ddea946d8",
     "status": "machine",
     "text": "policy plugin `\"<plugin>\"` rejected the build: `<the plugin's own message>` [code=`<code>`; rule_id=`<rule>`; classification=`<class>`; source_ref=`<reference>`; location=`<where>`; suggest=`<suggestion>`]（原則外掛程式拒絕了建置：外掛程式自己的訊息 [代碼；規則識別碼；分類；來源參照；位置；建議]）"
+  },
+  "f33fcdca3cd30d93": {
+    "at": "2026-11-19T09:01:32.422Z",
+    "job": "session-0088-20261119090132",
+    "srcHash": "f33fcdca3cd30d93",
+    "status": "machine",
+    "text": "**你所省略的內容由你負責。** 建置中沒有任何東西知道資源的用途。移除範本其餘部分在部署時會讀取的資源，會產生建置順利、卻在部署時失敗的輸出。"
   },
   "f344d7653fb4e893": {
     "at": "2026-11-18T17:04:51.111Z",
@@ -115902,6 +117418,20 @@
     "status": "machine",
     "text": "**附加到節點的功能是依其自己的 FeatureRecipe 判斷，而不是依節點的 Recipe。** 自己產生資源的附加項目，會透過其 FeatureRecipe 所指名的目標、依該 FeatureRecipe 所宣告的輸入種類來渲染它們——所以節點自己的目標所套用的註記，可能一個也到不了附加項目的檔案中，反之亦然。你會被個別告知每一個，因為它們是不同的檔案。附加到邊界而不是附加到具名元件的功能也是如此。FeatureRecipe 不宣告 `source:`、`workload:` 與 `artifacts:` 任何一項的附加項目，不會渲染自己的檔案——它是透過注入值、透過其 Feature 所帶的 `uses` 邊，或透過對其他東西所發出之文件的管線來做出貢獻——所以沒有它自己的輸出可供註記缺少，也不會為它發出任何警告。"
   },
+  "f677b0db67cbb337": {
+    "at": "2026-11-19T09:01:32.422Z",
+    "job": "session-0088-20261119090132",
+    "srcHash": "f677b0db67cbb337",
+    "status": "machine",
+    "text": "每個組裝後的範本在寫出之前，都會依 ARM 對單一範本設下的限制檢查：範本 4 MB、單一資源 1 MB、256 個參數、512 個變數、800 個資源、64 個輸出，以及單一運算式 24,576 個字元。超過限制的範本會使建置中止，並指名度量、限制與補救方式：拆分邊界，讓它的資源以多個範本部署。"
+  },
+  "f677eb08a96b2be6": {
+    "at": "2026-11-19T09:01:32.422Z",
+    "job": "session-0088-20261119090132",
+    "srcHash": "f677eb08a96b2be6",
+    "status": "machine",
+    "text": "**它不在租用戶範圍組裝任何範本。** `$schema` 宣告租用戶的片段會中止：提供者只在資源群組、訂閱或管理群組範圍組裝邊界。註記的值若沒有指名任何範圍，會中止並指名它所接受的值。"
+  },
   "f67e0a703dbf995c": {
     "at": "2026-11-19T08:42:24.489Z",
     "job": "session-0085-20261119084224",
@@ -116523,6 +118053,13 @@
     "srcHash": "f7ac94a1ef6870b8",
     "status": "machine",
     "text": "原因是使用介面的一致性。Recipes 與 FeatureRecipes 全面使用 Go 範本，它們自己的內容與解析匯入套組的是同一個 Go 範本引擎來評估。平行的撰寫介面會迫使作者在單一 Recipe 的渲染中切換評估模型——Recipe 自己的內容用一種模型，任何匯入的套組用另一種。保持介面一致，意味著作者只需學會一種評估模型，並到處套用。"
+  },
+  "f7ae4da37dafe2f0": {
+    "at": "2026-11-19T09:01:32.422Z",
+    "job": "session-0088-20261119090132",
+    "srcHash": "f7ae4da37dafe2f0",
+    "status": "machine",
+    "text": "讀回來時沒有歧義，這是重點，而不是錦上添花。`X` 只有在它後面的字元是字元集接受的字元時才保持原樣，因此編碼後的一半絕不會以它結尾，也絕不會連續出現兩個——這就讓 `XX` 可以自由地只表示連接處，且僅表示連接處。"
   },
   "f7b0139bd3a0bc9a": {
     "at": "2026-11-18T18:45:13.017Z",
@@ -117794,6 +119331,13 @@
     "status": "machine",
     "text": "匯入 MCP 用戶端設定——程式碼助理使用的三個伺服器"
   },
+  "fa47585be868cfa5": {
+    "at": "2026-11-19T09:01:32.422Z",
+    "job": "session-0088-20261119090132",
+    "srcHash": "fa47585be868cfa5",
+    "status": "machine",
+    "text": "名稱衍生自 Release 的名稱與邊界的輸出目錄，因此在 Release 中更改邊界的 `directory:` 會讓它改名，而重新建置的使用端會讀取新名稱。若片段已在該中繼資料鍵之下寫入另一個值，會使建置中止。"
+  },
   "fa4b0742efb74f07": {
     "at": "2026-11-19T04:25:53.489Z",
     "job": "session-0072-20261119042553",
@@ -118396,6 +119940,13 @@
     "status": "machine",
     "text": "2. 建置它，並以手動方式呼叫每個角色"
   },
+  "fb5fdf15ee792c90": {
+    "at": "2026-11-19T09:01:32.422Z",
+    "job": "session-0088-20261119090132",
+    "srcHash": "fb5fdf15ee792c90",
+    "status": "machine",
+    "text": "使用端可以部署在資源群組、訂閱或管理群組範圍，其範本的每個層級都依該層級所部署的範圍讀取。它的資源群組內容所讀取的值，是在 `_resourceGroup` 部署內讀取，其中使用端自己的資源群組就是該部署的資源群組。它的訂閱內容從資源群組範圍的生產端讀取的值，需要生產端的邊界指名 `aggrega.ai/azure-resource-group`，因為訂閱範圍的範本沒有自己的資源群組；沒有它，建置會中止並指名該註記。在管理群組範圍，`_subscription` 部署同樣適用；而管理群組內容本身從資源群組或訂閱範圍的生產端讀取的值，也需要生產端的邊界指名 `aggrega.ai/azure-subscription`，因為管理群組範圍的範本沒有自己的訂閱。由部署在任何其他範圍的範本，或由巢狀部署，從管理群組範圍的生產端讀取的值，需要生產端的邊界指名 `aggrega.ai/azure-management-group`，因為只有管理群組範圍的範本才有自己的管理群組。"
+  },
   "fb60e0892da5466b": {
     "at": "2026-11-18T07:06:16.115Z",
     "job": "session-0001-20261118070616",
@@ -118416,6 +119967,13 @@
     "srcHash": "fb736ce3f12fbe8e",
     "status": "machine",
     "text": "**權杖只屬於標頭，不屬於其他任何地方。** 以 `access_token` 查詢參數傳送的權杖會以 `400` 回應，且絕不會被讀取，因為位址會被請求所經過的每個代理伺服器記錄、瀏覽器歷程與參照來源標頭記下，因此以那種方式抵達的權杖已經外洩。伺服器絕不把權杖寫入記錄，絕不把它送到任何地方，也絕不代表呼叫端取得或交換權杖：它讀取所出示的內容，做出決定，且不保留任何一部分。權杖所指名的主體會被記錄，且不與任何東西比較。"
+  },
+  "fb7640be9adcf07e": {
+    "at": "2026-11-19T09:01:32.422Z",
+    "job": "session-0088-20261119090132",
+    "srcHash": "fb7640be9adcf07e",
+    "status": "machine",
+    "text": "附加到元件的 Feature 會貢獻到同一個堆疊"
   },
   "fb79c0b1344bb656": {
     "at": "2026-11-18T15:58:06.819Z",
@@ -118810,6 +120368,13 @@
     "status": "machine",
     "text": "與登錄庫的對話從未發生：名稱解析、連線或安全交握失敗。它與回應並拒絕的登錄庫相對——這裡兩種情況都沒有確立任何事，因此成品在遠端的狀態是未知的，而不是已知遺失。"
   },
+  "fc28c52eb8c7b838": {
+    "at": "2026-11-19T09:01:32.422Z",
+    "job": "session-0088-20261119090132",
+    "srcHash": "fc28c52eb8c7b838",
+    "status": "machine",
+    "text": "**資源群組層級跟在宣告其群組的訂閱層級之後。** 當 `_subscription` 持有 `Microsoft.Resources/resourceGroups` 資源，其 `name` 與註記的值完全相同，且未宣告為 `existing: true`，並且兩者部署到同一個訂閱時，`_resourceGroup` 會相依於 `_subscription`，因此群組會先部署。否則不會為該群組新增任何東西：這時要由你自行建立。每個巢狀部署在頂層的排序方式與訂閱範圍相同，另一個巢狀部署算作其最早波次中的一個頂層資源；請參閱[各層級依波次排序](#deploying-at-subscription-scope)。另外兩種順序會中止，並指名兩個巢狀部署：`_resourceGroup` 跟在 `_subscription` 之後，而該層級的元件所達到的波次晚於 `_resourceGroup` 最早的波次，這會讓較晚的內容先部署；以及兩者從同一個波次開始、同時都含有較晚波次的元件，使得兩者都得等待對方。"
+  },
   "fc2a3f46ca40c781": {
     "at": "2026-11-18T12:29:00.520Z",
     "job": "session-0007-20261118122900",
@@ -119012,6 +120577,13 @@
     "status": "machine",
     "text": "**即使結構描述會接受空值，仍有值待補。**草擬出的 Recipe 或 FeatureRecipe 帶有空的 `capability` 與 `implements`。它們的結構描述允許空字串，但空的並未指名任何提供者與任何型別，所以 `aggrega validate` 會把兩者都指名為仍待補上，直到你填入為止。這種判讀屬於驗證單一實體檔案：整個目錄的執行、`aggrega validate --release` 與 [`aggrega build`](aggrega-build.md) 都不套用它。它涵蓋什麼，請見[仍待補上的佔位符](aggrega-validate.md#placeholders-still-owed)。草擬出的 Recipe 也不宣告其結構描述要求至少有一個的任何輸入種類——`source`、`valuesMapping`、`workload` 或 `artifacts`——因為哪一個合適由你選擇，所以 `aggrega validate` 會拒絕它的 `spec`，直到你加入其中之一。"
   },
+  "fc94ef4ab7243ee4": {
+    "at": "2026-11-19T09:01:32.422Z",
+    "job": "session-0088-20261119090132",
+    "srcHash": "fc94ef4ab7243ee4",
+    "status": "machine",
+    "text": "僅在字母大小寫上不同的項目。`host` 與 `Host` 會得到 `host` 與 `Host`，因為字母是以你所寫的大小寫帶入的。"
+  },
   "fc9661aa9857cbb4": {
     "at": "2026-11-18T12:49:35.296Z",
     "job": "session-0011-20261118124935",
@@ -119032,6 +120604,13 @@
     "srcHash": "fc9bbb9411e6ed27",
     "status": "machine",
     "text": "**如何修正：** 將鍵改為訊息所建議的名稱，或它所列出的其中一個名稱——對附加項目而言，是它所寫在其下的名稱，而不是它所屬元件的名稱。若不再需要該項目，請移除它；該型別的實例屆時會改經 `type` 層級解析。"
+  },
+  "fc9c7afa9462fb84": {
+    "at": "2026-11-19T09:01:32.422Z",
+    "job": "session-0088-20261119090132",
+    "srcHash": "fc9c7afa9462fb84",
+    "status": "machine",
+    "text": "`infra.resource_group_name`；會寫入原則元素的 Feature：`core/semantic-caching`、`core/period-budget`、`core/prompt-injection-shield` 與 `core/retry-policy`"
   },
   "fca064effe18a363": {
     "at": "2026-11-19T07:28:26.849Z",
@@ -119212,6 +120791,13 @@
     "srcHash": "fcf762c7cc5493b0",
     "status": "machine",
     "text": "請把 `.aggrega-import.json` 保留在草稿旁，並在 Compose 檔案變更後執行："
+  },
+  "fd0add3a725b76c5": {
+    "at": "2026-11-19T09:01:32.422Z",
+    "job": "session-0088-20261119090132",
+    "srcHash": "fd0add3a725b76c5",
+    "status": "machine",
+    "text": "結構輸入驗證"
   },
   "fd0c6c2b8536983e": {
     "at": "2026-11-19T08:37:17.957Z",
@@ -119681,6 +121267,20 @@
     "srcHash": "fe1f71c75acad10f",
     "status": "machine",
     "text": "**`chatflow_id`** 是由 chatflow 推導而來，因為 Flowise 編輯器的匯出內容不帶自己的識別碼，所以同一個 chatflow 永遠產生同一個識別碼。Flowise chatflow 為兩個節點之間的每個連線寫下 `{{<node id>.data.instance}}`，而 Aggregate 的文字會被當作範本讀取，所以草稿將每個 `{{` 寫成 `{{\"{{\"}}`，建置會將它轉回兩個大括號。"
+  },
+  "fe22384a36b015d8": {
+    "at": "2026-11-19T09:01:32.422Z",
+    "job": "session-0088-20261119090132",
+    "srcHash": "fe22384a36b015d8",
+    "status": "machine",
+    "text": "資源邏輯 ID 不是提供者完全依你所寫帶入的唯一名稱。`Parameters`、`Mappings`、`Conditions` 與 `Rules` 也以邏輯 ID 命名其項目，四者各以其作者所選的名稱抵達組裝後的堆疊。因此要求是同一個，只是多了四個介面：名稱必須是 CloudFormation 範本本身就能容納的——字母與數字，沒有別的——任何其他寫法都會使建置中止。"
+  },
+  "fe3273d7e4282841": {
+    "at": "2026-11-19T09:01:32.422Z",
+    "job": "session-0088-20261119090132",
+    "srcHash": "fe3273d7e4282841",
+    "status": "machine",
+    "text": "在 `arm` 上，機密以參照形式抵達資源，指向一個已存在的 Key Vault 機密，因此 Release 與發出的範本都不含其值。把 `core/referenced-secret` 繫結到 `arm/key-vault-secret`：`origin` 是該機密的資源 ID，即 `/subscriptions/<subscription>/resourceGroups/<group>/providers/Microsoft.KeyVault/vaults/<vault>/secrets/<secret>`，而 `values.key` 是資料鍵；兩者都照所寫發布。部署用的身分必須能讀取該機密。"
   },
   "fe33c1bba1ee05c9": {
     "at": "2026-11-19T03:03:07.852Z",
@@ -120152,6 +121752,13 @@
     "srcHash": "ff3e562f8ed5da0a",
     "status": "machine",
     "text": "`candidates` — 可以填入這條連線上這個槽位的 Features。建置會讓這樣的附加項目遵守兩條規則，而且兩條都會套用：Feature 所宣告的適用性對照節點最終確定的標籤，節點所帶的每個附加項目都受此約束，以及槽位的 `selector` 對照 Feature 自己的標籤。所以槽位的候選項一定在節點的候選項之中，並被選擇器縮小。標籤無法對照選擇器評估的 Feature 不會被提供，因為建置會拒絕它而不是接納它。"
+  },
+  "ff4b111c1d52b6fd": {
+    "at": "2026-11-19T09:01:32.422Z",
+    "job": "session-0088-20261119090132",
+    "srcHash": "ff4b111c1d52b6fd",
+    "status": "machine",
+    "text": "**這是部署順序，不是就緒狀態。** 範本不表達資源可提供服務的概念：`dependsOn` 等待 ARM 部署完所指名的資源。資源全都屬於同一個波次的範本，以及未宣告 `syncWave` 的 Release，不會被加上任何順序。波次只為一個範本排序，不及於其外；兩個範本之間的先後是操作員要處理的事，而[兩個範本之間的連結](#linking-across-deployments)會指名它們的部署順序。"
   },
   "ff4b8127c0aae236": {
     "at": "2026-11-18T18:36:37.552Z",
