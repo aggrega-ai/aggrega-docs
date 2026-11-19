@@ -5994,6 +5994,17 @@
     "status": "machine",
     "text": "**Estado actual:** **disponible** según [Estado del lenguaje → Tipos de entrada de la Recipe](../10-status.md#recipe-input-kinds). Cada entrada se evalúa con el contexto de plantilla completo después de la síntesis de carga de trabajo y la resolución de la fuente, y el archivo resultante se emite bajo la clave de la entrada. Lo que un destino hace con un artefacto emitido depende de la capacidad: un proveedor que acepta un artefacto independiente lo emite como su propio archivo, mientras que uno que solo acepta artefactos junto con otro tipo de entrada integra la entrada en lo que ensambla — de modo que un cuerpo que no tiene la forma que espera ese ensamblador provoca una detención bajo la categoría `TRANSLATION_ERROR` en lugar de emitirse tal cual. Consulta la cuadrícula por capacidad en [`architecture/16-recipe-input-composition.md`](../../architecture/16-recipe-input-composition.md) antes de escribir un artefacto para una capacidad."
   },
+  "08604c4e3e2114fa": {
+    "at": "2026-11-19T01:25:58.995Z",
+    "job": "session-0002-20261119012558",
+    "revision": {
+      "from": "f446c98d2daa0a1b",
+      "reviewed": false
+    },
+    "srcHash": "08604c4e3e2114fa",
+    "status": "machine",
+    "text": "Un valor de `resource_types` que no es una lista de nombres y de objetos con un `type` y un `component` detiene la importación bajo `resource-types-unreadable`, de modo que un valor erróneo nunca se lee como ausencia de lista; lo mismo ocurre con una entrada cuyo `component` está vacío, que no nombra ningún Component, en lugar de leerse como una entrada sin `component`."
+  },
   "08631ec5577f2dc1": {
     "at": "2026-10-30T05:41:23.167Z",
     "job": "session-0064-20261030054123",
@@ -19393,6 +19404,17 @@
     "status": "machine",
     "text": "Un único lector comprueba los tres, así que los rechazos son los mismos tres sea cual sea el campo con el error: un mapeo que lleva más de una clave, un mapeo cuya única clave no es `$import` y un `$import:` cuyo valor no es una cadena simple. Un valor que no es ni un escalar ni un mapeo — casi siempre una lista — se rechaza solo por su forma."
   },
+  "1c58a1335aa18e2f": {
+    "at": "2026-11-19T01:25:58.995Z",
+    "job": "session-0002-20261119012558",
+    "revision": {
+      "from": "77156466012fc310",
+      "reviewed": false
+    },
+    "srcHash": "1c58a1335aa18e2f",
+    "status": "machine",
+    "text": "**Secreto** — una propiedad `sensitive` de Azure, un atributo `sensitive` escribible de Terraform, o una propiedad de cadena de CloudFormation cuyo nombre contiene una palabra de credencial — Password, Secret, Token, Credential, PrivateKey, ApiKey o Passphrase — y no termina en `Arn`, `Id`, `Name` ni `Ref`. La lectura de CloudFormation es una convención del borrador, así que revísala. Un secreto se genera como borrador como describe [Secretos](#secrets-in-the-drafts). Solo una propiedad en el nivel superior del tipo se convierte en secreto: en Azure, una clave de la raíz o un miembro de `properties`; de un miembro sensible por debajo de una de ellas se advierte bajo `constraint-dropped`, como describe esa sección."
+  },
   "1c59ca592ce8191b": {
     "at": "2026-11-17T13:24:33.294Z",
     "job": "session-0008-20261117132433",
@@ -24704,6 +24726,17 @@
     "srcHash": "24080989136e47eb",
     "status": "machine",
     "text": "**Un proxy situado delante termina TLS y reenvía a un listener confinado.** Deja ambas claves sin configurar y el listener sirve en texto plano, lo que solo se acepta en loopback o en un socket Unix — así nada que no esté ya en ese host puede llegar a él. Es la forma que usa un proxy inverso, un sidecar o una service mesh, y es aquella en la que el certificado está delante de este proceso en lugar de en él."
+  },
+  "240827d6e4f8a122": {
+    "at": "2026-11-19T01:25:58.995Z",
+    "job": "session-0002-20261119012558",
+    "revision": {
+      "from": "6f7dbf75689f6189",
+      "reviewed": false
+    },
+    "srcHash": "240827d6e4f8a122",
+    "status": "machine",
+    "text": "Un valor secreto nunca se escribe en un borrador. En `arm`, un parámetro `securestring` de nivel superior del fragmento, con un nombre formado a partir del nombre simbólico y la propiedad y que se proporciona cuando se despliega la plantilla; un secreto opcional es un parámetro obligatorio, ya que el parámetro no declara ningún valor por defecto. En `cloudformation`, una entrada `Parameters` con `Type: String` y `NoEcho: true`, con nombre del mismo modo y leída con `!Ref`; un secreto opcional es un parámetro obligatorio. En `terraform`, el slot del Component y una variable del módulo que lleva su propio `sensitive: true`, rellenada con el valor que entrega la vinculación al slot; no se escribe ningún `aggrega_override.tf.json` para una Recipe así."
   },
   "24086c2a54bd9cb3": {
     "at": "2026-10-22T11:13:35.211Z",
@@ -51672,6 +51705,17 @@
     "status": "machine",
     "text": "**Ningún argumento nombra un directorio, y ninguno pide una traza.** Adónde van los artefactos lo decide el espacio de trabajo que resolvió la llamada, nunca la llamada, y una compilación escrita desde aquí no deja ningún directorio `.trace` junto a su salida; una compilación con traza es [`aggrega build --trace`](aggrega-build.md)."
   },
+  "4bc3dba3cdada247": {
+    "at": "2026-11-19T01:25:58.995Z",
+    "job": "session-0002-20261119012558",
+    "revision": {
+      "from": "39e827487e4a2324",
+      "reviewed": false
+    },
+    "srcHash": "4bc3dba3cdada247",
+    "status": "machine",
+    "text": "**Una importación lee el catálogo frente al que se resuelve una build: primero las carpetas de catálogo del espacio de trabajo y, detrás de ellas, el catálogo publicado.** Las carpetas son las que nombran `AGGREGA_CATALOG_DIRS` y `workspace.catalog_dirs`, y luego la carpeta de catálogo en la raíz del espacio de trabajo; detrás de ellas, la importación lee el catálogo de la biblioteca estándar que publica su registro predeterminado como una única instantánea firmada, en `catalog/snapshot`. Una entidad que contiene una carpeta se lee en lugar de la publicada de la misma identidad, y las demás entidades publicadas siguen a la vista, de modo que los importadores, los Components con los que se comparan los borradores y las Recipes a partir de las cuales se asigna un `target` son los de las carpetas y los del catálogo publicado en conjunto. Un analizador o un importador que las carpetas contienen para una sintaxis o un formato se elige para ella antes que cualquiera de los que contiene el catálogo publicado, salvo que una entrada `plugins.importer` de la configuración del espacio de trabajo vincule otro. Una instantánea se obtiene una sola vez: su firma se verifica según la política de confianza de ese registro, y se guarda en la caché de contenido del espacio de trabajo y se lee allí como una carpeta de catálogo, ceñida a su digest, sin volver a pedírsela a ningún registro. Qué instantánea lee una solicitud: con `upgrade`, la más reciente; si no, la que nombra la entrada de la importación en el registro de `outputDir`, obtenida por su digest donde la máquina no la tiene; si no, la que el espacio de trabajo obtuvo por última vez como la más reciente; si no, la más reciente. Cuando la instantánea no se puede leer —el espacio de trabajo está sin conexión y la máquina no la tiene, el espacio de trabajo no nombra ningún registro predeterminado, o el registro no es alcanzable o no publica ninguna—, un espacio de trabajo con carpetas de catálogo importa solo frente a ellas, una entrada `warn` en `diagnostics` explica el motivo, y la entrada que escribe la importación conserva la instantánea que nombraba antes, de modo que la siguiente importación que pueda leerla lee la misma; `upgrade` se rechaza dondequiera que la instantánea no se pueda leer, tenga lo que tenga la máquina, ya que solo el registro puede decir qué instantánea es la más reciente. Un `sync` cuya entrada nombra una instantánea que la máquina no tiene y no puede obtener también se rechaza, nombrando esa instantánea, y sin conexión bajo [The workspace is offline and the step needs the network (El espacio de trabajo está sin conexión y el paso necesita la red)](../errors/fatal-halts.md#the-workspace-is-offline-and-the-step-needs-the-network): los borradores que juzga se redactaron contra ese catálogo, y las carpetas por sí solas pueden redactarlos de otro modo, así que se ejecuta donde se puede alcanzar el registro, lo que mantiene la instantánea en la máquina para todo sync posterior. En cambio, un espacio de trabajo sin ninguna carpeta de catálogo es un error bajo [The workspace is offline and the step needs the network (El espacio de trabajo está sin conexión y el paso necesita la red)](../errors/fatal-halts.md#the-workspace-is-offline-and-the-step-needs-the-network) cuando tendría que obtener una instantánea, nombrando qué ejecutar; y cuando el registro no publica ninguna instantánea, importa sin catálogo, y una entrada `warn` en `diagnostics` lo indica."
+  },
   "4bc6a124b3e74129": {
     "at": "2026-11-03T12:27:39.720Z",
     "job": "session-0104-20261103122739",
@@ -61073,6 +61117,17 @@
     "status": "machine",
     "text": "Host del registro de destino (anula el default_registry del workspace)"
   },
+  "5986944e7b92923c": {
+    "at": "2026-11-19T01:25:58.995Z",
+    "job": "session-0002-20261119012558",
+    "revision": {
+      "from": "4d02bb193d630805",
+      "reviewed": false
+    },
+    "srcHash": "5986944e7b92923c",
+    "status": "machine",
+    "text": "Una restricción del proveedor no se traslada, una forma se recorta donde una definición se refiere a sí misma o se anida demasiado, o un miembro sensible por debajo del nivel superior del tipo no se genera como borrador de secreto; se nombran la propiedad, la restricción y el motivo."
+  },
   "598f08074d0fc38d": {
     "at": "2026-11-03T10:52:18.070Z",
     "job": "session-0093-20261103105218",
@@ -65099,6 +65154,17 @@
     "status": "machine",
     "text": "La URL escrita por el autor — la URL de identidad tal como está escrita en el spec.source.url de la Recipe. Para helm-https-chart es la raíz del repositorio (forma de raíz del repositorio) o el .tgz directo (forma directa), exactamente como se escribió. Para git-repository, la URL clonable del repositorio. Para helm-oci-chart, la referencia del registro. Para compose-https-fragment, la URL HTTPS del fragmento. La ubicación resuelta del artefacto para una fuente helm de raíz del repositorio se registra por separado bajo `resolved_url:` como procedencia."
   },
+  "5f7806f1d14f45dc": {
+    "at": "2026-11-19T01:25:58.995Z",
+    "job": "session-0002-20261119012558",
+    "revision": {
+      "from": "87661dfbf3913398",
+      "reviewed": false
+    },
+    "srcHash": "5f7806f1d14f45dc",
+    "status": "machine",
+    "text": "**Una importación lee el catálogo frente al que se resuelve una build: primero las carpetas de catálogo del espacio de trabajo y, detrás de ellas, el catálogo publicado.** Las carpetas son las que nombran `AGGREGA_CATALOG_DIRS` y `workspace.catalog_dirs`, y luego la carpeta de catálogo en la raíz del espacio de trabajo; detrás de ellas, la importación lee el catálogo de la biblioteca estándar como una única instantánea firmada, en `catalog/snapshot` del registro predeterminado del espacio de trabajo servido — el mismo registro del que se obtiene un importador del núcleo, alcanzado en las mismas condiciones, sin que nada en la llamada nombre un registro ni lleve una credencial. Una entidad que contiene una carpeta se lee en lugar de la publicada de la misma identidad, y las demás entidades publicadas siguen a la vista. Un analizador o un importador que las carpetas contienen para una sintaxis o un formato se elige para ella antes que cualquiera de los que contiene el catálogo publicado, salvo que una entrada `plugins.importer` de la configuración del espacio de trabajo vincule otro. Una instantánea se obtiene una sola vez: su firma se verifica según la política de confianza de ese registro, y se guarda en la caché de contenido del espacio de trabajo y se lee allí como una carpeta de catálogo, sujeta a su digest, sin volver a pedírsela a ningún registro. Qué instantánea lee una llamada: con `upgrade`, la más reciente; si no, la que nombra la entrada de la importación en el registro del directorio de salida, obtenida por su digest cuando la máquina no la tiene; si no, la que el espacio de trabajo obtuvo por última vez como la más reciente; si no, la más reciente. Cuando la instantánea no se puede leer —el espacio de trabajo está sin conexión y la máquina no la tiene, el espacio de trabajo no nombra ningún registro predeterminado, o el registro no es alcanzable o no publica ninguna—, un espacio de trabajo con carpetas de catálogo importa solo frente a ellas, una entrada `warn` en `diagnostics` explica el motivo, y la entrada que escribe la importación conserva la instantánea que nombraba antes; `upgrade` se rechaza dondequiera que la instantánea no se pueda leer, tenga lo que tenga la máquina, ya que solo el registro puede decir qué instantánea es la más reciente. Un `sync` cuya entrada nombra una instantánea que la máquina no tiene y no puede obtener también se rechaza, nombrando esa instantánea: los borradores que juzga se redactaron contra ese catálogo, y las carpetas por sí solas pueden redactarlos de otro modo, así que se ejecuta donde se puede alcanzar el registro, lo que mantiene la instantánea en la máquina para todo sync posterior. En cambio, un espacio de trabajo sin ninguna carpeta de catálogo se rechaza, nombrando qué ejecutar, cuando tendría que obtener una instantánea sin conexión; y cuando el registro no publica ninguna instantánea, importa sin catálogo, y una entrada `warn` en `diagnostics` lo indica."
+  },
   "5f7e02c69dff2899": {
     "at": "2026-11-14T23:40:29.533Z",
     "job": "session-0013-20261114234029",
@@ -66075,6 +66141,17 @@
     "srcHash": "60e232db4cd3fc76",
     "status": "machine",
     "text": "**`mcp.health.listen` es donde un supervisor pregunta si este proceso está activo y si puede responder a una llamada.** Dale una dirección en cualquiera de las formas anteriores y un segundo listener responde allí a `GET /healthz` y `GET /readyz`. Omítelo — que es el valor predeterminado — y no se inicia ningún segundo listener ni se responde a ninguna de las dos comprobaciones en ningún lugar."
+  },
+  "60ebf829ffbfcfab": {
+    "at": "2026-11-19T01:25:58.995Z",
+    "job": "session-0002-20261119012558",
+    "revision": {
+      "from": "6974f59a9acf66e4",
+      "reviewed": false
+    },
+    "srcHash": "60ebf829ffbfcfab",
+    "status": "machine",
+    "text": "**Azure**: un parámetro `securestring` de nivel superior de la plantilla, con el nombre de la instancia y la propiedad, que proporcionas al desplegar. Un secreto que el proveedor marca como opcional es un parámetro obligatorio."
   },
   "60ed1f2593ade11b": {
     "at": "2026-11-04T13:01:09.618Z",
@@ -74063,6 +74140,13 @@
     "srcHash": "6cc8519b91584e8b",
     "status": "machine",
     "text": "Go"
+  },
+  "6cc968ccf6b58f87": {
+    "at": "2026-11-19T01:25:58.995Z",
+    "job": "session-0002-20261119012558",
+    "srcHash": "6cc968ccf6b58f87",
+    "status": "machine",
+    "text": "Solo una propiedad en el nivel superior del tipo se genera como borrador de secreto. Un miembro sensible por debajo de una de ellas —un `properties.osProfile.adminPassword` de Azure, un `user[].password` de Terraform— no: la Release lo establece como un valor simple dentro de la clave bajo la que se genera el borrador de su elemento padre, como `infra.overrides.osProfile`, y la importación advierte de cada uno de ellos bajo `constraint-dropped`, nombrando su ruta y esa clave."
   },
   "6cca9b24a831e55c": {
     "at": "2026-10-22T08:20:04.359Z",
@@ -95714,6 +95798,17 @@
     "status": "machine",
     "text": "generar una entidad para cada guest integrado en este binario"
   },
+  "8c393b2b523e6252": {
+    "at": "2026-11-19T01:25:58.995Z",
+    "job": "session-0002-20261119012558",
+    "revision": {
+      "from": "c08544c7adc8f7a7",
+      "reviewed": false
+    },
+    "srcHash": "8c393b2b523e6252",
+    "status": "machine",
+    "text": "`resource_types` no es una lista de nombres y de objetos con un `type` y un `component`, o el `component` de una entrada está vacío."
+  },
   "8c39cf1bb4eee24b": {
     "at": "2026-10-22T11:56:03.972Z",
     "job": "session-0034-20261022115603",
@@ -97551,6 +97646,17 @@
     "srcHash": "8ee5df761f49f614",
     "status": "machine",
     "text": "La entrada renderiza los valores del chart. Una plantilla auxiliar, `BitnamiNodePool`, escribe los recursos, la persistencia, el selector de nodos y el preajuste de antiafinidad de un pool de nodos; la entrada la declara con `define` y la invoca con `template`, para el pool primario y, con replicación, para el pool secundario. La plantilla auxiliar se declara dentro de la entrada que la usa, porque una Recipe importa una sola entrada y una definición viaja con la entrada que la contiene. Los valores predeterminados de la biblioteca rellenan cada campo de recurso que el Aggregate omite, así que la plantilla auxiliar los lee sin un valor de respaldo. La asignación gestiona las variantes de arquitectura standalone y de replicación, las credenciales que entregan las vinculaciones (leídas de `.context.inject.env`) y el bloque de métricas. Las Recipes consumidoras importan la entrada `MariaDBBitnamiCore` completa mediante `$import:` en forma de biblioteca."
+  },
+  "8ee665e158e4b34e": {
+    "at": "2026-11-19T01:25:58.995Z",
+    "job": "session-0002-20261119012558",
+    "revision": {
+      "from": "ba1f8ec5ac0232b5",
+      "reviewed": false
+    },
+    "srcHash": "8ee665e158e4b34e",
+    "status": "machine",
+    "text": "Su único lector es una importación, que lee primero las carpetas de catálogo y detrás de ellas el catálogo publicado, el orden en que resuelve una build: las carpetas de catálogo del espacio de trabajo —`AGGREGA_CATALOG_DIRS`, `workspace.catalog_dirs` y luego el directorio `catalog/` en la raíz del espacio de trabajo— y detrás de ellas la instantánea publicada, de modo que una entidad que contiene una carpeta se lee en lugar de la publicada de la misma identidad y las demás entidades publicadas siguen a la vista. `aggrega import`, la importación de la sesión del editor y la herramienta de importación del asistente ejecutan la misma operación, de modo que cada uno obtiene la instantánea de la misma forma. La importación la descarga del registro predeterminado del espacio de trabajo a través del mismo control de tráfico de salida y el mismo inicio de sesión que un pull, verifica su firma según la política de confianza de ese registro antes de conservar nada, la guarda en la caché de artefactos del espacio de trabajo y la lee allí como una carpeta de catálogo, sujeta a su digest —así, al importador se le ofrecen los Components del catálogo, y `--target` genera como borrador un Manifest a partir de sus Recipes, exactamente por el camino que sigue una carpeta de catálogo—. La entrada de la importación en el registro que escribe junto a sus borradores identifica la instantánea por el digest de su manifiesto, de modo que una importación posterior de los mismos borradores lee el mismo catálogo sin ninguna solicitud, y `aggrega import --upgrade` descarga la instantánea más reciente e importa frente a ella a partir de ese momento. Cuando la instantánea no se puede leer —sin conexión y sin ninguna guardada, sin registro predeterminado, o con un registro inalcanzable o que no publica ninguna—, un espacio de trabajo con carpetas de catálogo importa solo frente a ellas y una advertencia explica el motivo, mientras que un espacio de trabajo sin ninguna carpeta de catálogo se detiene, nombrando lo que hay que ejecutar, o importa sin catálogo cuando el registro no publica ninguna instantánea. Un `--sync` cuya entrada nombra una instantánea que esta máquina no tiene y no puede obtener también se detiene, nombrando la instantánea: los borradores que juzga se redactaron contra ese catálogo, y las carpetas por sí solas pueden redactarlos de otro modo, así que un sync lee la instantánea contra la que se importaron sus borradores o ninguna. Ningún otro comando lee la instantánea: un pull, una build y una validación resuelven cada entidad a través de los niveles del §5 y la fijan en el lockfile, y los borradores de una importación hacen referencia a las entidades del catálogo por su nombre, de modo que compilarlos resuelve esas entidades de la misma forma."
   },
   "8ee68f1d18f24860": {
     "at": "2026-11-03T08:01:05.098Z",
@@ -116003,6 +116109,17 @@
     "status": "machine",
     "text": "Helpers comunes NO disponibles"
   },
+  "a9e69be6b2a2f9d2": {
+    "at": "2026-11-19T01:25:58.995Z",
+    "job": "session-0002-20261119012558",
+    "revision": {
+      "from": "610f899632ea86a6",
+      "reviewed": false
+    },
+    "srcHash": "a9e69be6b2a2f9d2",
+    "status": "machine",
+    "text": "El borrador no ve ninguna clave `infra` del Component. La aserción `required_overrides_set` detiene la build hasta que la Release establece cada propiedad obligatoria que ninguna clave `values` aporta, nombrando `infra.overrides.<VendorName>`, el tipo que la requiere y que el Component no declara ninguna clave `values` con su nombre. Donde el `infra` del Component es cerrado y no declara `overrides`, la Release no puede establecerlas: la build valida el `infra` de la instancia contra el esquema del Component y rechaza la clave."
+  },
   "a9ea9040430f14a2": {
     "at": "2026-11-14T10:23:22.802Z",
     "job": "session-0010-20261114102322",
@@ -130113,6 +130230,17 @@
     "srcHash": "bdae3cfc11ace2d4",
     "status": "machine",
     "text": "Esquemas"
+  },
+  "bdb0911bdb897945": {
+    "at": "2026-11-19T01:25:58.995Z",
+    "job": "session-0002-20261119012558",
+    "revision": {
+      "from": "74510a0127c24358",
+      "reviewed": false
+    },
+    "srcHash": "bdb0911bdb897945",
+    "status": "machine",
+    "text": "El formato se reconoce por la forma propia de la fuente, como en un terminal; cuando el compilador rechaza porque ningún formato, o más de uno, reconoce la fuente, el editor muestra ese rechazo —que nombra los formatos— y pide el formato con el que leer la fuente, y luego envía de nuevo la misma importación incluyéndolo; dejar vacía esa pregunta termina la importación con el rechazo. Lee el archivo que nombras, o los archivos del directorio que nombras que lee su importador, y ningún otro. No llega a ninguna red, salvo para obtener aquello con lo que se ejecuta una importación y que esta máquina aún no tiene —uno de los importadores básicos del compilador, la primera vez que un formato lo necesita, y la instantánea publicada del catálogo que la importación lee como su catálogo detrás de las carpetas de catálogo del espacio de trabajo—, cada uno obtenido del registro predeterminado del espacio de trabajo, verificado y guardado en la caché de contenido, como hace `aggrega import`. Cuando no se puede obtener esa instantánea, una importación en un espacio de trabajo con carpetas de catálogo lee solo esas carpetas y el canal de salida muestra la advertencia que lo indica, mientras que una **Sync** cuyos borradores se importaron contra una instantánea que esta máquina no tiene se rechaza, nombrándola, igual que lo hace `aggrega import --sync`. La fuente puede estar en cualquier lugar de esta máquina, porque es un archivo al que apuntaste y no uno que contiene el espacio de trabajo; los borradores siempre acaban en el espacio de trabajo."
   },
   "bdb099ad6c92703f": {
     "at": "2026-11-02T19:03:21.213Z",
@@ -155573,6 +155701,13 @@
     "status": "machine",
     "text": "**Una sonda que no declara ninguna forma de comprobar** — ni una ruta, ni un puerto al que conectarse, ni un comando que ejecutar. No hay nada que convertir en una comprobación. Esta es una salvaguarda detrás del esquema más que una forma que probablemente escribas: se comprueba que una sonda tenga una de las tres antes de que llegue aquí."
   },
+  "e16a7595a036d590": {
+    "at": "2026-11-19T01:25:58.995Z",
+    "job": "session-0002-20261119012558",
+    "srcHash": "e16a7595a036d590",
+    "status": "machine",
+    "text": "Solo una propiedad en el nivel superior del recurso se convierte en secreto: en Azure, una clave de la raíz o un miembro de `properties`. Un miembro sensible por debajo de una de ellas, como `adminPassword` dentro de un `osProfile` de Azure o `password` dentro de un bloque de Terraform, no se genera como borrador de secreto: la Release lo establece como un valor simple dentro de la clave bajo la que se genera el borrador de su elemento padre, y la importación advierte de cada uno de ellos bajo `constraint-dropped`, nombrando su ruta y esa clave."
+  },
   "e16c8380df4ccddf": {
     "at": "2026-11-03T02:39:28.596Z",
     "job": "session-0040-20261103023928",
@@ -157182,6 +157317,17 @@
     "srcHash": "e3a55ab505f415bb",
     "status": "machine",
     "text": "`spec.source: ./module` y `module/main.tf.json` junto a la Recipe; `spec.valuesMapping` rellena las variables del módulo"
+  },
+  "e3a905030a475b42": {
+    "at": "2026-11-19T01:25:58.995Z",
+    "job": "session-0002-20261119012558",
+    "revision": {
+      "from": "f896ee1e06d0a07e",
+      "reviewed": false
+    },
+    "srcHash": "e3a905030a475b42",
+    "status": "machine",
+    "text": "Cuando el nombre que tomaría un borrador ya lo tiene un Component de las carpetas del espacio de trabajo o del catálogo publicado con otras claves de `values`, la importación se detiene bajo `component-exists`, nombrando el Component, las claves que difieren y `component` como remedio. Un Component que se tiene con las mismas claves es el mismo borrador actualizado, y la importación continúa. Un Component en un archivo que figura en la entrada propia de la importación en el registro junto a los borradores es su borrador anterior y no una entidad del catálogo, por lo que no se muestra al importador: un `--sync` después de que el esquema del proveedor haya ganado o perdido una propiedad de identidad genera el borrador del Component con sus claves nuevas. Una importación simple no sobrescribe ningún archivo de Component ni de Recipe que ya esté en su lugar, y se detiene nombrando `--sync`, que pone al día con la fuente los archivos que enumera el registro."
   },
   "e3ab24092720d647": {
     "at": "2026-11-03T20:25:38.864Z",
