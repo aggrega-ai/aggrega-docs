@@ -30,6 +30,12 @@
 
 export const COPYABLE_MARKER = "<!-- copyable -->";
 
+// The code block's meta: Expressive Code's text markers wrap each code span, its
+// backticks included, in a `mark` element, which src/styles/copyable.css sets
+// left to right and isolated from the text around it. The block's text, and so
+// what the copy button copies, is unchanged.
+const CODE_SPAN_MARKER = "/`+[^`]+`+/";
+
 const ABSOLUTE_URL = /^[a-z][a-z0-9+.-]*:/i;
 
 function refuse(file, message) {
@@ -101,7 +107,7 @@ function transform(parent, file) {
       parent.children.splice(i, 2, {
         type: "copyableBlock",
         data: { hName: "div", hProperties: { className: ["copyable-block"] } },
-        children: [{ type: "code", lang: "text", meta: null, value: copyableText(next, file) }],
+        children: [{ type: "code", lang: "text", meta: CODE_SPAN_MARKER, value: copyableText(next, file) }],
       });
       continue;
     }
