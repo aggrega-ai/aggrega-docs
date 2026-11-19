@@ -189,8 +189,10 @@ A few names appear in more than one package. Those are re-exports of one shared 
 | `ErrCacheLocationOutsideCache()` | `cache-location-outside-cache` | `a value a cache location is built from would place cached files outside the place it names in the cache` |
 | `ErrCachedManifestIntegrity()` | `cached-manifest-integrity` | `oci: cached manifest digest mismatch` |
 | `ErrFetchIntegrity()` | `fetch-integrity` | `oci: content digest mismatch` |
+| `ErrFetchInterrupted()` | `fetch-interrupted` | `oci: the transfer from the registry broke off` |
 | `ErrFetchNetworkUnreachable()` | `fetch-network-unreachable` | `oci: network unreachable` |
 | `ErrFetchNotFound()` | `fetch-not-found` | `oci: artifact not found at remote source` |
+| `ErrFetchServerError()` | `fetch-server-error` | `oci: the registry answered with a server error` |
 | `ErrFetchUnauthorized()` | `fetch-unauthorized` | `oci: authentication required or failed` |
 | `ErrImmutableTagConflict()` | `immutable-tag-conflict` | `oci: tag already published with different content` |
 | `ErrNoContentLayer()` | `no-content-layer` | `oci: manifest has no layer of the expected content media type` |
@@ -865,6 +867,8 @@ A short code is deliberately opaque: four digits say nothing about a condition o
 | `E0377` | `repository-listing-too-long` | `registry: the repository listing did not end in time` |
 | `E0378` | `registry-too-busy` | `oci: the registry kept asking to slow down` |
 | `E0379` | `oci-module-source-malformed` | `the source does not name one artifact of its OCI module kind` |
+| `E0380` | `fetch-server-error` | `oci: the registry answered with a server error` |
+| `E0381` | `fetch-interrupted` | `oci: the transfer from the registry broke off` |
 
 - `E0002` is retired: nothing reports it now, and the number is never handed to a different condition. It named a catalog lookup that fails while the graph's static contracts are checked — a fault in the compiler rather than in an authored document — and the condition raised when a build resolves a component type the catalog it reads then holds no entry for reports that state now, and its code is `E0154`.
 - `E0134` is retired: nothing reports it now, and the number is never handed to a different condition. It named a publishable entity whose directory was not named after the version the entity declares; a publication does not judge a directory's name, and the condition raised when an entity shares its directory with another entity where its kind has a directory of its own is `E0303`.

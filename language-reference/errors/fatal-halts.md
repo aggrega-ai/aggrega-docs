@@ -2578,6 +2578,28 @@ and for a request whose own time limit ended the wait:
 
 **How to fix:** the cause is the registry's rate limit, not anything you authored. A registry limiting how fast a client may ask is usually limiting everything coming from the same address, so check whether other commands or machines behind that address are asking it at the same time, and run the command again once they are done. Where the registry is one you run, check its rate limit. The five-minute bound is fixed; there is no setting that lengthens it.
 
+### A registry answered with a server error
+
+<!-- covers: pkg/oci.ErrFetchServerError -->
+
+The registry was reached and answered a request with a server error, a status of 500 or above, that it did not mean as a request to slow down (a 429, or a 503 carrying `Retry-After`, is the condition above). The registry failed to carry out the request, so what it holds at that address is unknown rather than known to be missing. It is reported for every source a Recipe fetches from a registry (`helm-oci-chart` and the OCI module kinds).
+
+Emitted message, naming the source being acquired and quoting the registry's answer, with the remediation the condition carries:
+> sourceresolver: kind=`<kind>` url=`<url>` version=`<version>`: oci: the registry answered with a server error (cause: `<the registry's answer>`); remediation: the registry `<host>` failed; run aggrega pull --release `<release>` again once it is back, and ask its operator if it keeps failing
+
+**How to fix:** nothing you authored is at fault. Run the command again once the registry is serving. Where the registry is one you run, read its own log for the failure behind the answer.
+
+### A transfer from a registry broke off
+
+<!-- covers: pkg/oci.ErrFetchInterrupted -->
+
+The registry was reached and began to answer, and the transfer ended before it was complete: the connection was reset, or the response ended before the bytes it promised. Nothing partial is kept, because a chart or module is pinned only when every byte of it has arrived and matches its digest. It is reported for every source a Recipe fetches from a registry (`helm-oci-chart` and the OCI module kinds).
+
+Emitted message, naming the source being acquired and quoting what the transport reported, with the remediation the condition carries:
+> sourceresolver: kind=`<kind>` url=`<url>` version=`<version>`: oci: the transfer from the registry broke off (cause: `<what the transport reported>`); remediation: run aggrega pull --release `<release>` again; if the transfer keeps breaking off, check the connection to `<host>` and any proxy or gateway between
+
+**How to fix:** run the command again. A transfer that breaks off every time at a similar point is usually a proxy, gateway or load balancer between this machine and the registry closing a long or large response, so check the connection to the host in the message and what sits on the path.
+
 ### Fetched or cached bytes do not match the digest committed for them
 
 <!-- covers: pkg/oci.ErrFetchIntegrity -->
@@ -6936,6 +6958,8 @@ Where one entry appears against two short codes, it covers two distinct conditio
 | `E0377` | `registry: the repository listing did not end in time` | A registry's repository listing did not end in time |
 | `E0378` | `oci: the registry kept asking to slow down` | A registry kept asking to slow down |
 | `E0379` | `the source does not name one artifact of its OCI module kind` | The source does not name one artifact of its OCI module kind |
+| `E0380` | `oci: the registry answered with a server error` | A registry answered with a server error |
+| `E0381` | `oci: the transfer from the registry broke off` | A transfer from a registry broke off |
 <!-- END GENERATED: halt-condition-sentences -->
 
 ## The linter domain (not fatal)
