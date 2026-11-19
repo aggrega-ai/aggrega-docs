@@ -161,6 +161,10 @@ A list entry may carry `dir`: `"rtl"` for a language written right to left
 (`{ "lang": "ar", "label": "العربية", "dir": "rtl" }`); an entry without it is
 left to right. Starlight sets the page's direction from it, and the header, the
 language picker, the notices and the not-found page follow the page's direction.
+Every language's pages are entries of the one `docs` collection, whose content
+data store Astro keeps in parts of bounded size (`experimental.collectionStorage`
+in `astro.config.mjs`), so a language added to the list adds parts to the store
+rather than enlarging any one of them.
 
 The translated pages are not part of the repository. Each version's are
 generated when that version is built, from the tag's own pages and the

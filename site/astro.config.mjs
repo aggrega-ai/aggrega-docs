@@ -91,6 +91,17 @@ const remarkHeadingIds = hasTranslatedTrees()
 export default defineConfig({
   site: "https://aggrega.ai",
   base,
+  // Every page in every published language is an entry of the one docs
+  // collection, which Astro keeps in its content data store. Kept as a single
+  // file, the store reaches the build as one module that grows with each
+  // language, and once that module is larger than V8's maximum string length
+  // (512 MiB of UTF-8) the bundler cannot hand it to the build's JavaScript:
+  // the build stops with "Failed to convert rust `&str` into napi `string`".
+  // Kept in parts of bounded size, each read as a module of its own, the store
+  // has no single piece that grows with the number of languages.
+  experimental: {
+    collectionStorage: "chunked",
+  },
   markdown: {
     remarkPlugins: [
       ...remarkHeadingIds,
