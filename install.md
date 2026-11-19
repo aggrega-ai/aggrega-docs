@@ -164,7 +164,7 @@ What it does:
 - **With Add to PATH selected, it adds the install folder to your user `PATH`** unless it is there already. A terminal opened after the install finds `aggrega`; one already open keeps the `PATH` it started with. With it cleared, nothing is added to your `PATH`, and a terminal runs `aggrega.exe` by its full path; an entry an earlier install added is left as it is.
 - **It lists Aggrega among your installed apps**, published by Cognitio s.r.l., so it is uninstalled from **Settings → Apps** like any other app. The uninstaller asks you to confirm, then removes the files the installer put in the folder, the `PATH` entry and the entry in that list, and removes the folder when nothing else is left in it.
 - **Run again, it installs over what is there**, offering the folder it installed into last, so the installer of a later release updates the copy you have, keeping one entry on your `PATH`.
-- **Beside `aggrega.exe`, the folder holds `uninstall.exe`**, `LICENSE` with the license text, and `EnVar.dll`, the component the installer and the uninstaller edit your `PATH` with.
+- **Beside `aggrega.exe`, the folder holds `uninstall.exe`**, `LICENSE` with the license text, `THIRD-PARTY-NOTICES.txt` with the third-party notices of everything compiled into the binary (the same text `aggrega version --licenses` prints), and `EnVar.dll`, the component the installer and the uninstaller edit your `PATH` with.
 
 When `aggrega.exe` is running — started by an editor or an AI client — the installer cannot replace it, and stops with a message saying so; close what started it and run the installer again. The uninstaller stops the same way, before it has removed anything.
 
