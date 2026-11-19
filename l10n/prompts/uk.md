@@ -12,6 +12,7 @@ Translate into Ukrainian. Each choice below is a default, made without a native 
 ## Quotation marks
 
 - A quoted phrase takes «так», and a quotation inside it takes „так“.
+- An apostrophe is typographic, ’ (U+2019): розв’язати, м’який, ін’єкція; never the straight ' (U+0027). Inline code, code blocks, identifiers, commands and quoted literals keep their own characters.
 - Inline code is never put in quotation marks: it keeps its backticks.
 
 ## English terms kept as they are
@@ -31,5 +32,9 @@ Translate into Ukrainian. Each choice below is a default, made without a native 
 - `unopinionated`: без власної позиції; "mathematically unopinionated" is "математично без власної позиції".
 - `content-neutral`: нейтральний щодо вмісту.
 - `agnostic to`: агностичний щодо, as in "агностичний щодо домовленостей".
+
+## Recurring terms
+
+- manifest, the ordinary word the source writes in lowercase (a Kubernetes manifest, an OCI manifest): маніфест, declined: маніфесту, маніфести, маніфестів; never "manifest" left in Latin letters.
 
 A native speaker who finds a default here wrong corrects this file; every translation made after the correction follows it.

@@ -32,4 +32,8 @@ Translate into Spanish, in a neutral international variety. Each choice below is
 - `content-neutral`: neutral respecto al contenido.
 - `agnostic to`: agnóstico respecto a, as in "agnóstico respecto a las convenciones".
 
+## Recurring terms
+
+- manifest, the ordinary word the source writes in lowercase (a Kubernetes manifest, an OCI manifest): el manifiesto, los manifiestos; never "manifest" left in English.
+
 A native speaker who finds a default here wrong corrects this file; every translation made after the correction follows it.

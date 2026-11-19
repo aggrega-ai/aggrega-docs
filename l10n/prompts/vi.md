@@ -31,4 +31,8 @@ Translate into Vietnamese. Each choice below is a default, made without a native
 - `content-neutral`: trung lập về nội dung.
 - `agnostic to`: không phụ thuộc vào, as in "không phụ thuộc vào các quy ước".
 
+## Recurring terms
+
+- manifest, the ordinary word the source writes in lowercase (a Kubernetes manifest, an OCI manifest): manifest, kept in English, as in các manifest Kubernetes.
+
 A native speaker who finds a default here wrong corrects this file; every translation made after the correction follows it.

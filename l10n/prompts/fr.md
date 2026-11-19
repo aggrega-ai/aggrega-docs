@@ -33,4 +33,8 @@ Translate into French. Each choice below is a default, made without a native spe
 - `content-neutral`: neutre vis-à-vis du contenu.
 - `agnostic to`: agnostique vis-à-vis de, as in "agnostique vis-à-vis des conventions".
 
+## Recurring terms
+
+- manifest, the ordinary word the source writes in lowercase (a Kubernetes manifest, an OCI manifest): le manifeste, les manifestes; never "manifest" left in English.
+
 A native speaker who finds a default here wrong corrects this file; every translation made after the correction follows it.

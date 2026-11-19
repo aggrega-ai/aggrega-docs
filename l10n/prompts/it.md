@@ -34,4 +34,8 @@ Translate into Italian. Each choice below is a default, made without a native sp
 - `content-neutral`: neutrale rispetto ai contenuti.
 - `agnostic to`: agnostico rispetto a, as in "agnostico rispetto alle convenzioni".
 
+## Recurring terms
+
+- manifest, the ordinary word the source writes in lowercase (a Kubernetes manifest, an OCI manifest): kept in English, masculine and invariable, il manifest, i manifest; never "manifesto".
+
 A native speaker who finds a default here wrong corrects this file; every translation made after the correction follows it.

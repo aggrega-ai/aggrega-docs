@@ -32,4 +32,8 @@ Translate into German. Each choice below is a default, made without a native spe
 - `content-neutral`: inhaltsneutral.
 - `agnostic to`: agnostisch gegenüber, as in "agnostisch gegenüber Konventionen".
 
+## Recurring terms
+
+- manifest, the ordinary word the source writes in lowercase (a Kubernetes manifest, an OCI manifest): das Manifest, des Manifests, die Manifeste, and in a compound Kubernetes-Manifest; never the English "manifest" in lowercase.
+
 A native speaker who finds a default here wrong corrects this file; every translation made after the correction follows it.
