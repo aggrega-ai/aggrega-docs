@@ -573,7 +573,7 @@ A Manifest declares an annotation binding under a key beginning with the bare `a
 The rule is about the keyspace an authored binding claims, so a key the presented Manifest does not declare a binding for is passed over rather than reported — there is no binding to be in violation.
 
 Emitted message. The offending key leads, because it is what the sentence is about, and the values after it are each introduced by what they are:
-> manifest annotation binding uses reserved prefix (Manifest, at `<field-path>`, `"<key>"`, reserved prefix `"aggrega.ai/"`, routing to Feature `"<feature-uri>"`, author the binding under a domain of your own such as `"feature.<your-domain>/"`)
+> Manifest annotation binding uses reserved prefix (Manifest, at `<field-path>`, `"<key>"`, reserved prefix `"aggrega.ai/"`, routing to Feature `"<feature-uri>"`, author the binding under a domain of your own such as `"feature.<your-domain>/"`)
 
 **How to fix:** rename the binding key into a namespace you control. A sub-prefixed key is the supported shape and is not reserved: `feature.aggrega.ai/…` for a standard-library shortcut, or your own domain — `acme.aggrega.ai/…`, `compliance.example.com/…` — for an enterprise one. Renaming the key changes what an author writes on a component to trigger the binding, so update the annotations that use it in the same edit. The platform's own keys under the bare prefix are listed in [../providers/well-known-annotations.md](../providers/well-known-annotations.md).
 
@@ -1584,7 +1584,7 @@ A type lookup matched more than one Manifest mapping key. Type keys are matched 
 The build halts rather than resolving whichever key it happened to read first. Picking one would make the rendered output depend on the order the mapping was walked in, which is exactly the thing byte-identical output rules out.
 
 Emitted message:
-> manifest maps multiple version-distinct keys to the same base type; the type-to-recipe lookup is ambiguous: type `"<type>"` matches version-distinct keys `[<keys>]` — pin the authored type's version or remove the duplicate mapping keys
+> Manifest maps multiple version-distinct keys to the same base type; the type-to-recipe lookup is ambiguous: type `"<type>"` matches version-distinct keys `[<keys>]` — pin the authored type's version or remove the duplicate mapping keys
 
 **How to fix:** two directions, and the message names both. Remove the duplicate mapping keys, keeping the one that should answer for the type — this is right when the extra keys are leftovers from a version bump. Or pin the version on the authoring side, so the type the component declares names the exact key you meant, which is right when the several keys are deliberate and different components genuinely want different Recipes.
 
@@ -6698,7 +6698,7 @@ Where one entry appears against two short codes, it covers two distinct conditio
 | `E0090` | `format is advertised by more than one importer plugin` | A parse or import format is advertised by more than one plugin |
 | `E0091` | `format is advertised by more than one parser plugin` | A parse or import format is advertised by more than one plugin |
 | `E0092` | `capability is served by more than one provider plugin; add a plugins.providers entry to select one` | A capability is served by more than one provider plugin |
-| `E0093` | `manifest maps multiple version-distinct keys to the same base type; the type-to-recipe lookup is ambiguous` | A Manifest maps two version-distinct keys onto one type |
+| `E0093` | `Manifest maps multiple version-distinct keys to the same base type; the type-to-recipe lookup is ambiguous` | A Manifest maps two version-distinct keys onto one type |
 | `E0094` | `duplicate entity identity within a single catalog directory` | Two catalog entities in one directory share an identity |
 | `E0095` | `malformed recipe reference in a Manifest mapping value` | Manifest mapping value is not a shape a recipe reference accepts |
 | `E0096` | `manifest mapping entry's recipe spec.implements does not match the mapped component-type / feature-type key` | Recipe `implements` does not match the mapped component type |
@@ -6763,7 +6763,7 @@ Where one entry appears against two short codes, it covers two distinct conditio
 | `E0156` | `invalid inject key: the from-key must name a provides key its source publishes` | Inject `from` key is not in the target's `provides` |
 | `E0158` | `invalid parameter reference: check the {{ .parameters.* }} expression names a declared parameter and parses as a Go template` | A `{{ .parameters.* }}` reference cannot be interpolated |
 | `E0160` | `manifest annotation bindings collide on same Feature path+pillar` | Two Manifest annotation bindings compete for one routing slot |
-| `E0161` | `manifest annotation binding uses reserved prefix` | A Manifest annotation binding claims the reserved `aggrega.ai/` prefix |
+| `E0161` | `Manifest annotation binding uses reserved prefix` | A Manifest annotation binding claims the reserved `aggrega.ai/` prefix |
 | `E0162` | `missing required feature: attach a Feature of the required type to the component` | Required feature not attached |
 | `E0163` | `required uses socket not populated` | Required `uses:` socket not populated |
 | `E0164` | `parameter contract violated` | Parameter type mismatch / contract violation |

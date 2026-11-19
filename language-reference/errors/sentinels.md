@@ -89,7 +89,7 @@ A few names appear in more than one package. Those are re-exports of one shared 
 | `ErrAmbiguousImporterPlugin()` | `ambiguous-importer-plugin` | `format is advertised by more than one importer plugin` |
 | `ErrAmbiguousParserPlugin()` | `ambiguous-parser-plugin` | `format is advertised by more than one parser plugin` |
 | `ErrAmbiguousProviderPlugin()` | `ambiguous-provider-plugin` | `capability is served by more than one provider plugin; add a plugins.providers entry to select one` |
-| `ErrAmbiguousTypeMapping()` | `ambiguous-type-mapping` | `manifest maps multiple version-distinct keys to the same base type; the type-to-recipe lookup is ambiguous` |
+| `ErrAmbiguousTypeMapping()` | `ambiguous-type-mapping` | `Manifest maps multiple version-distinct keys to the same base type; the type-to-recipe lookup is ambiguous` |
 | `ErrDuplicateEntityIdentity()` | `duplicate-entity-identity` | `duplicate entity identity within a single catalog directory` |
 | `ErrImporterVersionUnsatisfiable()` | `importer-version-unsatisfiable` | `no importer plugin version satisfies the plugins.importer entry's version pin` |
 | `ErrManifestImplementsMismatch()` | `manifest-implements-mismatch` | `manifest mapping entry's recipe spec.implements does not match the mapped component-type / feature-type key` |
@@ -289,7 +289,7 @@ A few names appear in more than one package. Those are re-exports of one shared 
 | `ErrMalformedRecipeReference()` | `malformed-recipe-reference` | `malformed recipe reference in a Manifest mapping value` |
 | `ErrManifestCrossBindingPillarCollision()` | `manifest-cross-binding-pillar-collision` | `manifest annotation bindings collide on same Feature path+pillar` |
 | `ErrManifestImplementsMismatch()` | `manifest-implements-mismatch` | `manifest mapping entry's recipe spec.implements does not match the mapped component-type / feature-type key` |
-| `ErrManifestReservedPrefix()` | `manifest-reserved-prefix` | `manifest annotation binding uses reserved prefix` |
+| `ErrManifestReservedPrefix()` | `manifest-reserved-prefix` | `Manifest annotation binding uses reserved prefix` |
 | `ErrMisnamedSlotFill()` | `misnamed-slot-fill` | `attachment written under a name no slot declares fits a slot its component leaves empty` |
 | `ErrMissingRequiredFeature()` | `missing-required-feature` | `missing required feature: attach a Feature of the required type to the component` |
 | `ErrMissingRequiredSocket()` | `missing-required-socket` | `required uses socket not populated` |
@@ -607,7 +607,7 @@ A short code is deliberately opaque: four digits say nothing about a condition o
 | `E0090` | `ambiguous-importer-plugin` | `format is advertised by more than one importer plugin` |
 | `E0091` | `ambiguous-parser-plugin` | `format is advertised by more than one parser plugin` |
 | `E0092` | `ambiguous-provider-plugin` | `capability is served by more than one provider plugin; add a plugins.providers entry to select one` |
-| `E0093` | `ambiguous-type-mapping` | `manifest maps multiple version-distinct keys to the same base type; the type-to-recipe lookup is ambiguous` |
+| `E0093` | `ambiguous-type-mapping` | `Manifest maps multiple version-distinct keys to the same base type; the type-to-recipe lookup is ambiguous` |
 | `E0094` | `duplicate-entity-identity` | `duplicate entity identity within a single catalog directory` |
 | `E0095` | `malformed-recipe-reference` | `malformed recipe reference in a Manifest mapping value` |
 | `E0096` | `manifest-implements-mismatch` | `manifest mapping entry's recipe spec.implements does not match the mapped component-type / feature-type key` |
@@ -672,7 +672,7 @@ A short code is deliberately opaque: four digits say nothing about a condition o
 | `E0156` | `invalid-inject-key` | `invalid inject key: the from-key must name a provides key its source publishes` |
 | `E0158` | `invalid-parameter-ref` | `invalid parameter reference: check the {{ .parameters.* }} expression names a declared parameter and parses as a Go template` |
 | `E0160` | `manifest-cross-binding-pillar-collision` | `manifest annotation bindings collide on same Feature path+pillar` |
-| `E0161` | `manifest-reserved-prefix` | `manifest annotation binding uses reserved prefix` |
+| `E0161` | `manifest-reserved-prefix` | `Manifest annotation binding uses reserved prefix` |
 | `E0162` | `missing-required-feature` | `missing required feature: attach a Feature of the required type to the component` |
 | `E0163` | `missing-required-socket` | `required uses socket not populated` |
 | `E0164` | `parameter-contract-violation` | `parameter contract violated` |
