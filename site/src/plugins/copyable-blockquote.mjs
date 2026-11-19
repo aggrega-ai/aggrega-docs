@@ -17,24 +17,35 @@
 // On the site the marked blockquote becomes a code block holding its text,
 // which Expressive Code renders with its copy button, inside an element of the
 // class `copyable-block` (src/styles/copyable.css wraps its lines and sets them
-// in the page's direction). The text is
-// the blockquote's as a reader sees it: one line per paragraph, one line per
-// list item with its number or bullet, a blank line between blocks, inline code
-// kept between backticks so that whoever reads the pasted text can tell a
-// command from the sentence around it, emphasis as its text, and a link as its
-// text followed by its address in parentheses where the two differ. A translated page is transformed the same
-// way, so the button copies the text in the page's language.
+// in the page's direction). The text is the blockquote's as a reader sees it: one
+// line per paragraph, one line per list item with its number or bullet, a blank
+// line between blocks, inline code kept between backticks so that whoever reads
+// the pasted text can tell a command from the sentence around it, emphasis as its
+// text, and a link as its text followed by its address in parentheses where the
+// two differ. A translated page is transformed the same way, so the button copies
+// the text in the page's language.
 //
 // The blockquote may hold paragraphs and lists only; anything else in it, or a
 // marker with no blockquote after it, stops the build, naming the page.
 
+import path from "node:path";
+import { corpusRoot, languageAttributes, languageOf } from "../translations.mjs";
+
 export const COPYABLE_MARKER = "<!-- copyable -->";
 
-// The code block's meta: Expressive Code's text markers wrap each code span, its
-// backticks included, in a `mark` element, which src/styles/copyable.css sets
-// left to right and isolated from the text around it. The block's text, and so
-// what the copy button copies, is unchanged.
+// The code block's meta on a page written right to left: Expressive Code's text
+// markers wrap each code span, its backticks included, in a `mark` element,
+// which src/styles/copyable.css sets left to right and isolated from the text
+// around it. The block's text, and so what the copy button copies, is unchanged.
+// A page written left to right has no markers.
 const CODE_SPAN_MARKER = "/`+[^`]+`+/";
+
+function pageIsRightToLeft(file) {
+  if (!file.path) return false;
+  const rel = path.relative(corpusRoot, file.path).split(path.sep).join("/");
+  const language = languageOf(rel);
+  return language !== undefined && languageAttributes(language.lang).dir === "rtl";
+}
 
 const ABSOLUTE_URL = /^[a-z][a-z0-9+.-]*:/i;
 
@@ -95,7 +106,7 @@ export function copyableText(blockquote, file = {}) {
   return blockquote.children.map((child) => blockText(child, file)).join("\n\n");
 }
 
-function transform(parent, file) {
+function transform(parent, file, rightToLeft) {
   if (!Array.isArray(parent.children)) return;
   for (let i = 0; i < parent.children.length; i++) {
     const node = parent.children[i];
@@ -107,16 +118,16 @@ function transform(parent, file) {
       parent.children.splice(i, 2, {
         type: "copyableBlock",
         data: { hName: "div", hProperties: { className: ["copyable-block"] } },
-        children: [{ type: "code", lang: "text", meta: CODE_SPAN_MARKER, value: copyableText(next, file) }],
+        children: [{ type: "code", lang: "text", meta: rightToLeft ? CODE_SPAN_MARKER : null, value: copyableText(next, file) }],
       });
       continue;
     }
-    transform(node, file);
+    transform(node, file, rightToLeft);
   }
 }
 
 export default function copyableBlockquote() {
   return function transformer(tree, file) {
-    transform(tree, file);
+    transform(tree, file, pageIsRightToLeft(file));
   };
 }
