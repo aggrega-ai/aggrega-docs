@@ -45477,6 +45477,13 @@
     "status": "machine",
     "text": "`lockfile.toolchain`"
   },
+  "3ca4811b73eb8b02": {
+    "at": "2026-11-19T10:25:57.665Z",
+    "job": "session-0014-20261119102557",
+    "srcHash": "3ca4811b73eb8b02",
+    "status": "machine",
+    "text": "**Thông báo của bên thứ ba và bảng kê vật tư.** Một lần phát hành có thể mang theo thông báo của bên thứ ba về mã mà guest của nó được xây dựng từ đó, và một bảng kê vật tư phần mềm của mã đó. `--plugin-notices <file>` chỉ định một tệp Markdown chứa thông báo của bên thứ ba cho guest: việc phát hành đóng gói nó vào manifest thành một layer thứ hai, sau `.wasm`, dưới media type `application/vnd.aggrega.wasmplugin.notices.v1beta1+markdown`, và một client OCI thông thường khi kéo tag phiên bản sẽ ghi nó vào `notices.md`. Layer này là một phần của manifest, nên digest của manifest và chữ ký duy nhất trên manifest đó bao trùm các thông báo như chúng bao trùm tệp thực thi; `.wasm` vẫn là layer đầu tiên và digest nội dung của nó không thay đổi. `--plugin-sbom <file>` chỉ định một bảng kê vật tư phần mềm SPDX 2.3 JSON: việc phát hành đính kèm nó bên cạnh phiên bản đã phát hành dưới dạng một OCI referrer có artifact type `application/spdx+json`, theo cách một chữ ký được đính kèm, nên một trình quét tìm thấy nó qua Referrers API của registry (`oras discover --artifact-type application/spdx+json <reference>`) và một client thông thường ghi nó vào `sbom.spdx.json`. Referrer này không làm thay đổi digest nào, và chữ ký không bao trùm nó. Một phiên bản đã phát hành là bất biến, nên thông báo của nó là những thông báo mà nó được phát hành cùng; một bảng kê vật tư có thể được đính kèm sau bằng cách phát hành lại cùng phiên bản đó, giống hệt từng byte, với `--plugin-sbom`, và một phiên bản đã mang một bảng kê vật tư thì giữ nguyên bảng kê đó. Mỗi cờ chỉ được chấp nhận cùng với `--plugin`, và một tệp không tồn tại hoặc rỗng sẽ bị từ chối, kèm theo tên của cờ."
+  },
   "3ca8fe24df056cd7": {
     "at": "2026-10-22T10:27:55.857345+00:00",
     "job": "msgbatch_01St5AJWD4JFUsFvC38dR1rN",
@@ -52437,6 +52444,17 @@
     "srcHash": "45e3bffb1257b977",
     "status": "machine",
     "text": "`aggregate.yaml` là một Aggregate nháp được đặt tên theo graph, như [Cách đặt tên bản nháp](#how-a-draft-is-named) mô tả, mở đầu bằng các chú thích nêu các cấu hình đã đọc, các tệp môi trường chỉ được đọc lấy tên biến, việc mã của ứng dụng không được đọc, và những gì bản nháp không mang theo. Nó chứa, cho mỗi graph và theo khóa là id của graph, một instance của `core/ai-agent/langgraph` với:"
+  },
+  "45e48d3c01c09637": {
+    "at": "2026-11-19T10:25:57.665Z",
+    "job": "session-0014-20261119102557",
+    "revision": {
+      "from": "b1e598d441cbb73b",
+      "reviewed": false
+    },
+    "srcHash": "45e48d3c01c09637",
+    "status": "machine",
+    "text": "`aggrega/publishEntity` — đóng gói một thực thể catalog và phát hành nó lên một registry. `entity` là một đường dẫn tương đối so với thư mục gốc của workspace, chỉ tới tài liệu cần phát hành, và bị từ chối trong cùng ba trường hợp như `release` — vắng mặt, tuyệt đối, hoặc phân giải ra ngoài thư mục gốc. Một thực thể Plugin còn cần `plugin`, cùng loại đường dẫn, chỉ tới tệp thực thi được phát hành bên trong manifest của chính thực thể đó. Một Plugin cũng có thể mang `pluginNotices`, thông báo của bên thứ ba cho guest của nó, được đóng gói thành một layer sau `.wasm`, và `pluginSbom`, bảng kê vật tư SPDX của nó, được đính kèm dưới dạng một referrer `application/spdx+json`; cả hai đều là cùng loại đường dẫn như `plugin`, và một yêu cầu gửi một trong hai mà không có `plugin`, hoặc chỉ tới một tệp không tồn tại hoặc rỗng, sẽ bị từ chối. `registry` là đích đến và mặc định là registry đã cấu hình của workspace. `dryRun` tính toán gói và digest mà một lần phát hành gói đó sẽ tạo ra, và không liên hệ registry nào. Bỏ qua `sign` thì theo chính sách riêng của registry đích, đúng như dòng lệnh làm khi không có cờ của nó, còn gửi trường này là lựa chọn của bên gọi — và cả hai đều không nới lỏng việc từ chối, vì một chính sách của registry hoặc workspace yêu cầu chữ ký sẽ từ chối một lần phát hành không ký bất kể trường này nói gì. `pinSources: true` chạy bước ghim của tác giả thực thể trên thực thể trước khi nó được đóng gói, nên `entity.lock` mà bước này ghi bên cạnh là một phần của những gì được phát hành — cùng bước mà `aggrega/pin` chạy. Bước này chạy trước mọi lần từ chối đánh giá nội dung của thực thể — một chính sách ký, cơ chế bảo vệ tính bất biến — nên một lần phát hành bị từ chối ở đó vẫn để lại tệp lock đã ghi; một lần từ chối về chính yêu cầu, chẳng hạn workspace ngoại tuyến hoặc không có đích đến, xảy ra trước và không ghim gì, và lần từ chối một thực thể dùng chung thư mục với một thực thể khác cũng vậy, vì bước này không được ghi tệp lock vào đó. Khi vắng mặt, nó theo `pin_sources_at_push` của workspace; khi được gửi, nó ghi đè thiết lập đó theo cả hai chiều. Dưới `dryRun`, bước này báo cáo tệp lock mà nó sẽ ghi và không ghi gì. **Một lần phát hành không chạy bước này sẽ từ chối một Recipe hoặc FeatureRecipe có `entity.lock` không ghi nhận ghim nào cho một đầu vào mà nó đọc**, hoặc một ghim mà đầu vào không còn khớp, trước khi đóng gói bất cứ thứ gì — cả dưới `dryRun` — nêu tên `aggrega pin`, `pinSources` và `pin_sources_at_push`; đó là lần từ chối mà `aggrega/resolveDependencies` đưa ra trên cùng tệp lock. Câu trả lời mang `reference`, `tag`, `kind`, `mediaType`, cặp `size`, `digest` đã phát hành — dưới `dryRun` là digest mà lần phát hành đó sẽ tạo ra, chính là digest mà [`aggrega push --dry-run`](aggrega-push.md) in ra — `signed`, `alreadyPublished`, `dryRun` và `reach`; `pin` — cùng câu trả lời mà `aggrega/pin` đưa ra — khi bước này đã chạy; và `wholeDirectorySource` khi nguồn cục bộ của thực thể được viết dưới dạng mẫu, nêu tên nguồn đó như được viết. Một nguồn như vậy chỉ chọn thư mục của nó khi một Release điền vào mẫu, nên lần phát hành mang theo mọi tệp trong thư mục của thực thể thay vì chỉ các tệp mà thực thể nêu tên, và trường này là cách bên gọi biết điều đó đã xảy ra — cả trong một lần chạy thử. Nó cũng mang `windowsUnusableEntries` khi kho lưu trữ mà lần phát hành mang theo chứa các mục mà Windows không thể lưu như đã viết — một đường dẫn có một phần mang tên một thiết bị, chẳng hạn `CON`, `AUX` hoặc `NUL`, ở bất kỳ kiểu chữ hoa thường nào và bất kể phần mở rộng theo sau, hoặc một phần kết thúc bằng dấu chấm hoặc dấu cách — nêu tên từng mục, tên tệp của chính tài liệu thực thể trước, rồi đến các tệp nó mang theo; trường này vắng mặt khi không có mục nào như vậy, bao gồm cả một thực thể được phát hành chỉ với tài liệu của nó. `aggrega` chạy trên Windows từ chối giải nén một mục như vậy, nên một workspace Windows không thể dùng phiên bản đó. Đây là các mục mà [`aggrega push`](aggrega-push.md) cảnh báo, và một yêu cầu đã yêu cầu được báo cáo sẽ đọc thấy cùng các dòng cảnh báo trong tiến trình của lần phát hành; cả hai đều không từ chối gì, nên lần phát hành tiếp tục hoặc bị từ chối đúng như khi không có chúng, cả dưới `dryRun`. **Thao tác này ghi vào một registry và vươn ra ngoài máy này**, và với bước ghim, nó còn ghi bên cạnh thực thể — xem [Tiếp cận một registry và ghi](#reaching-a-registry-and-writing)."
   },
   "45e69ba40d614262": {
     "at": "2026-10-22T23:44:18.033086+00:00",
@@ -87350,6 +87368,13 @@
     "status": "machine",
     "text": "**Nhiều bên đóng góp gặp nhau thế nào.** Mỗi mục được đánh giá cho từng component mà Recipe render trong boundary, và các tệp mà mọi bên đóng góp vào boundary khai báo được hợp nhất theo tên. Một tên được đánh giá ra cùng các byte — bởi hai component gắn với một Recipe, hoặc bởi hai Recipes cấu hình một provider giống hệt nhau — là một tệp. Một tên được đánh giá ra các byte khác nhau sẽ dừng build, nêu tên tệp và mọi bên đóng góp, vì không có tệp đơn lẻ nào là thứ tất cả bọn họ đã ghi; một tên mà phần lắp ráp riêng của provider ghi ra, chẳng hạn `aggrega.modules.tf`, cũng vậy. Cả hai đều là [xung đột đầu ra đã lắp ráp](../errors/fatal-halts.md#two-contributors-write-the-same-output-path). Hai Recipes cấu hình một provider dưới hai tên tệp khác nhau thì không được hợp nhất — mỗi tệp đều được ghi — và khi đó chính đích sẽ báo cấu hình trùng lặp, vì vậy các Recipes muốn dùng chung một cấu hình provider sẽ dùng chung tên tệp của nó, theo quy ước là một tệp được đặt tên theo provider mà nó cấu hình."
   },
+  "7426ad608fe18c0a": {
+    "at": "2026-11-19T10:25:57.665Z",
+    "job": "session-0014-20261119102557",
+    "srcHash": "7426ad608fe18c0a",
+    "status": "machine",
+    "text": "Đường dẫn tới một bảng kê vật tư phần mềm SPDX 2.3 JSON cho guest của Plugin. Tùy chọn, và chỉ dùng cùng --plugin: việc xuất bản đính kèm nó bên cạnh Plugin đã xuất bản dưới dạng một OCI referrer application/spdx+json, vốn không làm thay đổi digest nào và không bao giờ được đính kèm hai lần."
+  },
   "74294d39fecf5bc4": {
     "at": "2026-10-22T08:42:51.391Z",
     "job": "session-0026-20261022084251",
@@ -92550,6 +92575,17 @@
     "srcHash": "7ad230504ffb64d4",
     "status": "machine",
     "text": "Tempo — máy chủ truy vết phân tán trên Kubernetes"
+  },
+  "7ad244db9ead3ff6": {
+    "at": "2026-11-19T10:25:57.665Z",
+    "job": "session-0014-20261119102557",
+    "revision": {
+      "from": "d8c10d12175088ab",
+      "reviewed": false
+    },
+    "srcHash": "7ad244db9ead3ff6",
+    "status": "machine",
+    "text": "`publish-entity` nhận `entity`, tài liệu cần xuất bản, và một Plugin còn cần `plugin`, tệp thực thi được xuất bản bên trong manifest của nó. Một Plugin cũng có thể mang `plugin_notices`, thông báo của bên thứ ba cho guest của nó, được đóng gói thành một layer sau `.wasm`, và `plugin_sbom`, bảng kê vật tư SPDX của nó, được đính kèm dưới dạng một referrer `application/spdx+json`; cả hai đều là đường dẫn giống như `plugin`, và một lệnh gọi gửi một trong hai mà không có `plugin`, hoặc chỉ định một tệp không tồn tại hoặc rỗng, sẽ bị từ chối. `publish-artifact` nhận `file` cùng với `name` và `tag` mà nó được xuất bản dưới đó. Mọi đối số đường dẫn ở đây là tuyệt đối hoặc tương đối với gốc workspace, cùng một hợp đồng mà mọi công cụ khác trên bề mặt này sử dụng, và `workspace_root` chỉ định workspace mà lệnh gọi muốn nói đến — trên một server được truy cập qua đầu vào và đầu ra chuẩn. Một server được truy cập qua HTTPS từ chối `workspace_root` và yêu cầu mỗi đường dẫn đó phải phân giải bên trong workspace mà nó phục vụ, như [One process, one workspace](#one-process-one-workspace) trình bày. `registry` là đích đến và mặc định là registry được cấu hình của workspace; không gửi cả hai, khi không có mặc định nào được cấu hình, sẽ bị từ chối kèm theo việc nêu rõ cần gửi gì. `sign-artifacts` nhận `references`, một hoặc nhiều địa chỉ registry thay vì đường dẫn, và tùy chọn `jobs`, số lượng tham chiếu được ký cùng lúc: nếu bỏ qua, chúng được ký lần lượt từng cái, và một giá trị nhỏ hơn 1 sẽ bị từ chối kèm theo việc nêu rõ cần gửi gì. Mỗi tham chiếu vẫn được ký đúng như khi được ký riêng, như [`aggrega sign`](aggrega-sign.md#signing-several-references-at-once) mô tả. `deprecate-artifact` nhận hoặc `reference` cùng với `severity` và `reason`, hoặc `from` chỉ định một tệp lô — và từ chối các đối số nội dung được gửi kèm một tệp lô thay vì bỏ qua chúng, vì một tệp lô tự cung cấp nội dung của riêng nó và một đối số bị lặng lẽ bỏ qua sẽ trông như một đối số đã được tôn trọng."
   },
   "7ad362c2e93de45b": {
     "at": "2026-10-23T00:02:43.446982+00:00",
@@ -104479,6 +104515,17 @@
     "srcHash": "8b089c5fa4a21fb1",
     "status": "machine",
     "text": "`aggrega sign` phân giải digest mà registry đang giữ cho mỗi `<reference>`, ký digest đó và đính kèm gói chữ ký dưới dạng một referrer. Lệnh không bao giờ đẩy lại, gắn lại tag hay thay đổi theo bất kỳ cách nào các byte đã được phát hành — artifact là bất biến, còn chữ ký là một manifest anh em trỏ ngược về nó. Vì vậy, một artifact có thể được ký sau khi đã phát hành mà không cần tăng phiên bản."
+  },
+  "8b0edccc47a4243a": {
+    "at": "2026-11-19T10:25:57.665Z",
+    "job": "session-0014-20261119102557",
+    "revision": {
+      "from": "d4c92e5f005df481",
+      "reviewed": false
+    },
+    "srcHash": "8b0edccc47a4243a",
+    "status": "machine",
+    "text": "`entity.yaml`, thực thể, bên cạnh `entity.wasm`, tệp thực thi của nó, và `notices.md`, thông báo của bên thứ ba của nó, khi nó được xuất bản cùng chúng"
   },
   "8b0fbc4a0621adca": {
     "at": "2026-10-29T23:55:51.039Z",
@@ -124913,6 +124960,13 @@
     "status": "machine",
     "text": "Một `$ref:` định địa chỉ thư viện theo vị trí registry"
   },
+  "a604689974819e8a": {
+    "at": "2026-11-19T10:25:57.665Z",
+    "job": "session-0014-20261119102557",
+    "srcHash": "a604689974819e8a",
+    "status": "machine",
+    "text": "một bảng kê vật tư phần mềm được đính kèm vào một Plugin"
+  },
   "a6058f9400d2b259": {
     "at": "2026-10-22T23:16:14.159554+00:00",
     "job": "msgbatch_01KLr16G9MNxkfeMa3YGcHeY",
@@ -143381,6 +143435,13 @@
     "srcHash": "bdf674a942c5b1b7",
     "status": "machine",
     "text": "Thông báo được phát ra, cho một tọa độ mà plugin không được trao và cho một giá trị mà không annotation nào nhận:"
+  },
+  "bdf9467952cbe6aa": {
+    "at": "2026-11-19T10:25:57.665Z",
+    "job": "session-0014-20261119102557",
+    "srcHash": "bdf9467952cbe6aa",
+    "status": "machine",
+    "text": "Bảng kê vật tư SPDX bằng JSON của module plugin, dưới dạng một đường dẫn tương đối so với thư mục gốc của workspace, được đính kèm vào Plugin đã phát hành. Yêu cầu `plugin`."
   },
   "bdfc89465f2a752f": {
     "at": "2026-10-23T00:02:43.446982+00:00",
@@ -164263,6 +164324,13 @@
     "status": "machine",
     "text": "Một Feature được viết một lần và gắn nhiều lần, nên tên mà một FeatureRecipe\nsuy ra phải khác nhau cho mỗi attachment. FeatureRecipe này ghép component chủ\nvà tên attachment: chủ `payments-db`, được gắn dưới `storage-headroom`,\ncho ra `PaymentsDbStorageHeadroom`."
   },
+  "d93108e9e6067db9": {
+    "at": "2026-11-19T10:25:57.665Z",
+    "job": "session-0014-20261119102557",
+    "srcHash": "d93108e9e6067db9",
+    "status": "machine",
+    "text": "Đường dẫn tới một tệp Markdown chứa thông báo của bên thứ ba cho guest của Plugin. Tùy chọn, và chỉ dùng cùng --plugin: việc xuất bản đóng gói nó vào manifest thành một layer sau .wasm, để thông báo đi cùng tệp thực thi và digest của manifest bao trùm chúng."
+  },
   "d9312173271d1374": {
     "at": "2026-10-23T00:02:41.868223+00:00",
     "job": "msgbatch_01GBmDXubWU53zHo6wo1SbnJ",
@@ -178006,6 +178074,13 @@
     "srcHash": "eaa6588c77a03698",
     "status": "machine",
     "text": "*Khai báo JSON Schema 2020-12 của Workload là nguồn có thẩm quyền và được phát hành nhúng trong tệp nhị phân của trình biên dịch. Các provider helm và compose tổng hợp `workload:` của một Recipe, dù inline hay tải bằng `$import:`; xem ma trận khả năng của Provider để biết mức hỗ trợ theo từng provider.*"
+  },
+  "eaa7af4588b3012c": {
+    "at": "2026-11-19T10:25:57.665Z",
+    "job": "session-0014-20261119102557",
+    "srcHash": "eaa7af4588b3012c",
+    "status": "machine",
+    "text": "Tệp chứa thông báo của bên thứ ba cho module plugin, dưới dạng một đường dẫn tương đối so với thư mục gốc của workspace, được phát hành thành một layer của manifest của Plugin. Yêu cầu `plugin`."
   },
   "eaa919cbabc6e7dc": {
     "at": "2026-11-19T00:05:25.628Z",
