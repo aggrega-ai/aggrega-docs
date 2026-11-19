@@ -157,6 +157,10 @@ code in lower case (`/docs/ja/`, `/docs/zh-cn/`). The list names the languages
 whose translation is complete; adding one is one line in that file. Every part of
 the site reads the list through `src/translations.mjs`, and a language on it that
 the translation configuration does not translate stops the build, naming it.
+Every language's pages are entries of the one `docs` collection, whose content
+data store Astro keeps in parts of bounded size (`experimental.collectionStorage`
+in `astro.config.mjs`), so a language added to the list adds parts to the store
+rather than enlarging any one of them.
 
 The translated pages are not part of the repository. Each version's are
 generated when that version is built, from the tag's own pages and the
