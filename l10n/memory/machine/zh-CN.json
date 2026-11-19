@@ -45473,6 +45473,13 @@
     "status": "machine",
     "text": "`lockfile.toolchain`"
   },
+  "3ca4811b73eb8b02": {
+    "at": "2026-11-19T10:09:50.135Z",
+    "job": "session-0007-20261119100950",
+    "srcHash": "3ca4811b73eb8b02",
+    "status": "machine",
+    "text": "**第三方声明与物料清单。** 一次发布可以携带构建其 guest 所用代码的第三方声明，以及该代码的软件物料清单。`--plugin-notices <file>` 指明一个包含该 guest 第三方声明的 Markdown 文件：发布时会将其作为第二个层打包进 manifest，位于 `.wasm` 之后，媒体类型为 `application/vnd.aggrega.wasmplugin.notices.v1beta1+markdown`；通用 OCI 客户端拉取该版本标签时会将其写入 `notices.md`。该层是 manifest 的一部分，因此 manifest 摘要以及对其所做的那一个签名像涵盖可执行文件一样涵盖这些声明；`.wasm` 仍是第一个层，其内容摘要不变。`--plugin-sbom <file>` 指明一份 SPDX 2.3 JSON 软件物料清单：发布时会将其作为制品类型为 `application/spdx+json` 的 OCI referrer 附加在已发布版本旁边，与附加签名的方式相同，因此扫描器可以通过注册表的 Referrers API（`oras discover --artifact-type application/spdx+json <reference>`）找到它，通用客户端会将其写入 `sbom.spdx.json`。该 referrer 不改变任何摘要，签名也不涵盖它。已发布的版本不可变，因此其声明就是发布时所带的那些；物料清单可以在之后附加，方法是使用 `--plugin-sbom` 逐字节相同地再次发布同一版本，而已经带有物料清单的版本会保留原有的那一份。每个标志都只能与 `--plugin` 一起使用，缺失或为空的文件会被拒绝，并指明对应的标志。"
+  },
   "3ca8fe24df056cd7": {
     "at": "2026-10-22T01:50:22.319444+00:00",
     "job": "msgbatch_01VwQyd4vfmNKqBKVTg2vP5W",
@@ -52427,6 +52434,17 @@
     "srcHash": "45e3bffb1257b977",
     "status": "machine",
     "text": "`aggregate.yaml` 是一个 Aggregate 草稿，按[草稿如何命名](#how-a-draft-is-named)所述以图命名，开头的注释列出所读取的配置、仅读取了名称的环境文件、未读取应用代码这一事实，以及草稿未承载的内容。它为每个图包含一个以其 id 为键的 `core/ai-agent/langgraph` 实例，具有："
+  },
+  "45e48d3c01c09637": {
+    "at": "2026-11-19T10:09:50.135Z",
+    "job": "session-0007-20261119100950",
+    "revision": {
+      "from": "b1e598d441cbb73b",
+      "reviewed": false
+    },
+    "srcHash": "45e48d3c01c09637",
+    "status": "machine",
+    "text": "`aggrega/publishEntity` — 将一个目录实体打包并发布到注册表。`entity` 是相对于工作区根目录的路径，指明要发布的文档，其拒绝情形与 `release` 相同，共三种：缺失、绝对路径、或解析到根目录之外。Plugin 实体还需要 `plugin`，它是同类路径，指明发布在该实体自身清单中的可执行文件。Plugin 也可以携带 `pluginNotices`（其 guest 的第三方声明，作为 `.wasm` 之后的一个层打包）和 `pluginSbom`（其 SPDX 物料清单，作为 `application/spdx+json` referrer 附加）；两者都是与 `plugin` 同类的路径，若请求发送了其中任一项却未发送 `plugin`，或指明的文件缺失或为空，则会被拒绝。`registry` 是发布目标，默认为工作区配置的注册表。`dryRun` 会计算出包以及发布它将得到的摘要，且不联系任何注册表。省略 `sign` 时遵循目标注册表自身的策略，这与命令行在未给出该标志时的行为一致；发送它则由调用方决定——两者都不会放宽拒绝，因为要求签名的注册表或工作区策略无论该字段如何都会拒绝未签名的发布。`pinSources: true` 会在打包前对实体运行实体作者的固定（pin）步骤，因此该步骤写在实体旁边的 `entity.lock` 也是发布内容的一部分——这与 `aggrega/pin` 运行的步骤相同。它在任何评判实体内容的拒绝（签名策略、不可变性保护）之前运行，因此在那里被拒绝的发布仍会留下已写入的锁文件；关于请求本身的拒绝，例如工作区处于离线状态或没有发布目标，则会先发生且不固定任何内容；对于与另一个实体共享目录的实体，其拒绝同样如此，因为该步骤不得向这样的目录写入锁文件。缺省时，它遵循工作区的 `pin_sources_at_push`；发送时，它在两个方向上覆盖该设置。在 `dryRun` 下，该步骤报告它将写入的锁文件，但不写入任何内容。**不运行该步骤的发布，会在打包任何内容之前拒绝其 `entity.lock` 未为所读取的某个输入记录固定值、或该输入已不再匹配的 Recipe 或 FeatureRecipe**——在 `dryRun` 下同样如此——并指明 `aggrega pin`、`pinSources` 和 `pin_sources_at_push`；这与 `aggrega/resolveDependencies` 针对同一锁文件给出的拒绝相同。应答包含 `reference`、`tag`、`kind`、`mediaType`、`size` 对、已发布的 `digest`（在 `dryRun` 下为该发布将得到的摘要，即 [`aggrega push --dry-run`](aggrega-push.md) 打印的摘要）、`signed`、`alreadyPublished`、`dryRun` 和 `reach`；在该步骤运行时包含 `pin`（与 `aggrega/pin` 给出的应答相同）；在实体的本地源以模板形式编写时包含 `wholeDirectorySource`，按编写原样指明该源。这样的源只有在某个 Release 填充模板后才会确定其目录，因此发布会携带实体目录中的所有文件，而不仅是实体指明的文件，调用方正是通过该字段得知这一点的——试运行时同样如此。当发布所携带的归档中包含 Windows 无法按原样保存的条目时，应答还包含 `windowsUnusableEntries`：即路径中某一部分以设备命名（例如 `CON`、`AUX` 或 `NUL`，不区分大小写，无论后接什么扩展名），或某一部分以句点或空格结尾；它会逐一列出这些条目，先列实体文档自身的文件名，再列它携带的文件；没有此类条目时该字段缺失，仅以文档本身发布的实体也属于这种情况。在 Windows 上运行的 `aggrega` 会拒绝解包此类条目，因此 Windows 工作区无法使用该版本。这些正是 [`aggrega push`](aggrega-push.md) 发出警告的条目，要求接收报告的请求会在发布进度中读到相同的警告行；两者都不会拒绝任何内容，因此发布会照常进行或被拒绝，与没有这些条目时完全一样，在 `dryRun` 下同样如此。**此操作会写入注册表并触及本机之外**，运行固定步骤时还会在实体旁边写入内容——参见[访问注册表与写入](#reaching-a-registry-and-writing)。"
   },
   "45e69ba40d614262": {
     "at": "2026-10-22T05:07:43.448651+00:00",
@@ -87333,6 +87351,13 @@
     "status": "machine",
     "text": "**多个贡献者如何汇合。** 对于 Recipe 在边界中渲染的每个组件，每个条目都会求值一次，边界的所有贡献者声明的文件按名称合并。同一名称求值得到相同字节——无论是由绑定到同一 Recipe 的两个组件，还是由以相同方式配置同一 provider 的两个 Recipes——即为同一个文件。同一名称求值得到不同字节则会终止构建，并指出该文件和每个贡献者，因为没有任何单一文件是它们全部所写的内容；与 provider 自身组装所写名称（如 `aggrega.modules.tf`）相同的名称也会终止构建。两者都属于[组装输出冲突](../errors/fatal-halts.md#two-contributors-write-the-same-output-path)。以两个不同文件名配置同一 provider 的两个 Recipes 不会被合并——每个文件都会写入——此时由目标报告重复配置，因此打算共享 provider 配置的 Recipes 应共享其文件名，按约定以其所配置的 provider 命名。"
   },
+  "7426ad608fe18c0a": {
+    "at": "2026-11-19T10:09:50.135Z",
+    "job": "session-0007-20261119100950",
+    "srcHash": "7426ad608fe18c0a",
+    "status": "machine",
+    "text": "Plugin 的 guest 的 SPDX 2.3 JSON 软件物料清单的路径。可选，且仅与 --plugin 一起使用：发布时会将其作为 application/spdx+json OCI referrer 附加在已发布的 Plugin 旁边，这不会改变任何摘要，且绝不会重复附加。"
+  },
   "74294d39fecf5bc4": {
     "at": "2026-10-22T01:39:34.791258+00:00",
     "job": "msgbatch_01NzZHjUiYAJW3BfQRFzEVzQ",
@@ -92535,6 +92560,17 @@
     "srcHash": "7ad230504ffb64d4",
     "status": "machine",
     "text": "Tempo — Kubernetes 分布式追踪服务器"
+  },
+  "7ad244db9ead3ff6": {
+    "at": "2026-11-19T10:09:50.135Z",
+    "job": "session-0007-20261119100950",
+    "revision": {
+      "from": "d8c10d12175088ab",
+      "reviewed": false
+    },
+    "srcHash": "7ad244db9ead3ff6",
+    "status": "machine",
+    "text": "`publish-entity` 接受 `entity`，即要发布的文档；Plugin 还需要 `plugin`，即发布在其清单内的可执行文件。Plugin 也可以携带 `plugin_notices`（其 guest 的第三方声明，作为 `.wasm` 之后的一个层打包）和 `plugin_sbom`（其 SPDX 物料清单，作为 `application/spdx+json` referrer 附加）；两者都与 `plugin` 一样是路径，若调用发送了其中任一项却未发送 `plugin`，或指明的文件缺失或为空，则会被拒绝。`publish-artifact` 接受 `file` 以及发布时使用的 `name` 和 `tag`。这里的每个路径参数都是绝对路径或相对于工作区根目录的路径，与此接口上其他所有工具使用的约定相同；`workspace_root` 指明调用所指的工作区——适用于通过标准输入输出访问的服务器。通过 HTTPS 访问的服务器拒绝 `workspace_root`，并要求这些路径都解析到它所服务的工作区之内，详见[一个进程，一个工作区](#one-process-one-workspace)。`registry` 是目标位置，默认为工作区配置的注册表；两者都未提供且未配置默认值时，调用会被拒绝，并指明应发送什么。`sign-artifacts` 接受 `references`，即一个或多个注册表地址，而非路径，并可选接受 `jobs`，即同时签名的数量：省略时逐个签名，小于 1 的值会被拒绝，并指明应发送什么。每个引用的签名方式仍与单独签名时完全相同，如 [`aggrega sign`](aggrega-sign.md#signing-several-references-at-once) 所述。`deprecate-artifact` 要么接受 `reference` 以及 `severity` 和 `reason`，要么接受指明批处理文件的 `from`——并且对于与批处理文件一起发送的内容参数，它会拒绝而不是丢弃，因为批处理文件自带这些内容，而被悄悄忽略的参数会被误读为已被采纳。"
   },
   "7ad362c2e93de45b": {
     "at": "2026-10-22T08:15:42.630087+00:00",
@@ -104460,6 +104496,17 @@
     "srcHash": "8b089c5fa4a21fb1",
     "status": "machine",
     "text": "`aggrega sign` 为每个 `<reference>` 解析注册表中已有的摘要，对该摘要签名，并将签名包作为 referrer 附加。它从不重新推送、重新打标签或以其他方式修改已发布的字节——制品是不可变的，签名是一个指回该制品的同级 manifest。因此，制品可以在发布之后签名，而无需升级版本。"
+  },
+  "8b0edccc47a4243a": {
+    "at": "2026-11-19T10:09:50.135Z",
+    "job": "session-0007-20261119100950",
+    "revision": {
+      "from": "d4c92e5f005df481",
+      "reviewed": false
+    },
+    "srcHash": "8b0edccc47a4243a",
+    "status": "machine",
+    "text": "`entity.yaml`，即实体，旁边是其可执行文件 `entity.wasm`，以及其第三方声明 `notices.md`（如果发布时附带了这些声明）"
   },
   "8b0fbc4a0621adca": {
     "at": "2026-10-29T23:55:51.039Z",
@@ -124905,6 +124952,13 @@
     "status": "machine",
     "text": "A `$ref:` addresses a library by registry location（$ref: 通过注册表位置寻址库）"
   },
+  "a604689974819e8a": {
+    "at": "2026-11-19T10:09:50.135Z",
+    "job": "session-0007-20261119100950",
+    "srcHash": "a604689974819e8a",
+    "status": "machine",
+    "text": "附加到 Plugin 的软件物料清单"
+  },
   "a6058f9400d2b259": {
     "at": "2026-10-22T04:05:10.557953+00:00",
     "job": "msgbatch_01Pqt8yvyetbk47g1hoiAyit",
@@ -143368,6 +143422,13 @@
     "srcHash": "bdf674a942c5b1b7",
     "status": "machine",
     "text": "输出的消息，分别针对未提供给插件的坐标和任何注解都不接受的值："
+  },
+  "bdf9467952cbe6aa": {
+    "at": "2026-11-19T10:09:50.135Z",
+    "job": "session-0007-20261119100950",
+    "srcHash": "bdf9467952cbe6aa",
+    "status": "machine",
+    "text": "插件模块的 JSON 格式 SPDX 物料清单，以相对于工作区根目录的路径表示，附加到已发布的 Plugin。需要 `plugin`。"
   },
   "bdfc89465f2a752f": {
     "at": "2026-10-22T08:15:42.630087+00:00",
@@ -164248,6 +164309,13 @@
     "status": "machine",
     "text": "一个 Feature 只编写一次，却会被多次附加，因此 FeatureRecipe\n派生的名称必须对每个附件都不同。这里组合了宿主组件和附件名称：宿主 `payments-db`，以 `storage-headroom` 承载，\n得到 `PaymentsDbStorageHeadroom`。"
   },
+  "d93108e9e6067db9": {
+    "at": "2026-11-19T10:09:50.135Z",
+    "job": "session-0007-20261119100950",
+    "srcHash": "d93108e9e6067db9",
+    "status": "machine",
+    "text": "Plugin 的 guest 的第三方声明所在 Markdown 文件的路径。可选，且仅与 --plugin 一起使用：发布时会将其作为 .wasm 之后的一个层打包进 manifest，因此这些声明随可执行文件一同传递，并由 manifest 摘要涵盖。"
+  },
   "d9312173271d1374": {
     "at": "2026-10-22T08:03:58.541373+00:00",
     "job": "msgbatch_01JG3MCod2kUphSC2Zwegw3H",
@@ -177973,6 +178041,13 @@
     "srcHash": "eaa6588c77a03698",
     "status": "machine",
     "text": "*Workload 的 JSON Schema 2020-12 声明具有权威性，并嵌入编译器二进制文件发布。helm 和 compose provider 会合成 Recipe 的 `workload:`，无论是内联的还是通过 `$import:` 加载的；各 provider 的支持情况参见 Provider 能力矩阵。*"
+  },
+  "eaa7af4588b3012c": {
+    "at": "2026-11-19T10:09:50.135Z",
+    "job": "session-0007-20261119100950",
+    "srcHash": "eaa7af4588b3012c",
+    "status": "machine",
+    "text": "插件模块第三方声明所在的文件，以相对于工作区根目录的路径表示，作为该 Plugin 的 manifest 的一个层发布。需要 `plugin`。"
   },
   "eaa919cbabc6e7dc": {
     "at": "2026-11-19T00:10:07.804Z",
