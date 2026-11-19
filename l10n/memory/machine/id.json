@@ -45477,6 +45477,13 @@
     "status": "machine",
     "text": "`lockfile.toolchain`"
   },
+  "3ca4811b73eb8b02": {
+    "at": "2026-11-19T10:23:35.228Z",
+    "job": "session-0013-20261119102335",
+    "srcHash": "3ca4811b73eb8b02",
+    "status": "machine",
+    "text": "**Pemberitahuan pihak ketiga dan daftar bahan (bill of materials).** Sebuah publikasi dapat membawa pemberitahuan pihak ketiga dari kode yang digunakan untuk membangun guest-nya, serta daftar bahan perangkat lunak (software bill of materials) dari kode tersebut. `--plugin-notices <file>` menamai file Markdown berisi pemberitahuan pihak ketiga milik guest: proses publikasi mengemasnya ke dalam manifest sebagai layer kedua, setelah `.wasm`, dengan media type `application/vnd.aggrega.wasmplugin.notices.v1beta1+markdown`, dan klien OCI generik yang menarik tag versi tersebut menuliskannya ke `notices.md`. Layer tersebut merupakan bagian dari manifest, sehingga digest manifest dan satu-satunya tanda tangan atasnya mencakup pemberitahuan tersebut sebagaimana keduanya mencakup executable; `.wasm` tetap menjadi layer pertama dan digest kontennya tidak berubah. `--plugin-sbom <file>` menamai daftar bahan perangkat lunak SPDX 2.3 JSON: proses publikasi melampirkannya di samping versi yang dipublikasikan sebagai referrer OCI dengan tipe artefak `application/spdx+json`, dengan cara yang sama seperti tanda tangan dilampirkan, sehingga pemindai menemukannya melalui Referrers API milik registry (`oras discover --artifact-type application/spdx+json <reference>`) dan klien generik menuliskannya ke `sbom.spdx.json`. Referrer tersebut tidak mengubah digest apa pun, dan tanda tangan tidak mencakupnya. Versi yang telah dipublikasikan tidak dapat diubah, sehingga pemberitahuannya adalah pemberitahuan yang dipublikasikan bersamanya; daftar bahan dapat dilampirkan kemudian dengan memublikasikan versi yang sama lagi, byte demi byte, dengan `--plugin-sbom`, dan versi yang sudah membawa daftar bahan tetap mempertahankannya. Setiap flag hanya diterima bersama `--plugin`, dan file yang tidak ada atau kosong ditolak, dengan menyebutkan flag tersebut."
+  },
   "3ca8fe24df056cd7": {
     "at": "2026-10-22T11:56:03.972Z",
     "job": "session-0034-20261022115603",
@@ -52437,6 +52444,17 @@
     "srcHash": "45e3bffb1257b977",
     "status": "machine",
     "text": "`aggregate.yaml` adalah draf Aggregate yang dinamai menurut graf-nya, sebagaimana dijelaskan [Cara draf dinamai](#how-a-draft-is-named), diawali komentar yang menyebut konfigurasi yang dibaca, berkas lingkungan yang dibaca hanya untuk namanya, bahwa kode aplikasi tidak dibaca, dan apa yang tidak dibawa draf. Draf ini memuat, per graf dan dengan kunci id-nya, sebuah instans `core/ai-agent/langgraph` dengan:"
+  },
+  "45e48d3c01c09637": {
+    "at": "2026-11-19T10:23:35.228Z",
+    "job": "session-0013-20261119102335",
+    "revision": {
+      "from": "b1e598d441cbb73b",
+      "reviewed": false
+    },
+    "srcHash": "45e48d3c01c09637",
+    "status": "machine",
+    "text": "`aggrega/publishEntity` — membundel entitas katalog dan memublikasikannya ke registri. `entity` adalah path relatif terhadap root workspace yang menamai dokumen yang akan dipublikasikan, ditolak dalam tiga bentuk yang sama seperti `release` — tidak ada, absolut, atau ter-resolve di luar root. Entitas Plugin juga memerlukan `plugin`, jenis path yang sama, yang menamai executable yang dipublikasikan di dalam manifest milik entitas itu sendiri. Plugin juga dapat membawa `pluginNotices`, pemberitahuan pihak ketiga milik guest-nya, yang dikemas sebagai layer setelah `.wasm`, dan `pluginSbom`, daftar bahan (bill of materials) SPDX-nya, yang dilampirkan sebagai referrer `application/spdx+json`; keduanya adalah jenis path yang sama dengan `plugin`, dan permintaan yang mengirim salah satunya tanpa `plugin`, atau menamai file yang tidak ada atau kosong, ditolak. `registry` adalah tujuan dan secara default adalah registri yang dikonfigurasi di workspace. `dryRun` menghitung bundel dan digest yang akan dihasilkan oleh publikasinya, dan tidak menghubungi registri mana pun. Menghilangkan `sign` mengikuti kebijakan registri tujuan itu sendiri, yang merupakan perilaku command line ketika flag-nya tidak ada, sedangkan mengirimkannya adalah pilihan pemanggil — dan keduanya tidak melonggarkan penolakan, karena kebijakan registri atau workspace yang mewajibkan tanda tangan menolak publikasi tanpa tanda tangan apa pun isi field tersebut. `pinSources: true` menjalankan langkah pin milik penulis entitas pada entitas sebelum dibundel, sehingga `entity.lock` yang ditulis langkah tersebut di sampingnya menjadi bagian dari apa yang dipublikasikan — langkah yang sama yang dijalankan `aggrega/pin`. Langkah ini berjalan sebelum penolakan apa pun yang menilai isi entitas — kebijakan penandatanganan, penjaga imutabilitas — sehingga publikasi yang ditolak di sana tetap meninggalkan lock yang sudah ditulis; penolakan yang menyangkut permintaan itu sendiri, seperti workspace offline atau tidak adanya tujuan, datang lebih dulu dan tidak mem-pin apa pun, demikian pula penolakan terhadap entitas yang berbagi direktori dengan entitas lain, yang tidak boleh ditulisi lock oleh langkah tersebut. Jika tidak ada, field ini mengikuti `pin_sources_at_push` milik workspace; jika dikirim, field ini menimpa pengaturan tersebut ke kedua arah. Di bawah `dryRun`, langkah tersebut melaporkan lock yang akan ditulisnya dan tidak menulis apa pun. **Publikasi yang tidak menjalankan langkah tersebut menolak Recipe atau FeatureRecipe yang `entity.lock`-nya tidak mencatat pin untuk input yang dibacanya**, atau pin yang tidak lagi cocok dengan input tersebut, sebelum apa pun dibundel — juga di bawah `dryRun` — dengan menyebut `aggrega pin`, `pinSources`, dan `pin_sources_at_push`; ini adalah penolakan yang dimunculkan `aggrega/resolveDependencies` atas lock yang sama. Respons memuat `reference`, `tag`, `kind`, `mediaType`, pasangan `size`, `digest` yang dipublikasikan — di bawah `dryRun`, digest yang akan dihasilkan publikasi tersebut, yaitu yang dicetak oleh [`aggrega push --dry-run`](aggrega-push.md) — `signed`, `alreadyPublished`, `dryRun`, dan `reach`; `pin` — respons yang sama dengan yang diberikan `aggrega/pin` — jika langkah tersebut dijalankan; dan `wholeDirectorySource` jika sumber lokal entitas ditulis sebagai template, dengan menamai sumber tersebut sebagaimana ditulis. Sumber seperti itu baru memilih direktorinya setelah sebuah Release mengisi template tersebut, sehingga publikasi membawa setiap file di direktori entitas, bukan hanya file yang dinamai entitas, dan field ini adalah cara pemanggil mengetahui bahwa hal itu terjadi — juga pada dry run. Respons juga memuat `windowsUnusableEntries` jika arsip yang dibawa publikasi berisi entri yang tidak dapat disimpan Windows sebagaimana ditulis — path dengan bagian yang dinamai sesuai perangkat, seperti `CON`, `AUX`, atau `NUL`, dalam huruf besar atau kecil apa pun dan dengan ekstensi apa pun yang mengikutinya, atau bagian yang diakhiri titik atau spasi — dengan menamai masing-masing, nama file dokumen entitas itu sendiri terlebih dahulu, lalu file-file yang dibawanya; field ini tidak ada jika tidak ada entri seperti itu, termasuk untuk entitas yang dipublikasikan hanya sebagai dokumennya. `aggrega` yang berjalan di Windows menolak membongkar entri seperti itu, sehingga workspace Windows tidak dapat menggunakan versi tersebut. Inilah entri yang diperingatkan oleh [`aggrega push`](aggrega-push.md), dan permintaan yang meminta laporan membaca baris peringatan yang sama di antara progres publikasi; keduanya tidak menolak apa pun, sehingga publikasi berlanjut atau ditolak persis seperti yang akan terjadi tanpa entri tersebut, juga di bawah `dryRun`. **Ini menulis ke registri dan menjangkau ke luar mesin ini**, dan dengan langkah pin juga menulis di samping entitas — lihat [Menjangkau registri, dan menulis](#reaching-a-registry-and-writing)."
   },
   "45e69ba40d614262": {
     "at": "2026-10-23T08:19:02.010279+00:00",
@@ -87350,6 +87368,13 @@
     "status": "machine",
     "text": "**Cara beberapa kontributor bertemu.** Setiap entri dievaluasi untuk setiap komponen yang dirender oleh Recipe di dalam boundary, dan berkas-berkas yang dideklarasikan oleh setiap kontributor boundary digabungkan berdasarkan nama. Satu nama yang dievaluasi menjadi byte yang sama — oleh dua komponen yang terikat pada satu Recipe, atau oleh dua Recipes yang mengonfigurasi satu provider secara identik — adalah satu berkas. Satu nama yang dievaluasi menjadi byte yang berbeda menghentikan build, dengan menyebutkan berkas tersebut dan setiap kontributornya, karena tidak ada satu berkas pun yang merupakan tulisan mereka semua; demikian pula nama yang ditulis oleh perakitan provider itu sendiri, seperti `aggrega.modules.tf`. Keduanya adalah [assembled-output collision (tabrakan keluaran rakitan)](../errors/fatal-halts.md#two-contributors-write-the-same-output-path). Dua Recipes yang mengonfigurasi satu provider dengan dua nama berkas berbeda tidak digabungkan — setiap berkas ditulis — dan targetlah yang kemudian melaporkan konfigurasi ganda tersebut, sehingga Recipes yang dimaksudkan untuk berbagi konfigurasi provider berbagi nama berkasnya, menurut konvensi satu nama sesuai provider yang dikonfigurasinya."
   },
+  "7426ad608fe18c0a": {
+    "at": "2026-11-19T10:23:35.228Z",
+    "job": "session-0013-20261119102335",
+    "srcHash": "7426ad608fe18c0a",
+    "status": "machine",
+    "text": "Path ke daftar bahan perangkat lunak (software bill of materials) SPDX 2.3 JSON dari guest Plugin. Opsional, dan hanya bersama --plugin: proses publikasi melampirkannya di samping Plugin yang dipublikasikan sebagai referrer OCI application/spdx+json, yang tidak mengubah digest apa pun dan tidak pernah dilampirkan dua kali."
+  },
   "74294d39fecf5bc4": {
     "at": "2026-10-22T08:42:51.391Z",
     "job": "session-0026-20261022084251",
@@ -92550,6 +92575,17 @@
     "srcHash": "7ad230504ffb64d4",
     "status": "machine",
     "text": "Tempo — server distributed tracing Kubernetes"
+  },
+  "7ad244db9ead3ff6": {
+    "at": "2026-11-19T10:23:35.228Z",
+    "job": "session-0013-20261119102335",
+    "revision": {
+      "from": "d8c10d12175088ab",
+      "reviewed": false
+    },
+    "srcHash": "7ad244db9ead3ff6",
+    "status": "machine",
+    "text": "`publish-entity` menerima `entity`, dokumen yang akan dipublikasikan, dan sebuah Plugin juga memerlukan `plugin`, file eksekusi yang dipublikasikan di dalam manifesnya. Plugin juga dapat membawa `plugin_notices`, pemberitahuan pihak ketiga milik guest-nya, yang dikemas sebagai layer setelah `.wasm`, dan `plugin_sbom`, daftar bahan (bill of materials) SPDX-nya, yang dilampirkan sebagai referrer `application/spdx+json`; keduanya adalah jalur seperti `plugin`, dan panggilan yang mengirim salah satunya tanpa `plugin`, atau menyebutkan file yang tidak ada atau kosong, akan ditolak. `publish-artifact` menerima `file` beserta `name` dan `tag` yang digunakan untuk memublikasikannya. Setiap argumen jalur di sini bersifat absolut atau relatif terhadap root workspace, kontrak yang sama yang digunakan oleh setiap alat lain di permukaan ini, dan `workspace_root` menyebutkan workspace yang dimaksud oleh panggilan — pada server yang dijangkau melalui input dan output standar. Server yang dijangkau melalui HTTPS menolak `workspace_root` dan mengharuskan setiap jalur tersebut ter-resolve di dalam workspace yang dilayaninya, sebagaimana dijelaskan dalam [Satu proses, satu workspace](#one-process-one-workspace). `registry` adalah tujuan dan secara default bernilai registry yang dikonfigurasi di workspace; tidak mengirim keduanya, tanpa default yang dikonfigurasi, akan ditolak dengan menyebutkan apa yang harus dikirim. `sign-artifacts` menerima `references`, satu atau beberapa alamat registry, bukan jalur, dan secara opsional `jobs`, berapa banyak yang ditandatangani sekaligus: jika dihilangkan, referensi ditandatangani satu per satu, dan nilai di bawah 1 ditolak dengan menyebutkan apa yang harus dikirim. Masing-masing tetap ditandatangani persis seperti bila ditandatangani sendiri, sebagaimana dijelaskan [`aggrega sign`](aggrega-sign.md#signing-several-references-at-once). `deprecate-artifact` menerima `reference` beserta `severity` dan `reason`, atau `from` yang menyebutkan file batch — dan menolak argumen konten yang dikirim bersama file batch alih-alih membuangnya, karena file batch menyediakan argumennya sendiri dan argumen yang diabaikan secara diam-diam terbaca seperti argumen yang dihormati."
   },
   "7ad362c2e93de45b": {
     "at": "2026-10-23T08:34:04.552030+00:00",
@@ -104477,6 +104513,17 @@
     "srcHash": "8b089c5fa4a21fb1",
     "status": "machine",
     "text": "`aggrega sign` menentukan digest yang sudah disimpan registry untuk setiap `<reference>`, menandatangani digest tersebut, dan melampirkan bundel tanda tangan sebagai referrer. Perintah ini tidak pernah melakukan push ulang, tag ulang, atau dengan cara lain mengubah byte yang telah dipublikasikan — artefak bersifat immutable, dan tanda tangan adalah manifest saudara yang menunjuk kembali ke artefak tersebut. Jadi, sebuah artefak dapat ditandatangani setelahnya tanpa kenaikan versi."
+  },
+  "8b0edccc47a4243a": {
+    "at": "2026-11-19T10:23:35.228Z",
+    "job": "session-0013-20261119102335",
+    "revision": {
+      "from": "d4c92e5f005df481",
+      "reviewed": false
+    },
+    "srcHash": "8b0edccc47a4243a",
+    "status": "machine",
+    "text": "`entity.yaml`, entitasnya, di samping `entity.wasm`, executable-nya, dan `notices.md`, pemberitahuan pihak ketiganya, jika pemberitahuan itu ikut dipublikasikan"
   },
   "8b0fbc4a0621adca": {
     "at": "2026-10-29T23:55:51.039Z",
@@ -124905,6 +124952,13 @@
     "status": "machine",
     "text": "Sebuah `$ref:` menunjuk library berdasarkan lokasi registry"
   },
+  "a604689974819e8a": {
+    "at": "2026-11-19T10:23:35.228Z",
+    "job": "session-0013-20261119102335",
+    "srcHash": "a604689974819e8a",
+    "status": "machine",
+    "text": "daftar bahan perangkat lunak (software bill of materials) yang dilampirkan pada Plugin"
+  },
   "a6058f9400d2b259": {
     "at": "2026-10-23T08:18:59.335953+00:00",
     "job": "msgbatch_01EKdV7ig6aK2QwC1Z8ktVoJ",
@@ -143355,6 +143409,13 @@
     "srcHash": "bdf674a942c5b1b7",
     "status": "machine",
     "text": "Pesan yang dikeluarkan, untuk koordinat yang tidak diberikan kepada plugin dan untuk nilai yang tidak diterima anotasi mana pun:"
+  },
+  "bdf9467952cbe6aa": {
+    "at": "2026-11-19T10:23:35.228Z",
+    "job": "session-0013-20261119102335",
+    "srcHash": "bdf9467952cbe6aa",
+    "status": "machine",
+    "text": "Daftar bahan (bill of materials) SPDX milik modul plugin dalam JSON, sebagai path relatif terhadap root workspace, yang dilampirkan pada Plugin yang dipublikasikan. Memerlukan `plugin`."
   },
   "bdfc89465f2a752f": {
     "at": "2026-10-23T08:34:04.552030+00:00",
@@ -164219,6 +164280,13 @@
     "status": "machine",
     "text": "Sebuah Feature ditulis sekali dan dilampirkan berkali-kali, sehingga nama yang diturunkan oleh FeatureRecipe\nharus berbeda untuk setiap lampiran. FeatureRecipe ini menggabungkan komponen host\ndan nama lampiran: host `payments-db`, yang dibawa di bawah `storage-headroom`,\nmenghasilkan `PaymentsDbStorageHeadroom`."
   },
+  "d93108e9e6067db9": {
+    "at": "2026-11-19T10:23:35.228Z",
+    "job": "session-0013-20261119102335",
+    "srcHash": "d93108e9e6067db9",
+    "status": "machine",
+    "text": "Path ke file Markdown berisi pemberitahuan pihak ketiga dari guest Plugin. Opsional, dan hanya bersama --plugin: proses publikasi mengemasnya ke dalam manifest sebagai layer setelah .wasm, sehingga pemberitahuan tersebut ikut bersama executable dan digest manifest mencakupnya."
+  },
   "d9312173271d1374": {
     "at": "2026-10-23T08:34:04.552030+00:00",
     "job": "msgbatch_01V7s7eyUrCwoDSpkeCSpVQQ",
@@ -177954,6 +178022,13 @@
     "srcHash": "eaa6588c77a03698",
     "status": "machine",
     "text": "*Deklarasi JSON Schema 2020-12 untuk Workload bersifat otoritatif dan dirilis tersemat dalam biner compiler. Provider helm dan compose menyintesis `workload:` sebuah Recipe, baik inline maupun dimuat dengan `$import:`; lihat matriks kapabilitas Provider untuk dukungan per penyedia.*"
+  },
+  "eaa7af4588b3012c": {
+    "at": "2026-11-19T10:23:35.228Z",
+    "job": "session-0013-20261119102335",
+    "srcHash": "eaa7af4588b3012c",
+    "status": "machine",
+    "text": "File pemberitahuan pihak ketiga milik modul plugin, sebagai path relatif terhadap root workspace, yang dipublikasikan sebagai layer dari manifest Plugin. Memerlukan `plugin`."
   },
   "eaa919cbabc6e7dc": {
     "at": "2026-11-18T23:13:42.024Z",
