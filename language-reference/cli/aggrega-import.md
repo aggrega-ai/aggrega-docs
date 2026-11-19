@@ -67,8 +67,12 @@ the workspace names no default_registry, or the registry cannot be reached or
 publishes none — a workspace with catalog folders imports over them alone, and
 a warning says why and what reads the snapshot: an import run with the network
 available. Such an import keeps the snapshot its entry names, so the next
-import that can read it reads the same one. A workspace with
-no catalog folder stops instead, naming what to run, or, where the registry
+import that can read it reads the same one. A --sync whose entry names a
+snapshot this machine does not hold, and cannot fetch, stops instead, naming
+the snapshot: the drafts it judges were drafted against that catalog, and the
+folders alone may draft them otherwise. Run it where the registry can be
+reached, which keeps the snapshot on this machine for every later sync. A
+workspace with no catalog folder stops instead, naming what to run, or, where the registry
 publishes no snapshot, imports with no catalog, and a warning says so. A
 configuration listing catalog_dirs as an empty list has no catalog folder, the
 one at its root included.
