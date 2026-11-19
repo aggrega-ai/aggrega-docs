@@ -5994,6 +5994,17 @@
     "status": "machine",
     "text": "**Statut actuel :** **disponible** selon [État du langage → Types d’entrée de Recipe](../10-status.md#recipe-input-kinds). Chaque entrée est évaluée avec le contexte de template complet après la synthèse de charge de travail et la résolution de la source, et le fichier résultant est émis sous la clé de l’entrée. Ce qu’une cible fait d’un artefact émis dépend de la capacité : un fournisseur qui accepte un artefact autonome l’émet comme son propre fichier, tandis qu’un fournisseur qui n’accepte les artefacts qu’accompagnés d’un autre type d’entrée intègre l’entrée dans ce qu’il assemble — de sorte qu’un corps qui n’a pas la forme attendue par cet assembleur provoque un arrêt sous la catégorie `TRANSLATION_ERROR` au lieu d’être émis tel quel. Consultez la grille par capacité dans [`architecture/16-recipe-input-composition.md`](../../architecture/16-recipe-input-composition.md) avant de rédiger un artefact pour une capacité."
   },
+  "08604c4e3e2114fa": {
+    "at": "2026-11-19T01:26:55.712Z",
+    "job": "session-0003-20261119012655",
+    "revision": {
+      "from": "f446c98d2daa0a1b",
+      "reviewed": false
+    },
+    "srcHash": "08604c4e3e2114fa",
+    "status": "machine",
+    "text": "Une valeur de `resource_types` qui n’est pas une liste de noms et d’objets contenant un `type` et un `component` arrête l’importation sous `resource-types-unreadable`, de sorte qu’une valeur erronée ne se lit jamais comme une absence de liste ; il en va de même d’une entrée dont le `component` est vide, qui ne nomme aucun Component, plutôt que de la lire comme une entrée sans `component`."
+  },
   "08631ec5577f2dc1": {
     "at": "2026-10-30T05:41:23.167Z",
     "job": "session-0064-20261030054123",
@@ -19405,6 +19416,17 @@
     "status": "machine",
     "text": "Un seul lecteur vérifie les trois, de sorte que les refus sont les trois mêmes quel que soit le champ en faute : un mappage qui porte plus d’une clé, un mappage dont l’unique clé n’est pas `$import`, et un `$import:` dont la valeur n’est pas une simple chaîne. Une valeur qui n’est ni un scalaire ni un mappage — une liste, le plus souvent — est refusée sur sa seule forme."
   },
+  "1c58a1335aa18e2f": {
+    "at": "2026-11-19T01:26:55.712Z",
+    "job": "session-0003-20261119012655",
+    "revision": {
+      "from": "77156466012fc310",
+      "reviewed": false
+    },
+    "srcHash": "1c58a1335aa18e2f",
+    "status": "machine",
+    "text": "**Secret** — une propriété Azure `sensitive`, un attribut Terraform `sensitive` modifiable, ou une propriété CloudFormation de type chaîne dont le nom contient un mot d’identification — Password, Secret, Token, Credential, PrivateKey, ApiKey ou Passphrase — et ne se termine pas par `Arn`, `Id`, `Name` ou `Ref`. La lecture de CloudFormation est une convention du brouillon ; relisez-la donc. Un secret est rédigé comme le décrit [Secrets](#secrets-in-the-drafts). Seule une propriété située au sommet du type devient un secret — sur Azure, une clé de la racine ou un membre de `properties` ; un membre sensible situé en dessous fait l’objet d’un avertissement sous `constraint-dropped`, comme le décrit cette section."
+  },
   "1c59ca592ce8191b": {
     "at": "2026-11-17T13:24:33.294Z",
     "job": "session-0008-20261117132433",
@@ -24716,6 +24738,17 @@
     "srcHash": "24080989136e47eb",
     "status": "machine",
     "text": "**Un proxy placé devant termine TLS et transmet à un listener confiné.** Laissez les deux clés non définies et le listener sert en clair, ce qui n’est accepté que sur loopback ou sur un socket Unix — de sorte que rien qui ne soit déjà sur cet hôte ne peut l’atteindre. C’est la forme qu’utilise un reverse proxy, un sidecar ou un service mesh, et c’est celle où le certificat se trouve devant ce processus plutôt qu’en lui."
+  },
+  "240827d6e4f8a122": {
+    "at": "2026-11-19T01:26:55.712Z",
+    "job": "session-0003-20261119012655",
+    "revision": {
+      "from": "6f7dbf75689f6189",
+      "reviewed": false
+    },
+    "srcHash": "240827d6e4f8a122",
+    "status": "machine",
+    "text": "Une valeur secrète n’est jamais écrite dans un brouillon. Sur `arm`, un paramètre `securestring` de premier niveau du fragment, nommé d’après le nom symbolique et la propriété et fourni lorsque le modèle se déploie ; un secret facultatif est un paramètre requis, puisque le paramètre ne déclare aucune valeur par défaut. Sur `cloudformation`, une entrée `Parameters` avec `Type: String` et `NoEcho: true`, nommée de la même manière et lue avec `!Ref` ; un secret facultatif est un paramètre requis. Sur `terraform`, l’emplacement du Component et une variable de module portant son propre `sensitive: true`, renseignée à partir de la valeur que délivre le rattachement à l’emplacement ; aucun `aggrega_override.tf.json` n’est écrit pour une telle Recipe."
   },
   "24086c2a54bd9cb3": {
     "at": "2026-10-22T11:13:35.211Z",
@@ -51696,6 +51729,17 @@
     "status": "machine",
     "text": "**Aucun argument ne nomme un répertoire, et aucun ne demande de trace.** L’emplacement des artefacts est décidé par l’espace de travail que l’appel a résolu, jamais par l’appel, et un build écrit depuis ici ne laisse aucun répertoire `.trace` à côté de sa sortie ; un build tracé, c’est [`aggrega build --trace`](aggrega-build.md)."
   },
+  "4bc3dba3cdada247": {
+    "at": "2026-11-19T01:26:55.712Z",
+    "job": "session-0003-20261119012655",
+    "revision": {
+      "from": "39e827487e4a2324",
+      "reviewed": false
+    },
+    "srcHash": "4bc3dba3cdada247",
+    "status": "machine",
+    "text": "**Une importation lit le catalogue par rapport auquel une construction résout : d’abord les dossiers de catalogue de l’espace de travail, puis le catalogue publié derrière eux.** Les dossiers sont ceux que nomment `AGGREGA_CATALOG_DIRS` et `workspace.catalog_dirs`, puis le dossier de catalogue à la racine de l’espace de travail ; derrière eux, l’importation lit le catalogue de la bibliothèque standard que publie son registre par défaut sous forme d’un instantané signé, à `catalog/snapshot`. Une entité que contient un dossier est lue à la place de l’entité publiée de même identité, et toutes les autres entités publiées restent visibles, de sorte que les importeurs, les Components auxquels les brouillons sont comparés et les Recipes d’où un `target` établit sa correspondance sont ceux des dossiers et du catalogue publié réunis. Un analyseur ou un importeur que les dossiers contiennent pour une syntaxe ou un format est choisi pour celui-ci avant tout analyseur ou importeur que contient le catalogue publié, à moins qu’une entrée `plugins.importer` de la configuration de l’espace de travail n’en rattache un autre. Un instantané est récupéré une seule fois : sa signature est vérifiée selon la politique de confiance de ce registre, et il est conservé dans le cache de contenu de l’espace de travail et lu là comme un dossier de catalogue, rattaché à son condensé, sans qu’aucun registre soit de nouveau sollicité. Quel instantané une requête lit : avec `upgrade`, le plus récent ; sinon celui que nomme l’entrée de l’importation dans l’enregistrement de `outputDir`, récupéré par son condensé là où la machine ne le détient pas ; sinon celui que l’espace de travail a récupéré en dernier comme le plus récent ; sinon le plus récent. Lorsque l’instantané ne peut pas être lu — l’espace de travail est hors ligne et la machine ne le détient pas, l’espace de travail ne nomme aucun registre par défaut, ou le registre est injoignable ou n’en publie aucun —, un espace de travail doté de dossiers de catalogue importe uniquement par rapport à ceux-ci, une entrée `warn` dans `diagnostics` en indique la raison, et l’entrée que l’importation écrit conserve l’instantané qu’elle nommait auparavant, de sorte que la prochaine importation capable de le lire lit le même ; `upgrade` est refusé partout où l’instantané ne peut pas être lu, quoi que détienne la machine, puisque seul le registre peut dire quel instantané est le plus récent. Un `sync` dont l’entrée nomme un instantané que la machine ne détient pas et ne peut pas récupérer est lui aussi refusé, en nommant cet instantané, et hors ligne sous [The workspace is offline and the step needs the network (L’espace de travail est hors ligne et l’étape a besoin du réseau)](../errors/fatal-halts.md#the-workspace-is-offline-and-the-step-needs-the-network) : les brouillons qu’il juge ont été rédigés d’après ce catalogue, et les dossiers seuls peuvent les rédiger autrement, de sorte qu’il s’exécute là où le registre est joignable, ce qui conserve l’instantané sur la machine pour tout sync ultérieur. Un espace de travail sans dossier de catalogue donne à la place une erreur, sous [The workspace is offline and the step needs the network (L’espace de travail est hors ligne et l’étape a besoin du réseau)](../errors/fatal-halts.md#the-workspace-is-offline-and-the-step-needs-the-network), lorsqu’il devrait récupérer un instantané, en nommant la commande à exécuter ; et là où le registre ne publie aucun instantané, il importe sans catalogue, et une entrée `warn` dans `diagnostics` le signale."
+  },
   "4bc6a124b3e74129": {
     "at": "2026-11-03T12:27:39.720Z",
     "job": "session-0104-20261103122739",
@@ -61097,6 +61141,17 @@
     "status": "machine",
     "text": "Hôte du registre de destination (remplace le default_registry du workspace)"
   },
+  "5986944e7b92923c": {
+    "at": "2026-11-19T01:26:55.712Z",
+    "job": "session-0003-20261119012655",
+    "revision": {
+      "from": "4d02bb193d630805",
+      "reviewed": false
+    },
+    "srcHash": "5986944e7b92923c",
+    "status": "machine",
+    "text": "Une contrainte du fournisseur n’est pas reprise, une forme est coupée là où une définition se référence elle-même ou s’imbrique trop profondément, ou un membre sensible situé sous le sommet du type n’est pas rédigé comme un secret ; la propriété, la contrainte et la raison sont nommées."
+  },
   "598f08074d0fc38d": {
     "at": "2026-11-03T10:52:18.070Z",
     "job": "session-0093-20261103105218",
@@ -65123,6 +65178,17 @@
     "status": "machine",
     "text": "L’URL rédigée — l’URL d’identité telle qu’écrite dans le spec.source.url de la Recipe. Pour helm-https-chart, il s’agit de la racine du dépôt (forme racine du dépôt) ou du .tgz direct (forme directe), exactement tel que rédigé. Pour git-repository, l’URL clonable du dépôt. Pour helm-oci-chart, la référence de registre. Pour compose-https-fragment, l’URL HTTPS du fragment. L’emplacement résolu de l’artefact pour une source helm à racine de dépôt est enregistré séparément sous `resolved_url:` comme provenance."
   },
+  "5f7806f1d14f45dc": {
+    "at": "2026-11-19T01:26:55.712Z",
+    "job": "session-0003-20261119012655",
+    "revision": {
+      "from": "87661dfbf3913398",
+      "reviewed": false
+    },
+    "srcHash": "5f7806f1d14f45dc",
+    "status": "machine",
+    "text": "**Une importation lit le catalogue par rapport auquel une construction résout : d’abord les dossiers de catalogue de l’espace de travail, puis le catalogue publié derrière eux.** Les dossiers sont ceux que nomment `AGGREGA_CATALOG_DIRS` et `workspace.catalog_dirs`, puis le dossier de catalogue à la racine de l’espace de travail ; derrière eux, l’importation lit le catalogue de la bibliothèque standard sous forme d’un instantané signé, à `catalog/snapshot` sur le registre par défaut de l’espace de travail servi — le même registre d’où l’on récupère un importeur du noyau, joint dans les mêmes conditions, sans que rien dans l’appel nomme un registre ou transporte un identifiant. Une entité que contient un dossier est lue à la place de l’entité publiée de même identité, et toutes les autres entités publiées restent visibles. Un analyseur ou un importeur que les dossiers contiennent pour une syntaxe ou un format est choisi pour celui-ci avant tout analyseur ou importeur que contient le catalogue publié, à moins qu’une entrée `plugins.importer` de la configuration de l’espace de travail n’en rattache un autre. Un instantané est récupéré une seule fois : sa signature est vérifiée selon la politique de confiance de ce registre, et il est conservé dans le cache de contenu de l’espace de travail et lu là comme un dossier de catalogue, rattaché à son condensé, sans qu’aucun registre soit de nouveau sollicité. Quel instantané un appel lit : avec `upgrade`, le plus récent ; sinon celui que nomme l’entrée de l’importation dans l’enregistrement du répertoire de sortie, récupéré par son condensé là où la machine ne le détient pas ; sinon celui que l’espace de travail a récupéré en dernier comme le plus récent ; sinon le plus récent. Lorsque l’instantané ne peut pas être lu — l’espace de travail est hors ligne et la machine ne le détient pas, l’espace de travail ne nomme aucun registre par défaut, ou le registre est injoignable ou n’en publie aucun —, un espace de travail doté de dossiers de catalogue importe uniquement par rapport à ceux-ci, une entrée `warn` dans `diagnostics` en indique la raison, et l’entrée que l’importation écrit conserve l’instantané qu’elle nommait auparavant ; `upgrade` est refusé partout où l’instantané ne peut pas être lu, quoi que détienne la machine, puisque seul le registre peut dire quel instantané est le plus récent. Un `sync` dont l’entrée nomme un instantané que la machine ne détient pas et ne peut pas récupérer est lui aussi refusé, en nommant cet instantané : les brouillons qu’il juge ont été rédigés d’après ce catalogue, et les dossiers seuls peuvent les rédiger autrement, de sorte qu’il s’exécute là où le registre est joignable, ce qui conserve l’instantané sur la machine pour tout sync ultérieur. Un espace de travail sans dossier de catalogue est refusé à la place, en nommant la commande à exécuter, lorsqu’il devrait récupérer un instantané hors ligne ; et là où le registre ne publie aucun instantané, il importe sans catalogue, et une entrée `warn` dans `diagnostics` le signale."
+  },
   "5f7e02c69dff2899": {
     "at": "2026-11-14T23:40:29.533Z",
     "job": "session-0013-20261114234029",
@@ -66093,6 +66159,17 @@
     "srcHash": "60e232db4cd3fc76",
     "status": "machine",
     "text": "**`mcp.health.listen` est l’endroit où un superviseur demande si ce processus est actif et s’il peut répondre à un appel.** Donnez-lui une adresse sous l’une des formes ci-dessus et un second listener y répond à `GET /healthz` et `GET /readyz`. Omettez-le — c’est le comportement par défaut — et aucun second listener n’est démarré et aucune des deux vérifications ne reçoit de réponse nulle part."
+  },
+  "60ebf829ffbfcfab": {
+    "at": "2026-11-19T01:26:55.712Z",
+    "job": "session-0003-20261119012655",
+    "revision": {
+      "from": "6974f59a9acf66e4",
+      "reviewed": false
+    },
+    "srcHash": "60ebf829ffbfcfab",
+    "status": "machine",
+    "text": "**Azure** : un paramètre `securestring` de premier niveau du modèle, nommé d’après l’instance et la propriété, que vous fournissez lors du déploiement. Un secret que le fournisseur marque comme facultatif est un paramètre requis."
   },
   "60ed1f2593ade11b": {
     "at": "2026-11-04T13:01:09.618Z",
@@ -74075,6 +74152,13 @@
     "srcHash": "6cc8519b91584e8b",
     "status": "machine",
     "text": "Go"
+  },
+  "6cc968ccf6b58f87": {
+    "at": "2026-11-19T01:26:55.712Z",
+    "job": "session-0003-20261119012655",
+    "srcHash": "6cc968ccf6b58f87",
+    "status": "machine",
+    "text": "Seule une propriété située au sommet du type est rédigée comme un secret. Un membre sensible situé en dessous — un `properties.osProfile.adminPassword` Azure, un `user[].password` Terraform — ne l’est pas : la Release le définit comme une valeur simple à l’intérieur de la clé sous laquelle son parent est rédigé, telle que `infra.overrides.osProfile`, et l’importation avertit de chacun d’eux sous `constraint-dropped`, en nommant son chemin et cette clé."
   },
   "6cca9b24a831e55c": {
     "at": "2026-10-22T08:20:04.359Z",
@@ -95726,6 +95810,17 @@
     "status": "machine",
     "text": "générer une entité pour chaque guest intégré à ce binaire"
   },
+  "8c393b2b523e6252": {
+    "at": "2026-11-19T01:26:55.712Z",
+    "job": "session-0003-20261119012655",
+    "revision": {
+      "from": "c08544c7adc8f7a7",
+      "reviewed": false
+    },
+    "srcHash": "8c393b2b523e6252",
+    "status": "machine",
+    "text": "`resource_types` n’est pas une liste de noms et d’objets contenant un `type` et un `component`, ou le `component` d’une entrée est vide."
+  },
   "8c39cf1bb4eee24b": {
     "at": "2026-10-22T11:56:03.972Z",
     "job": "session-0034-20261022115603",
@@ -97575,6 +97670,17 @@
     "srcHash": "8ee5df761f49f614",
     "status": "machine",
     "text": "L’entrée rend les valeurs du chart. Un template auxiliaire, `BitnamiNodePool`, écrit les ressources, la persistance, le sélecteur de nœuds et le préréglage d’anti-affinité d’un pool de nœuds ; l’entrée le déclare avec `define` et l’invoque avec `template`, pour le pool primaire et, avec réplication, pour le pool secondaire. Le template auxiliaire est déclaré à l’intérieur de l’entrée qui l’utilise, car une Recipe importe une seule entrée et une définition voyage avec l’entrée qui la contient. Les valeurs par défaut de la bibliothèque remplissent chaque champ de ressource que l’Aggregate omet, si bien que le template auxiliaire les lit sans valeur de repli. Le mappage gère les variantes d’architecture standalone et avec réplication, les informations d’identification que livrent les rattachements (lues depuis `.context.inject.env`) et le bloc des métriques. Les Recipes consommatrices importent l’entrée `MariaDBBitnamiCore` entière via `$import:` sous forme de bibliothèque."
+  },
+  "8ee665e158e4b34e": {
+    "at": "2026-11-19T01:26:55.712Z",
+    "job": "session-0003-20261119012655",
+    "revision": {
+      "from": "ba1f8ec5ac0232b5",
+      "reviewed": false
+    },
+    "srcHash": "8ee665e158e4b34e",
+    "status": "machine",
+    "text": "Son unique lecteur est une importation, qui lit d’abord les dossiers de catalogue puis le catalogue publié qui se trouve derrière eux, dans l’ordre où une construction résout : les dossiers de catalogue de l’espace de travail — `AGGREGA_CATALOG_DIRS`, `workspace.catalog_dirs`, puis le répertoire `catalog/` à la racine de l’espace de travail — et l’instantané publié derrière eux ; une entité que contient un dossier est donc lue à la place de l’entité publiée de même identité, et toutes les autres entités publiées restent visibles. `aggrega import`, l’importation de la session de l’éditeur et l’outil d’importation de l’assistant exécutent la même opération, si bien que chacun acquiert l’instantané de la même manière. L’importation le récupère depuis le registre par défaut de l’espace de travail, par la même barrière de sortie et la même authentification qu’un pull, vérifie sa signature selon la politique de confiance de ce registre avant que quoi que ce soit ne soit conservé, le conserve dans le cache d’artefacts de l’espace de travail et l’y lit comme un dossier de catalogue, rattaché à son condensé — l’importeur se voit donc proposer les Components du catalogue, et `--target` rédige un Manifest à partir de ses Recipes, exactement par le chemin qu’emprunte un dossier de catalogue. L’entrée de l’importation dans l’enregistrement qu’elle écrit à côté de ses brouillons désigne l’instantané par son condensé de manifeste ; une importation ultérieure des mêmes brouillons lit donc le même catalogue sans requête, et `aggrega import --upgrade` récupère l’instantané le plus récent et importe désormais par rapport à lui. Lorsque l’instantané ne peut pas être lu — hors ligne sans aucun instantané détenu, absence de registre par défaut, ou registre injoignable ou qui n’en publie aucun —, un espace de travail doté de dossiers de catalogue importe uniquement par rapport à ceux-ci et un avertissement en indique la raison, tandis qu’un espace de travail sans dossier de catalogue s’arrête en nommant la commande à exécuter, ou importe sans catalogue lorsque le registre ne publie aucun instantané. Un `--sync` dont l’entrée nomme un instantané que cette machine ne détient pas et ne peut pas récupérer s’arrête lui aussi, en nommant l’instantané : les brouillons qu’il juge ont été rédigés d’après ce catalogue, et les dossiers seuls peuvent les rédiger autrement, de sorte qu’un sync lit l’instantané d’après lequel ses brouillons ont été importés, ou rien. Aucune autre commande ne lit l’instantané : un pull, une construction et une validation résolvent chaque entité par les niveaux du §5 et l’épinglent dans le fichier de verrouillage, et les brouillons d’une importation référencent les entités du catalogue par leur nom, de sorte que leur construction résout ces entités de la même manière."
   },
   "8ee68f1d18f24860": {
     "at": "2026-11-03T08:01:05.098Z",
@@ -116039,6 +116145,17 @@
     "status": "machine",
     "text": "Helpers courants NON disponibles"
   },
+  "a9e69be6b2a2f9d2": {
+    "at": "2026-11-19T01:26:55.712Z",
+    "job": "session-0003-20261119012655",
+    "revision": {
+      "from": "610f899632ea86a6",
+      "reviewed": false
+    },
+    "srcHash": "a9e69be6b2a2f9d2",
+    "status": "machine",
+    "text": "Le brouillon ne voit aucune clé `infra` du Component. L’assertion `required_overrides_set` arrête la construction jusqu’à ce que la Release définisse chaque propriété requise qu’aucune clé `values` ne porte, en nommant `infra.overrides.<VendorName>`, le type qui l’exige et le fait que le Component ne déclare aucune clé `values` de ce nom. Lorsque le `infra` du Component est fermé et ne déclare aucun `overrides`, la Release ne peut pas les définir : la construction valide le `infra` de l’instance par rapport au schéma du Component et refuse la clé."
+  },
   "a9ea9040430f14a2": {
     "at": "2026-11-14T10:23:22.802Z",
     "job": "session-0010-20261114102322",
@@ -130167,6 +130284,17 @@
     "srcHash": "bdae3cfc11ace2d4",
     "status": "machine",
     "text": "Schémas"
+  },
+  "bdb0911bdb897945": {
+    "at": "2026-11-19T01:26:55.712Z",
+    "job": "session-0003-20261119012655",
+    "revision": {
+      "from": "74510a0127c24358",
+      "reviewed": false
+    },
+    "srcHash": "bdb0911bdb897945",
+    "status": "machine",
+    "text": "Le format est reconnu d’après la forme propre de la source, comme dans un terminal ; lorsque le compilateur refuse parce qu’aucun format, ou plus d’un, ne reconnaît la source, l’éditeur affiche ce refus — qui nomme les formats — et demande le format selon lequel lire la source, puis renvoie la même importation en le précisant ; laisser cette question vide met fin à l’importation avec le refus. Il lit le fichier que vous nommez, ou les fichiers du répertoire que vous nommez que son importeur lit, et aucun autre. Il n’accède à aucun réseau, sauf pour récupérer ce sur quoi une importation s’appuie et que cette machine ne détient pas encore — l’un des importeurs du noyau du compilateur, la première fois qu’un format en a besoin, et l’instantané de catalogue publié que l’importation lit comme son catalogue derrière les dossiers de catalogue de l’espace de travail —, chacun récupéré depuis le registre par défaut de l’espace de travail, vérifié et conservé dans le cache de contenu, comme le fait `aggrega import`. Lorsque cet instantané ne peut pas être récupéré, une importation dans un espace de travail doté de dossiers de catalogue ne lit que ces dossiers et le canal de sortie porte l’avertissement qui le dit, tandis qu’une **Sync** dont les brouillons ont été importés d’après un instantané que cette machine ne détient pas est refusée, en le nommant, comme l’est `aggrega import --sync`. La source peut se trouver n’importe où sur cette machine, car c’est un fichier que vous avez désigné et non un fichier que détient l’espace de travail ; les brouillons atterrissent toujours dans l’espace de travail."
   },
   "bdb099ad6c92703f": {
     "at": "2026-11-02T19:03:21.213Z",
@@ -155649,6 +155777,13 @@
     "status": "machine",
     "text": "**Une sonde qui ne déclare aucun moyen de vérification** — ni un chemin, ni un port auquel se connecter, ni une commande à exécuter. Il n’y a rien à transformer en vérification. Il s’agit d’une garde derrière le schéma plutôt que d’une forme que vous êtes susceptible d’écrire : on vérifie qu’une sonde possède l’un des trois avant qu’elle n’arrive ici."
   },
+  "e16a7595a036d590": {
+    "at": "2026-11-19T01:26:55.712Z",
+    "job": "session-0003-20261119012655",
+    "srcHash": "e16a7595a036d590",
+    "status": "machine",
+    "text": "Seule une propriété située au sommet de la ressource devient un secret — sur Azure, une clé de la racine ou un membre de `properties`. Un membre sensible situé en dessous, tel que `adminPassword` dans un `osProfile` Azure ou `password` dans un bloc Terraform, n’est pas rédigé comme un secret : la Release le définit comme une valeur simple à l’intérieur de la clé sous laquelle son parent est rédigé, et l’importation avertit de chacun d’eux sous `constraint-dropped`, en nommant son chemin et cette clé."
+  },
   "e16c8380df4ccddf": {
     "at": "2026-11-03T02:39:28.596Z",
     "job": "session-0040-20261103023928",
@@ -157258,6 +157393,17 @@
     "srcHash": "e3a55ab505f415bb",
     "status": "machine",
     "text": "`spec.source: ./module` et `module/main.tf.json` à côté de la Recipe ; `spec.valuesMapping` renseigne les variables du module"
+  },
+  "e3a905030a475b42": {
+    "at": "2026-11-19T01:26:55.712Z",
+    "job": "session-0003-20261119012655",
+    "revision": {
+      "from": "f896ee1e06d0a07e",
+      "reviewed": false
+    },
+    "srcHash": "e3a905030a475b42",
+    "status": "machine",
+    "text": "Lorsque le nom qu’un brouillon prendrait est déjà détenu par un Component des dossiers de l’espace de travail ou du catalogue publié avec d’autres clés `values`, l’importation s’arrête sous `component-exists`, en nommant le Component, les clés qui diffèrent et `component` comme remède. Un Component détenu avec les mêmes clés est le même brouillon actualisé, et l’importation se poursuit. Un Component situé dans un fichier que l’entrée propre à l’importation dans l’enregistrement placé à côté des brouillons énumère est son brouillon antérieur plutôt qu’une entité du catalogue, de sorte que l’importeur ne le voit pas : un `--sync` après que le schéma du fournisseur a gagné ou perdu une propriété d’identité rédige le Component avec ses nouvelles clés. Une importation simple n’écrit par-dessus aucun fichier de Component ou de Recipe déjà en place, et s’arrête en nommant `--sync`, qui met à jour par rapport à la source les fichiers que liste l’enregistrement."
   },
   "e3ab24092720d647": {
     "at": "2026-11-03T20:25:38.864Z",
