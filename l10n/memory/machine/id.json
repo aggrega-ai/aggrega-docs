@@ -6599,6 +6599,17 @@
     "status": "machine",
     "text": "**Status saat ini:** **tersedia** menurut [Status Bahasa → Jenis input Recipe](../10-status.md#recipe-input-kinds). Setiap entri dievaluasi dengan konteks templat lengkap setelah sintesis workload dan resolusi sumber, dan berkas yang dihasilkan diemisikan dengan nama kunci entri tersebut. Apa yang dilakukan target terhadap artefak yang diemisikan bergantung pada kapabilitasnya: provider yang menerima artefak mandiri mengemisikannya sebagai berkas tersendiri, sedangkan provider yang hanya menerima artefak bersama jenis input lain melipat entri tersebut ke dalam apa yang dirakitnya — sehingga isi yang bentuknya tidak sesuai harapan perakit tersebut akan dihentikan dalam kategori `TRANSLATION_ERROR` alih-alih diemisikan apa adanya. Periksa tabel per kapabilitas di [`architecture/16-recipe-input-composition.md`](../../architecture/16-recipe-input-composition.md) sebelum menulis artefak untuk suatu kapabilitas."
   },
+  "08604c4e3e2114fa": {
+    "at": "2026-11-19T01:29:01.628Z",
+    "job": "session-0005-20261119012901",
+    "revision": {
+      "from": "f446c98d2daa0a1b",
+      "reviewed": false
+    },
+    "srcHash": "08604c4e3e2114fa",
+    "status": "machine",
+    "text": "Nilai `resource_types` yang bukan daftar berisi nama dan objek dengan `type` dan `component` menghentikan impor di bawah `resource-types-unreadable`, sehingga nilai yang salah tidak pernah dibaca sebagai tanpa daftar; demikian pula entri yang `component`-nya kosong, yang tidak menyebut Component mana pun, alih-alih dibaca sebagai entri tanpa `component`."
+  },
   "08631ec5577f2dc1": {
     "at": "2026-10-29T17:38:31.046Z",
     "job": "session-0004-20261029173831",
@@ -21380,6 +21391,17 @@
     "status": "machine",
     "text": "Satu pembaca memeriksa ketiganya, sehingga penolakannya sama, yaitu tiga, bidang mana pun yang bermasalah: mapping yang memuat lebih dari satu kunci, mapping yang satu-satunya kuncinya bukan `$import`, dan `$import:` yang nilainya bukan string biasa. Nilai yang bukan skalar maupun mapping — paling sering berupa list — ditolak berdasarkan bentuknya saja."
   },
+  "1c58a1335aa18e2f": {
+    "at": "2026-11-19T01:29:01.628Z",
+    "job": "session-0005-20261119012901",
+    "revision": {
+      "from": "77156466012fc310",
+      "reviewed": false
+    },
+    "srcHash": "1c58a1335aa18e2f",
+    "status": "machine",
+    "text": "**Secret** — properti `sensitive` Azure, atribut `sensitive` Terraform yang dapat ditulis, atau properti string CloudFormation yang namanya memuat kata kredensial — Password, Secret, Token, Credential, PrivateKey, ApiKey, atau Passphrase — dan tidak berakhir dengan `Arn`, `Id`, `Name`, atau `Ref`. Pembacaan CloudFormation adalah konvensi draf, jadi tinjaulah. Secret didraf seperti dijelaskan di [Secrets](#secrets-in-the-drafts). Hanya properti di bagian atas tipe yang menjadi secret — pada Azure, kunci akar atau anggota `properties`; anggota sensitif di bawahnya diperingatkan di bawah `constraint-dropped`, seperti dijelaskan bagian itu."
+  },
   "1c59ca592ce8191b": {
     "at": "2026-11-17T13:24:33.294Z",
     "job": "session-0008-20261117132433",
@@ -27258,6 +27280,17 @@
     "srcHash": "24080989136e47eb",
     "status": "machine",
     "text": "**Proxy di depan menghentikan TLS dan meneruskan ke listener yang dibatasi.** Biarkan kedua kunci tidak ditetapkan dan listener melayani plaintext, yang hanya diterima pada loopback atau pada socket Unix — sehingga tidak ada yang belum berada di host tersebut yang dapat menjangkaunya. Itulah bentuk yang digunakan reverse proxy, sidecar, atau service mesh, dan itulah bentuk di mana sertifikat berada di depan proses ini, bukan di dalamnya."
+  },
+  "240827d6e4f8a122": {
+    "at": "2026-11-19T01:29:01.628Z",
+    "job": "session-0005-20261119012901",
+    "revision": {
+      "from": "6f7dbf75689f6189",
+      "reviewed": false
+    },
+    "srcHash": "240827d6e4f8a122",
+    "status": "machine",
+    "text": "Nilai secret tidak pernah ditulis ke dalam draf. Pada `arm`, sebuah parameter `securestring` tingkat atas milik fragmen, dinamai menurut nama simbolis dan properti serta diberikan saat template di-deploy; secret opsional menjadi parameter wajib, karena parameter tidak mendeklarasikan nilai default. Pada `cloudformation`, sebuah entri `Parameters` dengan `Type: String` dan `NoEcho: true`, dinamai dengan cara yang sama dan dibaca dengan `!Ref`; secret opsional menjadi parameter wajib. Pada `terraform`, slot milik Component dan sebuah variabel modul yang membawa `sensitive: true` sendiri, diisi dari nilai yang disampaikan oleh attachment pada slot; tidak ada `aggrega_override.tf.json` yang ditulis untuk Recipe semacam itu."
   },
   "24086c2a54bd9cb3": {
     "at": "2026-10-22T11:13:35.211Z",
@@ -56817,6 +56850,17 @@
     "status": "machine",
     "text": "**Tidak ada argumen yang menyebutkan direktori, dan tidak ada yang meminta trace.** Ke mana artefak pergi ditentukan oleh ruang kerja yang di-resolve oleh panggilan, tidak pernah oleh panggilan, dan build yang ditulis dari sini tidak meninggalkan direktori `.trace` di samping output-nya; build dengan trace adalah [`aggrega build --trace`](aggrega-build.md)."
   },
+  "4bc3dba3cdada247": {
+    "at": "2026-11-19T01:29:01.628Z",
+    "job": "session-0005-20261119012901",
+    "revision": {
+      "from": "39e827487e4a2324",
+      "reviewed": false
+    },
+    "srcHash": "4bc3dba3cdada247",
+    "status": "machine",
+    "text": "**Impor membaca katalog yang menjadi acuan resolusi sebuah build: folder katalog workspace terlebih dahulu, katalog terbitan di belakangnya.** Folder-folder tersebut adalah yang disebutkan `AGGREGA_CATALOG_DIRS` dan `workspace.catalog_dirs`, lalu folder katalog di root workspace; di belakangnya impor membaca katalog pustaka standar yang diterbitkan registry default-nya sebagai satu snapshot bertanda tangan, di `catalog/snapshot`. Entitas yang dimuat sebuah folder dibaca menggantikan entitas terbitan dengan identitas yang sama, dan setiap entitas terbitan lainnya tetap terlihat, sehingga importer, Components yang menjadi pembanding draf, dan Recipes yang menjadi sumber pemetaan `target` adalah milik folder dan katalog terbitan bersama-sama. Parser atau importer yang dimuat folder untuk sebuah sintaks atau format dipilih untuknya sebelum yang dimuat katalog terbitan, kecuali sebuah entri `plugins.importer` dalam konfigurasi workspace melampirkan yang lain. Snapshot diambil satu kali: tanda tangannya diverifikasi di bawah kebijakan kepercayaan registry tersebut, lalu snapshot disimpan di cache konten workspace dan dibaca di sana sebagai folder katalog, terikat pada digest-nya, tanpa meminta registry lagi. Snapshot mana yang dibaca sebuah permintaan: dengan `upgrade`, yang terbaru; jika tidak, yang disebutkan entri impor dalam catatan di `outputDir`, diambil melalui digest-nya jika mesin tidak menyimpannya; jika tidak, yang terakhir diambil workspace sebagai yang terbaru; jika tidak, yang terbaru. Jika snapshot tidak dapat dibaca — workspace offline dan mesin tidak menyimpannya, workspace tidak menyebutkan registry default, atau registry tidak dapat dijangkau atau tidak menerbitkan snapshot — workspace yang memiliki folder katalog mengimpor hanya terhadap folder tersebut, sebuah entri `warn` di `diagnostics` menyebutkan sebabnya, dan entri yang ditulis impor mempertahankan snapshot yang disebutkannya sebelumnya, sehingga impor berikutnya yang dapat membacanya membaca snapshot yang sama; `upgrade` ditolak di mana pun snapshot tidak dapat dibaca, apa pun yang disimpan mesin, karena hanya registry yang dapat menyatakan snapshot mana yang terbaru. `sync` yang entrinya menyebut snapshot yang tidak dimiliki mesin dan tidak dapat diambilnya juga ditolak, dengan menyebutkan snapshot tersebut, dan saat offline di bawah [The workspace is offline and the step needs the network (Workspace sedang offline dan langkah ini memerlukan jaringan)](../errors/fatal-halts.md#the-workspace-is-offline-and-the-step-needs-the-network): draf yang dinilainya didraf terhadap katalog itu, dan folder saja dapat mendraf-nya secara berbeda, sehingga ia berjalan di tempat registry dapat dijangkau, yang menyimpan snapshot pada mesin untuk setiap sync berikutnya. Workspace tanpa folder katalog justru merupakan error di bawah [The workspace is offline and the step needs the network (Workspace sedang offline dan langkah ini memerlukan jaringan)](../errors/fatal-halts.md#the-workspace-is-offline-and-the-step-needs-the-network) jika harus mengambil snapshot, dengan menyebutkan apa yang harus dijalankan; dan jika registry tidak menerbitkan snapshot, impor berjalan tanpa katalog, dan entri `warn` di `diagnostics` menyatakannya."
+  },
   "4bc6a124b3e74129": {
     "at": "2026-10-29T23:14:13.329Z",
     "job": "session-0033-20261029231413",
@@ -67150,6 +67194,17 @@
     "status": "machine",
     "text": "Host registry tujuan (menimpa default_registry milik workspace)"
   },
+  "5986944e7b92923c": {
+    "at": "2026-11-19T01:29:01.628Z",
+    "job": "session-0005-20261119012901",
+    "revision": {
+      "from": "4d02bb193d630805",
+      "reviewed": false
+    },
+    "srcHash": "5986944e7b92923c",
+    "status": "machine",
+    "text": "Constraint vendor tidak dibawa, sebuah bentuk dipotong jika sebuah definisi merujuk kembali ke dirinya sendiri atau bersarang terlalu dalam, atau anggota sensitif di bawah bagian atas tipe tidak didraf sebagai secret; properti, constraint, dan alasannya disebutkan."
+  },
   "598f08074d0fc38d": {
     "at": "2026-10-29T23:25:30.396Z",
     "job": "session-0032-20261029232530",
@@ -71631,6 +71686,17 @@
     "status": "machine",
     "text": "URL yang ditulis penulis — URL identitas sebagaimana ditulis dalam spec.source.url milik Recipe. Untuk helm-https-chart, ini adalah root repo (bentuk repo-root) atau .tgz langsung (bentuk langsung) persis seperti yang ditulis. Untuk git-repository, URL repositori yang dapat di-clone. Untuk helm-oci-chart, referensi registry. Untuk compose-https-fragment, URL HTTPS fragmen tersebut. Lokasi artefak hasil resolusi untuk sumber helm repo-root dicatat terpisah di bawah `resolved_url:` sebagai provenans."
   },
+  "5f7806f1d14f45dc": {
+    "at": "2026-11-19T01:29:01.628Z",
+    "job": "session-0005-20261119012901",
+    "revision": {
+      "from": "87661dfbf3913398",
+      "reviewed": false
+    },
+    "srcHash": "5f7806f1d14f45dc",
+    "status": "machine",
+    "text": "**Impor membaca katalog yang menjadi acuan resolusi sebuah build: folder katalog workspace terlebih dahulu, katalog terbitan di belakangnya.** Folder-folder tersebut adalah yang disebutkan `AGGREGA_CATALOG_DIRS` dan `workspace.catalog_dirs`, lalu folder katalog di root workspace; di belakangnya impor membaca katalog pustaka standar sebagai satu snapshot bertanda tangan, di `catalog/snapshot` pada registry default workspace yang dilayani — registry yang sama dengan tempat sebuah importer inti diambil, dijangkau dengan ketentuan yang sama, tanpa ada apa pun dalam panggilan yang menyebutkan registry atau membawa kredensial. Entitas yang dimuat sebuah folder dibaca menggantikan entitas terbitan dengan identitas yang sama, dan setiap entitas terbitan lainnya tetap terlihat. Parser atau importer yang dimuat folder untuk sebuah sintaks atau format dipilih untuknya sebelum yang dimuat katalog terbitan, kecuali sebuah entri `plugins.importer` dalam konfigurasi workspace melampirkan yang lain. Snapshot diambil satu kali: tanda tangannya diverifikasi di bawah kebijakan kepercayaan registry tersebut, lalu snapshot disimpan di cache konten workspace dan dibaca di sana sebagai folder katalog, terikat pada digest-nya, tanpa meminta registry lagi. Snapshot mana yang dibaca sebuah panggilan: dengan `upgrade`, yang terbaru; jika tidak, yang disebutkan entri impor dalam catatan di direktori keluaran, diambil melalui digest-nya jika mesin tidak menyimpannya; jika tidak, yang terakhir diambil workspace sebagai yang terbaru; jika tidak, yang terbaru. Jika snapshot tidak dapat dibaca — workspace offline dan mesin tidak menyimpannya, workspace tidak menyebutkan registry default, atau registry tidak dapat dijangkau atau tidak menerbitkan snapshot — workspace yang memiliki folder katalog mengimpor hanya terhadap folder tersebut, sebuah entri `warn` di `diagnostics` menyebutkan sebabnya, dan entri yang ditulis impor mempertahankan snapshot yang disebutkannya sebelumnya; `upgrade` ditolak di mana pun snapshot tidak dapat dibaca, apa pun yang disimpan mesin, karena hanya registry yang dapat menyatakan snapshot mana yang terbaru. `sync` yang entrinya menyebut snapshot yang tidak dimiliki mesin dan tidak dapat diambilnya juga ditolak, dengan menyebutkan snapshot tersebut: draf yang dinilainya didraf terhadap katalog itu, dan folder saja dapat mendraf-nya secara berbeda, sehingga ia berjalan di tempat registry dapat dijangkau, yang menyimpan snapshot pada mesin untuk setiap sync berikutnya. Workspace tanpa folder katalog justru ditolak, dengan menyebutkan apa yang harus dijalankan, jika harus mengambil snapshot saat offline; dan jika registry tidak menerbitkan snapshot, impor berjalan tanpa katalog, dan entri `warn` di `diagnostics` menyatakannya."
+  },
   "5f7e02c69dff2899": {
     "at": "2026-11-14T23:40:29.533Z",
     "job": "session-0013-20261114234029",
@@ -72779,6 +72845,17 @@
     "srcHash": "60e2d9696b7ebfa9",
     "status": "machine",
     "text": "FeatureRecipe yang dirender sekali untuk sebuah boundary (`executionScope: boundary`) tidak diperiksa di sini: template-nya tidak memiliki `.context` untuk dibaca, dan referensi ke sana ditolak sebagai field di luar daftar izin cakupannya."
+  },
+  "60ebf829ffbfcfab": {
+    "at": "2026-11-19T01:29:01.628Z",
+    "job": "session-0005-20261119012901",
+    "revision": {
+      "from": "6974f59a9acf66e4",
+      "reviewed": false
+    },
+    "srcHash": "60ebf829ffbfcfab",
+    "status": "machine",
+    "text": "**Azure**: parameter `securestring` tingkat atas pada template, dinamai menurut instance dan properti, yang Anda berikan saat melakukan deploy. Secret yang ditandai opsional oleh vendor menjadi parameter wajib."
   },
   "60ed1f2593ade11b": {
     "at": "2026-10-23T08:34:05.283963+00:00",
@@ -81620,6 +81697,13 @@
     "srcHash": "6cc8519b91584e8b",
     "status": "machine",
     "text": "Go"
+  },
+  "6cc968ccf6b58f87": {
+    "at": "2026-11-19T01:29:01.628Z",
+    "job": "session-0005-20261119012901",
+    "srcHash": "6cc968ccf6b58f87",
+    "status": "machine",
+    "text": "Hanya properti di bagian atas tipe yang didraf sebagai secret. Anggota sensitif di bawahnya — `properties.osProfile.adminPassword` pada Azure, `user[].password` pada Terraform — tidak: Release menetapkannya sebagai nilai biasa di dalam kunci tempat induknya didraf, seperti `infra.overrides.osProfile`, dan impor memperingatkan setiap anggota tersebut di bawah `constraint-dropped`, dengan menyebutkan path-nya dan kunci itu."
   },
   "6cca9b24a831e55c": {
     "at": "2026-10-22T08:20:04.359Z",
@@ -105280,6 +105364,17 @@
     "status": "machine",
     "text": "menghasilkan entitas untuk setiap guest yang disematkan dalam biner ini"
   },
+  "8c393b2b523e6252": {
+    "at": "2026-11-19T01:29:01.628Z",
+    "job": "session-0005-20261119012901",
+    "revision": {
+      "from": "c08544c7adc8f7a7",
+      "reviewed": false
+    },
+    "srcHash": "8c393b2b523e6252",
+    "status": "machine",
+    "text": "`resource_types` bukan daftar berisi nama dan objek dengan `type` dan `component`, atau `component` suatu entri kosong."
+  },
   "8c39cf1bb4eee24b": {
     "at": "2026-10-22T11:56:03.972Z",
     "job": "session-0034-20261022115603",
@@ -107265,6 +107360,17 @@
     "srcHash": "8ee5df761f49f614",
     "status": "machine",
     "text": "Entri ini merender nilai chart. Templat pembantu, `BitnamiNodePool`, menulis sumber daya, persistensi, node selector, dan preset anti-affinity dari satu pool node; entri mendeklarasikannya dengan `define` dan memanggilnya dengan `template`, untuk pool primer dan, saat replikasi, untuk pool sekunder. Templat pembantu dideklarasikan di dalam entri yang menggunakannya, karena sebuah Recipe mengimpor satu entri dan sebuah definisi ikut bersama entri yang memuatnya. Nilai default pustaka mengisi setiap field sumber daya yang dihilangkan Aggregate, sehingga templat pembantu membacanya tanpa nilai cadangan. Pemetaan menangani varian arsitektur standalone dan replikasi, kredensial yang dikirim oleh lampiran (dibaca dari `.context.inject.env`), dan blok metrik. Recipes konsumen mengimpor seluruh entri `MariaDBBitnamiCore` melalui `$import:` bentuk pustaka."
+  },
+  "8ee665e158e4b34e": {
+    "at": "2026-11-19T01:29:01.628Z",
+    "job": "session-0005-20261119012901",
+    "revision": {
+      "from": "ba1f8ec5ac0232b5",
+      "reviewed": false
+    },
+    "srcHash": "8ee665e158e4b34e",
+    "status": "machine",
+    "text": "Satu-satunya pembacanya adalah impor, yang membaca folder katalog terlebih dahulu dan katalog terbitan di belakangnya, urutan yang dipakai build untuk meresolusi: folder katalog workspace — `AGGREGA_CATALOG_DIRS`, `workspace.catalog_dirs`, lalu direktori `catalog/` di root workspace — dan snapshot terbitan di belakangnya, sehingga entitas yang dimuat sebuah folder dibaca menggantikan entitas terbitan dengan identitas yang sama, dan setiap entitas terbitan lainnya tetap terlihat. `aggrega import`, impor dalam sesi editor, dan alat impor asisten menjalankan operasi yang sama, sehingga masing-masing memperoleh snapshot dengan cara yang sama. Impor mengambilnya dari registry default workspace melalui gerbang egress dan proses masuk yang sama dengan pull, memverifikasi tanda tangannya di bawah kebijakan kepercayaan registry tersebut sebelum apa pun disimpan, menyimpannya di cache artefak workspace, dan membacanya di sana sebagai folder katalog, terikat pada digest-nya — sehingga importer ditawari Components milik katalog, dan `--target` menyusun draf Manifest dari Recipes-nya, melalui jalur yang persis sama dengan jalur sebuah folder katalog. Entri impor dalam catatan yang ditulisnya di samping draf-drafnya menyebutkan snapshot tersebut melalui digest manifest-nya, sehingga impor berikutnya atas draf yang sama membaca katalog yang sama tanpa permintaan, dan `aggrega import --upgrade` mengambil snapshot terbaru dan sejak saat itu mengimpor terhadapnya. Jika snapshot tidak dapat dibaca — offline tanpa snapshot yang tersimpan, tanpa registry default, atau registry yang tidak dapat dijangkau atau tidak menerbitkan snapshot — workspace yang memiliki folder katalog mengimpor hanya terhadap folder tersebut dan sebuah peringatan menyebutkan sebabnya, sedangkan workspace tanpa folder katalog berhenti dengan menyebutkan apa yang harus dijalankan, atau mengimpor tanpa katalog jika registry tidak menerbitkan snapshot. `--sync` yang entrinya menyebut snapshot yang tidak dimiliki mesin ini dan tidak dapat diambilnya juga berhenti, dengan menyebutkan snapshot tersebut: draf yang dinilainya didraf terhadap katalog itu, dan folder saja dapat mendraf-nya secara berbeda, sehingga sebuah sync membaca snapshot tempat drafnya diimpor atau tidak sama sekali. Tidak ada perintah lain yang membaca snapshot: pull, build, dan validasi meresolusi setiap entitas melalui tingkatan pada §5 dan mematoknya di lockfile, dan draf impor mereferensikan entitas katalog berdasarkan nama, sehingga membangun draf tersebut meresolusi entitas-entitas itu dengan cara yang sama."
   },
   "8ee68f1d18f24860": {
     "at": "2026-10-23T06:14:11.003127+00:00",
@@ -127639,6 +127745,17 @@
     "status": "machine",
     "text": "Helper umum yang TIDAK tersedia"
   },
+  "a9e69be6b2a2f9d2": {
+    "at": "2026-11-19T01:29:01.628Z",
+    "job": "session-0005-20261119012901",
+    "revision": {
+      "from": "610f899632ea86a6",
+      "reviewed": false
+    },
+    "srcHash": "a9e69be6b2a2f9d2",
+    "status": "machine",
+    "text": "Draf tidak melihat kunci `infra` milik Component. Assertion `required_overrides_set` menghentikan build sampai Release menetapkan setiap properti wajib yang tidak dibawa oleh kunci `values` mana pun, dengan menyebutkan `infra.overrides.<VendorName>`, tipe yang mewajibkannya, dan bahwa Component tidak mendeklarasikan kunci `values` dengan namanya. Jika `infra` milik Component bersifat tertutup dan tidak mendeklarasikan `overrides`, Release tidak dapat menetapkannya: build memvalidasi `infra` milik instance terhadap skema Component dan menolak kunci tersebut."
+  },
   "a9ea9040430f14a2": {
     "at": "2026-11-14T10:23:22.802Z",
     "job": "session-0010-20261114102322",
@@ -142996,6 +143113,17 @@
     "srcHash": "bdae3cfc11ace2d4",
     "status": "machine",
     "text": "Skema"
+  },
+  "bdb0911bdb897945": {
+    "at": "2026-11-19T01:29:01.628Z",
+    "job": "session-0005-20261119012901",
+    "revision": {
+      "from": "74510a0127c24358",
+      "reviewed": false
+    },
+    "srcHash": "bdb0911bdb897945",
+    "status": "machine",
+    "text": "Format dikenali dari bentuk sumber itu sendiri, seperti di terminal; jika compiler menolak karena tidak ada format, atau lebih dari satu, yang mengenali sumber, editor menampilkan penolakan tersebut — yang menyebutkan format-formatnya — dan menanyakan format untuk membaca sumber, lalu mengirim impor yang sama lagi dengan membawanya, dan membiarkan pertanyaan itu kosong mengakhiri impor dengan penolakan tersebut. Editor membaca berkas yang Anda sebutkan, atau berkas di direktori yang Anda sebutkan yang dibaca importer-nya, dan tidak ada yang lain. Editor tidak menjangkau jaringan, kecuali untuk mengambil apa yang dibutuhkan impor untuk berjalan dan belum dimiliki mesin ini — salah satu importer inti compiler, saat pertama kali sebuah format membutuhkannya, dan snapshot katalog terbitan yang dibaca impor sebagai katalognya di belakang folder katalog workspace — masing-masing diambil dari registry default workspace, diverifikasi, dan disimpan di cache konten, seperti yang dilakukan `aggrega import`. Jika snapshot itu tidak dapat diambil, impor di workspace dengan folder katalog hanya membaca folder tersebut dan saluran keluaran memuat peringatan yang menyatakannya, sedangkan **Sync** yang drafnya diimpor terhadap snapshot yang tidak dimiliki mesin ini ditolak, dengan menyebutkannya, seperti halnya `aggrega import --sync`. Sumber dapat berada di mana saja pada mesin ini, karena sumber adalah berkas yang Anda tunjuk, bukan berkas yang dimiliki workspace; draf selalu berakhir di workspace."
   },
   "bdb099ad6c92703f": {
     "at": "2026-11-01T14:54:04.024Z",
@@ -171018,6 +171146,13 @@
     "status": "machine",
     "text": "**Probe yang sama sekali tidak mendeklarasikan cara pemeriksaan** — tidak ada path, tidak ada port untuk dihubungi, dan tidak ada perintah untuk dijalankan. Tidak ada yang dapat diubah menjadi pemeriksaan. Kondisi ini adalah pengaman di balik skema, bukan bentuk yang kemungkinan besar akan Anda tulis: probe diperiksa memiliki salah satu dari ketiganya sebelum sampai di sini."
   },
+  "e16a7595a036d590": {
+    "at": "2026-11-19T01:29:01.628Z",
+    "job": "session-0005-20261119012901",
+    "srcHash": "e16a7595a036d590",
+    "status": "machine",
+    "text": "Hanya properti di bagian atas resource yang menjadi secret — pada Azure, kunci akar atau anggota `properties`. Anggota sensitif di bawahnya, seperti `adminPassword` di dalam `osProfile` Azure atau `password` di dalam blok Terraform, tidak didraf sebagai secret: Release menetapkannya sebagai nilai biasa di dalam kunci tempat induknya didraf, dan impor memperingatkan setiap anggota tersebut di bawah `constraint-dropped`, dengan menyebutkan path-nya dan kunci itu."
+  },
   "e16c8380df4ccddf": {
     "at": "2026-10-23T06:14:09.798554+00:00",
     "job": "msgbatch_0114PSvCA8TYhfY7XN2T8bxB",
@@ -172780,6 +172915,17 @@
     "srcHash": "e3a55ab505f415bb",
     "status": "machine",
     "text": "`spec.source: ./module` dan `module/main.tf.json` di samping Recipe; `spec.valuesMapping` mengisi variabel modul"
+  },
+  "e3a905030a475b42": {
+    "at": "2026-11-19T01:29:01.628Z",
+    "job": "session-0005-20261119012901",
+    "revision": {
+      "from": "f896ee1e06d0a07e",
+      "reviewed": false
+    },
+    "srcHash": "e3a905030a475b42",
+    "status": "machine",
+    "text": "Jika nama yang akan dipakai sebuah draf sudah dipegang oleh Component dari folder workspace atau katalog terbitan dengan kunci `values` yang berbeda, impor berhenti di bawah `component-exists`, dengan menyebutkan Component, kunci yang berbeda, dan `component` sebagai solusinya. Component yang dipegang dengan kunci yang sama adalah draf yang sama yang disegarkan, dan impor berlanjut. Component pada berkas yang dicantumkan oleh entri impor itu sendiri dalam catatan di samping draf adalah draf sebelumnya, bukan entitas katalog, sehingga importer tidak diperlihatkan berkas itu: `--sync` setelah skema vendor memperoleh atau kehilangan properti identitas mendraf Component dengan kunci barunya. Impor biasa tidak menimpa berkas Component atau Recipe yang sudah ada, dan berhenti dengan menyebutkan `--sync`, yang memperbarui berkas yang dicantumkan catatan agar sesuai dengan sumber."
   },
   "e3ab24092720d647": {
     "at": "2026-10-23T08:19:00.586906+00:00",
