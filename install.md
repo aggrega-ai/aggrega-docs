@@ -244,6 +244,14 @@ sha256sum --check --ignore-missing SHA256SUMS
 
 The file you downloaded is reported `OK`; any other report means it is not the file the release published.
 
+Each release also carries `aggrega-<version>.spdx`, the software bill of materials of the `aggrega` binary and the plugins it embeds, in SPDX. To check where a release file was built, run, with the [GitHub CLI](https://cli.github.com/) and the file in the current directory:
+
+```bash
+gh attestation verify aggrega-<version>-linux-amd64 --repo aggrega-ai/aggrega-cli
+```
+
+It reports the build provenance GitHub recorded for the file, and fails when none matches the file's digest.
+
 ### The Windows prebuilt binary
 
 The Windows executable is `aggrega-<version>-windows-amd64.exe` (the debug and light variants beside it in the release install the same way). Rename it to `aggrega.exe`, move it into `%LOCALAPPDATA%\Programs\aggrega`, the folder the install command uses, and add that folder to your user `PATH`: Windows runs a file ending in `.exe` without marking it executable, and finds it as the `aggrega` command under that name. From PowerShell, for example, with `<version>` replaced by the version you downloaded:
