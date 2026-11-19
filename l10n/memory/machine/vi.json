@@ -6599,6 +6599,17 @@
     "status": "machine",
     "text": "**Trạng thái hiện tại:** **khả dụng** theo [Trạng thái của ngôn ngữ → Các loại đầu vào của Recipe](../10-status.md#recipe-input-kinds). Mỗi mục được đánh giá với toàn bộ ngữ cảnh template sau khi tổng hợp workload và phân giải nguồn, và tệp kết quả được phát sinh dưới khóa của mục. Việc một target làm gì với artifact được phát sinh phụ thuộc vào capability: một provider chấp nhận artifact độc lập sẽ phát sinh nó thành tệp riêng, trong khi provider chỉ chấp nhận artifact đi kèm một loại đầu vào khác sẽ gộp mục đó vào những gì nó lắp ráp — vì vậy một nội dung không đúng hình dạng mà bộ lắp ráp đó mong đợi sẽ dừng lại với loại lỗi `TRANSLATION_ERROR` thay vì được phát sinh nguyên văn. Hãy kiểm tra bảng theo từng capability tại [`architecture/16-recipe-input-composition.md`](../../architecture/16-recipe-input-composition.md) trước khi soạn một artifact cho một capability."
   },
+  "08604c4e3e2114fa": {
+    "at": "2026-11-19T01:38:18.441Z",
+    "job": "session-0015-20261119013818",
+    "revision": {
+      "from": "f446c98d2daa0a1b",
+      "reviewed": false
+    },
+    "srcHash": "08604c4e3e2114fa",
+    "status": "machine",
+    "text": "Một giá trị `resource_types` không phải là danh sách các tên và đối tượng có `type` và `component` sẽ làm lần nhập dừng lại dưới `resource-types-unreadable`, để một giá trị sai không bao giờ bị đọc như không có danh sách; một mục có `component` rỗng, không nêu tên Component nào, cũng vậy, thay vì bị đọc như một mục không có `component`."
+  },
   "08631ec5577f2dc1": {
     "at": "2026-10-29T17:38:31.046Z",
     "job": "session-0004-20261029173831",
@@ -21380,6 +21391,17 @@
     "status": "machine",
     "text": "Một bộ đọc kiểm tra cả ba, nên các trường hợp bị từ chối là cùng ba trường hợp, bất kể trường nào có lỗi: một mapping mang nhiều hơn một khóa, một mapping có khóa duy nhất không phải là `$import`, và một `$import:` có giá trị không phải là một chuỗi thuần. Một giá trị không phải scalar cũng không phải mapping — thường là một danh sách — bị từ chối chỉ vì hình dạng của nó."
   },
+  "1c58a1335aa18e2f": {
+    "at": "2026-11-19T01:38:18.441Z",
+    "job": "session-0015-20261119013818",
+    "revision": {
+      "from": "77156466012fc310",
+      "reviewed": false
+    },
+    "srcHash": "1c58a1335aa18e2f",
+    "status": "machine",
+    "text": "**Secret** — một thuộc tính `sensitive` của Azure, một thuộc tính `sensitive` có thể ghi của Terraform, hoặc một thuộc tính chuỗi của CloudFormation có tên chứa một từ thông tin xác thực — Password, Secret, Token, Credential, PrivateKey, ApiKey hoặc Passphrase — và không kết thúc bằng `Arn`, `Id`, `Name` hay `Ref`. Cách đọc của CloudFormation là một quy ước của bản nháp, nên hãy xem xét nó. Một secret được soạn nháp như [Secret trong các bản nháp](#secrets-in-the-drafts) mô tả. Chỉ một thuộc tính ở cấp cao nhất của kiểu mới trở thành secret — trên Azure là một khóa gốc hoặc một thành viên của `properties`; một thành viên nhạy cảm bên dưới nó được cảnh báo dưới `constraint-dropped`, như phần đó mô tả."
+  },
   "1c59ca592ce8191b": {
     "at": "2026-11-17T13:24:33.294Z",
     "job": "session-0008-20261117132433",
@@ -27258,6 +27280,17 @@
     "srcHash": "24080989136e47eb",
     "status": "machine",
     "text": "**Một proxy phía trước kết thúc TLS và chuyển tiếp tới một listener bị giới hạn.** Để trống cả hai khóa và listener phục vụ văn bản thuần, điều chỉ được chấp nhận trên loopback hoặc trên một Unix socket — vì vậy không gì không nằm sẵn trên máy đó có thể truy cập nó. Đó là dạng mà một reverse proxy, một sidecar hoặc một service mesh sử dụng, và đó là dạng mà chứng chỉ nằm phía trước tiến trình này chứ không nằm trong nó."
+  },
+  "240827d6e4f8a122": {
+    "at": "2026-11-19T01:38:18.441Z",
+    "job": "session-0015-20261119013818",
+    "revision": {
+      "from": "6f7dbf75689f6189",
+      "reviewed": false
+    },
+    "srcHash": "240827d6e4f8a122",
+    "status": "machine",
+    "text": "Một giá trị secret không bao giờ được ghi vào một bản nháp. Trên `arm`, một tham số `securestring` cấp cao nhất của đoạn, đặt tên theo tên biểu tượng và thuộc tính và được cung cấp khi template được triển khai; một secret tùy chọn là một tham số bắt buộc, vì tham số không khai báo giá trị mặc định. Trên `cloudformation`, một mục `Parameters` với `Type: String` và `NoEcho: true`, đặt tên theo cùng cách và được đọc bằng `!Ref`; một secret tùy chọn là một tham số bắt buộc. Trên `terraform`, slot của Component và một biến module mang `sensitive: true` của riêng nó, được điền từ giá trị mà phần đính kèm vào slot chuyển tới; không có `aggrega_override.tf.json` nào được ghi cho một Recipe như vậy."
   },
   "24086c2a54bd9cb3": {
     "at": "2026-10-22T10:27:55.857345+00:00",
@@ -56817,6 +56850,17 @@
     "status": "machine",
     "text": "**Không đối số nào nêu một thư mục, và không đối số nào yêu cầu trace.** Nơi các artifact được ghi do workspace mà lệnh gọi đã xác định quyết định, không bao giờ do lệnh gọi, và một bản build được ghi từ đây không để lại thư mục `.trace` nào bên cạnh đầu ra của nó; bản build có trace là [`aggrega build --trace`](aggrega-build.md)."
   },
+  "4bc3dba3cdada247": {
+    "at": "2026-11-19T01:38:18.441Z",
+    "job": "session-0015-20261119013818",
+    "revision": {
+      "from": "39e827487e4a2324",
+      "reviewed": false
+    },
+    "srcHash": "4bc3dba3cdada247",
+    "status": "machine",
+    "text": "**Một lần nhập đọc catalog mà một lần build phân giải dựa trên: các thư mục catalog của workspace trước, catalog đã phát hành nằm sau chúng.** Các thư mục là những thư mục mà `AGGREGA_CATALOG_DIRS` và `workspace.catalog_dirs` nêu tên, rồi đến thư mục catalog ở gốc workspace; nằm sau chúng, lần nhập đọc catalog thư viện chuẩn mà registry mặc định của nó phát hành dưới dạng một ảnh chụp có chữ ký duy nhất, tại `catalog/snapshot`. Một thực thể mà một thư mục chứa được đọc thay cho thực thể đã phát hành có cùng định danh, còn mọi thực thể đã phát hành khác vẫn nằm trong tầm nhìn, nên các trình nhập, các Components mà bản nháp được khớp dựa trên và các Recipes mà một `target` ánh xạ tới là của các thư mục và của catalog đã phát hành gộp lại. Một parser hay một trình nhập mà các thư mục chứa cho một cú pháp hoặc một định dạng được chọn cho nó trước bất kỳ cái nào mà catalog đã phát hành chứa, trừ khi một mục `plugins.importer` trong cấu hình workspace gắn một cái khác. Một ảnh chụp chỉ được tải về một lần: chữ ký của nó được xác minh theo chính sách tin cậy của registry đó, rồi nó được giữ trong bộ nhớ đệm nội dung của workspace và được đọc ở đó như một thư mục catalog, ràng buộc với digest của nó, mà không hỏi lại registry nào. Ảnh chụp mà một yêu cầu đọc: với `upgrade`, bản mới nhất; nếu không, bản mà mục của lần nhập trong bản ghi ở `outputDir` nêu tên, được tải về theo digest của nó khi máy chưa có; nếu không, bản mà workspace tải về gần nhất dưới dạng bản mới nhất; nếu không, bản mới nhất. Khi không đọc được ảnh chụp — workspace ngoại tuyến và máy không có nó, workspace không nêu registry mặc định nào, hoặc registry không truy cập được hay không phát hành bản nào — một workspace có thư mục catalog sẽ chỉ nhập dựa trên các thư mục đó, một mục `warn` trong `diagnostics` cho biết lý do, và mục mà lần nhập ghi giữ nguyên ảnh chụp mà nó đã nêu tên trước đó, để lần nhập tiếp theo đọc được nó sẽ đọc đúng bản đó; `upgrade` bị từ chối ở bất cứ nơi nào không đọc được ảnh chụp, bất kể máy có gì, vì chỉ registry mới có thể cho biết ảnh chụp nào là mới nhất. Một `sync` có mục nêu tên một ảnh chụp mà máy không có và không thể tải cũng bị từ chối, nêu tên ảnh chụp đó, và khi ngoại tuyến thì dưới [The workspace is offline and the step needs the network (Workspace đang ngoại tuyến và bước này cần mạng)](../errors/fatal-halts.md#the-workspace-is-offline-and-the-step-needs-the-network): các bản nháp mà nó đánh giá đã được soạn dựa trên catalog ấy, và riêng các thư mục có thể soạn chúng khác đi, nên nó chạy ở nơi truy cập được registry, điều này giữ ảnh chụp trên máy cho mọi sync về sau. Ngược lại, một workspace không có thư mục catalog nào sẽ gặp lỗi thuộc [The workspace is offline and the step needs the network (Workspace đang ngoại tuyến và bước này cần mạng)](../errors/fatal-halts.md#the-workspace-is-offline-and-the-step-needs-the-network) khi nó phải tải một ảnh chụp, nêu rõ cần chạy gì; và khi registry không phát hành ảnh chụp nào thì nó nhập mà không có catalog, và một mục `warn` trong `diagnostics` cho biết điều đó."
+  },
   "4bc6a124b3e74129": {
     "at": "2026-10-29T23:14:13.329Z",
     "job": "session-0033-20261029231413",
@@ -67150,6 +67194,17 @@
     "status": "machine",
     "text": "Máy chủ registry đích (ghi đè default_registry của workspace)"
   },
+  "5986944e7b92923c": {
+    "at": "2026-11-19T01:38:18.441Z",
+    "job": "session-0015-20261119013818",
+    "revision": {
+      "from": "4d02bb193d630805",
+      "reviewed": false
+    },
+    "srcHash": "5986944e7b92923c",
+    "status": "machine",
+    "text": "Một ràng buộc của nhà cung cấp không được mang theo, một hình dạng bị cắt ở nơi một định nghĩa tham chiếu ngược về chính nó hoặc lồng quá sâu, hoặc một thành viên nhạy cảm bên dưới cấp cao nhất của kiểu không được soạn nháp thành secret; thuộc tính, ràng buộc và lý do được nêu tên."
+  },
   "598f08074d0fc38d": {
     "at": "2026-10-29T23:25:30.396Z",
     "job": "session-0032-20261029232530",
@@ -71631,6 +71686,17 @@
     "status": "machine",
     "text": "URL do tác giả viết — URL định danh đúng như được viết trong spec.source.url của Recipe. Với helm-https-chart, đây là gốc kho (dạng repo-root) hoặc tệp .tgz trực tiếp (dạng trực tiếp) đúng như được viết. Với git-repository, đây là URL kho có thể clone. Với helm-oci-chart, đây là tham chiếu registry. Với compose-https-fragment, đây là URL HTTPS của fragment. Vị trí artifact đã phân giải của một nguồn helm dạng repo-root được ghi riêng dưới `resolved_url:` làm thông tin nguồn gốc."
   },
+  "5f7806f1d14f45dc": {
+    "at": "2026-11-19T01:38:18.441Z",
+    "job": "session-0015-20261119013818",
+    "revision": {
+      "from": "87661dfbf3913398",
+      "reviewed": false
+    },
+    "srcHash": "5f7806f1d14f45dc",
+    "status": "machine",
+    "text": "**Một lần nhập đọc catalog mà một lần build phân giải dựa trên: các thư mục catalog của workspace trước, catalog đã phát hành nằm sau chúng.** Các thư mục là những thư mục mà `AGGREGA_CATALOG_DIRS` và `workspace.catalog_dirs` nêu tên, rồi đến thư mục catalog ở gốc workspace; nằm sau chúng, lần nhập đọc catalog thư viện chuẩn dưới dạng một ảnh chụp có chữ ký duy nhất, tại `catalog/snapshot` trên registry mặc định của workspace được phục vụ — chính là registry mà từ đó một trình nhập lõi được tải về, được truy cập theo cùng các điều kiện, và không có gì trong lời gọi nêu tên một registry hay mang thông tin xác thực. Một thực thể mà một thư mục chứa được đọc thay cho thực thể đã phát hành có cùng định danh, còn mọi thực thể đã phát hành khác vẫn nằm trong tầm nhìn. Một parser hay một trình nhập mà các thư mục chứa cho một cú pháp hoặc một định dạng được chọn cho nó trước bất kỳ cái nào mà catalog đã phát hành chứa, trừ khi một mục `plugins.importer` trong cấu hình workspace gắn một cái khác. Một ảnh chụp chỉ được tải về một lần: chữ ký của nó được xác minh theo chính sách tin cậy của registry đó, rồi nó được giữ trong bộ nhớ đệm nội dung của workspace và được đọc ở đó như một thư mục catalog, ràng buộc với digest của nó, mà không hỏi lại registry nào. Ảnh chụp mà một lời gọi đọc: với `upgrade`, bản mới nhất; nếu không, bản mà mục của lần nhập trong bản ghi ở thư mục đầu ra nêu tên, được tải về theo digest của nó khi máy chưa có; nếu không, bản mà workspace tải về gần nhất dưới dạng bản mới nhất; nếu không, bản mới nhất. Khi không đọc được ảnh chụp — workspace ngoại tuyến và máy không có nó, workspace không nêu registry mặc định nào, hoặc registry không truy cập được hay không phát hành bản nào — một workspace có thư mục catalog sẽ chỉ nhập dựa trên các thư mục đó, một mục `warn` trong `diagnostics` cho biết lý do, và mục mà lần nhập ghi giữ nguyên ảnh chụp mà nó đã nêu tên trước đó; `upgrade` bị từ chối ở bất cứ nơi nào không đọc được ảnh chụp, bất kể máy có gì, vì chỉ registry mới có thể cho biết ảnh chụp nào là mới nhất. Một `sync` có mục nêu tên một ảnh chụp mà máy không có và không thể tải cũng bị từ chối, nêu tên ảnh chụp đó: các bản nháp mà nó đánh giá đã được soạn dựa trên catalog ấy, và riêng các thư mục có thể soạn chúng khác đi, nên nó chạy ở nơi truy cập được registry, điều này giữ ảnh chụp trên máy cho mọi sync về sau. Ngược lại, một workspace không có thư mục catalog nào sẽ bị từ chối, nêu rõ cần chạy gì, khi nó phải tải một ảnh chụp lúc ngoại tuyến; và khi registry không phát hành ảnh chụp nào thì nó nhập mà không có catalog, và một mục `warn` trong `diagnostics` cho biết điều đó."
+  },
   "5f7e02c69dff2899": {
     "at": "2026-11-14T23:40:29.533Z",
     "job": "session-0013-20261114234029",
@@ -72779,6 +72845,17 @@
     "srcHash": "60e2d9696b7ebfa9",
     "status": "machine",
     "text": "Một FeatureRecipe render một lần cho một boundary (`executionScope: boundary`) không được kiểm tra ở đây: các template của nó không có `.context` để đọc, và một tham chiếu tới nó bị từ chối như một trường nằm ngoài danh sách cho phép của phạm vi."
+  },
+  "60ebf829ffbfcfab": {
+    "at": "2026-11-19T01:38:18.441Z",
+    "job": "session-0015-20261119013818",
+    "revision": {
+      "from": "6974f59a9acf66e4",
+      "reviewed": false
+    },
+    "srcHash": "60ebf829ffbfcfab",
+    "status": "machine",
+    "text": "**Azure**: một tham số `securestring` cấp cao nhất của template, đặt tên theo instance và thuộc tính, mà bạn cung cấp khi triển khai. Một secret mà nhà cung cấp đánh dấu là tùy chọn vẫn là một tham số bắt buộc."
   },
   "60ed1f2593ade11b": {
     "at": "2026-10-23T00:18:01.108465+00:00",
@@ -81620,6 +81697,13 @@
     "srcHash": "6cc8519b91584e8b",
     "status": "machine",
     "text": "Go"
+  },
+  "6cc968ccf6b58f87": {
+    "at": "2026-11-19T01:38:18.441Z",
+    "job": "session-0015-20261119013818",
+    "srcHash": "6cc968ccf6b58f87",
+    "status": "machine",
+    "text": "Chỉ một thuộc tính ở cấp cao nhất của kiểu mới được soạn nháp thành secret. Một thành viên nhạy cảm bên dưới nó — `properties.osProfile.adminPassword` của Azure, `user[].password` của Terraform — thì không: Release đặt nó như một giá trị thuần bên trong khóa mà phần tử cha của nó được soạn nháp dưới đó, chẳng hạn `infra.overrides.osProfile`, và lần nhập cảnh báo về từng thành viên như vậy dưới `constraint-dropped`, nêu tên đường dẫn của nó và khóa đó."
   },
   "6cca9b24a831e55c": {
     "at": "2026-10-22T08:20:04.359Z",
@@ -105282,6 +105366,17 @@
     "status": "machine",
     "text": "tạo một thực thể cho mỗi guest được nhúng trong binary này"
   },
+  "8c393b2b523e6252": {
+    "at": "2026-11-19T01:38:18.441Z",
+    "job": "session-0015-20261119013818",
+    "revision": {
+      "from": "c08544c7adc8f7a7",
+      "reviewed": false
+    },
+    "srcHash": "8c393b2b523e6252",
+    "status": "machine",
+    "text": "`resource_types` không phải là danh sách các tên và đối tượng có `type` và `component`, hoặc `component` của một mục rỗng."
+  },
   "8c39cf1bb4eee24b": {
     "at": "2026-10-22T10:27:55.857345+00:00",
     "job": "msgbatch_01St5AJWD4JFUsFvC38dR1rN",
@@ -107273,6 +107368,17 @@
     "srcHash": "8ee5df761f49f614",
     "status": "machine",
     "text": "Mục này render các values của chart. Một template trợ giúp, `BitnamiNodePool`, viết tài nguyên, lưu trữ bền vững, node selector và preset anti-affinity của một node pool; mục khai báo nó bằng `define` và gọi nó bằng `template`, cho pool chính và, khi dùng replication, cho pool phụ. Template trợ giúp được khai báo bên trong mục sử dụng nó, vì một Recipe nhập một mục và một định nghĩa đi cùng mục chứa nó. Các giá trị mặc định của thư viện điền vào mọi trường tài nguyên mà Aggregate bỏ qua, nên template trợ giúp đọc chúng mà không cần giá trị dự phòng. Ánh xạ xử lý các biến thể kiến trúc standalone và replication, các thông tin xác thực mà phần gắn cung cấp (đọc từ `.context.inject.env`), và khối metrics. Các Recipes sử dụng nhập toàn bộ mục `MariaDBBitnamiCore` qua `$import:` dạng thư viện."
+  },
+  "8ee665e158e4b34e": {
+    "at": "2026-11-19T01:38:18.441Z",
+    "job": "session-0015-20261119013818",
+    "revision": {
+      "from": "ba1f8ec5ac0232b5",
+      "reviewed": false
+    },
+    "srcHash": "8ee665e158e4b34e",
+    "status": "machine",
+    "text": "Bên đọc duy nhất của nó là một lần nhập, đọc các thư mục catalog trước rồi đến catalog đã phát hành nằm sau chúng, theo đúng thứ tự mà một lần build phân giải: các thư mục catalog của workspace — `AGGREGA_CATALOG_DIRS`, `workspace.catalog_dirs`, rồi thư mục `catalog/` ở gốc workspace — và ảnh chụp đã phát hành nằm sau chúng, nên một thực thể mà một thư mục chứa được đọc thay cho thực thể đã phát hành có cùng định danh, còn mọi thực thể đã phát hành khác vẫn nằm trong tầm nhìn. `aggrega import`, lần nhập của phiên trình soạn thảo và công cụ nhập của trợ lý chạy cùng một thao tác, nên mỗi bên đều lấy ảnh chụp theo cùng một cách. Lần nhập tải nó từ registry mặc định của workspace qua cùng cổng kiểm soát lưu lượng ra và cùng bước đăng nhập như một lần pull, xác minh chữ ký của nó theo chính sách tin cậy của registry đó trước khi giữ lại bất cứ thứ gì, giữ nó trong bộ nhớ đệm artifact của workspace và đọc nó ở đó như một thư mục catalog, ràng buộc với digest của nó — nhờ đó trình nhập được cung cấp các Components của catalog, và `--target` soạn nháp một Manifest từ các Recipes của nó, đi qua đúng con đường mà một thư mục catalog đi qua. Mục của lần nhập trong bản ghi mà nó ghi bên cạnh các bản nháp nêu tên ảnh chụp bằng digest manifest của nó, nên một lần nhập sau với cùng các bản nháp sẽ đọc cùng catalog mà không cần gửi yêu cầu, và `aggrega import --upgrade` tải ảnh chụp mới nhất và từ đó trở đi nhập dựa trên nó. Khi không đọc được ảnh chụp — ngoại tuyến mà không có bản nào được giữ, không có registry mặc định, hoặc registry không truy cập được hay không phát hành bản nào — một workspace có thư mục catalog sẽ chỉ nhập dựa trên các thư mục đó và một cảnh báo cho biết lý do, còn một workspace không có thư mục catalog nào sẽ dừng lại, nêu rõ cần chạy gì, hoặc nhập mà không có catalog khi registry không phát hành ảnh chụp nào. Một `--sync` có mục nêu tên một ảnh chụp mà máy này không có và không thể tải cũng sẽ dừng lại, nêu tên ảnh chụp đó: các bản nháp mà nó đánh giá đã được soạn dựa trên catalog ấy, và riêng các thư mục có thể soạn chúng khác đi, nên một sync đọc ảnh chụp mà các bản nháp của nó đã được nhập dựa vào, hoặc không đọc gì cả. Không lệnh nào khác đọc ảnh chụp: pull, build và xác thực phân giải từng thực thể qua các tầng của §5 và ghim nó trong lockfile, và các bản nháp của một lần nhập tham chiếu các thực thể catalog theo tên, nên việc build chúng phân giải các thực thể đó theo cùng một cách."
   },
   "8ee68f1d18f24860": {
     "at": "2026-10-22T21:42:39.864359+00:00",
@@ -127653,6 +127759,17 @@
     "status": "machine",
     "text": "Các helper phổ biến KHÔNG có sẵn"
   },
+  "a9e69be6b2a2f9d2": {
+    "at": "2026-11-19T01:38:18.441Z",
+    "job": "session-0015-20261119013818",
+    "revision": {
+      "from": "610f899632ea86a6",
+      "reviewed": false
+    },
+    "srcHash": "a9e69be6b2a2f9d2",
+    "status": "machine",
+    "text": "Bản nháp không thấy khóa `infra` nào của Component. Assertion `required_overrides_set` dừng build cho đến khi Release đặt từng thuộc tính bắt buộc mà không khóa `values` nào mang, nêu tên `infra.overrides.<VendorName>`, kiểu yêu cầu nó và việc Component không khai báo khóa `values` nào mang tên đó. Khi `infra` của Component là đóng và không khai báo `overrides`, Release không thể đặt chúng: build xác thực `infra` của instance theo schema của Component và từ chối khóa đó."
+  },
   "a9ea9040430f14a2": {
     "at": "2026-11-14T10:23:22.802Z",
     "job": "session-0010-20261114102322",
@@ -143022,6 +143139,17 @@
     "srcHash": "bdae3cfc11ace2d4",
     "status": "machine",
     "text": "Lược đồ"
+  },
+  "bdb0911bdb897945": {
+    "at": "2026-11-19T01:38:18.441Z",
+    "job": "session-0015-20261119013818",
+    "revision": {
+      "from": "74510a0127c24358",
+      "reviewed": false
+    },
+    "srcHash": "bdb0911bdb897945",
+    "status": "machine",
+    "text": "Định dạng được nhận ra từ hình dạng của chính nguồn, như tại terminal; khi trình biên dịch từ chối vì không có định dạng nào, hoặc có nhiều hơn một định dạng, nhận ra nguồn, trình soạn thảo hiển thị lời từ chối đó — trong đó nêu tên các định dạng — và hỏi định dạng để đọc nguồn, rồi gửi lại cùng lần nhập kèm định dạng đó, và để trống câu hỏi đó sẽ kết thúc lần nhập với lời từ chối. Nó đọc tệp bạn nêu tên, hoặc các tệp trong thư mục bạn nêu tên mà trình nhập của nó đọc, và không đọc gì khác. Nó không truy cập mạng, ngoại trừ để tải những gì một lần nhập cần để chạy mà máy này chưa có — một trong các trình nhập lõi của trình biên dịch, vào lần đầu tiên một định dạng cần nó, và ảnh chụp catalog đã phát hành mà lần nhập đọc làm catalog của nó, nằm sau các thư mục catalog của workspace — mỗi thứ được tải từ registry mặc định của workspace, được xác minh và giữ trong bộ nhớ đệm nội dung, như `aggrega import` làm. Khi không thể tải ảnh chụp đó, một lần nhập trong workspace có thư mục catalog chỉ đọc các thư mục đó và kênh đầu ra mang cảnh báo nói rõ điều ấy, trong khi một **Sync** mà các bản nháp được nhập dựa trên một ảnh chụp mà máy này không có sẽ bị từ chối, nêu tên ảnh chụp đó, giống như `aggrega import --sync`. Nguồn có thể nằm ở bất kỳ đâu trên máy này, vì đó là tệp bạn đã trỏ đến chứ không phải tệp mà workspace chứa; các bản nháp luôn được đặt trong workspace."
   },
   "bdb099ad6c92703f": {
     "at": "2026-11-01T14:54:04.024Z",
@@ -171070,6 +171198,13 @@
     "status": "machine",
     "text": "**Một probe hoàn toàn không khai báo cách kiểm tra nào** — không có đường dẫn, không có cổng để kết nối, cũng không có lệnh để chạy. Không có gì để chuyển thành một lần kiểm tra. Trường hợp này là một lớp bảo vệ phía sau schema chứ không phải một hình dạng bạn có khả năng viết ra: một probe đã được kiểm tra xem có một trong ba cách đó hay không trước khi đến đây."
   },
+  "e16a7595a036d590": {
+    "at": "2026-11-19T01:38:18.441Z",
+    "job": "session-0015-20261119013818",
+    "srcHash": "e16a7595a036d590",
+    "status": "machine",
+    "text": "Chỉ một thuộc tính ở cấp cao nhất của tài nguyên mới trở thành secret — trên Azure là một khóa gốc hoặc một thành viên của `properties`. Một thành viên nhạy cảm bên dưới nó, chẳng hạn `adminPassword` bên trong `osProfile` của Azure hay `password` bên trong một khối Terraform, không được soạn nháp thành secret: Release đặt nó như một giá trị thuần bên trong khóa mà phần tử cha của nó được soạn nháp dưới đó, và lần nhập cảnh báo về từng thành viên như vậy dưới `constraint-dropped`, nêu tên đường dẫn của nó và khóa đó."
+  },
   "e16c8380df4ccddf": {
     "at": "2026-10-22T12:39:32.286242+00:00",
     "job": "msgbatch_01UUrfm3zUQRLRu6brFV9rmQ",
@@ -172832,6 +172967,17 @@
     "srcHash": "e3a55ab505f415bb",
     "status": "machine",
     "text": "`spec.source: ./module` và `module/main.tf.json` bên cạnh Recipe; `spec.valuesMapping` điền các biến của module"
+  },
+  "e3a905030a475b42": {
+    "at": "2026-11-19T01:38:18.441Z",
+    "job": "session-0015-20261119013818",
+    "revision": {
+      "from": "f896ee1e06d0a07e",
+      "reviewed": false
+    },
+    "srcHash": "e3a905030a475b42",
+    "status": "machine",
+    "text": "Khi tên mà một bản nháp sẽ lấy đã được giữ bởi một Component của các thư mục của workspace hoặc của catalog đã phát hành với các khóa `values` khác, lần nhập dừng lại dưới `component-exists`, nêu tên Component, các khóa khác nhau và `component` như cách khắc phục. Một Component được giữ với cùng các khóa là cùng bản nháp được làm mới, và lần nhập tiếp tục. Một Component trong tệp mà mục riêng của lần nhập trong bản ghi cạnh các bản nháp liệt kê là bản nháp trước đó của nó chứ không phải một thực thể catalog, nên importer không được cho thấy nó: một `--sync` sau khi schema của nhà cung cấp có thêm hoặc mất một thuộc tính danh tính sẽ soạn nháp Component với các khóa mới của nó. Một lần nhập thông thường không ghi đè lên tệp Component hay Recipe nào đã có sẵn, và dừng lại, nêu tên `--sync`, lệnh cập nhật các tệp mà bản ghi liệt kê theo nguồn."
   },
   "e3ab24092720d647": {
     "at": "2026-10-22T23:26:44.024289+00:00",
