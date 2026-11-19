@@ -2770,7 +2770,9 @@ drafted key names the rule:
    CloudFormation string property whose name holds a credential word — Password, Secret, Token,
    Credential, PrivateKey, ApiKey or Passphrase — and does not end in `Arn`, `Id`, `Name` or `Ref`. The
    CloudFormation reading is a convention of the draft, so review it. A secret is drafted as
-   [Secrets](#secrets-in-the-drafts) describes.
+   [Secrets](#secrets-in-the-drafts) describes. Only a property at the top of the type becomes a
+   secret — for Azure a root key or a member of `properties`; a sensitive member below one is warned of
+   under `constraint-dropped`, as that section describes.
 3. **Placement**, to a typed key of `infra` — Azure's root `location`; Terraform's `region` on `aws`,
    `location` and `resource_group_name` on `azurerm`, and `project`, `region`, `zone` and `location` on
    `google`. A CloudFormation type has none, since a stack's resources live in the Region it is deployed to.
@@ -2851,11 +2853,17 @@ or pull with `--pin-sources`. A pull without it halts naming `aggrega pin`. The 
 ### Secrets in the drafts
 
 A secret value is never written into a draft. On `arm`, a top-level `securestring` parameter of the
-fragment, named after the symbolic name and the property and supplied when the template deploys. On
+fragment, named after the symbolic name and the property and supplied when the template deploys; an
+optional secret is a required parameter, since the parameter declares no default. On
 `cloudformation`, a `Parameters` entry with `Type: String` and `NoEcho: true`, named the same way and read
 with `!Ref`; an optional secret is a required parameter. On `terraform`, the Component's slot and a
 module variable carrying its own `sensitive: true`, filled from the value the attachment to the slot
 delivers; no `aggrega_override.tf.json` is written for such a Recipe.
+
+Only a property at the top of the type is drafted as a secret. A sensitive member below one — an Azure
+`properties.osProfile.adminPassword`, a Terraform `user[].password` — is not: the Release sets it as a
+plain value inside the key its parent is drafted under, such as `infra.overrides.osProfile`, and the
+import warns of each one under `constraint-dropped`, naming its path and that key.
 
 ### Drafting a Recipe alone
 
@@ -2872,8 +2880,12 @@ implementing the Component at the version the catalog holds.
 - A key of the Component's `provides` that names a read-back attribute is written from it. Every other
   is written as a template that fails, naming the key and the attributes read back, so a build halts
   until you map it, and the import warns under `provides-unmapped`.
-- The draft sees no `infra` key of the Component. Where the Component declares no `infra.overrides`, the
-  Release cannot set the overrides the Recipe reads, and the assertion naming them says so.
+- The draft sees no `infra` key of the Component. The assertion `required_overrides_set` halts the
+  build until the Release sets each required property no `values` key carries, naming
+  `infra.overrides.<VendorName>`, the type that requires it and that the Component declares no `values`
+  key of its name. Where the Component's `infra` is closed and declares no `overrides`, the Release
+  cannot set them: the build validates the instance's `infra` against the Component's schema and refuses
+  the key.
 
 A `component` that neither the workspace's folders nor the published catalog holds is drafted as a new
 Component under that name, with `component-drafted-new`, since a registry the workspace pulls from may
@@ -3004,7 +3016,7 @@ with its `code` as well.
 | `resource-schema-unreadable` | `halt` | A source parses but is not the format's schema shape; the missing member is named. |
 | `resource-type-refused` | `halt` | The provider cannot realize the type: a CloudFormation `describe-type` output whose `Type` is not `RESOURCE` or whose `ProvisioningType` is `NON_PROVISIONABLE`, or an Azure type writable only at the tenant scope or only as an extension of another resource. |
 | `component-exists` | `halt` | The Component name a draft would take is held, in the workspace's folders or the published catalog, with other `values` keys; the keys and `component` as the remedy are named. |
-| `constraint-dropped` | `warn` | A vendor constraint is not carried, or a shape is cut where a definition refers back to itself or nests too deep; the property, the constraint and why are named. |
+| `constraint-dropped` | `warn` | A vendor constraint is not carried, a shape is cut where a definition refers back to itself or nests too deep, or a sensitive member below the top of the type is not drafted as a secret; the property, the constraint and why are named. |
 | `provider-version-unconstrained` | `warn` | A Terraform export carries no provider version, so the drafted module requires the provider with no constraint. |
 | `provides-unmapped` | `warn` | Drafting a Recipe alone: a key the named Component provides matches no attribute the type reads back, so the Recipe's `provides` halts the build for it until it is mapped. |
 | `component-drafted-new` | `warn` | An entry's `component` names a Component neither the workspace's folders nor the published catalog holds, so it is drafted new under that name. |

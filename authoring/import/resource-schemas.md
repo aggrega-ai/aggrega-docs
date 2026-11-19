@@ -253,14 +253,20 @@ it does not read:
 spec:
   # This Recipe realizes imported/security/microsoft-managedidentity-userassignedidentities with one resource of the type Microsoft.ManagedIdentity/userAssignedIdentities@2024-11-30. It reads the keys below, each with its type, its rule and the first sentence of the vendor's description; any other key under infra.overrides halts the build naming it.
   # infra.location: string, required; placement: where the resource is deployed
+  # [… omitted: the first sentence of the vendor's description of the key above, marked as vendor schema text, as below each key]
   # values.name: string, required; identity: the resource's own name or identifier
+  # [… omitted: the vendor's description of the key]
   # infra.overrides.tags: object; override: writable, set under infra.overrides in the vendor's spelling
+  # [… omitted: the vendor's description of the key]
   # infra.overrides.isolationScope: string; override: writable, set under infra.overrides in the vendor's spelling
+  # [… omitted: the vendor's description of the key, then a line saying template.yaml declares the resource under the symbolic name locals.symbol holds]
   capability: arm
   implements: imported/security/microsoft-managedidentity-userassignedidentities:0.1.0
   locals:
+    # [… omitted: a comment saying what the symbolic name is made of]
     symbol: "{{ capitalizedWords .context.instance_id }}"
   provides:
+    # [… omitted: a comment saying each value is one whole ARM expression, evaluated when the template is deployed]
     id: "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities'{{ range splitList \"/\" (toString (index .values \"name\")) }}, '{{ replace \"'\" \"''\" . }}'{{ end }})]"
     client_id: "[reference('{{ .locals.symbol }}').clientId]"
     # … principal_id and tenant_id the same way
@@ -413,12 +419,20 @@ A secret property's value is never written into a draft, and no default is
 drafted for it. How it reaches the resource follows the provider:
 
 - **Azure**: a top-level `securestring` parameter of the template, named after
-  the instance and the property, which you supply when you deploy.
+  the instance and the property, which you supply when you deploy. A secret the
+  vendor marks optional is a required parameter.
 - **CloudFormation**: a template `Parameters` entry marked `NoEcho`, named the
   same way. A secret the vendor marks optional is a required parameter.
 - **Terraform**: a Feature slot on the Component, and a module variable marked
   `sensitive: true`; the value comes through the secret the Release attaches to
   the slot.
+
+Only a property at the top of the resource becomes a secret — on Azure a root
+key or a member of `properties`. A sensitive member below one, such as
+`adminPassword` inside an Azure `osProfile` or `password` inside a Terraform
+block, is not drafted as a secret: the Release sets it as a plain value inside
+the key its parent is drafted under, and the import warns of each one under
+`constraint-dropped`, naming its path and that key.
 
 A CloudFormation property is read as a secret when its name holds a credential
 word — password, secret, token, credential, private key, API key or
