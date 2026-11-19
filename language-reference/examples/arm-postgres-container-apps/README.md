@@ -80,7 +80,7 @@ The build prints, with `<workspace>` standing for this example's folder:
 
 ```
 [… omitted: the pull's line, which reports the lockfile it wrote, and a lint notice about the credential Feature's origin]
-Total build time:              57.2s
+Total build time:               4.9s
 Build completed: 1 file written to <workspace>/dist
 ```
 
@@ -264,7 +264,7 @@ The build writes two files, one per output directory:
 
 ```
 [… omitted: the pull's line, which reports the lockfile it wrote, and a lint notice about the credential Feature's origin]
-Total build time:              58.2s
+Total build time:               3.0s
 Build completed: 2 files written to <workspace>/dist
 ```
 
