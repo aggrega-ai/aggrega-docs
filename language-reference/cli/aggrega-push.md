@@ -233,6 +233,17 @@ checkout of the commit its release tag names, never by copying the version it
 reports into the entity. A development version such as 1.0.0-3-g1a2b3c4, built
 from a commit, and a prerelease such as 1.0.0-rc.1 publish.
 
+A Plugin can carry the third-party notices of its guest and a software bill of
+materials. --plugin-notices names a Markdown file that publish packs into the
+manifest as a layer after the .wasm, so the notices travel with the executable
+and the manifest digest covers them; a dry run prints that digest. --plugin-sbom
+names an SPDX 2.3 JSON file that publish attaches beside the published Plugin,
+as an application/spdx+json OCI referrer, once the manifest has landed. It is not
+part of the manifest and moves no digest. Publishing content that is already
+published attaches the bill of materials when the version carries none, and never
+a second. Both flags are optional and refused without --plugin, and a file that is
+missing or empty is refused before anything is uploaded.
+
 What is published is the entity document and the files the entity itself names
 beside it — a Recipe's or FeatureRecipe's local source, each file an $import:
 names, the entity.lock beside it, and each schema file a Component or Feature
@@ -301,6 +312,8 @@ published; --pin-sources=false skips it for one run.
 | `--list-kinds` | `false` | List every entity kind that can be published, then exit without publishing anything. The output is machine-readable and its shape is stable: one kind per line, in sorted order, with nothing else. |
 | `--pin-sources` | `false` | Run the entity author's pin step on the entity before bundling it, so the entity.lock the step writes beside it is part of what is published, instead of refusing an entity whose lock does not record its pins. The same step as aggrega pin, writing the same bytes. It writes beside the entity, so it runs only where the entity has a writable home: a document in a directory it was read from — which a push always has, since it publishes the entity document you name. Overrides the workspace's pin_sources_at_push in both directions: --pin-sources pins for this run and --pin-sources=false does not, whatever the setting says |
 | `--plugin` | — | Path to the local .wasm artifact for a Plugin entity. Required when publishing a Plugin: publish pushes the .wasm artifact, computes its content digest, and pushes the entity. |
+| `--plugin-notices` | — | Path to a Markdown file of the third-party notices of the Plugin's guest. Optional, and only with --plugin: publish packs it into the manifest as a layer after the .wasm, so the notices travel with the executable and the manifest digest covers them. |
+| `--plugin-sbom` | — | Path to an SPDX 2.3 JSON software bill of materials of the Plugin's guest. Optional, and only with --plugin: publish attaches it beside the published Plugin as an application/spdx+json OCI referrer, which moves no digest and is never attached twice. |
 | `--registry` | — | Destination registry host (overrides the workspace's default_registry) |
 | `--rekor-url` | — | Rekor transparency-log URL for keyless signing. When omitted, the public-good Rekor instance is used. |
 | `--sign` | `false` | Sign the published artifact and attach the signature as an OCI referrer. When omitted, signing follows the destination registry's policy. |
