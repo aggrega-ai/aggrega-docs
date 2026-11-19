@@ -7,14 +7,15 @@ Translate into Modern Standard Arabic. Each choice below is a default, made with
 - Modern Standard Arabic, technical and plain, as Arabic software documentation is written: precise and concise, with no emphasis the source does not have.
 - Address the reader in the second person singular wherever the English says "you", in the masculine form Arabic technical writing uses for every reader: "يمكنك". An instruction takes the imperative: "شغِّل الأمر" and "أضِف المفتاح". The verb carries the person, so write the pronoun "أنت" only where the source stresses "you".
 - No colloquial or dialect form: write the terms established in Arabic software writing, as the vocabulary below gives them.
-- Write each rendering exactly as this guide writes it, its diacritics included; elsewhere add a diacritic only where a word would be misread without it.
+- Write each rendering with the letters and diacritics this guide gives it, adding the article, the plural and the agreement the sentence needs (مكوِّن، المكوِّن، مكوِّنات); elsewhere add a diacritic only where a word would be misread without it.
 
 ## Punctuation, digits and quotation marks
 
-- Arabic text takes the Arabic comma `،`, the Arabic semicolon `؛` and the Arabic question mark `؟`; a sentence ends with the full stop `.`. Inline code, a URL and an English term keep their own punctuation.
-- A quoted phrase takes the quotation marks `« »`: «هكذا».
+- Arabic text takes the Arabic comma `،`, the Arabic semicolon `؛` and the Arabic question mark `؟`, also right after a Latin term or a code span inside an Arabic sentence: "Components، Features و Recipes". A sentence ends with the full stop `.`. Inline code, a URL and a name that holds its own punctuation (Node.js) keep it.
+- A quoted phrase takes the quotation marks `« »`: «هكذا». A quotation inside it takes `“ ”`: «يطبع الأمر “تم” ثم ينتهي».
 - Parentheses are the ordinary ( ), with a space before the opening one and none inside; an English name given in parentheses takes them too: البنية التحتية الشبحية (Ghost Infrastructure).
 - Numbers take Western digits (0–9), always: never the Eastern Arabic-Indic digits, nor the Persian ones.
+- A number keeps the decimal point `.`, the thousands separator `,` and the percent sign `%` the source writes (21,867 and 99.9%): never the Arabic decimal separator, thousands separator or percent sign, and never the Arabic comma inside a number.
 - Inline code is never put in quotation marks: it keeps its backticks.
 - Letters are the ones Modern Standard Arabic writes (ي، ك، ة، ه): never the Persian or Urdu letter forms (Farsi yeh, keheh, heh goal, heh with yeh above, yeh barree), and never a presentation form. Text is stored as base letters, and the font joins them.
 - Never the tatweel, the stroke that stretches a joined letter: a word is written with its letters alone.
@@ -23,6 +24,7 @@ Translate into Modern Standard Arabic. Each choice below is a default, made with
 ## Direction
 
 - An arrow `→` between words or code spans that means "becomes", "then" or "leads to" is written `←` in Arabic text; the two sides keep the source's order.
+- Where the nearest word on each side of the arrow, code spans aside, is in Latin letters (two kept terms, or a menu path of screen labels kept in English), a right-to-left page shows `←` pointing back at the first word, so the meaning reads reversed. Write the arrow's meaning there as an Arabic word, the two sides in the source's order: يصبح (becomes), ثم (then, and between the steps of a menu path), يؤدي إلى (leads to). The source's `**Settings → AI → MCP Servers**` is "**Settings ثم AI ثم MCP Servers**".
 - An arrow inside inline code or a code block is code: it stays as the source writes it.
 - A sentence may begin with a Latin term or a code span where Arabic grammar puts it there; the page handles its direction. Never reorder a sentence to avoid it, and never add a mark to steer it.
 
@@ -35,7 +37,7 @@ Translate into Modern Standard Arabic. Each choice below is a default, made with
 - Abbreviations such as AOT, IR, CLI and ABI stay; their expansion is translated where the source spells it out.
 - No Arabic affix is joined to a Latin term or a code span: never the definite article "ال" before it, never a one-letter preposition or conjunction (ب، ل، ك، ف), never a suffix. Write a noun before the term instead ("ملف YAML" and "الكيان Release" and "بالأمر `aggrega build`"), or a preposition that stands as a word of its own (في، من، إلى، على، عن، مع).
 - The conjunction "و" stands as a word of its own before a Latin term or a code span: "Components و Features".
-- A kept term with no Arabic noun before it takes masculine agreement: "كل Release مستقل". After an Arabic noun, agreement follows that noun.
+- A kept term with no Arabic noun before it takes masculine agreement: "كل Release مستقل"; a plural kept term takes the feminine singular, as every non-human plural does: "Releases مستقلة". After an Arabic noun, agreement follows that noun.
 
 ## The qualifiers
 
@@ -72,6 +74,10 @@ Files and data:
 | cache | ذاكرة التخزين المؤقت |
 | binary | ملف ثنائي |
 | configuration file | ملف التكوين |
+| artifact | مُخرَج (plural: مُخرَجات) |
+| output, outputs (what a command, a build or a render writes) | الإخراج |
+
+An artifact is مُخرَج and output is الإخراج: the two stay apart, and output is never مُخرَجات.
 
 Code:
 
@@ -114,7 +120,9 @@ Build and run:
 | to call | استدعاء |
 | to create | إنشاء |
 | to build, a build | بناء |
-| to compile | التحويل البرمجي |
+| to compile, compilation (the noun) | التحويل البرمجي |
+| to compile, as a verb | يحوِّل برمجيًا (compiled: مُحوَّل برمجيًا) |
+| compile time | وقت التحويل البرمجي (runtime, the phase it is set against, is وقت التشغيل) |
 | compiler | المحوِّل البرمجي |
 | to render | تصيير |
 | to generate | توليد |
@@ -125,6 +133,7 @@ Build and run:
 | container | حاوية |
 | container image | صورة الحاوية |
 | repository | مستودع |
+| registry | registry, in Latin letters |
 | workspace | مساحة العمل |
 | local machine | الجهاز المحلي |
 | remote | بعيد |
@@ -143,7 +152,9 @@ Build and run:
 | to support | دعم |
 | interface | واجهة |
 
-To deploy and to publish are two verbs: a sentence that publishes but never deploys keeps both.
+A registry stays registry in Latin letters, as the `aggrega registry` command names it: سجل is a log and مستودع is a repository. It takes no article ("إلى registry"), and registries stays plural where the source writes it.
+
+To deploy is نشر and to publish is طرح: two verbs, never one for the other. نشر is the everyday Arabic word for publishing, so here it never stands for publishing: "publishes but never deploys" is "يطرح ولا ينشر أبدًا".
 
 Network:
 
