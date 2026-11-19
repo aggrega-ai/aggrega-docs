@@ -2815,7 +2815,10 @@ named after the Component's last segment, and implements the Component at `0.1.0
 Where the name a draft would take is already held by a Component of the workspace's folders or the
 published catalog with other `values` keys, the import stops under `component-exists`, naming the
 Component, the differing keys and `component` as the remedy. A Component held with the same keys is the
-same draft refreshed, and the import goes on. A plain import writes over no Component or Recipe file already in place, and stops naming
+same draft refreshed, and the import goes on. A Component at a file the import's own entry in the record
+beside the drafts lists is its earlier draft rather than a catalog entity, so the importer is not shown it:
+a `--sync` after the vendor's schema gained or lost an identity property drafts the Component with its new
+keys. A plain import writes over no Component or Recipe file already in place, and stops naming
 `--sync`, which brings the files the record lists up to date with the source.
 
 A text taken from a vendor's schema — a description, a line of the Recipe's header quoting one —
