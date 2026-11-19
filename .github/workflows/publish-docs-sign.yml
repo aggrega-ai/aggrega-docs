@@ -89,12 +89,12 @@ on:
 # short-lived identity token from the Actions runtime and signs against public
 # Sigstore (Fulcio + Rekor); no offline key is stored. The docs bundle publishes
 # to the public hub, so recording the reference in the public transparency log is
-# expected, not a leak. id-token:write lets the job mint the OIDC token; the
-# workflow reads only from the repository it checks out and writes nothing back
-# to git, so contents:read is all the git access it needs.
+# expected, not a leak. The workflow reads only from the repository it checks out
+# and writes nothing back to git, so contents:read is all the git access any job
+# needs; only the publish-sign job adds id-token:write, which lets it mint the
+# OIDC token.
 permissions:
   contents: read
-  id-token: write
 
 env:
   # Destination registry host. A repository variable the operator sets once;
@@ -132,6 +132,8 @@ jobs:
         # The gate script under .github/scripts is all this job reads from the
         # repository.
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          persist-credentials: false
 
       - name: Check the stored registry credential
         # One GET /v2/ with the stored credential; anything but 200 fails,
@@ -194,6 +196,9 @@ jobs:
     # hosted runner is fine. Point the AGGREGA_RUNNER repository variable at
     # a self-hosted label to move the work off metered hosted minutes.
     runs-on: ${{ vars.AGGREGA_RUNNER || 'ubuntu-latest' }}
+    permissions:
+      contents: read
+      id-token: write
 
     # 🔴 NAME THE SHELL RATHER THAN LETTING IT BE CHOSEN. Every `run:` below opens
     # with `set -euo pipefail`, and `pipefail` is a bash option that dash rejects
@@ -238,7 +243,7 @@ jobs:
     # The registry is authenticated even on pull, so the image is pulled with the
     # same registry credentials used to push.
     container:
-      image: ${{ needs.registry.outputs.image }}
+      image: ${{ needs.registry.outputs.image }} # zizmor: ignore[unpinned-images] the tooling image this release publishes, at its exact version, which the registry job waits for before this job starts
       credentials:
         username: ${{ vars.REGISTRY_USERNAME }}
         password: ${{ secrets.REGISTRY_PASSWORD }}
@@ -278,6 +283,7 @@ jobs:
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
         with:
           fetch-depth: 0
+          persist-credentials: false
 
       - name: Trust the checked-out tree
         # 🔴 git REFUSES a repository whose directory is owned by another user —
