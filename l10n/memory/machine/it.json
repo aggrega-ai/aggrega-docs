@@ -5994,6 +5994,17 @@
     "status": "machine",
     "text": "**Stato attuale:** **disponibile** secondo [Stato del linguaggio → Tipi di input della Recipe](../10-status.md#recipe-input-kinds). Ogni voce viene valutata con il contesto completo del template dopo la sintesi del workload e la risoluzione della sorgente, e il file risultante viene emesso sotto la chiave della voce. Ciò che un target fa con un artefatto emesso dipende dalla capacità: un provider che accetta un artefatto autonomo lo emette come file a sé, mentre uno che accetta artefatti solo insieme a un altro tipo di input fonde la voce in ciò che assembla — quindi un corpo che non ha la forma attesa da quell’assemblatore provoca un arresto sotto la categoria `TRANSLATION_ERROR` anziché essere emesso così com’è. Consulta la griglia per capacità in [`architecture/16-recipe-input-composition.md`](../../architecture/16-recipe-input-composition.md) prima di scrivere un artefatto per una capacità."
   },
+  "08604c4e3e2114fa": {
+    "at": "2026-11-19T01:29:51.755Z",
+    "job": "session-0006-20261119012951",
+    "revision": {
+      "from": "f446c98d2daa0a1b",
+      "reviewed": false
+    },
+    "srcHash": "08604c4e3e2114fa",
+    "status": "machine",
+    "text": "Un valore di `resource_types` che non è un elenco di nomi e di oggetti con un `type` e un `component` arresta l’import con `resource-types-unreadable`, così un valore errato non viene mai letto come assenza di elenco; lo stesso vale per una voce il cui `component` è vuoto, che non nomina alcun Component, anziché essere letta come una voce senza `component`."
+  },
   "08631ec5577f2dc1": {
     "at": "2026-10-30T05:41:23.167Z",
     "job": "session-0064-20261030054123",
@@ -19399,6 +19410,17 @@
     "status": "machine",
     "text": "Un unico lettore li controlla tutti e tre, per cui i rifiuti sono gli stessi tre qualunque sia il campo in errore: una mappa che contiene più di una chiave, una mappa la cui unica chiave non è `$import` e un `$import:` il cui valore non è una semplice stringa. Un valore che non è né uno scalare né una mappa — il più delle volte un elenco — viene rifiutato per la sola forma."
   },
+  "1c58a1335aa18e2f": {
+    "at": "2026-11-19T01:29:51.755Z",
+    "job": "session-0006-20261119012951",
+    "revision": {
+      "from": "77156466012fc310",
+      "reviewed": false
+    },
+    "srcHash": "1c58a1335aa18e2f",
+    "status": "machine",
+    "text": "**Segreto** — una proprietà `sensitive` di Azure, un attributo `sensitive` scrivibile di Terraform, o una proprietà stringa di CloudFormation il cui nome contiene una parola da credenziale — Password, Secret, Token, Credential, PrivateKey, ApiKey o Passphrase — e non termina con `Arn`, `Id`, `Name` o `Ref`. La lettura di CloudFormation è una convenzione della bozza, quindi rivedila. Un segreto viene messo in bozza come descrive [Segreti](#secrets-in-the-drafts). Solo una proprietà al livello superiore del tipo diventa un segreto: per Azure una chiave della radice o un membro di `properties`; di un membro sensibile sotto di essa si avvisa sotto `constraint-dropped`, come descrive quella sezione."
+  },
   "1c59ca592ce8191b": {
     "at": "2026-11-17T13:24:33.294Z",
     "job": "session-0008-20261117132433",
@@ -24714,6 +24736,17 @@
     "srcHash": "24080989136e47eb",
     "status": "machine",
     "text": "**Un proxy posto davanti termina TLS e inoltra a un listener confinato.** Lascia entrambe le chiavi non impostate e il listener serve in chiaro, cosa accettata solo su loopback o su un socket Unix — così nulla che non sia già su quell’host può raggiungerlo. È la forma usata da un reverse proxy, da un sidecar o da una service mesh, ed è quella in cui il certificato sta davanti a questo processo anziché al suo interno."
+  },
+  "240827d6e4f8a122": {
+    "at": "2026-11-19T01:29:51.755Z",
+    "job": "session-0006-20261119012951",
+    "revision": {
+      "from": "6f7dbf75689f6189",
+      "reviewed": false
+    },
+    "srcHash": "240827d6e4f8a122",
+    "status": "machine",
+    "text": "Un valore segreto non viene mai scritto in una bozza. Su `arm`, un parametro `securestring` di primo livello del frammento, chiamato come il nome simbolico e la proprietà e fornito quando il template viene distribuito; un segreto facoltativo diventa un parametro obbligatorio, dato che il parametro non dichiara alcun valore predefinito. Su `cloudformation`, una voce `Parameters` con `Type: String` e `NoEcho: true`, chiamata allo stesso modo e letta con `!Ref`; un segreto facoltativo diventa un parametro obbligatorio. Su `terraform`, lo slot del Component e una variabile del modulo che porta il proprio `sensitive: true`, riempita dal valore che l’associazione allo slot consegna; per una tale Recipe non viene scritto alcun `aggrega_override.tf.json`."
   },
   "24086c2a54bd9cb3": {
     "at": "2026-10-22T11:13:35.211Z",
@@ -51700,6 +51733,17 @@
     "status": "machine",
     "text": "**Nessun argomento nomina una directory, e nessuno chiede una traccia.** Dove vanno gli artefatti lo decide il workspace che la chiamata ha risolto, mai la chiamata, e una build scritta da qui non lascia alcuna directory `.trace` accanto al suo output; una build con traccia è [`aggrega build --trace`](aggrega-build.md)."
   },
+  "4bc3dba3cdada247": {
+    "at": "2026-11-19T01:29:51.755Z",
+    "job": "session-0006-20261119012951",
+    "revision": {
+      "from": "39e827487e4a2324",
+      "reviewed": false
+    },
+    "srcHash": "4bc3dba3cdada247",
+    "status": "machine",
+    "text": "**Un’importazione legge il catalogo rispetto al quale risolve una build: prima le cartelle di catalogo del workspace, dietro di esse il catalogo pubblicato.** Le cartelle sono quelle indicate da `AGGREGA_CATALOG_DIRS` e `workspace.catalog_dirs`, poi la cartella di catalogo nella radice del workspace; dietro di esse l’importazione legge il catalogo della libreria standard che il suo registry predefinito pubblica come un unico snapshot firmato, in `catalog/snapshot`. Un’entità contenuta in una cartella viene letta al posto di quella pubblicata con la stessa identità, e ogni altra entità pubblicata resta visibile, quindi gli importer, i Components rispetto ai quali vengono confrontate le bozze e le Recipes da cui mappa un `target` sono quelli delle cartelle e del catalogo pubblicato insieme. Un parser o un importer che le cartelle contengono per una sintassi o un formato viene scelto per esso prima di qualsiasi altro contenuto nel catalogo pubblicato, a meno che una voce `plugins.importer` nella configurazione del workspace non ne colleghi un altro. Uno snapshot viene recuperato una sola volta: la sua firma viene verificata secondo la policy di fiducia di quel registry, e lo snapshot viene conservato nella cache dei contenuti del workspace e letto lì come una cartella di catalogo, vincolato al suo digest, senza che venga più richiesto ad alcun registry. Quale snapshot legge una richiesta: con `upgrade`, il più recente; altrimenti quello indicato dalla voce dell’importazione nel record in `outputDir`, recuperato tramite il suo digest dove la macchina non lo possiede; altrimenti quello che il workspace ha recuperato per ultimo come il più recente; altrimenti il più recente. Dove lo snapshot non può essere letto — il workspace è offline e la macchina non lo possiede, il workspace non indica alcun registry predefinito, oppure il registry non è raggiungibile o non ne pubblica alcuno — un workspace con cartelle di catalogo importa soltanto rispetto a queste, una voce `warn` in `diagnostics` ne spiega il motivo, e la voce che l’importazione scrive conserva lo snapshot che indicava prima, così la successiva importazione in grado di leggerlo legge lo stesso; `upgrade` viene rifiutato ovunque lo snapshot non possa essere letto, qualunque cosa possieda la macchina, poiché solo il registry può dire quale snapshot sia il più recente. Anche un `sync` la cui voce nomina uno snapshot che la macchina non possiede e non può recuperare viene rifiutato, nominando quello snapshot, e offline sotto [The workspace is offline and the step needs the network (Il workspace è offline e il passaggio richiede la rete)](../errors/fatal-halts.md#the-workspace-is-offline-and-the-step-needs-the-network): le bozze che giudica sono state messe in bozza contro quel catalogo, e le sole cartelle possono metterle in bozza diversamente, quindi viene eseguito dove il registro è raggiungibile, il che mantiene lo snapshot sulla macchina per ogni sync successivo. Un workspace senza alcuna cartella di catalogo è invece un errore sotto [The workspace is offline and the step needs the network (Il workspace è offline e il passaggio richiede la rete)](../errors/fatal-halts.md#the-workspace-is-offline-and-the-step-needs-the-network) quando dovrebbe recuperare uno snapshot, e indica cosa eseguire; e dove il registry non pubblica alcuno snapshot importa senza catalogo, e una voce `warn` in `diagnostics` lo segnala."
+  },
   "4bc6a124b3e74129": {
     "at": "2026-11-03T12:27:39.720Z",
     "job": "session-0104-20261103122739",
@@ -61095,6 +61139,17 @@
     "status": "machine",
     "text": "Host del registry di destinazione (sovrascrive il default_registry del workspace)"
   },
+  "5986944e7b92923c": {
+    "at": "2026-11-19T01:29:51.755Z",
+    "job": "session-0006-20261119012951",
+    "revision": {
+      "from": "4d02bb193d630805",
+      "reviewed": false
+    },
+    "srcHash": "5986944e7b92923c",
+    "status": "machine",
+    "text": "Un vincolo del vendor non viene riportato, una forma viene troncata dove una definizione rimanda a se stessa o si annida troppo in profondità, oppure un membro sensibile sotto il livello superiore del tipo non viene messo in bozza come segreto; vengono nominati la proprietà, il vincolo e il motivo."
+  },
   "598f08074d0fc38d": {
     "at": "2026-11-03T10:52:18.070Z",
     "job": "session-0093-20261103105218",
@@ -65121,6 +65176,17 @@
     "status": "machine",
     "text": "L’URL scritto dall’autore — l’URL di identità così come è scritto nello spec.source.url della Recipe. Per helm-https-chart è la radice del repository (forma con radice del repository) o il .tgz diretto (forma diretta), esattamente come scritto. Per git-repository, l’URL clonabile del repository. Per helm-oci-chart, il riferimento al registry. Per compose-https-fragment, l’URL HTTPS del frammento. La posizione risolta dell’artefatto per una sorgente helm con radice del repository viene registrata separatamente sotto `resolved_url:` come provenienza."
   },
+  "5f7806f1d14f45dc": {
+    "at": "2026-11-19T01:29:51.755Z",
+    "job": "session-0006-20261119012951",
+    "revision": {
+      "from": "87661dfbf3913398",
+      "reviewed": false
+    },
+    "srcHash": "5f7806f1d14f45dc",
+    "status": "machine",
+    "text": "**Un’importazione legge il catalogo rispetto al quale risolve una build: prima le cartelle di catalogo del workspace, dietro di esse il catalogo pubblicato.** Le cartelle sono quelle indicate da `AGGREGA_CATALOG_DIRS` e `workspace.catalog_dirs`, poi la cartella di catalogo nella radice del workspace; dietro di esse l’importazione legge il catalogo della libreria standard come un unico snapshot firmato, in `catalog/snapshot` sul registry predefinito del workspace servito — lo stesso registry da cui viene recuperato un importer di base, raggiunto alle stesse condizioni, senza che nulla nella chiamata indichi un registry o porti una credenziale. Un’entità contenuta in una cartella viene letta al posto di quella pubblicata con la stessa identità, e ogni altra entità pubblicata resta visibile. Un parser o un importer che le cartelle contengono per una sintassi o un formato viene scelto per esso prima di qualsiasi altro contenuto nel catalogo pubblicato, a meno che una voce `plugins.importer` nella configurazione del workspace non ne colleghi un altro. Uno snapshot viene recuperato una sola volta: la sua firma viene verificata secondo la policy di fiducia di quel registry, e lo snapshot viene conservato nella cache dei contenuti del workspace e letto lì come una cartella di catalogo, vincolato al suo digest, senza che venga più richiesto ad alcun registry. Quale snapshot legge una chiamata: con `upgrade`, il più recente; altrimenti quello indicato dalla voce dell’importazione nel record nella directory di output, recuperato tramite il suo digest dove la macchina non lo possiede; altrimenti quello che il workspace ha recuperato per ultimo come il più recente; altrimenti il più recente. Dove lo snapshot non può essere letto — il workspace è offline e la macchina non lo possiede, il workspace non indica alcun registry predefinito, oppure il registry non è raggiungibile o non ne pubblica alcuno — un workspace con cartelle di catalogo importa soltanto rispetto a queste, una voce `warn` in `diagnostics` ne spiega il motivo, e la voce che l’importazione scrive conserva lo snapshot che indicava prima; `upgrade` viene rifiutato ovunque lo snapshot non possa essere letto, qualunque cosa possieda la macchina, poiché solo il registry può dire quale snapshot sia il più recente. Anche un `sync` la cui voce nomina uno snapshot che la macchina non possiede e non può recuperare viene rifiutato, nominando quello snapshot: le bozze che giudica sono state messe in bozza contro quel catalogo, e le sole cartelle possono metterle in bozza diversamente, quindi viene eseguito dove il registro è raggiungibile, il che mantiene lo snapshot sulla macchina per ogni sync successivo. Un workspace senza alcuna cartella di catalogo viene invece rifiutato, indicando cosa eseguire, quando dovrebbe recuperare uno snapshot offline; e dove il registry non pubblica alcuno snapshot importa senza catalogo, e una voce `warn` in `diagnostics` lo segnala."
+  },
   "5f7e02c69dff2899": {
     "at": "2026-11-14T23:40:29.533Z",
     "job": "session-0013-20261114234029",
@@ -66097,6 +66163,17 @@
     "srcHash": "60e232db4cd3fc76",
     "status": "machine",
     "text": "**`mcp.health.listen` è dove un supervisore chiede se questo processo è attivo e se può rispondere a una chiamata.** Assegnagli un indirizzo in una delle forme sopra e un secondo listener risponde lì a `GET /healthz` e `GET /readyz`. Omettilo — è il valore predefinito — e non viene avviato alcun secondo listener e nessuno dei due controlli riceve risposta da nessuna parte."
+  },
+  "60ebf829ffbfcfab": {
+    "at": "2026-11-19T01:29:51.755Z",
+    "job": "session-0006-20261119012951",
+    "revision": {
+      "from": "6974f59a9acf66e4",
+      "reviewed": false
+    },
+    "srcHash": "60ebf829ffbfcfab",
+    "status": "machine",
+    "text": "**Azure**: un parametro `securestring` di primo livello del template, chiamato come l’istanza e la proprietà, che fornisci quando esegui la distribuzione. Un segreto che il vendor contrassegna come facoltativo è un parametro obbligatorio."
   },
   "60ed1f2593ade11b": {
     "at": "2026-11-04T13:01:09.618Z",
@@ -74085,6 +74162,13 @@
     "srcHash": "6cc8519b91584e8b",
     "status": "machine",
     "text": "Go"
+  },
+  "6cc968ccf6b58f87": {
+    "at": "2026-11-19T01:29:51.755Z",
+    "job": "session-0006-20261119012951",
+    "srcHash": "6cc968ccf6b58f87",
+    "status": "machine",
+    "text": "Solo una proprietà al livello superiore del tipo viene messa in bozza come segreto. Un membro sensibile sotto di essa — un `properties.osProfile.adminPassword` di Azure, un `user[].password` di Terraform — no: la Release lo imposta come valore semplice dentro la chiave sotto cui viene messo in bozza il suo genitore, come `infra.overrides.osProfile`, e l’import avvisa di ciascuno sotto `constraint-dropped`, nominandone il percorso e quella chiave."
   },
   "6cca9b24a831e55c": {
     "at": "2026-10-22T08:20:04.359Z",
@@ -95724,6 +95808,17 @@
     "status": "machine",
     "text": "genera un’entità per ogni guest incorporato in questo binario"
   },
+  "8c393b2b523e6252": {
+    "at": "2026-11-19T01:29:51.755Z",
+    "job": "session-0006-20261119012951",
+    "revision": {
+      "from": "c08544c7adc8f7a7",
+      "reviewed": false
+    },
+    "srcHash": "8c393b2b523e6252",
+    "status": "machine",
+    "text": "`resource_types` non è un elenco di nomi e di oggetti con un `type` e un `component`, oppure il `component` di una voce è vuoto."
+  },
   "8c39cf1bb4eee24b": {
     "at": "2026-10-22T11:56:03.972Z",
     "job": "session-0034-20261022115603",
@@ -97567,6 +97662,17 @@
     "srcHash": "8ee5df761f49f614",
     "status": "machine",
     "text": "La voce renderizza i valori del chart. Un template di supporto, `BitnamiNodePool`, scrive le risorse, la persistenza, il node selector e il preset di anti-affinità di un pool di nodi; la voce lo dichiara con `define` e lo invoca con `template`, per il pool primario e, con la replica, per il pool secondario. Il template di supporto è dichiarato all’interno della voce che lo usa, perché una Recipe importa una sola voce e una definizione viaggia con la voce che la contiene. I valori predefiniti della libreria riempiono ogni campo di risorsa che l’Aggregate omette, quindi il template di supporto li legge senza un fallback. La mappatura gestisce le varianti di architettura standalone e con replica, le credenziali che le associazioni consegnano (lette da `.context.inject.env`) e il blocco delle metriche. Le Recipes che la consumano importano l’intera voce `MariaDBBitnamiCore` tramite `$import:` in forma di libreria."
+  },
+  "8ee665e158e4b34e": {
+    "at": "2026-11-19T01:29:51.755Z",
+    "job": "session-0006-20261119012951",
+    "revision": {
+      "from": "ba1f8ec5ac0232b5",
+      "reviewed": false
+    },
+    "srcHash": "8ee665e158e4b34e",
+    "status": "machine",
+    "text": "Il suo unico lettore è un’importazione, che legge prima le cartelle di catalogo e dietro di esse il catalogo pubblicato, nell’ordine in cui una build risolve: le cartelle di catalogo del workspace — `AGGREGA_CATALOG_DIRS`, `workspace.catalog_dirs`, poi la directory `catalog/` nella root del workspace — e dietro di esse lo snapshot pubblicato, così un’entità contenuta in una cartella viene letta al posto di quella pubblicata con la stessa identità e ogni altra entità pubblicata resta visibile. `aggrega import`, l’importazione della sessione dell’editor e lo strumento di importazione dell’assistente eseguono la stessa operazione, quindi ciascuno acquisisce lo snapshot allo stesso modo. L’importazione lo recupera dal registry predefinito del workspace attraverso lo stesso controllo del traffico in uscita e la stessa autenticazione di un pull, ne verifica la firma secondo la trust policy di quel registry prima di conservare qualsiasi cosa, lo conserva nella cache degli artefatti del workspace e lo legge lì come una cartella di catalogo, vincolato al suo digest — così all’importatore vengono offerti i Components del catalogo, e `--target` mette in bozza un Manifest a partire dalle sue Recipes, esattamente attraverso il percorso che segue una cartella di catalogo. La voce dell’importazione nel record che essa scrive accanto alle sue bozze indica lo snapshot tramite il digest del suo manifest, così che un’importazione successiva delle stesse bozze legga lo stesso catalogo senza alcuna richiesta, e `aggrega import --upgrade` recupera lo snapshot più recente e da quel momento importa rispetto a esso. Dove lo snapshot non può essere letto — offline senza alcuno disponibile, nessun registry predefinito, oppure un registry irraggiungibile o che non ne pubblica — un workspace con cartelle di catalogo importa soltanto rispetto a queste e un avviso ne spiega il motivo, mentre un workspace senza alcuna cartella di catalogo si arresta, indicando cosa eseguire, oppure importa senza catalogo dove il registry non pubblica alcuno snapshot. Anche un `--sync` la cui voce nomina uno snapshot che questa macchina non possiede e non può recuperare si ferma, nominando lo snapshot: le bozze che giudica sono state messe in bozza contro quel catalogo, e le sole cartelle possono metterle in bozza diversamente, quindi un sync legge lo snapshot contro cui sono state importate le sue bozze oppure nessuno. Nessun altro comando legge lo snapshot: un pull, una build e una validazione risolvono ciascuna entità attraverso i livelli del §5 e la fissano nel lockfile, e le bozze di un’importazione fanno riferimento alle entità del catalogo per nome, quindi costruirle risolve quelle entità nello stesso modo."
   },
   "8ee68f1d18f24860": {
     "at": "2026-11-03T08:01:05.098Z",
@@ -116025,6 +116131,17 @@
     "status": "machine",
     "text": "Helper comuni NON disponibili"
   },
+  "a9e69be6b2a2f9d2": {
+    "at": "2026-11-19T01:29:51.755Z",
+    "job": "session-0006-20261119012951",
+    "revision": {
+      "from": "610f899632ea86a6",
+      "reviewed": false
+    },
+    "srcHash": "a9e69be6b2a2f9d2",
+    "status": "machine",
+    "text": "La bozza non vede alcuna chiave `infra` del Component. L’asserzione `required_overrides_set` blocca la build finché la Release non imposta ogni proprietà obbligatoria che nessuna chiave `values` porta, nominando `infra.overrides.<VendorName>`, il tipo che la richiede e il fatto che il Component non dichiara alcuna chiave `values` con il suo nome. Dove l’`infra` del Component è chiuso e non dichiara `overrides`, la Release non può impostarle: la build convalida l’`infra` dell’istanza contro lo schema del Component e rifiuta la chiave."
+  },
   "a9ea9040430f14a2": {
     "at": "2026-11-14T10:23:22.802Z",
     "job": "session-0010-20261114102322",
@@ -130147,6 +130264,17 @@
     "srcHash": "bdae3cfc11ace2d4",
     "status": "machine",
     "text": "Schemi"
+  },
+  "bdb0911bdb897945": {
+    "at": "2026-11-19T01:29:51.755Z",
+    "job": "session-0006-20261119012951",
+    "revision": {
+      "from": "74510a0127c24358",
+      "reviewed": false
+    },
+    "srcHash": "bdb0911bdb897945",
+    "status": "machine",
+    "text": "Il formato viene riconosciuto dalla forma della sorgente stessa, come in un terminale; dove il compilatore rifiuta perché nessun formato, o più di uno, riconosce la sorgente, l’editor mostra quel rifiuto — che nomina i formati — e chiede il formato con cui leggere la sorgente, poi invia di nuovo lo stesso import includendolo, e lasciare vuota quella domanda termina l’import con il rifiuto. Legge il file che nomini, o i file della directory che nomini che il suo importer legge, e nessun altro. Non raggiunge alcuna rete, tranne per scaricare ciò su cui un import si basa e che questa macchina non possiede ancora — uno degli importer di base del compilatore, la prima volta che un formato ne ha bisogno, e lo snapshot pubblicato del catalogo che l’import legge come proprio catalogo dietro le cartelle di catalogo del workspace — ciascuno scaricato dal registro predefinito del workspace, verificato e conservato nella cache dei contenuti, come fa `aggrega import`. Dove quello snapshot non può essere recuperato, un import in un workspace con cartelle di catalogo legge soltanto queste e il canale di output riporta l’avviso che lo dice, mentre una **Sync** le cui bozze sono state importate contro uno snapshot che questa macchina non possiede viene rifiutata, nominandolo, come lo è `aggrega import --sync`. La sorgente può trovarsi ovunque su questa macchina, perché è un file a cui hai puntato e non uno che il workspace contiene; le bozze finiscono sempre nel workspace."
   },
   "bdb099ad6c92703f": {
     "at": "2026-11-02T19:03:21.213Z",
@@ -155621,6 +155749,13 @@
     "status": "machine",
     "text": "**Una sonda che non dichiara alcun modo di eseguire il controllo** — né un percorso, né una porta a cui connettersi, né un comando da eseguire. Non c’è nulla da trasformare in un controllo. Questa è una salvaguardia dietro lo schema anziché una forma che probabilmente scriverai: prima che una sonda arrivi qui si verifica che abbia uno dei tre."
   },
+  "e16a7595a036d590": {
+    "at": "2026-11-19T01:29:51.755Z",
+    "job": "session-0006-20261119012951",
+    "srcHash": "e16a7595a036d590",
+    "status": "machine",
+    "text": "Solo una proprietà al livello superiore della risorsa diventa un segreto: su Azure una chiave della radice o un membro di `properties`. Un membro sensibile sotto di essa, come `adminPassword` dentro un `osProfile` di Azure o `password` dentro un blocco Terraform, non viene messo in bozza come segreto: la Release lo imposta come valore semplice dentro la chiave sotto cui viene messo in bozza il suo genitore, e l’import avvisa di ciascuno sotto `constraint-dropped`, nominandone il percorso e quella chiave."
+  },
   "e16c8380df4ccddf": {
     "at": "2026-11-03T02:39:28.596Z",
     "job": "session-0040-20261103023928",
@@ -157230,6 +157365,17 @@
     "srcHash": "e3a55ab505f415bb",
     "status": "machine",
     "text": "`spec.source: ./module` e `module/main.tf.json` accanto alla Recipe; `spec.valuesMapping` riempie le variabili del modulo"
+  },
+  "e3a905030a475b42": {
+    "at": "2026-11-19T01:29:51.755Z",
+    "job": "session-0006-20261119012951",
+    "revision": {
+      "from": "f896ee1e06d0a07e",
+      "reviewed": false
+    },
+    "srcHash": "e3a905030a475b42",
+    "status": "machine",
+    "text": "Dove il nome che una bozza assumerebbe è già detenuto da un Component delle cartelle del workspace o del catalogo pubblicato con altre chiavi `values`, l’import si arresta con `component-exists`, nominando il Component, le chiavi che differiscono e `component` come rimedio. Un Component detenuto con le stesse chiavi è la stessa bozza aggiornata, e l’import prosegue. Un Component in un file che la voce propria dell’import nel registro accanto alle bozze elenca è la sua bozza precedente anziché un’entità del catalogo, quindi l’importer non lo vede: un `--sync` dopo che lo schema del vendor ha guadagnato o perso una proprietà di identità mette in bozza il Component con le sue nuove chiavi. Un import semplice non sovrascrive alcun file di Component o di Recipe già presente e si arresta nominando `--sync`, che aggiorna rispetto alla sorgente i file che il record elenca."
   },
   "e3ab24092720d647": {
     "at": "2026-11-03T20:25:38.864Z",
