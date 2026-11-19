@@ -45459,6 +45459,13 @@
     "status": "machine",
     "text": "`lockfile.toolchain`"
   },
+  "3ca4811b73eb8b02": {
+    "at": "2026-11-19T10:16:51.228Z",
+    "job": "session-0010-20261119101651",
+    "srcHash": "3ca4811b73eb8b02",
+    "status": "machine",
+    "text": "**Informacje o licencjach stron trzecich i wykaz materiałów.** Publikacja może zawierać informacje o licencjach stron trzecich dla kodu, z którego zbudowano jej gościa, oraz wykaz materiałów oprogramowania tego kodu. `--plugin-notices <file>` wskazuje plik Markdown z informacjami o licencjach stron trzecich gościa: publikacja pakuje go do manifestu jako drugą warstwę, po `.wasm`, z typem nośnika `application/vnd.aggrega.wasmplugin.notices.v1beta1+markdown`, a ogólny klient OCI pobierający tag wersji zapisuje go do `notices.md`. Warstwa jest częścią manifestu, więc skrót manifestu i jedyny jego podpis obejmują informacje o licencjach tak samo, jak obejmują plik wykonywalny; `.wasm` pozostaje pierwszą warstwą, a jego skrót treści się nie zmienia. `--plugin-sbom <file>` wskazuje wykaz materiałów oprogramowania w formacie SPDX 2.3 JSON: publikacja dołącza go obok opublikowanej wersji jako referrer OCI o typie artefaktu `application/spdx+json`, w taki sam sposób, w jaki dołączany jest podpis, więc skaner znajduje go przez Referrers API rejestru (`oras discover --artifact-type application/spdx+json <reference>`), a ogólny klient zapisuje go do `sbom.spdx.json`. Referrer nie zmienia żadnego skrótu, a podpis go nie obejmuje. Opublikowana wersja jest niezmienna, więc jej informacje o licencjach są tymi, z którymi ją opublikowano; wykaz materiałów można dołączyć później, publikując tę samą wersję ponownie, bajt po bajcie, z `--plugin-sbom`, a wersja, która już ma taki wykaz, zachowuje go. Każda flaga jest przyjmowana tylko razem z `--plugin`, a brakujący lub pusty plik jest odrzucany ze wskazaniem flagi."
+  },
   "3ca8fe24df056cd7": {
     "at": "2026-10-22T08:52:36.046409+00:00",
     "job": "msgbatch_01RQPKmPhqEGHToRpY4PpQXJ",
@@ -52413,6 +52420,17 @@
     "srcHash": "45e3bffb1257b977",
     "status": "machine",
     "text": "`aggregate.yaml` to szkic encji Aggregate nazwany od grafu, jak opisuje [Jak nazywany jest szkic](#how-a-draft-is-named), rozpoczynający się komentarzami wymieniającymi odczytane konfiguracje, pliki środowiskowe odczytane wyłącznie dla nazw, informację, że kod aplikacji nie jest odczytywany, oraz to, czego szkic nie przenosi. Zawiera, na każdy graf i pod kluczem jego identyfikatora, instancję `core/ai-agent/langgraph` z:"
+  },
+  "45e48d3c01c09637": {
+    "at": "2026-11-19T10:16:51.228Z",
+    "job": "session-0010-20261119101651",
+    "revision": {
+      "from": "b1e598d441cbb73b",
+      "reviewed": false
+    },
+    "srcHash": "45e48d3c01c09637",
+    "status": "machine",
+    "text": "`aggrega/publishEntity` — pakuje encję katalogu i publikuje ją w rejestrze. `entity` to ścieżka względna wobec katalogu głównego obszaru roboczego, wskazująca dokument do opublikowania, odrzucana w tych samych trzech przypadkach co `release` — gdy jej brak, gdy jest bezwzględna lub gdy rozwiązuje się poza katalogiem głównym. Encja Plugin wymaga też `plugin`, ścieżki tego samego rodzaju, wskazującej plik wykonywalny publikowany wewnątrz własnego manifestu encji. Encja Plugin może ponadto zawierać `pluginNotices`, informacje o licencjach stron trzecich jej gościa, pakowane jako warstwa po `.wasm`, oraz `pluginSbom`, jej wykaz materiałów SPDX, dołączany jako referrer `application/spdx+json`; oba są ścieżkami tego samego rodzaju co `plugin`, a żądanie, które wysyła którykolwiek z nich bez `plugin` albo wskazuje brakujący lub pusty plik, jest odrzucane. `registry` to miejsce docelowe, domyślnie rejestr skonfigurowany w obszarze roboczym. `dryRun` oblicza pakiet i skrót, pod którym trafiłaby jego publikacja, i nie łączy się z żadnym rejestrem. Pominięcie `sign` oznacza zastosowanie własnej polityki rejestru docelowego, tak jak robi to wiersz poleceń przy braku flagi, a jego wysłanie jest wyborem wywołującego — i żadne z nich nie łagodzi odmowy, ponieważ polityka rejestru lub obszaru roboczego wymagająca podpisu odrzuca niepodpisaną publikację niezależnie od wartości pola. `pinSources: true` uruchamia krok przypinania autora encji na encji przed jej spakowaniem, więc plik `entity.lock` zapisany przez ten krok obok niej jest częścią publikacji — to ten sam krok, który uruchamia `aggrega/pin`. Krok ten wykonuje się przed każdą odmową oceniającą treść encji — polityką podpisywania, ochroną niezmienności — więc publikacja odrzucona na tym etapie i tak pozostawia zapisany plik blokady; odmowa dotycząca samego żądania, taka jak obszar roboczy w trybie offline lub brak miejsca docelowego, następuje wcześniej i niczego nie przypina, podobnie jak odmowa dla encji współdzielącej katalog z inną encją, w którym krok nie może zapisać pliku blokady. Gdy pole jest nieobecne, obowiązuje ustawienie `pin_sources_at_push` obszaru roboczego; gdy jest wysłane, nadpisuje to ustawienie w obu kierunkach. W trybie `dryRun` krok zgłasza plik blokady, który by zapisał, i niczego nie zapisuje. **Publikacja, która nie uruchamia tego kroku, odrzuca encję Recipe lub FeatureRecipe, której `entity.lock` nie zawiera przypięcia dla odczytywanego wejścia**, lub takiej, której wejście przestało mu odpowiadać, zanim cokolwiek zostanie spakowane — również w trybie `dryRun` — wskazując `aggrega pin`, `pinSources` i `pin_sources_at_push`; jest to ta sama odmowa, którą zgłasza `aggrega/resolveDependencies` dla tego samego pliku blokady. Odpowiedź zawiera `reference`, `tag`, `kind`, `mediaType`, parę `size`, opublikowany `digest` — w trybie `dryRun` skrót, pod którym trafiłaby publikacja, ten sam, który wypisuje [`aggrega push --dry-run`](aggrega-push.md) — `signed`, `alreadyPublished`, `dryRun` i `reach`; `pin` — tę samą odpowiedź, którą daje `aggrega/pin` — jeśli krok został wykonany; oraz `wholeDirectorySource`, jeśli lokalne źródło encji jest zapisane jako szablon, wskazując to źródło w postaci, w jakiej je napisano. Takie źródło wybiera swój katalog dopiero wtedy, gdy encja Release wypełni szablon, więc publikacja zawiera każdy plik w katalogu encji, a nie tylko pliki, które encja wskazuje, i to pole pozwala wywołującemu dowiedzieć się, że tak się stało — również przy przebiegu próbnym. Zawiera też `windowsUnusableEntries`, jeśli archiwum przenoszone przez publikację zawiera wpisy, których Windows nie może przechować w zapisanej postaci — ścieżkę z członem nazwanym jak urządzenie, np. `CON`, `AUX` lub `NUL`, w dowolnej wielkości liter i z dowolnym rozszerzeniem, albo z członem kończącym się kropką lub spacją — wymieniając każdy z nich, najpierw nazwę pliku samego dokumentu encji, a potem pliki, które zawiera; pole jest nieobecne, gdy takich wpisów nie ma, co obejmuje encję publikowaną jako sam dokument. `aggrega` uruchomiona w systemie Windows odmawia rozpakowania takiego wpisu, więc obszar roboczy w systemie Windows nie może użyć tej wersji. Są to wpisy, przed którymi ostrzega [`aggrega push`](aggrega-push.md), a żądanie, które poprosiło o raportowanie, odczytuje te same wiersze ostrzeżeń wśród postępu publikacji; żadne z nich niczego nie odrzuca, więc publikacja przebiega lub zostaje odrzucona dokładnie tak, jak bez nich, również w trybie `dryRun`. **Zapisuje to do rejestru i sięga poza tę maszynę**, a z krokiem przypinania zapisuje też obok encji — zob. [Łączenie z rejestrem i zapis](#reaching-a-registry-and-writing)."
   },
   "45e69ba40d614262": {
     "at": "2026-10-22T23:44:18.033086+00:00",
@@ -87324,6 +87342,13 @@
     "status": "machine",
     "text": "**Jak spotyka się wielu współtwórców.** Każdy wpis jest ewaluowany dla każdego komponentu, który encja Recipe renderuje w granicy, a pliki zadeklarowane przez wszystkich współtwórców granicy są scalane według nazwy. Jedna nazwa ewaluowana do tych samych bajtów — przez dwa komponenty powiązane z jedną encją Recipe lub przez dwie encje Recipes konfigurujące jednego providera identycznie — to jeden plik. Jedna nazwa ewaluowana do różnych bajtów zatrzymuje budowanie z podaniem pliku i wszystkich współtwórców, ponieważ żaden pojedynczy plik nie jest tym, co wszyscy zapisali; tak samo dzieje się w przypadku nazwy zapisywanej przez własne składanie providera, takiej jak `aggrega.modules.tf`. Oba przypadki to [kolizja złożonego wyniku](../errors/fatal-halts.md#two-contributors-write-the-same-output-path). Dwie encje Recipes konfigurujące jednego providera pod dwiema różnymi nazwami plików nie są scalane — zapisywany jest każdy plik — a duplikat konfiguracji zgłasza wówczas cel, dlatego encje Recipes, które mają współdzielić konfigurację providera, współdzielą nazwę jej pliku, zgodnie z konwencją nazwaną od konfigurowanego providera."
   },
+  "7426ad608fe18c0a": {
+    "at": "2026-11-19T10:16:51.228Z",
+    "job": "session-0010-20261119101651",
+    "srcHash": "7426ad608fe18c0a",
+    "status": "machine",
+    "text": "Ścieżka do wykazu materiałów oprogramowania w formacie SPDX 2.3 JSON dla gościa encji Plugin. Opcjonalna i tylko razem z --plugin: publikacja dołącza go obok opublikowanej encji Plugin jako referrer OCI application/spdx+json, który nie zmienia żadnego skrótu i nigdy nie jest dołączany dwukrotnie."
+  },
   "74294d39fecf5bc4": {
     "at": "2026-10-22T08:35:14.585510+00:00",
     "job": "msgbatch_016LnPG7AyJiWWiftb4hFiWD",
@@ -92526,6 +92551,17 @@
     "srcHash": "7ad230504ffb64d4",
     "status": "machine",
     "text": "Tempo — serwer śledzenia rozproszonego dla Kubernetes"
+  },
+  "7ad244db9ead3ff6": {
+    "at": "2026-11-19T10:16:51.228Z",
+    "job": "session-0010-20261119101651",
+    "revision": {
+      "from": "d8c10d12175088ab",
+      "reviewed": false
+    },
+    "srcHash": "7ad244db9ead3ff6",
+    "status": "machine",
+    "text": "`publish-entity` przyjmuje `entity`, dokument do opublikowania, a encja Plugin wymaga też `plugin`, pliku wykonywalnego publikowanego wewnątrz jej manifestu. Encja Plugin może ponadto zawierać `plugin_notices`, informacje o licencjach stron trzecich jej gościa, pakowane jako warstwa po `.wasm`, oraz `plugin_sbom`, jej wykaz materiałów SPDX, dołączany jako referrer `application/spdx+json`; oba są ścieżkami, tak jak `plugin`, a wywołanie, które wysyła którykolwiek z nich bez `plugin` albo wskazuje brakujący lub pusty plik, jest odrzucane. `publish-artifact` przyjmuje `file` wraz z `name` i `tag`, pod którymi plik jest publikowany. Każdy argument ścieżki jest tu bezwzględny lub względny wobec katalogu głównego obszaru roboczego — to ten sam kontrakt, którego używa każde inne narzędzie tej powierzchni — a `workspace_root` wskazuje obszar roboczy, o który chodzi w wywołaniu — na serwerze osiąganym przez standardowe wejście i wyjście. Serwer osiągany przez HTTPS odrzuca `workspace_root` i wymaga, aby każda z tych ścieżek rozwiązywała się wewnątrz obsługiwanego przez niego obszaru roboczego, jak opisuje [Jeden proces, jeden obszar roboczy](#one-process-one-workspace). `registry` to miejsce docelowe; domyślnie jest to rejestr skonfigurowany w obszarze roboczym. Niewysłanie żadnego, gdy nie skonfigurowano wartości domyślnej, jest odrzucane ze wskazaniem, co należy wysłać. `sign-artifacts` przyjmuje `references`, jeden lub więcej adresów w rejestrze, a nie ścieżek, oraz opcjonalnie `jobs`, czyli liczbę referencji podpisywanych jednocześnie: gdy go pominąć, są podpisywane jedna po drugiej, a wartość mniejsza niż 1 jest odrzucana ze wskazaniem, co należy wysłać. Każda referencja jest nadal podpisywana dokładnie tak, jak byłaby podpisana osobno, jak opisuje [`aggrega sign`](aggrega-sign.md#signing-several-references-at-once). `deprecate-artifact` przyjmuje albo `reference` wraz z `severity` i `reason`, albo `from` wskazujące plik wsadowy — i odrzuca argumenty treści wysłane razem z plikiem wsadowym, zamiast je pomijać, ponieważ plik wsadowy dostarcza własnych, a po cichu zignorowany argument wygląda na uwzględniony."
   },
   "7ad362c2e93de45b": {
     "at": "2026-10-23T00:02:43.446982+00:00",
@@ -104445,6 +104481,17 @@
     "srcHash": "8b089c5fa4a21fb1",
     "status": "machine",
     "text": "`aggrega sign` ustala skrót (digest), który rejestr już przechowuje dla każdego `<reference>`, podpisuje ten skrót i dołącza pakiet podpisu jako referrer. Nigdy nie wypycha ponownie, nie zmienia tagów ani w żaden inny sposób nie modyfikuje opublikowanych bajtów — artefakt jest niezmienny, a podpis jest siostrzanym manifestem wskazującym z powrotem na niego. Dzięki temu artefakt można podpisać po fakcie, bez podbijania wersji."
+  },
+  "8b0edccc47a4243a": {
+    "at": "2026-11-19T10:16:51.228Z",
+    "job": "session-0010-20261119101651",
+    "revision": {
+      "from": "d4c92e5f005df481",
+      "reviewed": false
+    },
+    "srcHash": "8b0edccc47a4243a",
+    "status": "machine",
+    "text": "`entity.yaml`, encja, obok `entity.wasm`, jej pliku wykonywalnego, oraz `notices.md`, jej informacji o licencjach stron trzecich, gdy encja jest publikowana razem z nimi"
   },
   "8b0fbc4a0621adca": {
     "at": "2026-10-29T23:55:51.039Z",
@@ -124873,6 +124920,13 @@
     "status": "machine",
     "text": "A `$ref:` addresses a library by registry location (Odwołanie $ref: adresuje bibliotekę przez lokalizację w rejestrze)"
   },
+  "a604689974819e8a": {
+    "at": "2026-11-19T10:16:51.228Z",
+    "job": "session-0010-20261119101651",
+    "srcHash": "a604689974819e8a",
+    "status": "machine",
+    "text": "wykaz materiałów oprogramowania dołączony do encji Plugin"
+  },
   "a6058f9400d2b259": {
     "at": "2026-10-22T23:16:14.159554+00:00",
     "job": "msgbatch_01KLr16G9MNxkfeMa3YGcHeY",
@@ -143317,6 +143371,13 @@
     "srcHash": "bdf674a942c5b1b7",
     "status": "machine",
     "text": "Emitowany komunikat dla współrzędnej, której plugin nie otrzymał, i dla wartości, której nie przyjmuje żadna adnotacja:"
+  },
+  "bdf9467952cbe6aa": {
+    "at": "2026-11-19T10:16:51.228Z",
+    "job": "session-0010-20261119101651",
+    "srcHash": "bdf9467952cbe6aa",
+    "status": "machine",
+    "text": "Wykaz materiałów SPDX modułu wtyczki w formacie JSON, jako ścieżka względna wobec katalogu głównego obszaru roboczego, dołączany do opublikowanej encji Plugin. Wymaga `plugin`."
   },
   "bdfc89465f2a752f": {
     "at": "2026-10-23T00:02:43.446982+00:00",
@@ -164181,6 +164242,13 @@
     "status": "machine",
     "text": "Encja Feature jest tworzona raz i dołączana wiele razy, więc nazwa wyprowadzana\nprzez FeatureRecipe musi być unikalna dla każdego dołączenia. Ta składa komponent\nhosta i nazwę dołączenia: host `payments-db`, dołączony pod `storage-headroom`,\ndaje `PaymentsDbStorageHeadroom`."
   },
+  "d93108e9e6067db9": {
+    "at": "2026-11-19T10:16:51.228Z",
+    "job": "session-0010-20261119101651",
+    "srcHash": "d93108e9e6067db9",
+    "status": "machine",
+    "text": "Ścieżka do pliku Markdown z informacjami o licencjach stron trzecich gościa encji Plugin. Opcjonalna i tylko razem z --plugin: publikacja pakuje go do manifestu jako warstwę po .wasm, więc informacje o licencjach podróżują razem z plikiem wykonywalnym, a skrót manifestu je obejmuje."
+  },
   "d9312173271d1374": {
     "at": "2026-10-23T00:02:41.868223+00:00",
     "job": "msgbatch_01GBmDXubWU53zHo6wo1SbnJ",
@@ -177906,6 +177974,13 @@
     "srcHash": "eaa6588c77a03698",
     "status": "machine",
     "text": "*Deklaracja JSON Schema 2020-12 encji Workload jest wiążąca i jest dostarczana osadzona w pliku binarnym kompilatora. Providery helm i compose syntetyzują `workload:` encji Recipe, inline lub ładowane przez `$import:`; obsługę dla poszczególnych providerów opisuje sekcja Provider Capability Matrix.*"
+  },
+  "eaa7af4588b3012c": {
+    "at": "2026-11-19T10:16:51.228Z",
+    "job": "session-0010-20261119101651",
+    "srcHash": "eaa7af4588b3012c",
+    "status": "machine",
+    "text": "Plik z informacjami o licencjach stron trzecich modułu wtyczki, jako ścieżka względna wobec katalogu głównego obszaru roboczego, publikowany jako warstwa manifestu encji Plugin. Wymaga `plugin`."
   },
   "eaa919cbabc6e7dc": {
     "at": "2026-11-18T23:34:20.571Z",
