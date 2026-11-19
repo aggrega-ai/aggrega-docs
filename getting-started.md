@@ -72,6 +72,7 @@ same input, same files
 <li class="diagram-chip">Compose</li>
 <li class="diagram-chip">Terraform</li>
 <li class="diagram-chip">CloudFormation</li>
+<li class="diagram-chip">Azure</li>
 </ul>
 <div class="diagram-note">
 
