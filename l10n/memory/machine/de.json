@@ -41210,6 +41210,13 @@
     "status": "machine",
     "text": "`lockfile.toolchain`"
   },
+  "3ca4811b73eb8b02": {
+    "at": "2026-11-19T09:59:37.643Z",
+    "job": "session-0002-20261119095937",
+    "srcHash": "3ca4811b73eb8b02",
+    "status": "machine",
+    "text": "**Hinweise Dritter und eine Stückliste.** Eine Veröffentlichung kann die Hinweise Dritter zu dem Code mitführen, aus dem ihr Guest gebaut ist, sowie eine Software-Stückliste dieses Codes. `--plugin-notices <file>` benennt eine Markdown-Datei mit den Hinweisen Dritter zum Guest: Die Veröffentlichung packt sie als zweiten Layer, nach der `.wasm`-Datei, unter dem Medientyp `application/vnd.aggrega.wasmplugin.notices.v1beta1+markdown` in das Manifest, und ein generischer OCI-Client, der den Versions-Tag abruft, schreibt sie nach `notices.md`. Der Layer gehört zum Manifest, sodass der Manifest-Digest und die eine Signatur darüber die Hinweise so abdecken, wie sie die ausführbare Datei abdecken; die `.wasm`-Datei bleibt der erste Layer, und ihr Inhalts-Digest bleibt unverändert. `--plugin-sbom <file>` benennt eine Software-Stückliste in SPDX 2.3 JSON: Die Veröffentlichung hängt sie neben der veröffentlichten Version als OCI-Referrer vom Artefakttyp `application/spdx+json` an, so wie eine Signatur angehängt wird, sodass ein Scanner sie über die Referrers-API der Registry findet (`oras discover --artifact-type application/spdx+json <reference>`) und ein generischer Client sie nach `sbom.spdx.json` schreibt. Der Referrer verändert keinen Digest, und die Signatur deckt ihn nicht ab. Eine veröffentlichte Version ist unveränderlich, daher sind ihre Hinweise diejenigen, mit denen sie veröffentlicht wurde; eine Stückliste kann später angehängt werden, indem dieselbe Version Byte für Byte erneut mit `--plugin-sbom` veröffentlicht wird, und eine Version, die bereits eine trägt, behält sie. Jedes Flag wird nur zusammen mit `--plugin` angenommen, und eine fehlende oder leere Datei wird abgelehnt, wobei das Flag benannt wird."
+  },
   "3ca8fe24df056cd7": {
     "at": "2026-10-22T11:56:03.972Z",
     "job": "session-0034-20261022115603",
@@ -47523,6 +47530,17 @@
     "srcHash": "45e3bffb1257b977",
     "status": "machine",
     "text": "`aggregate.yaml` ist ein entworfenes Aggregate, das nach dem Graphen benannt ist, wie [Wie ein Entwurf benannt wird](#how-a-draft-is-named) beschreibt, und mit Kommentaren beginnt, die die gelesenen Konfigurationen nennen, die allein wegen ihrer Namen gelesenen Umgebungsdateien, dass der Code der Anwendung nicht gelesen wird, und was der Entwurf nicht übernimmt. Es enthält pro Graph, nach seiner ID geschlüsselt, eine Instanz von `core/ai-agent/langgraph` mit:"
+  },
+  "45e48d3c01c09637": {
+    "at": "2026-11-19T09:59:37.643Z",
+    "job": "session-0002-20261119095937",
+    "revision": {
+      "from": "b1e598d441cbb73b",
+      "reviewed": false
+    },
+    "srcHash": "45e48d3c01c09637",
+    "status": "machine",
+    "text": "`aggrega/publishEntity` — bündelt eine Katalogentität und veröffentlicht sie in einer Registry. `entity` ist ein Pfad relativ zum Workspace-Root, der das zu veröffentlichende Dokument benennt, und wird in denselben drei Formen abgelehnt wie `release`: fehlend, absolut oder außerhalb des Roots aufgelöst. Eine Plugin-Entität benötigt zusätzlich `plugin`, dieselbe Art von Pfad, der die ausführbare Datei benennt, die im eigenen Manifest der Entität veröffentlicht wird. Ein Plugin kann außerdem `pluginNotices` mitführen, die Hinweise Dritter zu seinem Guest, die als Layer nach der `.wasm`-Datei gepackt werden, und `pluginSbom`, seine SPDX-Stückliste, die als `application/spdx+json`-Referrer angehängt wird; beide sind dieselbe Art von Pfad wie `plugin`, und eine Anfrage, die eines davon ohne `plugin` sendet oder eine fehlende oder leere Datei benennt, wird abgelehnt. `registry` ist das Ziel und ist standardmäßig die im Workspace konfigurierte Registry. `dryRun` berechnet das Bundle und den Digest, auf dem eine Veröffentlichung davon landen würde, und kontaktiert keine Registry. Wird `sign` weggelassen, gilt die eigene Richtlinie der Ziel-Registry, was die Befehlszeile tut, wenn ihr Flag fehlt, während das Senden die Entscheidung des Aufrufers ist – und keines von beiden lockert die Ablehnung, denn eine Registry- oder Workspace-Richtlinie, die eine Signatur verlangt, lehnt eine unsignierte Veröffentlichung ab, was auch immer das Feld besagt. `pinSources: true` führt den Pin-Schritt des Entitätsautors auf der Entität aus, bevor sie gebündelt wird, sodass die `entity.lock`, die der Schritt daneben schreibt, Teil dessen ist, was veröffentlicht wird – derselbe Schritt, den `aggrega/pin` ausführt. Er läuft vor jeder Ablehnung, die den Inhalt der Entität beurteilt – einer Signaturrichtlinie, dem Unveränderlichkeitsschutz –, sodass eine dort abgelehnte Veröffentlichung das Lock dennoch geschrieben hinterlässt; eine Ablehnung, die die Anfrage selbst betrifft, etwa ein Offline-Workspace oder ein fehlendes Ziel, kommt zuerst und pinnt nichts, ebenso die Ablehnung einer Entität, die ihr Verzeichnis mit einer anderen Entität teilt, in das der Schritt kein Lock schreiben darf. Fehlt das Feld, folgt es der Workspace-Einstellung `pin_sources_at_push`; wird es gesendet, überschreibt es diese Einstellung in beide Richtungen. Unter `dryRun` meldet der Schritt das Lock, das er schreiben würde, und schreibt nichts. **Eine Veröffentlichung, die den Schritt nicht ausführt, lehnt ein Recipe oder FeatureRecipe ab, dessen `entity.lock` keinen Pin für eine gelesene Eingabe verzeichnet**, oder einen, dem die Eingabe nicht mehr entspricht, bevor etwas gebündelt wird – auch unter `dryRun` – und nennt dabei `aggrega pin`, `pinSources` und `pin_sources_at_push`; es ist die Ablehnung, die `aggrega/resolveDependencies` über dasselbe Lock auslöst. Die Antwort enthält `reference`, `tag`, `kind`, `mediaType`, das `size`-Paar, den veröffentlichten `digest` – unter `dryRun` den Digest, auf dem diese Veröffentlichung landen würde, also den, den [`aggrega push --dry-run`](aggrega-push.md) ausgibt –, `signed`, `alreadyPublished`, `dryRun` und `reach`; `pin` – dieselbe Antwort, die `aggrega/pin` gibt –, wo der Schritt ausgeführt wurde; und `wholeDirectorySource`, wo die lokale Quelle der Entität als Vorlage geschrieben ist, wobei diese Quelle so benannt wird, wie sie verfasst wurde. Eine solche Quelle wählt ihr Verzeichnis erst, wenn ein Release die Vorlage ausfüllt, sodass die Veröffentlichung jede Datei im Verzeichnis der Entität mitführt statt nur der Dateien, die die Entität benennt, und dieses Feld ist die Art, wie ein Aufrufer erfährt, dass dies geschehen ist – auch bei einem Probelauf. Sie enthält außerdem `windowsUnusableEntries`, wo das von der Veröffentlichung mitgeführte Archiv Einträge enthält, die Windows in der geschriebenen Form nicht aufnehmen kann – einen Pfad mit einem Teil, der nach einem Gerät benannt ist, etwa `CON`, `AUX` oder `NUL`, in beliebiger Groß- und Kleinschreibung und mit beliebiger nachfolgender Erweiterung, oder einen Teil, der auf einen Punkt oder ein Leerzeichen endet –, und benennt jeden davon, zuerst den Dateinamen des Entitätsdokuments selbst, dann die mitgeführten Dateien; das Feld fehlt, wo es keinen solchen gibt, was eine allein als Dokument veröffentlichte Entität einschließt. `aggrega` lehnt es unter Windows ab, einen solchen Eintrag zu entpacken, sodass ein Windows-Workspace die Version nicht verwenden kann. Dies sind die Einträge, vor denen [`aggrega push`](aggrega-push.md) warnt, und eine Anfrage, die um Fortschrittsmeldungen gebeten hat, liest dieselben Warnzeilen im Fortschritt der Veröffentlichung; keines von beiden lehnt etwas ab, sodass die Veröffentlichung genau so fortgesetzt oder abgelehnt wird, wie es ohne sie der Fall wäre, auch unter `dryRun`. **Dies schreibt in eine Registry und reicht über diesen Rechner hinaus**, und mit dem Pin-Schritt schreibt es auch neben die Entität – siehe [Eine Registry erreichen und schreiben](#reaching-a-registry-and-writing)."
   },
   "45e69ba40d614262": {
     "at": "2026-11-04T03:28:35.383Z",
@@ -79166,6 +79184,13 @@
     "status": "machine",
     "text": "**Wie mehrere Beitragende zusammentreffen.** Jeder Eintrag wird für jede Komponente ausgewertet, die das Recipe in der Boundary rendert, und die Dateien, die alle Beitragenden der Boundary deklariert haben, werden nach Namen zusammengeführt. Ein Name, der zu denselben Bytes ausgewertet wird — durch zwei Komponenten, die an ein Recipe gebunden sind, oder durch zwei Recipes, die einen Provider identisch konfigurieren —, ist eine einzige Datei. Ein Name, der zu unterschiedlichen Bytes ausgewertet wird, stoppt den Build und nennt die Datei und jeden Beitragenden, weil keine einzelne Datei das ist, was alle geschrieben haben; dasselbe gilt für einen Namen, den die eigene Assemblierung des Providers schreibt, etwa `aggrega.modules.tf`. Beides ist die [Kollision der assemblierten Ausgabe](../errors/fatal-halts.md#two-contributors-write-the-same-output-path). Zwei Recipes, die einen Provider unter zwei verschiedenen Dateinamen konfigurieren, werden nicht zusammengeführt — jede Datei wird geschrieben —, und dann meldet das Ziel die doppelte Konfiguration; Recipes, die eine Provider-Konfiguration teilen sollen, teilen daher deren Dateinamen, per Konvention einen, der nach dem Provider benannt ist, den sie konfiguriert."
   },
+  "7426ad608fe18c0a": {
+    "at": "2026-11-19T09:59:37.643Z",
+    "job": "session-0002-20261119095937",
+    "srcHash": "7426ad608fe18c0a",
+    "status": "machine",
+    "text": "Pfad zu einer Software-Stückliste des Plugin-Guests in SPDX 2.3 JSON. Optional und nur mit --plugin: Die Veröffentlichung hängt sie neben dem veröffentlichten Plugin als OCI-Referrer vom Typ application/spdx+json an, der keinen Digest verändert und nie zweimal angehängt wird."
+  },
   "74294d39fecf5bc4": {
     "at": "2026-10-22T08:42:51.391Z",
     "job": "session-0026-20261022084251",
@@ -83911,6 +83936,17 @@
     "srcHash": "7ad230504ffb64d4",
     "status": "machine",
     "text": "Tempo — Server für verteiltes Tracing für Kubernetes"
+  },
+  "7ad244db9ead3ff6": {
+    "at": "2026-11-19T09:59:37.643Z",
+    "job": "session-0002-20261119095937",
+    "revision": {
+      "from": "d8c10d12175088ab",
+      "reviewed": false
+    },
+    "srcHash": "7ad244db9ead3ff6",
+    "status": "machine",
+    "text": "`publish-entity` nimmt `entity` entgegen, das zu veröffentlichende Dokument, und ein Plugin benötigt zusätzlich `plugin`, die in seinem Manifest veröffentlichte ausführbare Datei. Ein Plugin kann außerdem `plugin_notices` mitführen, die Hinweise Dritter zu seinem Guest, die als Layer nach der `.wasm`-Datei gepackt werden, und `plugin_sbom`, seine SPDX-Stückliste, die als `application/spdx+json`-Referrer angehängt wird; beide sind Pfade wie `plugin`, und ein Aufruf, der eines davon ohne `plugin` sendet oder eine fehlende oder leere Datei benennt, wird abgelehnt. `publish-artifact` nimmt `file` mit dem `name` und dem `tag` entgegen, unter denen sie veröffentlicht wird. Jedes Pfadargument ist hier absolut oder relativ zum Workspace-Stamm, derselbe Vertrag, den jedes andere Tool dieser Oberfläche verwendet, und `workspace_root` benennt den Workspace, den der Aufruf meint — bei einem Server, der über Standardeingabe und -ausgabe erreicht wird. Ein über HTTPS erreichter Server lehnt `workspace_root` ab und verlangt, dass sich jeder dieser Pfade innerhalb des Workspace auflöst, den er bedient, wie [Ein Prozess, ein Workspace](#one-process-one-workspace) darlegt. `registry` ist das Ziel und hat als Standard die im Workspace konfigurierte Registry; wird keines von beiden gesendet und ist kein Standard konfiguriert, wird der Aufruf abgelehnt und benennt, was zu senden ist. `sign-artifacts` nimmt `references` entgegen, eine oder mehrere Registry-Adressen statt Pfaden, und optional `jobs`, wie viele davon gleichzeitig signiert werden: Wird es weggelassen, werden sie nacheinander signiert, und ein Wert unter 1 wird abgelehnt, wobei benannt wird, was zu senden ist. Jede wird dennoch genau so signiert, wie sie allein signiert würde, wie [`aggrega sign`](aggrega-sign.md#signing-several-references-at-once) beschreibt. `deprecate-artifact` nimmt entweder `reference` mit `severity` und `reason` entgegen oder `from`, das eine Batch-Datei benennt — und lehnt Inhaltsargumente, die zusammen mit einer Batch-Datei gesendet werden, ab, statt sie zu verwerfen, denn eine Batch-Datei liefert ihre eigenen, und ein stillschweigend ignoriertes Argument liest sich wie eines, das berücksichtigt wurde."
   },
   "7ad362c2e93de45b": {
     "at": "2026-11-04T10:10:47.161Z",
@@ -94807,6 +94843,17 @@
     "srcHash": "8b089c5fa4a21fb1",
     "status": "machine",
     "text": "`aggrega sign` löst den Digest auf, den die Registry für jede `<reference>` bereits hält, signiert diesen Digest und hängt das Signatur-Bundle als Referrer an. Es führt nie einen erneuten Push durch, vergibt keine neuen Tags und verändert die veröffentlichten Bytes auch sonst nicht — das Artefakt ist unveränderlich, und die Signatur ist ein Geschwister-Manifest, das auf es zurückverweist. So kann ein Artefakt nachträglich ohne Versionserhöhung signiert werden."
+  },
+  "8b0edccc47a4243a": {
+    "at": "2026-11-19T09:59:37.643Z",
+    "job": "session-0002-20261119095937",
+    "revision": {
+      "from": "d4c92e5f005df481",
+      "reviewed": false
+    },
+    "srcHash": "8b0edccc47a4243a",
+    "status": "machine",
+    "text": "`entity.yaml`, die Entität, neben `entity.wasm`, ihrer ausführbaren Datei, und `notices.md`, ihren Hinweisen Dritter, wenn sie mit diesen veröffentlicht wird"
   },
   "8b0fbc4a0621adca": {
     "at": "2026-11-03T13:44:12.861Z",
@@ -113310,6 +113357,13 @@
     "status": "machine",
     "text": "A `$ref:` addresses a library by registry location (Ein Verweis adressiert eine Bibliothek über ihren Registry-Ort)"
   },
+  "a604689974819e8a": {
+    "at": "2026-11-19T09:59:37.643Z",
+    "job": "session-0002-20261119095937",
+    "srcHash": "a604689974819e8a",
+    "status": "machine",
+    "text": "eine an ein Plugin angehängte Software-Stückliste"
+  },
   "a6058f9400d2b259": {
     "at": "2026-11-03T15:47:42.282Z",
     "job": "session-0125-20261103154742",
@@ -130235,6 +130289,13 @@
     "srcHash": "bdf674a942c5b1b7",
     "status": "machine",
     "text": "Ausgegebene Meldung, für eine Koordinate, die das Plugin nicht erhalten hat, und für einen Wert, den keine Annotation annimmt:"
+  },
+  "bdf9467952cbe6aa": {
+    "at": "2026-11-19T09:59:37.643Z",
+    "job": "session-0002-20261119095937",
+    "srcHash": "bdf9467952cbe6aa",
+    "status": "machine",
+    "text": "Die SPDX-Stückliste des Plugin-Moduls in JSON, als Pfad relativ zum Workspace-Root, an das veröffentlichte Plugin angehängt. Erfordert `plugin`."
   },
   "bdfc89465f2a752f": {
     "at": "2026-11-04T10:10:45.227Z",
@@ -149153,6 +149214,13 @@
     "status": "machine",
     "text": "Ein Feature wird einmal verfasst und vielfach angebunden, daher muss der Name, den ein FeatureRecipe ableitet, je Anbindung eindeutig sein. Dieses setzt die Host-Komponente und den Anbindungsnamen zusammen: Host `payments-db`, getragen unter `storage-headroom`, ergibt `PaymentsDbStorageHeadroom`."
   },
+  "d93108e9e6067db9": {
+    "at": "2026-11-19T09:59:37.643Z",
+    "job": "session-0002-20261119095937",
+    "srcHash": "d93108e9e6067db9",
+    "status": "machine",
+    "text": "Pfad zu einer Markdown-Datei mit den Hinweisen Dritter zum Plugin-Guest. Optional und nur mit --plugin: Die Veröffentlichung packt sie als Layer nach der .wasm in das Manifest, sodass die Hinweise mit der ausführbaren Datei mitgeführt werden und der Manifest-Digest sie abdeckt."
+  },
   "d9312173271d1374": {
     "at": "2026-11-04T08:57:11.542Z",
     "job": "session-0223-20261104085711",
@@ -161593,6 +161661,13 @@
     "srcHash": "eaa6588c77a03698",
     "status": "machine",
     "text": "*Die Deklaration der Workload in JSON Schema 2020-12 ist maßgeblich und wird eingebettet im Compiler-Binary ausgeliefert. Die Provider helm und compose synthetisieren das `workload:` eines Recipe, inline oder per `$import:` geladen; zur Unterstützung pro Anbieter siehe die Provider-Fähigkeitsmatrix.*"
+  },
+  "eaa7af4588b3012c": {
+    "at": "2026-11-19T09:59:37.643Z",
+    "job": "session-0002-20261119095937",
+    "srcHash": "eaa7af4588b3012c",
+    "status": "machine",
+    "text": "Die Datei mit den Hinweisen Dritter des Plugin-Moduls, als Pfad relativ zum Workspace-Root, veröffentlicht als Layer im Plugin-Manifest. Erfordert `plugin`."
   },
   "eaa919cbabc6e7dc": {
     "at": "2026-11-18T22:52:12.660Z",
