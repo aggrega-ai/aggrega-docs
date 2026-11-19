@@ -6599,6 +6599,17 @@
     "status": "machine",
     "text": "**Stan obecny:** **dostępne** zgodnie z [Stan języka → Rodzaje wejść Recipe](../10-status.md#recipe-input-kinds). Każdy wpis jest ewaluowany z pełnym kontekstem szablonu po syntezie Workload i rozwiązaniu źródła, a wynikowy plik jest emitowany pod kluczem wpisu. To, co cel robi z wyemitowanym artefaktem, zależy od funkcji: dostawca akceptujący samodzielny artefakt emituje go jako osobny plik, natomiast taki, który akceptuje artefakty wyłącznie obok innego rodzaju wejścia, włącza wpis do tego, co składa — dlatego treść o kształcie innym niż oczekiwany przez ten mechanizm składający powoduje zatrzymanie w kategorii `TRANSLATION_ERROR` zamiast emisji bez zmian. Przed utworzeniem artefaktu dla danej funkcji należy sprawdzić tabelę funkcji w [`architecture/16-recipe-input-composition.md`](../../architecture/16-recipe-input-composition.md)."
   },
+  "08604c4e3e2114fa": {
+    "at": "2026-11-19T01:32:57.612Z",
+    "job": "session-0009-20261119013257",
+    "revision": {
+      "from": "f446c98d2daa0a1b",
+      "reviewed": false
+    },
+    "srcHash": "08604c4e3e2114fa",
+    "status": "machine",
+    "text": "Wartość `resource_types`, która nie jest listą nazw i obiektów z `type` i `component`, zatrzymuje import z błędem `resource-types-unreadable`, aby błędna wartość nigdy nie została odczytana jako brak listy; tak samo zatrzymuje go wpis, którego `component` jest pusty i który nie wskazuje żadnej encji Component, zamiast być odczytanym jako wpis bez `component`."
+  },
   "08631ec5577f2dc1": {
     "at": "2026-10-29T17:38:31.046Z",
     "job": "session-0004-20261029173831",
@@ -21368,6 +21379,17 @@
     "status": "machine",
     "text": "Wszystkie trzy pola sprawdza jeden czytnik, więc odrzucenia są te same trzy niezależnie od tego, które pole zawiniło: mapowanie zawierające więcej niż jeden klucz, mapowanie, którego jedyny klucz nie jest `$import`, oraz `$import:`, którego wartość nie jest zwykłym łańcuchem. Wartość, która nie jest ani skalarem, ani mapowaniem — najczęściej lista — jest odrzucana na podstawie samego kształtu."
   },
+  "1c58a1335aa18e2f": {
+    "at": "2026-11-19T01:32:57.612Z",
+    "job": "session-0009-20261119013257",
+    "revision": {
+      "from": "77156466012fc310",
+      "reviewed": false
+    },
+    "srcHash": "1c58a1335aa18e2f",
+    "status": "machine",
+    "text": "**Sekret** — właściwość Azure `sensitive`, zapisywalny atrybut Terraform `sensitive` albo właściwość tekstowa CloudFormation, której nazwa zawiera słowo oznaczające poświadczenie — Password, Secret, Token, Credential, PrivateKey, ApiKey lub Passphrase — i nie kończy się na `Arn`, `Id`, `Name` ani `Ref`. Takie odczytanie w CloudFormation jest konwencją szkicu, więc należy je przejrzeć. Sekret jest tworzony tak, jak opisuje sekcja [Sekrety](#secrets-in-the-drafts). Sekretem staje się tylko właściwość na samej górze typu — w Azure klucz główny lub składowa `properties`; o wrażliwej składowej poniżej ostrzega się pod `constraint-dropped`, jak opisuje ta sekcja."
+  },
   "1c59ca592ce8191b": {
     "at": "2026-11-17T13:24:33.294Z",
     "job": "session-0008-20261117132433",
@@ -27246,6 +27268,17 @@
     "srcHash": "24080989136e47eb",
     "status": "machine",
     "text": "**Proxy stojący przed procesem terminuje TLS i przekazuje ruch do ograniczonego listenera.** Gdy oba klucze pozostaną nieustawione, listener udostępnia zwykły tekst, co jest akceptowane tylko na interfejsie loopback lub na gnieździe Unix — więc nic, co nie znajduje się już na tym hoście, nie może się z nim połączyć. Jest to kształt, którego używa odwrotne proxy, sidecar lub service mesh, i to w nim certyfikat znajduje się przed tym procesem, a nie w nim."
+  },
+  "240827d6e4f8a122": {
+    "at": "2026-11-19T01:32:57.612Z",
+    "job": "session-0009-20261119013257",
+    "revision": {
+      "from": "6f7dbf75689f6189",
+      "reviewed": false
+    },
+    "srcHash": "240827d6e4f8a122",
+    "status": "machine",
+    "text": "Wartość sekretu nigdy nie jest zapisywana w szkicu. W `arm` jest to parametr `securestring` najwyższego poziomu fragmentu, nazwany od nazwy symbolicznej i właściwości oraz podawany podczas wdrażania szablonu; opcjonalny sekret jest wymaganym parametrem, ponieważ parametr nie deklaruje wartości domyślnej. W `cloudformation` jest to wpis `Parameters` z `Type: String` i `NoEcho: true`, nazwany w ten sam sposób i odczytywany przez `!Ref`; opcjonalny sekret jest wymaganym parametrem. W `terraform` jest to gniazdo encji Component i zmienna modułu z własnym `sensitive: true`, wypełniana wartością, którą dostarcza dołączenie do gniazda; dla takiej encji Recipe nie jest zapisywany żaden `aggrega_override.tf.json`."
   },
   "24086c2a54bd9cb3": {
     "at": "2026-10-22T08:46:18.120972+00:00",
@@ -56793,6 +56826,17 @@
     "status": "machine",
     "text": "**Żaden argument nie wskazuje katalogu i żaden nie żąda śladu.** O tym, dokąd trafiają artefakty, decyduje obszar roboczy wyznaczony przez wywołanie, nigdy samo wywołanie, a kompilacja zapisana stąd nie pozostawia katalogu `.trace` obok swoich wyników; kompilacja ze śladem to [`aggrega build --trace`](aggrega-build.md)."
   },
+  "4bc3dba3cdada247": {
+    "at": "2026-11-19T01:32:57.612Z",
+    "job": "session-0009-20261119013257",
+    "revision": {
+      "from": "39e827487e4a2324",
+      "reviewed": false
+    },
+    "srcHash": "4bc3dba3cdada247",
+    "status": "machine",
+    "text": "**Import odczytuje katalog, względem którego rozwiązuje się kompilacja: najpierw foldery katalogu obszaru roboczego, a za nimi opublikowany katalog.** Foldery to te, które wskazują `AGGREGA_CATALOG_DIRS` i `workspace.catalog_dirs`, a następnie folder katalogu w katalogu głównym obszaru roboczego; za nimi import odczytuje katalog biblioteki standardowej, który jego domyślny rejestr publikuje jako jedną podpisaną migawkę, pod `catalog/snapshot`. Encja zawarta w folderze jest odczytywana zamiast opublikowanej encji o tej samej tożsamości, a każda inna opublikowana encja pozostaje widoczna, więc importery, encje Components, z którymi dopasowywane są szkice, oraz encje Recipes, z których mapuje się `target`, pochodzą łącznie z folderów i z opublikowanego katalogu. Parser lub importer, który foldery zawierają dla składni lub formatu, jest dla niej wybierany przed każdym, który zawiera opublikowany katalog, chyba że wpis `plugins.importer` w konfiguracji obszaru roboczego dołącza inny. Migawka jest pobierana raz: jej podpis jest weryfikowany zgodnie z polityką zaufania tego rejestru, a sama migawka jest przechowywana w pamięci podręcznej treści obszaru roboczego i odczytywana tam jako folder katalogu, powiązana ze swoim skrótem, bez ponownego zwracania się o nią do żadnego rejestru. Którą migawkę odczytuje żądanie: z `upgrade` — najnowszą; w przeciwnym razie tę, którą wskazuje wpis importu w zapisie w `outputDir`, pobraną według skrótu, jeśli maszyna jej nie ma; w przeciwnym razie tę, którą obszar roboczy ostatnio pobrał jako najnowszą; w przeciwnym razie najnowszą. Gdy migawki nie można odczytać — obszar roboczy jest w trybie offline, a maszyna jej nie ma, obszar roboczy nie wskazuje domyślnego rejestru albo rejestr jest nieosiągalny lub żadnej nie publikuje — obszar roboczy z folderami katalogu importuje wyłącznie względem nich, wpis `warn` w `diagnostics` podaje przyczynę, a wpis zapisywany przez import zachowuje migawkę, którą wskazywał wcześniej, więc następny import, który może ją odczytać, odczytuje tę samą; `upgrade` jest odrzucane wszędzie tam, gdzie migawki nie można odczytać, niezależnie od tego, co ma maszyna, ponieważ tylko rejestr może powiedzieć, która migawka jest najnowsza. Odrzucany jest również `sync`, którego wpis wskazuje migawkę, której maszyna nie ma i nie może pobrać, z jej wskazaniem, a w trybie offline w ramach [The workspace is offline and the step needs the network (Obszar roboczy jest offline, a krok wymaga sieci)](../errors/fatal-halts.md#the-workspace-is-offline-and-the-step-needs-the-network): szkice, które ocenia, zostały sporządzone względem tego katalogu, a same foldery mogą sporządzić je inaczej, więc działa tam, gdzie rejestr jest osiągalny, co zachowuje migawkę na maszynie dla każdego kolejnego synca. Obszar roboczy bez folderu katalogu jest natomiast błędem w ramach warunku [The workspace is offline and the step needs the network (Obszar roboczy jest w trybie offline, a krok wymaga sieci)](../errors/fatal-halts.md#the-workspace-is-offline-and-the-step-needs-the-network), gdy musiałby pobrać migawkę, ze wskazaniem, co uruchomić; a gdy rejestr nie publikuje żadnej migawki, importuje bez katalogu, a wpis `warn` w `diagnostics` o tym informuje."
+  },
   "4bc6a124b3e74129": {
     "at": "2026-10-29T23:14:13.329Z",
     "job": "session-0033-20261029231413",
@@ -67124,6 +67168,17 @@
     "status": "machine",
     "text": "Host rejestru docelowego (zastępuje default_registry obszaru roboczego)"
   },
+  "5986944e7b92923c": {
+    "at": "2026-11-19T01:32:57.612Z",
+    "job": "session-0009-20261119013257",
+    "revision": {
+      "from": "4d02bb193d630805",
+      "reviewed": false
+    },
+    "srcHash": "5986944e7b92923c",
+    "status": "machine",
+    "text": "Ograniczenie dostawcy nie jest przenoszone, kształt jest cięty tam, gdzie definicja odwołuje się do samej siebie lub zagnieżdża się zbyt głęboko, albo wrażliwa składowa poniżej góry typu nie jest tworzona jako sekret; wskazywane są właściwość, ograniczenie i przyczyna."
+  },
   "598f08074d0fc38d": {
     "at": "2026-10-29T23:25:30.396Z",
     "job": "session-0032-20261029232530",
@@ -71605,6 +71660,17 @@
     "status": "machine",
     "text": "Autorski URL — URL tożsamości w postaci zapisanej w spec.source.url encji Recipe. Dla helm-https-chart jest to katalog główny repozytorium (forma repo-root) lub bezpośredni plik .tgz (forma bezpośrednia), dokładnie tak, jak zapisano. Dla git-repository jest to URL repozytorium, które można sklonować. Dla helm-oci-chart jest to odwołanie do rejestru. Dla compose-https-fragment jest to URL HTTPS fragmentu. Rozwiązana lokalizacja artefaktu dla źródła helm w formie repo-root jest zapisywana osobno w `resolved_url:` jako informacja o pochodzeniu."
   },
+  "5f7806f1d14f45dc": {
+    "at": "2026-11-19T01:32:57.612Z",
+    "job": "session-0009-20261119013257",
+    "revision": {
+      "from": "87661dfbf3913398",
+      "reviewed": false
+    },
+    "srcHash": "5f7806f1d14f45dc",
+    "status": "machine",
+    "text": "**Import odczytuje katalog, względem którego rozwiązuje się kompilacja: najpierw foldery katalogu obszaru roboczego, a za nimi opublikowany katalog.** Foldery to te, które wskazują `AGGREGA_CATALOG_DIRS` i `workspace.catalog_dirs`, a następnie folder katalogu w katalogu głównym obszaru roboczego; za nimi import odczytuje katalog biblioteki standardowej jako jedną podpisaną migawkę, w `catalog/snapshot` w domyślnym rejestrze obsługiwanego obszaru roboczego — tym samym rejestrze, z którego pobierany jest importer podstawowy, osiąganym na tych samych warunkach, przy czym nic w wywołaniu nie wskazuje rejestru ani nie przenosi poświadczeń. Encja zawarta w folderze jest odczytywana zamiast opublikowanej encji o tej samej tożsamości, a każda inna opublikowana encja pozostaje widoczna. Parser lub importer, który foldery zawierają dla składni lub formatu, jest dla niej wybierany przed każdym, który zawiera opublikowany katalog, chyba że wpis `plugins.importer` w konfiguracji obszaru roboczego dołącza inny. Migawka jest pobierana raz: jej podpis jest weryfikowany zgodnie z polityką zaufania tego rejestru, a sama migawka jest przechowywana w pamięci podręcznej treści obszaru roboczego i odczytywana tam jako folder katalogu, powiązana ze swoim skrótem, bez ponownego zwracania się o nią do żadnego rejestru. Którą migawkę odczytuje wywołanie: z `upgrade` — najnowszą; w przeciwnym razie tę, którą wskazuje wpis importu w zapisie w katalogu wyjściowym, pobraną za pomocą jej skrótu, jeśli maszyna jej nie przechowuje; w przeciwnym razie tę, którą obszar roboczy ostatnio pobrał jako najnowszą; w przeciwnym razie najnowszą. Gdy migawki nie można odczytać — obszar roboczy jest w trybie offline, a maszyna jej nie przechowuje, obszar roboczy nie wskazuje domyślnego rejestru albo rejestr jest nieosiągalny lub żadnej nie publikuje — obszar roboczy z folderami katalogu importuje wyłącznie względem nich, wpis `warn` w `diagnostics` podaje przyczynę, a wpis zapisywany przez import zachowuje migawkę, którą wskazywał wcześniej; `upgrade` jest odrzucane wszędzie tam, gdzie migawki nie można odczytać, niezależnie od tego, co przechowuje maszyna, ponieważ tylko rejestr może stwierdzić, która migawka jest najnowsza. Odrzucany jest również `sync`, którego wpis wskazuje migawkę, której maszyna nie ma i nie może pobrać, z jej wskazaniem: szkice, które ocenia, zostały sporządzone względem tego katalogu, a same foldery mogą sporządzić je inaczej, więc działa tam, gdzie rejestr jest osiągalny, co zachowuje migawkę na maszynie dla każdego kolejnego synca. Obszar roboczy bez folderu katalogu jest natomiast odrzucany, ze wskazaniem, co uruchomić, gdy musiałby pobrać migawkę w trybie offline; a gdy rejestr nie publikuje żadnej migawki, importuje bez katalogu, a wpis `warn` w `diagnostics` o tym informuje."
+  },
   "5f7e02c69dff2899": {
     "at": "2026-11-14T23:40:29.533Z",
     "job": "session-0013-20261114234029",
@@ -72753,6 +72819,17 @@
     "srcHash": "60e2d9696b7ebfa9",
     "status": "machine",
     "text": "FeatureRecipe renderowana raz dla granicy (`executionScope: boundary`) nie jest tu sprawdzana: jej szablony nie mają `.context` do odczytu, a odwołanie do niego jest odrzucane jako pole spoza listy dozwolonych dla jej zakresu."
+  },
+  "60ebf829ffbfcfab": {
+    "at": "2026-11-19T01:32:57.612Z",
+    "job": "session-0009-20261119013257",
+    "revision": {
+      "from": "6974f59a9acf66e4",
+      "reviewed": false
+    },
+    "srcHash": "60ebf829ffbfcfab",
+    "status": "machine",
+    "text": "**Azure**: parametr `securestring` najwyższego poziomu szablonu, nazwany od instancji i właściwości, który podaje się podczas wdrażania. Sekret, który dostawca oznacza jako opcjonalny, jest wymaganym parametrem."
   },
   "60ed1f2593ade11b": {
     "at": "2026-10-23T00:18:01.108465+00:00",
@@ -81594,6 +81671,13 @@
     "srcHash": "6cc8519b91584e8b",
     "status": "machine",
     "text": "Go"
+  },
+  "6cc968ccf6b58f87": {
+    "at": "2026-11-19T01:32:57.612Z",
+    "job": "session-0009-20261119013257",
+    "srcHash": "6cc968ccf6b58f87",
+    "status": "machine",
+    "text": "Szkic jako sekret powstaje tylko dla właściwości na samej górze typu. Wrażliwa składowa poniżej — `properties.osProfile.adminPassword` w Azure, `user[].password` w Terraform — nie jest sekretem: encja Release ustawia ją jako zwykłą wartość wewnątrz klucza, pod którym tworzony jest szkic jej elementu nadrzędnego, takiego jak `infra.overrides.osProfile`, a import ostrzega o każdej takiej składowej pod `constraint-dropped`, wskazując jej ścieżkę i ten klucz."
   },
   "6cca9b24a831e55c": {
     "at": "2026-10-22T08:20:04.359Z",
@@ -105248,6 +105332,17 @@
     "status": "machine",
     "text": "generuje encję dla każdego gościa osadzonego w tym pliku binarnym"
   },
+  "8c393b2b523e6252": {
+    "at": "2026-11-19T01:32:57.612Z",
+    "job": "session-0009-20261119013257",
+    "revision": {
+      "from": "c08544c7adc8f7a7",
+      "reviewed": false
+    },
+    "srcHash": "8c393b2b523e6252",
+    "status": "machine",
+    "text": "`resource_types` nie jest listą nazw i obiektów z `type` i `component` albo `component` wpisu jest pusty."
+  },
   "8c39cf1bb4eee24b": {
     "at": "2026-10-22T08:52:36.046409+00:00",
     "job": "msgbatch_01RQPKmPhqEGHToRpY4PpQXJ",
@@ -107233,6 +107328,17 @@
     "srcHash": "8ee5df761f49f614",
     "status": "machine",
     "text": "Wpis renderuje wartości chartu. Szablon pomocniczy `BitnamiNodePool` zapisuje zasoby, trwałość, selektor węzłów i preset antyafiniczności jednej puli węzłów; wpis deklaruje go za pomocą `define` i wywołuje za pomocą `template` — dla puli podstawowej oraz, przy replikacji, dla puli pomocniczej. Szablon pomocniczy jest zadeklarowany wewnątrz wpisu, który go używa, ponieważ encja Recipe importuje jeden wpis, a definicja podróżuje razem z wpisem, który ją zawiera. Wartości domyślne biblioteki wypełniają każde pole zasobów pominięte przez encję Aggregate, więc szablon pomocniczy odczytuje je bez wartości zapasowej. Mapowanie obsługuje warianty architektury standalone i z replikacją, poświadczenia dostarczane przez załączniki (odczytywane z `.context.inject.env`) oraz blok metryk. Korzystające z niego encje Recipes importują cały wpis `MariaDBBitnamiCore` przez `$import:` w formie bibliotecznej."
+  },
+  "8ee665e158e4b34e": {
+    "at": "2026-11-19T01:32:57.612Z",
+    "job": "session-0009-20261119013257",
+    "revision": {
+      "from": "ba1f8ec5ac0232b5",
+      "reviewed": false
+    },
+    "srcHash": "8ee665e158e4b34e",
+    "status": "machine",
+    "text": "Jej jedynym czytelnikiem jest import, który odczytuje najpierw foldery katalogu, a za nimi opublikowany katalog, w kolejności, w jakiej rozwiązuje je kompilacja: foldery katalogu obszaru roboczego — `AGGREGA_CATALOG_DIRS`, `workspace.catalog_dirs`, a następnie katalog `catalog/` w katalogu głównym obszaru roboczego — oraz opublikowaną za nimi migawkę, tak że encja zawarta w folderze jest odczytywana zamiast opublikowanej encji o tej samej tożsamości, a każda inna opublikowana encja pozostaje widoczna. `aggrega import`, import w sesji edytora i narzędzie importu asystenta wykonują tę samą operację, więc każde z nich pozyskuje migawkę w ten sam sposób. Import pobiera ją z domyślnego rejestru obszaru roboczego przez tę samą bramkę ruchu wychodzącego i to samo logowanie co pull, weryfikuje jej podpis zgodnie z polityką zaufania tego rejestru, zanim cokolwiek zostanie zachowane, przechowuje ją w pamięci podręcznej artefaktów obszaru roboczego i odczytuje ją tam jako folder katalogu, powiązaną z jej skrótem — dzięki temu importerowi oferowane są Components katalogu, a `--target` tworzy szkic encji Manifest na podstawie jego encji Recipes, dokładnie tą samą ścieżką, którą przechodzi folder katalogu. Wpis importu w zapisie, który tworzy on obok swoich szkiców, wskazuje migawkę przez skrót jej manifestu, więc późniejszy import tych samych szkiców odczytuje ten sam katalog bez żadnego żądania, a `aggrega import --upgrade` pobiera najnowszą migawkę i od tej chwili importuje względem niej. Gdy migawki nie można odczytać — w trybie offline bez jej kopii, bez domyślnego rejestru albo gdy rejestr jest nieosiągalny lub żadnej nie publikuje — obszar roboczy z folderami katalogu importuje wyłącznie względem nich, a ostrzeżenie podaje przyczynę, natomiast obszar roboczy bez folderu katalogu zatrzymuje się, wskazując, co należy uruchomić, albo importuje bez katalogu, gdy rejestr nie publikuje żadnej migawki. Zatrzymuje się również `--sync`, którego wpis wskazuje migawkę, której ta maszyna nie ma i nie może pobrać, i wskazuje tę migawkę: szkice, które ocenia, zostały sporządzone względem tego katalogu, a same foldery mogą sporządzić je inaczej, więc sync odczytuje migawkę, względem której zaimportowano jego szkice, albo żadnej. Żadne inne polecenie nie odczytuje migawki: pull, kompilacja i walidacja rozwiązują każdą encję przez poziomy z §5 i przypinają ją w pliku blokady, a szkice importu odwołują się do encji katalogu przez nazwę, więc ich kompilacja rozwiązuje te encje w ten sam sposób."
   },
   "8ee68f1d18f24860": {
     "at": "2026-10-22T21:42:39.864359+00:00",
@@ -127607,6 +127713,17 @@
     "status": "machine",
     "text": "Popularne funkcje pomocnicze NIEDOSTĘPNE"
   },
+  "a9e69be6b2a2f9d2": {
+    "at": "2026-11-19T01:32:57.612Z",
+    "job": "session-0009-20261119013257",
+    "revision": {
+      "from": "610f899632ea86a6",
+      "reviewed": false
+    },
+    "srcHash": "a9e69be6b2a2f9d2",
+    "status": "machine",
+    "text": "Szkic nie widzi żadnego klucza `infra` encji Component. Asercja `required_overrides_set` zatrzymuje kompilację, dopóki encja Release nie ustawi każdej wymaganej właściwości, której nie niesie żaden klucz `values`, wskazując `infra.overrides.<VendorName>`, typ, który ją wymaga, oraz to, że encja Component nie deklaruje klucza `values` o jej nazwie. Gdy `infra` encji Component jest zamknięte i nie deklaruje `overrides`, encja Release nie może ich ustawić: kompilacja waliduje `infra` instancji względem schematu encji Component i odrzuca ten klucz."
+  },
   "a9ea9040430f14a2": {
     "at": "2026-11-14T10:23:22.802Z",
     "job": "session-0010-20261114102322",
@@ -142958,6 +143075,17 @@
     "srcHash": "bdae3cfc11ace2d4",
     "status": "machine",
     "text": "Schematy"
+  },
+  "bdb0911bdb897945": {
+    "at": "2026-11-19T01:32:57.612Z",
+    "job": "session-0009-20261119013257",
+    "revision": {
+      "from": "74510a0127c24358",
+      "reviewed": false
+    },
+    "srcHash": "bdb0911bdb897945",
+    "status": "machine",
+    "text": "Format jest rozpoznawany na podstawie kształtu samego źródła, tak jak w terminalu; gdy kompilator odmawia, ponieważ źródła nie rozpoznaje żaden format albo rozpoznaje je więcej niż jeden, edytor pokazuje tę odmowę — która wymienia formaty — i pyta, w jakim formacie odczytać źródło, a następnie ponownie wysyła ten sam import z tym formatem; pozostawienie tego pytania pustego kończy import tą odmową. Odczytywany jest wskazany plik lub te pliki wskazanego katalogu, które odczytuje jego importer, i żadne inne. Polecenie nie łączy się z siecią, z wyjątkiem pobierania tego, czego import potrzebuje do działania, a czego ta maszyna jeszcze nie ma — jednego z podstawowych importerów kompilatora, gdy format potrzebuje go po raz pierwszy, oraz opublikowanej migawki katalogu, którą import odczytuje jako swój katalog za folderami katalogu obszaru roboczego — przy czym każde z nich jest pobierane z domyślnego rejestru obszaru roboczego, weryfikowane i przechowywane w pamięci podręcznej treści, tak jak robi to `aggrega import`. Gdy tej migawki nie można pobrać, import w obszarze roboczym z folderami katalogu odczytuje wyłącznie te foldery, a kanał wyjścia niesie ostrzeżenie, które o tym mówi, natomiast **Sync**, którego szkice zaimportowano względem migawki, której ta maszyna nie ma, jest odrzucany z jej wskazaniem, tak jak robi to `aggrega import --sync`. Źródło może znajdować się w dowolnym miejscu na tej maszynie, ponieważ jest to wskazany plik, a nie plik obszaru roboczego; szkice zawsze trafiają do obszaru roboczego."
   },
   "bdb099ad6c92703f": {
     "at": "2026-11-01T14:54:04.024Z",
@@ -170980,6 +171108,13 @@
     "status": "machine",
     "text": "**Sonda, która nie deklaruje żadnego sposobu sprawdzania** — ani ścieżki, ani portu do połączenia, ani polecenia do uruchomienia. Nie ma czego przekształcić w sprawdzenie. Jest to zabezpieczenie za schematem, a nie konstrukcja, którą łatwo napisać: sonda jest sprawdzana pod kątem posiadania jednego z trzech sposobów, zanim tu dotrze."
   },
+  "e16a7595a036d590": {
+    "at": "2026-11-19T01:32:57.612Z",
+    "job": "session-0009-20261119013257",
+    "srcHash": "e16a7595a036d590",
+    "status": "machine",
+    "text": "Sekretem staje się tylko właściwość na samej górze zasobu — w Azure klucz główny lub składowa `properties`. Wrażliwa składowa poniżej, taka jak `adminPassword` wewnątrz `osProfile` w Azure lub `password` wewnątrz bloku Terraform, nie jest tworzona jako sekret: encja Release ustawia ją jako zwykłą wartość wewnątrz klucza, pod którym tworzony jest szkic jej elementu nadrzędnego, a import ostrzega o każdej takiej składowej pod `constraint-dropped`, wskazując jej ścieżkę i ten klucz."
+  },
   "e16c8380df4ccddf": {
     "at": "2026-10-22T12:39:32.286242+00:00",
     "job": "msgbatch_01UUrfm3zUQRLRu6brFV9rmQ",
@@ -172742,6 +172877,17 @@
     "srcHash": "e3a55ab505f415bb",
     "status": "machine",
     "text": "`spec.source: ./module` i `module/main.tf.json` obok encji Recipe; `spec.valuesMapping` wypełnia zmienne modułu"
+  },
+  "e3a905030a475b42": {
+    "at": "2026-11-19T01:32:57.612Z",
+    "job": "session-0009-20261119013257",
+    "revision": {
+      "from": "f896ee1e06d0a07e",
+      "reviewed": false
+    },
+    "srcHash": "e3a905030a475b42",
+    "status": "machine",
+    "text": "Gdy nazwę, jaką przyjąłby szkic, ma już encja Component z folderów obszaru roboczego lub z opublikowanego katalogu, z innymi kluczami `values`, import zatrzymuje się z błędem `component-exists`, wskazując encję Component, różniące się klucze i `component` jako sposób naprawy. Encja Component z tymi samymi kluczami jest tym samym szkicem odświeżonym i import trwa dalej. Encja Component w pliku, który wymienia własny wpis importu w zapisie obok szkiców, jest jego wcześniejszym szkicem, a nie encją katalogu, więc importer jej nie widzi: `--sync` po tym, jak schemat dostawcy zyskał lub utracił właściwość tożsamości, tworzy szkic encji Component z jej nowymi kluczami. Zwykły import nie nadpisuje żadnego pliku encji Component ani Recipe, który już istnieje, i zatrzymuje się, wskazując `--sync`, który aktualizuje pliki wymienione w zapisie zgodnie ze źródłem."
   },
   "e3ab24092720d647": {
     "at": "2026-10-22T23:26:42.562574+00:00",
