@@ -41858,6 +41858,13 @@
     "status": "machine",
     "text": "`lockfile.toolchain`"
   },
+  "3ca4811b73eb8b02": {
+    "at": "2026-11-19T10:07:50.370Z",
+    "job": "session-0006-20261119100750",
+    "srcHash": "3ca4811b73eb8b02",
+    "status": "machine",
+    "text": "**Avisos de terceiros e uma lista de materiais.** Uma publicação pode transportar os avisos de terceiros do código a partir do qual o seu guest é construído, e uma lista de materiais de software desse código. `--plugin-notices <file>` indica um ficheiro Markdown com os avisos de terceiros do guest: a publicação empacota-o no manifesto como segunda camada, a seguir ao `.wasm`, sob o tipo de média `application/vnd.aggrega.wasmplugin.notices.v1beta1+markdown`, e um cliente OCI genérico que obtenha a tag da versão escreve-o em `notices.md`. A camada faz parte do manifesto, pelo que o digest do manifesto e a única assinatura sobre ele cobrem os avisos tal como cobrem o executável; o `.wasm` continua a ser a primeira camada e o seu digest de conteúdo não muda. `--plugin-sbom <file>` indica uma lista de materiais de software SPDX 2.3 em JSON: a publicação anexa-a ao lado da versão publicada como referrer OCI do tipo de artefacto `application/spdx+json`, da mesma forma que se anexa uma assinatura, pelo que um scanner a encontra através da API Referrers do registo (`oras discover --artifact-type application/spdx+json <reference>`) e um cliente genérico escreve-a em `sbom.spdx.json`. O referrer não altera nenhum digest, e a assinatura não o cobre. Uma versão publicada é imutável, pelo que os seus avisos são aqueles com que foi publicada; uma lista de materiais pode ser anexada mais tarde publicando de novo a mesma versão, byte a byte, com `--plugin-sbom`, e uma versão que já tenha uma mantém-na. Cada opção só é aceite com `--plugin`, e um ficheiro em falta ou vazio é recusado, indicando a opção."
+  },
   "3ca8fe24df056cd7": {
     "at": "2026-10-22T22:12:52.746Z",
     "job": "session-0051-20261022221252",
@@ -48225,6 +48232,17 @@
     "srcHash": "45e3bffb1257b977",
     "status": "machine",
     "text": "`aggregate.yaml` é um Aggregate de rascunho que tem o nome do grafo, como descreve [Como é nomeado um rascunho](#how-a-draft-is-named), e que começa com comentários que indicam as configurações lidas, os ficheiros de ambiente lidos apenas pelos seus nomes, que o código da aplicação não é lido, e o que o rascunho não transporta. Contém, por grafo e com o seu id como chave, uma instância de `core/ai-agent/langgraph` com:"
+  },
+  "45e48d3c01c09637": {
+    "at": "2026-11-19T10:07:50.370Z",
+    "job": "session-0006-20261119100750",
+    "revision": {
+      "from": "b1e598d441cbb73b",
+      "reviewed": false
+    },
+    "srcHash": "45e48d3c01c09637",
+    "status": "machine",
+    "text": "`aggrega/publishEntity` — empacotar uma entidade do catálogo e publicá-la num registo. `entity` é um caminho relativo à raiz do espaço de trabalho que nomeia o documento a publicar, recusado nas mesmas três formas que `release` — ausente, absoluto ou a resolver para fora da raiz. Uma entidade Plugin precisa também de `plugin`, o mesmo tipo de caminho, que nomeia o executável publicado dentro do próprio manifesto da entidade. Um Plugin pode também transportar `pluginNotices`, os avisos de terceiros do seu guest, empacotados como uma camada a seguir ao `.wasm`, e `pluginSbom`, a sua lista de materiais SPDX, anexada como referrer `application/spdx+json`; ambos são o mesmo tipo de caminho que `plugin`, e um pedido que envie qualquer um deles sem `plugin`, ou que nomeie um ficheiro em falta ou vazio, é recusado. `registry` é o destino e, por predefinição, é o configurado no espaço de trabalho. `dryRun` calcula o pacote e o digest que uma publicação dele depositaria, e não contacta nenhum registo. Omitir `sign` segue a própria política do registo de destino, que é o que a linha de comandos faz quando a sua opção está ausente, enquanto enviá-lo é escolha do chamador — e nenhum dos dois relaxa a recusa, porque uma política de registo ou de espaço de trabalho que exige uma assinatura recusa uma publicação não assinada, diga o campo o que disser. `pinSources: true` executa o passo de fixação do autor da entidade sobre a entidade antes de a empacotar, para que o `entity.lock` que o passo escreve ao seu lado faça parte do que é publicado — o mesmo passo que `aggrega/pin` executa. É executado antes de qualquer recusa que avalie o conteúdo da entidade — uma política de assinatura, a proteção de imutabilidade — pelo que uma publicação recusada aí deixa na mesma o lock escrito; uma recusa sobre o próprio pedido, como um espaço de trabalho offline ou nenhum destino, vem primeiro e não fixa nada, e o mesmo acontece com a recusa de uma entidade que partilha o seu diretório com outra entidade, em que o passo não pode escrever um lock. Ausente, segue o `pin_sources_at_push` do espaço de trabalho; enviado, substitui essa definição nos dois sentidos. Com `dryRun`, o passo reporta o lock que escreveria e não escreve nada. **Uma publicação que não executa o passo recusa uma Recipe ou FeatureRecipe cujo `entity.lock` não regista nenhuma fixação para uma entrada que lê**, ou uma a que a entrada já não corresponde, antes de qualquer empacotamento — também com `dryRun` — nomeando `aggrega pin`, `pinSources` e `pin_sources_at_push`; é a recusa que `aggrega/resolveDependencies` levanta sobre o mesmo lock. A resposta contém `reference`, `tag`, `kind`, `mediaType`, o par `size`, o `digest` publicado — com `dryRun`, o digest que essa publicação depositaria, o que [`aggrega push --dry-run`](aggrega-push.md) imprime — `signed`, `alreadyPublished`, `dryRun` e `reach`; `pin` — a mesma resposta que `aggrega/pin` dá — onde o passo foi executado; e `wholeDirectorySource` onde a origem local da entidade está escrita como modelo, nomeando essa origem tal como escrita. Uma origem destas só escolhe o seu diretório quando uma Release preenche o modelo, pelo que a publicação transporta todos os ficheiros do diretório da entidade e não apenas os ficheiros que a entidade nomeia, e este campo é a forma de um chamador saber que o fez — também numa execução de teste. Contém ainda `windowsUnusableEntries` onde o arquivo que a publicação transporta contém entradas que o Windows não consegue conter tal como estão escritas — um caminho com uma parte com o nome de um dispositivo, como `CON`, `AUX` ou `NUL`, em maiúsculas ou minúsculas e seja qual for a extensão que se siga, ou uma parte que termina num ponto final ou num espaço — nomeando cada uma, primeiro o próprio nome de ficheiro do documento da entidade e depois os ficheiros que transporta; está ausente onde não há nenhuma, o que inclui uma entidade publicada apenas como o seu documento. `aggrega` em execução no Windows recusa-se a desempacotar uma entrada destas, pelo que um espaço de trabalho Windows não pode utilizar a versão. Estas são as entradas sobre as quais [`aggrega push`](aggrega-push.md) avisa, e um pedido que pediu relatórios lê as mesmas linhas de aviso entre o progresso da publicação; nenhuma delas recusa nada, pelo que a publicação avança ou é recusada exatamente como seria sem elas, também com `dryRun`. **Isto escreve num registo e vai além desta máquina**, e com o passo de fixação escreve também junto da entidade — consulte [Alcançar um registo, e escrever](#reaching-a-registry-and-writing)."
   },
   "45e69ba40d614262": {
     "at": "2026-11-04T03:28:35.383Z",
@@ -80287,6 +80305,13 @@
     "status": "machine",
     "text": "**Como se juntam vários contribuidores.** Cada entrada é avaliada para cada componente que a Recipe renderiza na fronteira, e os ficheiros que todos os contribuidores da fronteira declararam são fundidos por nome. Um nome avaliado para os mesmos bytes — por dois componentes associados a uma Recipe, ou por duas Recipes que configuram um provider de forma idêntica — é um ficheiro. Um nome avaliado para bytes diferentes para a compilação, indicando o ficheiro e todos os contribuidores, porque nenhum ficheiro único corresponde ao que todos escreveram; o mesmo acontece com um nome que a própria montagem do provider escreve, como `aggrega.modules.tf`. Ambos são a [colisão na saída montada](../errors/fatal-halts.md#two-contributors-write-the-same-output-path). Duas Recipes que configuram um provider com dois nomes de ficheiro diferentes não são fundidas — cada ficheiro é escrito — e é o destino que então reporta a configuração duplicada, pelo que as Recipes destinadas a partilhar uma configuração de provider partilham o nome do ficheiro, por convenção um com o nome do provider que configura."
   },
+  "7426ad608fe18c0a": {
+    "at": "2026-11-19T10:07:50.370Z",
+    "job": "session-0006-20261119100750",
+    "srcHash": "7426ad608fe18c0a",
+    "status": "machine",
+    "text": "Caminho para uma lista de materiais de software SPDX 2.3 em JSON do guest do Plugin. Opcional, e apenas com --plugin: a publicação anexa-a ao lado do Plugin publicado como referrer OCI application/spdx+json, que não altera nenhum digest e nunca é anexado duas vezes."
+  },
   "74294d39fecf5bc4": {
     "at": "2026-10-22T17:00:43.822Z",
     "job": "session-0047-20261022170043",
@@ -85091,6 +85116,17 @@
     "srcHash": "7ad230504ffb64d4",
     "status": "machine",
     "text": "Tempo — servidor de rastreio distribuído para Kubernetes"
+  },
+  "7ad244db9ead3ff6": {
+    "at": "2026-11-19T10:07:50.370Z",
+    "job": "session-0006-20261119100750",
+    "revision": {
+      "from": "d8c10d12175088ab",
+      "reviewed": false
+    },
+    "srcHash": "7ad244db9ead3ff6",
+    "status": "machine",
+    "text": "`publish-entity` aceita `entity`, o documento a publicar, e um Plugin precisa também de `plugin`, o executável publicado dentro do seu manifesto. Um Plugin pode também transportar `plugin_notices`, os avisos de terceiros do seu guest, empacotados como uma camada a seguir ao `.wasm`, e `plugin_sbom`, a sua lista de materiais SPDX, anexada como referrer `application/spdx+json`; ambos são caminhos tal como `plugin`, e uma chamada que envie qualquer um deles sem `plugin`, ou que indique um ficheiro em falta ou vazio, é recusada. `publish-artifact` aceita `file` com o `name` e a `tag` sob os quais é publicado. Todos os argumentos de caminho aqui são absolutos ou relativos à raiz do espaço de trabalho, o mesmo contrato que todas as outras ferramentas desta superfície usam, e `workspace_root` indica o espaço de trabalho a que a chamada se refere — num servidor alcançado em entrada e saída padrão. Um servidor alcançado por HTTPS recusa `workspace_root` e exige que cada um desses caminhos resolva dentro do espaço de trabalho que serve, como [Um processo, um espaço de trabalho](#one-process-one-workspace) expõe. `registry` é o destino e, por predefinição, é o configurado no espaço de trabalho; não enviar nenhum, sem predefinição configurada, é recusado indicando o que enviar. `sign-artifacts` aceita `references`, um ou mais endereços de registo e não caminhos, e opcionalmente `jobs`, quantos deles são assinados ao mesmo tempo: se for omitido, são assinados um após o outro, e um valor inferior a 1 é recusado indicando o que enviar. Cada um continua a ser assinado exatamente como seria sozinho, como descreve [`aggrega sign`](aggrega-sign.md#signing-several-references-at-once). `deprecate-artifact` aceita ou `reference` com `severity` e `reason`, ou `from` a indicar um ficheiro de lote — e recusa argumentos de conteúdo enviados juntamente com um ficheiro de lote em vez de os descartar, porque um ficheiro de lote fornece os seus próprios e um argumento ignorado em silêncio parece um que foi respeitado."
   },
   "7ad362c2e93de45b": {
     "at": "2026-11-04T10:10:47.161Z",
@@ -96103,6 +96139,17 @@
     "srcHash": "8b089c5fa4a21fb1",
     "status": "machine",
     "text": "`aggrega sign` resolve o digest que o registo já contém para cada `<reference>`, assina esse digest e anexa o pacote da assinatura como um referrer. Nunca volta a enviar, a etiquetar nem altera de outra forma os bytes publicados — o artefacto é imutável, e a assinatura é um manifesto irmão que aponta para ele. Assim, um artefacto pode ser assinado posteriormente sem qualquer incremento de versão."
+  },
+  "8b0edccc47a4243a": {
+    "at": "2026-11-19T10:07:50.370Z",
+    "job": "session-0006-20261119100750",
+    "revision": {
+      "from": "d4c92e5f005df481",
+      "reviewed": false
+    },
+    "srcHash": "8b0edccc47a4243a",
+    "status": "machine",
+    "text": "`entity.yaml`, a entidade, ao lado de `entity.wasm`, o seu executável, e de `notices.md`, os seus avisos de terceiros, quando é publicado com eles"
   },
   "8b0fbc4a0621adca": {
     "at": "2026-11-03T13:44:12.861Z",
@@ -114858,6 +114905,13 @@
     "status": "machine",
     "text": "A `$ref:` addresses a library by registry location (Uma referência endereça uma biblioteca pela sua localização no registo)"
   },
+  "a604689974819e8a": {
+    "at": "2026-11-19T10:07:50.370Z",
+    "job": "session-0006-20261119100750",
+    "srcHash": "a604689974819e8a",
+    "status": "machine",
+    "text": "uma lista de materiais de software anexada a um Plugin"
+  },
   "a6058f9400d2b259": {
     "at": "2026-11-03T15:47:42.282Z",
     "job": "session-0125-20261103154742",
@@ -132041,6 +132095,13 @@
     "srcHash": "bdf674a942c5b1b7",
     "status": "machine",
     "text": "Mensagem emitida, para uma coordenada que não foi entregue ao plugin e para um valor que nenhuma anotação aceita:"
+  },
+  "bdf9467952cbe6aa": {
+    "at": "2026-11-19T10:07:50.370Z",
+    "job": "session-0006-20261119100750",
+    "srcHash": "bdf9467952cbe6aa",
+    "status": "machine",
+    "text": "A lista de materiais SPDX do módulo do plugin em JSON, como caminho relativo à raiz do espaço de trabalho, anexada ao Plugin publicado. Requer `plugin`."
   },
   "bdfc89465f2a752f": {
     "at": "2026-11-04T10:10:45.227Z",
@@ -151285,6 +151346,13 @@
     "status": "machine",
     "text": "Uma Feature é escrita uma vez e anexada muitas vezes, pelo que o nome que uma FeatureRecipe deriva tem de ser distinto por anexo. Esta compõe o componente anfitrião e o nome do anexo: o anfitrião `payments-db`, transportado sob `storage-headroom`, dá `PaymentsDbStorageHeadroom`."
   },
+  "d93108e9e6067db9": {
+    "at": "2026-11-19T10:07:50.370Z",
+    "job": "session-0006-20261119100750",
+    "srcHash": "d93108e9e6067db9",
+    "status": "machine",
+    "text": "Caminho para um ficheiro Markdown com os avisos de terceiros do guest do Plugin. Opcional, e apenas com --plugin: a publicação empacota-o no manifesto como uma camada a seguir ao .wasm, pelo que os avisos viajam com o executável e o digest do manifesto cobre-os."
+  },
   "d9312173271d1374": {
     "at": "2026-11-04T08:57:11.542Z",
     "job": "session-0223-20261104085711",
@@ -163915,6 +163983,13 @@
     "srcHash": "eaa6588c77a03698",
     "status": "machine",
     "text": "*A declaração JSON Schema 2020-12 do Workload é autoritativa e é disponibilizada incorporada no binário do compilador. Os providers helm e compose sintetizam o `workload:` de uma Recipe, inline ou carregado via `$import:`; ver a Matriz de capacidades de Provider para o suporte por provider.*"
+  },
+  "eaa7af4588b3012c": {
+    "at": "2026-11-19T10:07:50.370Z",
+    "job": "session-0006-20261119100750",
+    "srcHash": "eaa7af4588b3012c",
+    "status": "machine",
+    "text": "O ficheiro dos avisos de terceiros do módulo do plugin, como caminho relativo à raiz do espaço de trabalho, publicado como uma camada do manifesto do Plugin. Requer `plugin`."
   },
   "eaa919cbabc6e7dc": {
     "at": "2026-11-18T23:39:28.197Z",
