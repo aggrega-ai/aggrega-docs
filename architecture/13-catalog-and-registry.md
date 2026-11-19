@@ -426,8 +426,9 @@ Reading the entity back out of a package is the reverse step, and it identifies 
 | --- | --- |
 | an entity published as its document | `entity.yaml` |
 | an entity published with the files it declares | `entity.tar.gz` |
-| a Plugin | `entity.yaml`, the entity, beside `entity.wasm`, its executable |
+| a Plugin | `entity.yaml`, the entity, beside `entity.wasm`, its executable, and `notices.markdown`, its third-party notices, when it is published with them |
 | a signature attached to an artifact | `signature.json` |
+| a software bill of materials attached to a Plugin | `sbom.json` |
 | a deprecation marker attached to an artifact | `deprecation.json` |
 | a data artifact published with `aggrega push-artifact` | the name given with `--name` |
 
