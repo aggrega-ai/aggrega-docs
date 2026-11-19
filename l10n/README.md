@@ -59,19 +59,19 @@ git worktree add --detach ../docs-session dev
 git fetch origin l10n-memory && git worktree add ../docs-memory l10n-memory
 git -C ../docs-memory pull --ff-only
 cd ../docs-session
-npm install --no-save --no-audit --no-fund "$(sh l10n/install.sh --cwd l10n path @cognitio/l10n)"
+npm ci --ignore-scripts --no-audit --no-fund --prefix l10n
 
-npx --no l10n session export --config l10n/l10n.config.json --batches 2
+l10n/node_modules/.bin/l10n session export --config l10n/l10n.config.json --batches 2
 #   … one fresh agent per batch, started with the prompt printed for it …
-npx --no l10n session check 0001 --config l10n/l10n.config.json
-npx --no l10n session import --config l10n/l10n.config.json
-npx --no l10n session status --config l10n/l10n.config.json
+l10n/node_modules/.bin/l10n session check 0001 --config l10n/l10n.config.json
+l10n/node_modules/.bin/l10n session import --config l10n/l10n.config.json
+l10n/node_modules/.bin/l10n session status --config l10n/l10n.config.json
 
-npx --no l10n memory commit --config l10n/l10n.config.json --worktree ../docs-memory
+l10n/node_modules/.bin/l10n memory commit --config l10n/l10n.config.json --worktree ../docs-memory
 ```
 
-`--no` makes `npx` refuse to download anything, so every command runs the
-vendored package and nothing else. `memory commit` copies `memory/machine/`
+Calling the binary the lockfile install placed in `l10n/node_modules/.bin` means
+every command runs the vendored package and nothing else. `memory commit` copies `memory/machine/`
 into the `l10n-memory` worktree and commits exactly those paths there; it never
 pushes. Where this repository is checked out as a submodule of a workspace that
 installs a pre-commit hook, every linked worktree shares that hook, so the commit
