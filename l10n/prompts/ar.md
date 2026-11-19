@@ -77,7 +77,7 @@ Files and data:
 | artifact | مُخرَج (plural: مُخرَجات) |
 | output, outputs (what a command, a build or a render writes) | الإخراج |
 
-An artifact is مُخرَج and output is الإخراج: the two stay apart, and output is never مُخرَجات.
+An artifact is مُخرَج and output is الإخراج: the two stay apart, and output is never مُخرَجات (also written without diacritics). Output stays الإخراج in every phrase: the output of a verdict is «إخراج الحكم».
 
 Code:
 
@@ -151,6 +151,16 @@ Build and run:
 | user | مستخدم |
 | to support | دعم |
 | interface | واجهة |
+| router | جهاز توجيه |
+| pipeline | خط المعالجة |
+| proxy | خادم وكيل |
+| agent | وكيل |
+| to wire | توصيل |
+| to bind | ربط |
+| physical | فعلي |
+| hardcoded | مثبَّت في الشيفرة |
+| graph | رسم بياني |
+| limit (a resource limit) | سقف |
 
 A registry stays registry in Latin letters, as the `aggrega registry` command names it: سجل is a log and مستودع is a repository. It takes no article ("إلى registry"), and registries stays plural where the source writes it.
 
@@ -216,7 +226,7 @@ Each of these is the ordinary word, written in lowercase in the source; the same
 - A kept term keeps the source's number inside a compound too.
 - The four domains are always translated, with the English in parentheses at a page's first occurrence, as in "المطوِّر (Developer)":
   - Developer: المطوِّر
-  - Platform Architect: مهندس المنصة المعماري
+  - Platform Architect: مهندس المنصة المعماري (the Architect alone, and the architect role, take the same rendering: never «المعماري» alone, which reads as "architectural"; within one sentence after the full form, «المهندس المعماري» may follow)
   - Platform Ops: عمليات المنصة
   - Platform Operator: مشغِّل المنصة
 - The named mechanisms are written the same way:
@@ -237,7 +247,7 @@ Each of these is the ordinary word, written in lowercase in the source; the same
 - Ops outside the Platform Ops domain:
   - bare Ops: العمليات
   - an Ops team: فريق العمليات
-  - an Ops engineer: مهندس العمليات
+  - an Ops engineer: مهندس العمليات (a person on the Platform Ops team is «مهندس عمليات المنصة»)
   - an Ops Recipe: Recipe العمليات
 - عمليات المنصة is the Platform Ops domain only. Operational is تشغيلي (the Ops discipline alone is العمليات).
 - To pipe, the String Pipe's verb, is تمرير (the verb يمرِّر); a pipe is أنبوب.
@@ -250,6 +260,16 @@ Each of these is the ordinary word, written in lowercase in the source; the same
 - A field name written in plain text (pluginType) stays as written inside translated error text.
 - The label "How to fix:" is **طريقة الإصلاح:** at the start of its paragraph.
 - Emitted message, emitted messages: الرسالة الصادرة، الرسائل الصادرة.
+- Published, said of a schema, a document or a name that is made available, takes the verb طرح: "the published schema" is «المخطط المطروح». Never «المنشور» or «منشورة»: نشر is deploying.
+- A router, the Release as "the router" or a text-router, is «جهاز توجيه» ("deployment router" is «جهاز توجيه النشر»). The word «موجِّه» is only a prompt, as the assistant pages use it.
+- Pipeline, in plain text, is «خط المعالجة» (plural «خطوط المعالجة»), also for the compiler's own pipeline and a feature-recipe pipeline. A CI/CD pipeline is «خط CI/CD». Never «مسار», which is a path. A word in inline code (`pipeline`) stays as written.
+- A proxy is «خادم وكيل» (plural «خوادم وكيلة»); an agent is «وكيل» alone, so the two never share a word. An SSH agent stays as written, as listed below.
+- Wire, wiring and to wire take the root توصيل: «توصيل دلالي» for Semantic Wiring. To bind and binding take the root ربط: «الربط المتأخر» for Late Binding. To connect and a connection stay اتصال and يتصل for a client reaching a server.
+- Physical, said of infrastructure, resources and sizing, is «فعلي» (feminine «فعلية», adverb «فعليًا»), as in «البنية التحتية الفعلية». Never «مادي». The pair physical and logical is «فعلي» and «منطقي».
+- Hardcoded is «مثبَّت في الشيفرة»: «مخططات مثبَّتة في الشيفرة». Never «مرمَّز».
+- A graph is «رسم بياني»: the IR graph is «رسم IR البياني», and the plural is «الرسوم البيانية». Never «مخطط», which is a schema.
+- A boundary, in the sense of a Release's `boundaries`, is «حد» (plural «حدود»). A resource limit, such as a CPU limit or a memory limit, is «سقف» («سقف المعالج» and «سقف الذاكرة»), so that the two never share a word.
+- A typed contract is «عقد مصنَّف بالنوع» and a typed parameter is «مُعامِل مصنَّف بالنوع».
 - A lowercase release or aggregate that names a Release or an Aggregate entity (the release resolves to, a release file, `--release <release>`, a sub-aggregate) is written as the entity's name in Latin letters, Release or Aggregate ("Aggregate فرعي"). إصدار is only a version or a release of the product, such as the compiler's.
 - A lowercase plural of an entity name keeps its number: releases is Releases, and three releases is "ثلاثة Releases".
 - A kept term keeps its plural after a numeral or a word of quantity: "ثلاثة Releases" and "عدة Recipes".
@@ -257,7 +277,7 @@ Each of these is the ordinary word, written in lowercase in the source; the same
 - Lowercase workload, feature, manifest and operator are ordinary words, translated also inside a compound:
   - a workload: حمل العمل (plural: أحمال العمل)
   - a feature: ميزة
-  - a manifest (a Kubernetes or OCI manifest): بيان
+  - a manifest (a Kubernetes or OCI manifest): بيان (the plural is «ملفات بيان», since «بيانات» alone is data)
   - an operator, a person: مشغِّل
   - an operator in programming: عامل
   - a Kubernetes operator, a controller: Operator, in Latin letters
