@@ -19,9 +19,7 @@
 # same sentence, so an engine that reads the rule differently fails here.
 #
 # Every build runs through ./build-release.sh, so the aggrega binary is the one
-# that helper resolves -- AGGREGA_BIN, when it is set. The arm Recipes read from
-# a catalog checkout beside the documentation repository when one is there, and
-# from the registry otherwise. Each build passes
+# that helper resolves -- AGGREGA_BIN, when it is set. Each build passes
 # --auto-pull, because lockfiles are not shipped, and --no-color, so the output
 # is read as plain text.
 #
@@ -80,25 +78,11 @@ WORK="$(mktemp -d)"
 trap 'rm -rf "$WORK" "$HERE/dist"' EXIT
 printf '# A --config file that attaches nothing: the reference build.\n' > "$WORK/no-policy.yaml"
 
-# The catalog checkout the arm Releases build against, when it sits beside the
-# documentation repository; every other Release resolves from the registry.
-ARM_CATALOG="$HERE/../../../../aggrega-hub/aggrega-catalog"
-
-# catalog_args <release>: the --catalog argument a Release needs, if any.
-catalog_args() {
-  case "$1" in
-    arm|arm-unpinned) [ -d "$ARM_CATALOG" ] && printf '%s\n%s\n' --catalog "$ARM_CATALOG" ;;
-  esac
-  return 0
-}
-
 # build <label> <release> <config file>: one build, its output to $WORK/<label>.log
 # and its tree to $WORK/<label>.dist; prints its exit status.
 build() {
-  local status=0 line
-  local -a cat=()
-  while IFS= read -r line; do cat+=("$line"); done < <(catalog_args "$2")
-  "$HERE/build-release.sh" "$2" -- --config "$3" --auto-pull --no-color ${cat[@]+"${cat[@]}"} ${EXTRA[@]+"${EXTRA[@]}"} \
+  local status=0
+  "$HERE/build-release.sh" "$2" -- --config "$3" --auto-pull --no-color ${EXTRA[@]+"${EXTRA[@]}"} \
     > "$WORK/$1.log" 2>&1 || status=$?
   if [ -d "$HERE/dist" ]; then mv "$HERE/dist" "$WORK/$1.dist"; fi
   printf '%s' "$status"
