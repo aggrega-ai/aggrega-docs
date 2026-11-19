@@ -696,6 +696,8 @@ Publishes an entity to a registry. What it lands is what every consumer of that 
 | `dryRun` | boolean | no | Whether to report what publishing would land without landing it. |
 | `sign` | boolean | no | Whether to sign what is published. Absent states nothing and leaves the resolved default in place. |
 | `plugin` | string | no | The plugin module to publish alongside a Plugin entity. |
+| `pluginNotices` | string | no | The file of the plugin module's third-party notices, as a path relative to the workspace root, published as a layer of the Plugin's manifest. Requires `plugin`. |
+| `pluginSbom` | string | no | The plugin module's SPDX bill of materials in JSON, as a path relative to the workspace root, attached to the published Plugin. Requires `plugin`. |
 | `fulcioUrl` | string | no | The certificate authority to obtain a signing certificate from. |
 | `rekorUrl` | string | no | The transparency log to record the signature in. |
 | `timestampUrl` | string | no | The timestamp authority to countersign with. |
