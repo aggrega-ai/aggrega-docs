@@ -45,11 +45,23 @@ import list from "./languages.json" with { type: "json" };
 export const sourceLanguage = { lang: list.source.lang, label: list.source.label };
 
 /** The translated languages the site publishes, each with the path segment it is served under. */
-export const publishedLanguages = list.published.map(({ lang, label }) => ({
+export const publishedLanguages = list.published.map(({ lang, label, dir }) => ({
   lang,
   label,
+  dir: dir === "rtl" ? "rtl" : "ltr",
   locale: lang.toLowerCase(),
 }));
+
+/**
+ * The attributes that mark an element's text as being in a language: `lang`,
+ * and `dir`, the direction the language is written in. A list entry's optional
+ * `dir` is `"rtl"` for a right-to-left language; an entry without it, the
+ * source language and any code the list does not name are left to right.
+ */
+export function languageAttributes(lang) {
+  const entry = publishedLanguages.find((language) => language.lang === lang);
+  return { lang, dir: entry ? entry.dir : "ltr" };
+}
 
 /** The corpus root: the repository directory holding this site project and the pages. */
 export const corpusRoot = fileURLToPath(new URL("../..", import.meta.url));
@@ -75,11 +87,16 @@ export const SITE_NAV_LABELS = "site/src/strings/site-nav.md";
 /** The link destination the notice's source writes, which the site replaces with the English page's address. */
 const NOTICE_LINK_DESTINATION = "english-original";
 
-/** Starlight's `locales` setting: English as the root locale, then every published language. */
-export function starlightLocales() {
+/**
+ * Starlight's `locales` setting: English as the root locale, then every
+ * published language, each with the direction its text is written in. Starlight
+ * sets the page's `dir` from it. Entries are `{ locale, lang, label, dir }`, the
+ * form of `publishedLanguages`; a `dir` other than `"rtl"` is left to right.
+ */
+export function starlightLocales(languages = publishedLanguages) {
   return Object.fromEntries([
-    ["root", { label: sourceLanguage.label, lang: sourceLanguage.lang }],
-    ...publishedLanguages.map(({ locale, label, lang }) => [locale, { label, lang }]),
+    ["root", { label: sourceLanguage.label, lang: sourceLanguage.lang, dir: "ltr" }],
+    ...languages.map(({ locale, label, lang, dir }) => [locale, { label, lang, dir: dir === "rtl" ? "rtl" : "ltr" }]),
   ]);
 }
 

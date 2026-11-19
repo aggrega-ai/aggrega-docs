@@ -157,6 +157,10 @@ code in lower case (`/docs/ja/`, `/docs/zh-cn/`). The list names the languages
 whose translation is complete; adding one is one line in that file. Every part of
 the site reads the list through `src/translations.mjs`, and a language on it that
 the translation configuration does not translate stops the build, naming it.
+A list entry may carry `dir`: `"rtl"` for a language written right to left
+(`{ "lang": "ar", "label": "العربية", "dir": "rtl" }`); an entry without it is
+left to right. Starlight sets the page's direction from it, and the header, the
+language picker, the notices and the not-found page follow the page's direction.
 
 The translated pages are not part of the repository. Each version's are
 generated when that version is built, from the tag's own pages and the

@@ -1,7 +1,7 @@
 ---
 import Default from "@astrojs/starlight/components/Banner.astro";
 import notices from "virtual:aggrega-docs/machine-translation-notice";
-import { sourceRouteOf } from "../translations.mjs";
+import { languageAttributes, sourceRouteOf } from "../translations.mjs";
 // Starlight exports neither helper from its package entry points, so they are
 // imported by path, as src/routeData.ts does.
 import { slugToPathname } from "../../node_modules/@astrojs/starlight/utils/slugs.ts";
@@ -26,7 +26,7 @@ const englishHref = translated && locale ? formatPath(slugToPathname(sourceRoute
 <Default />
 {
   translated && notice && (
-    <div class="machine-translation-notice" data-pagefind-ignore lang={notice.lang}>
+    <div class="machine-translation-notice" data-pagefind-ignore {...languageAttributes(notice.lang)}>
       {notice.before}<a href={englishHref} hreflang="en">{notice.link}</a>{notice.after}
     </div>
   )

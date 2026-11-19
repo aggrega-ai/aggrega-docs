@@ -4,6 +4,7 @@ import context from "virtual:starlight/project-context";
 import config from "virtual:starlight/user-config";
 // Starlight exports this helper from no package entry point, so it is imported
 // by path, as src/components/Banner.astro imports its helpers.
+import { languageAttributes } from "../translations.mjs";
 import { localizedUrl } from "../../node_modules/@astrojs/starlight/utils/localizedUrl.ts";
 
 // The language picker, in the header at every width, in place of Starlight's: a
@@ -21,6 +22,11 @@ import { localizedUrl } from "../../node_modules/@astrojs/starlight/utils/locali
 // the link, and Escape closes it and returns the focus to the button. A click
 // outside it, or the focus leaving it, closes it too.
 //
+// Each name is marked with its language's `lang` and `dir`, so a name written
+// right to left and one written left to right each keep their own order, a
+// parenthesis at the end of "Português (Brasil)" stays at its end, and the
+// picker's own layout follows the page's direction.
+//
 // Every language other than the page's also carries its name in the page's
 // language (on an English page, 日本語 is "Japanese"), shown beside it while the
 // entry is under the pointer or has the focus and given to assistive technology
@@ -36,27 +42,27 @@ const current = config.locales?.[currentCode];
 const options = locales.map(([code, locale]) => ({
   href: localizedUrl(Astro.url, code, context.trailingSlash).pathname,
   label: locale!.label,
-  lang: locale!.lang ?? code,
+  ...languageAttributes(locale!.lang ?? code),
   current: code === currentCode,
 }));
 ---
 
 {
   config.isMultilingual && current && (
-    <aggrega-lang-select data-page-lang={current.lang}>
+    <aggrega-lang-select data-page-lang={current.lang} data-page-dir={languageAttributes(current.lang).dir}>
       <details>
         <summary class="control">
           <span class="sr-only">{Astro.locals.t("languageSelect.accessibleLabel")}: </span>
           <Icon name="translate" class="label-icon" />
-          <span lang={current.lang}>{current.label}</span>
+          <span {...languageAttributes(current.lang)}>{current.label}</span>
           <Icon name="down-caret" class="caret" />
         </summary>
         <ul>
-          {options.map(({ href, label, lang, current: isCurrent }) => (
+          {options.map(({ href, label, lang, dir, current: isCurrent }) => (
             <li>
               <a href={href} hreflang={lang} lang={lang} aria-current={isCurrent ? "page" : undefined}>
                 <Icon name="approve-check" class="check" />
-                <span data-label>{label}</span>
+                <span data-label dir={dir}>{label}</span>
               </a>
             </li>
           ))}
@@ -88,6 +94,7 @@ const options = locales.map(([code, locale]) => ({
       const entries = [...this.querySelectorAll<HTMLAnchorElement>("a[lang]")];
       if (!details || !summary || !menu || entries.length === 0) return;
       const pageLang = this.dataset.pageLang ?? "";
+      const pageDir = this.dataset.pageDir ?? "ltr";
       const instance = ++count;
       const labels = entries.map((link) => link.querySelector("[data-label]")?.textContent?.trim() ?? "");
       const current = entries.find((link) => link.getAttribute("aria-current") === "page") ?? entries[0];
@@ -99,6 +106,7 @@ const options = locales.map(([code, locale]) => ({
         const hint = document.createElement("span");
         hint.id = `language-name-${instance}-${link.lang}`;
         hint.lang = pageLang;
+        hint.dir = pageDir;
         hint.setAttribute("aria-hidden", "true");
         hint.dataset.languageName = "";
         hint.textContent = name;

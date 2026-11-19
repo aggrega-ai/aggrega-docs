@@ -16,7 +16,8 @@
 //
 // On the site the marked blockquote becomes a code block holding its text,
 // which Expressive Code renders with its copy button, inside an element of the
-// class `copyable-block` (src/styles/copyable.css wraps its lines). The text is
+// class `copyable-block` (src/styles/copyable.css wraps its lines and sets them
+// in the page's direction). The text is
 // the blockquote's as a reader sees it: one line per paragraph, one line per
 // list item with its number or bullet, a blank line between blocks, inline code
 // kept between backticks so that whoever reads the pasted text can tell a

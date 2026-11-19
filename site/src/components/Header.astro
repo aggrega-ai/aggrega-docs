@@ -7,6 +7,7 @@ import SiteTitle from "virtual:starlight/components/SiteTitle";
 import ThemeSelect from "virtual:starlight/components/ThemeSelect";
 import siteNav from "virtual:aggrega-docs/site-nav";
 import { GITHUB_HREF, catalogHref, docsHref } from "../site-nav.mjs";
+import { languageAttributes } from "../translations.mjs";
 
 // The header, in place of Starlight's: the brand leading to the Aggrega home
 // page, this site's search, then the Aggrega menu the home site and the catalog
@@ -45,11 +46,14 @@ const newTabId = "site-nav-new-tab";
     {shouldRenderSearch && <Search />}
   </div>
   <div class="end-group sl-flex print:hidden">
-    <div class="right-group">
+    <div class="end-controls">
       <nav aria-label="Aggrega" class="site-nav">
-        <a href={route.siteTitleHref} lang={labels.docs.lang}>{labels.docs.text}</a>
-        <a href={catalogHref(route.locale)} lang={labels.catalog.lang}>{labels.catalog.text}</a>
-        <a href={docsHref(base, route.locale, "language-reference/examples/")} lang={labels.examples.lang}>
+        <a href={route.siteTitleHref} {...languageAttributes(labels.docs.lang)}>{labels.docs.text}</a>
+        <a href={catalogHref(route.locale)} {...languageAttributes(labels.catalog.lang)}>{labels.catalog.text}</a>
+        <a
+          href={docsHref(base, route.locale, "language-reference/examples/")}
+          {...languageAttributes(labels.examples.lang)}
+        >
           {labels.examples.text}
         </a>
         <a
@@ -57,7 +61,7 @@ const newTabId = "site-nav-new-tab";
           target="_blank"
           rel="noopener noreferrer"
           class="icon-link"
-          lang={labels.githubStar.lang}
+          {...languageAttributes(labels.githubStar.lang)}
           aria-label={labels.githubStar.text}
           aria-describedby={newTabId}
           title={labels.githubStar.text}
@@ -65,7 +69,7 @@ const newTabId = "site-nav-new-tab";
           <Icon name="github" size="1.25rem" />
           <Icon name="star" size="1rem" />
         </a>
-        <span id={newTabId} lang={labels.newTab.lang} hidden>{labels.newTab.text}</span>
+        <span id={newTabId} {...languageAttributes(labels.newTab.lang)} hidden>{labels.newTab.text}</span>
       </nav>
       <ThemeSelect />
     </div>
@@ -90,12 +94,12 @@ const newTabId = "site-nav-new-tab";
   }
 
   .end-group,
-  .right-group {
+  .end-controls {
     gap: 0.5rem;
     align-items: center;
   }
 
-  .right-group {
+  .end-controls {
     display: flex;
   }
 
@@ -113,13 +117,13 @@ const newTabId = "site-nav-new-tab";
       flex: 0 1 auto;
       min-width: 0;
     }
-    .right-group .site-nav {
+    .end-controls .site-nav {
       display: none;
     }
-    .right-group {
+    .end-controls {
       display: none;
     }
-    :global(:root:not([data-has-sidebar])) .right-group {
+    :global(:root:not([data-has-sidebar])) .end-controls {
       display: flex;
     }
   }
