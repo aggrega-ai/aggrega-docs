@@ -45459,6 +45459,13 @@
     "status": "machine",
     "text": "`lockfile.toolchain`"
   },
+  "3ca4811b73eb8b02": {
+    "at": "2026-11-19T10:19:30.751Z",
+    "job": "session-0011-20261119101930",
+    "srcHash": "3ca4811b73eb8b02",
+    "status": "machine",
+    "text": "**Üçüncü taraf bildirimleri ve malzeme listesi.** Bir yayımlama, konuğunu oluşturan kodun üçüncü taraf bildirimlerini ve bu kodun yazılım malzeme listesini taşıyabilir. `--plugin-notices <file>`, konuğun üçüncü taraf bildirimlerini içeren bir Markdown dosyasını adlandırır: yayımlama onu manifest'e `.wasm` dosyasından sonra ikinci bir katman olarak, `application/vnd.aggrega.wasmplugin.notices.v1beta1+markdown` medya türü altında paketler ve sürüm etiketini çeken genel bir OCI istemcisi onu `notices.md` dosyasına yazar. Katman manifest'in parçasıdır; bu nedenle manifest özeti ve onun üzerindeki tek imza, yürütülebilir dosyayı kapsadıkları gibi bildirimleri de kapsar; `.wasm` ilk katman olarak kalır ve içerik özeti değişmez. `--plugin-sbom <file>`, bir SPDX 2.3 JSON yazılım malzeme listesini adlandırır: yayımlama onu, bir imzanın eklendiği biçimde, yayımlanan sürümün yanına artifact türü `application/spdx+json` olan bir OCI referrer olarak ekler; böylece bir tarama aracı onu kayıt defterinin Referrers API'si (`oras discover --artifact-type application/spdx+json <reference>`) aracılığıyla bulur ve genel bir istemci onu `sbom.spdx.json` dosyasına yazar. Referrer hiçbir özeti değiştirmez ve imza onu kapsamaz. Yayımlanmış bir sürüm değiştirilemez; bu nedenle bildirimleri, birlikte yayımlandığı bildirimlerdir; bir malzeme listesi ise aynı sürümü bayt bayt aynı biçimde `--plugin-sbom` ile yeniden yayımlayarak sonradan eklenebilir ve zaten bir tane taşıyan sürüm onu korur. Her bayrak yalnızca `--plugin` ile birlikte kabul edilir ve eksik ya da boş bir dosya, bayrak adı belirtilerek reddedilir."
+  },
   "3ca8fe24df056cd7": {
     "at": "2026-10-22T08:52:36.046409+00:00",
     "job": "msgbatch_01RQPKmPhqEGHToRpY4PpQXJ",
@@ -52413,6 +52420,17 @@
     "srcHash": "45e3bffb1257b977",
     "status": "machine",
     "text": "`aggregate.yaml`, [Taslağın nasıl adlandırıldığı](#how-a-draft-is-named) bölümünün anlattığı gibi grafiğin adını taşıyan bir taslak Aggregate'tir; okunan yapılandırmaları, yalnızca adları için okunan ortam dosyalarını, uygulamanın kodunun okunmadığını ve taslağın neleri taşımadığını adlandıran yorumlarla başlar. Her grafik için ve grafiğin kimliğiyle anahtarlanmış olarak, şunlara sahip bir `core/ai-agent/langgraph` örneği tutar:"
+  },
+  "45e48d3c01c09637": {
+    "at": "2026-11-19T10:19:30.751Z",
+    "job": "session-0011-20261119101930",
+    "revision": {
+      "from": "b1e598d441cbb73b",
+      "reviewed": false
+    },
+    "srcHash": "45e48d3c01c09637",
+    "status": "machine",
+    "text": "`aggrega/publishEntity` — bir katalog varlığını paketler ve bir kayıt defterine yayımlar. `entity`, yayımlanacak belgeyi adlandıran, çalışma alanı köküne göreli bir yoldur ve `release` ile aynı üç biçimde reddedilir: yoksa, mutlaksa veya kökün dışına çözümleniyorsa. Bir Plugin varlığı ayrıca `plugin` alanına da ihtiyaç duyar; bu, varlığın kendi manifestinin içinde yayımlanan yürütülebilir dosyayı adlandıran aynı türde bir yoldur. Bir Plugin, konuğunun üçüncü taraf bildirimleri olan ve `.wasm` dosyasından sonra bir katman olarak paketlenen `pluginNotices`'i ve bir `application/spdx+json` referrer olarak eklenen SPDX malzeme listesi olan `pluginSbom`'u da taşıyabilir; ikisi de `plugin` ile aynı türde yollardır ve bunlardan birini `plugin` olmadan gönderen ya da eksik veya boş bir dosyayı adlandıran bir istek reddedilir. `registry` hedeftir ve varsayılan olarak çalışma alanının yapılandırılmış kayıt defteridir. `dryRun`, paketi ve bunun bir yayımlanmasının oluşturacağı özeti hesaplar ve hiçbir kayıt defterine bağlanmaz. `sign` atlandığında hedef kayıt defterinin kendi ilkesi izlenir; komut satırı da bayrağı yokken bunu yapar. Gönderilmesi ise çağıranın tercihidir ve ikisi de reddi gevşetmez, çünkü imza gerektiren bir kayıt defteri veya çalışma alanı ilkesi, alan ne derse desin imzasız bir yayımlamayı reddeder. `pinSources: true`, varlık paketlenmeden önce varlık yazarının sabitleme adımını varlık üzerinde çalıştırır; böylece adımın yanına yazdığı `entity.lock` yayımlanan içeriğin parçası olur. Bu, `aggrega/pin` isteğinin çalıştırdığı adımın aynısıdır. Adım, varlığın içeriğini değerlendiren her retten (bir imzalama ilkesi, değişmezlik koruması) önce çalışır; bu nedenle orada reddedilen bir yayımlama yine de kilidi yazılmış olarak bırakır. İsteğin kendisiyle ilgili bir ret, örneğin çevrimdışı bir çalışma alanı veya hedefin olmaması, önce gelir ve hiçbir şeyi sabitlemez; adımın içine kilit yazmaması gereken, dizinini başka bir varlıkla paylaşan bir varlığın reddi de öyle. Alan yoksa çalışma alanının `pin_sources_at_push` ayarı izlenir; gönderilmişse bu ayarı her iki yönde de geçersiz kılar. `dryRun` altında adım, yazacağı kilidi bildirir ve hiçbir şey yazmaz. **Adımı çalıştırmayan bir yayımlama, `entity.lock` dosyası okuduğu bir girdi için hiçbir sabitleme kaydetmeyen ya da girdinin artık eşleşmediği bir sabitleme kaydeden bir Recipe veya FeatureRecipe'i**, hiçbir şey paketlenmeden önce (`dryRun` altında da) `aggrega pin`, `pinSources` ve `pin_sources_at_push` adlarını vererek reddeder; bu, `aggrega/resolveDependencies` isteğinin aynı kilit üzerinde verdiği rettir. Yanıt `reference`, `tag`, `kind`, `mediaType`, `size` çifti, yayımlanan `digest` (`dryRun` altında o yayımlamanın oluşturacağı özet, yani [`aggrega push --dry-run`](aggrega-push.md) komutunun yazdırdığı özet), `signed`, `alreadyPublished`, `dryRun` ve `reach` alanlarını; adımın çalıştığı durumda `pin` alanını (`aggrega/pin` isteğinin verdiği yanıtın aynısı); ve varlığın yerel kaynağının bir şablon olarak yazıldığı durumda, o kaynağı yazıldığı biçimiyle adlandıran `wholeDirectorySource` alanını taşır. Böyle bir kaynak, dizinini ancak bir Release şablonu doldurduğunda seçer; bu nedenle yayımlama, yalnızca varlığın adlandırdığı dosyaları değil, varlığın dizinindeki her dosyayı taşır ve bu alan, çağıranın bunun olduğunu öğrenme yoludur; kuru çalıştırmada da öyle. Yanıt ayrıca, yayımlamanın taşıdığı arşiv Windows'un yazıldığı biçimiyle tutamayacağı girdiler içerdiğinde `windowsUnusableEntries` alanını taşır: harf büyüklüğü ne olursa olsun ve ardından hangi uzantı gelirse gelsin `CON`, `AUX` veya `NUL` gibi bir aygıtın adını taşıyan bir parçaya sahip bir yol ya da nokta veya boşlukla biten bir parça. Alan her birini, önce varlık belgesinin kendi dosya adını, sonra taşıdığı dosyaları adlandırır; hiç yoksa alan bulunmaz, buna yalnızca belgesinden oluşan olarak yayımlanan bir varlık da dahildir. Windows üzerinde çalışan `aggrega` böyle bir girdiyi açmayı reddeder, bu nedenle bir Windows çalışma alanı o sürümü kullanamaz. Bunlar [`aggrega push`](aggrega-push.md) komutunun uyardığı girdilerdir ve raporlanmayı isteyen bir istek, aynı uyarı satırlarını yayımlamanın ilerleme bilgileri arasında okur; ikisi de hiçbir şeyi reddetmez, bu nedenle yayımlama, bunlar olmasaydı nasıl olacaksa tam öyle devam eder veya reddedilir; `dryRun` altında da. **Bu, bir kayıt defterine yazar ve bu makinenin ötesine ulaşır**; sabitleme adımıyla birlikte varlığın yanına da yazar — bkz. [Bir kayıt defterine ulaşmak ve yazmak](#reaching-a-registry-and-writing)."
   },
   "45e69ba40d614262": {
     "at": "2026-10-22T23:44:18.033086+00:00",
@@ -87324,6 +87342,13 @@
     "status": "machine",
     "text": "**Birden çok katkıda bulunanın buluşması.** Her girdi, Recipe'in sınırda işlediği her bileşen için değerlendirilir ve sınıra katkıda bulunan herkesin bildirdiği dosyalar ada göre birleştirilir. Aynı baytlara değerlendirilen tek bir ad — tek bir Recipe'e bağlı iki bileşen ya da tek bir sağlayıcıyı aynı şekilde yapılandıran iki Recipe tarafından — tek bir dosyadır. Farklı baytlara değerlendirilen tek bir ad, dosyayı ve her katkıda bulunanı adlandırarak derlemeyi durdurur, çünkü hiçbir tekil dosya hepsinin yazdığı şey değildir; sağlayıcının kendi birleştirmesinin yazdığı `aggrega.modules.tf` gibi bir ad da aynısını yapar. Her ikisi de [birleştirilmiş çıktı çakışmasıdır](../errors/fatal-halts.md#two-contributors-write-the-same-output-path). Tek bir sağlayıcıyı iki farklı dosya adı altında yapılandıran iki Recipe birleştirilmez — her dosya yazılır — ve bu durumda yinelenen yapılandırmayı bildiren hedeftir; dolayısıyla bir sağlayıcı yapılandırmasını paylaşması amaçlanan Recipes dosya adını da paylaşır, uzlaşım gereği yapılandırdığı sağlayıcıya göre adlandırılmış bir ad."
   },
+  "7426ad608fe18c0a": {
+    "at": "2026-11-19T10:19:30.751Z",
+    "job": "session-0011-20261119101930",
+    "srcHash": "7426ad608fe18c0a",
+    "status": "machine",
+    "text": "Plugin'in konuğuna ait SPDX 2.3 JSON yazılım malzeme listesinin yolu. İsteğe bağlıdır ve yalnızca --plugin ile kullanılır: yayımlama onu yayımlanmış Plugin'in yanına bir application/spdx+json OCI referrer olarak ekler; bu hiçbir özeti değiştirmez ve hiçbir zaman iki kez eklenmez."
+  },
   "74294d39fecf5bc4": {
     "at": "2026-10-22T08:35:14.585510+00:00",
     "job": "msgbatch_016LnPG7AyJiWWiftb4hFiWD",
@@ -92524,6 +92549,17 @@
     "srcHash": "7ad230504ffb64d4",
     "status": "machine",
     "text": "Tempo — Kubernetes dağıtık izleme sunucusu"
+  },
+  "7ad244db9ead3ff6": {
+    "at": "2026-11-19T10:19:30.751Z",
+    "job": "session-0011-20261119101930",
+    "revision": {
+      "from": "d8c10d12175088ab",
+      "reviewed": false
+    },
+    "srcHash": "7ad244db9ead3ff6",
+    "status": "machine",
+    "text": "`publish-entity`, yayımlanacak belge olan `entity`'yi alır; bir Plugin ayrıca manifestinin içinde yayımlanan yürütülebilir dosya olan `plugin`'e de ihtiyaç duyar. Bir Plugin, konuğunun üçüncü taraf bildirimleri olan ve `.wasm` dosyasından sonra bir katman olarak paketlenen `plugin_notices`'i ve bir `application/spdx+json` referrer olarak eklenen SPDX malzeme listesi olan `plugin_sbom`'u da taşıyabilir; ikisi de `plugin` gibi yollardır ve bunlardan birini `plugin` olmadan gönderen ya da eksik veya boş bir dosyayı adlandıran bir çağrı reddedilir. `publish-artifact`, `file`'ı, altında yayımlanacağı `name` ve `tag` ile birlikte alır. Buradaki her yol bağımsız değişkeni mutlaktır ya da çalışma alanı köküne görelidir; bu, bu yüzeydeki diğer her aracın kullandığı sözleşmenin aynısıdır ve `workspace_root`, standart girdi ve çıktı üzerinden erişilen bir sunucuda, çağrının kastettiği çalışma alanını adlandırır. HTTPS üzerinden erişilen bir sunucu, [Tek süreç, tek çalışma alanı](#one-process-one-workspace) bölümünde açıklandığı gibi `workspace_root`'u reddeder ve bu yolların her birinin sunduğu çalışma alanının içinde çözümlenmesini gerektirir. `registry` hedeftir ve varsayılan olarak çalışma alanında yapılandırılmış olanı kullanır; hiçbir varsayılan yapılandırılmamışken ikisinin de gönderilmemesi, neyin gönderileceği belirtilerek reddedilir. `sign-artifacts`, yollar yerine bir veya daha fazla kayıt defteri adresi olan `references`'ı ve isteğe bağlı olarak bunlardan kaçının aynı anda imzalanacağını belirten `jobs`'u alır: belirtilmezse birbiri ardına imzalanırlar ve 1'den küçük bir değer, neyin gönderileceği belirtilerek reddedilir. Her biri yine de, [`aggrega sign`](aggrega-sign.md#signing-several-references-at-once) belgesinde açıklandığı gibi, tek başına imzalanacağı şekilde imzalanır. `deprecate-artifact` ya `severity` ve `reason` ile birlikte `reference`'ı ya da bir toplu iş dosyasını adlandıran `from`'u alır ve bir toplu iş dosyasıyla birlikte gönderilen içerik bağımsız değişkenlerini yok saymak yerine reddeder; çünkü toplu iş dosyası kendi içeriğini sağlar ve sessizce yok sayılan bir bağımsız değişken, dikkate alınmış gibi görünür."
   },
   "7ad362c2e93de45b": {
     "at": "2026-10-23T00:02:43.446982+00:00",
@@ -104449,6 +104485,17 @@
     "srcHash": "8b089c5fa4a21fb1",
     "status": "machine",
     "text": "`aggrega sign`, her `<reference>` için kayıt defterinin halihazırda tuttuğu özeti (digest) çözümler, bu özeti imzalar ve imza paketini bir referrer olarak ekler. Yayımlanmış baytları asla yeniden göndermez, yeniden etiketlemez veya başka bir şekilde değiştirmez; yapıt değişmezdir ve imza, ona geri işaret eden kardeş bir manifesttir. Bu nedenle bir yapıt, sürüm artırılmadan sonradan imzalanabilir."
+  },
+  "8b0edccc47a4243a": {
+    "at": "2026-11-19T10:19:30.751Z",
+    "job": "session-0011-20261119101930",
+    "revision": {
+      "from": "d4c92e5f005df481",
+      "reviewed": false
+    },
+    "srcHash": "8b0edccc47a4243a",
+    "status": "machine",
+    "text": "varlık olan `entity.yaml`, yürütülebilir dosyası olan `entity.wasm` ve bildirimleriyle birlikte yayımlandığında üçüncü taraf bildirimleri olan `notices.md` ile yan yana"
   },
   "8b0fbc4a0621adca": {
     "at": "2026-10-29T23:55:51.039Z",
@@ -124877,6 +124924,13 @@
     "status": "machine",
     "text": "A `$ref:` addresses a library by registry location (Bir $ref:, bir kitaplığı kayıt defteri konumuyla adresliyor)"
   },
+  "a604689974819e8a": {
+    "at": "2026-11-19T10:19:30.751Z",
+    "job": "session-0011-20261119101930",
+    "srcHash": "a604689974819e8a",
+    "status": "machine",
+    "text": "bir Plugin'e eklenmiş bir yazılım malzeme listesi"
+  },
   "a6058f9400d2b259": {
     "at": "2026-10-22T23:16:14.159554+00:00",
     "job": "msgbatch_01KLr16G9MNxkfeMa3YGcHeY",
@@ -143321,6 +143375,13 @@
     "srcHash": "bdf674a942c5b1b7",
     "status": "machine",
     "text": "Eklentiye verilmemiş bir koordinat ve hiçbir annotation'ın kabul etmediği bir değer için verilen ileti:"
+  },
+  "bdf9467952cbe6aa": {
+    "at": "2026-11-19T10:19:30.751Z",
+    "job": "session-0011-20261119101930",
+    "srcHash": "bdf9467952cbe6aa",
+    "status": "machine",
+    "text": "Eklenti modülünün JSON biçimindeki SPDX malzeme listesi; çalışma alanı köküne göreli bir yol olarak verilir ve yayımlanan Plugin'e eklenir. `plugin` gerektirir."
   },
   "bdfc89465f2a752f": {
     "at": "2026-10-23T00:02:43.446982+00:00",
@@ -164183,6 +164244,13 @@
     "status": "machine",
     "text": "Bir Feature bir kez yazılır ve birçok kez eklenir; bu nedenle bir FeatureRecipe'in türettiği ad her ek için ayrı olmalıdır. Bu Recipe, ana bileşeni ve ek adını birleştirir: `storage-headroom` altında taşınan `payments-db` ana bileşeni `PaymentsDbStorageHeadroom` adını verir."
   },
+  "d93108e9e6067db9": {
+    "at": "2026-11-19T10:19:30.751Z",
+    "job": "session-0011-20261119101930",
+    "srcHash": "d93108e9e6067db9",
+    "status": "machine",
+    "text": "Plugin'in konuğunun üçüncü taraf bildirimlerini içeren bir Markdown dosyasının yolu. İsteğe bağlıdır ve yalnızca --plugin ile kullanılır: yayımlama onu manifest'e .wasm dosyasından sonra bir katman olarak paketler; böylece bildirimler yürütülebilir dosyayla birlikte taşınır ve manifest özeti onları kapsar."
+  },
   "d9312173271d1374": {
     "at": "2026-10-23T00:02:41.868223+00:00",
     "job": "msgbatch_01GBmDXubWU53zHo6wo1SbnJ",
@@ -177908,6 +177976,13 @@
     "srcHash": "eaa6588c77a03698",
     "status": "machine",
     "text": "*Workload JSON Schema 2020-12 bildirimi yetkili kaynaktır ve derleyici ikili dosyasına gömülü olarak gelir. helm ve compose sağlayıcıları, satır içi ya da `$import:` ile yüklenmiş olsun, bir Recipe'in `workload:` alanını sentezler; sağlayıcı başına destek için Provider Capability Matrix'e bakın.*"
+  },
+  "eaa7af4588b3012c": {
+    "at": "2026-11-19T10:19:30.751Z",
+    "job": "session-0011-20261119101930",
+    "srcHash": "eaa7af4588b3012c",
+    "status": "machine",
+    "text": "Eklenti modülünün üçüncü taraf bildirimlerini içeren dosya; çalışma alanı köküne göreli bir yol olarak verilir ve Plugin'in manifest'inin bir katmanı olarak yayımlanır. `plugin` gerektirir."
   },
   "eaa919cbabc6e7dc": {
     "at": "2026-11-18T23:54:31.596Z",
