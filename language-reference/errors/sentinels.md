@@ -92,7 +92,7 @@ A few names appear in more than one package. Those are re-exports of one shared 
 | `ErrAmbiguousTypeMapping()` | `ambiguous-type-mapping` | `Manifest maps multiple version-distinct keys to the same base type; the type-to-recipe lookup is ambiguous` |
 | `ErrDuplicateEntityIdentity()` | `duplicate-entity-identity` | `duplicate entity identity within a single catalog directory` |
 | `ErrImporterVersionUnsatisfiable()` | `importer-version-unsatisfiable` | `no importer plugin version satisfies the plugins.importer entry's version pin` |
-| `ErrManifestImplementsMismatch()` | `manifest-implements-mismatch` | `manifest mapping entry's recipe spec.implements does not match the mapped component-type / feature-type key` |
+| `ErrManifestImplementsMismatch()` | `manifest-implements-mismatch` | `Manifest mapping entry's recipe spec.implements does not match the mapped component-type / feature-type key` |
 | `ErrNameMappingMatchedNothing()` | `name-mapping-matched-nothing` | `a Manifest name mapping's key names no component instance or attachment in this build, so the entry binds nothing` |
 | `ErrNoImporterForFormat()` | `no-importer-for-format` | `no importer plugin advertises the requested format` |
 | `ErrNoParserForFormat()` | `no-parser-for-format` | `no parser plugin advertises the requested format` |
@@ -287,8 +287,8 @@ A few names appear in more than one package. Those are re-exports of one shared 
 | `ErrInvalidInjectKey()` | `invalid-inject-key` | `invalid inject key: the from-key must name a provides key its source publishes` |
 | `ErrInvalidParameterRef()` | `invalid-parameter-ref` | `invalid parameter reference: check the {{ .parameters.* }} expression names a declared parameter and parses as a Go template` |
 | `ErrMalformedRecipeReference()` | `malformed-recipe-reference` | `malformed recipe reference in a Manifest mapping value` |
-| `ErrManifestCrossBindingPillarCollision()` | `manifest-cross-binding-pillar-collision` | `manifest annotation bindings collide on same Feature path+pillar` |
-| `ErrManifestImplementsMismatch()` | `manifest-implements-mismatch` | `manifest mapping entry's recipe spec.implements does not match the mapped component-type / feature-type key` |
+| `ErrManifestCrossBindingPillarCollision()` | `manifest-cross-binding-pillar-collision` | `Manifest annotation bindings collide on same Feature path+pillar` |
+| `ErrManifestImplementsMismatch()` | `manifest-implements-mismatch` | `Manifest mapping entry's recipe spec.implements does not match the mapped component-type / feature-type key` |
 | `ErrManifestReservedPrefix()` | `manifest-reserved-prefix` | `Manifest annotation binding uses reserved prefix` |
 | `ErrMisnamedSlotFill()` | `misnamed-slot-fill` | `attachment written under a name no slot declares fits a slot its component leaves empty` |
 | `ErrMissingRequiredFeature()` | `missing-required-feature` | `missing required feature: attach a Feature of the required type to the component` |
@@ -300,7 +300,7 @@ A few names appear in more than one package. Those are re-exports of one shared 
 | `ErrSchemaConformance()` | `schema-conformance` | `authored pillar does not conform to its declared schema` |
 | `ErrSchemaContractCompileFailure()` | `schema-contract-compile-failure` | `declared schema contract could not be compiled into a usable schema, so nothing was validated against it: correct the contract where it is declared, or remove it if the configuration it covers needs no validation` |
 | `ErrSelfInjectForbidden()` | `self-inject-forbidden` | `self-inject on component without spec.inject allowlist` |
-| `ErrTriadRefUnresolvable()` | `triad-ref-unresolvable` | `aggregate/manifest reference unresolvable` |
+| `ErrTriadRefUnresolvable()` | `triad-ref-unresolvable` | `Aggregate/Manifest reference unresolvable` |
 | `ErrUnknownUsesSocket()` | `unknown-uses-socket` | `unknown uses socket: name a socket the entity declares in its usesSchema — only a component's own uses block may name one the catalog did not declare` |
 | `ErrUnnormalizedRelease()` | `release-not-in-canonical-form` | `release reached resolve un-normalized (non-empty root components alongside a synthesized default boundary)` |
 | `ErrUnreadParameter()` | `unread-parameter` | `declared parameter is read by no reference in the Aggregate` |
@@ -610,7 +610,7 @@ A short code is deliberately opaque: four digits say nothing about a condition o
 | `E0093` | `ambiguous-type-mapping` | `Manifest maps multiple version-distinct keys to the same base type; the type-to-recipe lookup is ambiguous` |
 | `E0094` | `duplicate-entity-identity` | `duplicate entity identity within a single catalog directory` |
 | `E0095` | `malformed-recipe-reference` | `malformed recipe reference in a Manifest mapping value` |
-| `E0096` | `manifest-implements-mismatch` | `manifest mapping entry's recipe spec.implements does not match the mapped component-type / feature-type key` |
+| `E0096` | `manifest-implements-mismatch` | `Manifest mapping entry's recipe spec.implements does not match the mapped component-type / feature-type key` |
 | `E0097` | `no-importer-for-format` | `no importer plugin advertises the requested format` |
 | `E0098` | `no-parser-for-format` | `no parser plugin advertises the requested format` |
 | `E0099` | `no-recipe-resolved` | `no recipe resolved for component/feature instance: add an explicit Manifest mapping for its type` |
@@ -671,7 +671,7 @@ A short code is deliberately opaque: four digits say nothing about a condition o
 | `E0155` | `inject-key-collision` | `duplicate delivery key across inject sources` |
 | `E0156` | `invalid-inject-key` | `invalid inject key: the from-key must name a provides key its source publishes` |
 | `E0158` | `invalid-parameter-ref` | `invalid parameter reference: check the {{ .parameters.* }} expression names a declared parameter and parses as a Go template` |
-| `E0160` | `manifest-cross-binding-pillar-collision` | `manifest annotation bindings collide on same Feature path+pillar` |
+| `E0160` | `manifest-cross-binding-pillar-collision` | `Manifest annotation bindings collide on same Feature path+pillar` |
 | `E0161` | `manifest-reserved-prefix` | `Manifest annotation binding uses reserved prefix` |
 | `E0162` | `missing-required-feature` | `missing required feature: attach a Feature of the required type to the component` |
 | `E0163` | `missing-required-socket` | `required uses socket not populated` |
@@ -680,7 +680,7 @@ A short code is deliberately opaque: four digits say nothing about a condition o
 | `E0167` | `provides-key-not-declared` | `Recipe publishes a provides key its Component does not declare` |
 | `E0168` | `schema-conformance` | `authored pillar does not conform to its declared schema` |
 | `E0169` | `self-inject-forbidden` | `self-inject on component without spec.inject allowlist` |
-| `E0170` | `triad-ref-unresolvable` | `aggregate/manifest reference unresolvable` |
+| `E0170` | `triad-ref-unresolvable` | `Aggregate/Manifest reference unresolvable` |
 | `E0171` | `unknown-uses-socket` | `unknown uses socket: name a socket the entity declares in its usesSchema — only a component's own uses block may name one the catalog did not declare` |
 | `E0172` | `release-not-in-canonical-form` | `release reached resolve un-normalized (non-empty root components alongside a synthesized default boundary)` |
 | `E0173` | `unread-parameter` | `declared parameter is read by no reference in the Aggregate` |

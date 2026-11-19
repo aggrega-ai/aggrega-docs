@@ -516,13 +516,13 @@ with `Manifest` in place of `Aggregate` where two Manifests collide.
 A Release names an Aggregate or a Manifest by bare identity and no entity of that name was found on any of the surfaces a bare identity is looked up on: the Release's own directory, the catalog, and the registry.
 
 Emitted message, where nothing matched anywhere:
-> aggregate/manifest reference unresolvable: no Aggregate named `"<reference>"` in the Release directory, catalog, or registry
+> Aggregate/Manifest reference unresolvable: no Aggregate named `"<reference>"` in the Release directory, catalog, or registry
 
 A file in the Release's directory that could not be indexed changes the report, because it changes what can honestly be claimed. Such a file might have been the entity, so the message says so rather than asserting an absence it cannot establish, and carries the parse failure that stopped it being read:
-> aggregate/manifest reference unresolvable: Aggregate `"<reference>"` not found; unparseable file `<path>` could not be indexed and may be it: `<parse failure>`
+> Aggregate/Manifest reference unresolvable: Aggregate `"<reference>"` not found; unparseable file `<path>` could not be indexed and may be it: `<parse failure>`
 
 and where an unparseable file is the one the reference names outright:
-> aggregate/manifest reference unresolvable: needed Aggregate `"<reference>"` is the unparseable file `<path>`: `<parse failure>`
+> Aggregate/Manifest reference unresolvable: needed Aggregate `"<reference>"` is the unparseable file `<path>`: `<parse failure>`
 
 **How to fix:** where the reference is genuinely absent, correct its spelling — the identity is the entity's `metadata.name`, not its filename — or add the entity to the Release's directory or the catalog the build reads. Where the message names an unparseable file, fix that file first: its parse failure is quoted in the message, and repairing it often resolves the reference in the same edit. A `./` or `../` reference is a path rather than an identity and is resolved as one, so a leading dot changes which of the two mistakes you are looking for.
 
@@ -588,7 +588,7 @@ Only one binding may declare a given path-and-pillar pair per target Feature. Tw
 The bindings are walked in the order the Manifest declares them, so the binding a message names first is always the earlier one in your document.
 
 Emitted message:
-> manifest annotation bindings collide on same Feature path+pillar (Manifest, at `<path>`, annotation bindings `"<first-key>"` and `"<second-key>"` both target Feature `"<feature-uri>"` with path `"<path>"` routing to pillar `"<pillar>"`; only one binding may declare a given (path, pillar) pair per Feature)
+> Manifest annotation bindings collide on same Feature path+pillar (Manifest, at `<path>`, annotation bindings `"<first-key>"` and `"<second-key>"` both target Feature `"<feature-uri>"` with path `"<path>"` routing to pillar `"<pillar>"`; only one binding may declare a given (path, pillar) pair per Feature)
 
 **How to fix:** decide which binding owns the destination and remove the path from the other's `maps.infra` or `maps.values` list, or drop the second binding entirely. Where the two bindings exist because you wanted two annotation keys to reach one Feature field, keep one binding and let both annotation keys route through it; where they exist because two different values were meant to land in two places, correct whichever path was written by mistake.
 
@@ -1264,17 +1264,17 @@ The Manifest's mapping entry points at a Recipe whose `spec.implements:` declara
 The check reads the composed Manifest before any Recipe is resolved, so it reports the mapping entry the author wrote rather than a downstream symptom of it.
 
 Emitted message:
-> manifest mapping entry's recipe spec.implements does not match the mapped component-type / feature-type key (manifest mapping `"<component-type>"` -> `"<recipe-uri>"`, recipe spec.implements is `"<recipe-implements>"`, expected `"<component-type>"`, or a type `"<component-type>"` extends)
+> Manifest mapping entry's recipe spec.implements does not match the mapped component-type / feature-type key (Manifest mapping `"<component-type>"` -> `"<recipe-uri>"`, recipe spec.implements is `"<recipe-implements>"`, expected `"<component-type>"`, or a type `"<component-type>"` extends)
 
 **Every command that reads a Release's dependencies performs this check; what differs is what each one does with the result.** `aggrega build` and `aggrega pull` halt, because both produce something you would go on to use — rendered artifacts and a lockfile. `aggrega validate` and `aggrega lint` report the finding alongside every other diagnostic they found and then exit non-zero: their job is to tell you everything that is wrong with the workspace, so a single fault does not cut the report short. In the editor the finding is published as a diagnostic beside the others, and whatever else that document had to report is unaffected. Note where it appears: the editor publishes the finding on the Manifest the mapping is written in, on the key of the mapping entry it names, and not on the Aggregate — at the Manifest's first line where its open text does not write that entry, as for an entry it inherits through `extends`. The Release's other dependency-level findings, which name no document of your workspace, stay on the Aggregate. Running `aggrega validate` reports it whichever document you have open.
 
 A mapping entry naming a Recipe the catalog does not hold is not this condition: the check has nothing to compare against and skips the entry, and the unresolvable Recipe is reported when recipes are resolved.
 
-FeatureRecipe entries follow the same shape; the `features.type` mapping check emits `manifest feature mapping ... featurerecipe spec.implements is ... (expected ...)`, and the feature arm matches on the mapping key itself, so it names no extends alternative.
+FeatureRecipe entries follow the same shape; the `features.type` mapping check emits `Manifest feature mapping ... featurerecipe spec.implements is ... (expected ...)`, and the feature arm matches on the mapping key itself, so it names no extends alternative.
 
 **A `components.type` key is also judged per instance whenever it reaches an instance of another version.** A key that does not name an instance's exact type reaches it by the type's base, when no key names that exact type and no other key is written for the same base — so a key written without a version, or one naming another version, can reach it. The entry alone therefore cannot say whether its Recipe fits, so the build judges the Recipe again for each component instance the key reaches that way, with the instance's own type at the version the build compiles it as standing where the key stood: the version the instance names, or, for an instance naming none, the highest version of that Component the catalog holds. An instance whose version the Recipe's `spec.implements:` does not satisfy — exactly, by caret range, by being unversioned, or through a base the instance's type `extends` — raises this condition, reported at the instance's `.spec.components.<instance>` path rather than at the Manifest file:
 
-> manifest mapping entry's recipe spec.implements does not match the mapped component-type / feature-type key (Manifest, at `.spec.components.<instance>`, `"<instance>"`, of type `"<component-type>"`, compiled as `"<component-type>:<version>"`, reached through manifest mapping key `"<key>"`, mapped to recipe `"<recipe-uri>"`, whose spec.implements is `"<recipe-implements>"`). map this type at this version to a recipe that implements it, with a mapping key naming the version
+> Manifest mapping entry's recipe spec.implements does not match the mapped component-type / feature-type key (Manifest, at `.spec.components.<instance>`, `"<instance>"`, of type `"<component-type>"`, compiled as `"<component-type>:<version>"`, reached through Manifest mapping key `"<key>"`, mapped to recipe `"<recipe-uri>"`, whose spec.implements is `"<recipe-implements>"`). map this type at this version to a recipe that implements it, with a mapping key naming the version
 
 The `compiled as` value appears only for an instance whose type names no version; an instance naming one shows its version in `of type`. A key naming the instance's own version needs no second judgement, since the check over the entry already asked it, and an entry already refused on its key is reported once, as above, rather than once more for each instance. `aggrega build` and `aggrega pull` halt on it, and `aggrega validate --release` reports it and exits non-zero. `aggrega lint` judges a Manifest's mapping entries and not the instances they reach, so it does not report it.
 
@@ -6701,7 +6701,7 @@ Where one entry appears against two short codes, it covers two distinct conditio
 | `E0093` | `Manifest maps multiple version-distinct keys to the same base type; the type-to-recipe lookup is ambiguous` | A Manifest maps two version-distinct keys onto one type |
 | `E0094` | `duplicate entity identity within a single catalog directory` | Two catalog entities in one directory share an identity |
 | `E0095` | `malformed recipe reference in a Manifest mapping value` | Manifest mapping value is not a shape a recipe reference accepts |
-| `E0096` | `manifest mapping entry's recipe spec.implements does not match the mapped component-type / feature-type key` | Recipe `implements` does not match the mapped component type |
+| `E0096` | `Manifest mapping entry's recipe spec.implements does not match the mapped component-type / feature-type key` | Recipe `implements` does not match the mapped component type |
 | `E0097` | `no importer plugin advertises the requested format` | No plugin advertises a requested parse or import format |
 | `E0098` | `no parser plugin advertises the requested format` | No plugin advertises a requested parse or import format |
 | `E0099` | `no recipe resolved for component/feature instance: add an explicit Manifest mapping for its type` | No Recipe is mapped for a component or feature instance |
@@ -6762,7 +6762,7 @@ Where one entry appears against two short codes, it covers two distinct conditio
 | `E0155` | `duplicate delivery key across inject sources` | Duplicate delivery key across inject sources |
 | `E0156` | `invalid inject key: the from-key must name a provides key its source publishes` | Inject `from` key is not in the target's `provides` |
 | `E0158` | `invalid parameter reference: check the {{ .parameters.* }} expression names a declared parameter and parses as a Go template` | A `{{ .parameters.* }}` reference cannot be interpolated |
-| `E0160` | `manifest annotation bindings collide on same Feature path+pillar` | Two Manifest annotation bindings compete for one routing slot |
+| `E0160` | `Manifest annotation bindings collide on same Feature path+pillar` | Two Manifest annotation bindings compete for one routing slot |
 | `E0161` | `Manifest annotation binding uses reserved prefix` | A Manifest annotation binding claims the reserved `aggrega.ai/` prefix |
 | `E0162` | `missing required feature: attach a Feature of the required type to the component` | Required feature not attached |
 | `E0163` | `required uses socket not populated` | Required `uses:` socket not populated |
@@ -6771,7 +6771,7 @@ Where one entry appears against two short codes, it covers two distinct conditio
 | `E0167` | `Recipe publishes a provides key its Component does not declare` | A Recipe publishes a `provides` key its Component does not declare |
 | `E0168` | `authored pillar does not conform to its declared schema` | Authored values or infra do not conform to the declared schema |
 | `E0169` | `self-inject on component without spec.inject allowlist` | Self-inject on a component without an allowlist; Self-inject mechanism not in the component's allowlist |
-| `E0170` | `aggregate/manifest reference unresolvable` | A Release's `aggregate:` or `manifest:` reference resolves to nothing |
+| `E0170` | `Aggregate/Manifest reference unresolvable` | A Release's `aggregate:` or `manifest:` reference resolves to nothing |
 | `E0171` | `unknown uses socket: name a socket the entity declares in its usesSchema — only a component's own uses block may name one the catalog did not declare` | `uses:` socket not declared in the owning entity's `usesSchema` |
 | `E0172` | `release reached resolve un-normalized (non-empty root components alongside a synthesized default boundary)` | A Release reached resolution without passing through the load path |
 | `E0173` | `declared parameter is read by no reference in the Aggregate` | A declared parameter is read by nothing |
