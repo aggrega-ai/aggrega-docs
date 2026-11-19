@@ -250,7 +250,7 @@ Each release also carries `aggrega-<version>.spdx`, the software bill of materia
 gh attestation verify aggrega-<version>-linux-amd64 --repo aggrega-ai/aggrega-cli
 ```
 
-It reports the build provenance GitHub recorded for the file, and fails when none matches the file's digest.
+It reports the build provenance GitHub recorded for the file, and fails when none matches the file's digest. The bill of materials is attested too, so the same command checks `aggrega-<version>.spdx`.
 
 ### The Windows prebuilt binary
 
