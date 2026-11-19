@@ -1,6 +1,6 @@
 # The translation workflow of a Markdown documentation corpus translated with
 # @cognitio/l10n. Copy it to the corpus repository as
-# .github/workflows/l10n.yml. It runs the package's CI command, `npx l10n ci`,
+# .github/workflows/l10n.yml. It runs the package's CI command, `l10n ci`,
 # which collects the translation batches that have ended, submits the source
 # segments that still lack a translation, and pushes the translation-memory
 # branch the configuration names (`ci.branch`) — the only branch it writes —
@@ -27,12 +27,14 @@
 #   - the API key in the repository secret ANTHROPIC_API_KEY, the variable
 #     `backend.apiKeyEnv` names; a workflow receives only the secrets it names;
 #   - the package vendored as its published archive under l10n/vendor/, the one
-#     l10n/cognitio-modules.json names, and no package.json at the repository
-#     root; the install reads no secret and names no version. Moving to a new
-#     version is the cognitio-modules command's `upgrade` —
+#     l10n/cognitio-modules.json names, installed with `npm ci` from
+#     l10n/package.json and l10n/package-lock.json, and no package.json at the
+#     repository root; the install reads no secret. Moving to a new version is
+#     the cognitio-modules command's `upgrade` —
 #     `sh l10n/install.sh --cwd l10n upgrade` at this repository's root, or,
 #     from a repository holding this one as a submodule, the same command with
-#     the script's path and `--cwd` naming the submodule's l10n/ directory — and
+#     the script's path and `--cwd` naming the submodule's l10n/ directory —
+#     followed by updating l10n/package.json's archive path and the lockfile, and
 #     no change here.
 #
 # It never runs for a pull request: it holds the translation API key.
@@ -65,16 +67,17 @@ jobs:
         with:
           node-version: 24
 
-      # The package is installed here alone, from the vendored archive whose path
-      # `sh l10n/install.sh --cwd l10n path` reads from l10n/cognitio-modules.json,
-      # its dependencies from the public registry, and saved nowhere: the
-      # repository root has no package.json, so the documentation site builds
-      # from a plain clone without it.
+      # The package is installed here alone, into l10n/node_modules, from the vendored
+      # archive that l10n/package.json names, with every dependency at the version
+      # and integrity l10n/package-lock.json records and no install script run: the
+      # repository root has no package.json, so the documentation site builds from a
+      # plain clone without it.
       - name: Install
-        run: npm install --no-save --no-audit --no-fund "$(sh l10n/install.sh --cwd l10n path @cognitio/l10n)" # zizmor: ignore[adhoc-packages] installs the vendored archive at the exact version l10n/cognitio-modules.json names; the repository carries no npm lockfile for its dependencies
+        working-directory: l10n
+        run: npm ci --ignore-scripts --no-audit --no-fund
 
       - name: Collect, submit and push the translation memory
-        run: npx l10n ci --config l10n/l10n.config.json
+        run: l10n/node_modules/.bin/l10n ci --config l10n/l10n.config.json
         env:
           GITHUB_TOKEN: ${{ github.token }}
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}

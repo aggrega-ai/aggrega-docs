@@ -1,7 +1,7 @@
 # The collector of a Markdown documentation corpus translated with @cognitio/l10n:
 # the translation workflow's companion, copied beside it to the repository as
 # .github/workflows/l10n-collect.yml, and named by the configuration's
-# `ci.collector`. It runs the same command, `npx l10n ci`, with the same rules.
+# `ci.collector`. It runs the same command, `l10n ci`, with the same rules.
 #
 # 🔴 It runs only when started by hand — from the repository's Actions page, or
 # `gh workflow run l10n-collect.yml` — and carries no schedule, because a run
@@ -42,16 +42,17 @@ jobs:
         with:
           node-version: 24
 
-      # The package is installed here alone, from the vendored archive whose path
-      # `sh l10n/install.sh --cwd l10n path` reads from l10n/cognitio-modules.json,
-      # its dependencies from the public registry, and saved nowhere: the
-      # repository root has no package.json, so the documentation site builds
-      # from a plain clone without it.
+      # The package is installed here alone, into l10n/node_modules, from the vendored
+      # archive that l10n/package.json names, with every dependency at the version
+      # and integrity l10n/package-lock.json records and no install script run: the
+      # repository root has no package.json, so the documentation site builds from a
+      # plain clone without it.
       - name: Install
-        run: npm install --no-save --no-audit --no-fund "$(sh l10n/install.sh --cwd l10n path @cognitio/l10n)" # zizmor: ignore[adhoc-packages] installs the vendored archive at the exact version l10n/cognitio-modules.json names; the repository carries no npm lockfile for its dependencies
+        working-directory: l10n
+        run: npm ci --ignore-scripts --no-audit --no-fund
 
       - name: Collect, submit and push the translation memory
-        run: npx l10n ci --config l10n/l10n.config.json
+        run: l10n/node_modules/.bin/l10n ci --config l10n/l10n.config.json
         env:
           GITHUB_TOKEN: ${{ github.token }}
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}

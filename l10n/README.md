@@ -19,13 +19,20 @@ installed as `node_modules/@cognitio/l10n/README.md`.
 ## Installing the package
 
 The repository root has no `package.json`, so the package is installed only
-where a translation runs, from the vendored archive, and saved nowhere:
+where a translation runs, from the vendored archive that `l10n/package.json`
+names, with every dependency at the version and integrity `l10n/package-lock.json`
+records, and no install script run:
 
 ```sh
-npm install --no-save --no-audit --no-fund "$(sh l10n/install.sh --cwd l10n path @cognitio/l10n)"
+npm ci --ignore-scripts --prefix l10n
+l10n/node_modules/.bin/l10n --help
 ```
 
 Run it at the root of the checkout that translates. It needs no credential.
+After the cognitio-modules command moves the vendored archive to a new version,
+`npm install --package-lock-only --ignore-scripts --prefix l10n` records it in
+`l10n/package.json` and the lockfile once the dependency on the archive names
+the new file.
 
 ## Two ways to translate
 
