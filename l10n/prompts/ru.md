@@ -31,4 +31,8 @@ Translate into Russian. Each choice below is a default, made without a native sp
 - `content-neutral`: нейтральный к содержимому.
 - `agnostic to`: агностичный по отношению к, as in "агностичный по отношению к соглашениям".
 
+## Recurring terms
+
+- manifest, the ordinary word the source writes in lowercase (a Kubernetes manifest, an OCI manifest): манифест, declined: манифеста, манифесты, манифестов; never "manifest" left in Latin letters.
+
 A native speaker who finds a default here wrong corrects this file; every translation made after the correction follows it.

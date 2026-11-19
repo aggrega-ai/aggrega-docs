@@ -33,4 +33,8 @@ Translate into Japanese. Each choice below is a default, made without a native s
 - `content-neutral`: 内容に対して中立.
 - `agnostic to`: 〜に依存しない, as in "慣例に依存しない".
 
+## Recurring terms
+
+- manifest, the ordinary word the source writes in lowercase (a Kubernetes manifest, an OCI manifest): マニフェスト; never "manifest" left in Latin letters.
+
 A native speaker who finds a default here wrong corrects this file; every translation made after the correction follows it.

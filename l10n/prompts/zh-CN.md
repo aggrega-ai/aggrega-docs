@@ -33,4 +33,8 @@ Translate into Simplified Chinese, as written in mainland China. Each choice bel
 - `content-neutral`: 对内容保持中立.
 - `agnostic to`: 与……无关, as in "与约定无关".
 
+## Recurring terms
+
+- manifest, the ordinary word the source writes in lowercase (a Kubernetes manifest, an OCI manifest): 清单, as in Kubernetes 清单 and OCI 清单; never "manifest" left in Latin letters.
+
 A native speaker who finds a default here wrong corrects this file; every translation made after the correction follows it.

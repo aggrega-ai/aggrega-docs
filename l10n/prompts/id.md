@@ -31,4 +31,8 @@ Translate into Indonesian. Each choice below is a default, made without a native
 - `content-neutral`: netral terhadap konten.
 - `agnostic to`: agnostik terhadap, as in "agnostik terhadap konvensi".
 
+## Recurring terms
+
+- manifest, the ordinary word the source writes in lowercase (a Kubernetes manifest, an OCI manifest): manifest, as English writes it; never "manifes".
+
 A native speaker who finds a default here wrong corrects this file; every translation made after the correction follows it.

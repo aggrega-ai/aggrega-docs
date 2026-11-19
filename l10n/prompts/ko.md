@@ -31,4 +31,8 @@ Translate into Korean. Each choice below is a default, made without a native spe
 - `content-neutral`: 내용에 중립적인.
 - `agnostic to`: ~에 구애받지 않는, as in "관례에 구애받지 않는다".
 
+## Recurring terms
+
+- manifest, the ordinary word the source writes in lowercase (a Kubernetes manifest, an OCI manifest): 매니페스트; never "manifest" left in Latin letters.
+
 A native speaker who finds a default here wrong corrects this file; every translation made after the correction follows it.

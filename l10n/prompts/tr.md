@@ -31,4 +31,8 @@ Translate into Turkish. Each choice below is a default, made without a native sp
 - `content-neutral`: içeriğe karşı tarafsız.
 - `agnostic to`: -den bağımsız, with the ablative, as in "uzlaşımlardan bağımsız".
 
+## Recurring terms
+
+- manifest, the ordinary word the source writes in lowercase (a Kubernetes manifest, an OCI manifest): manifest, taking Turkish suffixes: manifesti, manifestler, manifestlerini; never "manifesto", nor "bildirim", which is a declaration or a notice.
+
 A native speaker who finds a default here wrong corrects this file; every translation made after the correction follows it.

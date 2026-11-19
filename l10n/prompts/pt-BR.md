@@ -32,4 +32,8 @@ Translate into Brazilian Portuguese. Each choice below is a default, made withou
 - `content-neutral`: neutro quanto ao conteúdo.
 - `agnostic to`: agnóstico em relação a, as in "agnóstico em relação às convenções".
 
+## Recurring terms
+
+- manifest, the ordinary word the source writes in lowercase (a Kubernetes manifest, an OCI manifest): o manifesto, os manifestos; never "manifest" left in English.
+
 A native speaker who finds a default here wrong corrects this file; every translation made after the correction follows it.

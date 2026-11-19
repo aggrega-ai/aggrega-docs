@@ -31,4 +31,8 @@ Translate into Polish. Each choice below is a default, made without a native spe
 - `content-neutral`: neutralny wobec treści.
 - `agnostic to`: agnostyczny wobec, as in "agnostyczny wobec konwencji".
 
+## Recurring terms
+
+- manifest, the ordinary word the source writes in lowercase (a Kubernetes manifest, an OCI manifest): manifest, declined as a Polish noun: manifestu, manifeście, manifesty, manifestów.
+
 A native speaker who finds a default here wrong corrects this file; every translation made after the correction follows it.
