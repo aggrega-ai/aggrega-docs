@@ -45479,6 +45479,13 @@
     "status": "machine",
     "text": "`lockfile.toolchain`"
   },
+  "3ca4811b73eb8b02": {
+    "at": "2026-11-19T10:14:43.530Z",
+    "job": "session-0009-20261119101443",
+    "srcHash": "3ca4811b73eb8b02",
+    "status": "machine",
+    "text": "**서드파티 고지와 자재 명세서.** 게시물은 게스트가 빌드된 코드의 서드파티 고지와 그 코드의 소프트웨어 자재 명세서를 담을 수 있습니다. `--plugin-notices <file>`은 게스트의 서드파티 고지를 담은 Markdown 파일을 지정합니다. 게시는 이 파일을 미디어 타입 `application/vnd.aggrega.wasmplugin.notices.v1beta1+markdown`으로 `.wasm` 뒤의 두 번째 레이어로서 매니페스트에 패킹하며, 버전 태그를 가져오는 일반 OCI 클라이언트는 이를 `notices.md`에 기록합니다. 이 레이어는 매니페스트의 일부이므로, 매니페스트 다이제스트와 그에 대한 단 하나의 서명은 실행 파일을 포괄하는 것과 마찬가지로 고지도 포괄합니다. `.wasm`은 첫 번째 레이어로 남으며 그 콘텐츠 다이제스트는 변하지 않습니다. `--plugin-sbom <file>`은 SPDX 2.3 JSON 소프트웨어 자재 명세서를 지정합니다. 게시는 서명을 첨부하는 방식과 같이 이 파일을 아티팩트 타입이 `application/spdx+json`인 OCI referrer로서 게시된 버전 옆에 첨부하므로, 스캐너는 레지스트리의 Referrers API(`oras discover --artifact-type application/spdx+json <reference>`)를 통해 이를 찾고 일반 클라이언트는 이를 `sbom.spdx.json`에 기록합니다. 이 referrer는 어떤 다이제스트도 바꾸지 않으며, 서명은 이를 포괄하지 않습니다. 게시된 버전은 변경할 수 없으므로, 그 고지는 게시될 때 함께 게시된 고지입니다. 자재 명세서는 같은 버전을 바이트 단위까지 동일하게 `--plugin-sbom`과 함께 다시 게시하여 나중에 첨부할 수 있으며, 이미 자재 명세서를 가진 버전은 그것을 그대로 유지합니다. 각 플래그는 `--plugin`과 함께일 때만 받아들여지며, 존재하지 않거나 비어 있는 파일은 해당 플래그를 명시하며 거부됩니다."
+  },
   "3ca8fe24df056cd7": {
     "at": "2026-10-22T01:50:22.319444+00:00",
     "job": "msgbatch_01VwQyd4vfmNKqBKVTg2vP5W",
@@ -52439,6 +52446,17 @@
     "srcHash": "45e3bffb1257b977",
     "status": "machine",
     "text": "`aggregate.yaml`은 [초안의 이름을 정하는 방식](#how-a-draft-is-named)에서 설명하는 대로 그래프의 이름을 딴 초안 Aggregate이며, 읽은 구성, 이름만 읽은 환경 파일, 애플리케이션 코드는 읽지 않았다는 점, 초안이 담지 않는 내용을 명시하는 주석으로 시작합니다. 여기에는 그래프마다, 그 id를 키로 하는 `core/ai-agent/langgraph` 인스턴스가 다음과 함께 들어 있습니다."
+  },
+  "45e48d3c01c09637": {
+    "at": "2026-11-19T10:14:43.530Z",
+    "job": "session-0009-20261119101443",
+    "revision": {
+      "from": "b1e598d441cbb73b",
+      "reviewed": false
+    },
+    "srcHash": "45e48d3c01c09637",
+    "status": "machine",
+    "text": "`aggrega/publishEntity` — 카탈로그 엔티티를 번들로 묶어 레지스트리에 게시합니다. `entity`는 게시할 문서를 가리키는 워크스페이스 루트 기준 상대 경로이며, `release`와 같은 세 가지 형태, 즉 없음, 절대 경로, 루트 밖으로 해석되는 경우에 거부됩니다. Plugin 엔티티에는 같은 종류의 경로인 `plugin`도 필요하며, 이는 엔티티 자체의 매니페스트 안에 게시되는 실행 파일을 가리킵니다. Plugin은 `.wasm` 뒤에 레이어로 패킹되는 그 게스트의 서드파티 고지인 `pluginNotices`와, `application/spdx+json` referrer로 첨부되는 SPDX 자재 명세서인 `pluginSbom`도 담을 수 있습니다. 둘 다 `plugin`과 같은 종류의 경로이며, `plugin` 없이 둘 중 하나를 보내거나 존재하지 않거나 비어 있는 파일을 지정하는 요청은 거부됩니다. `registry`는 대상이며 기본값은 워크스페이스에 구성된 레지스트리입니다. `dryRun`은 번들과 그 게시가 남길 다이제스트를 계산하며 어떤 레지스트리에도 접속하지 않습니다. `sign`을 생략하면 대상 레지스트리 자체의 정책을 따르며, 이는 명령줄에서 해당 플래그가 없을 때의 동작과 같습니다. 이를 보내는 것은 호출자의 선택이지만, 어느 쪽도 거부를 완화하지 않습니다. 서명을 요구하는 레지스트리 또는 워크스페이스 정책은 이 필드의 값과 관계없이 서명되지 않은 게시를 거부하기 때문입니다. `pinSources: true`는 엔티티를 번들로 묶기 전에 엔티티 작성자의 고정(pin) 단계를 실행하므로, 이 단계가 엔티티 옆에 기록하는 `entity.lock`도 게시 대상에 포함됩니다. 이는 `aggrega/pin`이 실행하는 것과 같은 단계입니다. 이 단계는 서명 정책이나 불변성 보호처럼 엔티티의 내용을 판단하는 모든 거부보다 먼저 실행되므로, 그 단계에서 거부된 게시라도 잠금 파일은 기록된 채로 남습니다. 오프라인 워크스페이스나 대상 없음처럼 요청 자체에 대한 거부는 먼저 일어나며 아무것도 고정하지 않습니다. 다른 엔티티와 디렉터리를 공유하는 엔티티에 대한 거부도 마찬가지인데, 이 단계는 그런 디렉터리에 잠금 파일을 기록해서는 안 되기 때문입니다. 필드가 없으면 워크스페이스의 `pin_sources_at_push`를 따르고, 보내면 양방향 모두에서 그 설정을 재정의합니다. `dryRun`에서는 이 단계가 기록할 잠금 내용을 보고하고 아무것도 기록하지 않습니다. **이 단계를 실행하지 않는 게시는, `entity.lock`이 읽는 입력에 대한 고정을 기록하지 않았거나 입력이 더 이상 일치하지 않는 Recipe 또는 FeatureRecipe를** 번들로 묶기 전에 거부하며(`dryRun`에서도 마찬가지), `aggrega pin`, `pinSources`, `pin_sources_at_push`를 언급합니다. 이는 `aggrega/resolveDependencies`가 같은 잠금 파일에 대해 발생시키는 거부와 같습니다. 응답에는 `reference`, `tag`, `kind`, `mediaType`, `size` 쌍, 게시된 `digest`(`dryRun`에서는 그 게시가 남길 다이제스트로, [`aggrega push --dry-run`](aggrega-push.md)이 출력하는 값입니다), `signed`, `alreadyPublished`, `dryRun`, `reach`가 포함됩니다. 단계가 실행된 경우에는 `pin`(`aggrega/pin`이 주는 것과 같은 응답)이, 엔티티의 로컬 소스가 템플릿으로 작성된 경우에는 그 소스를 작성된 그대로 가리키는 `wholeDirectorySource`가 포함됩니다. 그런 소스는 Release가 템플릿을 채워야 비로소 디렉터리가 정해지므로, 게시는 엔티티가 지정한 파일만이 아니라 엔티티 디렉터리의 모든 파일을 담으며, 호출자는 이 필드를 통해 그렇게 되었음을 알 수 있습니다. 드라이 런에서도 마찬가지입니다. 또한 게시가 담는 아카이브에 Windows가 작성된 그대로 담을 수 없는 항목, 즉 `CON`, `AUX`, `NUL`처럼 장치 이름을 딴 부분이 있는 경로(대소문자나 뒤따르는 확장자와 관계없음) 또는 마침표나 공백으로 끝나는 부분이 있는 경로가 있으면 `windowsUnusableEntries`가 포함되며, 엔티티 문서 자체의 파일 이름을 먼저, 그다음 담긴 파일들을 각각 나열합니다. 그런 항목이 없으면 이 필드는 없으며, 문서만으로 게시된 엔티티도 여기에 해당합니다. Windows에서 실행되는 `aggrega`는 그런 항목의 압축 해제를 거부하므로 Windows 워크스페이스는 해당 버전을 사용할 수 없습니다. 이 항목들은 [`aggrega push`](aggrega-push.md)가 경고하는 항목과 같으며, 보고를 요청한 요청은 게시 진행 상황 중에 같은 경고 줄을 받습니다. 어느 쪽도 아무것도 거부하지 않으므로, 게시는 이 항목들이 없을 때와 똑같이 진행되거나 거부되며 `dryRun`에서도 마찬가지입니다. **이 요청은 레지스트리에 기록하고 이 머신 밖으로 접속하며**, 고정 단계가 있으면 엔티티 옆에도 기록합니다. [레지스트리 접속과 기록](#reaching-a-registry-and-writing)을 참조하십시오."
   },
   "45e69ba40d614262": {
     "at": "2026-10-22T05:07:43.448651+00:00",
@@ -87351,6 +87369,13 @@
     "status": "machine",
     "text": "**여러 기여자가 만나는 방식.** 모든 항목은 Recipe가 boundary에서 렌더링하는 각 component에 대해 평가되며, boundary의 모든 기여자가 선언한 파일은 이름으로 병합됩니다. 하나의 이름이 같은 바이트로 평가되면(하나의 Recipe에 바인딩된 두 component, 또는 하나의 provider를 동일하게 구성하는 두 Recipes에 의해) 하나의 파일이 됩니다. 하나의 이름이 서로 다른 바이트로 평가되면, 어떤 단일 파일도 그들 모두가 작성한 것이 아니므로 파일과 모든 기여자를 명시하며 빌드가 중단됩니다. `aggrega.modules.tf`처럼 provider 자체의 조립 과정이 작성하는 이름도 마찬가지입니다. 둘 다 [조립된 출력 충돌](../errors/fatal-halts.md#two-contributors-write-the-same-output-path)입니다. 하나의 provider를 서로 다른 두 파일 이름으로 구성하는 두 Recipes는 병합되지 않고 각 파일이 작성되며, 이 경우 중복 구성을 보고하는 것은 대상입니다. 따라서 provider 구성을 공유하려는 Recipes는 그 파일 이름을 공유하며, 관례상 구성하는 provider의 이름을 따릅니다."
   },
+  "7426ad608fe18c0a": {
+    "at": "2026-11-19T10:14:43.530Z",
+    "job": "session-0009-20261119101443",
+    "srcHash": "7426ad608fe18c0a",
+    "status": "machine",
+    "text": "Plugin 게스트의 SPDX 2.3 JSON 소프트웨어 자재 명세서의 경로입니다. 선택 사항이며 --plugin과 함께일 때만 사용할 수 있습니다. 게시 시 이 파일을 게시된 Plugin 옆에 application/spdx+json OCI referrer로 첨부하며, 이 referrer는 어떤 다이제스트도 바꾸지 않고 두 번 첨부되지 않습니다."
+  },
   "74294d39fecf5bc4": {
     "at": "2026-10-22T01:39:34.791258+00:00",
     "job": "msgbatch_01NzZHjUiYAJW3BfQRFzEVzQ",
@@ -92553,6 +92578,17 @@
     "srcHash": "7ad230504ffb64d4",
     "status": "machine",
     "text": "Tempo — Kubernetes 분산 트레이싱 서버"
+  },
+  "7ad244db9ead3ff6": {
+    "at": "2026-11-19T10:14:43.530Z",
+    "job": "session-0009-20261119101443",
+    "revision": {
+      "from": "d8c10d12175088ab",
+      "reviewed": false
+    },
+    "srcHash": "7ad244db9ead3ff6",
+    "status": "machine",
+    "text": "`publish-entity`는 게시할 문서인 `entity`를 받으며, Plugin은 매니페스트 안에 게시되는 실행 파일인 `plugin`도 필요합니다. Plugin은 `.wasm` 뒤에 레이어로 패킹되는 그 게스트의 서드파티 고지인 `plugin_notices`와, `application/spdx+json` referrer로 첨부되는 SPDX 자재 명세서인 `plugin_sbom`도 담을 수 있습니다. 둘 다 `plugin`과 마찬가지로 경로이며, `plugin` 없이 둘 중 하나를 보내거나 존재하지 않거나 비어 있는 파일을 지정하는 호출은 거부됩니다. `publish-artifact`는 `file`과 함께 그것이 게시될 `name`과 `tag`를 받습니다. 여기의 모든 경로 인수는 절대 경로이거나 워크스페이스 루트에 대한 상대 경로이며, 이는 이 인터페이스의 다른 모든 도구가 사용하는 것과 같은 약정입니다. `workspace_root`는 표준 입력과 출력으로 연결된 서버에서 호출이 의미하는 워크스페이스를 지정합니다. HTTPS로 연결된 서버는 `workspace_root`를 거부하며, [하나의 프로세스, 하나의 워크스페이스](#one-process-one-workspace)에서 설명하듯 각 경로가 서버가 제공하는 워크스페이스 안으로 해석되어야 합니다. `registry`는 대상이며 기본값은 워크스페이스에 구성된 레지스트리입니다. 둘 다 보내지 않고 기본값도 구성되어 있지 않으면 무엇을 보내야 하는지 알려 주며 거부됩니다. `sign-artifacts`는 경로가 아닌 하나 이상의 레지스트리 주소인 `references`를 받으며, 선택적으로 한 번에 서명할 개수인 `jobs`를 받습니다. 생략하면 하나씩 차례로 서명되며, 1 미만의 값은 무엇을 보내야 하는지 알려 주며 거부됩니다. 각 참조는 [`aggrega sign`](aggrega-sign.md#signing-several-references-at-once)에서 설명하듯 단독으로 서명할 때와 정확히 같은 방식으로 서명됩니다. `deprecate-artifact`는 `severity` 및 `reason`과 함께 `reference`를 받거나, 배치 파일을 지정하는 `from`을 받습니다. 배치 파일과 함께 보낸 내용 인수는 버리지 않고 거부하는데, 배치 파일은 자체 내용을 제공하며 조용히 무시된 인수는 반영된 인수처럼 읽히기 때문입니다."
   },
   "7ad362c2e93de45b": {
     "at": "2026-10-22T08:23:20.000561+00:00",
@@ -104484,6 +104520,17 @@
     "srcHash": "8b089c5fa4a21fb1",
     "status": "machine",
     "text": "`aggrega sign`은 각 `<reference>`에 대해 레지스트리가 이미 보유한 다이제스트를 확인하고, 그 다이제스트에 서명한 뒤, 서명 번들을 referrer로 첨부합니다. 게시된 바이트를 다시 푸시하거나 태그를 다시 지정하는 등 어떤 방식으로도 변경하지 않습니다. 아티팩트는 불변이며, 서명은 그 아티팩트를 가리키는 형제 매니페스트입니다. 따라서 버전을 올리지 않고도 사후에 아티팩트에 서명할 수 있습니다."
+  },
+  "8b0edccc47a4243a": {
+    "at": "2026-11-19T10:14:43.530Z",
+    "job": "session-0009-20261119101443",
+    "revision": {
+      "from": "d4c92e5f005df481",
+      "reviewed": false
+    },
+    "srcHash": "8b0edccc47a4243a",
+    "status": "machine",
+    "text": "엔터티인 `entity.yaml`과 그 옆의 실행 파일 `entity.wasm`, 그리고 서드파티 고지와 함께 게시된 경우 그 서드파티 고지인 `notices.md`"
   },
   "8b0fbc4a0621adca": {
     "at": "2026-10-29T23:55:51.039Z",
@@ -124923,6 +124970,13 @@
     "status": "machine",
     "text": "`$ref:`가 레지스트리 위치로 라이브러리를 지정함"
   },
+  "a604689974819e8a": {
+    "at": "2026-11-19T10:14:43.530Z",
+    "job": "session-0009-20261119101443",
+    "srcHash": "a604689974819e8a",
+    "status": "machine",
+    "text": "Plugin에 첨부된 소프트웨어 자재 명세서"
+  },
   "a6058f9400d2b259": {
     "at": "2026-10-22T04:05:10.557953+00:00",
     "job": "msgbatch_01Pqt8yvyetbk47g1hoiAyit",
@@ -143380,6 +143434,13 @@
     "srcHash": "bdf674a942c5b1b7",
     "status": "machine",
     "text": "출력되는 메시지이며, 플러그인이 전달받지 않은 좌표의 경우와 어떤 어노테이션도 받지 않는 값의 경우입니다."
+  },
+  "bdf9467952cbe6aa": {
+    "at": "2026-11-19T10:14:43.530Z",
+    "job": "session-0009-20261119101443",
+    "srcHash": "bdf9467952cbe6aa",
+    "status": "machine",
+    "text": "JSON 형식의 플러그인 모듈 SPDX 자재 명세서로, 워크스페이스 루트 기준 상대 경로이며 게시된 Plugin에 첨부됩니다. `plugin`이 필요합니다."
   },
   "bdfc89465f2a752f": {
     "at": "2026-10-22T08:15:42.630087+00:00",
@@ -164250,6 +164311,13 @@
     "status": "machine",
     "text": "Feature는 한 번 작성되어 여러 번 연결되므로, FeatureRecipe가\n도출하는 이름은 연결마다 달라야 합니다. 이 예제는 호스트 컴포넌트와\n연결 이름을 조합합니다. `storage-headroom` 아래에 연결된 호스트 `payments-db`는\n`PaymentsDbStorageHeadroom`이 됩니다."
   },
+  "d93108e9e6067db9": {
+    "at": "2026-11-19T10:14:43.530Z",
+    "job": "session-0009-20261119101443",
+    "srcHash": "d93108e9e6067db9",
+    "status": "machine",
+    "text": "Plugin 게스트의 서드파티 고지를 담은 Markdown 파일의 경로입니다. 선택 사항이며 --plugin과 함께일 때만 사용할 수 있습니다. 게시 시 이 파일을 .wasm 뒤의 레이어로 매니페스트에 패킹하므로, 고지는 실행 파일과 함께 전달되고 매니페스트 다이제스트가 이를 포괄합니다."
+  },
   "d9312173271d1374": {
     "at": "2026-10-22T08:03:58.541373+00:00",
     "job": "msgbatch_01JG3MCod2kUphSC2Zwegw3H",
@@ -177981,6 +178049,13 @@
     "srcHash": "eaa6588c77a03698",
     "status": "machine",
     "text": "*Workload JSON Schema 2020-12 선언이 권위 있는 기준이며 컴파일러 바이너리에 내장되어 제공됩니다. helm 및 compose 프로바이더는 인라인이든 `$import:`로 로드한 것이든 Recipe의 `workload:`를 합성합니다. provider별 지원은 Provider Capability Matrix를 참조하십시오.*"
+  },
+  "eaa7af4588b3012c": {
+    "at": "2026-11-19T10:14:43.530Z",
+    "job": "session-0009-20261119101443",
+    "srcHash": "eaa7af4588b3012c",
+    "status": "machine",
+    "text": "플러그인 모듈의 서드파티 고지 파일로, 워크스페이스 루트 기준 상대 경로이며 Plugin 매니페스트의 레이어로 게시됩니다. `plugin`이 필요합니다."
   },
   "eaa919cbabc6e7dc": {
     "at": "2026-11-18T23:29:15.212Z",
