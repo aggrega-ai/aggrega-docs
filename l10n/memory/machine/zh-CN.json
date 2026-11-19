@@ -6599,6 +6599,17 @@
     "status": "machine",
     "text": "**当前状态：** **可用**，见[语言状态 → Recipe 输入种类](../10-status.md#recipe-input-kinds)。每个条目在工作负载合成和源解析之后，使用完整的模板上下文求值，所得文件以该条目的键发出。目标如何处理发出的制品取决于能力：接受独立制品的 provider 将其作为单独文件发出，而只接受与其他输入种类搭配的制品的 provider 会将该条目折叠进其装配的内容中——因此，正文若不符合该装配器预期的形态，会以 `TRANSLATION_ERROR` 类别中止，而不会被原样发出。为某个能力编写制品之前，请查看 [`architecture/16-recipe-input-composition.md`](../../architecture/16-recipe-input-composition.md) 中的按能力对照表。"
   },
+  "08604c4e3e2114fa": {
+    "at": "2026-11-19T01:39:12.773Z",
+    "job": "session-0016-20261119013912",
+    "revision": {
+      "from": "f446c98d2daa0a1b",
+      "reviewed": false
+    },
+    "srcHash": "08604c4e3e2114fa",
+    "status": "machine",
+    "text": "`resource_types` 的值如果不是名称以及带有 `type` 和 `component` 的对象所组成的列表，导入会以 `resource-types-unreadable` 停止，因此错误的值绝不会被当作没有列表；`component` 为空、因而没有指明任何 Component 的条目也是如此，而不会被当作没有 `component` 的条目读取。"
+  },
   "08631ec5577f2dc1": {
     "at": "2026-10-29T17:38:31.046Z",
     "job": "session-0004-20261029173831",
@@ -21368,6 +21379,17 @@
     "status": "machine",
     "text": "三个字段由同一个读取器检查，因此无论哪个字段出错，拒绝情形都是相同的三种：映射包含多个键；映射的唯一键不是 `$import`；`$import:` 的值不是普通字符串。既不是标量也不是映射的值（最常见的是列表）仅凭其形状即被拒绝。"
   },
+  "1c58a1335aa18e2f": {
+    "at": "2026-11-19T01:39:12.773Z",
+    "job": "session-0016-20261119013912",
+    "revision": {
+      "from": "77156466012fc310",
+      "reviewed": false
+    },
+    "srcHash": "1c58a1335aa18e2f",
+    "status": "machine",
+    "text": "**密钥**——Azure 的 `sensitive` 属性、Terraform 中可写的 `sensitive` 属性，或名称包含凭据类词语（Password、Secret、Token、Credential、PrivateKey、ApiKey 或 Passphrase）且不以 `Arn`、`Id`、`Name` 或 `Ref` 结尾的 CloudFormation 字符串属性。CloudFormation 的这种读取方式是草稿的一项约定，因此请加以审阅。密钥按[草稿中的密钥](#secrets-in-the-drafts)所述起草。只有类型顶层的属性才会成为密钥——对 Azure 而言是根键或 `properties` 的成员；其下的敏感成员会在 `constraint-dropped` 下发出警告，如该部分所述。"
+  },
   "1c59ca592ce8191b": {
     "at": "2026-11-17T13:24:33.294Z",
     "job": "session-0008-20261117132433",
@@ -27246,6 +27268,17 @@
     "srcHash": "24080989136e47eb",
     "status": "machine",
     "text": "**由前置代理终止 TLS，并转发到受限的监听器。** 两个键都不设置时，监听器提供明文服务，这仅在回环地址或 Unix 套接字上被接受——因此不在该主机上的任何东西都无法访问它。这是反向代理、sidecar 或服务网格所使用的形态，在这种形态下证书位于此进程之前，而非进程之内。"
+  },
+  "240827d6e4f8a122": {
+    "at": "2026-11-19T01:39:12.773Z",
+    "job": "session-0016-20261119013912",
+    "revision": {
+      "from": "6f7dbf75689f6189",
+      "reviewed": false
+    },
+    "srcHash": "240827d6e4f8a122",
+    "status": "machine",
+    "text": "密钥的值绝不会写入草稿。在 `arm` 上，是片段的一个顶层 `securestring` 参数，以符号名称和属性命名，在模板部署时提供；可选的密钥会成为必需参数，因为该参数没有声明默认值。在 `cloudformation` 上，是一个带有 `Type: String` 和 `NoEcho: true` 的 `Parameters` 条目，命名方式相同，并以 `!Ref` 读取；可选的密钥会成为必需参数。在 `terraform` 上，是 Component 的插槽以及一个带有自身 `sensitive: true` 的模块变量，其值取自附加到该插槽的附件所交付的值；不会为这样的 Recipe 写入 `aggrega_override.tf.json`。"
   },
   "24086c2a54bd9cb3": {
     "at": "2026-10-22T01:50:22.319444+00:00",
@@ -56807,6 +56840,17 @@
     "status": "machine",
     "text": "**没有参数可以指定目录，也没有参数可以请求跟踪。** 制品的去向由调用所解析的工作区决定，而不由调用决定；从这里写出的构建不会在其输出旁留下 `.trace` 目录；带跟踪的构建请使用 [`aggrega build --trace`](aggrega-build.md)。"
   },
+  "4bc3dba3cdada247": {
+    "at": "2026-11-19T01:39:12.773Z",
+    "job": "session-0016-20261119013912",
+    "revision": {
+      "from": "39e827487e4a2324",
+      "reviewed": false
+    },
+    "srcHash": "4bc3dba3cdada247",
+    "status": "machine",
+    "text": "**导入读取构建所依据的目录：先读取工作区的目录文件夹，再读取其后的已发布目录。** 这些文件夹是 `AGGREGA_CATALOG_DIRS` 和 `workspace.catalog_dirs` 所指定的文件夹，然后是工作区根目录下的目录文件夹；在它们之后，导入将其默认注册表所发布的标准库目录作为单个已签名快照读取，该快照位于 `catalog/snapshot`。文件夹中包含的实体会取代具有相同标识的已发布实体被读取，其他所有已发布实体仍然可见，因此导入器、草稿所比对的 Components，以及 `target` 所映射的 Recipes，都来自文件夹和已发布目录的合集。文件夹中为某种语法或格式提供的解析器或导入器，会先于已发布目录中的任何解析器或导入器被选用，除非工作区配置中的某个 `plugins.importer` 条目挂接了另一个。快照只获取一次：依据该注册表的信任策略验证其签名，然后将其保存在工作区的内容缓存中，并在那里作为目录文件夹读取，限定于其摘要，不会再向任何注册表请求它。请求读取哪个快照：带 `upgrade` 时，读取最新的；否则读取 `outputDir` 中的记录里该导入的条目所指定的快照，本机未持有时按其摘要获取；否则读取工作区上一次作为最新快照获取的那个；否则读取最新的。在无法读取快照的情况下——工作区处于离线状态且本机没有该快照、工作区没有指定默认注册表，或注册表无法访问或未发布快照——指定了目录文件夹的工作区仅以这些文件夹进行导入，`diagnostics` 中的一条 `warn` 条目会说明原因，导入写入的条目保留它此前所指定的快照，因此下一次能够读取它的导入会读取同一个快照；凡是无法读取快照之处，无论本机持有什么，`upgrade` 都会被拒绝，因为只有注册表才能说明哪个快照是最新的。如果某个 `sync` 的条目指明了本机未持有且无法获取的快照，它同样会被拒绝，并指明该快照，离线时则属于 [The workspace is offline and the step needs the network（工作区处于离线状态，而该步骤需要网络）](../errors/fatal-halts.md#the-workspace-is-offline-and-the-step-needs-the-network)：它所判断的草稿是依据那个目录起草的，仅凭文件夹可能会得到不同的草稿，因此它要在能够访问注册表的地方运行，这样快照就会保留在本机上，供之后的每一次 sync 使用。未指定任何目录文件夹的工作区在需要获取快照时则是 [The workspace is offline and the step needs the network（工作区处于离线状态，而该步骤需要网络）](../errors/fatal-halts.md#the-workspace-is-offline-and-the-step-needs-the-network) 下的错误，会指明应运行什么；而在注册表未发布快照时，它会在没有目录的情况下导入，`diagnostics` 中的一条 `warn` 条目会说明这一点。"
+  },
   "4bc6a124b3e74129": {
     "at": "2026-10-29T23:14:13.329Z",
     "job": "session-0033-20261029231413",
@@ -67138,6 +67182,17 @@
     "status": "machine",
     "text": "目标注册表主机（覆盖工作区的 default_registry）"
   },
+  "5986944e7b92923c": {
+    "at": "2026-11-19T01:39:12.773Z",
+    "job": "session-0016-20261119013912",
+    "revision": {
+      "from": "4d02bb193d630805",
+      "reviewed": false
+    },
+    "srcHash": "5986944e7b92923c",
+    "status": "machine",
+    "text": "供应商约束未被保留，定义引用自身或嵌套过深而使某个形态被截断，或类型顶层之下的敏感成员未被起草为密钥；会指出属性、约束及原因。"
+  },
   "598f08074d0fc38d": {
     "at": "2026-10-29T23:25:30.396Z",
     "job": "session-0032-20261029232530",
@@ -71615,6 +71670,17 @@
     "status": "machine",
     "text": "编写时的 URL，即 Recipe 的 spec.source.url 中所写的身份 URL。对于 helm-https-chart，这是与编写时完全一致的仓库根地址（repo-root 形式）或直接的 .tgz 地址（direct 形式）。对于 git-repository，是可克隆的仓库 URL。对于 helm-oci-chart，是 registry 引用。对于 compose-https-fragment，是该片段的 HTTPS URL。repo-root 形式的 helm 源解析出的制品位置会作为来源信息单独记录在 `resolved_url:` 下。"
   },
+  "5f7806f1d14f45dc": {
+    "at": "2026-11-19T01:39:12.773Z",
+    "job": "session-0016-20261119013912",
+    "revision": {
+      "from": "87661dfbf3913398",
+      "reviewed": false
+    },
+    "srcHash": "5f7806f1d14f45dc",
+    "status": "machine",
+    "text": "**导入读取构建所依据的目录：先读取工作区的目录文件夹，再读取其后的已发布目录。** 这些文件夹是 `AGGREGA_CATALOG_DIRS` 和 `workspace.catalog_dirs` 所指定的文件夹，然后是工作区根目录下的目录文件夹；在它们之后，导入将标准库目录作为单个已签名快照读取，该快照位于所服务工作区默认注册表上的 `catalog/snapshot`——与获取核心导入器的注册表相同，以相同的条件访问，调用中没有任何内容指定注册表或携带凭据。文件夹中包含的实体会取代具有相同标识的已发布实体被读取，其他所有已发布实体仍然可见。文件夹中为某种语法或格式提供的解析器或导入器，会先于已发布目录中的任何解析器或导入器被选用，除非工作区配置中的某个 `plugins.importer` 条目挂接了另一个。快照只获取一次：其签名按照该注册表的信任策略进行验证，然后保存在工作区的内容缓存中，并作为目录文件夹在那里读取，与其摘要绑定，不会再向任何注册表请求它。调用读取哪个快照：使用 `upgrade` 时，读取最新的快照；否则读取输出目录中的记录里该导入的条目所指定的快照，若本机没有则按其摘要获取；否则读取工作区上一次作为最新快照获取的那个；否则读取最新的快照。在无法读取快照的情况下——工作区处于离线状态且本机没有该快照、工作区没有指定默认注册表，或注册表无法访问或未发布快照——指定了目录文件夹的工作区仅以这些文件夹进行导入，`diagnostics` 中的一个 `warn` 条目会说明原因，导入写入的条目保留它此前所指定的快照；凡是无法读取快照之处，无论本机保存了什么，`upgrade` 都会被拒绝，因为只有注册表才能说明哪个快照是最新的。如果某个 `sync` 的条目指明了本机未持有且无法获取的快照，它同样会被拒绝，并指明该快照：它所判断的草稿是依据那个目录起草的，仅凭文件夹可能会得到不同的草稿，因此它要在能够访问注册表的地方运行，这样快照就会保留在本机上，供之后的每一次 sync 使用。未指定任何目录文件夹的工作区在需要离线获取快照时会被拒绝，并指明要运行什么；而在注册表未发布快照时，它会在没有目录的情况下导入，`diagnostics` 中的一个 `warn` 条目会说明这一点。"
+  },
   "5f7e02c69dff2899": {
     "at": "2026-11-14T23:40:29.533Z",
     "job": "session-0013-20261114234029",
@@ -72763,6 +72829,17 @@
     "srcHash": "60e2d9696b7ebfa9",
     "status": "machine",
     "text": "为某个边界只渲染一次的 FeatureRecipe（`executionScope: boundary`）不在此检查：它的模板没有可读取的 `.context`，对它的引用会改为作为超出其作用域允许列表的字段而被拒绝。"
+  },
+  "60ebf829ffbfcfab": {
+    "at": "2026-11-19T01:39:12.773Z",
+    "job": "session-0016-20261119013912",
+    "revision": {
+      "from": "6974f59a9acf66e4",
+      "reviewed": false
+    },
+    "srcHash": "60ebf829ffbfcfab",
+    "status": "machine",
+    "text": "**Azure**：模板的一个顶层 `securestring` 参数，以实例和属性命名，由你在部署时提供。供应商标记为可选的密钥是必需参数。"
   },
   "60ed1f2593ade11b": {
     "at": "2026-10-22T08:23:20.000561+00:00",
@@ -81599,6 +81676,13 @@
     "srcHash": "6cc8519b91584e8b",
     "status": "machine",
     "text": "Go"
+  },
+  "6cc968ccf6b58f87": {
+    "at": "2026-11-19T01:39:12.773Z",
+    "job": "session-0016-20261119013912",
+    "srcHash": "6cc968ccf6b58f87",
+    "status": "machine",
+    "text": "只有类型顶层的属性才会被起草为密钥。其下的敏感成员——Azure 的 `properties.osProfile.adminPassword`、Terraform 的 `user[].password`——则不会：Release 将它设置为其父级所起草的键之内的普通值，例如 `infra.overrides.osProfile`，而导入会针对其中每一个在 `constraint-dropped` 下发出警告，并指明其路径和该键。"
   },
   "6cca9b24a831e55c": {
     "at": "2026-10-22T01:33:54.654983+00:00",
@@ -105263,6 +105347,17 @@
     "status": "machine",
     "text": "为此二进制文件中嵌入的每个 guest 生成一个实体"
   },
+  "8c393b2b523e6252": {
+    "at": "2026-11-19T01:39:12.773Z",
+    "job": "session-0016-20261119013912",
+    "revision": {
+      "from": "c08544c7adc8f7a7",
+      "reviewed": false
+    },
+    "srcHash": "8c393b2b523e6252",
+    "status": "machine",
+    "text": "`resource_types` 不是名称以及带有 `type` 和 `component` 的对象所组成的列表，或者某个条目的 `component` 为空。"
+  },
   "8c39cf1bb4eee24b": {
     "at": "2026-10-22T01:50:22.319444+00:00",
     "job": "msgbatch_01VwQyd4vfmNKqBKVTg2vP5W",
@@ -107254,6 +107349,17 @@
     "srcHash": "8ee5df761f49f614",
     "status": "machine",
     "text": "该条目渲染 chart 的 values。一个辅助模板 `BitnamiNodePool` 写出一个节点池的资源、持久化、节点选择器和反亲和性预设；该条目用 `define` 声明它，并用 `template` 调用它，用于主节点池，以及在复制模式下用于从节点池。辅助模板声明在使用它的条目内部，因为一个 Recipe 只导入一个条目，而定义随持有它的条目一起传递。库的默认值会填充 Aggregate 省略的每个资源字段，因此辅助模板读取这些字段时无需回退值。该映射处理单机与复制两种架构变体、附件所交付的凭据（从 `.context.inject.env` 读取）以及指标块。使用它的 Recipes 通过库形式的 `$import:` 导入整个 `MariaDBBitnamiCore` 条目。"
+  },
+  "8ee665e158e4b34e": {
+    "at": "2026-11-19T01:39:12.773Z",
+    "job": "session-0016-20261119013912",
+    "revision": {
+      "from": "ba1f8ec5ac0232b5",
+      "reviewed": false
+    },
+    "srcHash": "8ee665e158e4b34e",
+    "status": "machine",
+    "text": "它唯一的读取者是导入，导入先读取目录文件夹，再读取其后的已发布目录，这也是构建解析时的顺序：工作区的目录文件夹——`AGGREGA_CATALOG_DIRS`、`workspace.catalog_dirs`，然后是工作区根目录下的 `catalog/` 目录——以及其后的已发布快照，因此文件夹中包含的实体会取代具有相同标识的已发布实体被读取，其他所有已发布实体仍然可见。`aggrega import`、编辑器会话的导入以及助手的导入工具执行的是同一操作，因此它们获取快照的方式相同。导入通过与 pull 相同的出站流量管控和登录，从工作区的默认 registry 获取快照，在保留任何内容之前依据该 registry 的信任策略验证其签名，将其保存在工作区的制品缓存中，并在那里将其作为目录文件夹读取，同时锁定到其摘要——因此导入器得到的是目录的 Components，`--target` 则根据其 Recipes 起草 Manifest，所走的路径与目录文件夹完全相同。导入在其草稿旁写入的记录中，导入的条目通过清单摘要指明该快照，因此之后对相同草稿的导入无需发出请求即可读取同一目录，而 `aggrega import --upgrade` 会获取最新的快照，并从此以其为依据进行导入。在无法读取快照的情况下——离线且未持有快照、没有默认 registry，或 registry 无法访问或未发布快照——指定了目录文件夹的工作区仅以这些文件夹进行导入，并给出警告说明原因；而未指定任何目录文件夹的工作区则会停止并指明应运行的内容，或者在 registry 未发布快照时不使用目录进行导入。如果某个 `--sync` 的条目指明了本机未持有且无法获取的快照，它同样会停止，并指明该快照：它所判断的草稿是依据那个目录起草的，仅凭文件夹可能会得到不同的草稿，因此 sync 要么读取其草稿导入时所依据的快照，要么什么都不读取。没有其他命令读取该快照：pull、构建和验证都通过 §5 的各层级解析每个实体并将其固定在锁文件中，而导入的草稿按名称引用目录实体，因此构建这些草稿时也以相同方式解析这些实体。"
   },
   "8ee68f1d18f24860": {
     "at": "2026-10-22T03:06:36.769432+00:00",
@@ -127652,6 +127758,17 @@
     "status": "machine",
     "text": "不可用的常见辅助函数"
   },
+  "a9e69be6b2a2f9d2": {
+    "at": "2026-11-19T01:39:12.773Z",
+    "job": "session-0016-20261119013912",
+    "revision": {
+      "from": "610f899632ea86a6",
+      "reviewed": false
+    },
+    "srcHash": "a9e69be6b2a2f9d2",
+    "status": "machine",
+    "text": "草稿看不到 Component 的任何 `infra` 键。断言 `required_overrides_set` 会使构建停止，直到 Release 设置了所有没有任何 `values` 键提供的必需属性，并指明 `infra.overrides.<VendorName>`、要求它的类型，以及该 Component 没有声明同名的 `values` 键。如果 Component 的 `infra` 是封闭的且没有声明 `overrides`，Release 就无法设置它们：构建会依据 Component 的 schema 验证实例的 `infra`，并拒绝该键。"
+  },
   "a9ea9040430f14a2": {
     "at": "2026-11-14T10:23:22.802Z",
     "job": "session-0010-20261114102322",
@@ -143009,6 +143126,17 @@
     "srcHash": "bdae3cfc11ace2d4",
     "status": "machine",
     "text": "模式"
+  },
+  "bdb0911bdb897945": {
+    "at": "2026-11-19T01:39:12.773Z",
+    "job": "session-0016-20261119013912",
+    "revision": {
+      "from": "74510a0127c24358",
+      "reviewed": false
+    },
+    "srcHash": "bdb0911bdb897945",
+    "status": "machine",
+    "text": "格式根据源自身的形态识别，与在终端中相同；当编译器因没有任何格式或有多于一种格式识别该源而拒绝时，编辑器会显示该拒绝 — 其中指明了各种格式 — 并询问以哪种格式读取该源，然后再次发送携带该格式的同一导入；将该问题留空则以该拒绝结束导入。它只读取你指明的文件，或你指明的目录中其导入器会读取的文件，不读取其他文件。它不访问网络，除非要获取导入运行所依赖而本机尚未拥有的内容 — 某种格式首次需要时的某个编译器核心导入器，以及导入作为其目录在工作区目录文件夹之后读取的已发布目录快照 — 每一项都从工作区的默认注册表获取，经过验证并保存在内容缓存中，与 `aggrega import` 相同。如果无法获取该快照，在带有目录文件夹的工作区中，导入只读取这些文件夹，输出通道会给出说明此情况的警告；而如果某个 **Sync** 的草稿是依据本机未持有的快照导入的，它会被拒绝并指明该快照，与 `aggrega import --sync` 相同。源可以位于本机的任何位置，因为它是你指向的文件，而不是工作区所包含的文件；草稿始终落在工作区中。"
   },
   "bdb099ad6c92703f": {
     "at": "2026-11-01T14:54:04.024Z",
@@ -171043,6 +171171,13 @@
     "status": "machine",
     "text": "**完全没有声明检查方式的探针**——既没有路径，也没有要连接的端口，也没有要运行的命令。没有可以转换为检查的内容。这是 schema 之后的一道防护，而不是你可能会写出的结构：探针在到达此处之前，就已检查是否具备这三者之一。"
   },
+  "e16a7595a036d590": {
+    "at": "2026-11-19T01:39:12.773Z",
+    "job": "session-0016-20261119013912",
+    "srcHash": "e16a7595a036d590",
+    "status": "machine",
+    "text": "只有资源顶层的属性才会成为密钥——在 Azure 上是根键或 `properties` 的成员。其下的敏感成员，例如 Azure `osProfile` 内的 `adminPassword` 或 Terraform 块内的 `password`，不会被起草为密钥：Release 将它设置为其父级所起草的键之内的普通值，而导入会针对其中每一个在 `constraint-dropped` 下发出警告，并指明其路径和该键。"
+  },
   "e16c8380df4ccddf": {
     "at": "2026-10-22T02:54:42.494843+00:00",
     "job": "msgbatch_01AzobJHavYkSpJutrCSntfY",
@@ -172805,6 +172940,17 @@
     "srcHash": "e3a55ab505f415bb",
     "status": "machine",
     "text": "`spec.source: ./module` 以及 Recipe 旁的 `module/main.tf.json`；`spec.valuesMapping` 填充模块的变量"
+  },
+  "e3a905030a475b42": {
+    "at": "2026-11-19T01:39:12.773Z",
+    "job": "session-0016-20261119013912",
+    "revision": {
+      "from": "f896ee1e06d0a07e",
+      "reviewed": false
+    },
+    "srcHash": "e3a905030a475b42",
+    "status": "machine",
+    "text": "如果草稿将取用的名称已被工作区文件夹或已发布目录中某个具有不同 `values` 键的 Component 占用，导入会以 `component-exists` 停止，并指出该 Component、不同的键，以及补救办法 `component`。键相同的 Component 即为刷新后的同一份草稿，导入会继续。记录旁边的草稿中，导入自身的条目所列出的文件里的 Component，是它先前的草稿而不是目录实体，因此不会展示给导入器：在供应商的 schema 增加或失去某个标识属性之后，`--sync` 会用新的键为该 Component 起草草稿。普通导入不会覆盖已有的任何 Component 或 Recipe 文件，而是会停止并指出 `--sync`，它会使记录所列出的文件与源保持同步。"
   },
   "e3ab24092720d647": {
     "at": "2026-10-22T04:43:27.484470+00:00",
