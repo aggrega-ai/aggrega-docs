@@ -124,8 +124,11 @@ served at `aggrega.ai/docs`.
   which wraps Starlight's page frame in the element the panel's settings act
   inside. Its configuration, `src/a11y-config.json`, is the same on the home site
   and the catalog, so a reader's settings carry between the three; its texts are
-  `src/strings/accessibility-panel.json`, and its stylesheet, the two reading
-  fonts and the site's rules for it (`src/styles/a11y.css`) are in `customCss`.
+  the per-language tables of `@cognitio/a11y`, for the languages declared in
+  `package.json` (`projectLanguages`, the list in `src/languages.json`) through
+  the plugin in `astro.config.mjs`, and the frame writes the page language's
+  table into the page. Its stylesheet, the two reading fonts and the site's
+  rules for it (`src/styles/a11y.css`) are in `customCss`.
 
 ## Versions
 
