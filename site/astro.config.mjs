@@ -3,6 +3,7 @@ import { fileURLToPath } from "node:url";
 import { defineConfig } from "astro/config";
 import starlight from "@astrojs/starlight";
 import mermaid from "astro-mermaid";
+import { projectLanguagesPlugin } from "@cognitio/languages/vite";
 import { resolveVersioning } from "./src/versioning.mjs";
 import {
   corpusRoot,
@@ -125,8 +126,12 @@ export default defineConfig({
   // and the analytics beacon of a build given the site token, for the page head
   // (src/analytics.mjs). The browser scripts made only of installed packages'
   // code are written to a directory of their own (src/installed-chunks.mjs).
+  // The accessibility panel's texts are the tables of the languages declared in
+  // package.json (projectLanguages), which the first plugin answers an import of
+  // @cognitio/a11y/project-locales with.
   vite: {
     plugins: [
+      projectLanguagesPlugin(),
       untranslatedPagesModule(),
       machineTranslationNoticeModule(),
       siteNavModule(),

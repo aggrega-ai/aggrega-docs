@@ -1,5 +1,6 @@
 ---
 import Default from "@astrojs/starlight/components/PageFrame.astro";
+import panelTexts from "@cognitio/a11y/project-locales";
 
 // Starlight's page frame — the header, the sidebar and the content — inside a
 // wrapper carrying `site-shell`, the class the accessibility panel's preferences
@@ -9,16 +10,24 @@ import Default from "@astrojs/starlight/components/PageFrame.astro";
 // The panel is the React component of @cognitio/a11y, rendered in the browser
 // alone by the script below: the site has no React integration, and the panel's
 // button does nothing before its script runs, so there is nothing to render
-// ahead of it. Its texts are src/strings/accessibility-panel.json, in English on
-// every language's pages, and its configuration src/a11y-config.json, the same
-// as on the home site and the catalog, which share this site's origin: the three
-// keep a reader's choices under one storage key, so a choice made on one applies
-// on the others. Its stylesheet, the reading fonts and the site's own rules for
-// the panel are in Starlight's customCss (astro.config.mjs).
+// ahead of it. Its texts are the table of the page's language from
+// @cognitio/a11y/project-locales, which holds a table for each language declared
+// in package.json (projectLanguages, the list in src/languages.json); the page
+// carries that one table as the JSON script element below, and the client script
+// hands it to the panel, so no language's texts are in the script. Its
+// configuration is src/a11y-config.json, the same as on the home site and the
+// catalog, which share this site's origin: the three keep a reader's choices
+// under one storage key, so a choice made on one applies on the others. Its
+// stylesheet, the reading fonts and the site's own rules for the panel are in
+// Starlight's customCss (astro.config.mjs).
+const { lang } = Astro.locals.starlightRoute;
+const table = (panelTexts as Record<string, Record<string, string>>)[lang] ?? {};
+const tableJson = JSON.stringify(table).replace(/</g, "\\u003c");
 ---
 
 <div class="site-shell">
   <div id="accessibility-panel-root"></div>
+  <script id="accessibility-panel-texts" type="application/json" is:inline set:html={tableJson} />
   <Default>
     <slot name="header" slot="header" />
     <slot name="sidebar" slot="sidebar" />
@@ -31,9 +40,10 @@ import Default from "@astrojs/starlight/components/PageFrame.astro";
   import { createRoot } from "react-dom/client";
   import AccessibilityToolbar, { type A11yToolbarConfig } from "@cognitio/a11y/toolbar";
   import config from "../a11y-config.json";
-  import texts from "../strings/accessibility-panel.json";
 
   const root = document.getElementById("accessibility-panel-root");
+  const tableElement = document.getElementById("accessibility-panel-texts");
+  const texts = tableElement?.textContent ? JSON.parse(tableElement.textContent) : undefined;
   if (root) {
     createRoot(root).render(
       createElement(AccessibilityToolbar, {
