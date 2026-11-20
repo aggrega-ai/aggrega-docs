@@ -37,7 +37,7 @@ Translate into Modern Standard Arabic. Each choice below is a default, made with
 - Abbreviations such as AOT, IR, CLI and ABI stay; their expansion is translated where the source spells it out.
 - No Arabic affix is joined to a Latin term or a code span: never the definite article "ال" before it, never a one-letter preposition or conjunction (ب، ل، ك، ف), never a suffix. Write a noun before the term instead ("ملف YAML" and "الكيان Release" and "بالأمر `aggrega build`"), or a preposition that stands as a word of its own (في، من، إلى، على، عن، مع).
 - The conjunction "و" stands as a word of its own before a Latin term or a code span, also in a list of kept terms, in an image description and after a full stop: "Components و Features" and "و Release". A one-letter preposition (ب، ف) never joins a Latin term either.
-- A kept term with no Arabic noun before it takes masculine agreement, in its adjective, its relative clause and its verb: "كل Release مستقل"، «Feature الذي يملؤه الاتصال»، «يعلن Feature»، «Recipe الذي يختاره Manifest»; never «Feature التي» nor «تعلن Feature» for the bare term. A plural kept term takes the feminine singular, as every non-human plural does: "Releases مستقلة". After an Arabic noun, agreement follows that noun: «طبقة Recipe التي يختارها Manifest».
+- A kept term with no Arabic noun before it takes masculine agreement in every word that agrees with it, Feature, Recipe and FeatureRecipe included: its verb when it is the subject («يعلن Recipe»، «يصيّر Recipe»، «يقرأ FeatureRecipe»، «يعلن Feature»), its adjective («Recipe helm المُركَّب»، «FeatureRecipe الخاص به»، «Feature مرفق بالعقدة»، "كل Release مستقل") and its relative clause («Feature الذي يملؤه الاتصال»، «Recipe الذي يختاره Manifest»). Never «تعلن Recipe»، «Recipe helm المُركَّبة»، «FeatureRecipe الخاصة به»، «Feature مرفقة بالعقدة» nor «Feature التي» for the bare term. A plural kept term takes the feminine singular, as every non-human plural does: "Releases مستقلة". After an Arabic noun, agreement follows that noun: «طبقة Recipe التي يختارها Manifest».
 
 ## The qualifiers
 
@@ -69,7 +69,7 @@ Files and data:
 | database | قاعدة بيانات |
 | information | معلومات |
 | message | رسالة |
-| path | مسار |
+| path (a file path, the route through a provider) | مسار |
 | log | سجل |
 | cache | ذاكرة التخزين المؤقت |
 | semantic cache | ذاكرة التخزين المؤقت الدلالية |
@@ -80,6 +80,7 @@ Files and data:
 | lockfile | ملف القفل |
 | entry (a row of a list, a map, a catalog or a lockfile) | إدخال (plural: إدخالات) |
 | input (what a build, a step or a template reads) | مُدخَل (plural: مُدخَلات) |
+| input mode | وضع المُدخَل (plural: أوضاع المُدخَلات) |
 | declare, declaration | يعلن، إعلان |
 | declarative | تصريحي |
 | condition (documented by an error or warnings page) | الحالة |
@@ -136,6 +137,7 @@ Build and run:
 |---|---|
 | to run, to execute | تشغيل |
 | to call | استدعاء |
+| computed (what a host calculates) | احتسب |
 | to create | إنشاء |
 | to build, a build | بناء |
 | to compile, compilation (the noun) | التحويل البرمجي |
@@ -143,6 +145,8 @@ Build and run:
 | compile time | وقت التحويل البرمجي (runtime, the phase it is set against, is وقت التشغيل) |
 | compiler | المحوِّل البرمجي |
 | to render | تصيير |
+| walkthrough (a page that builds an example step by step) | الشرح العملي |
+| walkthrough (the explain output for one condition) | الجولة التفصيلية |
 | to generate | توليد |
 | to emit | أصدر (the verb يُصدِر) |
 | to deploy | نشر |
@@ -309,7 +313,7 @@ Each of these is the ordinary word, written in lowercase in the source; the same
 - To declare, and a declaration, said of an entity, a Recipe, a provider or a plugin, take the root علن: «يعلن»، «معلن»، «إعلان». Never «يصرّح» nor «تصريح» for a declaration, and never «المصرَّح به» for what is declared. Declarative, said of a design, a state, an agent or a file, is «تصريحي» («الوكيل التصريحي»، «حالة تصريحية»), whatever the verb to declare takes; the ban on «تصريح» covers the verb and the noun of a declaration only, and «إعلاني» is never written for declarative.
 - A collision, said of two names, two files or two outputs that reach one place, is «تعارض» («تعارض الإخراج المجمَّع»، «يتعارض»). Never «تصادم».
 - A namespace, said of a Kubernetes namespace, a prefix namespace, a method namespace or the namespace of a slot, is «مساحة أسماء» («مساحة الأسماء المحجوزة»). Never «فضاء أسماء» nor «نطاق أسماء», because «نطاق» is a scope.
-- An entry, a row of a list, a map, a catalog or a lockfile, is «إدخال» (plural «إدخالات»): «إدخال في ملف القفل». An input, what a build, a step or a template reads, is «مُدخَل» (plural «مُدخَلات»), and an input kind, such as the kinds of input a Recipe takes, is «نوع المُدخَل» (plural «أنواع المُدخَلات»). In running text the unvowelled «مدخل» and «مدخلات» also read as input, because «إدخال» is the entry; add no diacritics only to make a word match the pin. Never «مدخل» nor «مداخل» for an entry, and never «نوع الإدخال» for an input kind.
+- An entry, a row of a list, a map, a catalog or a lockfile, is «إدخال» (plural «إدخالات»): «إدخال في ملف القفل». An input, what a build, a step or a template reads, is «مُدخَل» (plural «مُدخَلات»), and an input kind, such as the kinds of input a Recipe takes, is «نوع المُدخَل» (plural «أنواع المُدخَلات»). In running text the unvowelled «مدخل» and «مدخلات» also read as input, because «إدخال» is the entry; add no diacritics only to make a word match the pin. Never «مدخل» nor «مداخل» for an entry, and never «نوع الإدخال» for an input kind. An input mode, such as a Recipe's input modes, takes the input noun with the same diacritics as «نوع المُدخَل»: «وضع المُدخَل» (plural «أوضاع المُدخَلات»), never «وضع إدخال». The same input, said of a build that gives the same result for the same input, is «المُدخَل نفسه», never «الإدخال نفسه».
 - A surface, said of the set of places a command, a tool or a check reaches, is «سطح» («سطح الأدوات»). «واجهة» is an interface and never a surface.
 - A remedy, the way out an error entry names, is «العلاج» («العلاجان»), and the `remediation:` label inside an emitted message is «المعالجة». «الإصلاح» is only the act of repair, as in «طريقة الإصلاح».
 - A symbolic link and a link on disk are «رابط رمزي» and «رابط». «وصلة» is not used for a link, because a connection between two nodes of a Release is «اتصال».
@@ -320,6 +324,9 @@ Each of these is the ordinary word, written in lowercase in the source; the same
 - Published, said of a schema, a document, a name, a value, an address, an alias or a port that is made available, takes the verb طرح (the verb «يطرح»): "the published schema" is «المخطط المطروح» and «العنوان الذي يطرحه `published_port`». Never «المنشور» or «منشورة»: نشر is deploying.
 - A router, the Release as "the router" or a text-router, is «جهاز توجيه» ("deployment router" is «جهاز توجيه النشر»). A prompt, what is sent to a model, is «مطالبة» (plural «مطالبات»): «حقن المطالبات» for prompt injection. A prompt the assistant pages hand a reader to paste, and the assistant's authoring prompts, are «موجِّه» (plural «موجِّهات»), the only use of that word. Never «أمر» for a prompt, which is a command.
 - Pipeline, in plain text, is «خط المعالجة» (plural «خطوط المعالجة»), also for the compiler's own pipeline and a feature-recipe pipeline; in the construct state before a noun it is «خط معالجة»: «خط معالجة المحوِّل البرمجي». A CI/CD pipeline is «خط CI/CD». Never «مسار», which is a path. A word in inline code (`pipeline`) stays as written.
+- A path, said of the route a Release takes through one provider (the Compose path, the helm path, the Kubernetes path, the synthesized helm path) or of a file path, is «مسار» («مسار Compose»، «مسار helm المُركَّب»); the noun after it says which. Never «طريق», which is a road.
+- Walkthrough, said of a page that builds an example step by step, is «الشرح العملي» («الشرح العملي لاستيراد Compose»); a link to such a page uses the page's own Arabic title. Said of what the explain output gives for one condition, it is «الجولة التفصيلية». Never «دليل إرشادي» nor a bare «الشرح» for the page.
+- Computed, said of what a host calculates, is «احتسب»; never the unvowelled «حسب», which reads as "according to". Write the form that cannot be misread wherever a verb left unvowelled may be taken for a preposition or a noun.
 - A proxy is «خادم وكيل» (plural «خوادم وكيلة»); an agent is «وكيل» alone, so the two never share a word. An SSH agent stays as written, as listed below.
 - Wire, wiring and to wire take the root توصيل: «توصيل دلالي» for Semantic Wiring. To bind and binding take the root ربط: «الربط المتأخر» for Late Binding. To connect and a connection stay اتصال and يتصل for a client reaching a server. A connection between two nodes of a Release, and its alias, is «اتصال» (plural «اتصالات») too: never «وصلة».
 - Physical, said of infrastructure, resources and sizing, is «فعلي» (feminine «فعلية», adverb «فعليًا»), as in «البنية التحتية الفعلية». Never «مادي». The pair physical and logical is «فعلي» and «منطقي».
@@ -339,7 +346,7 @@ Each of these is the ordinary word, written in lowercase in the source; the same
   - an operator in programming: عامل
   - a Kubernetes operator, a controller: Operator, in Latin letters
 - A slot, said of an attachment slot or a slot a Component declares, is «خانة» (plural «خانات»): «خانة إرفاق». Never «فتحة». A socket stays «مقبس».
-- An attachment, the entity a Release or an Aggregate attaches and the act of attaching it, is «إرفاق» (plural «إرفاقات»): «إرفاق Feature»، «اسم الإرفاق»، «إرفاقات الحوكمة». To attach is «يرفق» («يُرفق» in the passive). Never «مرفق» or «مرفقات» as the noun, and never «ملحق» or «ملحقات». The adjective stays «مرفق»: «Feature مرفقة بالعقدة».
+- An attachment, the entity a Release or an Aggregate attaches and the act of attaching it, is «إرفاق» (plural «إرفاقات»): «إرفاق Feature»، «اسم الإرفاق»، «إرفاقات الحوكمة». To attach is «يرفق» («يُرفق» in the passive). Never «مرفق» or «مرفقات» as the noun, and never «ملحق» or «ملحقات». The adjective stays «مرفق»: «Feature مرفق بالعقدة».
 - An instance, said of an instance name, a Component instance, a database instance, a virtual machine instance or a service instance (a Sigstore instance, a gateway instance), is «مثيل» (plural «مثيلات»): «اسم المثيل». Never «نسخة», which is a copy or a replica.
 - A stack, a search stack, a CloudFormation stack or a Docker Compose stack, is «مكدس» (plural «مكدسات»): «مكدس بحث الكتالوج»، «مكدس Compose». Never «منظومة», never «حزمة», which is a package, and never stack in Latin letters.
 - A pass, said of one run through a check or a build, is «مرور»: «في مرور واحد». Never «ممر», which is a corridor.
@@ -374,8 +381,8 @@ Each of these is the ordinary word, written in lowercase in the source; the same
 - A label an editor or a client shows on screen (a setting's name, a button, a menu item) stays in English exactly as the screen shows it, in the source's emphasis. VS Code's Command Palette named in prose is لوحة الأوامر (English only where the text quotes the English screen).
 - A status label in inline code stays as it is; in plain text it is translated.
 - These stay in Latin letters, as the source writes them:
-  - pull and push, the `aggrega pull` and `aggrega push` operations, in prose too (a server pushing diagnostics is the ordinary verb يرسل)
-  - the pull step of a build is «خطوة pull», and a build that pulls is «بناء يشغّل pull»: the verb never becomes «يسحب», and `--auto-pull` and `auto_pull` stay as written, never «الجلب التلقائي»
+  - pull and push, the `aggrega pull` and `aggrega push` operations, and a person or a step that pulls an entity, in prose too: «لمن يشغّل pull» (a server pushing diagnostics is the ordinary verb يرسل)
+  - the pull step of a build is «خطوة pull», and a build that pulls is «بناء يشغّل pull»: the verb never becomes «يسحب», and `--auto-pull` and `auto_pull` stay as written, never «الجلب التلقائي» «يسحب» is only to withdraw, as in «يسحب تحذيرًا» and «يسحب قدرة».
   - sync, the import send mode (ordinary synchronising is مزامنة)
   - lint, the check, and linter
   - sentinel, an error sentinel
