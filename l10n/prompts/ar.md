@@ -36,7 +36,7 @@ Translate into Modern Standard Arabic. Each choice below is a default, made with
 - The names of other products and standards: Kubernetes, Helm, Docker Compose, Terraform, CloudFormation, WebAssembly, JSON Schema, YAML, OCI.
 - Abbreviations such as AOT, IR, CLI and ABI stay; their expansion is translated where the source spells it out.
 - No Arabic affix is joined to a Latin term or a code span: never the definite article "ال" before it, never a one-letter preposition or conjunction (ب، ل، ك، ف), never a suffix. Write a noun before the term instead ("ملف YAML" and "الكيان Release" and "بالأمر `aggrega build`"), or a preposition that stands as a word of its own (في، من، إلى، على، عن، مع).
-- The conjunction "و" stands as a word of its own before a Latin term or a code span: "Components و Features".
+- The conjunction "و" stands as a word of its own before a Latin term or a code span, also in a list of kept terms, in an image description and after a full stop: "Components و Features" and "و Release". A one-letter preposition (ب، ف) never joins a Latin term either.
 - A kept term with no Arabic noun before it takes masculine agreement: "كل Release مستقل"; a plural kept term takes the feminine singular, as every non-human plural does: "Releases مستقلة". After an Arabic noun, agreement follows that noun.
 
 ## The qualifiers
@@ -72,12 +72,13 @@ Files and data:
 | path | مسار |
 | log | سجل |
 | cache | ذاكرة التخزين المؤقت |
+| semantic cache | ذاكرة التخزين المؤقت الدلالية |
 | binary | ملف ثنائي |
 | configuration file | ملف التكوين |
 | artifact | مُخرَج (plural: مُخرَجات) |
 | output, outputs (what a command, a build or a render writes) | الإخراج |
 
-An artifact is مُخرَج and output is الإخراج: the two stay apart, and output is never مُخرَجات (also written without diacritics). Output stays الإخراج in every phrase: the output of a verdict is «إخراج الحكم».
+An artifact is مُخرَج and output is الإخراج: the two stay apart, and output is never مُخرَجات (also written without diacritics). Output stays الإخراج in every phrase: the output of a verdict is «إخراج الحكم». What a compiler, a Recipe or a plugin writes is emitted, «أصدر», and an emitted file is «ملف مُصدَر»: never «أنتج». The emitted message keeps its own pin under Recurring terms.
 
 Code:
 
@@ -104,6 +105,9 @@ Code:
 | schema | مخطط |
 | entity | كيان |
 | entity kind | نوع الكيان |
+| instance | مثيل (plural: مثيلات) |
+| mapping | تعيين |
+| severity | مستوى الخطورة |
 | to implement | تنفيذ |
 | to optimize | تحسين |
 | thread | مؤشر ترابط |
@@ -126,6 +130,7 @@ Build and run:
 | compiler | المحوِّل البرمجي |
 | to render | تصيير |
 | to generate | توليد |
+| to emit | أصدر (the verb يُصدِر) |
 | to deploy | نشر |
 | to publish | طرح |
 | to apply | تطبيق |
@@ -155,6 +160,7 @@ Build and run:
 | pipeline | خط المعالجة |
 | proxy | خادم وكيل |
 | agent | وكيل |
+| middleware | برنامج وسيط (plural: برامج وسيطة) |
 | to wire | توصيل |
 | to bind | ربط |
 | physical | فعلي |
@@ -179,6 +185,8 @@ Network:
 | request | طلب |
 | response | استجابة |
 | socket | مقبس |
+| slot | خانة (plural: خانات) |
+| connection, between two nodes of a Release | اتصال (plural: اتصالات) |
 
 Security:
 
@@ -260,11 +268,11 @@ Each of these is the ordinary word, written in lowercase in the source; the same
 - A field name written in plain text (pluginType) stays as written inside translated error text.
 - The label "How to fix:" is **طريقة الإصلاح:** at the start of its paragraph.
 - Emitted message, emitted messages: الرسالة الصادرة، الرسائل الصادرة.
-- Published, said of a schema, a document or a name that is made available, takes the verb طرح: "the published schema" is «المخطط المطروح». Never «المنشور» or «منشورة»: نشر is deploying.
-- A router, the Release as "the router" or a text-router, is «جهاز توجيه» ("deployment router" is «جهاز توجيه النشر»). The word «موجِّه» is only a prompt, as the assistant pages use it.
-- Pipeline, in plain text, is «خط المعالجة» (plural «خطوط المعالجة»), also for the compiler's own pipeline and a feature-recipe pipeline. A CI/CD pipeline is «خط CI/CD». Never «مسار», which is a path. A word in inline code (`pipeline`) stays as written.
+- Published, said of a schema, a document, a name, a value, an address, an alias or a port that is made available, takes the verb طرح (the verb «يطرح»): "the published schema" is «المخطط المطروح» and «العنوان الذي يطرحه `published_port`». Never «المنشور» or «منشورة»: نشر is deploying.
+- A router, the Release as "the router" or a text-router, is «جهاز توجيه» ("deployment router" is «جهاز توجيه النشر»). A prompt, what is sent to a model, is «مطالبة» (plural «مطالبات»): «حقن المطالبات» for prompt injection. A prompt the assistant pages hand a reader to paste, and the assistant's authoring prompts, are «موجِّه» (plural «موجِّهات»), the only use of that word. Never «أمر» for a prompt, which is a command.
+- Pipeline, in plain text, is «خط المعالجة» (plural «خطوط المعالجة»), also for the compiler's own pipeline and a feature-recipe pipeline; in the construct state before a noun it is «خط معالجة»: «خط معالجة المحوِّل البرمجي». A CI/CD pipeline is «خط CI/CD». Never «مسار», which is a path. A word in inline code (`pipeline`) stays as written.
 - A proxy is «خادم وكيل» (plural «خوادم وكيلة»); an agent is «وكيل» alone, so the two never share a word. An SSH agent stays as written, as listed below.
-- Wire, wiring and to wire take the root توصيل: «توصيل دلالي» for Semantic Wiring. To bind and binding take the root ربط: «الربط المتأخر» for Late Binding. To connect and a connection stay اتصال and يتصل for a client reaching a server.
+- Wire, wiring and to wire take the root توصيل: «توصيل دلالي» for Semantic Wiring. To bind and binding take the root ربط: «الربط المتأخر» for Late Binding. To connect and a connection stay اتصال and يتصل for a client reaching a server. A connection between two nodes of a Release, and its alias, is «اتصال» (plural «اتصالات») too: never «وصلة».
 - Physical, said of infrastructure, resources and sizing, is «فعلي» (feminine «فعلية», adverb «فعليًا»), as in «البنية التحتية الفعلية». Never «مادي». The pair physical and logical is «فعلي» and «منطقي».
 - Hardcoded is «مثبَّت في الشيفرة»: «مخططات مثبَّتة في الشيفرة». Never «مرمَّز».
 - A graph is «رسم بياني»: the IR graph is «رسم IR البياني», and the plural is «الرسوم البيانية». Never «مخطط», which is a schema.
@@ -277,10 +285,18 @@ Each of these is the ordinary word, written in lowercase in the source; the same
 - Lowercase workload, feature, manifest and operator are ordinary words, translated also inside a compound:
   - a workload: حمل العمل (plural: أحمال العمل)
   - a feature: ميزة
-  - a manifest (a Kubernetes or OCI manifest): بيان (the plural is «ملفات بيان», since «بيانات» alone is data)
+  - a manifest (a Kubernetes or OCI manifest): بيان (the plural is «ملفات بيان», since «بيانات» alone is data); a provider-native manifest is «ملف بيان أصلي للموفِّر» (plural «ملفات بيان أصلية للموفِّر»), never «بيانات تعريفية», which is metadata
   - an operator, a person: مشغِّل
   - an operator in programming: عامل
   - a Kubernetes operator, a controller: Operator, in Latin letters
+- A slot, said of an attachment slot or a slot a Component declares, is «خانة» (plural «خانات»): «خانة إرفاق». Never «فتحة». A socket stays «مقبس».
+- An instance, said of an instance name, a Component instance, a database instance or a virtual machine instance, is «مثيل» (plural «مثيلات»): «اسم المثيل». Never «نسخة», which is a copy or a replica.
+- Domain, said of the four domains, of Domain 1 to 4 and of domain-specific, is «المجال» (plural «المجالات»): «المجال 2» and «الخاص بالمجال». Scope, and a DNS domain or sub-domain, is «نطاق» (plural «نطاقات»). The two never share a word.
+- Cache is «ذاكرة التخزين المؤقت», and a semantic cache is «ذاكرة التخزين المؤقت الدلالية». Never «الذاكرة المؤقتة».
+- Middleware is «برنامج وسيط» (plural «برامج وسيطة»). «وسيط» alone is intermediate, as in «التمثيل الوسيط».
+- Mapping, a Manifest mapping or a values mapping, is «تعيين»: never «ربط», which is binding, nor «مطابقة», which is matching.
+- A dispatch group is «مجموعة توزيع»: never «مجموعة إرسال».
+- Severity is «مستوى الخطورة».
 - A label an editor or a client shows on screen (a setting's name, a button, a menu item) stays in English exactly as the screen shows it, in the source's emphasis. VS Code's Command Palette named in prose is لوحة الأوامر (English only where the text quotes the English screen).
 - A status label in inline code stays as it is; in plain text it is translated.
 - These stay in Latin letters, as the source writes them:
