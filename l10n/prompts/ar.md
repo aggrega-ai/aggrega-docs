@@ -78,6 +78,12 @@ Files and data:
 | artifact | مُخرَج (plural: مُخرَجات) |
 | output, outputs (what a command, a build or a render writes) | الإخراج |
 | lockfile | ملف القفل |
+| entry (a row of a list, a map, a catalog or a lockfile) | إدخال (plural: إدخالات) |
+| input (what a build, a step or a template reads) | مُدخَل (plural: مُدخَلات) |
+| declare, declaration | يعلن، إعلان |
+| condition (documented by an error or warnings page) | الحالة |
+| remedy (an error entry's way out) | العلاج |
+| symbolic link, link on disk | رابط رمزي، رابط |
 | plugin trust record | سجل الثقة |
 
 An artifact is مُخرَج and output is الإخراج: the two stay apart, and output is never مُخرَجات (also written without diacritics). Output stays الإخراج in every phrase: the output of a verdict is «إخراج الحكم». What a compiler, a Recipe or a plugin writes is emitted, «أصدر», and an emitted file is «ملف مُصدَر»: never «أنتج». The emitted message keeps its own pin under Recurring terms.
@@ -216,6 +222,9 @@ Network:
 | response | استجابة |
 | socket | مقبس |
 | slot | خانة (plural: خانات) |
+| namespace | مساحة أسماء |
+| collision | تعارض |
+| surface (the places a command or a tool reaches) | سطح |
 | connection, between two nodes of a Release | اتصال (plural: اتصالات) |
 
 Security:
@@ -262,7 +271,7 @@ Each of these is the ordinary word, written in lowercase in the source; the same
 
 ## Recurring terms
 
-- A kept term keeps the source's number inside a compound too: «ربط Feature» for Feature binding, «أنواع Feature» for Feature types and «عائلات Feature» for Feature families; «ربط Features» is only for Features bindings.
+- A kept term keeps the source's number inside a compound too, a hyphenated one included: «ربط Feature» for Feature binding, «أنواع Feature» for Feature types, «عائلات Feature» for Feature families, «عبر Recipe» for cross-Recipe and «إعادة الاستخدام عبر Component» for cross-Component reuse. «ربط Features» is only for Features bindings, and «عبر Recipes» and «عبر Components» are never written for the cross- compounds.
 - The four domains are always translated, with the English in parentheses at a page's first occurrence, as in "المطوِّر (Developer)":
   - Developer: المطوِّر
   - Platform Architect: مهندس المنصة المعماري (the Architect alone, and the architect role, take the same rendering: never «المعماري» alone, which reads as "architectural"; within one sentence after the full form, «المهندس المعماري» may follow)
@@ -291,10 +300,17 @@ Each of these is the ordinary word, written in lowercase in the source; the same
 - عمليات المنصة is the Platform Ops domain only. Operational is تشغيلي (the Ops discipline alone is العمليات).
 - To pipe, the String Pipe's verb, is تمرير (the verb يمرِّر); a pipe is أنبوب.
 - `agnostic to` is the qualifier above. X-agnostic is "لا يرتبط ب" joined to X, as in provider-agnostic "لا يرتبط بموفِّر بعينه"; agnostic with no object is محايد (neutral), and never gains an object the source does not name.
-- A heading on an error or warnings page, and the text of every link to such a heading, is the English name first, then the Arabic in parentheses: "The provider does not support omits (لا يدعم الموفِّر omits)". One link text per target. The English keeps its inline code, and a capitalized glossary term inside the Arabic in parentheses stays in Latin letters, as anywhere else.
-- An error heading's Arabic, the text inside its parentheses, is copied word for word into every quotation of that error name and every link to that heading.
-- A heading is translated, and every link to it copies that heading's Arabic character for character, diacritics included; a link never translates a heading anew. «المحدِّدات المعلنة» and «المحددات المعلنة» are two renderings, so a link that differs from its heading by one diacritic is a defect.
+- A heading on an error or warnings page, and the text of every link to such a heading, is the English name first, then the Arabic in parentheses: "The provider does not support omits (لا يدعم الموفِّر omits)". One link text per target. The English keeps its inline code, and a capitalized glossary term inside the Arabic in parentheses stays in Latin letters, as anywhere else. The Arabic gloss writes every key, field and file the English names in plain text (aggregates, components, value:, from:, in:) in Latin letters as the source writes it, never as an Arabic paraphrase of that key.
+- A heading on an error page and every quotation of it, in a link, a list of headings separated by semicolons or a sentence of another page, carry the same Arabic character for character, diacritics included: a quotation copies each heading's Arabic as the heading writes it, and a link never translates a heading anew. «المحدِّدات المعلنة» and «المحددات المعلنة» are two renderings, so a link that differs from its heading by one diacritic is a defect.
 - A link from any page to a heading that is not on an error page uses the Arabic alone, also where the link is written in the English-first form of an error heading (the English-first form belongs only to a heading on an error or warnings page and to the links to it): its text is translated even where the source shows the heading verbatim, and also where it is a page title after a path prefix such as `arm →` (the part after the arrow; the arrow follows the rule under Direction).
+- A condition, said of what an error page or a warnings page documents (a halting condition, the condition's own sentence, the condition's short code), is «الحالة» («هذه الحالة»، «حالة التوقف»، «رمز الحالة»). «الشرط» is only a logical condition, as in an `if`, and never the documented condition.
+- To declare, and a declaration, said of an entity, a Recipe, a provider or a plugin, take the root علن: «يعلن»، «معلن»، «إعلان». Never «يصرّح» nor «تصريح» for a declaration, and never «المصرَّح به» for what is declared.
+- A collision, said of two names, two files or two outputs that reach one place, is «تعارض» («تعارض الإخراج المجمَّع»، «يتعارض»). Never «تصادم».
+- A namespace, said of a Kubernetes namespace, a prefix namespace, a method namespace or the namespace of a slot, is «مساحة أسماء» («مساحة الأسماء المحجوزة»). Never «فضاء أسماء» nor «نطاق أسماء», because «نطاق» is a scope.
+- An entry, a row of a list, a map, a catalog or a lockfile, is «إدخال» (plural «إدخالات»): «إدخال في ملف القفل». An input, what a build, a step or a template reads, is «مُدخَل» (plural «مُدخَلات»). Never «مدخل» nor «مداخل» for an entry.
+- A surface, said of the set of places a command, a tool or a check reaches, is «سطح» («سطح الأدوات»). «واجهة» is an interface and never a surface.
+- A remedy, the way out an error entry names, is «العلاج» («العلاجان»), and the `remediation:` label inside an emitted message is «المعالجة». «الإصلاح» is only the act of repair, as in «طريقة الإصلاح».
+- A symbolic link and a link on disk are «رابط رمزي» and «رابط». «وصلة» is not used for a link, because a connection between two nodes of a Release is «اتصال».
 - Overview, in a heading or a link, is نظرة عامة.
 - A field name written in plain text (pluginType) stays as written inside translated error text.
 - The label "How to fix:" is **طريقة الإصلاح:** at the start of its paragraph.
@@ -335,14 +351,14 @@ Each of these is the ordinary word, written in lowercase in the source; the same
 - An exit code is «رمز الخروج», and an exit status is «حالة الخروج»: the two words stay apart on every page.
 - A dry run is «التشغيل التجريبي».
 - The plugin trust record is «سجل الثقة» («سجل ثقة المكوِّنات الإضافية»), and a lockfile is «ملف القفل».
-- A gate, a check that halts a build (the publish gate, a verdict-role plugin), is «بوابة فحص» (plural «بوابات فحص»), and the publish gate is «بوابة فحص الطرح». A gateway, an AI gateway or an API gateway, is «بوابة» alone. The two never share a bare «بوابة».
+- A gate, a check that halts a build (the publish gate, a verdict-role plugin), is «بوابة فحص» (plural «بوابات فحص»), and the publish gate is «بوابة فحص الطرح». It is «بوابة فحص» in every sentence of an error entry, also when the entry names it twice: a bare «بوابة» is only a gateway, an AI gateway or an API gateway. The two never share a bare «بوابة».
 - A Wasm guest stays `guest` in Latin letters, in the singular and the plural, in plain text too: «وحدة guest»، «guest Wasm». The host stays «مضيف». Never «ضيف».
 - A dispatch group is «مجموعة توزيع»: never «مجموعة إرسال».
 - Severity is «مستوى الخطورة».
 - Provenance, said of where a value, a label, a file or a key came from, is «المنشأ» («قوس المنشأ»، «تسمية المنشأ»، «مفتاح المنشأ»). Never «مصدر», which is a source, nor «أصل», which is an origin or a parent.
 - The head of a printed diagnostic, the bracketed part that carries the category and the short code, is «الرأس» («رأس التشخيص»، «يحمل الرأس الفئة»). An HTTP header or a header of a file is «ترويسة». The two never share a word.
 - A finding, what a check or a build reports, is «نتيجة» (plural «نتائج»), never «ملاحظة», which is a note. A diagnostic stays «تشخيص».
-- Failure, as a noun, is «إخفاق» («إخفاق الحل»، «إخفاقات الجلب»), and to fail, as a verb, is «يفشل». «فشل» is not used as the noun.
+- Failure, as a noun, is always «إخفاق» (plural «إخفاقات»): «إخفاق الحل»، «إخفاقات الجلب». To fail, as a verb, is «يفشل». «فشل» is never the noun: write «إخفاق» wherever the English says failure.
 - A cap, said of a ceiling on a count, a size or a number of results (a concurrency cap, a size cap, a result cap, a cap on how many tools a client registers), is «سقف» («سقف التزامن»، «سقف الحجم»، «سقف النتائج»), never «حد». A limit that is neither a cap nor a resource limit keeps «حد» as pinned above, and a name inside inline code stays as written.
 - A mandate, said of a presence mandate, is «تفويض» («تفويض حضور»، plural «تفويضات الحضور»), never «إلزام». The verb «يفوّض» follows it.
 - A cascade, said of a layered lookup (the plugin cascade, the catalog cascade, the configuration cascade), is «التتابع»: «تتابع المكوِّنات الإضافية». Never «التدرج»، «التسلسل» nor «متدرج». Cascading Annotations stays as pinned above.
