@@ -81,6 +81,9 @@ Files and data:
 | entry (a row of a list, a map, a catalog or a lockfile) | إدخال (plural: إدخالات) |
 | input (what a build, a step or a template reads) | مُدخَل (plural: مُدخَلات) |
 | input mode | وضع المُدخَل (plural: أوضاع المُدخَلات) |
+| sourced (an input kind, an input mode, a path, a template) | مصدري (feminine: مصدرية) |
+| synthesized (an input kind) | المُركَّب |
+| fact (what a provider reports or a template reads) | حقيقة (plural: حقائق) |
 | declare, declaration | يعلن، إعلان |
 | declarative | تصريحي |
 | condition (documented by an error or warnings page) | الحالة |
@@ -123,6 +126,15 @@ Code:
 | HTTP header, header of a file | ترويسة |
 | finding (what a check or a build reports) | نتيجة (plural: نتائج) |
 | failure, as a noun | إخفاق (plural: إخفاقات); to fail: يفشل |
+| structured (a tree, an object, a map, a value) | مهيكل (feminine: مهيكلة) |
+| callback (a source callback) | دالة رد النداء (plural: دوال رد النداء) |
+| export (a plugin's ABI export) | تصدير (plural: تصديرات) |
+| kit (the plugin development kit, a language's kit) | مجموعة أدوات |
+| controller (a process that reconciles a resource) | وحدة تحكم (plural: وحدات تحكم) |
+| wire (a plugin's wire types, shapes and encodings) | السلك |
+| hyphen (the character) | واصلة (plural: واصلات) |
+| tagging (the built-in tagging plugins, the selector tagger) | الوسم |
+| markings (what a sensitivity declaration puts on a value) | التعليم (marked: معلَّم) |
 | to implement | تنفيذ |
 | to optimize | تحسين |
 | thread | مؤشر ترابط |
@@ -205,7 +217,7 @@ Build and run:
 | cascade (a layered lookup) | التتابع |
 | drift | انحراف |
 | to fill | ملء (the verb يملأ) |
-| sandbox | صندوق رملي |
+| sandbox | الصندوق الرملي |
 | setting | إعداد (plural: إعدادات) |
 | configuration key | مفتاح التكوين |
 
@@ -272,6 +284,7 @@ Each of these is the ordinary word, written in lowercase in the source; the same
 ## Markdown
 
 - A segment keeps every line of its source, each on its own line, exactly where the source breaks it. A hard line break stays a line break.
+- Lines of a plain paragraph that the source merely wraps (no Markdown marker) may be joined into one line. The rule above applies to lines that start with a marker.
 - A line that starts with a Markdown marker (`>`, `-`, `|`, a number) stays its own line and keeps that marker. A quoted message over several lines keeps each line with its leading `>`; joining the lines into one sentence is a defect, because the page then shows the markers as text.
 
 ## Recurring terms
@@ -344,7 +357,7 @@ Each of these is the ordinary word, written in lowercase in the source; the same
   - a manifest (a Kubernetes or OCI manifest): بيان (the plural is «ملفات بيان», since «بيانات» alone is data); a provider-native manifest is «ملف بيان أصلي للموفِّر» (plural «ملفات بيان أصلية للموفِّر»), never «بيانات تعريفية», which is metadata
   - an operator, a person: مشغِّل
   - an operator in programming: عامل
-  - a Kubernetes operator, a controller: Operator, in Latin letters
+  - a Kubernetes operator: Operator, in Latin letters (a controller that is not an Operator is «وحدة تحكم», as pinned below)
 - A slot, said of an attachment slot or a slot a Component declares, is «خانة» (plural «خانات»): «خانة إرفاق». Never «فتحة». A socket stays «مقبس».
 - An attachment, the entity a Release or an Aggregate attaches and the act of attaching it, is «إرفاق» (plural «إرفاقات»): «إرفاق Feature»، «اسم الإرفاق»، «إرفاقات الحوكمة». To attach is «يرفق» («يُرفق» in the passive). Never «مرفق» or «مرفقات» as the noun, and never «ملحق» or «ملحقات». The adjective stays «مرفق»: «Feature مرفق بالعقدة».
 - An instance, said of an instance name, a Component instance, a database instance, a virtual machine instance or a service instance (a Sigstore instance, a gateway instance), is «مثيل» (plural «مثيلات»): «اسم المثيل». Never «نسخة», which is a copy or a replica.
@@ -374,7 +387,19 @@ Each of these is the ordinary word, written in lowercase in the source; the same
 - Drift, said of a lockfile, a convention or a name, is «انحراف» («توقف الانحراف»، «الانحراف في التسمية»), never «انجراف».
 - To fill, said of what fills a slot, is «ملء» (the verb «يملأ»), never «تعبئة», which is not used for a fill.
 - A template, a Go template or a values template, is «قالب»: «قالب `values`». Never «النموذجي» nor «نموذج», which mean typical and model.
-- A sandbox is «صندوق رملي», never «بيئة معزولة». «معزول عن الشبكة» is only air-gapped.
+- Structured, said of a tree, an object, a map or a value, is «مهيكل» (feminine «مهيكلة»): «شجرة مهيكلة»، «كائن مهيكل». Never «منظَّم». «بنيوي» is only structural, as in «المخطط البنيوي».
+- Sourced, said of an input kind, an input mode, a path or a template, is «مصدري» (feminine «مصدرية»): «الوضع المصدري»، «القالب المصدري». Never «مستمد من مصدر»، «مستند إلى مصدر» nor «ذات المصدر». The synthesized input kind is «المُركَّب» in the same sentences, never «المولَّف»; a synthesized harness, aggregate or release that Aggrega builds itself keeps «المولَّف».
+- A fact, said of what a provider reports or a template reads, is «حقيقة» (plural «حقائق»): «حقائق التصيير». Never «واقعة» nor «وقائع».
+- A kit, said of the plugin development kit and of a language's kit, is «مجموعة أدوات» («مجموعة تطوير المكوِّنات الإضافية» for the whole name, «المجموعة» for the short form): «مثال في مجموعة أدوات Go». Never «عُدّة» nor «عدة», because «عدة» also reads as several.
+- A callback, said of the source callbacks a guest reads through, is «دالة رد النداء» (plural «دوال رد النداء»). Never «استدعاء مرتد».
+- An export, said of a plugin's ABI export, is «تصدير» (plural «تصديرات»): «اسم التصدير»، «يأخذ التصدير مصفوفة بايتات». Never «الدالة المُصدَّرة» nor «الصادرات».
+- A controller, said of an ingress controller, a gateway controller or any process that reconciles a resource and is not a Kubernetes Operator, is «وحدة تحكم» (plural «وحدات تحكم»): «وحدة تحكم الدخول». Never «متحكم». A Kubernetes Operator stays Operator.
+- Wire, said of a plugin's wire types, shapes and encodings, is «السلك»: «أنواع السلك»، «ترميز السلك». Never «النقل» for it. The verb to wire keeps its own pin above.
+- A hyphen, said of the character, is «واصلة» (plural «واصلات»): «للواصلة التي لا تحتفظ بها القاعدة». Never «الواصل».
+- Tagging, said of the built-in tagging plugins and of the selector tagger, takes the root «وسم»: «مكوِّنات الوسم الإضافية المدمجة»، «محدِّد الوسم». Never «التسمية» for it, because a label is «تسمية».
+- Markings, said of what a declaration of sensitivity puts on a value, is «التعليم» (marked: «معلَّم»). Never «التعليمات», which are instructions.
+- A schema page writes its labels the same way on every page: «النوع»، «مطلوب»، «الافتراضي:»، «القيم المسموح بها:»، «النمط:»، «المفاتيح:»، «ثابت:» (never «الثابت:»), and the key rule as «المفاتيح: حرف واحد أو أكثر من الأحرف والأرقام والشرطات السفلية أو الواصلات. لا يُسمح بالنقطة.»
+- A sandbox is «الصندوق الرملي» in every phrase («يمنع الصندوق الرملي القدرة»), never «صندوق الرمل» nor «بيئة معزولة». «معزول عن الشبكة» is only air-gapped.
 - A setting is «إعداد» («قيمة إعداد مساحة العمل»), and a configuration key is «مفتاح التكوين». «تهيئة» is only to seed or to initialise, and «ضبط» is only the verb to set.
 - A type word written in plain text in a type column is translated the same way on every page: string «سلسلة نصية»، boolean and bool «قيمة منطقية»، object «كائن»، array «مصفوفة»، map «خريطة»، integer «عدد صحيح»، number «عدد». A type written in inline code (`string[]`) stays as written.
 - A bold run-in label that opens a paragraph (such as the heading of a feature list) is translated like any heading, also where it names a language or a tool: its Latin words stay, and the label's own words are Arabic.
@@ -386,7 +411,7 @@ Each of these is the ordinary word, written in lowercase in the source; the same
   - sync, the import send mode (ordinary synchronising is مزامنة)
   - lint, the check, and linter
   - sentinel, an error sentinel
-  - chart, a Helm chart
+  - chart, a Helm chart, in every phrase («سجل chart»، «chart مجلوب»); never «مخطط Helm» nor «رسم»
   - shell
   - sidecar
   - vendored, vendors and to vendor, in every form (a vendor, a company, is مورِّد)
