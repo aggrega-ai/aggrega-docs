@@ -37,7 +37,7 @@ Translate into Modern Standard Arabic. Each choice below is a default, made with
 - Abbreviations such as AOT, IR, CLI and ABI stay; their expansion is translated where the source spells it out.
 - No Arabic affix is joined to a Latin term or a code span: never the definite article "ال" before it, never a one-letter preposition or conjunction (ب، ل، ك، ف), never a suffix. Write a noun before the term instead ("ملف YAML" and "الكيان Release" and "بالأمر `aggrega build`"), or a preposition that stands as a word of its own (في، من، إلى، على، عن، مع).
 - The conjunction "و" stands as a word of its own before a Latin term or a code span, also in a list of kept terms, in an image description and after a full stop: "Components و Features" and "و Release". A one-letter preposition (ب، ف) never joins a Latin term either.
-- A kept term with no Arabic noun before it takes masculine agreement: "كل Release مستقل"; a plural kept term takes the feminine singular, as every non-human plural does: "Releases مستقلة". After an Arabic noun, agreement follows that noun.
+- A kept term with no Arabic noun before it takes masculine agreement, in its adjective, its relative clause and its verb: "كل Release مستقل"، «Feature الذي يملؤه الاتصال»، «يعلن Feature»، «Recipe الذي يختاره Manifest»; never «Feature التي» nor «تعلن Feature» for the bare term. A plural kept term takes the feminine singular, as every non-human plural does: "Releases مستقلة". After an Arabic noun, agreement follows that noun: «طبقة Recipe التي يختارها Manifest».
 
 ## The qualifiers
 
@@ -81,6 +81,7 @@ Files and data:
 | entry (a row of a list, a map, a catalog or a lockfile) | إدخال (plural: إدخالات) |
 | input (what a build, a step or a template reads) | مُدخَل (plural: مُدخَلات) |
 | declare, declaration | يعلن، إعلان |
+| declarative | تصريحي |
 | condition (documented by an error or warnings page) | الحالة |
 | remedy (an error entry's way out) | العلاج |
 | symbolic link, link on disk | رابط رمزي، رابط |
@@ -302,12 +303,13 @@ Each of these is the ordinary word, written in lowercase in the source; the same
 - `agnostic to` is the qualifier above. X-agnostic is "لا يرتبط ب" joined to X, as in provider-agnostic "لا يرتبط بموفِّر بعينه"; agnostic with no object is محايد (neutral), and never gains an object the source does not name.
 - A heading on an error or warnings page, and the text of every link to such a heading, is the English name first, then the Arabic in parentheses: "The provider does not support omits (لا يدعم الموفِّر omits)". One link text per target. The English keeps its inline code, and a capitalized glossary term inside the Arabic in parentheses stays in Latin letters, as anywhere else. The Arabic gloss writes every key, field and file the English names in plain text (aggregates, components, value:, from:, in:) in Latin letters as the source writes it, never as an Arabic paraphrase of that key.
 - A heading on an error page and every quotation of it, in a link, a list of headings separated by semicolons or a sentence of another page, carry the same Arabic character for character, diacritics included: a quotation copies each heading's Arabic as the heading writes it, and a link never translates a heading anew. «المحدِّدات المعلنة» and «المحددات المعلنة» are two renderings, so a link that differs from its heading by one diacritic is a defect.
-- A link from any page to a heading that is not on an error page uses the Arabic alone, also where the link is written in the English-first form of an error heading (the English-first form belongs only to a heading on an error or warnings page and to the links to it): its text is translated even where the source shows the heading verbatim, and also where it is a page title after a path prefix such as `arm →` (the part after the arrow; the arrow follows the rule under Direction).
+- A link from any page to a heading that is not on an error page, and a link from one page to another page or an example, uses the Arabic alone, also in an example README: its text is the target's translated title, «الأمثلة بحسب المنتج والقدرة» and never "Examples by product and capability". A command (`aggrega serve`) and a product name (Claude Desktop) in a link text stay as written. The same holds, also where the link is written in the English-first form of an error heading (the English-first form belongs only to a heading on an error or warnings page and to the links to it): its text is translated even where the source shows the heading verbatim, and also where it is a page title after a path prefix such as `arm →` (the part after the arrow; the arrow follows the rule under Direction).
+- The recurring section titles of an example README take one wording on every page: «ما يعرضه» for "What it shows" and for "What it demonstrates", «ترتيب التعليم» for "the teaching order", «شغِّله» for "Run it", «الملفات» for "Files". «ما يُظهره» and «ترتيب التعلم» are not written.
 - A condition, said of what an error page or a warnings page documents (a halting condition, the condition's own sentence, the condition's short code), is «الحالة» («هذه الحالة»، «حالة التوقف»، «رمز الحالة»). «الشرط» is only a logical condition, as in an `if`, and never the documented condition.
-- To declare, and a declaration, said of an entity, a Recipe, a provider or a plugin, take the root علن: «يعلن»، «معلن»، «إعلان». Never «يصرّح» nor «تصريح» for a declaration, and never «المصرَّح به» for what is declared.
+- To declare, and a declaration, said of an entity, a Recipe, a provider or a plugin, take the root علن: «يعلن»، «معلن»، «إعلان». Never «يصرّح» nor «تصريح» for a declaration, and never «المصرَّح به» for what is declared. Declarative, said of a design, a state, an agent or a file, is «تصريحي» («الوكيل التصريحي»، «حالة تصريحية»), whatever the verb to declare takes; the ban on «تصريح» covers the verb and the noun of a declaration only, and «إعلاني» is never written for declarative.
 - A collision, said of two names, two files or two outputs that reach one place, is «تعارض» («تعارض الإخراج المجمَّع»، «يتعارض»). Never «تصادم».
 - A namespace, said of a Kubernetes namespace, a prefix namespace, a method namespace or the namespace of a slot, is «مساحة أسماء» («مساحة الأسماء المحجوزة»). Never «فضاء أسماء» nor «نطاق أسماء», because «نطاق» is a scope.
-- An entry, a row of a list, a map, a catalog or a lockfile, is «إدخال» (plural «إدخالات»): «إدخال في ملف القفل». An input, what a build, a step or a template reads, is «مُدخَل» (plural «مُدخَلات»). Never «مدخل» nor «مداخل» for an entry.
+- An entry, a row of a list, a map, a catalog or a lockfile, is «إدخال» (plural «إدخالات»): «إدخال في ملف القفل». An input, what a build, a step or a template reads, is «مُدخَل» (plural «مُدخَلات»), and an input kind, such as the kinds of input a Recipe takes, is «نوع المُدخَل» (plural «أنواع المُدخَلات»). In running text the unvowelled «مدخل» and «مدخلات» also read as input, because «إدخال» is the entry; add no diacritics only to make a word match the pin. Never «مدخل» nor «مداخل» for an entry, and never «نوع الإدخال» for an input kind.
 - A surface, said of the set of places a command, a tool or a check reaches, is «سطح» («سطح الأدوات»). «واجهة» is an interface and never a surface.
 - A remedy, the way out an error entry names, is «العلاج» («العلاجان»), and the `remediation:` label inside an emitted message is «المعالجة». «الإصلاح» is only the act of repair, as in «طريقة الإصلاح».
 - A symbolic link and a link on disk are «رابط رمزي» and «رابط». «وصلة» is not used for a link, because a connection between two nodes of a Release is «اتصال».
@@ -330,7 +332,7 @@ Each of these is the ordinary word, written in lowercase in the source; the same
 - A kept term keeps its plural after a numeral or a word of quantity: "ثلاثة Releases" and "عدة Recipes".
 - A plural kept term stays plural wherever the source writes it, also when two are joined: "Components و Features".
 - Lowercase workload, feature, manifest and operator are ordinary words, translated also inside a compound:
-  - a workload: حمل العمل (plural: أحمال العمل)
+  - a workload: حمل العمل (plural: أحمال العمل), written without a kasra under the first letter: never «حِمل»
   - a feature: ميزة
   - a manifest (a Kubernetes or OCI manifest): بيان (the plural is «ملفات بيان», since «بيانات» alone is data); a provider-native manifest is «ملف بيان أصلي للموفِّر» (plural «ملفات بيان أصلية للموفِّر»), never «بيانات تعريفية», which is metadata
   - an operator, a person: مشغِّل
