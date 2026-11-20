@@ -90,6 +90,7 @@ A few names appear in more than one package. Those are re-exports of one shared 
 | `ErrAmbiguousParserPlugin()` | `ambiguous-parser-plugin` | `format is advertised by more than one parser plugin` |
 | `ErrAmbiguousProviderPlugin()` | `ambiguous-provider-plugin` | `capability is served by more than one provider plugin; add a plugins.providers entry to select one` |
 | `ErrAmbiguousTypeMapping()` | `ambiguous-type-mapping` | `Manifest maps multiple version-distinct keys to the same base type; the type-to-recipe lookup is ambiguous` |
+| `ErrConflictingVersionConstraints()` | `conflicting-version-constraints` | `no version of a component or feature type satisfies every constraint declared on the instance` |
 | `ErrDuplicateEntityIdentity()` | `duplicate-entity-identity` | `duplicate entity identity within a single catalog directory` |
 | `ErrImporterVersionUnsatisfiable()` | `importer-version-unsatisfiable` | `no importer plugin version satisfies the plugins.importer entry's version pin` |
 | `ErrManifestImplementsMismatch()` | `manifest-implements-mismatch` | `Manifest mapping entry's recipe spec.implements does not match the mapped component-type / feature-type key` |
@@ -869,6 +870,7 @@ A short code is deliberately opaque: four digits say nothing about a condition o
 | `E0379` | `oci-module-source-malformed` | `the source does not name one artifact of its OCI module kind` |
 | `E0380` | `fetch-server-error` | `oci: the registry answered with a server error` |
 | `E0381` | `fetch-interrupted` | `oci: the transfer from the registry broke off` |
+| `E0382` | `conflicting-version-constraints` | `no version of a component or feature type satisfies every constraint declared on the instance` |
 
 - `E0002` is retired: nothing reports it now, and the number is never handed to a different condition. It named a catalog lookup that fails while the graph's static contracts are checked — a fault in the compiler rather than in an authored document — and the condition raised when a build resolves a component type the catalog it reads then holds no entry for reports that state now, and its code is `E0154`.
 - `E0134` is retired: nothing reports it now, and the number is never handed to a different condition. It named a publishable entity whose directory was not named after the version the entity declares; a publication does not judge a directory's name, and the condition raised when an entity shares its directory with another entity where its kind has a directory of its own is `E0303`.
