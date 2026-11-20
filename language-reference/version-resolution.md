@@ -86,12 +86,13 @@ version its Recipe implements.
 ### The lockfile
 
 `aggrega pull` records the selected version in the reference's own lockfile row.
-A build that reads a lockfile compiles at the recorded version, so a catalog
-gaining a newer version changes nothing. If the recorded version falls outside
-what the constraints now admit, the build halts with the same condition, naming
-the lockfile and advising `aggrega pull --release <file>` to lock the version
-every constraint admits. Against a local catalog directory, a selection that
-differs from the recorded one is reported as the lockfile being out of date.
+Where a catalog directory holds the Component or Feature, a build selects again
+from the versions there, and a selection that differs from the recorded one is
+reported as the lockfile being out of date. Where only the lockfile reaches the
+reference, as for one a registry served, the build compiles at the recorded
+version. If the constraints do not admit that version, the build halts with the
+conflict, naming the lockfile and advising `aggrega pull --release <file>` to lock
+the version every constraint admits.
 
 ## Library dependencies
 
