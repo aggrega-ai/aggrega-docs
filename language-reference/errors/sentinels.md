@@ -115,7 +115,7 @@ A few names appear in more than one package. Those are re-exports of one shared 
 | Sentinel | Code | Message |
 | --- | --- | --- |
 | `ErrInvalidLibraryRef()` | `invalid-library-ref` | `resolve: invalid library reference URI` |
-| `ErrMVSConflict()` | `version-selection-conflict` | `resolve: minimal version selection conflict — incompatible library version requirements` |
+| `ErrMVSConflict()` | `version-selection-conflict` | `resolve: consumers of one library require versions in incompatible majors` |
 | `ErrNoAggregateLoader()` | `catalog-cannot-load-sub-aggregate-bodies` | `resolve: catalog lookup cannot load resolved sub-aggregate bodies` |
 | `ErrNoRecipeLoader()` | `catalog-cannot-load-recipe-bodies` | `resolve: catalog lookup cannot load resolved recipe and plugin bodies` |
 | `ErrSourceTemplateAtLockTime()` | `source-template-at-lock-time` | `resolve: source-template evaluation failure at lock time` |
@@ -622,7 +622,7 @@ A short code is deliberately opaque: four digits say nothing about a condition o
 | `E0104` | `plugin-reference-must-be-scoped` | `wasm plugin reference must carry a pluginType scope (<pluginType>/<name>); an empty scope cannot bind to an OCI location` |
 | `E0105` | `recipe-reference-must-be-scoped` | `recipe reference must be provider-scoped (<provider>/<name>); an empty provider cannot bind to an OCI location` |
 | `E0106` | `invalid-library-ref` | `resolve: invalid library reference URI` |
-| `E0107` | `version-selection-conflict` | `resolve: minimal version selection conflict — incompatible library version requirements` |
+| `E0107` | `version-selection-conflict` | `resolve: consumers of one library require versions in incompatible majors` |
 | `E0108` | `catalog-cannot-load-sub-aggregate-bodies` | `resolve: catalog lookup cannot load resolved sub-aggregate bodies` |
 | `E0109` | `catalog-cannot-load-recipe-bodies` | `resolve: catalog lookup cannot load resolved recipe and plugin bodies` |
 | `E0110` | `source-template-at-lock-time` | `resolve: source-template evaluation failure at lock time` |

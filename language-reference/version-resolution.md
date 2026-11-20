@@ -41,10 +41,11 @@ version it selected with the one the pull recorded.
 
 ## Library dependencies
 
-Reusable schema and mapping libraries (SchemaLibrary, MappingLibrary) resolve
-differently: they use **minimal version selection** — the lowest version that
-satisfies all constraints across the workspace — again matching Go modules. This
-keeps library upgrades deliberate rather than automatic.
+Reusable libraries (SchemaLibrary, MappingLibrary, WorkloadLibrary,
+ArtifactLibrary) resolve as a bare reference does: a version written on a library
+reference is a floor, read as that version or later within its major, and the build
+selects the highest held version every consumer's floor admits. Consumers naming
+different majors of one library halt the build.
 
 ## When nothing satisfies a reference
 

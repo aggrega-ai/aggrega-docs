@@ -2065,12 +2065,12 @@ and where `@` was used as the separator, quoting what the value should read inst
 
 <!-- covers: pkg/closure.ErrMVSConflict -->
 
-Several entities may reference one library, each naming a version floor or none at all, and the version the build selects is the highest floor any of them named. That is what lets a consumer asking for less still receive a version that satisfies it, and it is why adding a consumer with a higher floor moves everyone up rather than splitting the build across two copies.
+Several entities may reference one library, each naming a version floor or none at all, and a floor reads as that version or later within its major, and the build selects the highest version every consumer's floor admits. That is what lets a consumer asking for less still receive a version that satisfies it, and it is why adding a consumer with a higher floor moves everyone up rather than splitting the build across two copies.
 
 The rule holds only while the floors agree on the leading version number. Two consumers naming different majors are asking for two libraries that happen to share a name, and no single selection satisfies both — so rather than pick one and let the other consumer read a shape it was not written against, the build stops and names the disagreement. A consumer naming no floor takes part in nothing here: the selection is decided by the consumers that pinned.
 
 Emitted message. The consumers are compared in sorted order: the first to name a floor sets the major, and the message lists each consumer compared, up to and including the first whose floor names a different major, against the version it required — so the same documents always name the same consumers:
-> resolve: minimal version selection conflict — incompatible library version requirements: library `"<library>"` has consumers requiring incompatible majors: `<consumer>` wants `<version>`; `<consumer>` wants `<version>`
+> resolve: consumers of one library require versions in incompatible majors: library `"<library>"` has consumers requiring incompatible majors: `<consumer>` wants `<version>`; `<consumer>` wants `<version>`
 
 **How to fix:** raise the lower consumer's floor to the same major, which is the ordinary answer once the newer shape is what everyone wants. Where both majors are genuinely needed at once, they are two libraries: publish the older shape under a name of its own and point the consumer that needs it there, so each reference names the thing it was written against.
 
@@ -6712,7 +6712,7 @@ Where one entry appears against two short codes, it covers two distinct conditio
 | `E0104` | `wasm plugin reference must carry a pluginType scope (<pluginType>/<name>); an empty scope cannot bind to an OCI location` | A plugin or recipe reference carries no scope |
 | `E0105` | `recipe reference must be provider-scoped (<provider>/<name>); an empty provider cannot bind to an OCI location` | A plugin or recipe reference carries no scope |
 | `E0106` | `resolve: invalid library reference URI` | A library reference is not written in the identity form |
-| `E0107` | `resolve: minimal version selection conflict — incompatible library version requirements` | Two consumers of one library require incompatible versions |
+| `E0107` | `resolve: consumers of one library require versions in incompatible majors` | Two consumers of one library require incompatible versions |
 | `E0108` | `resolve: catalog lookup cannot load resolved sub-aggregate bodies` | The catalog view a build was given cannot load the bodies pinning needs |
 | `E0109` | `resolve: catalog lookup cannot load resolved recipe and plugin bodies` | The catalog view a build was given cannot load the bodies pinning needs |
 | `E0110` | `resolve: source-template evaluation failure at lock time` | Resolving a `source:` coordinate registers a narrower function set |
