@@ -12,7 +12,7 @@ Translate into Modern Standard Arabic. Each choice below is a default, made with
 ## Punctuation, digits and quotation marks
 
 - Arabic text takes the Arabic comma `،`, the Arabic semicolon `؛` and the Arabic question mark `؟`, also right after a Latin term or a code span inside an Arabic sentence: "Components، Features و Recipes". A sentence ends with the full stop `.`. Inline code, a URL and a name that holds its own punctuation (Node.js) keep it.
-- A quoted phrase takes the quotation marks `« »`: «هكذا». A quotation inside it takes `“ ”`: «يطبع الأمر “تم” ثم ينتهي».
+- A quoted phrase takes the quotation marks `« »`: «هكذا». A quotation inside it takes `“ ”`: «يطبع الأمر “تم” ثم ينتهي». A heading name quoted inside running Arabic text, in the English-first form or in Arabic alone, takes `« »` too, never straight double quotes; the straight double quotes that belong to a quoted English message stay as the source writes them.
 - Parentheses are the ordinary ( ), with a space before the opening one and none inside; an English name given in parentheses takes them too: البنية التحتية الشبحية (Ghost Infrastructure).
 - Numbers take Western digits (0–9), always: never the Eastern Arabic-Indic digits, nor the Persian ones.
 - A number keeps the decimal point `.`, the thousands separator `,` and the percent sign `%` the source writes (21,867 and 99.9%): never the Arabic decimal separator, thousands separator or percent sign, and never the Arabic comma inside a number.
@@ -110,6 +110,11 @@ Code:
 | instance | مثيل (plural: مثيلات) |
 | mapping | تعيين |
 | severity | مستوى الخطورة |
+| provenance | المنشأ |
+| head of a printed diagnostic | الرأس |
+| HTTP header, header of a file | ترويسة |
+| finding (what a check or a build reports) | نتيجة (plural: نتائج) |
+| failure, as a noun | إخفاق (plural: إخفاقات); to fail: يفشل |
 | to implement | تنفيذ |
 | to optimize | تحسين |
 | thread | مؤشر ترابط |
@@ -144,7 +149,7 @@ Build and run:
 | exit status | حالة الخروج |
 | attachment (the entity attached, and the act) | إرفاق (plural: إرفاقات) |
 | to attach | يرفق |
-| stack (a search stack, a CloudFormation stack) | مكدس (plural: مكدسات) |
+| stack (a search stack, a CloudFormation stack, a Docker Compose stack) | مكدس (plural: مكدسات) |
 | gate (a check that halts a build) | بوابة فحص (plural: بوابات فحص) |
 | publish gate | بوابة فحص الطرح |
 | gateway (an AI gateway, an API gateway) | بوابة |
@@ -252,11 +257,12 @@ Each of these is the ordinary word, written in lowercase in the source; the same
 
 ## Markdown
 
-- A hard line break inside a segment stays a line break, exactly where the source has it.
+- A segment keeps every line of its source, each on its own line, exactly where the source breaks it. A hard line break stays a line break.
+- A line that starts with a Markdown marker (`>`, `-`, `|`, a number) stays its own line and keeps that marker. A quoted message over several lines keeps each line with its leading `>`; joining the lines into one sentence is a defect, because the page then shows the markers as text.
 
 ## Recurring terms
 
-- A kept term keeps the source's number inside a compound too.
+- A kept term keeps the source's number inside a compound too: «ربط Feature» for Feature binding, «أنواع Feature» for Feature types and «عائلات Feature» for Feature families; «ربط Features» is only for Features bindings.
 - The four domains are always translated, with the English in parentheses at a page's first occurrence, as in "المطوِّر (Developer)":
   - Developer: المطوِّر
   - Platform Architect: مهندس المنصة المعماري (the Architect alone, and the architect role, take the same rendering: never «المعماري» alone, which reads as "architectural"; within one sentence after the full form, «المهندس المعماري» may follow)
@@ -287,8 +293,8 @@ Each of these is the ordinary word, written in lowercase in the source; the same
 - `agnostic to` is the qualifier above. X-agnostic is "لا يرتبط ب" joined to X, as in provider-agnostic "لا يرتبط بموفِّر بعينه"; agnostic with no object is محايد (neutral), and never gains an object the source does not name.
 - A heading on an error or warnings page, and the text of every link to such a heading, is the English name first, then the Arabic in parentheses: "The provider does not support omits (لا يدعم الموفِّر omits)". One link text per target. The English keeps its inline code, and a capitalized glossary term inside the Arabic in parentheses stays in Latin letters, as anywhere else.
 - An error heading's Arabic, the text inside its parentheses, is copied word for word into every quotation of that error name and every link to that heading.
-- A heading is translated, and every link to it uses that heading's own translation word for word; a link never translates a heading anew.
-- A link to a heading that is not on an error page uses the Arabic alone: its text is translated even where the source shows the heading verbatim, and also where it is a page title after a path prefix such as `arm →` (the part after the arrow; the arrow follows the rule under Direction).
+- A heading is translated, and every link to it copies that heading's Arabic character for character, diacritics included; a link never translates a heading anew. «المحدِّدات المعلنة» and «المحددات المعلنة» are two renderings, so a link that differs from its heading by one diacritic is a defect.
+- A link from any page to a heading that is not on an error page uses the Arabic alone, also where the link is written in the English-first form of an error heading (the English-first form belongs only to a heading on an error or warnings page and to the links to it): its text is translated even where the source shows the heading verbatim, and also where it is a page title after a path prefix such as `arm →` (the part after the arrow; the arrow follows the rule under Direction).
 - Overview, in a heading or a link, is نظرة عامة.
 - A field name written in plain text (pluginType) stays as written inside translated error text.
 - The label "How to fix:" is **طريقة الإصلاح:** at the start of its paragraph.
@@ -317,7 +323,7 @@ Each of these is the ordinary word, written in lowercase in the source; the same
 - A slot, said of an attachment slot or a slot a Component declares, is «خانة» (plural «خانات»): «خانة إرفاق». Never «فتحة». A socket stays «مقبس».
 - An attachment, the entity a Release or an Aggregate attaches and the act of attaching it, is «إرفاق» (plural «إرفاقات»): «إرفاق Feature»، «اسم الإرفاق»، «إرفاقات الحوكمة». To attach is «يرفق» («يُرفق» in the passive). Never «مرفق» or «مرفقات» as the noun, and never «ملحق» or «ملحقات». The adjective stays «مرفق»: «Feature مرفقة بالعقدة».
 - An instance, said of an instance name, a Component instance, a database instance, a virtual machine instance or a service instance (a Sigstore instance, a gateway instance), is «مثيل» (plural «مثيلات»): «اسم المثيل». Never «نسخة», which is a copy or a replica.
-- A stack, a search stack or a CloudFormation stack, is «مكدس» (plural «مكدسات»): «مكدس بحث الكتالوج». Never «حزمة», which is a package.
+- A stack, a search stack, a CloudFormation stack or a Docker Compose stack, is «مكدس» (plural «مكدسات»): «مكدس بحث الكتالوج»، «مكدس Compose». Never «منظومة», never «حزمة», which is a package, and never stack in Latin letters.
 - A pass, said of one run through a check or a build, is «مرور»: «في مرور واحد». Never «ممر», which is a corridor.
 - Domain, said of the four domains, of Domain 1 to 4 and of domain-specific, is «المجال» (plural «المجالات»): «المجال 2» and «الخاص بالمجال». Scope, and a DNS domain or sub-domain, is «نطاق» (plural «نطاقات»). The two never share a word.
 - Cache is «ذاكرة التخزين المؤقت», and a semantic cache is «ذاكرة التخزين المؤقت الدلالية». Never «الذاكرة المؤقتة».
@@ -333,6 +339,10 @@ Each of these is the ordinary word, written in lowercase in the source; the same
 - A Wasm guest stays `guest` in Latin letters, in the singular and the plural, in plain text too: «وحدة guest»، «guest Wasm». The host stays «مضيف». Never «ضيف».
 - A dispatch group is «مجموعة توزيع»: never «مجموعة إرسال».
 - Severity is «مستوى الخطورة».
+- Provenance, said of where a value, a label, a file or a key came from, is «المنشأ» («قوس المنشأ»، «تسمية المنشأ»، «مفتاح المنشأ»). Never «مصدر», which is a source, nor «أصل», which is an origin or a parent.
+- The head of a printed diagnostic, the bracketed part that carries the category and the short code, is «الرأس» («رأس التشخيص»، «يحمل الرأس الفئة»). An HTTP header or a header of a file is «ترويسة». The two never share a word.
+- A finding, what a check or a build reports, is «نتيجة» (plural «نتائج»), never «ملاحظة», which is a note. A diagnostic stays «تشخيص».
+- Failure, as a noun, is «إخفاق» («إخفاق الحل»، «إخفاقات الجلب»), and to fail, as a verb, is «يفشل». «فشل» is not used as the noun.
 - A cap, said of a ceiling on a count, a size or a number of results (a concurrency cap, a size cap, a result cap, a cap on how many tools a client registers), is «سقف» («سقف التزامن»، «سقف الحجم»، «سقف النتائج»), never «حد». A limit that is neither a cap nor a resource limit keeps «حد» as pinned above, and a name inside inline code stays as written.
 - A mandate, said of a presence mandate, is «تفويض» («تفويض حضور»، plural «تفويضات الحضور»), never «إلزام». The verb «يفوّض» follows it.
 - A cascade, said of a layered lookup (the plugin cascade, the catalog cascade, the configuration cascade), is «التتابع»: «تتابع المكوِّنات الإضافية». Never «التدرج»، «التسلسل» nor «متدرج». Cascading Annotations stays as pinned above.
