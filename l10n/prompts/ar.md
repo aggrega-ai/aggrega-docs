@@ -163,13 +163,13 @@ Build and run:
 | option | خيار |
 | default | افتراضي |
 | to configure, configuration | تكوين |
-| settings | إعدادات |
 | template | قالب |
 | example | مثال |
 | project | مشروع |
 | user | مستخدم |
 | to support | دعم |
-| marker (a deprecation marker, a withdrawal marker) | وسم (plural: وسوم) |
+| marker (a deprecation marker, a withdrawal marker, a marker file) | وسم (plural: وسوم) |
+| deprecation notice | إشعار إهمال |
 | deprecation, deprecated | إهمال، مُهمَل |
 | withdrawal, retracted | سحب، مسحوب |
 | interface | واجهة |
@@ -184,10 +184,18 @@ Build and run:
 | hardcoded | مثبَّت في الشيفرة |
 | graph | رسم بياني |
 | limit (a resource limit) | سقف |
+| cap (a ceiling on a count, a size or a number of results) | سقف |
+| mandate (a presence mandate) | تفويض (plural: تفويضات) |
+| cascade (a layered lookup) | التتابع |
+| drift | انحراف |
+| to fill | ملء (the verb يملأ) |
+| sandbox | صندوق رملي |
+| setting | إعداد (plural: إعدادات) |
+| configuration key | مفتاح التكوين |
 
-A registry stays registry in Latin letters, as the `aggrega registry` command names it: سجل is a log and مستودع is a repository. It takes no article ("إلى registry"), and registries stays plural where the source writes it.
+A registry, as a noun of any kind (a registry's index, a plugin registry, the Higress plugin registry), stays registry in Latin letters, as the `aggrega registry` command names it: «فهرس registry المحلي». سجل is a log and مستودع is a repository, so never «السجل» for a registry. It takes no article ("إلى registry"), and registries stays plural where the source writes it. The official hub is «hub الرسمي»: hub stays in Latin letters with no Arabic noun for it, never «المركز الرسمي».
 
-To deploy is نشر and to publish is طرح: two verbs, never one for the other. نشر is the everyday Arabic word for publishing, so here it never stands for publishing: "publishes but never deploys" is "يطرح ولا ينشر أبدًا".
+To deploy is نشر and to publish is طرح: two verbs, never one for the other. What a server or a run makes available (the language server publishes diagnostics, findings or advisories) is published too: «يطرح الخادم التشخيصات». نشر is the everyday Arabic word for publishing, so here it never stands for publishing: "publishes but never deploys" is "يطرح ولا ينشر أبدًا".
 
 Network:
 
@@ -308,7 +316,7 @@ Each of these is the ordinary word, written in lowercase in the source; the same
   - a Kubernetes operator, a controller: Operator, in Latin letters
 - A slot, said of an attachment slot or a slot a Component declares, is «خانة» (plural «خانات»): «خانة إرفاق». Never «فتحة». A socket stays «مقبس».
 - An attachment, the entity a Release or an Aggregate attaches and the act of attaching it, is «إرفاق» (plural «إرفاقات»): «إرفاق Feature»، «اسم الإرفاق»، «إرفاقات الحوكمة». To attach is «يرفق» («يُرفق» in the passive). Never «مرفق» or «مرفقات» as the noun, and never «ملحق» or «ملحقات». The adjective stays «مرفق»: «Feature مرفقة بالعقدة».
-- An instance, said of an instance name, a Component instance, a database instance or a virtual machine instance, is «مثيل» (plural «مثيلات»): «اسم المثيل». Never «نسخة», which is a copy or a replica.
+- An instance, said of an instance name, a Component instance, a database instance, a virtual machine instance or a service instance (a Sigstore instance, a gateway instance), is «مثيل» (plural «مثيلات»): «اسم المثيل». Never «نسخة», which is a copy or a replica.
 - A stack, a search stack or a CloudFormation stack, is «مكدس» (plural «مكدسات»): «مكدس بحث الكتالوج». Never «حزمة», which is a package.
 - A pass, said of one run through a check or a build, is «مرور»: «في مرور واحد». Never «ممر», which is a corridor.
 - Domain, said of the four domains, of Domain 1 to 4 and of domain-specific, is «المجال» (plural «المجالات»): «المجال 2» and «الخاص بالمجال». Scope, and a DNS domain or sub-domain, is «نطاق» (plural «نطاقات»). The two never share a word.
@@ -317,7 +325,7 @@ Each of these is the ordinary word, written in lowercase in the source; the same
 - Mapping, a Manifest mapping or a values mapping, is «تعيين»: never «ربط», which is binding, nor «مطابقة», which is matching.
 - To resolve and resolution, said of dependencies, references, a Release or a catalog, take the root حل: «حل التبعيات»، «يحلّ Release»، «المرجع المحلول». Parsing is «تحليل», as in «تحليل YAML»: the two never share a word, and «يحلّل» never stands for resolving.
 - Configuration, a configuration file or the workspace configuration, is «تكوين», and configured is «مكوَّن»: «تكوين مساحة العمل». «تهيئة» is only to seed or to initialise, as `aggrega config init` does.
-- A marker, said of a deprecation marker or a withdrawal marker, is «وسم» (plural «وسوم»): «وسم إهمال»، «وسم سحب». «علامة» is a flag, and never a marker. Deprecation is «إهمال» («مُهمَل» for deprecated), and withdrawal and retracted, in plain text, are «سحب» and «مسحوب»: never «إيقاف» nor «الإيقاف عن الاستخدام».
+- A marker in any sense (a deprecation marker, a withdrawal marker, a marker file, the literal marker `schema: inherited`, a root marker) is «وسم» (plural «وسوم»): «وسم إهمال»، «وسم سحب». «علامة» is only a flag and «إشارة» is only a signal, so neither is ever a marker. A deprecation notice is «إشعار إهمال». Deprecation is «إهمال» («مُهمَل» for deprecated), and withdrawal and retracted, in plain text, are «سحب» and «مسحوب»: never «إيقاف» nor «الإيقاف عن الاستخدام».
 - An exit code is «رمز الخروج», and an exit status is «حالة الخروج»: the two words stay apart on every page.
 - A dry run is «التشغيل التجريبي».
 - The plugin trust record is «سجل الثقة» («سجل ثقة المكوِّنات الإضافية»), and a lockfile is «ملف القفل».
@@ -325,6 +333,16 @@ Each of these is the ordinary word, written in lowercase in the source; the same
 - A Wasm guest stays `guest` in Latin letters, in the singular and the plural, in plain text too: «وحدة guest»، «guest Wasm». The host stays «مضيف». Never «ضيف».
 - A dispatch group is «مجموعة توزيع»: never «مجموعة إرسال».
 - Severity is «مستوى الخطورة».
+- A cap, said of a ceiling on a count, a size or a number of results (a concurrency cap, a size cap, a result cap, a cap on how many tools a client registers), is «سقف» («سقف التزامن»، «سقف الحجم»، «سقف النتائج»), never «حد». A limit that is neither a cap nor a resource limit keeps «حد» as pinned above, and a name inside inline code stays as written.
+- A mandate, said of a presence mandate, is «تفويض» («تفويض حضور»، plural «تفويضات الحضور»), never «إلزام». The verb «يفوّض» follows it.
+- A cascade, said of a layered lookup (the plugin cascade, the catalog cascade, the configuration cascade), is «التتابع»: «تتابع المكوِّنات الإضافية». Never «التدرج»، «التسلسل» nor «متدرج». Cascading Annotations stays as pinned above.
+- Drift, said of a lockfile, a convention or a name, is «انحراف» («توقف الانحراف»، «الانحراف في التسمية»), never «انجراف».
+- To fill, said of what fills a slot, is «ملء» (the verb «يملأ»), never «تعبئة», which is not used for a fill.
+- A template, a Go template or a values template, is «قالب»: «قالب `values`». Never «النموذجي» nor «نموذج», which mean typical and model.
+- A sandbox is «صندوق رملي», never «بيئة معزولة». «معزول عن الشبكة» is only air-gapped.
+- A setting is «إعداد» («قيمة إعداد مساحة العمل»), and a configuration key is «مفتاح التكوين». «تهيئة» is only to seed or to initialise, and «ضبط» is only the verb to set.
+- A type word written in plain text in a type column is translated the same way on every page: string «سلسلة نصية»، boolean and bool «قيمة منطقية»، object «كائن»، array «مصفوفة»، map «خريطة»، integer «عدد صحيح»، number «عدد». A type written in inline code (`string[]`) stays as written.
+- A bold run-in label that opens a paragraph (such as the heading of a feature list) is translated like any heading, also where it names a language or a tool: its Latin words stay, and the label's own words are Arabic.
 - A label an editor or a client shows on screen (a setting's name, a button, a menu item) stays in English exactly as the screen shows it, in the source's emphasis. VS Code's Command Palette named in prose is لوحة الأوامر (English only where the text quotes the English screen).
 - A status label in inline code stays as it is; in plain text it is translated.
 - These stay in Latin letters, as the source writes them:
@@ -339,6 +357,10 @@ Each of these is the ordinary word, written in lowercase in the source; the same
   - vendored, vendors and to vendor, in every form (a vendor, a company, is مورِّد)
   - pod, webhook, span, rail and jailbreak, and a headless Service
   - hub, the hub written lowercase
+  - referrer, in the OCI sense
+  - runner, a CI runner
+  - daemon, the long-running `aggrega serve` process, in every form, with no article and no affix ("يخرج daemon"، "إلى daemon"); never «الخدمة الخلفية»، «الخادم الخلفي» nor «الخادم الخفي»
+  - tag, an OCI tag, an image tag or a git tag (a plural stays tags): "tag الإصدار"، "قائمة tags"; a tag on a cloud resource (an AWS tag) is «وسم» (plural «وسوم»), and «وسم» is never an OCI, image or git tag
   - release, lowercase, for a Helm release (a deployed chart instance, a release name)
   - consumer, a Kong consumer (the Aggrega consumer is مستهلك)
   - token, a lowercase kind or schema token, besides the LLM and lexical token the vocabulary names
