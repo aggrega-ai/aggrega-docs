@@ -77,6 +77,8 @@ Files and data:
 | configuration file | ملف التكوين |
 | artifact | مُخرَج (plural: مُخرَجات) |
 | output, outputs (what a command, a build or a render writes) | الإخراج |
+| lockfile | ملف القفل |
+| plugin trust record | سجل الثقة |
 
 An artifact is مُخرَج and output is الإخراج: the two stay apart, and output is never مُخرَجات (also written without diacritics). Output stays الإخراج in every phrase: the output of a verdict is «إخراج الحكم». What a compiler, a Recipe or a plugin writes is emitted, «أصدر», and an emitted file is «ملف مُصدَر»: never «أنتج». The emitted message keeps its own pin under Recurring terms.
 
@@ -134,6 +136,18 @@ Build and run:
 | to deploy | نشر |
 | to publish | طرح |
 | to apply | تطبيق |
+| to resolve, resolution (dependencies, references, a Release, a catalog) | حل |
+| to parse, parsing | تحليل |
+| a pass (one run through a check or a build) | مرور |
+| dry run | التشغيل التجريبي |
+| exit code | رمز الخروج |
+| exit status | حالة الخروج |
+| attachment (the entity attached, and the act) | إرفاق (plural: إرفاقات) |
+| to attach | يرفق |
+| stack (a search stack, a CloudFormation stack) | مكدس (plural: مكدسات) |
+| gate (a check that halts a build) | بوابة فحص (plural: بوابات فحص) |
+| publish gate | بوابة فحص الطرح |
+| gateway (an AI gateway, an API gateway) | بوابة |
 | cluster | عنقود |
 | container | حاوية |
 | container image | صورة الحاوية |
@@ -155,6 +169,9 @@ Build and run:
 | project | مشروع |
 | user | مستخدم |
 | to support | دعم |
+| marker (a deprecation marker, a withdrawal marker) | وسم (plural: وسوم) |
+| deprecation, deprecated | إهمال، مُهمَل |
+| withdrawal, retracted | سحب، مسحوب |
 | interface | واجهة |
 | router | جهاز توجيه |
 | pipeline | خط المعالجة |
@@ -276,7 +293,7 @@ Each of these is the ordinary word, written in lowercase in the source; the same
 - Physical, said of infrastructure, resources and sizing, is «فعلي» (feminine «فعلية», adverb «فعليًا»), as in «البنية التحتية الفعلية». Never «مادي». The pair physical and logical is «فعلي» and «منطقي».
 - Hardcoded is «مثبَّت في الشيفرة»: «مخططات مثبَّتة في الشيفرة». Never «مرمَّز».
 - A graph is «رسم بياني»: the IR graph is «رسم IR البياني», and the plural is «الرسوم البيانية». Never «مخطط», which is a schema.
-- A boundary, in the sense of a Release's `boundaries`, is «حد» (plural «حدود»). A resource limit, such as a CPU limit or a memory limit, is «سقف» («سقف المعالج» and «سقف الذاكرة»), so that the two never share a word.
+- A boundary, in the sense of a Release's `boundaries`, is «حد» (plural «حدود»). A resource limit, such as a CPU limit or a memory limit, is «سقف» («سقف المعالج» and «سقف الذاكرة»). A limit that is not a resource limit, such as a concurrency limit, a rate limit or a budget limit, is «حد» («حد التزامن»), so a limit takes the noun that says which.
 - A typed contract is «عقد مصنَّف بالنوع» and a typed parameter is «مُعامِل مصنَّف بالنوع».
 - A lowercase release or aggregate that names a Release or an Aggregate entity (the release resolves to, a release file, `--release <release>`, a sub-aggregate) is written as the entity's name in Latin letters, Release or Aggregate ("Aggregate فرعي"). إصدار is only a version or a release of the product, such as the compiler's.
 - A lowercase plural of an entity name keeps its number: releases is Releases, and three releases is "ثلاثة Releases".
@@ -290,17 +307,29 @@ Each of these is the ordinary word, written in lowercase in the source; the same
   - an operator in programming: عامل
   - a Kubernetes operator, a controller: Operator, in Latin letters
 - A slot, said of an attachment slot or a slot a Component declares, is «خانة» (plural «خانات»): «خانة إرفاق». Never «فتحة». A socket stays «مقبس».
+- An attachment, the entity a Release or an Aggregate attaches and the act of attaching it, is «إرفاق» (plural «إرفاقات»): «إرفاق Feature»، «اسم الإرفاق»، «إرفاقات الحوكمة». To attach is «يرفق» («يُرفق» in the passive). Never «مرفق» or «مرفقات» as the noun, and never «ملحق» or «ملحقات». The adjective stays «مرفق»: «Feature مرفقة بالعقدة».
 - An instance, said of an instance name, a Component instance, a database instance or a virtual machine instance, is «مثيل» (plural «مثيلات»): «اسم المثيل». Never «نسخة», which is a copy or a replica.
+- A stack, a search stack or a CloudFormation stack, is «مكدس» (plural «مكدسات»): «مكدس بحث الكتالوج». Never «حزمة», which is a package.
+- A pass, said of one run through a check or a build, is «مرور»: «في مرور واحد». Never «ممر», which is a corridor.
 - Domain, said of the four domains, of Domain 1 to 4 and of domain-specific, is «المجال» (plural «المجالات»): «المجال 2» and «الخاص بالمجال». Scope, and a DNS domain or sub-domain, is «نطاق» (plural «نطاقات»). The two never share a word.
 - Cache is «ذاكرة التخزين المؤقت», and a semantic cache is «ذاكرة التخزين المؤقت الدلالية». Never «الذاكرة المؤقتة».
 - Middleware is «برنامج وسيط» (plural «برامج وسيطة»). «وسيط» alone is intermediate, as in «التمثيل الوسيط».
 - Mapping, a Manifest mapping or a values mapping, is «تعيين»: never «ربط», which is binding, nor «مطابقة», which is matching.
+- To resolve and resolution, said of dependencies, references, a Release or a catalog, take the root حل: «حل التبعيات»، «يحلّ Release»، «المرجع المحلول». Parsing is «تحليل», as in «تحليل YAML»: the two never share a word, and «يحلّل» never stands for resolving.
+- Configuration, a configuration file or the workspace configuration, is «تكوين», and configured is «مكوَّن»: «تكوين مساحة العمل». «تهيئة» is only to seed or to initialise, as `aggrega config init` does.
+- A marker, said of a deprecation marker or a withdrawal marker, is «وسم» (plural «وسوم»): «وسم إهمال»، «وسم سحب». «علامة» is a flag, and never a marker. Deprecation is «إهمال» («مُهمَل» for deprecated), and withdrawal and retracted, in plain text, are «سحب» and «مسحوب»: never «إيقاف» nor «الإيقاف عن الاستخدام».
+- An exit code is «رمز الخروج», and an exit status is «حالة الخروج»: the two words stay apart on every page.
+- A dry run is «التشغيل التجريبي».
+- The plugin trust record is «سجل الثقة» («سجل ثقة المكوِّنات الإضافية»), and a lockfile is «ملف القفل».
+- A gate, a check that halts a build (the publish gate, a verdict-role plugin), is «بوابة فحص» (plural «بوابات فحص»), and the publish gate is «بوابة فحص الطرح». A gateway, an AI gateway or an API gateway, is «بوابة» alone. The two never share a bare «بوابة».
+- A Wasm guest stays `guest` in Latin letters, in the singular and the plural, in plain text too: «وحدة guest»، «guest Wasm». The host stays «مضيف». Never «ضيف».
 - A dispatch group is «مجموعة توزيع»: never «مجموعة إرسال».
 - Severity is «مستوى الخطورة».
 - A label an editor or a client shows on screen (a setting's name, a button, a menu item) stays in English exactly as the screen shows it, in the source's emphasis. VS Code's Command Palette named in prose is لوحة الأوامر (English only where the text quotes the English screen).
 - A status label in inline code stays as it is; in plain text it is translated.
 - These stay in Latin letters, as the source writes them:
   - pull and push, the `aggrega pull` and `aggrega push` operations, in prose too (a server pushing diagnostics is the ordinary verb يرسل)
+  - the pull step of a build is «خطوة pull», and a build that pulls is «بناء يشغّل pull»: the verb never becomes «يسحب», and `--auto-pull` and `auto_pull` stay as written, never «الجلب التلقائي»
   - sync, the import send mode (ordinary synchronising is مزامنة)
   - lint, the check, and linter
   - sentinel, an error sentinel
