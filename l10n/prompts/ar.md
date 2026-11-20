@@ -36,7 +36,7 @@ Translate into Modern Standard Arabic. Each choice below is a default, made with
 - The names of other products and standards: Kubernetes, Helm, Docker Compose, Terraform, CloudFormation, WebAssembly, JSON Schema, YAML, OCI.
 - Abbreviations such as AOT, IR, CLI and ABI stay; their expansion is translated where the source spells it out.
 - No Arabic affix is joined to a Latin term or a code span: never the definite article "ال" before it, never a one-letter preposition or conjunction (ب، ل، ك، ف), never a suffix. Write a noun before the term instead ("ملف YAML" and "الكيان Release" and "بالأمر `aggrega build`"), or a preposition that stands as a word of its own (في، من، إلى، على، عن، مع).
-- The conjunction "و" stands as a word of its own before a Latin term or a code span, also in a list of kept terms, in an image description and after a full stop: "Components و Features" and "و Release". A one-letter preposition (ب، ف) never joins a Latin term either.
+- The conjunction "و" stands as a word of its own before a Latin term or a code span, also in a list of kept terms, in an image description and after a full stop: "Components و Features" and "و Release". A one-letter preposition (ب، ف) never joins a Latin term either. Before an Arabic word «و» is joined to it («والمُخرَجات»، «ومكوِّنات»).
 - A kept term with no Arabic noun before it takes masculine agreement in every word that agrees with it, Feature, Recipe and FeatureRecipe included: its verb when it is the subject («يعلن Recipe»، «يصيّر Recipe»، «يقرأ FeatureRecipe»، «يعلن Feature»), its adjective («Recipe helm المُركَّب»، «FeatureRecipe الخاص به»، «Feature مرفق بالعقدة»، "كل Release مستقل") and its relative clause («Feature الذي يملؤه الاتصال»، «Recipe الذي يختاره Manifest»). Never «تعلن Recipe»، «Recipe helm المُركَّبة»، «FeatureRecipe الخاصة به»، «Feature مرفقة بالعقدة» nor «Feature التي» for the bare term. A plural kept term takes the feminine singular, as every non-human plural does: "Releases مستقلة". After an Arabic noun, agreement follows that noun: «طبقة Recipe التي يختارها Manifest».
 
 ## The qualifiers
@@ -125,8 +125,15 @@ Code:
 | head of a printed diagnostic | الرأس |
 | HTTP header, header of a file | ترويسة |
 | finding (what a check or a build reports) | نتيجة (plural: نتائج) |
+| advisory (a finding a build raises without halting) | تنبيه (plural: تنبيهات); the adjective: استشاري |
 | failure, as a noun | إخفاق (plural: إخفاقات); to fail: يفشل |
 | structured (a tree, an object, a map, a value) | مهيكل (feminine: مهيكلة) |
+| opaque (a body, a patch target, metadata or a map the compiler does not read) | معتم (feminine: معتمة) |
+| pillar (`values`, `infra`, `parameters`, `provides`) | ركيزة (plural: ركائز) |
+| scalar (a single value) | قيمة مفردة (plural: قيم مفردة) |
+| patch (a JSON-Patch operation, a patch target) | رقعة (plural: رقعات) |
+| hydration (the inject pipe) | ترطيب |
+| Semantic Versioning | الإصدار الدلالي |
 | callback (a source callback) | دالة رد النداء (plural: دوال رد النداء) |
 | export (a plugin's ABI export) | تصدير (plural: تصديرات) |
 | kit (the plugin development kit, a language's kit) | مجموعة أدوات |
@@ -161,6 +168,9 @@ Build and run:
 | walkthrough (the explain output for one condition) | الجولة التفصيلية |
 | to generate | توليد |
 | to emit | أصدر (the verb يُصدِر) |
+| to stamp (what the host or a guest puts on an output) | ختم (the verb يختم) |
+| contributor (what contributes files or units to an assembled output) | مساهم (plural: مساهمون) |
+| prompt (what is sent to a model) | مطالبة (plural: مطالبات) |
 | to deploy | نشر |
 | to publish | طرح |
 | to apply | تطبيق |
@@ -289,7 +299,7 @@ Each of these is the ordinary word, written in lowercase in the source; the same
 
 ## Recurring terms
 
-- A kept term keeps the source's number inside a compound too, a hyphenated one included: «ربط Feature» for Feature binding, «أنواع Feature» for Feature types, «عائلات Feature» for Feature families, «عبر Recipe» for cross-Recipe and «إعادة الاستخدام عبر Component» for cross-Component reuse. «ربط Features» is only for Features bindings, and «عبر Recipes» and «عبر Components» are never written for the cross- compounds.
+- A kept term keeps the source's number inside a compound too, a hyphenated one included: «مثيلات Component» for Component instances, «ربط Feature» for Feature binding, «أنواع Feature» for Feature types, «عائلات Feature» for Feature families, «عبر Recipe» for cross-Recipe and «إعادة الاستخدام عبر Component» for cross-Component reuse. «ربط Features» is only for Features bindings, and «عبر Recipes» and «عبر Components» are never written for the cross- compounds.
 - The four domains are always translated, with the English in parentheses at a page's first occurrence, as in "المطوِّر (Developer)":
   - Developer: المطوِّر
   - Platform Architect: مهندس المنصة المعماري (the Architect alone, and the architect role, take the same rendering: never «المعماري» alone, which reads as "architectural"; within one sentence after the full form, «المهندس المعماري» may follow)
@@ -318,7 +328,7 @@ Each of these is the ordinary word, written in lowercase in the source; the same
 - عمليات المنصة is the Platform Ops domain only. Operational is تشغيلي (the Ops discipline alone is العمليات).
 - To pipe, the String Pipe's verb, is تمرير (the verb يمرِّر); a pipe is أنبوب.
 - `agnostic to` is the qualifier above. X-agnostic is "لا يرتبط ب" joined to X, as in provider-agnostic "لا يرتبط بموفِّر بعينه"; agnostic with no object is محايد (neutral), and never gains an object the source does not name.
-- A heading on an error or warnings page, and the text of every link to such a heading, is the English name first, then the Arabic in parentheses: "The provider does not support omits (لا يدعم الموفِّر omits)". One link text per target. The English keeps its inline code, and a capitalized glossary term inside the Arabic in parentheses stays in Latin letters, as anywhere else. The Arabic gloss writes every key, field and file the English names in plain text (aggregates, components, value:, from:, in:) in Latin letters as the source writes it, never as an Arabic paraphrase of that key.
+- A heading on an error or warnings page, and the text of every link to such a heading, is the English name first, then the Arabic in parentheses: "The provider does not support omits (لا يدعم الموفِّر omits)". One link text per target. The English keeps its inline code, and a capitalized glossary term inside the Arabic in parentheses stays in Latin letters, as anywhere else. The Arabic gloss writes every key, field and file the English names in plain text (aggregates, components, value:, from:, in:, function:) in Latin letters as the source writes it, never as an Arabic paraphrase of that key and never as «مفتاحًا».
 - A heading on an error page and every quotation of it, in a link, a list of headings separated by semicolons or a sentence of another page, carry the same Arabic character for character, diacritics included: a quotation copies each heading's Arabic as the heading writes it, and a link never translates a heading anew. «المحدِّدات المعلنة» and «المحددات المعلنة» are two renderings, so a link that differs from its heading by one diacritic is a defect.
 - A link from any page to a heading that is not on an error page, and a link from one page to another page or an example, uses the Arabic alone, also in an example README: its text is the target's translated title, «الأمثلة بحسب المنتج والقدرة» and never "Examples by product and capability". A command (`aggrega serve`) and a product name (Claude Desktop) in a link text stay as written. The same holds, also where the link is written in the English-first form of an error heading (the English-first form belongs only to a heading on an error or warnings page and to the links to it): its text is translated even where the source shows the heading verbatim, and also where it is a page title after a path prefix such as `arm →` (the part after the arrow; the arrow follows the rule under Direction).
 - The recurring section titles of an example README take one wording on every page: «ما يعرضه» for "What it shows" and for "What it demonstrates", «ترتيب التعليم» for "the teaching order", «شغِّله» for "Run it", «الملفات» for "Files". «ما يُظهره» and «ترتيب التعلم» are not written.
@@ -335,7 +345,7 @@ Each of these is the ordinary word, written in lowercase in the source; the same
 - The label "How to fix:" is **طريقة الإصلاح:** at the start of its paragraph.
 - Emitted message, emitted messages: الرسالة الصادرة، الرسائل الصادرة.
 - Published, said of a schema, a document, a name, a value, an address, an alias or a port that is made available, takes the verb طرح (the verb «يطرح»): "the published schema" is «المخطط المطروح» and «العنوان الذي يطرحه `published_port`». Never «المنشور» or «منشورة»: نشر is deploying.
-- A router, the Release as "the router" or a text-router, is «جهاز توجيه» ("deployment router" is «جهاز توجيه النشر»). A prompt, what is sent to a model, is «مطالبة» (plural «مطالبات»): «حقن المطالبات» for prompt injection. A prompt the assistant pages hand a reader to paste, and the assistant's authoring prompts, are «موجِّه» (plural «موجِّهات»), the only use of that word. Never «أمر» for a prompt, which is a command.
+- A router, the Release as "the router" or a text-router, is «جهاز توجيه» ("deployment router" is «جهاز توجيه النشر»). A prompt, what is sent to a model, is «مطالبة» (plural «مطالبات»): «حقن المطالبات» for prompt injection and «سلاسل المطالبات» for prompt chains. A prompt the assistant pages hand a reader to paste, and the assistant's authoring prompts, are «موجِّه» (plural «موجِّهات»), the only use of that word. Never «أمر» for a prompt, which is a command.
 - Pipeline, in plain text, is «خط المعالجة» (plural «خطوط المعالجة»), also for the compiler's own pipeline and a feature-recipe pipeline; in the construct state before a noun it is «خط معالجة»: «خط معالجة المحوِّل البرمجي». A CI/CD pipeline is «خط CI/CD». Never «مسار», which is a path. A word in inline code (`pipeline`) stays as written.
 - A path, said of the route a Release takes through one provider (the Compose path, the helm path, the Kubernetes path, the synthesized helm path) or of a file path, is «مسار» («مسار Compose»، «مسار helm المُركَّب»); the noun after it says which. Never «طريق», which is a road.
 - Walkthrough, said of a page that builds an example step by step, is «الشرح العملي» («الشرح العملي لاستيراد Compose»); a link to such a page uses the page's own Arabic title. Said of what the explain output gives for one condition, it is «الجولة التفصيلية». Never «دليل إرشادي» nor a bare «الشرح» for the page.
@@ -345,13 +355,22 @@ Each of these is the ordinary word, written in lowercase in the source; the same
 - Physical, said of infrastructure, resources and sizing, is «فعلي» (feminine «فعلية», adverb «فعليًا»), as in «البنية التحتية الفعلية». Never «مادي». The pair physical and logical is «فعلي» and «منطقي».
 - Hardcoded is «مثبَّت في الشيفرة»: «مخططات مثبَّتة في الشيفرة». Never «مرمَّز».
 - A graph is «رسم بياني»: the IR graph is «رسم IR البياني», and the plural is «الرسوم البيانية». Never «مخطط», which is a schema.
+- Opaque, said of a body, a patch target, metadata or a map the compiler does not read, is «معتم» (feminine «معتمة»): «متن معتم»، «بيانات وصفية معتمة». Never «مبهم» nor «مبهمة».
+- A pillar, said of the `values`, `infra`, `parameters` and `provides` pillars of a document, is «ركيزة» (plural «ركائز»): «ركيزة `provides:`»، «الركيزة المكتوبة». Never «عمود», which is a table column.
+- A scalar, said of a single value, is «قيمة مفردة» (plural «قيم مفردة»): «خريطة قيم مفردة معتمة». Never «قيمة قياسية», because «قياسي» is standard or canonical. A YAML block scalar stays «scalar كتلي» only where the source names the YAML construct.
+- A patch, said of a JSON-Patch operation, a patch target or the pipeline patch model, is «رقعة» (plural «رقعات»): «هدف رقعة»، «تطبيق الرقعات». Never «تصحيح» nor «ترقيع». A patch release stays «إصدار تصحيحي».
+- Hydration, said of the inject pipe, is «ترطيب» («ترطيب inject»). «ملء» is only the fill of a slot, so it never stands for hydration.
+- To stamp, said of what the host or a guest puts on an output (a label, an annotation, provenance), is «ختم» (the verb «يختم»، passive «يُختم»، stamped «مختوم»): «يُختم بوصفه التسمية». Never «دمغ» nor «يدمغ».
+- A contributor, said of what contributes files or units to an assembled output, is «مساهم» (plural «مساهمون»). Never «مُسهِم» nor «مشارك».
+- Semantic Versioning is «الإصدار الدلالي» («الإصدار الدلالي الصارم»), in the field descriptions of every schema page alike, never in Latin letters.
+- An advisory, said of the findings a build raises without halting, is «تنبيه» (plural «تنبيهات»), and the adjective is «استشاري»: «تنبيه استشاري». Never «الاستشارات», which are consultations, nor «ملاحظة» for an advisory.
 - A boundary, in the sense of a Release's `boundaries`, is «حد» (plural «حدود»). A resource limit, such as a CPU limit or a memory limit, is «سقف» («سقف المعالج» and «سقف الذاكرة»). A limit that is not a resource limit, such as a concurrency limit, a rate limit or a budget limit, is «حد» («حد التزامن»), so a limit takes the noun that says which.
 - A typed contract is «عقد مصنَّف بالنوع» and a typed parameter is «مُعامِل مصنَّف بالنوع».
 - A lowercase release or aggregate that names a Release or an Aggregate entity (the release resolves to, a release file, `--release <release>`, a sub-aggregate) is written as the entity's name in Latin letters, Release or Aggregate ("Aggregate فرعي"). إصدار is only a version or a release of the product, such as the compiler's.
 - A lowercase plural of an entity name keeps its number: releases is Releases, and three releases is "ثلاثة Releases".
 - A kept term keeps its plural after a numeral or a word of quantity: "ثلاثة Releases" and "عدة Recipes".
 - A plural kept term stays plural wherever the source writes it, also when two are joined: "Components و Features".
-- Lowercase workload, feature, manifest and operator are ordinary words, translated also inside a compound:
+- Lowercase component, feature, workload, manifest, plugin, provider and operator are ordinary words, translated as the vocabulary gives them also beside a kept term and inside a compound («تركيب حمل العمل» for workload synthesis):
   - a workload: حمل العمل (plural: أحمال العمل), written without a kasra under the first letter: never «حِمل»
   - a feature: ميزة
   - a manifest (a Kubernetes or OCI manifest): بيان (the plural is «ملفات بيان», since «بيانات» alone is data); a provider-native manifest is «ملف بيان أصلي للموفِّر» (plural «ملفات بيان أصلية للموفِّر»), never «بيانات تعريفية», which is metadata
@@ -377,7 +396,7 @@ Each of these is the ordinary word, written in lowercase in the source; the same
 - A Wasm guest stays `guest` in Latin letters, in the singular and the plural, in plain text too: «وحدة guest»، «guest Wasm». The host stays «مضيف». Never «ضيف».
 - A dispatch group is «مجموعة توزيع»: never «مجموعة إرسال».
 - Severity is «مستوى الخطورة».
-- Provenance, said of where a value, a label, a file or a key came from, is «المنشأ» («قوس المنشأ»، «تسمية المنشأ»، «مفتاح المنشأ»). Never «مصدر», which is a source, nor «أصل», which is an origin or a parent.
+- Provenance, said of where a value, a label, a file or a key came from, is «المنشأ» («قوس المنشأ»، «تسمية المنشأ»، «مفتاح المنشأ»، «منشأ `publishedAt`»). Never «مصدر», which is a source, nor «أصل», which is an origin or a parent.
 - The head of a printed diagnostic, the bracketed part that carries the category and the short code, is «الرأس» («رأس التشخيص»، «يحمل الرأس الفئة»). An HTTP header or a header of a file is «ترويسة». The two never share a word.
 - A finding, what a check or a build reports, is «نتيجة» (plural «نتائج»), never «ملاحظة», which is a note. A diagnostic stays «تشخيص».
 - Failure, as a noun, is always «إخفاق» (plural «إخفاقات»): «إخفاق الحل»، «إخفاقات الجلب». To fail, as a verb, is «يفشل». «فشل» is never the noun: write «إخفاق» wherever the English says failure.
@@ -388,7 +407,7 @@ Each of these is the ordinary word, written in lowercase in the source; the same
 - To fill, said of what fills a slot, is «ملء» (the verb «يملأ»), never «تعبئة», which is not used for a fill.
 - A template, a Go template or a values template, is «قالب»: «قالب `values`». Never «النموذجي» nor «نموذج», which mean typical and model.
 - Structured, said of a tree, an object, a map or a value, is «مهيكل» (feminine «مهيكلة»): «شجرة مهيكلة»، «كائن مهيكل». Never «منظَّم». «بنيوي» is only structural, as in «المخطط البنيوي».
-- Sourced, said of an input kind, an input mode, a path or a template, is «مصدري» (feminine «مصدرية»): «الوضع المصدري»، «القالب المصدري». Never «مستمد من مصدر»، «مستند إلى مصدر» nor «ذات المصدر». The synthesized input kind is «المُركَّب» in the same sentences, never «المولَّف»; a synthesized harness, aggregate or release that Aggrega builds itself keeps «المولَّف».
+- Sourced, said of an input kind, an input mode, a path or a template, is «مصدري» (feminine «مصدرية»): «الوضع المصدري»، «Recipe المصدري»، «قالب مصدري», in a title and in the name of a mode too. Never «وضع المصدر»، «ذي مصدر»، «المعتمد على مصدر»، «مستمد من مصدر»، «مستند إلى مصدر» nor «ذات المصدر». The synthesized input kind is «المُركَّب» in the same sentences, never «المولَّف»; a synthesized harness, aggregate or release that Aggrega builds itself keeps «المولَّف».
 - A fact, said of what a provider reports or a template reads, is «حقيقة» (plural «حقائق»): «حقائق التصيير». Never «واقعة» nor «وقائع».
 - A kit, said of the plugin development kit and of a language's kit, is «مجموعة أدوات» («مجموعة تطوير المكوِّنات الإضافية» for the whole name, «المجموعة» for the short form): «مثال في مجموعة أدوات Go». Never «عُدّة» nor «عدة», because «عدة» also reads as several.
 - A callback, said of the source callbacks a guest reads through, is «دالة رد النداء» (plural «دوال رد النداء»). Never «استدعاء مرتد».
