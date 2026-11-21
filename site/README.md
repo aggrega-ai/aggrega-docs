@@ -20,7 +20,7 @@ served at `aggrega.ai/docs`.
   English in `src/strings/sidebar.md` and translated with the documentation,
   and `src/sidebar-labels.mjs` gives Starlight each label with its
   translations. An entry writing its label in English, or naming a key the file
-  lacks, stops the build. It opens with a
+  lacks, stops the build. The sidebar opens with a
   "Start here" group: the home, the pages for working with an AI assistant
   (`ai-assistants/`), the Getting started quickstart (`getting-started.md`),
   Install (`install.md`), and the Learn Aggrega path (`learn.md`) — each page's

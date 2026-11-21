@@ -69,6 +69,12 @@ function labelEntry(entry, labels, group) {
           `its label is the one ${SIDEBAR_LABELS} gives the key, so remove its label.`,
       );
     }
+    if ("translations" in rest) {
+      throw new Error(
+        `The sidebar entry naming the key "${key}" also gives translations: its translations are the ones ` +
+          `the translated ${SIDEBAR_LABELS} gives the key, so remove them.`,
+      );
+    }
     const subject = group ? `A sidebar entry inside "${group}"` : "A sidebar entry at the top level";
     result = { ...labelled(key, labels, subject), ...rest };
   } else if ("label" in rest && !("translations" in rest)) {
@@ -119,7 +125,7 @@ export function localizeSidebarConfig(items, lang) {
     const copy = { ...item };
     const translation = item.translations?.[lang];
     if (typeof translation === "string") copy.label = translation;
-    if (item.badge && typeof item.badge.text === "object") {
+    if (item.badge && item.badge.text && typeof item.badge.text === "object") {
       copy.badge = { ...item.badge, text: item.badge.text[lang] ?? item.badge.text[defaultLang] };
     }
     if (Array.isArray(item.items)) copy.items = localizeSidebarConfig(item.items, lang);
