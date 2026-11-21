@@ -225,8 +225,8 @@ function missingLabels(expected, shown, kind) {
 // from the strings file of the menu (SITE_NAV_LABELS). Each is checked for the
 // language's translation in the place the page shows it.
 const CHROME_LABELS = [
-  { key: "privacy", what: "footer link", shown: (html) => html.match(/<p class="privacy-link"[^>]*>\s*<a\b[^>]*>([^<]*)<\/a>/) },
-  { key: "documentationVersion", what: "version selector name", shown: (html) => html.match(/<docs-version-select\b[\s\S]*?<span class="sr-only">([^<]*)<\/span>/) },
+  { key: "privacy", what: "footer link", shown: (html) => html.match(/<p class="privacy-link[^"]*"[^>]*>\s*<a\b[^>]*>([^<]*)<\/a>/) },
+  { key: "documentationVersion", what: "version selector name", shown: (html) => html.match(/<docs-version-select\b[\s\S]*?<span class="sr-only[^"]*"[^>]*>([^<]*)<\/span>/) },
 ];
 
 // The misses among the page's own controls, as problem lines for `lang`.
