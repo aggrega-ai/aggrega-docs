@@ -90,8 +90,8 @@ function described(entry: Entry | undefined): string {
 // badge, and a link its badge and its configured label, from the entry in the
 // same place in `labelled`, the sidebar built with the language's labels. A link
 // to a page of the site points at the page in the language, and a link the
-// sidebar names by its page's title is named by the page's title in the
-// language.
+// sidebar names by its page's English title, with no translation of its own, is
+// named by the page's title in the language.
 function localize(entries: Entry[], labelled: Entry[], pages: Map<string, Localized>, locale: string): Entry[] {
   const mismatch = (index: number) =>
     new Error(
@@ -113,7 +113,9 @@ function localize(entries: Entry[], labelled: Entry[], pages: Map<string, Locali
     }
     if (counterpart?.type !== "link" || counterpart.href !== entry.href) throw mismatch(index);
     const page = pages.get(entry.href);
-    const label = page && entry.label === englishTitles.get(entry.href) ? page.title : counterpart.label;
+    const translated = counterpart.label !== entry.label;
+    const namedByTitle = page !== undefined && entry.label === englishTitles.get(entry.href);
+    const label = page && namedByTitle && !translated ? page.title : counterpart.label;
     return { ...entry, href: page ? page.href : entry.href, label, badge: counterpart.badge };
   });
 }
