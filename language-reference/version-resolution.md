@@ -80,8 +80,12 @@ constraint admits, the build halts with `conflicting-version-constraints`: "no
 version of a component or feature type satisfies every constraint declared on the
 instance". The message names the Release, each instance with where it is declared
 and its name, each constraint with the file it is written in, and the versions
-held. The remedy is to change the Aggregate's version, or to map the type at a
-version its Recipe implements.
+held. The remedy is to change the version where the type is written — the
+Aggregate's, or the Release's for an attachment the Release declares; a module is
+published, so an instance of a module changes its version only with another
+version of the module — or to map the type at a version its Recipe or
+FeatureRecipe implements. The message names the remedies true of where its
+instances' types are written.
 
 ### The lockfile
 
@@ -99,8 +103,10 @@ the version every constraint admits.
 Reusable libraries (SchemaLibrary, MappingLibrary, WorkloadLibrary,
 ArtifactLibrary) all resolve the same way. A library reference naming no version
 selects the highest held version. A version written on a library reference is a
-floor: it reads as `>=` that version within its major. Across several consumers
-the build selects the highest held version every consumer's floor admits.
+floor: it reads as `>=` that version within its major, and selects a pre-release
+only where it names that pre-release exactly and no release it admits is held.
+Across several consumers the build selects the highest held version every
+consumer's floor admits.
 Consumers naming different majors of one library halt the build.
 
 ## When nothing satisfies a reference
