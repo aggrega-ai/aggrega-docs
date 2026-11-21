@@ -39,7 +39,8 @@ import list from "./languages.json" with { type: "json" };
 // shows each language's translation on that language's pages, and the English
 // text where the memory has none (machineTranslationNoticeModule()). The labels
 // of the menu at the top of every page are written and translated the same way,
-// in the file SITE_NAV_LABELS (siteNavModule()).
+// in the file SITE_NAV_LABELS (siteNavModule()), and so are the labels of the
+// sidebar beside every page, in the file SIDEBAR_LABELS (sidebarLabels()).
 
 /** The language every page is written in, served at the unprefixed root. */
 export const sourceLanguage = { lang: list.source.lang, label: list.source.label };
@@ -83,6 +84,13 @@ export const MACHINE_TRANSLATION_NOTICE = "site/src/strings/machine-translation-
  * corpus root. Like the notice, it is translated with the pages and is not a page.
  */
 export const SITE_NAV_LABELS = "site/src/strings/site-nav.md";
+
+/**
+ * The source of the labels of the sidebar beside every page, relative to the
+ * corpus root: the names of its groups, the links it names itself and the badge
+ * on the link to the catalog. It is translated with the pages and is not a page.
+ */
+export const SIDEBAR_LABELS = "site/src/strings/sidebar.md";
 
 /** The link destination the notice's source writes, which the site replaces with the English page's address. */
 const NOTICE_LINK_DESTINATION = "english-original";
@@ -245,6 +253,12 @@ export function untranslatedPagesModule(root = corpusRoot) {
   };
 }
 
+/** Whether the translated tree of a language is present in the corpus. */
+export function translatedTreePresent(lang, root = corpusRoot) {
+  const { treesDir } = translationLayout(root);
+  return existsSync(path.join(treesDir, lang));
+}
+
 /**
  * The path of a language's translation of one of the site's own strings files,
  * which the translation configuration translates with the pages: undefined when
@@ -253,8 +267,7 @@ export function untranslatedPagesModule(root = corpusRoot) {
  * show it in English with no sign of why.
  */
 function translatedString(rel, lang, holds, root) {
-  const { treesDir } = translationLayout(root);
-  if (!existsSync(path.join(treesDir, lang))) return undefined;
+  if (!translatedTreePresent(lang, root)) return undefined;
   const file = path.join(root, translatedPath(rel, lang, root));
   if (!existsSync(file)) {
     throw new Error(
@@ -345,7 +358,7 @@ export function machineTranslationNoticeModule(root = corpusRoot) {
   };
 }
 
-// A label of the menu, from a line of its Markdown outside any HTML comment: a
+// A label of a menu, from a line of its Markdown outside any HTML comment: a
 // list item holding the label's key in inline code, then the label, after a
 // colon a translation may write in its own script.
 const LABEL_ITEM = /^\s*[-*+]\s+`([A-Za-z][A-Za-z0-9]*)`\s*[:：]?\s*(.*?)\s*$/;
@@ -360,21 +373,22 @@ function labelItems(markdown) {
 }
 
 /**
- * The labels of the menu at the top of every page, by the path segment of the
- * language whose pages show them, English under "": for each key of
- * SITE_NAV_LABELS, the label's text and the language it is in.
+ * The labels one strings file holds, by the path segment of the language whose
+ * pages show them, English under "": for each key of the file `rel`, the
+ * label's text and the language it is in. `holds` says what the file holds, for
+ * the errors.
  *
- * A language's labels are its translation of SITE_NAV_LABELS, which the version
- * build generates into the language's tree; a label the translation lacks, or
- * gives as the English text, is the English label, marked as English. Without a
+ * A language's labels are its translation of the file, which the version build
+ * generates into the language's tree; a label the translation lacks, or gives as
+ * the English text, is the English label, marked as English. Without a
  * translated tree every label is the English one. A translated tree present
- * without the file stops with an error.
+ * without the file stops with an error, and so does a file listing no label.
  */
-export function siteNavLabels(root = corpusRoot) {
-  const sourceFile = path.join(root, SITE_NAV_LABELS);
+function keyedLabels(rel, holds, root) {
+  const sourceFile = path.join(root, rel);
   const source = labelItems(readFileSync(sourceFile, "utf-8"));
   if (Object.keys(source).length === 0) {
-    throw new Error(`${sourceFile} must list the menu's labels, each a list item \`key\`: label; it lists none.`);
+    throw new Error(`${sourceFile} must list ${holds}, each a list item \`key\`: label; it lists none.`);
   }
   const english = Object.fromEntries(
     Object.entries(source).map(([key, text]) => [key, { text, lang: sourceLanguage.lang }]),
@@ -382,7 +396,7 @@ export function siteNavLabels(root = corpusRoot) {
   return Object.fromEntries([
     ["", english],
     ...publishedLanguages.map(({ lang, locale }) => {
-      const file = translatedString(SITE_NAV_LABELS, lang, "the menu's labels", root);
+      const file = translatedString(rel, lang, holds, root);
       if (!file) return [locale, english];
       const translated = labelItems(readFileSync(file, "utf-8"));
       return [
@@ -396,6 +410,24 @@ export function siteNavLabels(root = corpusRoot) {
       ];
     }),
   ]);
+}
+
+/**
+ * The labels of the menu at the top of every page, by the path segment of the
+ * language whose pages show them, English under "": for each key of
+ * SITE_NAV_LABELS, the label's text and the language it is in (see keyedLabels
+ * for the fallback and the errors).
+ */
+export function siteNavLabels(root = corpusRoot) {
+  return keyedLabels(SITE_NAV_LABELS, "the menu's labels", root);
+}
+
+/**
+ * The labels of the sidebar beside every page, in the shape of siteNavLabels:
+ * for each key of SIDEBAR_LABELS, the label's text and the language it is in.
+ */
+export function sidebarLabels(root = corpusRoot) {
+  return keyedLabels(SIDEBAR_LABELS, "the sidebar's labels", root);
 }
 
 const SITE_NAV_MODULE = "virtual:aggrega-docs/site-nav";
