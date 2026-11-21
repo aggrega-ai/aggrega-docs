@@ -17,7 +17,7 @@ import {
 import notFoundPages from "./src/not-found.mjs";
 import { heldRoute } from "./src/moved-pages.mjs";
 import { examplesSidebarItems } from "./src/examples-sidebar.mjs";
-import { labelSidebar } from "./src/sidebar-labels.mjs";
+import { labelSidebar, sidebarLabelCheck } from "./src/sidebar-labels.mjs";
 import movedPageRedirects from "./src/redirects.mjs";
 import searchIndexOrder from "./src/search-index-order.mjs";
 import rewriteRelativeMdLinks from "./src/plugins/rewrite-relative-md-links.mjs";
@@ -90,6 +90,212 @@ function present(...entries) {
 const remarkHeadingIds = hasTranslatedTrees()
   ? [(await translationPackage()).remarkHeadingIds]
   : [];
+
+// Each page is rendered with only its own top-level group open, and "Start
+// here" open on a page no group holds (src/routeData.ts); the groups a
+// reader opens stay open for the visit (src/components/Sidebar.astro).
+// Every label here, of a group, a link or the badge, is named by its key:
+// the English labels are written in src/strings/sidebar.md, which is
+// translated with the documentation, and labelSidebar()
+// (src/sidebar-labels.mjs) gives Starlight each label with its
+// translations. An entry writing its label in English, or naming a key
+// the file lacks, stops the build. A page named by its slug alone is
+// labelled with its title, in each language.
+const sidebar = labelSidebar([
+  // The sidebar opens with the ways in: the home, the pages for working
+  // with an AI assistant, the quickstart, installing, and the path
+  // through the documentation. The pages in this group are listed nowhere else in
+  // the sidebar.
+  ...present({
+    key: "startHere",
+    items: [
+      { key: "whatIsAggrega", link: "/" },
+      {
+        key: "aiAssistants",
+        items: [
+          "ai-assistants/set-up",
+          "ai-assistants/mcp-server",
+          "ai-assistants/skill",
+          "ai-assistants/what-it-can-do",
+        ],
+      },
+      "getting-started",
+      { key: "install", slug: "install" },
+      "learn",
+    ],
+  }),
+  {
+    key: "architecture",
+    items: [
+      "architecture",
+      "architecture/01-vision-and-positioning",
+      "architecture/02-ecosystem-philosophy",
+      "architecture/03-team-topologies-and-domains",
+      "architecture/04-entity-taxonomy",
+      "architecture/05-invariants",
+      "architecture/06-data-taxonomy-and-composition",
+      "architecture/07-dependency-resolution",
+      "architecture/08-credential-model",
+      "architecture/09-ai-features",
+      "architecture/10-compilation-pipeline",
+      "architecture/11-governance-and-compliance",
+      "architecture/12-day-two-lifecycles",
+      "architecture/13-catalog-and-registry",
+      "architecture/14-extensibility",
+      ...present("architecture/15-aggrega-studio", "architecture/15-editors-assistants-and-frontends"),
+      "architecture/16-recipe-input-composition",
+    ],
+  },
+  // Bringing a project written in another format: what aggrega import
+  // does, then one walkthrough for each format it reads. The pages live
+  // in the authoring guide's folder and are listed nowhere else in the
+  // sidebar.
+  ...present({
+    key: "import",
+    items: [
+      "authoring/import",
+      "authoring/import/compose",
+      "authoring/import/mcp",
+      "authoring/import/langflow",
+      "authoring/import/flowise",
+      "authoring/import/n8n",
+      "authoring/import/dify",
+      "authoring/import/crewai",
+      "authoring/import/langgraph",
+      "authoring/import/google-adk",
+      "authoring/import/agent-framework",
+      "authoring/import/resource-schemas",
+    ],
+  }),
+  // Working with Aggrega in Visual Studio Code: what the extension needs,
+  // then one page for each part of it. The pages live in the authoring
+  // guide's folder and are listed nowhere else in the sidebar.
+  ...present({
+    key: "visualStudioCode",
+    items: [
+      "authoring/editor",
+      "authoring/editor/install",
+      "authoring/editor/welcome-page",
+      "authoring/editor/panels",
+      "authoring/editor/topology-graph",
+      "authoring/editor/releases",
+      "authoring/editor/import",
+      "authoring/editor/commands",
+      "authoring/editor/settings",
+      "authoring/editor/language-server",
+    ],
+  }),
+  // The authoring guide's pages other than those Start here, Import and
+  // Visual Studio Code list.
+  ...present({
+    key: "authoring",
+    items: [
+      "authoring",
+      "authoring/getting-started",
+      "authoring/personas",
+      "authoring/entities-by-role",
+    ],
+  }),
+  {
+    key: "languageReference",
+    items: [
+      "language-reference",
+      ...present("language-reference/01-getting-started"),
+      "language-reference/02-naming-conventions",
+      "language-reference/03-entities",
+      "language-reference/04-vocabulary",
+      "language-reference/05-templates",
+      "language-reference/06-providers",
+      "language-reference/07-cli",
+      "language-reference/08-errors",
+      "language-reference/09-examples",
+      "language-reference/10-status",
+      "language-reference/path-template-variables",
+      "language-reference/version-resolution",
+      ...present("language-reference/import-answers"),
+      ...present("language-reference/compatibility"),
+      {
+        key: "entities",
+        items: [
+          { autogenerate: { directory: corpusDirectory("language-reference/entities") } },
+        ],
+      },
+      {
+        key: "vocabulary",
+        items: [
+          { autogenerate: { directory: corpusDirectory("language-reference/vocabulary") } },
+        ],
+      },
+      {
+        key: "templates",
+        items: [
+          { autogenerate: { directory: corpusDirectory("language-reference/templates") } },
+        ],
+      },
+      {
+        key: "providers",
+        items: [
+          { autogenerate: { directory: corpusDirectory("language-reference/providers") } },
+        ],
+      },
+      {
+        key: "plugins",
+        items: [
+          { autogenerate: { directory: corpusDirectory("language-reference/plugins") } },
+        ],
+      },
+    ],
+  },
+  {
+    key: "cliReference",
+    items: [{ autogenerate: { directory: corpusDirectory("language-reference/cli") } }],
+  },
+  {
+    key: "errors",
+    items: [{ autogenerate: { directory: corpusDirectory("language-reference/errors") } }],
+  },
+  // The runnable examples in teaching order, one group per tier, then the
+  // concept pages (src/examples-sidebar.mjs).
+  {
+    key: "examples",
+    items: examplesSidebarItems({
+      autogenerate: { directory: corpusDirectory("language-reference/examples") },
+    }),
+  },
+  {
+    key: "schemaReference",
+    items: [
+      "language-reference/schema",
+      {
+        key: "entities",
+        items: [
+          { autogenerate: { directory: corpusDirectory("language-reference/schema/entities") } },
+        ],
+      },
+      {
+        key: "pluginSchemas",
+        items: [
+          { autogenerate: { directory: corpusDirectory("language-reference/schema/plugins") } },
+        ],
+      },
+      {
+        key: "otherSchemas",
+        items: [
+          { autogenerate: { directory: corpusDirectory("language-reference/schema/other") } },
+        ],
+      },
+    ],
+  },
+  // Where Aggrega is going: the roadmap page, at the top level. A version
+  // whose tag holds no roadmap page lists none.
+  ...present("roadmap"),
+  {
+    key: "catalog",
+    link: "https://aggrega.ai/catalog",
+    attrs: { target: "_blank", rel: "noopener" },
+    badge: { key: "external" },
+  },
+]);
 
 export default defineConfig({
   site: "https://aggrega.ai",
@@ -247,214 +453,13 @@ export default defineConfig({
         "@fontsource/opendyslexic/700.css",
         "./src/styles/a11y.css",
       ],
-      // Each page is rendered with only its own top-level group open, and "Start
-      // here" open on a page no group holds (src/routeData.ts); the groups a
-      // reader opens stay open for the visit (src/components/Sidebar.astro).
-      // Every label here, of a group, a link or the badge, is named by its key:
-      // the English labels are written in src/strings/sidebar.md, which is
-      // translated with the documentation, and labelSidebar()
-      // (src/sidebar-labels.mjs) gives Starlight each label with its
-      // translations. An entry writing its label in English, or naming a key
-      // the file lacks, stops the build. A page named by its slug alone is
-      // labelled with its title, in each language.
-      sidebar: labelSidebar([
-        // The sidebar opens with the ways in: the home, the pages for working
-        // with an AI assistant, the quickstart, installing, and the path
-        // through the documentation. The pages in this group are listed nowhere else in
-        // the sidebar.
-        ...present({
-          key: "startHere",
-          items: [
-            { key: "whatIsAggrega", link: "/" },
-            {
-              key: "aiAssistants",
-              items: [
-                "ai-assistants/set-up",
-                "ai-assistants/mcp-server",
-                "ai-assistants/skill",
-                "ai-assistants/what-it-can-do",
-              ],
-            },
-            "getting-started",
-            { key: "install", slug: "install" },
-            "learn",
-          ],
-        }),
-        {
-          key: "architecture",
-          items: [
-            "architecture",
-            "architecture/01-vision-and-positioning",
-            "architecture/02-ecosystem-philosophy",
-            "architecture/03-team-topologies-and-domains",
-            "architecture/04-entity-taxonomy",
-            "architecture/05-invariants",
-            "architecture/06-data-taxonomy-and-composition",
-            "architecture/07-dependency-resolution",
-            "architecture/08-credential-model",
-            "architecture/09-ai-features",
-            "architecture/10-compilation-pipeline",
-            "architecture/11-governance-and-compliance",
-            "architecture/12-day-two-lifecycles",
-            "architecture/13-catalog-and-registry",
-            "architecture/14-extensibility",
-            ...present("architecture/15-aggrega-studio", "architecture/15-editors-assistants-and-frontends"),
-            "architecture/16-recipe-input-composition",
-          ],
-        },
-        // Bringing a project written in another format: what aggrega import
-        // does, then one walkthrough for each format it reads. The pages live
-        // in the authoring guide's folder and are listed nowhere else in the
-        // sidebar.
-        ...present({
-          key: "import",
-          items: [
-            "authoring/import",
-            "authoring/import/compose",
-            "authoring/import/mcp",
-            "authoring/import/langflow",
-            "authoring/import/flowise",
-            "authoring/import/n8n",
-            "authoring/import/dify",
-            "authoring/import/crewai",
-            "authoring/import/langgraph",
-            "authoring/import/google-adk",
-            "authoring/import/agent-framework",
-            "authoring/import/resource-schemas",
-          ],
-        }),
-        // Working with Aggrega in Visual Studio Code: what the extension needs,
-        // then one page for each part of it. The pages live in the authoring
-        // guide's folder and are listed nowhere else in the sidebar.
-        ...present({
-          key: "visualStudioCode",
-          items: [
-            "authoring/editor",
-            "authoring/editor/install",
-            "authoring/editor/welcome-page",
-            "authoring/editor/panels",
-            "authoring/editor/topology-graph",
-            "authoring/editor/releases",
-            "authoring/editor/import",
-            "authoring/editor/commands",
-            "authoring/editor/settings",
-            "authoring/editor/language-server",
-          ],
-        }),
-        // The authoring guide's pages other than those Start here, Import and
-        // Visual Studio Code list.
-        ...present({
-          key: "authoring",
-          items: [
-            "authoring",
-            "authoring/getting-started",
-            "authoring/personas",
-            "authoring/entities-by-role",
-          ],
-        }),
-        {
-          key: "languageReference",
-          items: [
-            "language-reference",
-            ...present("language-reference/01-getting-started"),
-            "language-reference/02-naming-conventions",
-            "language-reference/03-entities",
-            "language-reference/04-vocabulary",
-            "language-reference/05-templates",
-            "language-reference/06-providers",
-            "language-reference/07-cli",
-            "language-reference/08-errors",
-            "language-reference/09-examples",
-            "language-reference/10-status",
-            "language-reference/path-template-variables",
-            "language-reference/version-resolution",
-            ...present("language-reference/import-answers"),
-            ...present("language-reference/compatibility"),
-            {
-              key: "entities",
-              items: [
-                { autogenerate: { directory: corpusDirectory("language-reference/entities") } },
-              ],
-            },
-            {
-              key: "vocabulary",
-              items: [
-                { autogenerate: { directory: corpusDirectory("language-reference/vocabulary") } },
-              ],
-            },
-            {
-              key: "templates",
-              items: [
-                { autogenerate: { directory: corpusDirectory("language-reference/templates") } },
-              ],
-            },
-            {
-              key: "providers",
-              items: [
-                { autogenerate: { directory: corpusDirectory("language-reference/providers") } },
-              ],
-            },
-            {
-              key: "plugins",
-              items: [
-                { autogenerate: { directory: corpusDirectory("language-reference/plugins") } },
-              ],
-            },
-          ],
-        },
-        {
-          key: "cliReference",
-          items: [{ autogenerate: { directory: corpusDirectory("language-reference/cli") } }],
-        },
-        {
-          key: "errors",
-          items: [{ autogenerate: { directory: corpusDirectory("language-reference/errors") } }],
-        },
-        // The runnable examples in teaching order, one group per tier, then the
-        // concept pages (src/examples-sidebar.mjs).
-        {
-          key: "examples",
-          items: examplesSidebarItems({
-            autogenerate: { directory: corpusDirectory("language-reference/examples") },
-          }),
-        },
-        {
-          key: "schemaReference",
-          items: [
-            "language-reference/schema",
-            {
-              key: "entities",
-              items: [
-                { autogenerate: { directory: corpusDirectory("language-reference/schema/entities") } },
-              ],
-            },
-            {
-              key: "pluginSchemas",
-              items: [
-                { autogenerate: { directory: corpusDirectory("language-reference/schema/plugins") } },
-              ],
-            },
-            {
-              key: "otherSchemas",
-              items: [
-                { autogenerate: { directory: corpusDirectory("language-reference/schema/other") } },
-              ],
-            },
-          ],
-        },
-        // Where Aggrega is going: the roadmap page, at the top level. A version
-        // whose tag holds no roadmap page lists none.
-        ...present("roadmap"),
-        {
-          key: "catalog",
-          link: "https://aggrega.ai/catalog",
-          attrs: { target: "_blank", rel: "noopener" },
-          badge: { key: "external" },
-        },
-      ]),
+      sidebar,
     }),
     notFoundPages(),
     searchIndexOrder(),
+    // The build stops when a translated page's sidebar shows a label in English
+    // that has a translation (src/sidebar-labels.mjs).
+    sidebarLabelCheck(sidebar),
     // The redirects from every moved page's earlier address (src/redirects.mjs).
     movedPageRedirects(),
   ],
