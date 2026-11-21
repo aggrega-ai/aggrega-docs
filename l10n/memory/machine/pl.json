@@ -10685,6 +10685,13 @@
     "status": "machine",
     "text": "**Wzorzec „dołączenie, nie wartość”:** konwencja biblioteki standardowej mówi, że poświadczenie żąda się jako *dołączenia*, nigdy nie wpisuje się go do bloku `values`, gdzie byłoby literałem inline przenoszonym przez kompilator dosłownie. Dołączenie poświadczenia wskazuje `type` encji Feature poświadczenia (oznaczonej etykietą `feature.aggrega.ai/kind: secret`) i używa własnych `values` do opisania zapytania do magazynu sekretów. Routing poświadczeń jest wtedy późnym wiązaniem niezależnym od możliwości, a rdzeń kompilatora nigdy nie rozwiązuje ani nie ujawnia materiału — przekazuje wskaźnik dostarczony przez encję Recipe od Ops. Jest to **konwencja**, do której zachęcają katalog i schematy, a nie sprawdzenie wykonywane przez kompilator: kompilator nie interpretuje znaczenia liścia `values`, więc autor, który wstawia materiał inline, wstawia go inline. To, co schemat *rzeczywiście* gwarantuje, to istnienie i typowanie powierzchni dołączeń."
   },
+  "0df39e0d3db008da": {
+    "at": "2026-11-21T00:53:05.656Z",
+    "job": "session-0002-20261121005305",
+    "srcHash": "0df39e0d3db008da",
+    "status": "machine",
+    "text": "**Klucz encji Manifest, który mapuje typ.** Klucz w `components.type` lub `features.type` wskazujący wersję albo zakres caret dopuszcza tylko wersje, które oznacza. Wpis `name` nie dodaje własnego ograniczenia wersji."
+  },
   "0df67be8d51fef63": {
     "at": "2026-11-14T23:40:44.716Z",
     "job": "session-0014-20261114234044",
@@ -28200,6 +28207,17 @@
     "status": "machine",
     "text": "**Walidacja schematu wartości** akceptuje lub odrzuca inaczej tylko w przypadkach brzegowych: cytowana część lokalna adresu e-mail, `NaN` i liczby nieskończone, liczba porównywana z wartością nieliczbową w `enum` i `const` oraz lokalizacja zgłaszana dla niespełnionego `propertyNames`, `contentSchema` lub dalszego elementu tablicy."
   },
+  "251779d2375e6e0f": {
+    "at": "2026-11-21T00:53:05.656Z",
+    "job": "session-0002-20261121005305",
+    "revision": {
+      "from": "cc2f3d7aa395669c",
+      "reviewed": false
+    },
+    "srcHash": "251779d2375e6e0f",
+    "status": "machine",
+    "text": "Wypisuje dla każdej rozwiązanej encji, co zrobił ten pull — pobrał ją na nowo z rejestru, ponownie użył slotu pamięci podręcznej, znalazł ją w lokalnym katalogu, dostarczył ją z wnętrza pliku binarnego kompilatora lub uznał za zewnętrzną (własna encja Aggregate lub Manifest encji Release, odczytana z pliku lub wpisu, który wskazuje encja Release) — a następnie każde odwołanie do komponentu i funkcjonalności wybrane poniżej najnowszej dostępnej wersji, wraz z ograniczeniami, które je tam utrzymują. Najnowsza dostępna to najnowsza spośród wersji, z których wybierano odwołanie: tych, które zawierają foldery katalogu, a w przeciwnym razie tych, które wymienia jego rejestr. Odwołaniu do rejestru przypiętemu przez istniejący plik blokady proponowana jest wyłącznie ta przypięta wersja, dopóki dopuszczają ją jego ograniczenia, więc nie jest ono wymieniane, chyba że --upgrade wybierze je ponownie. Tylko stdout; nie jest zapisywane w pliku blokady"
+  },
   "2517cf800cae240e": {
     "at": "2026-10-29T22:04:01.982Z",
     "job": "session-0026-20261029220401",
@@ -34963,6 +34981,13 @@
     "status": "machine",
     "text": "Skrypty inicjalizacyjne i niestandardowa konfiguracja PostgreSQL — syntetyzowany helm"
   },
+  "2e3fee07eec984a8": {
+    "at": "2026-11-21T00:53:05.656Z",
+    "job": "session-0002-20261121005305",
+    "srcHash": "2e3fee07eec984a8",
+    "status": "machine",
+    "text": "Środek zaradczy wymienia, połączone przez `, or`, to, co zmienia wersję tam, gdzie zapisane są typy instancji, raz dla każdego rodzaju dokumentu, w którym są zapisane, a następnie mapowanie: `change the Aggregate's version` dla typu zapisanego przez encję Aggregate wdrażaną przez encję Release; `change the Release's version` dla powiązania deklarowanego przez encję Release; `include another version of the module that writes it` dla instancji modułu dołączanego przez encję Aggregate, ponieważ moduł jest publikowany, a wersja wskazywana przez jego instancję zmienia się tylko wraz z inną wersją modułu; i na końcu `map this type at a version its recipe implements`, które dla funkcjonalności brzmi `its feature recipe implements`."
+  },
   "2e411a02c01ed104": {
     "at": "2026-10-22T23:16:15.323655+00:00",
     "job": "msgbatch_01WVATwUq8stCTbJGJnupwwy",
@@ -37031,6 +37056,17 @@
     "status": "machine",
     "text": "Rego"
   },
+  "30ece6c59ecac35d": {
+    "at": "2026-11-21T00:53:05.656Z",
+    "job": "session-0002-20261121005305",
+    "revision": {
+      "from": "c756f595f1e354d9",
+      "reviewed": false
+    },
+    "srcHash": "30ece6c59ecac35d",
+    "status": "machine",
+    "text": "**Jak naprawić:** należy poprawić niepoprawną wartość tak, aby spełniała zadeklarowany schemat, lub — jeśli wartość jest uprawniona — rozszerzyć deklarujący schemat (`schema.values`/`schema.infra` encji Component lub schemat dołączonej encji Feature), tak aby ją deklarował. Gdy szczegóły wskazują nowszą wersję deklarującą tę właściwość, należy zmienić wskazane w nich ograniczenia tak, aby instancja była kompilowana w tej wersji — zamapować typ w tej wersji na encję Recipe, która ją implementuje, lub zmienić wersję wskazaną przez typ — albo usunąć tę właściwość. Zadeklarowany schemat encji Component można sprawdzić poleceniem `aggrega inspect <component-type>`, aby zobaczyć dokładne typy, zakresy, wartości domyślne i pola wymagane, których oczekuje każdy filar."
+  },
   "30f0dc6c0d6cb86d": {
     "at": "2026-10-22T23:53:38.624924+00:00",
     "job": "msgbatch_011k5XEXAWyemaJqwBb86oM4",
@@ -37931,6 +37967,13 @@
     "srcHash": "324f27ad516286cf",
     "status": "machine",
     "text": "Wzorzec 2 — zadanie wsadowe"
+  },
+  "324f5715a0f2886f": {
+    "at": "2026-11-21T00:53:05.656Z",
+    "job": "session-0002-20261121005305",
+    "srcHash": "324f5715a0f2886f",
+    "status": "machine",
+    "text": "Instancja komponentu lub funkcjonalności jest kompilowana w jednej wersji — najwyższej, którą dopuszcza każde zadeklarowane dla niej ograniczenie. Ograniczają ją trzy miejsca: wersja wskazana przez `type:` instancji — w encji Aggregate, w encji Release dla powiązania deklarowanego przez Release lub w module, który dołącza encja Aggregate — klucz encji Manifest mapujący typ oraz `spec.implements:` encji Recipe lub FeatureRecipe, na którą encja Manifest go mapuje. Katalog zawiera wersje, które dopuszcza samo odwołanie, ale żadnej, którą dopuszczałyby wszystkie trzy razem, więc nie można wybrać żadnej wersji."
   },
   "3250c290efd98cdb": {
     "at": "2026-10-22T23:16:15.323655+00:00",
@@ -43950,6 +43993,13 @@
     "srcHash": "3aaab747316cd8f5",
     "status": "machine",
     "text": "Gdy encja Feature, którą ta encja FeatureRecipe `implements`, deklaruje kontrakt `schema.provides`, kontrakt jest egzekwowany wobec encji FeatureRecipe: każdy klucz zadeklarowany przez Feature musi wystąpić w bloku `provides:` encji FeatureRecipe, w przeciwnym razie kompilacja zatrzymuje się, podając brakujący klucz. Dodatkowe opublikowane klucze są dozwolone — kontrakt wyznacza minimum, a nie maksimum. Wartości nigdy nie są analizowane; są nieprzezroczystymi, deterministycznymi wskaźnikami rozwiązywanymi przez środowisko uruchomieniowe."
+  },
+  "3aad69f49e926afb": {
+    "at": "2026-11-21T00:53:05.656Z",
+    "job": "session-0002-20261121005305",
+    "srcHash": "3aad69f49e926afb",
+    "status": "machine",
+    "text": "Emitowany komunikat. Otwiera go zdanie warunku, następnie encja Release, każda instancja z miejscem, w którym jest zadeklarowana, i jej nazwą, każde ograniczenie z plikiem, w którym jest zapisane, oraz wersje zawarte w katalogu, a na końcu środek zaradczy:"
   },
   "3aad97586583751a": {
     "at": "2026-10-22T06:52:21.462Z",
@@ -52796,6 +52846,17 @@
     "status": "machine",
     "text": "Środowisko, `development`, to wartość domyślna, którą import zapisuje, ponieważ żaden plik Compose go nie wskazuje; należy ją zmienić tam, gdzie encja Release jest wdrażana gdzie indziej. Tagi obrazów stają się wersjami silnika, które przyjmują encje Components z biblioteki standardowej. `port` API to port, na którym nasłuchuje jego kontener, a `published_port` to port hosta publikowany przez jego wpis `ports`, oba równe 8080, tak jak podaje je plik Compose; jak mówi jego komentarz, każdy proces na tej maszynie dociera do API pod adresem `http://127.0.0.1:8080` i nic innego nie może tego zrobić, a usunięcie tego wiersza pozostawia API wyłącznie w sieci stosu. To, czego nie przyjmuje żaden klucz, pozostaje komentarzem nad swoim wpisem: wpis `ports` ze źródła, który `port` i `published_port` już przenoszą, oraz nazwany wolumen bazy danych."
   },
+  "465a59eef89cd827": {
+    "at": "2026-11-21T00:53:05.656Z",
+    "job": "session-0002-20261121005305",
+    "revision": {
+      "from": "cbd7eda89ef37974",
+      "reviewed": false
+    },
+    "srcHash": "465a59eef89cd827",
+    "status": "machine",
+    "text": "Instancja funkcjonalności zgłasza te przypadki we własnej formie, każdy po zdaniu warunku. Typ funkcjonalności zapisany w encji Aggregate bez wersji jest dopasowywany tak samo jak typ komponentu, w wersji, w której kompilacja go kompiluje — najwyższej wersji, którą dopuszcza każde ograniczenie zadeklarowane dla instancji — a komunikat podający `<type>:<version>` wskazuje typ w tej wersji, czyli to, czego szukano w katalogu. Gdy znana jest encja Recipe, na którą zamapowany jest komponent powiązania, encje FeatureRecipes rozróżnia się według możliwości, z którą wiąże się ta encja Recipe: te, które wiążą się z możliwością komponentu, są proponowane jako pierwsze, a encja FeatureRecipe wiążąca się z inną możliwością nadal jest renderowana, jako własne wyjście obok wyjścia komponentu, a nie w nim, więc gdy żadna nie wiąże się z możliwością komponentu, proponowane są zamiast tego tamte. Mapowanie, które nigdzie nie prowadzi, brzmi `feature \"<instance>\" (type \"<type>\"): the Manifest maps it to feature recipe \"<uri>\", which is not in the catalog`. Gdy encje FeatureRecipes implementują typ dla możliwości komponentu, wymieniane są tylko one: `feature \"<instance>\" (type \"<type>\"); feature recipes implementing it for capability \"<capability>\", the capability its component's Recipe binds to: [<recipe-uris>]; pin one in the Manifest`. Gdy implementują go tylko dla innych możliwości: `feature \"<instance>\" (type \"<type>\"); no feature recipe in the catalog implements <type>:<version> for capability \"<capability>\", the capability its component's Recipe binds to; feature recipes implementing it for other capabilities: [<recipe-uris>]; pin one of those in the Manifest, and it renders as its own output beside the component's, or write one for \"<capability>\", then map the type to it`. Gdy żadna w ogóle nie implementuje typu: `feature \"<instance>\" (type \"<type>\"); no feature recipe in the catalog implements <type>:<version>; write one, then map the type to it`. A gdy możliwość nie jest znana — własne mapowanie komponentu nie rozwiązuje się do żadnej encji Recipe, co jest zgłaszane osobno, lub powiązanie jest zapisane na granicy, której komponenty mogą być renderowane przez kilka możliwości — wymieniana jest każda implementacja: `feature \"<instance>\" (type \"<type>\"); feature recipes implementing it: [<recipe-uris>]; pin one in the Manifest`. W obszarze roboczym, który nie wskazuje żadnego folderu katalogu, przeszukiwane są tylko encje FeatureRecipes przypięte w pliku lockfile: encje z rejestru nie są wymieniane, a encja Manifest, która nie mapuje żadnej dla danego typu, żadnej nie przypina. Wówczas stwierdzenia braku dotyczą przypiętych wpisów, a nie katalogu, i komunikaty to zaznaczają. Gdy żadna nie implementuje typu: `feature \"<instance>\" (type \"<type>\"); no feature recipe the lockfile pins implements <type>:<version> for capability \"<capability>\", the capability its component's Recipe binds to; with no catalog directory, the feature recipes searched are only those the lockfile pins, not a registry's; pin one a registry publishes in the Manifest, where one for another capability renders as its own output beside the component's, or write one for \"<capability>\", then map the type to it` — a gdy możliwość nie jest znana, komunikat nie wskazuje żadnej i kończy się na `pin one a registry publishes in the Manifest, or write one, then map the type to it`. Gdy przypięte encje FeatureRecipes implementują go tylko dla innych możliwości, komunikat dla tego przypadku zawiera `no feature recipe the lockfile pins implements` zamiast `no feature recipe in the catalog implements`, z tą samą klauzulą po możliwości."
+  },
   "465b32f1ea148b1f": {
     "at": "2026-10-22T13:49:57.993635+00:00",
     "job": "msgbatch_012jjD4vu9JwBogX6bQQmFbf",
@@ -58328,6 +58389,13 @@
     "status": "machine",
     "text": "Do czego według dokumentu służy encja."
   },
+  "4e00ad3be46d4067": {
+    "at": "2026-11-21T00:53:05.656Z",
+    "job": "session-0002-20261121005305",
+    "srcHash": "4e00ad3be46d4067",
+    "status": "machine",
+    "text": "Gdy dostępna wersja jest tą, którą zapisuje plik lockfile, komunikat kończy swoje szczegóły na `locked at \"<version>\", written in \"<lockfile>\"` zamiast `versions held`, a środek zaradczy dodaje `` , or run `aggrega pull --release <release-file>` to lock the version every constraint admits ``."
+  },
   "4e0404f1d7a98c74": {
     "at": "2026-10-22T23:44:16.479857+00:00",
     "job": "msgbatch_01EAGuW4hKxXTyUyLvxe4k5v",
@@ -60878,6 +60946,13 @@
     "status": "machine",
     "text": "Adres treści zapisanej zawartości, w postaci `sha256:`, po którym następują 64 małe znaki szesnastkowe. Ponowny pull porównuje plik bazowy z tym skrótem, aby wykryć dryf. Wzorzec: `^sha256:[a-f0-9]{64}$`."
   },
+  "513ef717eb2372c5": {
+    "at": "2026-11-21T00:53:05.656Z",
+    "job": "session-0002-20261121005305",
+    "srcHash": "513ef717eb2372c5",
+    "status": "machine",
+    "text": "Ten sam typ zapisany przez kilka instancji w encji Release jest jednym odwołaniem, więc stosują się do niego ograniczenia każdej z tych instancji. Wpis encji Manifest, którego własny klucz odrzuca `spec.implements:` jego encji Recipe, jest zamiast tego zgłaszany jako ten błąd mapowania i nie dodaje tu żadnego ograniczenia."
+  },
   "51416909bb372523": {
     "at": "2026-10-22T08:52:36.046409+00:00",
     "job": "msgbatch_01RQPKmPhqEGHToRpY4PpQXJ",
@@ -62332,6 +62407,17 @@
     "srcHash": "53042c07d088f9ed",
     "status": "machine",
     "text": "**Emitowane komunikaty.** Każdy zaczyna się od warunku — wartości bez reprezentacji w tym, co emituje dostawca — a następnie wskazuje zasób, to, czy wartość jest żądaniem, czy limitem, jej ścieżkę w encji Workload oraz wartość. Po wartości, która nie jest ilością, następuje to, co sprawiło, że nią nie jest, oraz postać, jaką przyjmuje ilość:"
+  },
+  "53069e1c577996ed": {
+    "at": "2026-11-21T00:53:05.656Z",
+    "job": "session-0002-20261121005305",
+    "revision": {
+      "from": "f1a67b7e4d498877",
+      "reviewed": false
+    },
+    "srcHash": "53069e1c577996ed",
+    "status": "machine",
+    "text": "Encje Recipes i FeatureRecipes deklarują interfejs encji Component lub Feature, który implementują, za pomocą słowa kluczowego `implements:`. `implements:` nigdy nie wybiera encji Recipe: robi to mapowanie encji Manifest, a instancja, której typu nie obejmuje żadne mapowanie, zatrzymuje kompilację z błędem, który jako kandydatów wymienia encje Recipes, których `implements:` może implementować ten typ. To, czym steruje `implements:`, to sprawdzenie, czy encja Recipe każdego wpisu mapowania w encji Manifest implementuje mapowany typ lub typ bazowy, który ten typ rozszerza przez `extends`. Mapowany typ to klucz wpisu, a w przypadku klucza `components.type` także typ każdej instancji komponentu, do której klucz dociera w wersji, której klucz nie wskazuje — każdej instancji, do której dociera, w przypadku klucza zapisanego bez wersji — w wersji, w jakiej kompilacja kompiluje tę instancję: w wersji wskazanej przez instancję lub, dla instancji niewskazującej żadnej, w najwyższej wersji, którą dopuszcza każde nałożone na nią ograniczenie. `implements:` jest jednym z tych ograniczeń, więc oprócz sprawdzenia zawęża wersję, w której instancja jest kompilowana: `implements:` encji Recipe lub FeatureRecipe wskazanej przez mapowanie jest deklarowane na każdej instancji, do której dociera mapowanie, wraz z typem wskazanym przez instancję i kluczem encji Manifest, który ją mapuje, a instancja jest kompilowana w najwyższej wersji, którą dopuszczają wszystkie te ograniczenia (zob. [rozwiązywanie wersji](version-resolution.md)). Status poszczególnych form:"
   },
   "5308665013b0e1a1": {
     "at": "2026-11-17T14:36:05.809Z",
@@ -72613,6 +72699,13 @@
     "status": "machine",
     "text": "**3. Katalog platformy: Feature z `DoesNotExist` (wzorzec wykluczenia)**\nTa encja Feature automatycznie wiąże się ze wszystkimi serwerami i workerami, ale jawnie wyklucza komponenty przenoszące zdolność modelu generatywnego."
   },
+  "6094346217dcda1d": {
+    "at": "2026-11-21T00:53:05.656Z",
+    "job": "session-0002-20261121005305",
+    "srcHash": "6094346217dcda1d",
+    "status": "machine",
+    "text": "Jeśli katalog zawiera wersje, które dopuszcza samo odwołanie, ale żadnej, którą dopuszcza każde ograniczenie, kompilacja zatrzymuje się z `conflicting-version-constraints`: „no version of a component or feature type satisfies every constraint declared on the instance” (żadna wersja typu komponentu lub funkcjonalności nie spełnia wszystkich ograniczeń zadeklarowanych dla instancji). Komunikat wskazuje encję Release, każdą instancję z miejscem, w którym jest zadeklarowana, i jej nazwą, każde ograniczenie z plikiem, w którym jest zapisane, oraz dostępne wersje. Środkiem zaradczym jest zmiana wersji tam, gdzie zapisany jest typ — w encji Aggregate lub, dla powiązania deklarowanego przez encję Release, w encji Release; moduł jest publikowany, więc instancja modułu zmienia wersję tylko wraz z inną wersją modułu — albo zamapowanie typu w wersji, którą implementuje jego encja Recipe lub FeatureRecipe. Komunikat wymienia środki zaradcze właściwe dla miejsc, w których zapisane są typy jego instancji."
+  },
   "6094c49479b77964": {
     "at": "2026-10-22T23:26:42.562574+00:00",
     "job": "msgbatch_01Gwcz9eKAWPkMYYYxx6Quyc",
@@ -77441,6 +77534,13 @@
     "status": "machine",
     "text": "`lockfile.release_documents[]`"
   },
+  "66f7d1e7645deacc": {
+    "at": "2026-11-21T00:53:05.656Z",
+    "job": "session-0002-20261121005305",
+    "srcHash": "66f7d1e7645deacc",
+    "status": "machine",
+    "text": "Wpis encji Manifest, którego własny klucz odrzuca `spec.implements` jego encji Recipe, jest zgłaszany jako ten błąd mapowania (zob. warunki zatrzymania dla `implements` encji Recipe, które nie pasuje do mapowanego typu) i nie dodaje własnego ograniczenia."
+  },
   "66f993906d4f78a8": {
     "at": "2026-10-29T23:14:13.329Z",
     "job": "session-0033-20261029231413",
@@ -78197,6 +78297,13 @@
     "srcHash": "6820c5cc6857d148",
     "status": "machine",
     "text": "Obciążenie deklarujące pamięć masową na instancję jest renderowane jako StatefulSet, a StatefulSet wskazuje jedną usługę, która nim zarządza — tę, która nadaje każdej instancji stały adres. Jest to usługa zadeklarowana bez własnego adresu w klastrze. Renderowanie zatrzymują dwa kształty: brak takiej usługi, więc nie ma czego wskazać; oraz więcej niż jedna, więc nie wiadomo, która zarządza. W obu przypadkach powstałby StatefulSet odrzucany przez cel, więc renderowanie zatrzymuje się, zamiast go wyemitować."
+  },
+  "6821102784d12e94": {
+    "at": "2026-11-21T00:53:05.656Z",
+    "job": "session-0002-20261121005305",
+    "srcHash": "6821102784d12e94",
+    "status": "machine",
+    "text": "Na przykład encja Aggregate zapisująca `core/compute/server:1.0.0`, klucz encji Manifest `core/compute/server:1.1.0` zamapowany na encję Recipe implementującą ten klucz oraz katalog zawierający `1.0.0` i `1.1.0`:"
   },
   "6822e2b68fadb053": {
     "at": "2026-10-30T01:13:47.675Z",
@@ -79604,6 +79711,13 @@
     "srcHash": "69f06876b99b74b9",
     "status": "machine",
     "text": "plik `*.json` zawierający ciąg znaków pod `typeName` i obiekt pod `properties`, czyli schemat dostawcy; albo ciąg znaków pod `TypeName` i ciąg znaków pod `Schema`, czyli wynik `aws cloudformation describe-type`, którego `Schema` importer odczytuje jako drugie źródło"
+  },
+  "69f1c612c3972f3b": {
+    "at": "2026-11-21T00:53:05.656Z",
+    "job": "session-0002-20261121005305",
+    "srcHash": "69f1c612c3972f3b",
+    "status": "machine",
+    "text": "**`type:` encji Aggregate.** Dokładna wersja lub zakres caret przypina instancję tak, jak opisuje to powyższa tabela; typ zapisany bez wersji niczego nie ogranicza."
   },
   "69f51a2182f612f0": {
     "at": "2026-10-30T18:13:14.564Z",
@@ -81829,6 +81943,13 @@
     "srcHash": "6ce18ec4ad21a95b",
     "status": "machine",
     "text": "Gemini CLI instaluje wtyczkę jako jedno ze swoich rozszerzeń."
+  },
+  "6ce2d6e745874787": {
+    "at": "2026-11-21T00:53:05.656Z",
+    "job": "session-0002-20261121005305",
+    "srcHash": "6ce2d6e745874787",
+    "status": "machine",
+    "text": "No version of a component or feature type satisfies every constraint on an instance (Żadna wersja typu komponentu lub funkcjonalności nie spełnia wszystkich ograniczeń instancji)"
   },
   "6ce2fcaf738bdf15": {
     "at": "2026-10-22T23:53:38.624924+00:00",
@@ -87098,6 +87219,17 @@
     "status": "machine",
     "text": "Sposób komponowania"
   },
+  "73cef57080ec0359": {
+    "at": "2026-11-21T00:53:05.656Z",
+    "job": "session-0002-20261121005305",
+    "revision": {
+      "from": "92c2019707a6d763",
+      "reviewed": false
+    },
+    "srcHash": "73cef57080ec0359",
+    "status": "machine",
+    "text": "resolve: consumers of one library require versions in incompatible majors: library `\"<library>\"` has consumers requiring incompatible majors: `<consumer>` wants `<version>`; `<consumer>` wants `<version>` (resolve: konsumenci jednej biblioteki wymagają wersji o niezgodnych wersjach głównych: biblioteka ma konsumentów wymagających niezgodnych wersji głównych; każdy konsument jest podany z wymaganą wersją)"
+  },
   "73cf9ebace3f83d7": {
     "at": "2026-10-22T23:53:38.624924+00:00",
     "job": "msgbatch_011k5XEXAWyemaJqwBb86oM4",
@@ -90193,6 +90325,17 @@
     "status": "machine",
     "text": "A schema `$import:` cannot be applied (Nie można zastosować $import: schematu)"
   },
+  "77b045d678ecefe1": {
+    "at": "2026-11-21T00:53:05.656Z",
+    "job": "session-0002-20261121005305",
+    "revision": {
+      "from": "95f05a3ec032d8a2",
+      "reviewed": false
+    },
+    "srcHash": "77b045d678ecefe1",
+    "status": "machine",
+    "text": "To, co dane pobranie *zrobiło* — czy każda encja została świeżo pobrana z rejestru (`fetched-fresh`), użyła ponownie miejsca w pamięci podręcznej (`cache-reuse`), została znaleziona w katalogu lokalnym (`local`), dostarczona z kopii wewnątrz pliku binarnego kompilatora (`in-binary`), czy była zewnętrzna (`external`: własne encje Aggregate lub Manifest danej encji Release, odczytane z pliku lub wpisu wskazanego przez Release, a nie rozwiązane jako jedna z jej zależności; encja Aggregate pobrana przez pull z rejestru ma zamiast tego `fetched-fresh`) — jest przejściową diagnostyką zdarzeń pobrania, wypisywaną na stdout przez `--detail`, i nigdy nie trafia do pliku blokady. `--detail` wymienia też każde odwołanie do komponentu i funkcjonalności, które pobranie wybiera poniżej najnowszej dostępnej wersji — w jednym wierszu podającym wybraną wersję, najnowszą dostępną oraz ograniczenia, które ją wykluczają: klucz encji Manifest, `spec.implements` encji Recipe lub typ w zapisanej postaci, każde z plikiem, w którym jest zapisane. Najnowsza dostępna to najnowsza spośród wersji, z których wybierano odwołanie: tych, które zawierają foldery katalogu, a w przeciwnym razie tych, które wymienia jego rejestr. Odwołanie wybrane w najnowszej wersji nie jest wymieniane, podobnie jak odwołanie do rejestru przypięte przez istniejący plik blokady, któremu proponowana jest wyłącznie ta przypięta wersja, dopóki dopuszczają ją jego ograniczenia, aż `--upgrade` wybierze je ponownie. To, które źródło dostarczyło encję, zależy od stanu lokalnego maszyny wykonującej pobranie, więc utrwalenie tego zniszczyłoby bajtową identyczność pliku blokady między maszynami. Raportuje to, co zrobiło *to pobranie*, czego nie da się później odtworzyć (świeżo pobrana encja jest przy następnym uruchomieniu w pamięci podręcznej); do sprawdzenia *stanu* rozwiązania zależności encji Release po pobraniu służy `aggrega inspect`."
+  },
   "77b3383dfe0ab56e": {
     "at": "2026-10-22T13:38:02.118076+00:00",
     "job": "msgbatch_01T6gg8KjsTT696unu8pZMiY",
@@ -91074,6 +91217,13 @@
     "srcHash": "78e6c343a1ecd734",
     "status": "machine",
     "text": "Wejściowy `featuresSchema`:"
+  },
+  "78ee849bc33eab6f": {
+    "at": "2026-11-21T00:53:05.656Z",
+    "job": "session-0002-20261121005305",
+    "srcHash": "78ee849bc33eab6f",
+    "status": "machine",
+    "text": "Dla instancji encji Component lub Feature w encji Release odwołanie nie jest jedynym ograniczeniem jej wersji; zob. [Ograniczenia instancji](#the-constraints-on-an-instance)."
   },
   "78f0ba9820130a87": {
     "at": "2026-10-22T22:51:15.481474+00:00",
@@ -92631,6 +92781,13 @@
     "srcHash": "7ad362c2e93de45b",
     "status": "machine",
     "text": "W szablonach, które zapisuje FeatureRecipe dołączenia encji Feature — jej `locals:`, `source:`, `provides:`,\n`injectMapping:`, `valuesMapping:`, `workload:`, każdy wpis `artifacts:` oraz `with:` i `when:` każdego\nkroku potoku — `{{ .context.rendered_name }}` jest nazwą **komponentu-hosta**: tą, którą własny dostawca\nhosta zgłasza dla zasobów renderowanych dla hosta, czyli wartością, którą odczytuje własna encja Recipe\nhosta. Tworzy parę z `{{ .context.instance_id }}`, który w tych szablonach jest tożsamością komponentu-hosta;\nsamo dołączenie to `.attachment_name`. Dołączenie zapisane na jednym z połączeń komponentu odczytuje nazwę\nkomponentu konsumującego, ponieważ to on jest jego hostem."
+  },
+  "7ad5a3fabedb9701": {
+    "at": "2026-11-21T00:53:05.656Z",
+    "job": "session-0002-20261121005305",
+    "srcHash": "7ad5a3fabedb9701",
+    "status": "machine",
+    "text": "Gdy żadna wersja nie spełnia wszystkich ograniczeń"
   },
   "7ad74651a22efc90": {
     "at": "2026-10-22T23:44:18.033086+00:00",
@@ -102536,6 +102693,13 @@
     "status": "machine",
     "text": "**Usługa.** Jej `image` oraz to, czy buduje obraz w ramach `build`; jej `ports`, `expose`,\n  `volumes` i `environment` — mapowanie albo lista elementów `NAME=value`, przy czym nazwa bez wartości\n  przyjmuje wartość ze środowiska, w którym działa Compose; `depends_on`, lista lub mapowanie; oraz jej\n  `models`, lista nazw modeli albo mapowanie, którego wpisy mogą wskazywać, w `endpoint_var` i\n  `model_var`, zmienne, pod którymi adres i identyfikator modelu docierają do usługi. Żaden inny\n  element — `command`, `healthcheck`, `secrets`, `env_file` i pozostałe — nie jest nigdzie zapisywany, lecz\n  jest wymieniany w komentarzu nad wpisem usługi w encji Release."
   },
+  "88753842be35850e": {
+    "at": "2026-11-21T00:53:05.656Z",
+    "job": "session-0002-20261121005305",
+    "srcHash": "88753842be35850e",
+    "status": "machine",
+    "text": "no version of a component or feature type satisfies every constraint declared on the instance (Release `\"<release>\"`, at `\"<site>\"`, instance `\"<instance>\"`, type `\"<type>\"`, written in `\"<file>\"`, Manifest mapping key `\"<key>\"`, written in `\"<file>\"`, mapped to recipe `\"<recipe>\"`, whose spec.implements is `\"<implements>\"`, versions held `\"<versions>\"`). `<remedy>` (żadna wersja typu komponentu lub funkcjonalności nie spełnia wszystkich ograniczeń zadeklarowanych dla instancji (Release, w miejscu, instancja, typ, zapisany w, klucz mapowania encji Manifest, zapisany w, zamapowany na recepturę, której spec.implements to, dostępne wersje))"
+  },
   "887978f7e7fc9203": {
     "at": "2026-10-22T09:44:21.400057+00:00",
     "job": "msgbatch_013NCKZBrFnV8MLX7L95wcHH",
@@ -102570,6 +102734,13 @@
     "srcHash": "888662c575a20176",
     "status": "machine",
     "text": "Zweryfikowany wsteczny znacznik wycofania, rejestrowany, gdy na artefakcie wskazanym przez `digest` wykryto podpisany, zaufany znacznik. Znacznik to podpisany referrer OCI artefaktu, który wycofuje, dołączany po publikacji bez ponownego publikowania artefaktu, dzięki czemu wtyczkę już tu zarejestrowaną można wycofać później — przy poziomie `retracted`, który jest poziomem wycofania z użycia, oznacza to, że artefakt jest wykluczony z wyboru, a nie jedynie odradzany. Jest to fakt dotyczący artefaktu, który ten rekord już adresuje, a nie druga tożsamość, i właśnie dlatego `aggrega pull` może go dodać, pozostawiając `resolved_version` i `digest` bez zmian: jego zarejestrowanie niczego nie przyjmuje. Jest rejestrowany tylko wtedy, gdy rozwiązany skrót jest równy skrótowi już zarejestrowanemu — rozwiązanie zgłaszające inne bajty jest zmianą tożsamości, podlega własnej regule tego rekordu i jest odrzucane, chyba że uruchomienie o nie poprosiło. Nic nie usuwa zarejestrowanego znacznika; znika on tylko razem z rekordem, który go zawiera, przy jawnej aktualizacji, która ten rekord zastępuje lub usuwa. `aggrega build`, `aggrega lint --release` i `aggrega validate --release` wskazują wtyczkę z takim znacznikiem, ponieważ w przeciwnym razie wycofana bramka byłaby pobierana, buforowana i uruchamiana bez żadnej informacji, a ustawienie obszaru roboczego `build.halt_on_deprecated_severity` decyduje, czy kompilacja zostaje z tego powodu zatrzymana, czy tylko wyświetla ostrzeżenie. Te same operacje wywoływane przez `aggrega serve` i `aggrega mcp` sprawdzają konfigurację względem tego rekordu jak dotychczas, ale jeszcze nie wskazują zarejestrowanego znacznika, więc znacznik jest zgłaszany w trzech powyższych poleceniach, a nie w tych interfejsach."
+  },
+  "888ceccf44f15551": {
+    "at": "2026-11-21T00:53:05.656Z",
+    "job": "session-0002-20261121005305",
+    "srcHash": "888ceccf44f15551",
+    "status": "machine",
+    "text": "Instancja encji Component lub Feature w encji Release jest kompilowana w jednej wersji, a to, w której, mogą ograniczać trzy miejsca:"
   },
   "889609ca2fbf4f2b": {
     "at": "2026-10-22T23:34:49.752518+00:00",
@@ -107217,6 +107388,13 @@
     "status": "machine",
     "text": "`aggrega/scaffoldEntity` — dokument startowy dla rodzaju encji: dokładnie te pola, których wymaga schemat tego rodzaju, z wypełnionymi stałymi `apiVersion` i `kind` oraz symbolem zastępczym wszędzie tam, gdzie potrzebna jest wartość. `kind` jest wymagany i jest tokenem schematu zapisanym małymi literami z łącznikami — `component`, `aggregate`, `release`, `recipe`, `manifest`, `feature` itd.; `aggrega/getSchema` bez `kind` informuje, które tokeny można wysłać, a token, któremu nie odpowiada żaden schemat, jest odrzucany z tym zbiorem w komunikacie, dzięki czemu literówkę można poprawić bez drugiego wywołania. Klient proponujący autorowi wybór rodzaju odczytuje `entityKinds` tej metody, czyli zbiór rodzajów, w których można napisać dokument. `name` jest opcjonalne i wypełnia `metadata.name` dla rodzajów, których schemat tego wymaga. Odpowiedź zawiera `kind` i `skeleton`. Zob. [Co daje odpowiedź na żądanie `aggrega/scaffoldEntity`](#what-an-aggregascaffoldentity-response-gives-you), ponieważ odpowiedź jest dokumentem do zapisania, a nie dokumentem, który został zapisany. Szkielet jest wyprowadzany z tego samego schematu, który zwraca `aggrega/getSchema`, więc obie odpowiedzi pochodzą z jednego źródła. **Gdy zamiast `kind` zostanie wysłane `example`, metoda zapisuje jeden z przykładów gotowych do uruchomienia z dokumentacji do nowego katalogu obszaru roboczego**, tak jak robi to w terminalu [`aggrega draft --example`](aggrega-draft.md#starting-from-a-runnable-example); gdy zostanie wysłane samo `list: true`, odpowiada wszystkimi dostępnymi przykładami i niczego nie zapisuje. Obie formy wymagają obszaru roboczego, więc żądanie dowolnej z nich wskazuje go w `workspaceRoot`, a żądanie, które go nie wskazuje, jest odrzucane. `dir` wskazuje nowy katalog względem katalogu głównego obszaru roboczego, a domyślnie jest nim nazwa przykładu; wartość bezwzględna lub taka, która rozwiązuje się poza katalog główny — w zapisanej postaci lub przez dowiązanie — jest odrzucana, zanim cokolwiek zostanie odczytane, a katalog, który cokolwiek zawiera, jest odrzucany i pozostawiany bez zmian. Odpowiedź na listę zawiera `examples`, każdy z `name`, `level` i `summary`; odpowiedź na zapis zawiera `example`, `dir`, `files` — każdy zapisany plik, względem `dir` — `next`, polecenia, które strona przykładu podaje do jego zbudowania, nieobecne, gdy ich nie podaje, oraz `version`, wersję dokumentacji, z której odczytano przykład. Pola dwóch form wysłane razem — `kind` z `example`, `list` z `example` lub `kind`, `name` z `example` lub `list` albo `dir` bez `example` — są odrzucane, zanim cokolwiek zostanie odczytane, tymi samymi słowami, którymi odrzuca je narzędzie asystenta. **Zapis pozyskuje pakiet dokumentacji, jeśli maszyna nie ma kopii, którą dopuszcza własna weryfikacja podpisu obszaru roboczego, i zapisuje wewnątrz obszaru roboczego** — zob. [Dostęp do rejestru i zapis](#reaching-a-registry-and-writing)."
   },
+  "8ea382ae637d36fa": {
+    "at": "2026-11-21T00:53:05.656Z",
+    "job": "session-0002-20261121005305",
+    "srcHash": "8ea382ae637d36fa",
+    "status": "machine",
+    "text": "**`spec.implements` zamapowanej encji Recipe.** Encja Recipe lub FeatureRecipe, na którą encja Manifest mapuje instancję, dopuszcza tylko wersje, które oznacza jej `spec.implements`. W przypadku encji Component encja Recipe implementująca bazę, którą typ rozszerza przez `extends`, dopuszcza wersje typu poprzez tę bazę; encja Feature nie ma takiego pochodzenia."
+  },
   "8ea40c823232462b": {
     "at": "2026-10-22T21:42:39.864359+00:00",
     "job": "msgbatch_01PqbJsVmEBt5689iaQGF8jy",
@@ -109925,6 +110103,17 @@
     "srcHash": "921729dea4d9a143",
     "status": "machine",
     "text": "**Kompilacja czyta pamięć podręczną; sama nie sięga na zewnątrz.** Pozyskiwanie to osobny krok: polecenie pull, które rozwiązuje wydanie, pobiera to, czego wydanie potrzebuje, i zapisuje to w pamięci podręcznej, a kompilacja czyta potem to, co tam jest. Dlatego w kompilacji ten warunek objawia się jako brak w pamięci podręcznej, a w poleceniu pull jako rejestr, który nie ma takiego artefaktu. Jeśli kompilacja jest skonfigurowana tak, by przy starcie wypełniała plik blokady, pozyskiwanie, które uruchamia, to właśnie to samo polecenie pull."
+  },
+  "9218937236865975": {
+    "at": "2026-11-21T00:53:05.656Z",
+    "job": "session-0002-20261121005305",
+    "revision": {
+      "from": "910652965ec93aa9",
+      "reviewed": false
+    },
+    "srcHash": "9218937236865975",
+    "status": "machine",
+    "text": "**Klucz `components.type` jest też oceniany dla każdej instancji, gdy tylko dociera do instancji innej wersji.** Klucz, który nie wskazuje dokładnego typu instancji, dociera do niej przez bazę typu, gdy żaden klucz nie wskazuje tego dokładnego typu i dla tej samej bazy nie zapisano innego klucza — więc może do niej dotrzeć klucz zapisany bez wersji albo klucz wskazujący inną wersję. Sam wpis nie może zatem rozstrzygnąć, czy jego encja Recipe pasuje, więc kompilacja ocenia encję Recipe ponownie dla każdej instancji komponentu, do której klucz dociera w ten sposób, stawiając w miejscu klucza własny typ instancji w wersji, w jakiej kompilacja ją kompiluje: wersji wskazanej przez instancję albo, dla instancji bez wersji, najwyższej wersji, którą dopuszcza każde zadeklarowane dla niej ograniczenie. Instancja, której wersji nie spełnia `spec.implements:` encji Recipe — ani dokładnie, ani przez zakres caret, ani jako niewersjonowana, ani przez bazę, którą `extends` typ instancji — wywołuje ten warunek, zgłaszany w ścieżce `.spec.components.<instance>` instancji, a nie w pliku encji Manifest:"
   },
   "921b6e9d9b2061bd": {
     "at": "2026-10-30T02:01:48.260Z",
@@ -115497,6 +115686,13 @@
     "srcHash": "99a46b1cc6de4291",
     "status": "machine",
     "text": "D. Topologiczna analiza ryzyka"
+  },
+  "99a5255f4a7d9ccd": {
+    "at": "2026-11-21T00:53:05.656Z",
+    "job": "session-0002-20261121005305",
+    "srcHash": "99a5255f4a7d9ccd",
+    "status": "machine",
+    "text": "Dla instancji funkcjonalności klucz encji Manifest jest opisany jako `Manifest feature key`, a encja FeatureRecipe, na którą mapuje, jako `mapped to feature recipe`."
   },
   "99a52df3ff3d4994": {
     "at": "2026-10-23T00:02:43.446982+00:00",
@@ -122946,6 +123142,13 @@
     "srcHash": "a368bfd220b1148a",
     "status": "machine",
     "text": "[Przegląd CLI](07-cli.md)"
+  },
+  "a36939c2b49853d1": {
+    "at": "2026-11-21T00:53:05.656Z",
+    "job": "session-0002-20261121005305",
+    "srcHash": "a36939c2b49853d1",
+    "status": "machine",
+    "text": "Ograniczenia są zbierane dla każdego odwołania w postaci zapisanej w encji Release, w obrębie encji Aggregate, jej podagregatów i powiązań. Wszystkie instancje zapisane z tym samym typem współdzielą jedno odwołanie, więc są kompilowane w jednej wersji, a stosują się do niej ograniczenia wszystkich z nich."
   },
   "a36c908943f14282": {
     "at": "2026-10-22T23:05:19.615834+00:00",
@@ -131713,6 +131916,17 @@
     "status": "machine",
     "text": "Plugin przechodzi od pliku `.wasm` na dysku do zweryfikowanego artefaktu gotowego do użycia w buildzie przez trzy etapy."
   },
+  "aed9a7ed907e3865": {
+    "at": "2026-11-21T00:53:05.656Z",
+    "job": "session-0002-20261121005305",
+    "revision": {
+      "from": "fcd3fced6f9d8c4f",
+      "reviewed": false
+    },
+    "srcHash": "aed9a7ed907e3865",
+    "status": "machine",
+    "text": "Do jednej biblioteki może odwoływać się kilka encji, z których każda podaje dolne ograniczenie wersji albo żadnego, przy czym dolne ograniczenie oznacza tę wersję lub późniejszą w obrębie jej wersji głównej, a kompilacja wybiera najwyższą wersję, którą dopuszcza dolne ograniczenie każdego konsumenta. Dzięki temu konsument wymagający mniej nadal otrzymuje wersję, która go zadowala, i dlatego dodanie konsumenta z wyższym ograniczeniem podnosi wszystkich, zamiast dzielić kompilację na dwie kopie."
+  },
   "aede51d754ff4669": {
     "at": "2026-11-01T00:51:57.735Z",
     "job": "session-0006-20261101005157",
@@ -138249,6 +138463,17 @@
     "status": "machine",
     "text": "**Jak naprawić:** należy ustawić `metadata.version` encji na publikowane wydanie i zbudować plugin z czystego checkoutu commita wskazanego przez tag tego wydania, aby sam raportował tę wersję. Dla nowego wydania należy najpierw zatwierdzić encję wraz z wydawanym kodem źródłowym i otagować ten commit — tag musi wskazywać commit, który już zawiera encję. Nie należy kopiować do encji wersji raportowanej przez plugin: build dowolnego innego commita raportuje wersję deweloperską, a jej skopiowanie opublikowałoby ten build pod wersją, której nie wskazuje żaden tag wydania. Jeśli plugin nie raportuje żadnej wersji, został zbudowany bez zapisanej wersji; należy zbudować go z zapisaną wersją."
   },
+  "b70d887f8b886319": {
+    "at": "2026-11-21T00:53:05.656Z",
+    "job": "session-0002-20261121005305",
+    "revision": {
+      "from": "ade3eef1106bc2ac",
+      "reviewed": false
+    },
+    "srcHash": "b70d887f8b886319",
+    "status": "machine",
+    "text": "najwyższą wersję, którą dopuszcza każde nałożone na nią ograniczenie"
+  },
   "b70e147ca37f53d7": {
     "at": "2026-10-22T21:48:24.698354+00:00",
     "job": "msgbatch_01QwJupw38VKZLFFnvvqQAaX",
@@ -142076,6 +142301,13 @@
     "status": "machine",
     "text": "Wzorce kotwic YAML (blok `defs:`)"
   },
+  "bc0085831a31c3df": {
+    "at": "2026-11-21T00:53:05.656Z",
+    "job": "session-0002-20261121005305",
+    "srcHash": "bc0085831a31c3df",
+    "status": "machine",
+    "text": "**Jak naprawić:** należy zmienić wersję tam, gdzie zapisany jest typ — w `type:` encji Aggregate lub, dla powiązania deklarowanego przez encję Release, w encji Release; dla instancji modułu należy dołączyć wersję modułu, której instancja wskazuje wersję dopuszczaną przez pozostałe ograniczenia — albo zamapować typ w encji Manifest w wersji, którą implementuje jego encja Recipe lub FeatureRecipe. Gdy plik lockfile zapisuje wersję, której ograniczenia już nie dopuszczają, należy uruchomić `aggrega pull --release <file>`, aby zablokować wersję dopuszczaną przez każde ograniczenie."
+  },
   "bc01ebf97d9bf1e4": {
     "at": "2026-10-22T12:28:13.070114+00:00",
     "job": "msgbatch_01Y3HuRsDKK1RKid7JwBTRsz",
@@ -144767,6 +144999,17 @@
     "status": "machine",
     "text": "**Co zawiera dziś biblioteka standardowa.** `core/datastore/qdrant`, `core/datastore/weaviate`, `core/datastore/chroma`, `core/datastore/pgvector` i `core/datastore/milvus` noszą `vector`, `core/datastore/cognee` nosi `semantic-memory`, a `core/datastore/opensearch` i `core/datastore/elasticsearch` noszą `search`, więc opisany wyżej selektor bazy wiedzy rozwiązuje się względem każdego z nich. `core/datastore/redis`, `core/datastore/valkey` i `core/datastore/memcached` noszą `kv`. Każda z tych etykiet znajduje się na własnej bazie komponentu, ponieważ tożsamością produktu jest ten silnik. W przypadku `core/datastore/pgvector` tą tożsamością jest przypinany artefakt: uruchamia on własny obraz PostgreSQL projektu pgvector, który zawiera rozszerzenie, a każda encja Recipe włącza rozszerzenie w bazie danych tworzonej przez komponent — jego cecha wektorowa nie zależy więc od żadnego ustawienia i właśnie to odróżnia go od opisanego wyżej w „Naked Base, Flavored Edges” przypadku skonfigurowanego, w którym PostgreSQL ogólnego przeznaczenia zyskuje tę cechę dopiero wtedy, gdy deweloper włączy rozszerzenie. `relational`, `document` i `graph` nie mają komponentu w bibliotece standardowej, więc selektor wskazujący tylko wartości spośród nich nie pasuje tu do niczego i jest spełniany przez katalog, który taki komponent zawiera."
   },
+  "bfc4e6101a9e27c6": {
+    "at": "2026-11-21T00:53:05.656Z",
+    "job": "session-0002-20261121005305",
+    "revision": {
+      "from": "e69b7f13d304f620",
+      "reviewed": false
+    },
+    "srcHash": "bfc4e6101a9e27c6",
+    "status": "machine",
+    "text": "Encja Release odczytuje jedną wersję każdej nazwy biblioteki: najwyższą dostępną wersję, którą dopuszcza każda dolna granica wskazana przez jej odwołania, w tym odwołania wewnątrz bibliotek, a gdy żadne jej nie wskazuje, wersję wybieraną przez zwykłe odwołanie. Odwołanie niewskazujące dolnej granicy dopuszcza każdą wersję, więc nigdy nie zaniża wyboru. Dolne granice wskazujące różne wersje główne jednej biblioteki nie dopuszczają razem żadnej wersji, a kompilacja zatrzymuje się z błędem `E0107`, wskazując odwołania, które są niezgodne. `release.lock` zapisuje dla każdej biblioteki wybraną wersję oraz skrót treści pliku tej wersji; build, pull i preview odczytują dokładnie tę wersję. Podniesienie dolnej granicy powoduje, że następna kompilacja zgłasza lockfile jako nieaktualny (`E0130`), dopóki `aggrega pull` nie zapisze nowej wersji. `aggrega validate --release`, edytor i narzędzia asystenta odczytują wersje zapisane w `release.lock`, a bez lockfile wersję wybieraną przez zwykłe odwołanie. Walidacja całego katalogu lub jednego pliku encji odczytuje każdą bibliotekę w wersji wybieranej przez zwykłe odwołanie."
+  },
   "bfc4e6e2c381db39": {
     "at": "2026-10-22T23:53:36.766860+00:00",
     "job": "msgbatch_01Wu8raobvwEgmrA6bGpzuKQ",
@@ -145671,6 +145914,13 @@
     "status": "machine",
     "text": "Ponieważ materializacja korzysta z tego samego rozwiązywania schematu co walidacja, wartość domyślna zadeklarowana w nadrzędnej encji Feature dociera do dołączeń potomka `extends:`, a wartości domyślne osiągane przez międzydokumentowe `$ref:` do encji SchemaLibrary również się materializują. Wartości domyślne zadeklarowane wyłącznie w lokalnym odwołaniu wewnątrzdokumentowym `#/$defs/` lub w gałęzi `allOf` / `oneOf` / `anyOf` nie są materializowane."
   },
+  "c0c7637844a7b371": {
+    "at": "2026-11-21T00:53:05.656Z",
+    "job": "session-0002-20261121005305",
+    "srcHash": "c0c7637844a7b371",
+    "status": "machine",
+    "text": "Ograniczenia instancji"
+  },
   "c0c77c8641c687d8": {
     "at": "2026-10-22T23:16:15.323655+00:00",
     "job": "msgbatch_01WVATwUq8stCTbJGJnupwwy",
@@ -146338,6 +146588,17 @@
     "srcHash": "c1a9ebfc9b176345",
     "status": "machine",
     "text": "Serwer embeddingów sprawdza klucz. Przechowuje ten klucz w slocie własnej encji\nComponent, `api_key`, a jego Recipe dostarcza to, co wypełnia ten slot, jako\n`API_KEY` — zmienną, którą Text Embeddings Inference odczytuje przy starcie. Z pliku\n`aggregate-matched.yaml`:"
+  },
+  "c1aeb0ea59a9d534": {
+    "at": "2026-11-21T00:53:05.656Z",
+    "job": "session-0002-20261121005305",
+    "revision": {
+      "from": "7349728aa8a2511d",
+      "reviewed": false
+    },
+    "srcHash": "c1aeb0ea59a9d534",
+    "status": "machine",
+    "text": "Odwołanie `<Library>#/…` wybiera najwyższą dostępną wersję; wersja wstępna jest wybierana tylko wtedy, gdy odwołanie wskazuje ją dokładnie. Odwołanie `<Library>:<version>#/…` (separatorem jest `:`) określa wersję minimalną, dolną granicę: odczytuje się je jako `>=` tej wersji w obrębie jej wersji głównej i wybiera ono najwyższe dostępne wydanie stabilne równe dolnej granicy lub wyższe, z tą samą wersją główną. Inna wersja główna nigdy nie jest wybierana dla dolnej granicy, a wersja wstępna tylko wtedy, gdy dolna granica wskazuje ją dokładnie i nie jest dostępne żadne wydanie stabilne równe jej lub wyższe z tą samą wersją główną. Gdy katalog będący właścicielem nazwy nie zawiera żadnej wersji spełniającej dolną granicę, kompilacja zatrzymuje się z błędem `E0103`, wskazując żądaną wersję i dostępne wersje. Biblioteka udostępniana przez rejestr jest wybierana w ten sam sposób spośród wersji, które publikuje rejestr."
   },
   "c1b2944eef18043e": {
     "at": "2026-10-22T23:53:40.461542+00:00",
@@ -160047,6 +160308,13 @@
     "status": "machine",
     "text": "Ustawienie jednego z nich w encji Release nie ma **żadnego wpływu na renderowane wyjście**. Żaden provider ich nie odczytuje i nie jest w ich imieniu stosowana żadna wartość domyślna – w szczególności dla `aggrega.ai/cluster-domain` nie jest stosowany żaden sufiks DNS, więc encja Recipe, która potrzebuje domeny klastra, musi podać ją jako zwykłą wartość, zamiast polegać na tej adnotacji. Autor encji Recipe, który potrzebuje jednego z tych zachowań, wyraża je jako wartość encji Recipe lub pole `infra` komponentu."
   },
+  "d30c21191f49a9b9": {
+    "at": "2026-11-21T00:53:05.656Z",
+    "job": "session-0002-20261121005305",
+    "srcHash": "d30c21191f49a9b9",
+    "status": "machine",
+    "text": "Biblioteki wielokrotnego użytku (SchemaLibrary, MappingLibrary, WorkloadLibrary, ArtifactLibrary) są rozwiązywane w ten sam sposób. Odwołanie do biblioteki niewskazujące wersji wybiera najwyższą dostępną wersję. Wersja zapisana w odwołaniu do biblioteki jest dolną granicą: oznacza `>=` tej wersji w obrębie jej wersji głównej i wybiera wersję wstępną tylko tam, gdzie wskazuje dokładnie tę wersję wstępną i nie jest dostępne żadne wydanie stabilne, które dopuszcza. W przypadku kilku konsumentów kompilacja wybiera najwyższą dostępną wersję, którą dopuszcza dolna granica każdego konsumenta. Konsumenci wskazujący różne wersje główne jednej biblioteki zatrzymują kompilację."
+  },
   "d3139b4207b4df2d": {
     "at": "2026-10-22T08:35:14.585510+00:00",
     "job": "msgbatch_016LnPG7AyJiWWiftb4hFiWD",
@@ -162760,6 +163028,17 @@
     "srcHash": "d6ec6eb05abd6641",
     "status": "machine",
     "text": "Każdy szablon `value:` zaczyna się od `{{\"{{\"}}`, a nie od `{{`. Cały tekst encji Aggregate jest raz odczytywany jako szablon na potrzeby interpolacji parametrów, zanim nastąpi rozwiązywanie samowstrzykiwania, a w tym momencie `.values` jeszcze nie istnieje; escapowanie przywraca `{{`, aby rozwiązywanie samowstrzykiwania mogło je ewaluować. Zob. [Tekst zawierający własne podwójne nawiasy klamrowe](../templates/parameters-context.md#text-that-carries-its-own-double-braces)."
+  },
+  "d6f0164ebf7faaf2": {
+    "at": "2026-11-21T00:53:05.656Z",
+    "job": "session-0002-20261121005305",
+    "revision": {
+      "from": "809d9638bb10ab6a",
+      "reviewed": false
+    },
+    "srcHash": "d6f0164ebf7faaf2",
+    "status": "machine",
+    "text": "Dla typu, który encja Aggregate zapisuje bez wersji, proponowane są encje Recipes implementujące wersję, w której kompilacja go kompiluje — najwyższą wersję, którą dopuszcza każde ograniczenie zadeklarowane dla instancji. Dla instancji `core/datastore/postgres`, gdy katalog zawiera tę encję Component w wersji `1.0.0`, proponowana jest każda encja Recipe deklarująca `spec.implements: core/datastore/postgres:1.0.0`, a także każda, która deklaruje typ bez wersji lub zakres z daszkiem (caret) dopuszczający `1.0.0`. Dla typu, którego żadnej encji Component katalog nie zawiera, proponowane są wyłącznie encje Recipes deklarujące sam ten typ bez wersji."
   },
   "d6f5b520b3bfde9a": {
     "at": "2026-10-30T04:21:50.177Z",
@@ -172077,6 +172356,13 @@
     "status": "machine",
     "text": "Odpowiednia strona dostawcy ([helm.md](helm.md), [helm-chart.md](helm-chart.md), [compose.md](compose.md), [terraform.md](terraform.md), [cloudformation.md](cloudformation.md), [arm.md](arm.md))"
   },
+  "e262d951c500d938": {
+    "at": "2026-11-21T00:53:05.656Z",
+    "job": "session-0002-20261121005305",
+    "srcHash": "e262d951c500d938",
+    "status": "machine",
+    "text": "no version of a component or feature type satisfies every constraint declared on the instance (Release `\"quickstart-web-local\"`, at `\".spec.components.web\"`, instance `\"web\"`, type `\"core/compute/server:1.0.0\"`, written in `\"aggregate.yaml\"`, Manifest mapping key `\"core/compute/server:1.1.0\"`, written in `\"manifest.yaml\"`, mapped to recipe `\"compose/server:2.0.0\"`, whose spec.implements is `\"core/compute/server:1.1.0\"`, versions held `\"1.0.0, 1.1.0\"`). change the Aggregate's version, or map this type at a version its recipe implements (żadna wersja typu komponentu lub funkcjonalności nie spełnia wszystkich ograniczeń zadeklarowanych dla instancji (Release, w miejscu, instancja, typ, zapisany w, klucz mapowania encji Manifest, zapisany w, zamapowany na recepturę, której spec.implements to, dostępne wersje). Należy zmienić wersję encji Aggregate lub zamapować ten typ w wersji, którą implementuje jego receptura)"
+  },
   "e26a641e84b930e9": {
     "at": "2026-10-22T03:54:29.551Z",
     "job": "session-0011-20261022035429",
@@ -176101,6 +176387,13 @@
     "srcHash": "e7e1f9cf8e6467c5",
     "status": "machine",
     "text": "**[cross-boundary-networking](cross-boundary-networking/)** — jedna intencja\n  dewelopera (interfejs Adminer łączący się z bazą danych przez szew granicy) wdrożona\n  **na dwa sposoby**: wariant Docker Compose używa FeatureRecipe\n  `core/compose-bridge` z biblioteki standardowej do wygenerowania bramy przez szew\n  sieci; wariant Kubernetes (Helm) umieszcza każdą granicę we własnej przestrzeni nazw\n  za pomocą adnotacji `aggrega.ai/namespace` i przechodzi przez natywny DNS między\n  przestrzeniami nazw — bez mostu. Pokazuje, że compose-bridge to to, co przestrzenie nazw Kubernetes +\n  DNS zapewniają natywnie."
+  },
+  "e7e65623281d7d95": {
+    "at": "2026-11-21T00:53:05.656Z",
+    "job": "session-0002-20261121005305",
+    "srcHash": "e7e65623281d7d95",
+    "status": "machine",
+    "text": "Instancja jest kompilowana w **najwyższej wersji, którą dopuszcza każde z tych ograniczeń**. `spec.implements` encji Recipe zawęża więc instancję bez wersji, zamiast być sprawdzane po fakcie: gdy katalog zawiera encję Component w wersjach `1.0.0` i `2.0.0`, instancja bez wersji zamapowana na encję Recipe implementującą `:^1.0.0` jest kompilowana w wersji `1.0.0`."
   },
   "e7ea22452cfff5d0": {
     "at": "2026-10-22T23:26:41.069265+00:00",
@@ -184807,6 +185100,13 @@
     "status": "machine",
     "text": "Dziedziczenie encji katalogowych (Component-extends-Component, Feature-extends-Feature) opisano w [inheritance-and-interface.md](inheritance-and-interface.md)."
   },
+  "f339639bc1a5a9ec": {
+    "at": "2026-11-21T00:53:05.656Z",
+    "job": "session-0002-20261121005305",
+    "srcHash": "f339639bc1a5a9ec",
+    "status": "machine",
+    "text": "`aggrega pull` zapisuje wybraną wersję we własnym wierszu odwołania w pliku blokady. Gdy folder katalogu zawiera encję Component lub Feature, kompilacja wybiera ponownie spośród znajdujących się tam wersji, a wybór różniący się od zapisanego jest zgłaszany jako nieaktualny plik blokady. Gdy do odwołania dociera tylko plik blokady, jak w przypadku odwołania obsłużonego przez rejestr, kompilacja odbywa się w zapisanej wersji. Jeśli ograniczenia nie dopuszczają tej wersji, kompilacja zatrzymuje się z konfliktem, wskazując plik blokady i zalecając `aggrega pull --release <file>`, aby zablokować wersję dopuszczaną przez każde ograniczenie."
+  },
   "f33acdfb3afe0b84": {
     "at": "2026-10-22T23:53:38.624924+00:00",
     "job": "msgbatch_011k5XEXAWyemaJqwBb86oM4",
@@ -187412,6 +187712,13 @@
     "srcHash": "f659f049078bfecd",
     "status": "machine",
     "text": "Czasownik polecenia rejestrowany przez hosta — token `aggrega <name>` wywoływany przez operatora oraz wyróżnik, który host przekazuje pluginowi przy wywołaniu, aby pojedynczy plugin obsługujący kilka poleceń mógł rozpoznać, które polecenie wywołano."
+  },
+  "f6610da9749547f7": {
+    "at": "2026-11-21T00:53:05.656Z",
+    "job": "session-0002-20261121005305",
+    "srcHash": "f6610da9749547f7",
+    "status": "machine",
+    "text": "**Właściwość deklarowana przez nowszą dostępną wersję wskazuje, co zatrzymuje komponent.** Instancja komponentu jest kompilowana w najwyższej wersji, którą dopuszcza każde nałożone na nią ograniczenie, więc właściwość, której nie deklaruje skompilowana wersja jej encji Component, może być taką, którą deklaruje wersja zawarta w katalogu. Gdy odrzucona właściwość nie jest zadeklarowana w `values` ani `infra` komponentu, a deklaruje ją dostępna wersja wykluczona przez ograniczenia instancji, szczegóły wskazują dodatkowo najwyższą taką wersję, opisaną jako `declared by`; wersję, w której instancja jest kompilowana, opisaną jako `held at`; oraz każde ograniczenie wykluczające wersję deklarującą, każde raz, w kolejności, w jakiej deklarują je instancje: typ z plikiem, w którym jest zapisany (`type`, `written in`), klucz encji Manifest z jego plikiem (`Manifest mapping key`, `written in`) lub encję Recipe wskazaną przez mapowanie z typem, który implementuje (`mapped to recipe`, `whose spec.implements is`). Właściwość, której nie deklaruje żadna wykluczona wersja, nie ma takich szczegółów. Na przykład gdy katalog zawiera `core/compute/server` w wersjach `1.0.0` i `1.1.0`, tylko `1.1.0` deklaruje `published_port`, a encja Manifest mapuje typ w wersji `1.0.0` na encję Recipe implementującą `1.0.0`, encja Release ustawiająca `published_port` zgłasza:"
   },
   "f66205a1146d5f7e": {
     "at": "2026-10-22T23:53:38.624924+00:00",

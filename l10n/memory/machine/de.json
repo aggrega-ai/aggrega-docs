@@ -9757,6 +9757,13 @@
     "status": "machine",
     "text": "**Das Muster „Attachment statt Wert“:** Die Konvention der Standardbibliothek besagt, dass ein Credential als *Attachment* angefordert und nie in einen `values`-Block geschrieben wird, wo es ein Inline-Literal wäre, das der Compiler wortgetreu mitführt. Ein Credential-Attachment benennt einen Credential-Feature-`type` (ein Feature mit dem Label `feature.aggrega.ai/kind: secret`) und beschreibt mit seinen eigenen `values` die Abfrage an einen Secret Store. Das Routing von Credentials ist dann ein fähigkeitsunabhängiges Late Binding, und der Compiler-Kern löst das Material nie auf und legt es nie offen — er leitet den Zeiger weiter, den das Ops-Recipe geliefert hat. Dies ist eine **Konvention**, die der Katalog und die Schemas fördern, keine Prüfung des Compilers: Der Compiler interpretiert nicht, was ein `values`-Blatt bedeutet, sodass ein Autor, der Material inline einfügt, es eben inline einfügt. Was das Schema *tatsächlich* garantiert, ist, dass die Attachment-Oberfläche existiert und typisiert ist."
   },
+  "0df39e0d3db008da": {
+    "at": "2026-11-21T00:53:05.656Z",
+    "job": "session-0002-20261121005305",
+    "srcHash": "0df39e0d3db008da",
+    "status": "machine",
+    "text": "**Der Manifest-Schlüssel, der den Typ abbildet.** Ein Schlüssel in `components.type` oder `features.type`, der eine Version oder einen Caret-Bereich nennt, lässt nur die Versionen zu, als die er gelesen wird. Ein `name`-Eintrag fügt keine eigene Versionseinschränkung hinzu."
+  },
   "0df67be8d51fef63": {
     "at": "2026-11-14T23:40:44.716Z",
     "job": "session-0014-20261114234044",
@@ -25539,6 +25546,17 @@
     "status": "machine",
     "text": "**Die Validierung des Werte-Schemas** akzeptiert oder lehnt nur an den Rändern anders ab: ein in Anführungszeichen gesetzter lokaler Teil einer E-Mail-Adresse, `NaN` und unendliche Zahlen, eine Zahl, die in `enum` und `const` mit einer Nicht-Zahl verglichen wird, und die Stelle, die für ein fehlschlagendes `propertyNames`, `contentSchema` oder späteres Array-Element gemeldet wird."
   },
+  "251779d2375e6e0f": {
+    "at": "2026-11-21T00:53:05.656Z",
+    "job": "session-0002-20261121005305",
+    "revision": {
+      "from": "cc2f3d7aa395669c",
+      "reviewed": false
+    },
+    "srcHash": "251779d2375e6e0f",
+    "status": "machine",
+    "text": "Gibt für jede aufgelöste Entität aus, was dieser Pull getan hat – frisch aus einer Registry abgerufen, einen Cache-Slot wiederverwendet, in einem lokalen Katalog gefunden, aus dem Compiler-Binary heraus bereitgestellt oder extern (das eigene Aggregate oder Manifest des Release, gelesen aus der Datei oder dem Eintrag, den das Release nennt) –, dann jede Komponenten- und Feature-Referenz, die unterhalb der neuesten vorhandenen Version ausgewählt wurde, mit den Einschränkungen, die sie dort halten. Die neueste vorhandene ist die neueste unter den Versionen, aus denen die Referenz ausgewählt wurde: denen, die Ihre Katalogverzeichnisse enthalten, oder andernfalls denen, die ihre Registry auflistet. Einer Registry-Referenz, die ein vorhandenes Lockfile pinnt, wird allein diese gepinnte Version angeboten, solange ihre Einschränkungen sie zulassen, daher wird sie nicht aufgeführt, es sei denn, --upgrade wählt sie neu aus. Nur stdout; wird nicht in das Lockfile geschrieben"
+  },
   "2517cf800cae240e": {
     "at": "2026-10-30T20:55:02.570Z",
     "job": "session-0019-20261030205502",
@@ -31698,6 +31716,13 @@
     "status": "machine",
     "text": "PostgreSQL-Bootstrap-Skripte und benutzerdefinierte Konfiguration — synthetisiertes helm"
   },
+  "2e3fee07eec984a8": {
+    "at": "2026-11-21T00:53:05.656Z",
+    "job": "session-0002-20261121005305",
+    "srcHash": "2e3fee07eec984a8",
+    "status": "machine",
+    "text": "Die Abhilfe nennt, verbunden durch `, or`, was die Version dort ändert, wo die Typen der Instanzen geschrieben sind, einmal für jede Art von Dokument, in dem sie geschrieben sind, und dann das Mapping: `change the Aggregate's version` für einen Typ, den das Aggregate schreibt, das das Release bereitstellt; `change the Release's version` für eine Anbindung, die das Release deklariert; `include another version of the module that writes it` für eine Instanz eines Moduls, das das Aggregate einbindet, denn ein Modul ist veröffentlicht, und die Version, die seine Instanz nennt, ändert sich nur mit einer anderen Version des Moduls; und zuletzt `map this type at a version its recipe implements`, das bei einem Feature `its feature recipe implements` lautet."
+  },
   "2e411a02c01ed104": {
     "at": "2026-11-03T17:08:32.496Z",
     "job": "session-0133-20261103170832",
@@ -33623,6 +33648,17 @@
     "status": "machine",
     "text": "Rego"
   },
+  "30ece6c59ecac35d": {
+    "at": "2026-11-21T00:53:05.656Z",
+    "job": "session-0002-20261121005305",
+    "revision": {
+      "from": "c756f595f1e354d9",
+      "reviewed": false
+    },
+    "srcHash": "30ece6c59ecac35d",
+    "status": "machine",
+    "text": "**So beheben Sie es:** Korrigieren Sie den fehlerhaften Wert so, dass er das deklarierte Schema erfüllt, oder — wenn der Wert legitim ist — erweitern Sie das deklarierende Schema (`schema.values`/`schema.infra` der Component oder das des angebundenen Feature), sodass es ihn deklariert. Nennt das Detail eine neuere Version, die die Eigenschaft deklariert, ändern Sie die Einschränkungen, die es nennt, sodass die Instanz in dieser Version kompiliert wird — bilden Sie den Typ in dieser Version auf ein Recipe ab, das sie implementiert, oder ändern Sie die Version, die der Typ nennt —, oder entfernen Sie die Eigenschaft. Untersuchen Sie das deklarierte Schema einer Component mit `aggrega inspect <component-type>`, um die genauen Typen, Bereiche, Defaults und erforderlichen Felder zu sehen, die jede Säule erwartet."
+  },
   "30f0dc6c0d6cb86d": {
     "at": "2026-11-04T06:30:15.892Z",
     "job": "session-0209-20261104063015",
@@ -34434,6 +34470,13 @@
     "srcHash": "324f27ad516286cf",
     "status": "machine",
     "text": "Muster 2 – Batch-Job"
+  },
+  "324f5715a0f2886f": {
+    "at": "2026-11-21T00:53:05.656Z",
+    "job": "session-0002-20261121005305",
+    "srcHash": "324f5715a0f2886f",
+    "status": "machine",
+    "text": "Eine Komponenten- oder Feature-Instanz wird in einer Version kompiliert, der höchsten, die jede für sie deklarierte Einschränkung zulässt. Drei Stellen schränken sie ein: die Version, die der `type:` der Instanz nennt — im Aggregate, im Release für eine Anbindung, die das Release deklariert, oder in einem Modul, das das Aggregate einbindet —, der Manifest-Schlüssel, der den Typ abbildet, und das `spec.implements:` des Recipe oder FeatureRecipe, auf das das Manifest ihn abbildet. Der Katalog enthält Versionen, die die Referenz allein zulässt, aber keine, die alle drei zusammen zulassen, sodass keine Version ausgewählt werden kann."
   },
   "3250c290efd98cdb": {
     "at": "2026-11-03T17:08:32.496Z",
@@ -39839,6 +39882,13 @@
     "srcHash": "3aaab747316cd8f5",
     "status": "machine",
     "text": "Wenn das Feature, das dieses FeatureRecipe per `implements` implementiert, einen `schema.provides`-Vertrag deklariert, wird der Vertrag gegen das FeatureRecipe durchgesetzt: Jeder Schlüssel, den das Feature deklariert, muss im `provides:` des FeatureRecipe erscheinen, sonst bricht der Build ab und benennt den fehlenden Schlüssel. Zusätzliche veröffentlichte Schlüssel sind erlaubt — der Vertrag ist eine Untergrenze, keine Obergrenze. Werte werden nie inspiziert; sie sind opake deterministische Zeiger, die die Laufzeit auflöst."
+  },
+  "3aad69f49e926afb": {
+    "at": "2026-11-21T00:53:05.656Z",
+    "job": "session-0002-20261121005305",
+    "srcHash": "3aad69f49e926afb",
+    "status": "machine",
+    "text": "Ausgegebene Meldung. Sie beginnt mit dem Satz der Bedingung, dann folgen das Release, jede Instanz mit der Stelle, an der sie deklariert ist, und ihrem Namen, jede Einschränkung mit der Datei, in der sie geschrieben ist, und die Versionen, die der Katalog enthält, dann die Abhilfe:"
   },
   "3aad97586583751a": {
     "at": "2026-10-22T06:52:21.462Z",
@@ -47902,6 +47952,17 @@
     "status": "machine",
     "text": "Die Umgebung, `development`, ist ein Standardwert, den der Import schreibt, weil keine Compose-Datei eine nennt; ändern Sie ihn, wo das Release anderswo bereitgestellt wird. Die Image-Tags werden zu den Engine-Versionen, die die Components der Standardbibliothek annehmen. Der `port` der API ist der Port, auf dem ihr Container lauscht, und `published_port` der Host-Port, den ihr Eintrag in `ports` veröffentlicht, beide 8080, wie die Compose-Datei sie angibt; wie ihr Kommentar sagt, erreicht jeder Prozess auf diesem Rechner die API unter `http://127.0.0.1:8080` und nichts sonst kann es, und wird die Zeile gelöscht, bleibt sie allein im Netzwerk des Stacks. Was kein Schlüssel aufnimmt, bleibt ein Kommentar über seinem Eintrag: der Eintrag in `ports` der Quelle, den `port` und `published_port` bereits tragen, und das benannte Volume der Datenbank."
   },
+  "465a59eef89cd827": {
+    "at": "2026-11-21T00:53:05.656Z",
+    "job": "session-0002-20261121005305",
+    "revision": {
+      "from": "cbd7eda89ef37974",
+      "reviewed": false
+    },
+    "srcHash": "465a59eef89cd827",
+    "status": "machine",
+    "text": "Eine Feature-Instanz meldet diese Fälle in einer eigenen Form, jeweils nach dem Satz der Bedingung. Ein Feature-Typ, den das Aggregate ohne Version schreibt, wird wie ein Komponententyp abgeglichen, und zwar in der Version, in der der Build ihn kompiliert — der höchsten Version, die jede für die Instanz deklarierte Einschränkung zulässt —, und eine Meldung, die `<type>:<version>` nennt, nennt den Typ in dieser Version, also das, wonach im Katalog gesucht wurde. Ist das Recipe bekannt, auf das die Komponente einer Anbindung abgebildet ist, werden die FeatureRecipes anhand der Fähigkeit unterschieden, an die dieses Recipe bindet: Diejenigen, die an die Fähigkeit der Komponente binden, werden zuerst angeboten, und ein FeatureRecipe, das an eine andere Fähigkeit bindet, wird dennoch gerendert, als eigene Ausgabe neben der der Komponente statt in sie hinein; bindet also keines an die Fähigkeit der Komponente, werden stattdessen diese angeboten. Eine Zuordnung, die ins Leere führt, lautet `feature \"<instance>\" (type \"<type>\"): the Manifest maps it to feature recipe \"<uri>\", which is not in the catalog`. Implementieren FeatureRecipes den Typ für die Fähigkeit der Komponente, werden nur diese aufgeführt: `feature \"<instance>\" (type \"<type>\"); feature recipes implementing it for capability \"<capability>\", the capability its component's Recipe binds to: [<recipe-uris>]; pin one in the Manifest`. Implementieren sie ihn nur für andere Fähigkeiten: `feature \"<instance>\" (type \"<type>\"); no feature recipe in the catalog implements <type>:<version> for capability \"<capability>\", the capability its component's Recipe binds to; feature recipes implementing it for other capabilities: [<recipe-uris>]; pin one of those in the Manifest, and it renders as its own output beside the component's, or write one for \"<capability>\", then map the type to it`. Implementiert keines den Typ überhaupt: `feature \"<instance>\" (type \"<type>\"); no feature recipe in the catalog implements <type>:<version>; write one, then map the type to it`. Und ist die Fähigkeit nicht bekannt — die eigene Zuordnung der Komponente löst zu keinem Recipe auf, was gesondert gemeldet wird, oder die Anbindung ist an einer Grenze geschrieben, deren Komponenten über mehrere Fähigkeiten rendern können —, wird jede Implementierung aufgeführt: `feature \"<instance>\" (type \"<type>\"); feature recipes implementing it: [<recipe-uris>]; pin one in the Manifest`. In einem Workspace, der kein Katalogverzeichnis nennt, werden nur die FeatureRecipes durchsucht, die das Lockfile pinnt: Die einer Registry werden nicht aufgeführt, und ein Manifest, das für den Typ keines zuordnet, pinnt keines. Dort wird das Fehlen in Bezug auf die Pins statt auf den Katalog festgestellt, und die Meldungen sagen das auch. Implementiert keines den Typ: `feature \"<instance>\" (type \"<type>\"); no feature recipe the lockfile pins implements <type>:<version> for capability \"<capability>\", the capability its component's Recipe binds to; with no catalog directory, the feature recipes searched are only those the lockfile pins, not a registry's; pin one a registry publishes in the Manifest, where one for another capability renders as its own output beside the component's, or write one for \"<capability>\", then map the type to it` — und ist die Fähigkeit nicht bekannt, nennt die Meldung keine und endet mit `pin one a registry publishes in the Manifest, or write one, then map the type to it`. Implementieren gepinnte FeatureRecipes ihn nur für andere Fähigkeiten, lautet die Meldung für diesen Fall `no feature recipe the lockfile pins implements` statt `no feature recipe in the catalog implements`, mit demselben Satzteil nach der Fähigkeit."
+  },
   "465b32f1ea148b1f": {
     "at": "2026-11-03T06:41:13.291Z",
     "job": "session-0066-20261103064113",
@@ -52970,6 +53031,13 @@
     "status": "machine",
     "text": "Wofür die Entität laut dem Dokument da ist."
   },
+  "4e00ad3be46d4067": {
+    "at": "2026-11-21T00:53:05.656Z",
+    "job": "session-0002-20261121005305",
+    "srcHash": "4e00ad3be46d4067",
+    "status": "machine",
+    "text": "Ist die vorhandene Version diejenige, die ein Lockfile festhält, endet das Detail der Meldung mit `locked at \"<version>\", written in \"<lockfile>\"` anstelle von `versions held`, und die Abhilfe fügt `` , or run `aggrega pull --release <release-file>` to lock the version every constraint admits `` hinzu."
+  },
   "4e076147652438f0": {
     "at": "2026-10-22T15:28:11.412Z",
     "job": "session-0044-20261022152811",
@@ -55291,6 +55359,13 @@
     "status": "machine",
     "text": "Die Inhaltsadresse des verzeichneten Inhalts, in der Form `sha256:`, gefolgt von 64 kleingeschriebenen Hexadezimalzeichen. Ein erneuter Pull vergleicht die zugrunde liegende Datei mit diesem Digest, um Drift zu erkennen. Muster: `^sha256:[a-f0-9]{64}$`."
   },
+  "513ef717eb2372c5": {
+    "at": "2026-11-21T00:53:05.656Z",
+    "job": "session-0002-20261121005305",
+    "srcHash": "513ef717eb2372c5",
+    "status": "machine",
+    "text": "Derselbe Typ, den mehrere Instanzen in einem Release schreiben, ist eine einzige Referenz, sodass die Einschränkungen jeder dieser Instanzen für sie gelten. Ein Manifest-Eintrag, dessen eigenen Schlüssel das `spec.implements:` seines Recipe ablehnt, wird stattdessen als dieser Mapping-Fehler gemeldet und fügt hier keine Einschränkung hinzu."
+  },
   "51416909bb372523": {
     "at": "2026-10-22T11:34:20.013Z",
     "job": "session-0033-20261022113420",
@@ -56597,6 +56672,17 @@
     "srcHash": "53042c07d088f9ed",
     "status": "machine",
     "text": "**Ausgegebene Meldungen.** Jede beginnt mit der Bedingung — ein Wert ohne Darstellung in dem, was der Provider ausgibt —, nennt dann die Ressource, ob der Wert eine Anforderung oder ein Limit ist, seinen Pfad in der Workload und den Wert. Auf einen Wert, der keine Mengenangabe ist, folgt, was ihn daran gehindert hat, eine zu sein, und die Form, die eine Mengenangabe hat:"
+  },
+  "53069e1c577996ed": {
+    "at": "2026-11-21T00:53:05.656Z",
+    "job": "session-0002-20261121005305",
+    "revision": {
+      "from": "f1a67b7e4d498877",
+      "reviewed": false
+    },
+    "srcHash": "53069e1c577996ed",
+    "status": "machine",
+    "text": "Recipes und FeatureRecipes deklarieren die Component- oder Feature-Schnittstelle, die sie implementieren, über das Schlüsselwort `implements:`. `implements:` wählt nie ein Recipe aus: Das tut das Mapping des Manifest, und eine Instanz, deren Typ kein Mapping abdeckt, bricht mit einem Fehler ab, der die Recipes als Kandidaten auflistet, deren `implements:` diesen Typ implementieren kann. Was `implements:` steuert, ist die Prüfung, dass das Recipe jedes Mapping-Eintrags im Manifest den gemappten Typ implementiert oder eine Basis, die dieser Typ mit `extends` erweitert. Der gemappte Typ ist der Schlüssel des Eintrags und, bei einem `components.type`-Schlüssel, auch der Typ jeder Komponenteninstanz, die der Schlüssel in einer Version erreicht, die der Schlüssel nicht nennt — bei einem ohne Version geschriebenen Schlüssel jede Instanz, die er erreicht —, und zwar in der Version, in der der Build diese Instanz kompiliert: der Version, die die Instanz nennt, oder, bei einer Instanz, die keine nennt, der höchsten Version, die jede Einschränkung für sie zulässt. `implements:` ist eine dieser Einschränkungen, sodass es neben der Prüfung die Version eingrenzt, in der eine Instanz kompiliert wird: Das `implements:` des Recipe oder FeatureRecipe, das ein Mapping nennt, wird für jede Instanz deklariert, die das Mapping erreicht, zusammen mit dem Typ, den die Instanz nennt, und dem Manifest-Schlüssel, der sie abbildet, und die Instanz wird in der höchsten Version kompiliert, die all diese zulassen (siehe [Versionsauflösung](version-resolution.md)). Status pro Form:"
   },
   "5308665013b0e1a1": {
     "at": "2026-11-17T14:36:05.809Z",
@@ -65866,6 +65952,13 @@
     "status": "machine",
     "text": "Alles, was sich so beheben lässt, kommt als eigenes Ergebnis des Tools zurück, als Fehlschlag gekennzeichnet und mit der Korrektur als Text — eine Kombination von Selektoren, die das Tool nicht akzeptiert, ein ausgelassenes erforderliches Argument, ein mit dem falschen JSON-Typ gesendetes Argument, ein Pfad, der sich nicht auflöst, eine Diagnose des Compilers. Das ist der Kanal, der einem Assistenten gezeigt wird, sodass er liest, was schiefgelaufen ist, und mit korrigiertem Argument erneut aufruft."
   },
+  "6094346217dcda1d": {
+    "at": "2026-11-21T00:53:05.656Z",
+    "job": "session-0002-20261121005305",
+    "srcHash": "6094346217dcda1d",
+    "status": "machine",
+    "text": "Enthält der Katalog Versionen, die die Referenz allein zulässt, aber keine, die jede Einschränkung zulässt, bricht der Build mit `conflicting-version-constraints` ab: „no version of a component or feature type satisfies every constraint declared on the instance“ (keine Version eines Komponenten- oder Feature-Typs erfüllt jede für die Instanz deklarierte Einschränkung). Die Meldung nennt das Release, jede Instanz mit der Stelle, an der sie deklariert ist, und ihrem Namen, jede Einschränkung mit der Datei, in der sie geschrieben ist, und die vorhandenen Versionen. Die Abhilfe besteht darin, die Version dort zu ändern, wo der Typ geschrieben ist — die des Aggregate oder, bei einer Anbindung, die das Release deklariert, die des Release; ein Modul ist veröffentlicht, daher ändert eine Instanz eines Moduls ihre Version nur mit einer anderen Version des Moduls —, oder den Typ in einer Version abzubilden, die sein Recipe oder FeatureRecipe implementiert. Die Meldung nennt die Abhilfen, die dort zutreffen, wo die Typen ihrer Instanzen geschrieben sind."
+  },
   "6094c49479b77964": {
     "at": "2026-11-03T19:48:11.116Z",
     "job": "session-0150-20261103194811",
@@ -70175,6 +70268,13 @@
     "status": "machine",
     "text": "`lockfile.release_documents[]`"
   },
+  "66f7d1e7645deacc": {
+    "at": "2026-11-21T00:53:05.656Z",
+    "job": "session-0002-20261121005305",
+    "srcHash": "66f7d1e7645deacc",
+    "status": "machine",
+    "text": "Ein Manifest-Eintrag, dessen eigenen Schlüssel das `spec.implements` seines Recipe ablehnt, wird als dieser Mapping-Fehler gemeldet (siehe die Abbruchbedingungen für ein `implements` eines Recipe, das nicht zum abgebildeten Typ passt) und fügt keine eigene Einschränkung hinzu."
+  },
   "66f993906d4f78a8": {
     "at": "2026-11-03T12:27:44.093Z",
     "job": "session-0105-20261103122744",
@@ -70895,6 +70995,13 @@
     "srcHash": "6820c5cc6857d148",
     "status": "machine",
     "text": "Eine Workload, die Speicher pro Instanz deklariert, wird als StatefulSet gerendert, und ein StatefulSet nennt einen Dienst, der es steuert — denjenigen, der jeder Instanz ihre stabile Adresse gibt. Dieser Dienst ist derjenige, der ohne eigene Cluster-Adresse deklariert ist. Zwei Gestalten halten das Rendern an: keiner deklariert, sodass es nichts zu nennen gibt; und mehr als einer, sodass die Frage, welcher von ihnen steuert, keine Antwort hat. Beide würden ein StatefulSet erzeugen, das das Ziel zurückweist, daher hält das Rendern an, statt eines auszugeben."
+  },
+  "6821102784d12e94": {
+    "at": "2026-11-21T00:53:05.656Z",
+    "job": "session-0002-20261121005305",
+    "srcHash": "6821102784d12e94",
+    "status": "machine",
+    "text": "Zum Beispiel ein Aggregate, das `core/compute/server:1.0.0` schreibt, ein Manifest-Schlüssel `core/compute/server:1.1.0`, der auf ein Recipe abgebildet ist, das diesen Schlüssel implementiert, und ein Katalog, der `1.0.0` und `1.1.0` enthält:"
   },
   "6822e2b68fadb053": {
     "at": "2026-11-04T01:50:23.893Z",
@@ -72173,6 +72280,13 @@
     "srcHash": "69f06876b99b74b9",
     "status": "machine",
     "text": "eine `*.json`-Datei mit einem String bei `typeName` und einem Objekt bei `properties`, ein Provider-Schema; oder einem String bei `TypeName` und einem String bei `Schema`, die Ausgabe von `aws cloudformation describe-type`, deren `Schema` der Importer als zweite Quelle liest"
+  },
+  "69f1c612c3972f3b": {
+    "at": "2026-11-21T00:53:05.656Z",
+    "job": "session-0002-20261121005305",
+    "srcHash": "69f1c612c3972f3b",
+    "status": "machine",
+    "text": "**Der `type:` des Aggregate.** Eine exakte Version oder ein Caret-Bereich pinnt die Instanz so, wie die Tabelle oben beschreibt; ein ohne Version geschriebener Typ schränkt nichts ein."
   },
   "69f51a2182f612f0": {
     "at": "2026-11-03T12:09:18.843Z",
@@ -74165,6 +74279,13 @@
     "srcHash": "6ce18ec4ad21a95b",
     "status": "machine",
     "text": "Gemini CLI installiert das Plugin als eine seiner Erweiterungen."
+  },
+  "6ce2d6e745874787": {
+    "at": "2026-11-21T00:53:05.656Z",
+    "job": "session-0002-20261121005305",
+    "srcHash": "6ce2d6e745874787",
+    "status": "machine",
+    "text": "No version of a component or feature type satisfies every constraint on an instance (Keine Version eines Komponenten- oder Feature-Typs erfüllt jede Einschränkung einer Instanz)"
   },
   "6ce2fcaf738bdf15": {
     "at": "2026-11-04T06:30:15.892Z",
@@ -78957,6 +79078,17 @@
     "status": "machine",
     "text": "Wie sie komponiert wird"
   },
+  "73cef57080ec0359": {
+    "at": "2026-11-21T00:53:05.656Z",
+    "job": "session-0002-20261121005305",
+    "revision": {
+      "from": "92c2019707a6d763",
+      "reviewed": false
+    },
+    "srcHash": "73cef57080ec0359",
+    "status": "machine",
+    "text": "resolve: consumers of one library require versions in incompatible majors: library `\"<library>\"` has consumers requiring incompatible majors: `<consumer>` wants `<version>`; `<consumer>` wants `<version>` (Auflösung: Konsumenten einer Bibliothek verlangen Versionen inkompatibler Hauptversionen: Die Bibliothek hat Konsumenten, die inkompatible Hauptversionen verlangen: Konsument verlangt Version; Konsument verlangt Version)"
+  },
   "73cf9ebace3f83d7": {
     "at": "2026-11-04T06:30:18.186Z",
     "job": "session-0210-20261104063018",
@@ -81773,6 +81905,17 @@
     "status": "machine",
     "text": "A schema `$import:` cannot be applied (Ein Schemaimport kann nicht angewendet werden)"
   },
+  "77b045d678ecefe1": {
+    "at": "2026-11-21T00:53:05.656Z",
+    "job": "session-0002-20261121005305",
+    "revision": {
+      "from": "95f05a3ec032d8a2",
+      "reviewed": false
+    },
+    "srcHash": "77b045d678ecefe1",
+    "status": "machine",
+    "text": "Was ein bestimmter Pull *getan hat* — ob jede Entität frisch aus einer Registry abgerufen wurde (`fetched-fresh`), einen Cache-Slot wiederverwendet hat (`cache-reuse`), in einem lokalen Katalog gefunden wurde (`local`), aus der Kopie im Compiler-Binary bereitgestellt wurde (`in-binary`) oder extern war (`external`: das eigene Aggregate oder Manifest des Release, gelesen aus der Datei oder dem Eintrag, den das Release benennt, statt als eine seiner Abhängigkeiten aufgelöst; ein Aggregate, das der Pull aus einer Registry abgerufen hat, ist stattdessen `fetched-fresh`) —, ist eine flüchtige Pull-Ereignis-Diagnose, die von `--detail` auf stdout ausgegeben wird, und sie wird nie in das Lockfile geschrieben. `--detail` listet außerdem jede Komponenten- und Feature-Referenz auf, die der Pull unterhalb der neuesten vorhandenen Version auswählt — eine Zeile, die die ausgewählte Version, die neueste vorhandene und die Einschränkungen nennt, die diese ausschließen: den Manifest-Schlüssel, das `spec.implements` des Recipe oder den Typ wie geschrieben, jeweils mit der Datei, in der die Angabe steht. Die neueste vorhandene ist die neueste unter den Versionen, aus denen die Referenz ausgewählt wurde: denen, die Ihre Katalogverzeichnisse enthalten, oder andernfalls denen, die ihre Registry auflistet. Eine Referenz, die in ihrer neuesten Version ausgewählt wurde, wird nicht aufgeführt, ebenso wenig eine Registry-Referenz, die das vorhandene Lockfile pinnt; ihr wird allein diese gepinnte Version angeboten, solange ihre Einschränkungen sie zulassen, bis `--upgrade` sie neu auswählt. Welche Quelle eine Entität bereitgestellt hat, hängt vom lokalen Zustand der pullenden Maschine ab, daher würde ihre Speicherung die Byte-Identität des Lockfile über Maschinen hinweg zerstören. Sie meldet, was *dieser Pull* getan hat, was sich danach nicht mehr rekonstruieren lässt (eine frisch gepullte Entität wird beim nächsten Lauf zwischengespeichert); für den *Zustand* der Auflösung der Abhängigkeiten eines Release nach dem Pull verwenden Sie `aggrega inspect`."
+  },
   "77b3383dfe0ab56e": {
     "at": "2026-11-03T05:17:12.447Z",
     "job": "session-0056-20261103051712",
@@ -82592,6 +82735,13 @@
     "srcHash": "78e6c343a1ecd734",
     "status": "machine",
     "text": "Eingabe-`featuresSchema`:"
+  },
+  "78ee849bc33eab6f": {
+    "at": "2026-11-21T00:53:05.656Z",
+    "job": "session-0002-20261121005305",
+    "srcHash": "78ee849bc33eab6f",
+    "status": "machine",
+    "text": "Für eine Instanz einer Component oder eines Feature in einem Release ist die Referenz nicht die einzige Einschränkung ihrer Version; siehe [Die Einschränkungen einer Instanz](#the-constraints-on-an-instance)."
   },
   "78f0ba9820130a87": {
     "at": "2026-11-03T10:16:19.100Z",
@@ -84016,6 +84166,13 @@
     "srcHash": "7ad362c2e93de45b",
     "status": "machine",
     "text": "In den Templates, die das FeatureRecipe einer Feature-Anbindung schreibt — seine `locals:`, `source:`, `provides:`, `injectMapping:`, `valuesMapping:`, `workload:`, jeder Eintrag `artifacts:` sowie `with:` und `when:` jedes Pipeline-Schritts —, ist `{{ .context.rendered_name }}` der Name der **Host-Komponente**: derjenige, den der eigene Provider des Hosts für die Ressourcen meldet, die er für den Host rendert, und das ist der Wert, den das eigene Recipe des Hosts liest. Er bildet ein Paar mit `{{ .context.instance_id }}`, das in diesen Templates die Identität der Host-Komponente ist; die Anbindung selbst ist `.attachment_name`. Eine Anbindung, die auf einer der Verbindungen einer Komponente geschrieben ist, liest den Namen der konsumierenden Komponente, weil diese Komponente ihr Host ist."
+  },
+  "7ad5a3fabedb9701": {
+    "at": "2026-11-21T00:53:05.656Z",
+    "job": "session-0002-20261121005305",
+    "srcHash": "7ad5a3fabedb9701",
+    "status": "machine",
+    "text": "Wenn keine Version jede Einschränkung erfüllt"
   },
   "7ad74651a22efc90": {
     "at": "2026-11-04T03:28:37.558Z",
@@ -93090,6 +93247,13 @@
     "status": "machine",
     "text": "**Ein Service.** Sein `image` und ob er unter `build` eines baut; seine `ports`, `expose`, `volumes` und `environment` — ein Mapping oder eine Liste von Elementen `NAME=value`, wobei ein Name ohne Wert seinen Wert aus der Umgebung erhält, in der Compose läuft; `depends_on`, eine Liste oder ein Mapping; und seine `models`, eine Liste von Modellnamen oder ein Mapping, dessen Einträge unter `endpoint_var` und `model_var` die Variablen nennen können, unter denen die Adresse und der Bezeichner des Modells den Service erreichen. Jedes andere Element — `command`, `healthcheck`, `secrets`, `env_file` und der Rest — wird nirgends geschrieben und in einem Kommentar über dem Eintrag des Service im Release genannt."
   },
+  "88753842be35850e": {
+    "at": "2026-11-21T00:53:05.656Z",
+    "job": "session-0002-20261121005305",
+    "srcHash": "88753842be35850e",
+    "status": "machine",
+    "text": "no version of a component or feature type satisfies every constraint declared on the instance (Release `\"<release>\"`, at `\"<site>\"`, instance `\"<instance>\"`, type `\"<type>\"`, written in `\"<file>\"`, Manifest mapping key `\"<key>\"`, written in `\"<file>\"`, mapped to recipe `\"<recipe>\"`, whose spec.implements is `\"<implements>\"`, versions held `\"<versions>\"`). `<remedy>` (keine Version eines Komponenten- oder Feature-Typs erfüllt jede für die Instanz deklarierte Einschränkung (Release, Stelle, Instanz, Typ, geschrieben in, Manifest-Mapping-Schlüssel, geschrieben in, abgebildet auf Rezept, dessen spec.implements, vorhandene Versionen))"
+  },
   "887978f7e7fc9203": {
     "at": "2026-10-23T02:15:21.677Z",
     "job": "session-0060-20261023021521",
@@ -93117,6 +93281,13 @@
     "srcHash": "8885a6e605d22488",
     "status": "machine",
     "text": "`PluginRetractionExclusion`"
+  },
+  "888ceccf44f15551": {
+    "at": "2026-11-21T00:53:05.656Z",
+    "job": "session-0002-20261121005305",
+    "srcHash": "888ceccf44f15551",
+    "status": "machine",
+    "text": "Eine Instanz einer Component oder eines Feature in einem Release wird in einer Version kompiliert, und drei Stellen können einschränken, in welcher:"
   },
   "889609ca2fbf4f2b": {
     "at": "2026-11-03T23:11:55.145Z",
@@ -97408,6 +97579,13 @@
     "status": "machine",
     "text": "`aggrega/scaffoldEntity` — ein Startdokument für eine Entitätsart: genau die Felder, die das Schema dieser Art verlangt, mit ausgefüllten festen Werten `apiVersion` und `kind` und einem Platzhalter überall dort, wo ein Wert benötigt wird. `kind` ist erforderlich und ist das kleingeschriebene, mit Bindestrichen verbundene Schema-Token — `component`, `aggregate`, `release`, `recipe`, `manifest`, `feature` und so weiter; `aggrega/getSchema` ohne `kind` gibt an, welche Token Sie senden dürfen, und ein Token, dem kein Schema entspricht, wird mit dieser Menge in der Meldung abgelehnt, sodass ein Tippfehler ohne zweiten Aufruf korrigiert wird. Ein Client, der dem Autor die Wahl einer Art anbietet, liest `entityKinds` dieser Methode, also die Menge der Arten, von denen sich ein Dokument schreiben lässt. `name` ist optional und belegt `metadata.name` vor für Arten, deren Schema einen verlangt. Die Antwort enthält `kind` und `skeleton`. Siehe [Was eine Antwort von `aggrega/scaffoldEntity` Ihnen liefert](#what-an-aggregascaffoldentity-response-gives-you), denn die Antwort ist ein zu schreibendes Dokument und kein bereits geschriebenes. Das Gerüst wird aus demselben Schema abgeleitet, das `aggrega/getSchema` meldet, sodass beide aus einer Quelle antworten. **Wird `example` statt `kind` gesendet, schreibt die Methode eines der ausführbaren Beispiele der Dokumentation in ein neues Verzeichnis des Workspace**, wie es [`aggrega draft --example`](aggrega-draft.md#starting-from-a-runnable-example) an einem Terminal tut; wird `list: true` allein gesendet, antwortet sie mit allen vorhandenen Beispielen und schreibt nichts. Beide Formen benötigen den Workspace, daher nennt eine Anfrage für eine der beiden ihn in `workspaceRoot`, und eine, die keinen nennt, wird abgelehnt. `dir` nennt das neue Verzeichnis relativ zum Workspace-Root und ist standardmäßig der Name des Beispiels; ein absoluter Wert oder einer, der außerhalb des Roots aufgelöst wird — wie geschrieben oder über einen Link —, wird abgelehnt, bevor irgendetwas gelesen wird, und ein Verzeichnis, das irgendetwas enthält, wird abgelehnt und so belassen, wie es ist. Die Antwort auf eine Auflistung enthält `examples`, jedes mit seinem `name`, `level` und `summary`; die Antwort auf einen Schreibvorgang enthält `example`, `dir`, `files` — jede geschriebene Datei, relativ zu `dir` —, `next`, die Befehle, die die Seite des Beispiels für seinen Build angibt, fehlend, wo sie keine angibt, und `version`, die Dokumentationsversion, aus der das Beispiel gelesen wurde. Felder zweier Formen, die zusammen gesendet werden — `kind` mit `example`, `list` mit `example` oder `kind`, `name` mit `example` oder `list` oder `dir` ohne `example` —, werden abgelehnt, bevor irgendetwas gelesen wird, mit den Worten, mit denen das Assistenten-Tool sie ablehnt. **Ein Schreibvorgang beschafft das Dokumentations-Bundle, wo der Rechner keine Kopie hält, die die eigene Signaturprüfung des Workspace zulässt, und schreibt innerhalb des Workspace** — siehe [Eine Registry erreichen und schreiben](#reaching-a-registry-and-writing)."
   },
+  "8ea382ae637d36fa": {
+    "at": "2026-11-21T00:53:05.656Z",
+    "job": "session-0002-20261121005305",
+    "srcHash": "8ea382ae637d36fa",
+    "status": "machine",
+    "text": "**Das `spec.implements` des abgebildeten Recipe.** Das Recipe oder FeatureRecipe, auf das das Manifest die Instanz abbildet, lässt nur die Versionen zu, als die sein `spec.implements` gelesen wird. Bei einer Component lässt ein Recipe, das eine Basis implementiert, die der Typ per `extends` erweitert, die Versionen des Typs über diese Basis zu; ein Feature hat keine solche Abstammung."
+  },
   "8ea40c823232462b": {
     "at": "2026-11-03T07:17:29.080Z",
     "job": "session-0070-20261103071729",
@@ -99847,6 +100025,17 @@
     "srcHash": "921729dea4d9a143",
     "status": "machine",
     "text": "**Ein Build liest den Cache; er greift nicht von sich aus nach außen.** Die Beschaffung ist ein eigener Schritt: Der Pull, der ein Release auflöst, ruft ab, was das Release benötigt, und schreibt es in den Cache, und der Build liest dann, was dort liegt. Daher erreicht diese Bedingung einen Build als Cache-Fehltreffer und einen Pull als Registry, die kein solches Artefakt hat. Wo ein Build so konfiguriert ist, dass er beim Start sein Lockfile füllt, ist die Beschaffung, die er ausführt, genau dieser Pull."
+  },
+  "9218937236865975": {
+    "at": "2026-11-21T00:53:05.656Z",
+    "job": "session-0002-20261121005305",
+    "revision": {
+      "from": "910652965ec93aa9",
+      "reviewed": false
+    },
+    "srcHash": "9218937236865975",
+    "status": "machine",
+    "text": "**Ein `components.type`-Schlüssel wird außerdem pro Instanz beurteilt, wann immer er eine Instanz einer anderen Version erreicht.** Ein Schlüssel, der nicht den genauen Typ einer Instanz nennt, erreicht sie über die Basis des Typs, wenn kein Schlüssel genau diesen Typ nennt und kein anderer Schlüssel für dieselbe Basis geschrieben ist — ein ohne Version geschriebener Schlüssel oder einer, der eine andere Version nennt, kann sie also erreichen. Der Eintrag allein kann daher nicht sagen, ob sein Recipe passt, sodass der Build das Recipe für jede Komponenteninstanz, die der Schlüssel auf diese Weise erreicht, erneut beurteilt, wobei der eigene Typ der Instanz in der Version, als die der Build sie kompiliert, an die Stelle des Schlüssels tritt: die Version, die die Instanz nennt, oder, bei einer Instanz ohne Version, die höchste Version, die jede für sie deklarierte Einschränkung zulässt. Eine Instanz, deren Version die `spec.implements:` des Recipe nicht erfüllt — exakt, per Caret-Bereich, durch Versionslosigkeit oder über eine Basis, die der Typ der Instanz per `extends` erweitert —, löst diese Bedingung aus, gemeldet am Pfad `.spec.components.<instance>` der Instanz statt an der Manifest-Datei:"
   },
   "921b6e9d9b2061bd": {
     "at": "2026-11-04T06:11:40.115Z",
@@ -104852,6 +105041,13 @@
     "srcHash": "99a46b1cc6de4291",
     "status": "machine",
     "text": "D. Topologische Risikoanalyse"
+  },
+  "99a5255f4a7d9ccd": {
+    "at": "2026-11-21T00:53:05.656Z",
+    "job": "session-0002-20261121005305",
+    "srcHash": "99a5255f4a7d9ccd",
+    "status": "machine",
+    "text": "Bei einer Feature-Instanz trägt der Manifest-Schlüssel die Beschriftung `Manifest feature key` und das FeatureRecipe, auf das er abbildet, die Beschriftung `mapped to feature recipe`."
   },
   "99a52df3ff3d4994": {
     "at": "2026-11-03T22:29:52.482Z",
@@ -111553,6 +111749,13 @@
     "srcHash": "a368bfd220b1148a",
     "status": "machine",
     "text": "[Übersicht der CLI](07-cli.md)"
+  },
+  "a36939c2b49853d1": {
+    "at": "2026-11-21T00:53:05.656Z",
+    "job": "session-0002-20261121005305",
+    "srcHash": "a36939c2b49853d1",
+    "status": "machine",
+    "text": "Einschränkungen werden pro Referenz gesammelt, wie sie in einem Release geschrieben ist, über das Aggregate, seine Unteraggregate und Anbindungen hinweg. Alle Instanzen, die mit demselben Typ geschrieben sind, teilen sich eine Referenz, sodass sie in einer Version kompiliert werden und die Einschränkungen aller von ihnen für diese gelten."
   },
   "a36c908943f14282": {
     "at": "2026-11-03T13:03:35.411Z",
@@ -119578,6 +119781,17 @@
     "status": "machine",
     "text": "Ein Plugin gelangt in drei Stufen von einer Datei `.wasm` auf der Festplatte zu einem verifizierten Artefakt, das ein Build konsumieren kann."
   },
+  "aed9a7ed907e3865": {
+    "at": "2026-11-21T00:53:05.656Z",
+    "job": "session-0002-20261121005305",
+    "revision": {
+      "from": "fcd3fced6f9d8c4f",
+      "reviewed": false
+    },
+    "srcHash": "aed9a7ed907e3865",
+    "status": "machine",
+    "text": "Mehrere Entitäten können auf eine Bibliothek verweisen, jede mit einer Mindestversion oder ganz ohne, und eine Mindestversion wird als diese Version oder eine spätere innerhalb ihrer Hauptversion gelesen, und der Build wählt die höchste Version aus, die die Mindestversion jedes Konsumenten zulässt. Das ermöglicht es einem Konsumenten, der weniger verlangt, dennoch eine Version zu erhalten, die ihn zufriedenstellt, und deshalb hebt das Hinzufügen eines Konsumenten mit einer höheren Mindestversion alle an, statt den Build auf zwei Kopien aufzuteilen."
+  },
   "aede51d754ff4669": {
     "at": "2026-11-04T01:50:23.893Z",
     "job": "session-0188-20261104015023",
@@ -125570,6 +125784,17 @@
     "status": "machine",
     "text": "**So beheben Sie es:** Setzen Sie die `metadata.version` der Entität auf die Version, die Sie veröffentlichen, und bauen Sie das Plugin aus einem sauberen Checkout des Commits, den das Tag dieser Version benennt, damit es diese Version selbst meldet. Committen Sie bei einer neuen Version die Entität zusammen mit dem Quellcode, den sie veröffentlicht, und setzen Sie zuerst das Tag auf diesen Commit — das Tag muss einen Commit benennen, der die Entität bereits enthält. Kopieren Sie nicht die vom Plugin gemeldete Version in die Entität: Ein Build jedes anderen Commits meldet eine Entwicklungsversion, und sie zu kopieren, würde diesen Build unter einer Version veröffentlichen, die kein Veröffentlichungs-Tag benennt. Wenn das Plugin überhaupt keine Version meldet, wurde es ohne erfasste Version gebaut; bauen Sie es mit erfasster Version."
   },
+  "b70d887f8b886319": {
+    "at": "2026-11-21T00:53:05.656Z",
+    "job": "session-0002-20261121005305",
+    "revision": {
+      "from": "ade3eef1106bc2ac",
+      "reviewed": false
+    },
+    "srcHash": "b70d887f8b886319",
+    "status": "machine",
+    "text": "die höchste Version, die jede Einschränkung darauf zulässt"
+  },
   "b70e147ca37f53d7": {
     "at": "2026-11-03T09:08:45.888Z",
     "job": "session-0081-20261103090845",
@@ -129093,6 +129318,13 @@
     "status": "machine",
     "text": "YAML-Anker-Muster (Block `defs:`)"
   },
+  "bc0085831a31c3df": {
+    "at": "2026-11-21T00:53:05.656Z",
+    "job": "session-0002-20261121005305",
+    "srcHash": "bc0085831a31c3df",
+    "status": "machine",
+    "text": "**So beheben Sie es:** Ändern Sie die Version dort, wo der Typ geschrieben ist — im `type:` des Aggregate oder, bei einer Anbindung, die das Release deklariert, in dem des Release; bei einer Instanz eines Moduls binden Sie eine Version des Moduls ein, deren Instanz eine Version nennt, die die anderen Einschränkungen zulassen —, oder bilden Sie den Typ im Manifest in einer Version ab, die sein Recipe oder FeatureRecipe implementiert. Hält ein Lockfile eine Version fest, die die Einschränkungen nicht mehr zulassen, führen Sie `aggrega pull --release <file>` aus, um die Version festzuschreiben, die jede Einschränkung zulässt."
+  },
   "bc01ebf97d9bf1e4": {
     "at": "2026-11-03T02:20:44.184Z",
     "job": "session-0038-20261103022044",
@@ -131573,6 +131805,17 @@
     "status": "machine",
     "text": "**Was die Standardbibliothek heute mitbringt.** `core/datastore/qdrant`, `core/datastore/weaviate`, `core/datastore/chroma`, `core/datastore/pgvector` und `core/datastore/milvus` tragen `vector`, `core/datastore/cognee` trägt `semantic-memory`, und `core/datastore/opensearch` und `core/datastore/elasticsearch` tragen `search`, sodass der oben genannte Knowledge-Base-Selektor gegen jede von ihnen aufgelöst wird. `core/datastore/redis`, `core/datastore/valkey` und `core/datastore/memcached` tragen `kv`. Jedes dieser Labels sitzt auf der eigenen Basis der Komponente, weil die Identität des Produkts diese Engine ist. Bei `core/datastore/pgvector` ist diese Identität das Artefakt, das sie festlegt: Sie führt das eigene PostgreSQL-Image des pgvector-Projekts aus, das die Erweiterung enthält, und jedes Recipe aktiviert die Erweiterung in der Datenbank, die die Komponente anlegt — ihre Vektor-Eigenschaft hängt also von keiner Einstellung ab, und das unterscheidet sie vom konfigurierten Fall unter „Naked Base, Flavored Edges“ oben, wo ein universelles PostgreSQL die Eigenschaft erst erhält, wenn ein Entwickler eine Erweiterung einschaltet. `relational`, `document` und `graph` haben keine Komponente in der Standardbibliothek, daher passt ein Selektor, der nur Werte unter diesen nennt, hier auf nichts und wird von einem Katalog erfüllt, der eine solche enthält."
   },
+  "bfc4e6101a9e27c6": {
+    "at": "2026-11-21T00:53:05.656Z",
+    "job": "session-0002-20261121005305",
+    "revision": {
+      "from": "e69b7f13d304f620",
+      "reviewed": false
+    },
+    "srcHash": "bfc4e6101a9e27c6",
+    "status": "machine",
+    "text": "Ein Release liest eine Version je Bibliotheksname: die höchste vorhandene Version, die jede Untergrenze zulässt, die seine Referenzen angeben, einschließlich der Referenzen innerhalb von Bibliotheken, oder, wenn keine eine angibt, die Version, die eine einfache Referenz auswählt. Eine Referenz, die keine Untergrenze angibt, lässt jede Version zu, sodass sie die Auswahl nie nach unten drückt. Untergrenzen, die verschiedene Hauptversionen einer Bibliothek nennen, lassen zusammen keine Version zu, und der Build bricht mit `E0107` ab und nennt die Referenzen, die sich widersprechen. `release.lock` hält für jede Bibliothek die ausgewählte Version und den Inhalts-Digest der Datei dieser Version fest; build, pull und preview lesen genau diese Version. Wird eine Untergrenze angehoben, meldet der nächste Build das Lockfile als veraltet (`E0130`), bis `aggrega pull` die neue Version festhält. `aggrega validate --release`, der Editor und die Assistenten-Werkzeuge lesen die Versionen, die `release.lock` festhält, und ohne Lockfile die Version, die eine einfache Referenz auswählt. Die Validierung eines ganzen Katalogs oder einer einzelnen Entitätsdatei liest jede Bibliothek in der Version, die eine einfache Referenz auswählt."
+  },
   "bfc4e6e2c381db39": {
     "at": "2026-11-04T04:12:48.125Z",
     "job": "session-0202-20261104041248",
@@ -132442,6 +132685,13 @@
     "status": "machine",
     "text": "Da die Materialisierung dieselbe Schemaauflösung wie die Validierung verwendet, erreicht ein auf einem übergeordneten Feature deklarierter Standardwert die Anbindungen eines `extends:`-Kindes, und Standardwerte, die über eine dokumentübergreifende `$ref:` in eine SchemaLibrary erreicht werden, werden ebenfalls materialisiert. Standardwerte, die nur innerhalb einer lokalen dokumentinternen `#/$defs/`-Referenz oder unter einem `allOf`- / `oneOf`- / `anyOf`-Zweig deklariert sind, werden nicht materialisiert."
   },
+  "c0c7637844a7b371": {
+    "at": "2026-11-21T00:53:05.656Z",
+    "job": "session-0002-20261121005305",
+    "srcHash": "c0c7637844a7b371",
+    "status": "machine",
+    "text": "Die Einschränkungen einer Instanz"
+  },
   "c0c77c8641c687d8": {
     "at": "2026-11-03T18:10:58.903Z",
     "job": "session-0138-20261103181058",
@@ -133048,6 +133298,17 @@
     "srcHash": "c1a9ebfc9b176345",
     "status": "machine",
     "text": "Der Embedding-Server prüft einen Schlüssel. Er hält diesen Schlüssel in einem Slot seiner eigenen Component, `api_key`, und sein Recipe stellt alles, was den Slot füllt, als `API_KEY` zu, die Variable, die Text Embeddings Inference beim Start liest. Aus `aggregate-matched.yaml`:"
+  },
+  "c1aeb0ea59a9d534": {
+    "at": "2026-11-21T00:53:05.656Z",
+    "job": "session-0002-20261121005305",
+    "revision": {
+      "from": "7349728aa8a2511d",
+      "reviewed": false
+    },
+    "srcHash": "c1aeb0ea59a9d534",
+    "status": "machine",
+    "text": "Eine Referenz `<Library>#/…` wählt die höchste vorhandene Version aus; eine Vorabversion wird nur ausgewählt, wenn die Referenz sie genau benennt. Eine Referenz `<Library>:<version>#/…` (das Trennzeichen ist `:`) gibt eine Mindestversion an, eine Untergrenze: Sie wird als `>=` diese Version innerhalb ihrer Hauptversion gelesen und wählt die höchste vorhandene stabile Version ab der Untergrenze mit derselben Hauptversion aus. Eine andere Hauptversion wird für eine Untergrenze nie ausgewählt, eine Vorabversion nur, wenn die Untergrenze sie genau benennt und keine stabile Version ab ihr mit derselben Hauptversion vorhanden ist. Enthält das Verzeichnis, das den Namen besitzt, keine Version, die die Untergrenze erfüllt, bricht der Build mit `E0103` ab und nennt die angefragte Version und die vorhandenen Versionen. Eine Bibliothek, die eine Registry bereitstellt, wird auf dieselbe Weise unter den Versionen ausgewählt, die die Registry veröffentlicht."
   },
   "c1b2944eef18043e": {
     "at": "2026-11-04T07:59:42.076Z",
@@ -145415,6 +145676,13 @@
     "status": "machine",
     "text": "der exportierte Flow, `basic-prompting.json`; die `.aggrega-config.yaml`, die den Ordner zu einem Workspace macht; und `import-answers.yaml`, die Antworten auf das, was kein Flow enthalten kann und wonach ein Import für Kubernetes fragt"
   },
+  "d30c21191f49a9b9": {
+    "at": "2026-11-21T00:53:05.656Z",
+    "job": "session-0002-20261121005305",
+    "srcHash": "d30c21191f49a9b9",
+    "status": "machine",
+    "text": "Wiederverwendbare Bibliotheken (SchemaLibrary, MappingLibrary, WorkloadLibrary, ArtifactLibrary) werden alle auf dieselbe Weise aufgelöst. Eine Bibliotheksreferenz, die keine Version nennt, wählt die höchste vorhandene Version aus. Eine an einer Bibliotheksreferenz geschriebene Version ist eine Untergrenze: Sie wird als `>=` diese Version innerhalb ihrer Hauptversion gelesen und wählt eine Vorabversion nur dort aus, wo sie genau diese Vorabversion nennt und keine stabile Version vorhanden ist, die sie zulässt. Über mehrere Konsumenten hinweg wählt der Build die höchste vorhandene Version aus, die die Untergrenze jedes Konsumenten zulässt. Konsumenten, die verschiedene Hauptversionen einer Bibliothek nennen, lassen den Build abbrechen."
+  },
   "d3139b4207b4df2d": {
     "at": "2026-10-22T09:26:43.915Z",
     "job": "session-0028-20261022092643",
@@ -147853,6 +148121,17 @@
     "srcHash": "d6ec6eb05abd6641",
     "status": "machine",
     "text": "Jedes Template unter `value:` beginnt mit `{{\"{{\"}}` statt mit `{{`. Der gesamte Text des Aggregate wird einmal als Template gelesen, zur Parameterinterpolation, bevor die Auflösung der Selbstinjektion läuft, und `.values` existiert zu diesem Zeitpunkt nicht; das Escaping setzt `{{` wieder ein, damit die Auflösung der Selbstinjektion es auswerten kann. Siehe [Text, der eigene doppelte geschweifte Klammern enthält](../templates/parameters-context.md#text-that-carries-its-own-double-braces)."
+  },
+  "d6f0164ebf7faaf2": {
+    "at": "2026-11-21T00:53:05.656Z",
+    "job": "session-0002-20261121005305",
+    "revision": {
+      "from": "809d9638bb10ab6a",
+      "reviewed": false
+    },
+    "srcHash": "d6f0164ebf7faaf2",
+    "status": "machine",
+    "text": "Einem Typ, den das Aggregate ohne Version schreibt, werden die Recipes angeboten, die die Version implementieren, mit der der Build ihn kompiliert — die höchste Version, die jede für die Instanz deklarierte Einschränkung zulässt. Einer Instanz von `core/datastore/postgres`, wobei der Katalog diese Component in `1.0.0` enthält, wird jedes Recipe angeboten, das `spec.implements: core/datastore/postgres:1.0.0` deklariert, sowie jedes, das den unversionierten Typ oder einen Caret-Bereich deklariert, der `1.0.0` zulässt. Einem Typ, von dem der Katalog keine Component enthält, werden nur die Recipes angeboten, die genau diesen unversionierten Typ deklarieren."
   },
   "d6f5b520b3bfde9a": {
     "at": "2026-11-04T12:17:46.464Z",
@@ -156350,6 +156629,13 @@
     "status": "machine",
     "text": "Die zugehörige Seite pro Provider ([helm.md](helm.md), [helm-chart.md](helm-chart.md), [compose.md](compose.md), [terraform.md](terraform.md), [cloudformation.md](cloudformation.md), [arm.md](arm.md))"
   },
+  "e262d951c500d938": {
+    "at": "2026-11-21T00:53:05.656Z",
+    "job": "session-0002-20261121005305",
+    "srcHash": "e262d951c500d938",
+    "status": "machine",
+    "text": "no version of a component or feature type satisfies every constraint declared on the instance (Release `\"quickstart-web-local\"`, at `\".spec.components.web\"`, instance `\"web\"`, type `\"core/compute/server:1.0.0\"`, written in `\"aggregate.yaml\"`, Manifest mapping key `\"core/compute/server:1.1.0\"`, written in `\"manifest.yaml\"`, mapped to recipe `\"compose/server:2.0.0\"`, whose spec.implements is `\"core/compute/server:1.1.0\"`, versions held `\"1.0.0, 1.1.0\"`). change the Aggregate's version, or map this type at a version its recipe implements (keine Version eines Komponenten- oder Feature-Typs erfüllt jede für die Instanz deklarierte Einschränkung (Release, Stelle, Instanz, Typ, geschrieben in, Manifest-Mapping-Schlüssel, geschrieben in, abgebildet auf Rezept, dessen spec.implements, vorhandene Versionen). Ändern Sie die Version des Aggregate oder bilden Sie diesen Typ in einer Version ab, die sein Rezept implementiert)"
+  },
   "e26a641e84b930e9": {
     "at": "2026-10-22T03:54:29.551Z",
     "job": "session-0011-20261022035429",
@@ -159975,6 +160261,13 @@
     "srcHash": "e7e1f3edc6efeed7",
     "status": "machine",
     "text": "Die Dokumentwurzel, auf der dieser Export arbeitet: own sind die eigenen gerenderten Dokumente des Knotens, host sind die Dokumente der Komponente, an die ein Feature-Rezept mit Komponenten-Geltungsbereich angebunden ist. Die Form des Werts wird beim Laden geprüft; die Runtime löst die Dokumente des Geltungsbereichs auf, wenn sie dispatcht. Zulässige Werte: `\"own\"`, `\"host\"`"
+  },
+  "e7e65623281d7d95": {
+    "at": "2026-11-21T00:53:05.656Z",
+    "job": "session-0002-20261121005305",
+    "srcHash": "e7e65623281d7d95",
+    "status": "machine",
+    "text": "Die Instanz wird in der **höchsten Version, die jede dieser Einschränkungen zulässt**, kompiliert. Das `spec.implements` eines Recipe grenzt daher eine unversionierte Instanz ein, statt nachträglich geprüft zu werden: Enthält der Katalog eine Component in `1.0.0` und `2.0.0`, wird eine unversionierte Instanz, die auf ein Recipe abgebildet ist, das `:^1.0.0` implementiert, in `1.0.0` kompiliert."
   },
   "e7ea22452cfff5d0": {
     "at": "2026-11-03T18:29:47.574Z",
@@ -167984,6 +168277,13 @@
     "status": "machine",
     "text": "Für die Vererbung zwischen Katalogentitäten (Component-extends-Component, Feature-extends-Feature) siehe [inheritance-and-interface.md](inheritance-and-interface.md)."
   },
+  "f339639bc1a5a9ec": {
+    "at": "2026-11-21T00:53:05.656Z",
+    "job": "session-0002-20261121005305",
+    "srcHash": "f339639bc1a5a9ec",
+    "status": "machine",
+    "text": "`aggrega pull` hält die ausgewählte Version in der eigenen Lockfile-Zeile der Referenz fest. Enthält ein Katalogverzeichnis die Component oder das Feature, wählt ein Build erneut aus den dortigen Versionen aus, und eine Auswahl, die von der festgehaltenen abweicht, wird als veraltetes Lockfile gemeldet. Erreicht nur das Lockfile die Referenz, wie bei einer, die eine Registry bereitgestellt hat, kompiliert der Build in der festgehaltenen Version. Lassen die Einschränkungen diese Version nicht zu, bricht der Build mit dem Konflikt ab, nennt das Lockfile und empfiehlt `aggrega pull --release <file>`, um die Version festzuschreiben, die jede Einschränkung zulässt."
+  },
   "f33acdfb3afe0b84": {
     "at": "2026-11-04T06:30:15.892Z",
     "job": "session-0209-20261104063015",
@@ -170366,6 +170666,13 @@
     "srcHash": "f6547dd8cad77ac7",
     "status": "machine",
     "text": "**Es gibt keinen Bruchteil und keinen Prozentsatz, und das ist keine Lücke, die auf Arbeit wartet.** Die Operationen, die hier melden, arbeiten eine Menge ab, deren Größe beim Start der Arbeit nicht bekannt ist — wie viele Referenzen eine Auflösung durchläuft, wie viele Layer eine Veröffentlichung hochlädt —, daher wäre jeder Bruchteil erfunden. Zeichnen Sie einen unbestimmten Indikator, und zeigen Sie die neueste `message` an."
+  },
+  "f6610da9749547f7": {
+    "at": "2026-11-21T00:53:05.656Z",
+    "job": "session-0002-20261121005305",
+    "srcHash": "f6610da9749547f7",
+    "status": "machine",
+    "text": "**Eine Eigenschaft, die eine neuere vorhandene Version deklariert, nennt, was die Komponente zurückhält.** Eine Komponenteninstanz wird in der höchsten Version kompiliert, die jede Einschränkung für sie zulässt, sodass eine Eigenschaft, die die kompilierte Version ihrer Component nicht deklariert, eine sein kann, die eine Version im Katalog sehr wohl deklariert. Ist die abgelehnte Eigenschaft in den `values` oder der `infra` einer Komponente nicht deklariert und deklariert sie eine vorhandene Version, die die Einschränkungen der Instanz ausschließen, nennt das Detail außerdem die höchste solche Version mit der Beschriftung `declared by`; die Version, in der die Instanz kompiliert wird, mit der Beschriftung `held at`; und jede Einschränkung, die die deklarierende Version ausschließt, jeweils einmal, in der Reihenfolge, in der die Instanzen sie deklarieren: den Typ mit der Datei, in der er geschrieben ist (`type`, `written in`), den Manifest-Schlüssel mit seiner Datei (`Manifest mapping key`, `written in`) oder das Recipe, das das Mapping nennt, mit dem Typ, den es implementiert (`mapped to recipe`, `whose spec.implements is`). Eine Eigenschaft, die keine ausgeschlossene Version deklariert, trägt kein solches Detail. Wenn der Katalog beispielsweise `core/compute/server` in `1.0.0` und `1.1.0` enthält, nur `1.1.0` `published_port` deklariert und das Manifest den Typ in `1.0.0` auf ein Recipe abbildet, das `1.0.0` implementiert, meldet ein Release, das `published_port` setzt:"
   },
   "f66205a1146d5f7e": {
     "at": "2026-11-04T06:30:15.892Z",
