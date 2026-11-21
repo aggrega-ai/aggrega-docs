@@ -17,6 +17,7 @@ import {
 import notFoundPages from "./src/not-found.mjs";
 import { heldRoute } from "./src/moved-pages.mjs";
 import { examplesSidebarItems } from "./src/examples-sidebar.mjs";
+import { labelSidebar } from "./src/sidebar-labels.mjs";
 import movedPageRedirects from "./src/redirects.mjs";
 import searchIndexOrder from "./src/search-index-order.mjs";
 import rewriteRelativeMdLinks from "./src/plugins/rewrite-relative-md-links.mjs";
@@ -31,8 +32,9 @@ import { fontLicenseIntegration } from "@aggrega-ai/brand/font-license-plugin";
 
 // The site is served under the /docs subdirectory of the main domain. Content
 // is single-sourced from the repository's Markdown corpus via the docs
-// collection defined in src/content.config.ts. The sidebar order and labels are
-// supplied here; each page's visible title comes from its first heading.
+// collection defined in src/content.config.ts. The sidebar order is supplied
+// here, its labels by key from src/strings/sidebar.md; each page's visible
+// title comes from its first heading.
 //
 // A single source tree is built once per documentation version. The latest
 // version is served at /docs; every other version is served under a
@@ -248,17 +250,24 @@ export default defineConfig({
       // Each page is rendered with only its own top-level group open, and "Start
       // here" open on a page no group holds (src/routeData.ts); the groups a
       // reader opens stay open for the visit (src/components/Sidebar.astro).
-      sidebar: [
+      // Every label here, of a group, a link or the badge, is named by its key:
+      // the English labels are written in src/strings/sidebar.md, which is
+      // translated with the documentation, and labelSidebar()
+      // (src/sidebar-labels.mjs) gives Starlight each label with its
+      // translations. An entry writing its label in English, or naming a key
+      // the file lacks, stops the build. A page named by its slug alone is
+      // labelled with its title, in each language.
+      sidebar: labelSidebar([
         // The sidebar opens with the ways in: the home, the pages for working
         // with an AI assistant, the quickstart, installing, and the path
         // through the documentation. The pages in this group are listed nowhere else in
         // the sidebar.
         ...present({
-          label: "Start here",
+          key: "startHere",
           items: [
-            { label: "What is Aggrega", link: "/" },
+            { key: "whatIsAggrega", link: "/" },
             {
-              label: "AI assistants",
+              key: "aiAssistants",
               items: [
                 "ai-assistants/set-up",
                 "ai-assistants/mcp-server",
@@ -267,12 +276,12 @@ export default defineConfig({
               ],
             },
             "getting-started",
-            { label: "Install", slug: "install" },
+            { key: "install", slug: "install" },
             "learn",
           ],
         }),
         {
-          label: "Concepts & Architecture",
+          key: "architecture",
           items: [
             "architecture",
             "architecture/01-vision-and-positioning",
@@ -298,7 +307,7 @@ export default defineConfig({
         // in the authoring guide's folder and are listed nowhere else in the
         // sidebar.
         ...present({
-          label: "Import",
+          key: "import",
           items: [
             "authoring/import",
             "authoring/import/compose",
@@ -318,7 +327,7 @@ export default defineConfig({
         // then one page for each part of it. The pages live in the authoring
         // guide's folder and are listed nowhere else in the sidebar.
         ...present({
-          label: "Visual Studio Code",
+          key: "visualStudioCode",
           items: [
             "authoring/editor",
             "authoring/editor/install",
@@ -335,7 +344,7 @@ export default defineConfig({
         // The authoring guide's pages other than those Start here, Import and
         // Visual Studio Code list.
         ...present({
-          label: "Authoring",
+          key: "authoring",
           items: [
             "authoring",
             "authoring/getting-started",
@@ -344,7 +353,7 @@ export default defineConfig({
           ],
         }),
         {
-          label: "Language Reference",
+          key: "languageReference",
           items: [
             "language-reference",
             ...present("language-reference/01-getting-started"),
@@ -362,31 +371,31 @@ export default defineConfig({
             ...present("language-reference/import-answers"),
             ...present("language-reference/compatibility"),
             {
-              label: "Entities",
+              key: "entities",
               items: [
                 { autogenerate: { directory: corpusDirectory("language-reference/entities") } },
               ],
             },
             {
-              label: "Vocabulary",
+              key: "vocabulary",
               items: [
                 { autogenerate: { directory: corpusDirectory("language-reference/vocabulary") } },
               ],
             },
             {
-              label: "Templates",
+              key: "templates",
               items: [
                 { autogenerate: { directory: corpusDirectory("language-reference/templates") } },
               ],
             },
             {
-              label: "Providers",
+              key: "providers",
               items: [
                 { autogenerate: { directory: corpusDirectory("language-reference/providers") } },
               ],
             },
             {
-              label: "Plugins",
+              key: "plugins",
               items: [
                 { autogenerate: { directory: corpusDirectory("language-reference/plugins") } },
               ],
@@ -394,39 +403,39 @@ export default defineConfig({
           ],
         },
         {
-          label: "CLI Reference",
+          key: "cliReference",
           items: [{ autogenerate: { directory: corpusDirectory("language-reference/cli") } }],
         },
         {
-          label: "Errors",
+          key: "errors",
           items: [{ autogenerate: { directory: corpusDirectory("language-reference/errors") } }],
         },
         // The runnable examples in teaching order, one group per tier, then the
         // concept pages (src/examples-sidebar.mjs).
         {
-          label: "Examples",
+          key: "examples",
           items: examplesSidebarItems({
             autogenerate: { directory: corpusDirectory("language-reference/examples") },
           }),
         },
         {
-          label: "Schema Reference",
+          key: "schemaReference",
           items: [
             "language-reference/schema",
             {
-              label: "Entities",
+              key: "entities",
               items: [
                 { autogenerate: { directory: corpusDirectory("language-reference/schema/entities") } },
               ],
             },
             {
-              label: "Plugin ABI & payload schemas",
+              key: "pluginSchemas",
               items: [
                 { autogenerate: { directory: corpusDirectory("language-reference/schema/plugins") } },
               ],
             },
             {
-              label: "Other & workspace schemas",
+              key: "otherSchemas",
               items: [
                 { autogenerate: { directory: corpusDirectory("language-reference/schema/other") } },
               ],
@@ -437,12 +446,12 @@ export default defineConfig({
         // whose tag holds no roadmap page lists none.
         ...present("roadmap"),
         {
-          label: "Catalog",
+          key: "catalog",
           link: "https://aggrega.ai/catalog",
           attrs: { target: "_blank", rel: "noopener" },
-          badge: "External",
+          badge: { key: "external" },
         },
-      ],
+      ]),
     }),
     notFoundPages(),
     searchIndexOrder(),

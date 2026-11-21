@@ -1,6 +1,13 @@
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import path from "node:path";
-import { corpusRoot, routeOf } from "./translations.mjs";
+import {
+  corpusRoot,
+  publishedLanguages,
+  routeOf,
+  translatedPath,
+  translatedTreePresent,
+  unescapeMarkdown,
+} from "./translations.mjs";
 
 // The Examples section of the sidebar, read from the corpus while the site is
 // configured, so no list of examples is kept here.
@@ -22,9 +29,22 @@ import { corpusRoot, routeOf } from "./translations.mjs";
 // listing the examples by product and capability, and the page on reading the
 // output the examples print; then one group per tier holding an example,
 // labelled with the tier's title, the first open and the others collapsed; then
-// "Concepts", every other page of the folder, in file name order. Each example
+// the concept pages, every other page of the folder, in file name order, under
+// the label src/strings/sidebar.md gives the key exampleConcepts. Each example
 // is listed under its page's title, which Starlight reads from the page in each
 // language.
+//
+// The tiers' titles are translated with the index page, not with the sidebar's
+// labels: each tier's group carries its English title and, for each published
+// language whose translated pages are present, the same tier's heading in that
+// language's copy of the index page. The translation keeps the page's headings
+// one for one, so the section is the level-two heading at the same place among
+// the copy's level-two headings as the teaching-order section in the English
+// page, and each tier the level-three heading at the same place inside it; a
+// translated heading ends with its English heading's identifier, `{#…}`, which
+// is left out. A copy whose section holds another number of tiers, or a copy
+// missing where the language's translated pages are present, stops the build,
+// naming the file.
 //
 // A version whose index page carries no teaching-order section is listed as
 // Starlight lists a directory, by file path.
@@ -36,6 +56,10 @@ const INDEX = "by-product-and-capability.md";
 // with the concept pages.
 const ABOUT_THE_EXAMPLES = [INDEX, "reading-the-output.md"];
 const TEACHING_ORDER = "## In teaching order";
+const LEVEL_TWO = /^## /;
+const LEVEL_THREE = /^### (.+?)\s*$/;
+// The identifier a translated heading ends with: its English heading's.
+const HEADING_ID = /\s*\{#[^}]*\}$/;
 
 // The tiers of the index page's teaching-order section, each { title, names },
 // in the order the page gives them; undefined when the page holds no such
@@ -46,8 +70,8 @@ function teachingOrder(markdown) {
   if (start < 0) return undefined;
   const tiers = [];
   for (const line of lines.slice(start + 1)) {
-    if (/^## /.test(line)) break;
-    const heading = line.match(/^### (.+?)\s*$/);
+    if (LEVEL_TWO.test(line)) break;
+    const heading = line.match(LEVEL_THREE);
     if (heading) {
       tiers.push({ title: heading[1], names: [] });
       continue;
@@ -58,15 +82,67 @@ function teachingOrder(markdown) {
   return tiers;
 }
 
+// A page's level-two headings, in order, each with the texts of the level-three
+// headings under it.
+function sections(markdown) {
+  const found = [];
+  for (const line of markdown.split(/\r?\n/)) {
+    if (LEVEL_TWO.test(line)) {
+      found.push([]);
+      continue;
+    }
+    const heading = line.match(LEVEL_THREE);
+    if (heading && found.length > 0) found[found.length - 1].push(heading[1]);
+  }
+  return found;
+}
+
+// The translations of the tiers' titles, one record per tier in the order of
+// `tiers`, each { [lang]: title } for the published languages whose title
+// differs from the English one. `english` is the English index page.
+function tierTranslations(english, tiers, root) {
+  const translations = tiers.map(() => ({}));
+  const lines = english.split(/\r?\n/);
+  const position = lines.slice(0, lines.indexOf(TEACHING_ORDER)).filter((line) => LEVEL_TWO.test(line)).length;
+  for (const { lang } of publishedLanguages) {
+    if (!translatedTreePresent(lang, root)) continue;
+    const rel = translatedPath(`${EXAMPLES}/${INDEX}`, lang, root);
+    const file = path.join(root, rel);
+    if (!existsSync(file)) {
+      throw new Error(
+        `The translated pages of ${lang} are present without ${rel}, the index page whose headings ` +
+          `give the sidebar the titles of the Examples section's tiers in that language.`,
+      );
+    }
+    const section = sections(readFileSync(file, "utf-8"))[position];
+    if (!section || section.length !== tiers.length) {
+      throw new Error(
+        `${rel}: its level-two heading number ${position + 1}, the translation of ` +
+          `"${TEACHING_ORDER.slice(3)}", holds ${section ? section.length : "no"} level-three headings where ` +
+          `${EXAMPLES}/${INDEX} holds ${tiers.length}, one per tier, so the sidebar cannot take the tiers' ` +
+          "titles from it; generate the translated pages again from the English page.",
+      );
+    }
+    section.forEach((heading, index) => {
+      const title = unescapeMarkdown(heading.replace(HEADING_ID, ""));
+      if (title !== tiers[index].title) translations[index][lang] = title;
+    });
+  }
+  return translations;
+}
+
 /**
  * The items of the sidebar's Examples group, for the corpus at `root`.
  * `autogenerate` is the entry listing the folder by file path, used for a
- * version whose index page carries no teaching-order section.
+ * version whose index page carries no teaching-order section. Each tier's group
+ * carries its title with its `translations`; the concept pages' group names its
+ * label by key, for the sidebar's labels (src/sidebar-labels.mjs).
  */
 export function examplesSidebarItems(autogenerate, root = corpusRoot) {
   const folder = path.join(root, EXAMPLES);
   const indexFile = path.join(folder, INDEX);
-  const tiers = existsSync(indexFile) ? teachingOrder(readFileSync(indexFile, "utf-8")) : undefined;
+  const indexPage = existsSync(indexFile) ? readFileSync(indexFile, "utf-8") : undefined;
+  const tiers = indexPage === undefined ? undefined : teachingOrder(indexPage);
   if (!tiers) return [autogenerate];
   if (!tiers.some(({ names }) => names.length > 0)) {
     throw new Error(
@@ -75,6 +151,7 @@ export function examplesSidebarItems(autogenerate, root = corpusRoot) {
         "in this repository to write the page again.",
     );
   }
+  const translations = tierTranslations(indexPage, tiers, root);
 
   // Each page is named by its route, by the rule the content collection names
   // its entries with (routeOf); an English path is the same in every corpus.
@@ -89,14 +166,22 @@ export function examplesSidebarItems(autogenerate, root = corpusRoot) {
     routeOf(`${EXAMPLES}/${OVERVIEW}`),
     ...about.map((file) => routeOf(`${EXAMPLES}/${file}`)),
     ...tiers
+      .map((tier, position) => ({ ...tier, translations: translations[position] }))
       .filter(({ names }) => names.length > 0)
-      .map(({ title, names }, index) => ({
+      .map(({ title, translations, names }, index) => ({
         label: title,
+        translations,
         collapsed: index > 0,
         items: names.map((name) => routeOf(`${EXAMPLES}/${name}/README.md`)),
       })),
     ...(concepts.length > 0
-      ? [{ label: "Concepts", collapsed: true, items: concepts.map((file) => routeOf(`${EXAMPLES}/${file}`)) }]
+      ? [
+          {
+            key: "exampleConcepts",
+            collapsed: true,
+            items: concepts.map((file) => routeOf(`${EXAMPLES}/${file}`)),
+          },
+        ]
       : []),
   ];
 }

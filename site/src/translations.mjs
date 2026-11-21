@@ -283,7 +283,8 @@ const siteProjectRoot = fileURLToPath(new URL("..", import.meta.url));
 
 const NOTICE_LINK = new RegExp(String.raw`\[((?:\\.|[^\]\\])*)\]\(` + NOTICE_LINK_DESTINATION + String.raw`\)`, "g");
 
-const unescapeMarkdown = (text) => text.replace(/\\([!-/:-@[-`{-~])/g, "$1");
+/** Markdown text with its backslash escapes undone: `\*` is `*`, `\\` is `\`. */
+export const unescapeMarkdown = (text) => text.replace(/\\([!-/:-@[-`{-~])/g, "$1");
 
 // The notice's text, from its Markdown: one paragraph, outside any HTML comment,
 // holding one link to NOTICE_LINK_DESTINATION; the text before the link, the

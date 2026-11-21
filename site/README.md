@@ -15,7 +15,12 @@ served at `aggrega.ai/docs`.
   corpus carries no frontmatter; Starlight renders the title above the page, so
   a remark plugin (`src/plugins/drop-title-heading.mjs`) leaves that heading out
   of the rendered body, and the title shows once.
-- **Sidebar.** The sidebar is configured in `astro.config.mjs`. It opens with a
+- **Sidebar.** The sidebar is configured in `astro.config.mjs`, each label of
+  a group, a link or a badge named there by its key: the labels are written in
+  English in `src/strings/sidebar.md` and translated with the documentation,
+  and `src/sidebar-labels.mjs` gives Starlight each label with its
+  translations. An entry writing its label in English, or naming a key the file
+  lacks, stops the build. It opens with a
   "Start here" group: the home, the pages for working with an AI assistant
   (`ai-assistants/`), the Getting started quickstart (`getting-started.md`),
   Install (`install.md`), and the Learn Aggrega path (`learn.md`) — each page's
@@ -42,7 +47,9 @@ served at `aggrega.ai/docs`.
   "In teaching order" section of
   `language-reference/examples/by-product-and-capability.md`, which
   `scripts/gen-examples-index.sh` generates from the examples' headers; a tag
-  whose index page has no such section lists the folder by path.
+  whose index page has no such section lists the folder by path. The tiers'
+  titles are that section's headings, so each language's come from its
+  translated copy of the index page, the same tier's heading in the same place.
 - **Moved pages.** Every page that moved keeps its earlier address working. The
   build writes a `_redirects` file (`src/redirects.mjs`) answering each earlier
   address, in English and in every published language, with a permanent (301)
@@ -187,9 +194,14 @@ translated the same way, in `src/strings/site-nav.md`, each read by its key.
 A translated heading keeps its English heading's anchor, so a link to a section
 resolves in every language. A build with no translated pages present, such as a
 local one, serves every page of a published language in English with that notice.
-The sidebar is the English sidebar, each page link pointing at the page in the
-reader's language under its translated title; `llms.txt` and `llms-full.txt`
-stay English.
+The labels of the sidebar are kept the same way, in `src/strings/sidebar.md`,
+each named by its key in the sidebar's configuration, and the titles of the
+Examples section's tiers come from the translated index page whose headings
+they are. The sidebar is the English sidebar, each page link pointing at the
+page in the reader's language under its translated title, and each label of a
+group, a link or a badge in the reader's language, taken from the same place in
+a sidebar built with that language's labels (`src/routeData.ts`); a label with
+no translation shows in English. `llms.txt` and `llms-full.txt` stay English.
 
 The translation configuration sits in `l10n/` at the repository root: the
 target languages, a glossary of the product names kept in English, and one
