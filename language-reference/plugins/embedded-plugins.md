@@ -6,19 +6,19 @@ Aggrega ships a set of Wasm plugins compiled directly into the CLI binary. These
 
 | Type | Name | Capabilities | Version |
 | --- | --- | --- | --- |
-| governance | `governance/cel` | — | `0.10.0 (commit 1d496bcac)` |
-| governance | `governance/label-injector` | — | `0.10.0 (commit 1d496bcac)` |
-| governance | `governance/rego` | — | `0.10.0 (commit 1d496bcac)` |
-| governance | `governance/selector-tagger` | — | `0.10.0 (commit 1d496bcac)` |
-| linter | `linter/publishing` | — | `0.10.0 (commit 1d496bcac)` |
-| parser | `parser/hcl` | parse:hcl | `0.10.0 (commit 1d496bcac)` |
-| parser | `parser/json` | parse:json | `0.10.0 (commit 1d496bcac)` |
-| parser | `parser/jsonc` | parse:jsonc | `0.10.0 (commit 1d496bcac)` |
-| parser | `parser/toml` | parse:toml | `0.10.0 (commit 1d496bcac)` |
-| parser | `parser/yaml` | parse:yaml | `0.10.0 (commit 1d496bcac)` |
-| provider | `provider/arm` | arm | `0.10.0 (commit 1d496bcac)` |
-| provider | `provider/cloudformation` | cloudformation | `0.10.0 (commit 1d496bcac)` |
-| provider | `provider/compose` | compose | `0.10.0 (commit 1d496bcac)` |
-| provider | `provider/helm` | helm | `0.10.0 (commit 1d496bcac)` |
-| provider | `provider/helm-chart` | helm-chart | `0.10.0 (commit 1d496bcac)` |
-| provider | `provider/terraform` | terraform | `0.10.0 (commit 1d496bcac)` |
+| governance | `governance/cel` | — | `0.10.1 (commit 579716bc9)` |
+| governance | `governance/label-injector` | — | `0.10.1 (commit 579716bc9)` |
+| governance | `governance/rego` | — | `0.10.1 (commit 579716bc9)` |
+| governance | `governance/selector-tagger` | — | `0.10.1 (commit 579716bc9)` |
+| linter | `linter/publishing` | — | `0.10.1 (commit 579716bc9)` |
+| parser | `parser/hcl` | parse:hcl | `0.10.1 (commit 579716bc9)` |
+| parser | `parser/json` | parse:json | `0.10.1 (commit 579716bc9)` |
+| parser | `parser/jsonc` | parse:jsonc | `0.10.1 (commit 579716bc9)` |
+| parser | `parser/toml` | parse:toml | `0.10.1 (commit 579716bc9)` |
+| parser | `parser/yaml` | parse:yaml | `0.10.1 (commit 579716bc9)` |
+| provider | `provider/arm` | arm | `0.10.1 (commit 579716bc9)` |
+| provider | `provider/cloudformation` | cloudformation | `0.10.1 (commit 579716bc9)` |
+| provider | `provider/compose` | compose | `0.10.1 (commit 579716bc9)` |
+| provider | `provider/helm` | helm | `0.10.1 (commit 579716bc9)` |
+| provider | `provider/helm-chart` | helm-chart | `0.10.1 (commit 579716bc9)` |
+| provider | `provider/terraform` | terraform | `0.10.1 (commit 579716bc9)` |
