@@ -1,5 +1,6 @@
 ---
 import Select from "@astrojs/starlight/components/Select.astro";
+import siteNav from "virtual:aggrega-docs/site-nav";
 import { resolveVersioning, VERSIONS_PATH } from "../versioning.mjs";
 
 // The version selector: a drop-down in the shape of the language picker. The
@@ -10,17 +11,22 @@ import { resolveVersioning, VERSIONS_PATH } from "../versioning.mjs";
 // the same page, in the same language, in that version; a page that version
 // lacks lands on its not-found page.
 //
+// The selector's screen-reader name is the page's language's translation of
+// src/strings/site-nav.md (siteNavLabels in src/translations.mjs).
+//
 // The select spans the whole width of the control. The drop-down symbol is
 // drawn at the control's far end and lets presses through to what lies under
 // it, so a narrower select would leave the symbol over the bare label, where a
 // press only focuses the select without opening its list.
 const { version, base } = resolveVersioning();
+const { locale } = Astro.locals.starlightRoute;
+const name = (siteNav[locale ?? ""] ?? siteNav[""]).documentationVersion.text;
 ---
 
 <docs-version-select data-version={version} data-base={base} data-list={VERSIONS_PATH}>
   <Select
     icon="code-branch"
-    label="Documentation version"
+    label={name}
     options={[{ label: version, value: base, selected: true }]}
     width="100%"
   />

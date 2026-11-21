@@ -1,6 +1,6 @@
 import { existsSync, readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
-import { publishedLanguages, SIDEBAR_LABELS, sidebarLabels, sourceLanguage, translatedTreePresent } from "./translations.mjs";
+import { publishedLanguages, SIDEBAR_LABELS, sidebarLabels, siteNavLabels, sourceLanguage, translatedTreePresent } from "./translations.mjs";
 
 // The labels of the sidebar, in every published language.
 //
@@ -220,6 +220,30 @@ function missingLabels(expected, shown, kind) {
   return misses;
 }
 
+// The page's own controls whose labels the language translates: the footer's
+// privacy link and the screen-reader name of the version selector, each read
+// from the strings file of the menu (SITE_NAV_LABELS). Each is checked for the
+// language's translation in the place the page shows it.
+const CHROME_LABELS = [
+  { key: "privacy", what: "footer link", shown: (html) => html.match(/<p class="privacy-link"[^>]*>\s*<a\b[^>]*>([^<]*)<\/a>/) },
+  { key: "documentationVersion", what: "version selector name", shown: (html) => html.match(/<docs-version-select\b[\s\S]*?<span class="sr-only">([^<]*)<\/span>/) },
+];
+
+// The misses among the page's own controls, as problem lines for `lang`.
+function missingChromeLabels(html, lang, locale, navLabels) {
+  const problems = [];
+  for (const { key, what, shown } of CHROME_LABELS) {
+    const label = navLabels[locale]?.[key];
+    if (!label || label.lang === sourceLanguage.lang) continue;
+    const match = shown(html);
+    const text = match ? decodeEntities(match[1].trim()) : "(not on the page)";
+    if (text !== label.text) {
+      problems.push(`${lang}: the ${what} "${navLabels[""][key].text}" is expected as "${label.text}" but the page shows "${text}"`);
+    }
+  }
+  return problems;
+}
+
 /**
  * An Astro integration that stops the build when a published language's built
  * pages show a sidebar label in English that has a translation. `sidebar` is
@@ -233,7 +257,10 @@ function missingLabels(expected, shown, kind) {
  * labels among the link labels, where page titles sit between them, and badges
  * among the badges. All misses are collected, and one error lists each with its
  * language, the English label, the translation expected and the label the page
- * shows at that point. A build with no translated tree present checks nothing.
+ * shows at that point. The same check covers the footer's privacy link and the
+ * version selector's screen-reader name, each against the language's
+ * translation of its label in SITE_NAV_LABELS. A build with no translated tree
+ * present checks nothing.
  */
 export function sidebarLabelCheck(sidebar) {
   return {
@@ -241,6 +268,7 @@ export function sidebarLabelCheck(sidebar) {
     hooks: {
       "astro:build:done": ({ dir }) => {
         const problems = [];
+        const navLabels = siteNavLabels();
         for (const { lang, locale } of publishedLanguages) {
           if (!translatedTreePresent(lang)) continue;
           const page = fileURLToPath(new URL(`${locale}/index.html`, dir));
@@ -253,6 +281,8 @@ export function sidebarLabelCheck(sidebar) {
             problems.push(`${lang}: ${page} has no sidebar to read.`);
             continue;
           }
+          const html = readFileSync(page, "utf-8");
+          problems.push(...missingChromeLabels(html, lang, locale, navLabels));
           const expected = expectedLabels(sidebar, lang);
           const misses = [
             ...missingLabels(expected.groups, shown.groups, "group label"),
@@ -267,7 +297,7 @@ export function sidebarLabelCheck(sidebar) {
         }
         if (problems.length > 0) {
           throw new Error(
-            `A translated page's sidebar shows a label in English that has a translation:\n  ${problems.join("\n  ")}`,
+            `A translated page shows a label in English that has a translation (the sidebar's labels, the footer's privacy link or the version selector's name):\n  ${problems.join("\n  ")}`,
           );
         }
       },

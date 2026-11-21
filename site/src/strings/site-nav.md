@@ -1,6 +1,8 @@
 <!--
-The labels of the Aggrega menu at the top of every page of the documentation
-site (src/components/Header.astro). They are translated with the documentation,
+The labels of the site's own controls on every page of the documentation site:
+the Aggrega menu at the top (src/components/Header.astro), the privacy link in
+the footer (src/components/Footer.astro) and the name the version selector
+gives screen readers (src/components/VersionSwitcher.astro). They are translated with the documentation,
 into every language the translation configuration (l10n/l10n.config.json)
 names, and the site shows each language's labels on that language's pages
 (siteNavLabels in src/translations.mjs); a label with no translation shows in
@@ -11,10 +13,14 @@ both menus: a change to one is made to both.
 -->
 
 The labels of the menu at the top of every page, which leads to the
-documentation, the catalog, the examples and the GitHub repository:
+documentation, the catalog, the examples and the GitHub repository, then the
+link to the privacy page in the footer and the name of the version selector
+that screen readers announce:
 
 - `docs`: Docs
 - `catalog`: Catalog
 - `examples`: Examples
 - `githubStar`: Star us on GitHub
 - `newTab`: Opens in a new tab
+- `privacy`: Privacy
+- `documentationVersion`: Documentation version

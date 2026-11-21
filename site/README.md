@@ -204,7 +204,9 @@ a sidebar built with that language's labels (`src/routeData.ts`); a label with
 no translation shows in English. The build checks that each translated
 language's home page shows the sidebar's translated labels
 (`sidebarLabelCheck()` in `src/sidebar-labels.mjs`) and stops, naming each
-label that shows in English.
+label that shows in English. The footer's privacy link and the version
+selector's screen-reader name are kept in `src/strings/site-nav.md` and checked
+by the same build step.
 `llms.txt` and `llms-full.txt` stay English.
 
 The translation configuration sits in `l10n/` at the repository root: the
