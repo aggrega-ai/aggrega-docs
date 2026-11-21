@@ -10721,6 +10721,13 @@
     "status": "machine",
     "text": "**附件而非值模式：** 标准库的约定是，凭据作为*附件*来请求，绝不写入 `values` 块——在那里它会成为编译器原样携带的内联字面量。凭据附件指定一个凭据 Feature `type`（带有标签 `feature.aggrega.ai/kind: secret` 的类型），并使用其自身的 `values` 来描述对密钥存储的查询。这样，凭据路由就是与能力无关的延迟绑定，核心编译器从不解析或暴露凭据内容——它只传递 Ops Recipe 提供的指针。这是目录和 schema 所鼓励的**约定**，而不是编译器检查：编译器不解释 `values` 叶子节点的含义，因此内联凭据内容的作者就会把它内联进去。schema *确实*保证的是，附件这一接口存在且带有类型。"
   },
+  "0df39e0d3db008da": {
+    "at": "2026-11-21T04:28:13.516Z",
+    "job": "session-0004-20261121042813",
+    "srcHash": "0df39e0d3db008da",
+    "status": "machine",
+    "text": "**映射该类型的 Manifest 键。** `components.type` 或 `features.type` 中指明版本或 caret 范围的键，只允许它所表示的版本。`name` 条目本身不添加任何版本约束。"
+  },
   "0df67be8d51fef63": {
     "at": "2026-11-14T23:40:44.716Z",
     "job": "session-0014-20261114234044",
@@ -28304,6 +28311,17 @@
     "status": "machine",
     "text": "**values schema 校验**仅在边缘情况下接受或拒绝的结果有所不同：带引号的电子邮件本地部分、`NaN` 和无穷大数值、在 `enum` 和 `const` 中将数字与非数字进行比较，以及 `propertyNames`、`contentSchema` 或后续数组项校验失败时所报告的位置。"
   },
+  "251779d2375e6e0f": {
+    "at": "2026-11-21T04:28:13.516Z",
+    "job": "session-0004-20261121042813",
+    "revision": {
+      "from": "cc2f3d7aa395669c",
+      "reviewed": false
+    },
+    "srcHash": "251779d2375e6e0f",
+    "status": "machine",
+    "text": "针对每个已解析的实体，打印本次拉取对它做了什么——从注册表新获取、复用缓存槽、在本地目录中找到、由编译器二进制内部提供，或为外部实体（该 Release 自身的 Aggregate 或 Manifest，从该 Release 指定的文件或条目读取）——然后打印以低于已持有最新版本的版本选择的每个组件和功能引用，以及使其停留在该版本的约束。已持有的最新版本是指该引用据以选择的那些版本中最新的一个：即你的目录文件夹中持有的版本，否则为其注册表列出的版本。现有 lockfile 所固定的注册表引用，在其约束允许的情况下只会获得该固定版本，因此除非 --upgrade 重新选择它，否则不会被列出。仅输出到 stdout；不写入 lockfile"
+  },
   "2517cf800cae240e": {
     "at": "2026-10-29T22:04:01.982Z",
     "job": "session-0026-20261029220401",
@@ -35094,6 +35112,13 @@
     "status": "machine",
     "text": "PostgreSQL 引导脚本与自定义配置——合成 helm"
   },
+  "2e3fee07eec984a8": {
+    "at": "2026-11-21T04:28:13.516Z",
+    "job": "session-0004-20261121042813",
+    "srcHash": "2e3fee07eec984a8",
+    "status": "machine",
+    "text": "补救措施以 `, or` 连接，先针对实例类型所在的每一种文档各列出一次如何更改写入该类型处的版本，然后是映射：对于 Release 所部署的 Aggregate 写入的类型，为 `change the Aggregate's version`；对于 Release 声明的附加项，为 `change the Release's version`；对于 Aggregate 所包含模块的实例，为 `include another version of the module that writes it`，因为模块是已发布的，其实例所指明的版本只能随模块的另一个版本而改变；最后是 `map this type at a version its recipe implements`，对于功能则写作 `its feature recipe implements`。"
+  },
   "2e411a02c01ed104": {
     "at": "2026-10-22T04:05:10.557953+00:00",
     "job": "msgbatch_01Pqt8yvyetbk47g1hoiAyit",
@@ -37180,6 +37205,17 @@
     "status": "machine",
     "text": "Rego"
   },
+  "30ece6c59ecac35d": {
+    "at": "2026-11-21T04:28:13.516Z",
+    "job": "session-0004-20261121042813",
+    "revision": {
+      "from": "c756f595f1e354d9",
+      "reviewed": false
+    },
+    "srcHash": "30ece6c59ecac35d",
+    "status": "machine",
+    "text": "**修复方法：** 修正出错的值以满足声明的 schema；或者，如果该值是合理的，放宽声明它的 schema（Component 的 `schema.values`/`schema.infra`，或所附加 Feature 的 schema）以容纳它。如果细节部分指出了声明该属性的较新版本，请更改其中指出的约束，使实例以该版本编译——将该类型的该版本映射到实现它的 Recipe，或更改该类型所指明的版本——或者删除该属性。使用 `aggrega inspect <component-type>` 查看 Component 声明的 schema，了解每个 pillar 期望的确切类型、范围、默认值和必填字段。"
+  },
   "30f0dc6c0d6cb86d": {
     "at": "2026-10-22T05:25:45.661574+00:00",
     "job": "msgbatch_01GK3s5ypk3MzMWPEKha5JkC",
@@ -38086,6 +38122,13 @@
     "srcHash": "324f27ad516286cf",
     "status": "machine",
     "text": "模式 2——批处理作业"
+  },
+  "324f5715a0f2886f": {
+    "at": "2026-11-21T04:28:13.516Z",
+    "job": "session-0004-20261121042813",
+    "srcHash": "324f5715a0f2886f",
+    "status": "machine",
+    "text": "组件或功能实例以一个版本编译，即其上声明的每一项约束都允许的最高版本。有三处会约束它：实例的 `type:` 所指明的版本（写在 Aggregate 中；对于 Release 声明的附加项，写在 Release 中；或写在 Aggregate 所包含的模块中）、映射该类型的 Manifest 键，以及 Manifest 将其映射到的 Recipe 或 FeatureRecipe 的 `spec.implements:`。目录中持有仅凭该引用即可允许的版本，但没有三者共同允许的版本，因此无法选择任何版本。"
   },
   "3250c290efd98cdb": {
     "at": "2026-10-22T04:05:10.557953+00:00",
@@ -44113,6 +44156,13 @@
     "srcHash": "3aaab747316cd8f5",
     "status": "machine",
     "text": "当该 FeatureRecipe 所 `implements` 的 Feature 声明了 `schema.provides` 契约时，该契约会针对 FeatureRecipe 强制执行：Feature 声明的每个键都必须出现在 FeatureRecipe 的 `provides:` 中，否则构建中止并指出缺失的键。允许发布额外的键——契约是下限，而非上限。值从不被检查；它们是由运行时解析的不透明确定性指针。"
+  },
+  "3aad69f49e926afb": {
+    "at": "2026-11-21T04:28:13.516Z",
+    "job": "session-0004-20261121042813",
+    "srcHash": "3aad69f49e926afb",
+    "status": "machine",
+    "text": "发出的消息。消息以该条件的句子开头，随后是 Release、每个实例及其声明位置和名称、每项约束及其所在的文件、目录中持有的版本，最后是补救措施："
   },
   "3aad97586583751a": {
     "at": "2026-10-22T01:33:54.654983+00:00",
@@ -52998,6 +53048,17 @@
     "status": "machine",
     "text": "环境 `development` 是导入写入的默认值，因为没有任何 Compose 文件指定环境；当 Release 部署到其他地方时，请修改它。镜像标签成为标准库 Components 所接受的引擎版本。API 的 `port` 是其容器监听的端口，`published_port` 是其 `ports` 条目所发布的主机端口，二者都是 Compose 文件所写的 8080；如其注释所说，这台机器上的任何进程都可以通过 `http://127.0.0.1:8080` 访问该 API，其他任何东西都不能，删除这一行则让它只留在该栈的网络上。没有任何键接受的内容会作为注释保留在其条目上方：源文件的 `ports` 条目（`port` 和 `published_port` 已经承载了它），以及数据库的命名卷。"
   },
+  "465a59eef89cd827": {
+    "at": "2026-11-21T04:28:13.516Z",
+    "job": "session-0004-20261121042813",
+    "revision": {
+      "from": "cbd7eda89ef37974",
+      "reviewed": false
+    },
+    "srcHash": "465a59eef89cd827",
+    "status": "machine",
+    "text": "功能实例以自己的形式报告这些情况，每种情况都位于该条件的句子之后。Aggregate 中未写版本的功能类型会像组件类型一样，按构建编译它时所用的版本进行匹配——即该实例上声明的每一项约束都允许的最高版本——而指明 `<type>:<version>` 的消息指的是该版本的类型，也就是在目录中搜索的对象。当某个附加项的组件所映射到的 Recipe 已知时，FeatureRecipes 按该 Recipe 所绑定的能力加以区分：绑定到该组件能力的会优先提供，而绑定到其他能力的 FeatureRecipe 仍会渲染，作为组件输出旁边的独立输出，而不是渲染到组件输出之中；因此，当没有任何一个绑定到该组件的能力时，就改为提供那些。指向空处的映射显示为 `feature \"<instance>\" (type \"<type>\"): the Manifest maps it to feature recipe \"<uri>\", which is not in the catalog`。当有 FeatureRecipes 为该组件的能力实现该类型时，只列出这些：`feature \"<instance>\" (type \"<type>\"); feature recipes implementing it for capability \"<capability>\", the capability its component's Recipe binds to: [<recipe-uris>]; pin one in the Manifest`。当它们只为其他能力实现该类型时：`feature \"<instance>\" (type \"<type>\"); no feature recipe in the catalog implements <type>:<version> for capability \"<capability>\", the capability its component's Recipe binds to; feature recipes implementing it for other capabilities: [<recipe-uris>]; pin one of those in the Manifest, and it renders as its own output beside the component's, or write one for \"<capability>\", then map the type to it`。当根本没有任何一个实现该类型时：`feature \"<instance>\" (type \"<type>\"); no feature recipe in the catalog implements <type>:<version>; write one, then map the type to it`。而当能力未知时——组件自身的映射未解析到任何 Recipe（这一点会单独报告），或者附加项写在某个边界上，而该边界中的组件可能通过多种能力渲染——则列出每个实现者：`feature \"<instance>\" (type \"<type>\"); feature recipes implementing it: [<recipe-uris>]; pin one in the Manifest`。在未指定任何目录文件夹的工作区中，搜索的 FeatureRecipes 仅限于 lockfile 固定的那些：registry 中的那些不会被列出，而未为该类型映射任何条目的 Manifest 也不会固定任何条目。在这种情况下，关于缺失的说法针对的是已固定的内容而非目录，并且消息会明确说明这一点。当没有任何一个实现该类型时：`feature \"<instance>\" (type \"<type>\"); no feature recipe the lockfile pins implements <type>:<version> for capability \"<capability>\", the capability its component's Recipe binds to; with no catalog directory, the feature recipes searched are only those the lockfile pins, not a registry's; pin one a registry publishes in the Manifest, where one for another capability renders as its own output beside the component's, or write one for \"<capability>\", then map the type to it`——而当能力未知时，消息不指明任何能力，并以 `pin one a registry publishes in the Manifest, or write one, then map the type to it` 结尾。当已固定的 FeatureRecipes 只为其他能力实现该类型时，该情况的消息会以 `no feature recipe the lockfile pins implements` 代替 `no feature recipe in the catalog implements`，能力之后的从句相同。"
+  },
   "465b32f1ea148b1f": {
     "at": "2026-10-22T03:12:40.354254+00:00",
     "job": "msgbatch_014XaJkkEi3rvZLnLM2UmemD",
@@ -58562,6 +58623,13 @@
     "status": "machine",
     "text": "文档对该实体用途的说明。"
   },
+  "4e00ad3be46d4067": {
+    "at": "2026-11-21T04:28:13.516Z",
+    "job": "session-0004-20261121042813",
+    "srcHash": "4e00ad3be46d4067",
+    "status": "machine",
+    "text": "当所持有的版本是锁文件记录的版本时，消息会以 `locked at \"<version>\", written in \"<lockfile>\"` 代替 `versions held` 来结束其细节部分，补救措施则会追加 `` , or run `aggrega pull --release <release-file>` to lock the version every constraint admits ``。"
+  },
   "4e0404f1d7a98c74": {
     "at": "2026-10-22T05:07:43.448651+00:00",
     "job": "msgbatch_017U8zLucNunw6USSWNfR6c8",
@@ -61118,6 +61186,13 @@
     "status": "machine",
     "text": "所记录内容的内容地址，格式为 `sha256:` 后跟 64 个小写十六进制字符。重新 pull 时会将底层文件与此摘要比较以检测漂移。模式：`^sha256:[a-f0-9]{64}$`。"
   },
+  "513ef717eb2372c5": {
+    "at": "2026-11-21T04:28:13.516Z",
+    "job": "session-0004-20261121042813",
+    "srcHash": "513ef717eb2372c5",
+    "status": "machine",
+    "text": "在一个 Release 中由多个实例写出的同一类型是同一个引用，因此这些实例中每一个的约束都适用于它。如果某个 Manifest 条目自身的键被其 Recipe 的 `spec.implements:` 拒绝，则会改为报告为该映射错误，并且不在此处添加任何约束。"
+  },
   "51416909bb372523": {
     "at": "2026-10-22T01:50:22.319444+00:00",
     "job": "msgbatch_01VwQyd4vfmNKqBKVTg2vP5W",
@@ -62578,6 +62653,17 @@
     "srcHash": "53042c07d088f9ed",
     "status": "machine",
     "text": "**输出的消息。**每条消息都以条件开头——某个值在提供者输出的内容中没有表示形式——然后指出资源、该值是请求还是限制、它在 Workload 中的路径以及该值。对于不是数量的值，其后会说明它为何不是数量，以及数量应采用的形式："
+  },
+  "53069e1c577996ed": {
+    "at": "2026-11-21T04:28:13.516Z",
+    "job": "session-0004-20261121042813",
+    "revision": {
+      "from": "f1a67b7e4d498877",
+      "reviewed": false
+    },
+    "srcHash": "53069e1c577996ed",
+    "status": "machine",
+    "text": "Recipes 和 FeatureRecipes 通过 `implements:` 关键字声明它们所实现的 Component 或 Feature 接口。`implements:` 从不选择 Recipe：选择由 Manifest 的映射完成，类型未被任何映射覆盖的实例会以错误中止，该错误会将 `implements:` 能实现该类型的 Recipes 列为候选。`implements:` 所驱动的是这样一项检查：每个 Manifest 映射条目的 Recipe 实现了被映射的类型，或该类型 `extends` 的某个基类型。被映射的类型是条目的键；对于 `components.type` 键，它还是该键以其未指定的版本所触及的每个组件实例的类型（对于未写版本的键，即它触及的每个实例），版本取构建编译该实例时所用的版本：实例指定的版本，或者对未指定版本的实例而言，其上每一项约束都允许的最高版本。`implements:` 就是这些约束之一，因此除了这项检查之外，它还会收窄实例编译时所用的版本：映射所指定的 Recipe 或 FeatureRecipe 的 `implements:` 会与实例指定的类型以及映射它的 Manifest 键一起，声明在该映射触及的每个实例上，实例以它们全部允许的最高版本编译（参见[版本解析](version-resolution.md)）。各形式的状态："
   },
   "5308665013b0e1a1": {
     "at": "2026-11-17T14:36:05.809Z",
@@ -72915,6 +73001,13 @@
     "status": "machine",
     "text": "**3. 平台目录：使用 `DoesNotExist` 的 Feature（排除模式）**\n此 Feature 自动绑定到所有服务器和工作进程，但明确排除带有生成式模型能力的组件。"
   },
+  "6094346217dcda1d": {
+    "at": "2026-11-21T04:28:13.516Z",
+    "job": "session-0004-20261121042813",
+    "srcHash": "6094346217dcda1d",
+    "status": "machine",
+    "text": "如果目录持有仅凭该引用即可允许的版本，但没有每一项约束都允许的版本，构建会以 `conflicting-version-constraints` 中止：“no version of a component or feature type satisfies every constraint declared on the instance”（没有任何组件或功能类型的版本满足该实例上声明的每一项约束）。消息会指出 Release、每个实例及其声明位置和名称、每项约束及其所在的文件，以及所持有的版本。补救措施是更改写入该类型处的版本——Aggregate 中的版本，或者对于 Release 声明的附加项，Release 中的版本；模块是已发布的，因此模块的实例只能随模块的另一个版本而更改其版本——或者按其 Recipe 或 FeatureRecipe 所实现的版本映射该类型。消息会给出与其实例类型所写位置相符的补救措施。"
+  },
   "6094c49479b77964": {
     "at": "2026-10-22T04:43:27.484470+00:00",
     "job": "msgbatch_011EdRoGJ1y9vfgeXhA2LH6q",
@@ -77756,6 +77849,13 @@
     "status": "machine",
     "text": "`lockfile.release_documents[]`"
   },
+  "66f7d1e7645deacc": {
+    "at": "2026-11-21T04:28:13.516Z",
+    "job": "session-0004-20261121042813",
+    "srcHash": "66f7d1e7645deacc",
+    "status": "machine",
+    "text": "如果某个 Manifest 条目自身的键被其 Recipe 的 `spec.implements` 拒绝，则会报告为该映射错误（参见 Recipe 的 `implements` 与所映射类型不匹配时的中止条件），且其本身不添加任何约束。"
+  },
   "66f993906d4f78a8": {
     "at": "2026-10-29T23:14:13.329Z",
     "job": "session-0033-20261029231413",
@@ -78524,6 +78624,13 @@
     "srcHash": "6820c5cc6857d148",
     "status": "machine",
     "text": "声明了按实例存储的 workload 会被渲染为 StatefulSet，而 StatefulSet 会指定一个管理它的服务——即为每个实例提供稳定地址的服务。该服务是声明时没有自身集群地址的那个。有两种形态会停止渲染：一个都没有声明，因而无可指定；以及声明了多个，因而无法确定由哪个管理。两者都会产生目标拒绝的 StatefulSet，因此渲染会停止，而不是输出它。"
+  },
+  "6821102784d12e94": {
+    "at": "2026-11-21T04:28:13.516Z",
+    "job": "session-0004-20261121042813",
+    "srcHash": "6821102784d12e94",
+    "status": "machine",
+    "text": "例如，Aggregate 写入 `core/compute/server:1.0.0`，Manifest 键 `core/compute/server:1.1.0` 映射到实现该键的 Recipe，而目录持有 `1.0.0` 和 `1.1.0`："
   },
   "6822e2b68fadb053": {
     "at": "2026-10-30T01:13:47.675Z",
@@ -79937,6 +80044,13 @@
     "srcHash": "69f06876b99b74b9",
     "status": "machine",
     "text": "一个 `*.json` 文件，其中 `typeName` 处为字符串、`properties` 处为对象，即提供方 schema；或者 `TypeName` 处为字符串、`Schema` 处为字符串，即 `aws cloudformation describe-type` 的输出，导入器会将其 `Schema` 作为第二个来源读取"
+  },
+  "69f1c612c3972f3b": {
+    "at": "2026-11-21T04:28:13.516Z",
+    "job": "session-0004-20261121042813",
+    "srcHash": "69f1c612c3972f3b",
+    "status": "machine",
+    "text": "**Aggregate 的 `type:`。** 精确版本或 caret 范围会按上表所述固定实例；未写版本的类型不施加任何约束。"
   },
   "69f51a2182f612f0": {
     "at": "2026-10-30T18:13:14.564Z",
@@ -82170,6 +82284,13 @@
     "srcHash": "6ce18ec4ad21a95b",
     "status": "machine",
     "text": "Gemini CLI 会将该插件安装为它的扩展之一。"
+  },
+  "6ce2d6e745874787": {
+    "at": "2026-11-21T04:28:13.516Z",
+    "job": "session-0004-20261121042813",
+    "srcHash": "6ce2d6e745874787",
+    "status": "machine",
+    "text": "No version of a component or feature type satisfies every constraint on an instance（没有任何组件或功能类型的版本能满足实例上的每一项约束）"
   },
   "6ce2fcaf738bdf15": {
     "at": "2026-10-22T05:14:14.914265+00:00",
@@ -87479,6 +87600,17 @@
     "status": "machine",
     "text": "组合方式"
   },
+  "73cef57080ec0359": {
+    "at": "2026-11-21T04:28:13.516Z",
+    "job": "session-0004-20261121042813",
+    "revision": {
+      "from": "92c2019707a6d763",
+      "reviewed": false
+    },
+    "srcHash": "73cef57080ec0359",
+    "status": "machine",
+    "text": "resolve: consumers of one library require versions in incompatible majors: library `\"<library>\"` has consumers requiring incompatible majors: `<consumer>` wants `<version>`; `<consumer>` wants `<version>`（resolve：同一个库的使用方要求互不兼容的主版本，各使用方及其要求的版本见前文）"
+  },
   "73cf9ebace3f83d7": {
     "at": "2026-10-22T05:25:45.661574+00:00",
     "job": "msgbatch_01GK3s5ypk3MzMWPEKha5JkC",
@@ -90592,6 +90724,17 @@
     "status": "machine",
     "text": "A schema `$import:` cannot be applied（无法应用 schema 导入指令）"
   },
+  "77b045d678ecefe1": {
+    "at": "2026-11-21T04:28:13.516Z",
+    "job": "session-0004-20261121042813",
+    "revision": {
+      "from": "95f05a3ec032d8a2",
+      "reviewed": false
+    },
+    "srcHash": "77b045d678ecefe1",
+    "status": "machine",
+    "text": "某次拉取*做了*什么——每个实体是从注册表新获取的（`fetched-fresh`）、复用了缓存槽（`cache-reuse`）、在本地目录中找到的（`local`）、由编译器二进制内的副本提供的（`in-binary`），还是外部的（`external`：Release 自身的 Aggregate 或 Manifest，从 Release 指名的文件或条目读取，而不是作为其依赖之一解析；拉取从注册表获取的 Aggregate 则为 `fetched-fresh`）——是由 `--detail` 打印到 stdout 的临时拉取事件诊断，从不写入锁文件。`--detail` 还会列出本次拉取以低于已持有最新版本的版本选择的每个组件和功能引用——每个一行，指明所选版本、已持有的最新版本，以及排除后者的约束：Manifest 键、Recipe 的 `spec.implements` 或所写的类型，并各自附上其所在的文件。已持有的最新版本是指该引用据以选择的那些版本中最新的一个：即你的目录文件夹中持有的版本，否则为其注册表列出的版本。以最新版本选择的引用不会被列出；现有锁文件所固定的注册表引用也不会被列出——在其约束允许的情况下，它只会获得该固定版本，直到 `--upgrade` 重新选择它。由哪个来源提供实体取决于执行拉取的机器的本地状态，因此持久化它会破坏锁文件在不同机器间的字节一致性。它报告的是*本次拉取*做了什么，事后无法恢复（新拉取的实体会在下一次运行时被缓存）；要查看 Release 依赖在拉取后的解析*状态*，请使用 `aggrega inspect`。"
+  },
   "77b3383dfe0ab56e": {
     "at": "2026-10-22T03:00:38.891470+00:00",
     "job": "msgbatch_018TuANWNnugzXZUxyABeHjT",
@@ -91473,6 +91616,13 @@
     "srcHash": "78e6c343a1ecd734",
     "status": "machine",
     "text": "输入 `featuresSchema`："
+  },
+  "78ee849bc33eab6f": {
+    "at": "2026-11-21T04:28:13.516Z",
+    "job": "session-0004-20261121042813",
+    "srcHash": "78ee849bc33eab6f",
+    "status": "machine",
+    "text": "对于 Release 中的 Component 或 Feature 实例，引用并不是对其版本的唯一约束；参见[实例上的约束](#the-constraints-on-an-instance)。"
   },
   "78f0ba9820130a87": {
     "at": "2026-10-22T03:12:40.354254+00:00",
@@ -93038,6 +93188,13 @@
     "srcHash": "7ad362c2e93de45b",
     "status": "machine",
     "text": "在 Feature 附件的 FeatureRecipe 编写的模板上——它的 `locals:`、`source:`、`provides:`、\n`injectMapping:`、`valuesMapping:`、`workload:`、每个 `artifacts:` 条目，以及每个 pipeline 步骤的\n`with:` 和 `when:`——`{{ .context.rendered_name }}` 是**宿主 component 的**名称：即宿主自身的 provider 为其为宿主渲染的资源所报告的名称，也就是宿主自身的 Recipe 读取的值。它与 `{{ .context.instance_id }}` 配对，后者在这些模板上是宿主 component 的标识；附件本身是 `.attachment_name`。写在某个 component 的某个连接上的附件读取的是消费方 component 的名称，因为该 component 是它的宿主。"
+  },
+  "7ad5a3fabedb9701": {
+    "at": "2026-11-21T04:28:13.516Z",
+    "job": "session-0004-20261121042813",
+    "srcHash": "7ad5a3fabedb9701",
+    "status": "machine",
+    "text": "没有版本满足每一项约束时"
   },
   "7ad74651a22efc90": {
     "at": "2026-10-22T05:14:14.914265+00:00",
@@ -102969,6 +103126,13 @@
     "status": "machine",
     "text": "**服务。** 它的 `image`，以及它是否在 `build` 下构建镜像；它的 `ports`、`expose`、\n  `volumes` 和 `environment`——一个映射，或一个由 `NAME=value` 项组成的列表，没有值的名称\n  从 Compose 运行时所在的环境中取值；`depends_on`，一个列表或映射；以及它的\n  `models`，一个模型名称列表，或一个映射，其条目可以在 `endpoint_var` 和\n  `model_var` 下指定模型的地址和标识符传递给服务所用的变量。其他所有\n  成员——`command`、`healthcheck`、`secrets`、`env_file` 等——都不写入任何地方，而是\n  在 Release 中该服务条目上方的注释里列出。"
   },
+  "88753842be35850e": {
+    "at": "2026-11-21T04:28:13.516Z",
+    "job": "session-0004-20261121042813",
+    "srcHash": "88753842be35850e",
+    "status": "machine",
+    "text": "no version of a component or feature type satisfies every constraint declared on the instance (Release `\"<release>\"`, at `\"<site>\"`, instance `\"<instance>\"`, type `\"<type>\"`, written in `\"<file>\"`, Manifest mapping key `\"<key>\"`, written in `\"<file>\"`, mapped to recipe `\"<recipe>\"`, whose spec.implements is `\"<implements>\"`, versions held `\"<versions>\"`). `<remedy>`（没有任何组件或功能类型的版本满足该实例上声明的每一项约束；括号内依次列出 Release、位置、实例、类型及其所在文件、Manifest 映射键及其所在文件、所映射的 Recipe 及其 spec.implements，以及所持有的版本，其后是补救措施）"
+  },
   "887978f7e7fc9203": {
     "at": "2026-10-22T02:18:58.122887+00:00",
     "job": "msgbatch_01Qnt7WmfHvXi9HMixh1GQvp",
@@ -103003,6 +103167,13 @@
     "srcHash": "888662c575a20176",
     "status": "machine",
     "text": "经过验证的追溯性弃用标记，在 `digest` 所指的制品上发现经过签名且受信任的标记时记录。标记是其所弃用制品的一个经过签名的 OCI referrer，在发布之后附加，无需重新发布该制品，因此已记录在此的插件可以在事后被弃用——在 `retracted` 严重级别（即撤回级别）下，这意味着该制品被排除在选择之外，而不仅仅是不推荐使用。它是关于本记录已寻址的制品的一个事实，而非第二个身份，正因如此 `aggrega pull` 可以添加它，同时不改动 `resolved_version` 和 `digest`：记录它不会采纳任何东西。仅当解析得到的摘要等于已记录的摘要时才会记录它——报告不同字节的解析是身份的变更，受本记录自身的规则约束，除非运行明确要求，否则会被拒绝。没有任何操作会清除已记录的标记；它只会随承载它的记录一起离开，即在替换或删除该记录的显式升级时。`aggrega build`、`aggrega lint --release` 和 `aggrega validate --release` 会指出携带标记的插件，因为否则被弃用的门禁会在无任何提示的情况下被获取、缓存并运行；工作区的 `build.halt_on_deprecated_severity` 设置决定构建是因此中止还是仅给出提示。通过 `aggrega serve` 和 `aggrega mcp` 到达的相同操作仍像以前一样以本记录约束配置，但尚不会指出已记录的标记，因此标记只在上述三个命令中报告，而不在这些入口中报告。"
+  },
+  "888ceccf44f15551": {
+    "at": "2026-11-21T04:28:13.516Z",
+    "job": "session-0004-20261121042813",
+    "srcHash": "888ceccf44f15551",
+    "status": "machine",
+    "text": "Release 中的 Component 或 Feature 实例以一个版本编译，有三处可以约束是哪个版本："
   },
   "889609ca2fbf4f2b": {
     "at": "2026-10-22T23:34:49.752518+00:00",
@@ -107684,6 +107855,13 @@
     "status": "machine",
     "text": "`aggrega/scaffoldEntity` — 某个实体种类的起始文档：恰好包含该种类 schema 要求的字段，填入固定的 `apiVersion` 和 `kind`，并在每个需要值的地方放置占位符。`kind` 为必填项，是小写连字符形式的 schema 标记——`component`、`aggregate`、`release`、`recipe`、`manifest`、`feature` 等；不带 `kind` 的 `aggrega/getSchema` 会报告你可以发送哪些标记，没有对应 schema 的标记会被拒绝，并在消息中给出该集合，这样无需第二次调用即可纠正拼写错误。向作者提供种类选择的客户端读取该方法的 `entityKinds`，即可编写文档的种类集合。`name` 是可选的，对于 schema 要求名称的种类，它用于填充 `metadata.name`。响应携带 `kind` 和 `skeleton`。参见[`aggrega/scaffoldEntity` 响应提供什么](#what-an-aggregascaffoldentity-response-gives-you)，因为该答复是一个待写入的文档，而不是已写入的文档。骨架派生自 `aggrega/getSchema` 报告的同一 schema，因此两者出自同一来源。**若发送 `example` 而不是 `kind`，它会将文档中的一个可运行示例写入工作区中的一个新目录**，与 [`aggrega draft --example`](aggrega-draft.md#starting-from-a-runnable-example) 在终端中的做法相同；若仅发送 `list: true`，它会以现有的所有示例作答，且不写入任何内容。这两种形式都需要工作区，因此对其中任一形式的请求都要在 `workspaceRoot` 中指明工作区，未指明的请求会被拒绝。`dir` 指定新目录相对于工作区根目录的路径，默认为示例的名称；绝对路径值，或解析到根目录之外的值——无论是按写法如此还是经由链接——都会在读取任何内容之前被拒绝，而已有任何内容的目录会被拒绝并保持原样。列表的回答携带 `examples`，每项包含 `name`、`level` 和 `summary`；写入的回答携带 `example`、`dir`、`files`——写入的每个文件，相对于 `dir`——`next`，即示例页面给出的构建命令，页面未给出时不存在，以及 `version`，即读取该示例所用的文档版本。同时发送属于两种形式的字段——`kind` 与 `example`、`list` 与 `example` 或 `kind`、`name` 与 `example` 或 `list`，或不带 `example` 的 `dir`——会在读取任何内容之前被拒绝，措辞与助手工具拒绝它们时相同。**写入时，如果本机没有通过工作区自身签名检查的副本，则会获取文档包，并在工作区内写入**——参见[访问注册表与写入](#reaching-a-registry-and-writing)。"
   },
+  "8ea382ae637d36fa": {
+    "at": "2026-11-21T04:28:13.516Z",
+    "job": "session-0004-20261121042813",
+    "srcHash": "8ea382ae637d36fa",
+    "status": "machine",
+    "text": "**所映射 Recipe 的 `spec.implements`。** Manifest 将实例映射到的 Recipe 或 FeatureRecipe，只允许其 `spec.implements` 所表示的版本。对于 Component，实现该类型所 `extends` 的基础类型的 Recipe，会通过该基础类型允许该类型的版本；Feature 没有这样的继承关系。"
+  },
   "8ea40c823232462b": {
     "at": "2026-10-22T03:06:36.769432+00:00",
     "job": "msgbatch_01LMJ2pDqXu3quNM1ykbvTtk",
@@ -110404,6 +110582,17 @@
     "srcHash": "921729dea4d9a143",
     "status": "machine",
     "text": "**构建读取缓存；它不会自行访问外部。** 获取是一个独立步骤：解析 release 的 pull 会获取该 release 所需的内容并写入缓存，随后构建读取缓存中已有的内容。因此，此条件对构建而言表现为缓存未命中，对 pull 而言表现为 registry 中没有该制品。如果构建被配置为在启动时填充其 lockfile，它所执行的获取就是同一个 pull。"
+  },
+  "9218937236865975": {
+    "at": "2026-11-21T04:28:13.516Z",
+    "job": "session-0004-20261121042813",
+    "revision": {
+      "from": "910652965ec93aa9",
+      "reviewed": false
+    },
+    "srcHash": "9218937236865975",
+    "status": "machine",
+    "text": "**只要 `components.type` 键到达另一版本的实例，它也会按实例逐一判定。** 不指明实例确切类型的键，会在没有键指明该确切类型、且没有其他键为同一基础类型编写时，通过该类型的基础类型到达该实例——因此不带版本编写的键，或指明另一版本的键，都可能到达它。仅凭条目本身无法判断其 Recipe 是否适用，因此对于该键以这种方式到达的每个组件实例，构建都会再次判定该 Recipe，并以构建编译该实例时所用版本下的实例自身类型代替键的位置：即实例指明的版本，或者对于未指明版本的实例，其上声明的每一项约束都允许的最高版本。若 Recipe 的 `spec.implements:` 不满足实例的版本——无论是精确匹配、按 caret 范围、因无版本，还是通过实例类型所 `extends` 的基础类型——都会引发此条件，并在实例的 `.spec.components.<instance>` 路径处报告，而不是在 Manifest 文件处报告："
   },
   "921b6e9d9b2061bd": {
     "at": "2026-10-30T02:01:48.260Z",
@@ -115994,6 +116183,13 @@
     "srcHash": "99a46b1cc6de4291",
     "status": "machine",
     "text": "D. 拓扑风险分析"
+  },
+  "99a5255f4a7d9ccd": {
+    "at": "2026-11-21T04:28:13.516Z",
+    "job": "session-0004-20261121042813",
+    "srcHash": "99a5255f4a7d9ccd",
+    "status": "machine",
+    "text": "对于功能实例，Manifest 键的标注为 `Manifest feature key`，其映射到的 FeatureRecipe 的标注为 `mapped to feature recipe`。"
   },
   "99a52df3ff3d4994": {
     "at": "2026-10-22T08:03:58.541373+00:00",
@@ -123483,6 +123679,13 @@
     "srcHash": "a368bfd220b1148a",
     "status": "machine",
     "text": "[CLI 概览](07-cli.md)"
+  },
+  "a36939c2b49853d1": {
+    "at": "2026-11-21T04:28:13.516Z",
+    "job": "session-0004-20261121042813",
+    "srcHash": "a36939c2b49853d1",
+    "status": "machine",
+    "text": "约束按 Release 中所写的引用逐一收集，涵盖 Aggregate、其子 Aggregate 和附加项。以同一类型写出的每个实例共享同一个引用，因此它们以同一个版本编译，且所有这些实例的约束都适用于它。"
   },
   "a36c908943f14282": {
     "at": "2026-10-22T03:24:54.319294+00:00",
@@ -132320,6 +132523,17 @@
     "status": "machine",
     "text": "插件经过三个阶段，从磁盘上的 `.wasm` 文件变为可供构建使用、经过验证的制品。"
   },
+  "aed9a7ed907e3865": {
+    "at": "2026-11-21T04:28:13.516Z",
+    "job": "session-0004-20261121042813",
+    "revision": {
+      "from": "fcd3fced6f9d8c4f",
+      "reviewed": false
+    },
+    "srcHash": "aed9a7ed907e3865",
+    "status": "machine",
+    "text": "多个实体可以引用同一个库，每个实体指定一个版本下限或不指定；下限读作在其主版本范围内的该版本或更高版本，构建选择每个使用方的下限都允许的最高版本。正因如此，要求较低的使用方仍能获得满足其要求的版本；也正因如此，添加一个下限更高的使用方会让所有使用方一起升级，而不是让构建分裂为两个副本。"
+  },
   "aede51d754ff4669": {
     "at": "2026-11-01T00:51:57.735Z",
     "job": "session-0006-20261101005157",
@@ -138880,6 +139094,17 @@
     "status": "machine",
     "text": "**如何修复：**将实体的 `metadata.version` 设为你要发布的版本，并从该版本标签所指提交的干净检出构建插件，使其自身报告该版本。对于新版本，请先将实体与其发布的源代码一起提交并为该提交打标签：标签必须指向已包含该实体的提交。不要把插件报告的版本复制到实体中：构建其他任何提交都会报告开发版本，复制它会使该构建以一个没有任何发布标签对应的版本发布。如果插件完全不报告版本，说明它构建时未记录版本；请在记录版本的情况下构建它。"
   },
+  "b70d887f8b886319": {
+    "at": "2026-11-21T04:28:13.516Z",
+    "job": "session-0004-20261121042813",
+    "revision": {
+      "from": "ade3eef1106bc2ac",
+      "reviewed": false
+    },
+    "srcHash": "b70d887f8b886319",
+    "status": "machine",
+    "text": "其上每一项约束都允许的最高版本"
+  },
   "b70e147ca37f53d7": {
     "at": "2026-10-22T03:12:40.354254+00:00",
     "job": "msgbatch_014XaJkkEi3rvZLnLM2UmemD",
@@ -142739,6 +142964,13 @@
     "status": "machine",
     "text": "YAML 锚点模式（`defs:` 块）"
   },
+  "bc0085831a31c3df": {
+    "at": "2026-11-21T04:28:13.516Z",
+    "job": "session-0004-20261121042813",
+    "srcHash": "bc0085831a31c3df",
+    "status": "machine",
+    "text": "**修复方法：** 更改写入该类型处的版本——Aggregate 的 `type:`，或者对于 Release 声明的附加项，更改 Release 中的版本；对于模块的实例，包含该模块的某个版本，其实例所指明的版本为其他约束所允许——或者在 Manifest 中按其 Recipe 或 FeatureRecipe 所实现的版本映射该类型。如果锁文件记录的版本已不被这些约束允许，请运行 `aggrega pull --release <file>`，以锁定每一项约束都允许的版本。"
+  },
   "bc01ebf97d9bf1e4": {
     "at": "2026-10-22T02:54:42.494843+00:00",
     "job": "msgbatch_01AzobJHavYkSpJutrCSntfY",
@@ -145448,6 +145680,17 @@
     "status": "machine",
     "text": "**标准库目前携带的内容。** `core/datastore/qdrant`、`core/datastore/weaviate`、`core/datastore/chroma`、`core/datastore/pgvector` 和 `core/datastore/milvus` 携带 `vector`，`core/datastore/cognee` 携带 `semantic-memory`，`core/datastore/opensearch` 和 `core/datastore/elasticsearch` 携带 `search`，因此上文的知识库选择器可以解析到其中每一个。`core/datastore/redis`、`core/datastore/valkey` 和 `core/datastore/memcached` 携带 `kv`。这些标签都位于组件自身的基础组件上，因为产品的身份就是该引擎。对 `core/datastore/pgvector` 而言，这一身份就是它所固定的制品：它运行 pgvector 项目自己的 PostgreSQL 镜像，其中包含该扩展，并且每个 Recipe 都会在组件创建的数据库中启用该扩展——因此它的向量特性不依赖于某项设置，这正是它与上文“Naked Base, Flavored Edges”中所述配置情形的区别：在那种情形下，通用 PostgreSQL 只有在开发者开启扩展后才获得该特性。`relational`、`document` 和 `graph` 没有标准库组件，因此仅指定其中值的选择器在这里不匹配任何组件，而由携带此类组件的目录来满足。"
   },
+  "bfc4e6101a9e27c6": {
+    "at": "2026-11-21T04:28:13.516Z",
+    "job": "session-0004-20261121042813",
+    "revision": {
+      "from": "e69b7f13d304f620",
+      "reviewed": false
+    },
+    "srcHash": "bfc4e6101a9e27c6",
+    "status": "machine",
+    "text": "Release 对每个库名称读取一个版本：其引用（包括库内部的引用）所声明的每个下限都允许的已有最高版本，或者在没有任何引用声明下限时，普通引用所选择的版本。未声明下限的引用允许任何版本，因此它从不会压低所选版本。指明同一个库不同主版本的下限不会共同允许任何版本，此时构建会以 `E0107` 中止，并指出相互冲突的引用。`release.lock` 为每个库记录所选择的版本以及该版本文件的内容摘要；build、pull 和 preview 读取的正是该版本。提高下限会使下一次构建报告 lockfile 已过期（`E0130`），直到 `aggrega pull` 记录新版本。`aggrega validate --release`、编辑器和助手工具读取 `release.lock` 所记录的版本；没有 lockfile 时，读取普通引用所选择的版本。验证整个目录或单个实体文件时，每个库都按普通引用所选择的版本读取。"
+  },
   "bfc4e6e2c381db39": {
     "at": "2026-10-22T05:14:14.914265+00:00",
     "job": "msgbatch_01SJr5F7Uh6g5vmdkzNw4vuV",
@@ -146370,6 +146613,13 @@
     "status": "machine",
     "text": "由于物化使用与验证相同的 schema 解析，在父 Feature 上声明的默认值会传递到 `extends:` 子项的挂载中，通过跨文档 `$ref:` 引用到 SchemaLibrary 中的默认值也会被物化。仅在本地文档内 `#/$defs/` 引用中声明的默认值，或在 `allOf` / `oneOf` / `anyOf` 分支下声明的默认值，不会被物化。"
   },
+  "c0c7637844a7b371": {
+    "at": "2026-11-21T04:28:13.516Z",
+    "job": "session-0004-20261121042813",
+    "srcHash": "c0c7637844a7b371",
+    "status": "machine",
+    "text": "实例上的约束"
+  },
   "c0c77c8641c687d8": {
     "at": "2026-10-22T04:31:59.273856+00:00",
     "job": "msgbatch_01V4iinZ1EB2Yt7N23KCFLbG",
@@ -147045,6 +147295,17 @@
     "srcHash": "c1a9ebfc9b176345",
     "status": "machine",
     "text": "嵌入服务器会校验密钥。它将该密钥保存在自身 Component 的一个槽位 `api_key` 中，其 Recipe 将填入该槽位的任何内容以 `API_KEY` 交付，这是 Text Embeddings Inference 启动时读取的变量。摘自\n`aggregate-matched.yaml`："
+  },
+  "c1aeb0ea59a9d534": {
+    "at": "2026-11-21T04:28:13.516Z",
+    "job": "session-0004-20261121042813",
+    "revision": {
+      "from": "7349728aa8a2511d",
+      "reviewed": false
+    },
+    "srcHash": "c1aeb0ea59a9d534",
+    "status": "machine",
+    "text": "`<Library>#/…` 形式的引用选择已有的最高版本；只有当引用精确指明预发布版本时，才会选择预发布版本。`<Library>:<version>#/…` 形式的引用（分隔符为 `:`）声明最低版本，即下限：它在其主版本范围内读作 `>=` 该版本，并选择主版本相同、不低于下限的已有最高正式版本。对于下限，绝不会选择不同的主版本；只有当下限精确指明某个预发布版本，且没有主版本相同、不低于下限的已有正式版本时，才会选择该预发布版本。当拥有该名称的目录中没有满足下限的版本时，构建会以 `E0103` 中止，并指出所请求的版本和已有的版本。注册表提供的库，也以同样的方式在该注册表发布的版本中进行选择。"
   },
   "c1b2944eef18043e": {
     "at": "2026-10-22T05:25:45.661574+00:00",
@@ -160814,6 +161075,13 @@
     "status": "machine",
     "text": "在 Release 上设置其中任何一个键，**对渲染输出都没有影响**。没有 provider 读取它们，也不会代为应用任何默认值——特别是，不会为 `aggrega.ai/cluster-domain` 应用任何 DNS 后缀，因此需要集群域名的 Recipe 必须将其作为普通值提供，而不能依赖该注解。需要这些行为之一的 Recipe 作者，应将其表达为 Recipe 值或组件的 `infra` 字段。"
   },
+  "d30c21191f49a9b9": {
+    "at": "2026-11-21T04:28:13.516Z",
+    "job": "session-0004-20261121042813",
+    "srcHash": "d30c21191f49a9b9",
+    "status": "machine",
+    "text": "可复用的库（SchemaLibrary、MappingLibrary、WorkloadLibrary、ArtifactLibrary）都以同样的方式解析。未指明版本的库引用选择已持有的最高版本。写在库引用上的版本是一个下限：它在其主版本范围内读作 `>=` 该版本，并且只有在它精确指明某个预发布版本、且不持有它所允许的任何正式版本时，才会选择该预发布版本。在多个使用方之间，构建选择每个使用方的下限都允许的已持有最高版本。指明同一个库不同主版本的使用方会使构建中止。"
+  },
   "d3139b4207b4df2d": {
     "at": "2026-10-22T01:39:34.791258+00:00",
     "job": "msgbatch_01NzZHjUiYAJW3BfQRFzEVzQ",
@@ -163531,6 +163799,17 @@
     "srcHash": "d6ec6eb05abd6641",
     "status": "machine",
     "text": "每个 `value:` 模板都以 `{{\"{{\"}}` 而不是 `{{` 开头。Aggregate 的全文会在自注入解析运行之前，为参数插值而作为模板读取一次，而此时 `.values` 尚不存在；这种转义会把 `{{` 放回去，供自注入解析求值。参见[自身带有双花括号的文本](../templates/parameters-context.md#text-that-carries-its-own-double-braces)。"
+  },
+  "d6f0164ebf7faaf2": {
+    "at": "2026-11-21T04:28:13.516Z",
+    "job": "session-0004-20261121042813",
+    "revision": {
+      "from": "809d9638bb10ab6a",
+      "reviewed": false
+    },
+    "srcHash": "d6f0164ebf7faaf2",
+    "status": "machine",
+    "text": "Aggregate 中未写版本的类型，会获得实现构建编译它时所用版本的 Recipes，即该实例上声明的每一项约束都允许的最高版本。对于 `core/datastore/postgres` 的一个实例，若目录中该 Component 的版本为 `1.0.0`，则会获得所有声明 `spec.implements: core/datastore/postgres:1.0.0` 的 Recipe，以及任何声明未带版本的该类型或声明接受 `1.0.0` 的 caret 范围的 Recipe。对于目录中没有对应 Component 的类型，只会获得声明该未带版本类型本身的 Recipes。"
   },
   "d6f5b520b3bfde9a": {
     "at": "2026-10-30T04:21:50.177Z",
@@ -172892,6 +173171,13 @@
     "status": "machine",
     "text": "对应的各 provider 页面（[helm.md](helm.md)、[helm-chart.md](helm-chart.md)、[compose.md](compose.md)、[terraform.md](terraform.md)、[cloudformation.md](cloudformation.md)、[arm.md](arm.md)）"
   },
+  "e262d951c500d938": {
+    "at": "2026-11-21T04:28:13.516Z",
+    "job": "session-0004-20261121042813",
+    "srcHash": "e262d951c500d938",
+    "status": "machine",
+    "text": "no version of a component or feature type satisfies every constraint declared on the instance (Release `\"quickstart-web-local\"`, at `\".spec.components.web\"`, instance `\"web\"`, type `\"core/compute/server:1.0.0\"`, written in `\"aggregate.yaml\"`, Manifest mapping key `\"core/compute/server:1.1.0\"`, written in `\"manifest.yaml\"`, mapped to recipe `\"compose/server:2.0.0\"`, whose spec.implements is `\"core/compute/server:1.1.0\"`, versions held `\"1.0.0, 1.1.0\"`). change the Aggregate's version, or map this type at a version its recipe implements（没有任何组件或功能类型的版本满足该实例上声明的每一项约束。更改 Aggregate 的版本，或按其 Recipe 所实现的版本映射该类型）"
+  },
   "e26a641e84b930e9": {
     "at": "2026-10-22T01:28:14.340357+00:00",
     "job": "msgbatch_01VgMDjmtoUBcnFhMoL2dHBt",
@@ -176924,6 +177210,13 @@
     "srcHash": "e7e1f9cf8e6467c5",
     "status": "machine",
     "text": "**[cross-boundary-networking](cross-boundary-networking/)** —— 同一个开发者\n  意图（一个 Adminer UI 跨越边界接缝访问数据库）以**两种方式**部署：Docker Compose 变体使用标准库的\n  `core/compose-bridge` FeatureRecipe 生成一个跨越网络接缝的网关；Kubernetes（Helm）变体通过 `aggrega.ai/namespace` 注解把每个边界放入各自的命名空间，并借助原生的跨命名空间 DNS 跨越边界——无需桥接。说明 compose-bridge 正是 Kubernetes 命名空间 + DNS 原生提供给你的能力。"
+  },
+  "e7e65623281d7d95": {
+    "at": "2026-11-21T04:28:13.516Z",
+    "job": "session-0004-20261121042813",
+    "srcHash": "e7e65623281d7d95",
+    "status": "machine",
+    "text": "实例以**这些约束中每一项都允许的最高版本**编译。因此，Recipe 的 `spec.implements` 会收窄未指定版本的实例，而不是事后才被检查：当目录持有某个 Component 的 `1.0.0` 和 `2.0.0` 时，映射到实现 `:^1.0.0` 的 Recipe 的未指定版本实例会以 `1.0.0` 编译。"
   },
   "e7ea22452cfff5d0": {
     "at": "2026-10-22T04:31:59.273856+00:00",
@@ -185672,6 +185965,13 @@
     "status": "machine",
     "text": "关于目录实体继承（Component-extends-Component、Feature-extends-Feature），参见 [inheritance-and-interface.md](inheritance-and-interface.md)。"
   },
+  "f339639bc1a5a9ec": {
+    "at": "2026-11-21T04:28:13.516Z",
+    "job": "session-0004-20261121042813",
+    "srcHash": "f339639bc1a5a9ec",
+    "status": "machine",
+    "text": "`aggrega pull` 将所选版本记录在该引用自己的锁文件行中。当目录文件夹持有该 Component 或 Feature 时，构建会从其中的版本再次选择，若选择结果与记录的不同，则报告为锁文件已过期。当只有锁文件能触及该引用时（例如由注册表提供的引用），构建以记录的版本编译。如果约束不允许该版本，构建会以该冲突中止，指出锁文件，并建议运行 `aggrega pull --release <file>` 以锁定每一项约束都允许的版本。"
+  },
   "f33acdfb3afe0b84": {
     "at": "2026-10-22T05:14:14.914265+00:00",
     "job": "msgbatch_01SJr5F7Uh6g5vmdkzNw4vuV",
@@ -188277,6 +188577,13 @@
     "srcHash": "f659f049078bfecd",
     "status": "machine",
     "text": "宿主注册的命令动词，即操作者调用的 `aggrega <name>` 令牌，也是宿主在调用时传给插件的区分符，使支撑多个命令的单个插件能够根据被调用的命令进行路由。"
+  },
+  "f6610da9749547f7": {
+    "at": "2026-11-21T04:28:13.516Z",
+    "job": "session-0004-20261121042813",
+    "srcHash": "f6610da9749547f7",
+    "status": "machine",
+    "text": "**较新的已持有版本所声明的属性，会指出是什么让组件停留在较低版本。** 组件实例以其上每一项约束都允许的最高版本编译，因此其 Component 的编译版本未声明的属性，可能是目录中持有的某个版本确实声明了的属性。当被拒绝的属性未在组件的 `values` 或 `infra` 中声明，而实例的约束所排除的某个已持有版本声明了它时，细节部分会继续指出：这类版本中最高的一个，标注为 `declared by`；实例编译时所用的版本，标注为 `held at`；以及排除该声明版本的每一项约束，每项一次，按实例声明它们的顺序：类型及其所在文件（`type`、`written in`）、Manifest 键及其文件（`Manifest mapping key`、`written in`），或映射所指定的 Recipe 及其实现的类型（`mapped to recipe`、`whose spec.implements is`）。没有任何被排除版本声明的属性不带此类细节。例如，目录持有 `core/compute/server` 的 `1.0.0` 和 `1.1.0`，只有 `1.1.0` 声明了 `published_port`，而 Manifest 将该类型的 `1.0.0` 映射到实现 `1.0.0` 的 Recipe，则设置 `published_port` 的 Release 会报告："
   },
   "f66205a1146d5f7e": {
     "at": "2026-10-22T05:25:45.661574+00:00",
