@@ -84,12 +84,13 @@ function present(...entries) {
 // language is served under its own path segment (src/translations.mjs reads the
 // list). A translated heading carries its English heading's identifier, which
 // the translation package's plugin turns into the heading's id, so an anchor
-// link resolves in every language. The plugin is needed only where translated
-// pages are present; without them, every page of a published language is the
-// English page with Starlight's notice that it is not translated.
-const remarkHeadingIds = hasTranslatedTrees()
-  ? [(await translationPackage()).remarkHeadingIds]
-  : [];
+// link resolves in every language, and the package's parseHeadingId() leaves
+// the identifier out of a translated tier title (src/examples-sidebar.mjs). The
+// package is needed only where translated pages are present; without them,
+// every page of a published language is the English page with Starlight's
+// notice that it is not translated.
+const translation = hasTranslatedTrees() ? await translationPackage() : undefined;
+const remarkHeadingIds = translation ? [translation.remarkHeadingIds] : [];
 
 // Each page is rendered with only its own top-level group open, and "Start
 // here" open on a page no group holds (src/routeData.ts); the groups a
@@ -258,9 +259,10 @@ const sidebar = labelSidebar([
   // concept pages (src/examples-sidebar.mjs).
   {
     key: "examples",
-    items: examplesSidebarItems({
-      autogenerate: { directory: corpusDirectory("language-reference/examples") },
-    }),
+    items: examplesSidebarItems(
+      { autogenerate: { directory: corpusDirectory("language-reference/examples") } },
+      { parseHeadingId: translation?.parseHeadingId },
+    ),
   },
   {
     key: "schemaReference",

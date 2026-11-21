@@ -8,6 +8,7 @@ import {
   translatedTreePresent,
   unescapeMarkdown,
 } from "./translations.mjs";
+import { titleFromPage } from "./sidebar-labels.mjs";
 
 // The Examples section of the sidebar, read from the corpus while the site is
 // configured, so no list of examples is kept here.
@@ -42,7 +43,7 @@ import {
 // the copy's level-two headings as the teaching-order section in the English
 // page, and each tier the level-three heading at the same place inside it; a
 // translated heading ends with its English heading's identifier, `{#…}`, which
-// is left out. A copy whose section holds another number of tiers, or a copy
+// the translation package's parseHeadingId() leaves out. A copy whose section holds another number of tiers, or a copy
 // missing where the language's translated pages are present, stops the build,
 // naming the file.
 //
@@ -58,8 +59,6 @@ const ABOUT_THE_EXAMPLES = [INDEX, "reading-the-output.md"];
 const TEACHING_ORDER = "## In teaching order";
 const LEVEL_TWO = /^## /;
 const LEVEL_THREE = /^### (.+?)\s*$/;
-// The identifier a translated heading ends with: its English heading's.
-const HEADING_ID = /\s*\{#[^}]*\}$/;
 
 // The tiers of the index page's teaching-order section, each { title, names },
 // in the order the page gives them; undefined when the page holds no such
@@ -99,13 +98,20 @@ function sections(markdown) {
 
 // The translations of the tiers' titles, one record per tier in the order of
 // `tiers`, each { [lang]: title } for the published languages whose title
-// differs from the English one. `english` is the English index page.
-function tierTranslations(english, tiers, root) {
+// differs from the English one. `english` is the English index page;
+// `parseHeadingId` is the translation package's.
+function tierTranslations(english, tiers, root, parseHeadingId) {
   const translations = tiers.map(() => ({}));
   const lines = english.split(/\r?\n/);
   const position = lines.slice(0, lines.indexOf(TEACHING_ORDER)).filter((line) => LEVEL_TWO.test(line)).length;
   for (const { lang } of publishedLanguages) {
     if (!translatedTreePresent(lang, root)) continue;
+    if (typeof parseHeadingId !== "function") {
+      throw new Error(
+        `The translated pages of ${lang} are present, and reading the tiers' titles from them needs ` +
+          "the translation package's parseHeadingId, which the site configuration passes once it has loaded the package.",
+      );
+    }
     const rel = translatedPath(`${EXAMPLES}/${INDEX}`, lang, root);
     const file = path.join(root, rel);
     if (!existsSync(file)) {
@@ -124,7 +130,7 @@ function tierTranslations(english, tiers, root) {
       );
     }
     section.forEach((heading, index) => {
-      const title = unescapeMarkdown(heading.replace(HEADING_ID, ""));
+      const title = unescapeMarkdown(parseHeadingId(heading).text.trim());
       if (title !== tiers[index].title) translations[index][lang] = title;
     });
   }
@@ -135,10 +141,12 @@ function tierTranslations(english, tiers, root) {
  * The items of the sidebar's Examples group, for the corpus at `root`.
  * `autogenerate` is the entry listing the folder by file path, used for a
  * version whose index page carries no teaching-order section. Each tier's group
- * carries its title with its `translations`; the concept pages' group names its
- * label by key, for the sidebar's labels (src/sidebar-labels.mjs).
+ * carries its title with its `translations`, marked as a title read from a page
+ * (titleFromPage); the concept pages' group names its label by key, for the
+ * sidebar's labels (src/sidebar-labels.mjs). `parseHeadingId` is the
+ * translation package's, needed when translated pages are present.
  */
-export function examplesSidebarItems(autogenerate, root = corpusRoot) {
+export function examplesSidebarItems(autogenerate, { root = corpusRoot, parseHeadingId } = {}) {
   const folder = path.join(root, EXAMPLES);
   const indexFile = path.join(folder, INDEX);
   const indexPage = existsSync(indexFile) ? readFileSync(indexFile, "utf-8") : undefined;
@@ -151,7 +159,7 @@ export function examplesSidebarItems(autogenerate, root = corpusRoot) {
         "in this repository to write the page again.",
     );
   }
-  const translations = tierTranslations(indexPage, tiers, root);
+  const translations = tierTranslations(indexPage, tiers, root, parseHeadingId);
 
   // Each page is named by its route, by the rule the content collection names
   // its entries with (routeOf); an English path is the same in every corpus.
@@ -169,6 +177,7 @@ export function examplesSidebarItems(autogenerate, root = corpusRoot) {
       .map((tier, position) => ({ ...tier, translations: translations[position] }))
       .filter(({ names }) => names.length > 0)
       .map(({ title, translations, names }, index) => ({
+        [titleFromPage]: true,
         label: title,
         translations,
         collapsed: index > 0,

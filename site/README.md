@@ -201,9 +201,10 @@ they are. The sidebar is the English sidebar, each page link pointing at the
 page in the reader's language under its translated title, and each label of a
 group, a link or a badge in the reader's language, taken from the same place in
 a sidebar built with that language's labels (`src/routeData.ts`); a label with
-no translation shows in English. The build checks that every translated
-language's pages show the sidebar's translated labels (`sidebarLabelCheck()` in
-`src/sidebar-labels.mjs`) and stops, naming each label that shows in English.
+no translation shows in English. The build checks that each translated
+language's home page shows the sidebar's translated labels
+(`sidebarLabelCheck()` in `src/sidebar-labels.mjs`) and stops, naming each
+label that shows in English.
 `llms.txt` and `llms-full.txt` stay English.
 
 The translation configuration sits in `l10n/` at the repository root: the

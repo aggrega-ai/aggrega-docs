@@ -14,7 +14,8 @@ import { publishedLanguages, SIDEBAR_LABELS, sidebarLabels, sourceLanguage, tran
 // writes its label in English, so the English labels have one home. The titles
 // of the Examples section's tiers are headings of a page translated with the
 // documentation, and src/examples-sidebar.mjs gives each tier's group its
-// English title with its translations, which labelSidebar() keeps.
+// English title with its translations, marked with titleFromPage, which
+// labelSidebar() keeps; it refuses any other entry that writes its own label.
 //
 // A page of a published language shows the English sidebar with its links
 // pointing at the pages in that language (src/routeData.ts), and takes every
@@ -23,6 +24,14 @@ import { publishedLanguages, SIDEBAR_LABELS, sidebarLabels, sourceLanguage, tran
 // (localizeSidebarConfig()).
 
 const defaultLang = sourceLanguage.lang;
+
+/**
+ * The mark of an entry whose `label` and `translations` are a page's heading
+ * and that heading's translations, read from the corpus rather than written in
+ * the configuration: src/examples-sidebar.mjs marks each tier's group with it.
+ * labelSidebar() keeps such an entry's label, and refuses a label on any other.
+ */
+export const titleFromPage = Symbol("a sidebar title read from a page");
 
 // Starlight's label and translations for the label a key names: the English
 // text, and the text of each published language whose translation differs.
@@ -79,11 +88,15 @@ function labelEntry(entry, labels, group) {
     }
     const subject = group ? `A sidebar entry inside "${group}"` : "A sidebar entry at the top level";
     result = { ...labelled(key, labels, subject), ...rest };
-  } else if ("label" in rest && !("translations" in rest)) {
+  } else if ("label" in rest && !(rest[titleFromPage] === true && "translations" in rest)) {
     throw new Error(
       `The sidebar entry "${rest.label}" writes its label in English: add the label to ${SIDEBAR_LABELS} ` +
         `as a list item \`<key>\`: ${rest.label}, and name it in the entry with key: "<key>" in place of its label.`,
     );
+  }
+  if (titleFromPage in result) {
+    const { [titleFromPage]: _mark, ...unmarked } = result;
+    result = unmarked;
   }
   const name = result.label ?? result.slug ?? result.link;
   if ("badge" in result) result = { ...result, badge: labelledBadge(result.badge, name, labels) };
@@ -103,10 +116,11 @@ function labelEntry(entry, labels, group) {
  * under the default language's code and each translation under its language's,
  * beside any other field the badge gives. A group's items are labelled the same
  * way. A page's slug, an entry listing a directory (`autogenerate`), and an
- * entry giving its `label` with its `translations` are kept as they are.
+ * entry marked titleFromPage, giving its `label` with its `translations`, are
+ * kept as they are, the mark left out.
  *
  * Stops with an error on a key SIDEBAR_LABELS does not list, on an entry that
- * gives a `label` without `translations` or beside a `key`, and on a badge
+ * gives a `label` without the mark or beside a `key`, and on a badge
  * written as text, each naming the entry: such a label would show in English in
  * every language.
  */
