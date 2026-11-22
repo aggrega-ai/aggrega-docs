@@ -507,5 +507,24 @@ Each of these is the ordinary word, written in lowercase in the source; the same
 - A label an editor or a client shows on screen (a setting's name, a button, a menu item) stays in English exactly as the screen shows it, in the source's emphasis. VS Code's Command Palette, named in prose, stays Command Palette too.
 - A status label in inline code stays as it is; in plain text it is translated.
 - The words kept in Latin letters (pull, push, sync, lint, linter, sentinel, chart, shell, sidecar, vendored and the rest) are listed under English terms kept as they are, with how they stand as verbs.
+- Cognitive, said of cognitive logic, cognitive load, a cognitive intent or a cognitive identity, is “ทางความคิด”: “ตรรกะทางความคิด”, “ภาระทางความคิด”. Never เชิงปัญญา nor “การรับรู้”.
+- Physical reality, the Physical Reality of the `infra` pillar, is “ความจริงเชิงกายภาพ”. Never ความเป็นจริง as a second rendering.
+- A boundary in the general sense (a trust boundary, a security boundary, a domain boundary, the ABI boundary), which is neither a Release's `boundaries` nor a scope, is เส้นแบ่ง: “เส้นแบ่งความไว้วางใจ”, “เส้นแบ่ง ABI”. แนวเขต stays the Release's `boundaries` and ขอบเขต stays scope.
+- A primitive (a cloud primitive, a structural primitive, an operational primitive) is พริมิทีฟ†. Never พื้นฐาน, and never “โครงสร้างพื้นฐาน”, which is infrastructure.
+- To target, said of a tool or Aggrega aiming at a format, a tool or a platform, is มุ่งเป้า (never เล็ง nor กำหนดเป้าหมาย as renderings).
+- To interpolate, interpolation, said of values placed into a template or a string, is “แทนค่า”, “การแทนค่า”: “สตริงการแทนค่าของ Terraform”. Never แทรก, which is to inject.
+- Core, said of the compiler's core, is แกน (“แกนของคอมไพเลอร์”); core compiler is “คอมไพเลอร์หลัก”. Never คอร์ nor แกนหลัก as renderings.
+- Imperative, set against declarative, is “เชิงคำสั่ง”: “เครื่องมือเชิงคำสั่ง”, “คำสั่งเชิงคำสั่ง” for an imperative command. Never “แบบบังคับ”.
+- A source, said in plain text (a Bicep source, a fetched source, source control), is ซอร์ส in Thai letters, never แหล่ง, ต้นทาง nor Latin source; source of truth is “แหล่งความจริง”.
+- Control Inversion is “การกลับทิศการควบคุม” and Dependency Inversion is “การกลับทิศการพึ่งพา”, translated everywhere, in running text and in an emphasised phrase alike.
+- AOT Purity is “ความบริสุทธิ์แบบ AOT”, translated in a heading too, with the English in parentheses at a page's first occurrence.
+- Conway's Law is “กฎของคอนเวย์”, with “(Conway's Law)” in parentheses at a page's first occurrence.
+- A persona is “กลุ่มผู้ใช้เชิงหน้าที่”.
+- Deterministic is “กำหนดแน่นอน”: “เอาต์พุตที่กำหนดแน่นอน”, “อย่างกำหนดแน่นอน”, “แบบกำหนดแน่นอน”; deterministic as a noun is “ความกำหนดแน่นอน”.
+- A source-of-solution label "The Solution:" opening a paragraph is “ทางออก:” and "The Problem:" is “ปัญหา:”.
+- Resource Generation, said of the FeatureRecipe section, is “การสร้างทรัพยากร”, with the English at a page's first occurrence.
+- A vault, a secret store such as HashiCorp Vault, stays vault in Latin letters, in every phrase.
+- A vector store, a store of vectors, is “ที่จัดเก็บเวกเตอร์”, never ที่เก็บ, which is a repository.
+- Cloud-native is “คลาวด์เนทีฟ”.
 
 A native speaker who finds a default here wrong corrects this file; every translation made after the correction follows it.
