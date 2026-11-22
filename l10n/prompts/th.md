@@ -550,5 +550,25 @@ Each of these is the ordinary word, written in lowercase in the source; the same
 - subsystem: ระบบย่อย for subsystem
 - wave, a sync wave: เวฟ for wave
 - applicability, said of a Feature's declared applicability: ขอบข่ายการใช้งาน for applicability
+- listener, the process that accepts network connections: ตัวรับฟัง for listener, never the Latin word
+- transport, stdio or http, the way a server speaks: ทรานสปอร์ต for transport, never the Latin word
+- endpoint, a network address that serves requests: ปลายทาง for endpoint, never the Latin word
+- MCP client: ไคลเอนต์ MCP for MCP client, never the Latin words MCP client
+- announce, said of a tool a server offers in its tool list: แจ้ง for announce, and an announced tool is เครื่องมือที่แจ้ง
+- kind, said of the reach kinds none, workspace, registry and machine, and of entity kinds: ประเภท for kind, never ชนิด, which is type
+- reach, the noun for how far an operation's effects travel: ระยะการเข้าถึง for reach, never ขอบเขต, which is scope
+- withheld and kept back, said of a value an answer omits: เก็บไว้ไม่บอก for kept back, never กันไว้ nor กักไว้
+- list, as a noun: รายการ for list, and to list is ระบุ or แสดงรายการ, never the loanword ลิสต์
+- candidate, said of what may fill a slot or attach to a node: รายการที่เข้าเกณฑ์ for candidate
+- pin, as a verb or noun (a Release pins content): ปักหมุด for pin
+- relative to, said of a path or a name: เทียบกับ for relative to, and a relative path is เส้นทางสัมพัทธ์
+- bundle, the desktop bundle: ชุดแอป for desktop bundle, and the documentation bundle is ชุดเอกสารประกอบ
+- executable, the `aggrega` program file: ไฟล์ปฏิบัติการ for executable
+- challenge, the HTTP authentication challenge: challenge, in Latin letters
+- handshake, the protocol initialize exchange: handshake, in Latin letters
+- envelope, the error or entity envelope: envelope, in Latin letters
+- origin, the browser Origin value: origin, in Latin letters
+- issuer, the token issuer address: issuer, in Latin letters
+- the number words one, two and three in a count the source writes as a word: the Thai number word (สองกลุ่ม, สามฟิลด์), never a digit, as in two groups
 
 A native speaker who finds a default here wrong corrects this file; every translation made after the correction follows it.
