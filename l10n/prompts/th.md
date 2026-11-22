@@ -570,5 +570,19 @@ Each of these is the ordinary word, written in lowercase in the source; the same
 - origin, the browser Origin value: origin, in Latin letters
 - issuer, the token issuer address: issuer, in Latin letters
 - the number words one, two and three in a count the source writes as a word: the Thai number word (สองกลุ่ม, สามฟิลด์), never a digit, as in two groups
+- signing, said of signing an artifact or a reference: การลงลายเซ็น, never การลงนาม, for signing
+- keyless, said of keyless signing: keyless, in Latin letters, as in “การลงลายเซ็นแบบ keyless”, and keyed signing is “การลงลายเซ็นแบบมีคีย์” for keyed
+- skill, the assistant skill: skill, in Latin letters, never สกิล, for skill
+- closure, a Release's dependency closure: closure, in Latin letters, for closure
+- assertion, a Recipe or FeatureRecipe assertion: assertion, in Latin letters, for assertion
+- harness, the synthesized harness a single entity is validated in: harness, in Latin letters, for harness
+- bundle, a Sigstore signature bundle: bundle, in Latin letters, for signature bundle
+- frontmatter, the header block of a Markdown file: frontmatter, in Latin letters, for frontmatter
+- method, a protocol method of the daemon: เมธอด, never เมท็อด, for method
+- schema envelope: “envelope ของสคีมา”, with envelope in Latin letters, for schema envelope
+- ambient, said of an ambient OIDC endpoint: ตามสภาพแวดล้อม, never โดยรอบ, for ambient
+- exit non-zero: “ออกด้วยรหัสการออกที่ไม่ใช่ศูนย์” for exits non-zero
+- held to, said of a plugin held to its recorded digest: กำกับด้วย, never ยึด, for held to
+- a closing colon, where a sentence introduces a code block, a list or a table: the colon stays directly after the last Thai word, for closing colon
 
 A native speaker who finds a default here wrong corrects this file; every translation made after the correction follows it.
