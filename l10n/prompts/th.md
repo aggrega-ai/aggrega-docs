@@ -601,5 +601,10 @@ Each of these is the ordinary word, written in lowercase in the source; the same
 - peer, a peer container or a peer's address: เพียร์ for peer
 - sibling, said of failures at the same level: ระดับเดียวกัน for sibling
 - acquisition, said of fetching an artifact from a registry: การได้มาซึ่ง for acquisition
+- root, a root of the template render context (`.context`, `.values`, `.workload`) and the output root of a build: รูท for root, never ราก
+- allowlist, a variable or field allowlist of a template surface: รายการอนุญาต for allowlist, never รายการที่อนุญาต
+- id, a step id or an instance id: id, in Latin letters, as the source writes it, never รหัส for id
+- host, said of the component a FeatureRecipe attachment is attached to: ส่วนประกอบที่รับการแนบ for host component, never โฮสต์, which is the Wasm host
+- arrangement, said of a way pieces are laid out or combined: การจัดวาง for arrangement
 
 A native speaker who finds a default here wrong corrects this file; every translation made after the correction follows it.
