@@ -20,6 +20,7 @@ import { examplesSidebarItems } from "./src/examples-sidebar.mjs";
 import { labelSidebar, sidebarLabelCheck } from "./src/sidebar-labels.mjs";
 import movedPageRedirects from "./src/redirects.mjs";
 import searchIndexOrder from "./src/search-index-order.mjs";
+import thaiLineBreaks from "./src/thai-line-breaks.mjs";
 import rewriteRelativeMdLinks from "./src/plugins/rewrite-relative-md-links.mjs";
 import dropTitleHeading from "./src/plugins/drop-title-heading.mjs";
 import copyableBlockquote from "./src/plugins/copyable-blockquote.mjs";
@@ -358,6 +359,11 @@ export default defineConfig({
     // The SIL Open Font License asks that its text travel with the font files:
     // once the build is done, each family's text is written beside them.
     fontLicenseIntegration(),
+    // Each Thai page is laid out once it is written, every Thai word kept
+    // whole and a line break offered between two words. Listed before
+    // Starlight, whose build-done hook builds the search index, so the index
+    // reads the laid-out pages (src/thai-line-breaks.mjs).
+    thaiLineBreaks(),
     starlight({
       title: "Aggrega",
       // A version selector is mounted above the sidebar, and the document head

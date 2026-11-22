@@ -99,6 +99,16 @@ served at `aggrega.ai/docs`.
   Callouts use the shared dark surface.
 - **Search.** Starlight's built-in Pagefind index provides client-side search
   over the built site. It is independent of any command-line search.
+- **Thai pages.** Thai writes no space between words, and a browser's own
+  dictionary breaks most technical loanwords in the middle. Once the pages are
+  written, the build lays out every page whose language is Thai
+  (`src/thai-line-breaks.mjs`): each Thai word in an unbreakable
+  `<span class="thai-word">` and a `<wbr>` between two adjacent words, found by
+  the brand package's word list and the build's `Intl.Segmenter`, so a Thai line
+  breaks only between words. It runs before Pagefind indexes the pages, and the
+  markup adds no character to the text the search, copying or find in page read.
+  Pages in other languages are not rewritten, and `astro dev` shows Thai pages
+  without the layout.
 - **SEO.** Each page emits a self-referential canonical link, Open Graph and
   Twitter image tags backed by a generated per-page image (`src/pages/og/`), and
   a JSON-LD graph (a site descriptor, an article or API-reference descriptor, and
