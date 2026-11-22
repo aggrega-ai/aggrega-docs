@@ -584,5 +584,22 @@ Each of these is the ordinary word, written in lowercase in the source; the same
 - exit non-zero: “ออกด้วยรหัสการออกที่ไม่ใช่ศูนย์” for exits non-zero
 - held to, said of a plugin held to its recorded digest: กำกับด้วย, never ยึด, for held to
 - a closing colon, where a sentence introduces a code block, a list or a table: the colon stays directly after the last Thai word, for closing colon
+- fix, said as a noun of what must change to resolve a failure ("the fix is in the Release YAML"): ทางแก้ for fix
+- frame, a diagnostic's frame, and framed (a nested context frame, an entity file framed by a check): เฟรม, never ห่อ (wrapped) for framed
+- raise, said of a condition or a failure a plugin or a document raises: ยกขึ้น for raised
+- ship, said of what a catalog or a build delivers: จัดส่ง, never ส่งออก (emit) nor ส่งผ่าน (pipe) for ship
+- overlay, a source overlay as a noun: ส่วนซ้อนทับ, and to overlay is ซ้อนทับ for overlay
+- probe, a health probe: โพรบ for probe
+- predicate, a `validate:` predicate: predicate in Latin letters, never เพรดิเคต for predicate
+- cycle, a loop in a graph or in YAML anchors: วัฏจักร for cycle
+- replica, a replica of a workload: เรพลิกา for replica
+- placeholder, what stands in for a missing token: ตัวยึดตำแหน่ง for placeholder
+- fragment, a piece of a template, a CloudFormation or ARM document: ส่วนย่อย for fragment
+- contribute, said of a module that contributes a component or of a stack contributor: มีส่วนร่วม for contribute
+- walk, said of a program that walks a tree, a chain or a document: ไล่ for walk
+- volume, a container or Compose volume: วอลุ่ม for volume
+- peer, a peer container or a peer's address: เพียร์ for peer
+- sibling, said of failures at the same level: ระดับเดียวกัน for sibling
+- acquisition, said of fetching an artifact from a registry: การได้มาซึ่ง for acquisition
 
 A native speaker who finds a default here wrong corrects this file; every translation made after the correction follows it.
