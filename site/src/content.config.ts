@@ -3,7 +3,7 @@ import { readFile } from "node:fs/promises";
 import { defineCollection } from "astro:content";
 import { glob } from "astro/loaders";
 import type { Loader, LoaderContext } from "astro/loaders";
-import { docsSchema } from "@astrojs/starlight/schema";
+import { docsSchema, i18nSchema } from "@astrojs/starlight/schema";
 import {
   corpusRoot,
   languageOf,
@@ -12,6 +12,7 @@ import {
   translatedPath,
   translationPackage,
 } from "./translations.mjs";
+import { pagefindStrings } from "./pagefind-strings.mjs";
 
 // The documentation corpus is authored as plain Markdown, and no page sets its
 // title in front matter, so each page's title is its first level-one heading.
@@ -107,7 +108,22 @@ const pages = [
 ];
 const excluded = ["!**/.aggrega/**", "!**/examples/**/charts/**", "!**/examples/**/dist/**"];
 
+// The search dialog's own messages, one entry for each published language: the
+// `pagefind.*` strings Starlight hands the dialog (src/pagefind-strings.mjs).
+function searchMessagesLoader(): Loader {
+  return {
+    name: "aggrega-docs-search-messages",
+    load: async ({ store, parseData }: LoaderContext) => {
+      store.clear();
+      for (const [lang, data] of pagefindStrings()) {
+        store.set({ id: lang, data: await parseData({ id: lang, data }) });
+      }
+    },
+  };
+}
+
 export const collections = {
+  i18n: defineCollection({ loader: searchMessagesLoader(), schema: i18nSchema() }),
   docs: defineCollection({
     loader: corpusLoader([
       ...pages,
