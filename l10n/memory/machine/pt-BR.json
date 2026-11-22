@@ -5417,6 +5417,17 @@
     "status": "machine",
     "text": "**Condicionar a qualquer coisa que seu catálogo registre em seus próprios metadados.** Uma organização que mantém status de revisão, residência de dados ou responsabilidade como anotações em suas entidades Feature pode exigi-los de toda vinculação. Uma regra baseada em uma anotação da qual o Aggrega nunca ouviu falar funciona exatamente tão bem quanto uma baseada em uma chave que ele distribui, porque as anotações chegam como foram escritas — o que também significa que uma Feature e um Component agora são julgados em pé de igualdade, cada um pelos metadados de catálogo que sua própria entidade declara."
   },
+  "078645fdf8480e83": {
+    "at": "2026-11-22T17:34:49.610Z",
+    "job": "session-0001-20261122173449",
+    "revision": {
+      "from": "2aa6bde92217d6dd",
+      "reviewed": false
+    },
+    "srcHash": "078645fdf8480e83",
+    "status": "machine",
+    "text": "**A regra do mapeamento sensível.** Quando o que um `valuesMapping` produz depende de um valor que um autor declarou sensível, todo literal que o mapeamento produz é recusado — a compilação não tem como saber qual das chaves de saída do mapeamento carrega o segredo — e a interrupção nomeia os parâmetros que os literais teriam vinculado, nunca um valor. Um mapeamento depende de tal valor quando o seu template lê um deles e avaliá-lo novamente com cada um desses valores substituído, duas vezes com textos diferentes, falha ou altera a sua saída; um mapeamento que lê uma conexão ou um anexo sem que a sua saída dependa desse valor não é marcado. Expressões e objetos de referência do Key Vault passam como escritos, então direcione cada parâmetro para um deles."
+  },
   "0787a24a9d6849e1": {
     "at": "2026-11-04T11:53:53.173Z",
     "job": "session-0240-20261104115353",
@@ -22612,6 +22623,17 @@
     "status": "machine",
     "text": "**3. Domínio Dev: o Aggregate** O desenvolvedor informa ao sistema exatamente como o seu código Python lê a chave da OpenAI — como uma variável de ambiente chamada `OPENAI_API_KEY`."
   },
+  "20cd889cda504d66": {
+    "at": "2026-11-22T17:34:49.610Z",
+    "job": "session-0001-20261122173449",
+    "revision": {
+      "from": "7652d1825b71bb86",
+      "reviewed": false
+    },
+    "srcHash": "20cd889cda504d66",
+    "status": "machine",
+    "text": "Onde o que o `valuesMapping` produz depende de um valor que um autor declarou sensível — o seu template lê um deles, e avaliá-lo novamente com cada um desses valores substituído, duas vezes com textos diferentes, falha ou altera a sua saída —, nada da sua saída pode ser rastreado até o valor de que veio, então todo literal que ele associa interrompe o build. Um mapeamento que lê uma conexão ou uma vinculação sem que a sua saída dependa desse valor não é marcado. Uma referência dinâmica e uma função intrínseca que ele associa são escritas como são fornecidas — incluindo o texto dentro de uma função intrínseca. Um segredo que o mapeamento insere no texto de um `Fn::Sub`, por exemplo, chega, portanto, ao template como esse texto: só uma referência dinâmica mantém o próprio segredo fora do template. Onde um build assim prossegue, ele também imprime um aviso por folha declarada, tanto para o mapeamento de uma Recipe quanto para o da FeatureRecipe de uma Feature vinculada a um componente, nomeando a folha e a entidade a que pertence o mapeamento — veja [A declared-sensitive value reaches the target through a values mapping (Um valor declarado sensível chega ao destino por meio de um mapeamento de values)](../errors/warnings.md#a-declared-sensitive-value-reaches-the-target-through-a-values-mapping)."
+  },
   "20cf1eee04bc376d": {
     "at": "2026-11-04T12:39:30.717Z",
     "job": "session-0244-20261104123930",
@@ -34502,6 +34524,17 @@
     "srcHash": "3227481c8a38b403",
     "status": "machine",
     "text": "Cada `aggregate.yaml` começa com um comentário de uma linha que nomeia o seu passo, e o mesmo vale para um `release.yaml` ou um `manifest.yaml` quando esse passo o altera. Comparar um arquivo com o do passo anterior mostra exatamente o que o passo acrescenta:"
+  },
+  "3227bfd03c185254": {
+    "at": "2026-11-22T17:34:49.610Z",
+    "job": "session-0001-20261122173449",
+    "revision": {
+      "from": "9d071c95bde060c8",
+      "reviewed": false
+    },
+    "srcHash": "3227bfd03c185254",
+    "status": "machine",
+    "text": "Verdadeiro quando os valores que este payload carrega foram produzidos por um template cuja saída depende de um valor que um autor declarou sensível, ou de um valor rastreado até um deles: o valuesMapping de uma Recipe ou de uma FeatureRecipe, um único template cujas chaves e valores de saída são invenção dele, de modo que nenhuma chave dessa saída pode ser rastreada até o dado de onde veio e, em vez disso, o mapa inteiro é marcado. O host decide isso em duas etapas. Ele lê as referências próprias do template em relação às declarações — uma referência que alcança um valor declarado, o template que repassa a totalidade dos seus dados ou um template que não pode ser analisado contam todos — e um template cujas referências não alcançam nenhum não é marcado. Um template cujas referências alcançam um é avaliado mais duas vezes, cada vez com cada valor declarado substituído por um texto de substituição diferente, e é marcado quando qualquer uma das avaliações falha ou produz uma saída diferente do que ele renderizou. O nome de uma chave nunca é lido. Um template que testa o conteúdo de um valor declarado, ou uma propriedade dele como o seu comprimento, quando ambos os textos de substituição dão ao teste a mesma resposta que o valor, não é marcado, e a sua saída pode carregar o resultado desse teste, nunca o texto do valor. Um guest que compõe um texto que uma pessoa lê, uma recusa ou um aviso, mantém todo valor dos valores do nó fora desse texto quando isto é verdadeiro, e mantém fora o valor sob qualquer chave que sensitive_rendered_keys nomeie, seja ou não: os dois se compõem, um nomeando as chaves cuja identidade é recuperada exatamente e este cobrindo o mapa onde nenhuma pode ser. Ausente quando a saída de nenhum template desse tipo depende de tal valor, o que inclui valores que são eles próprios as folhas declaradas, marcados em vez disso por chave em sensitive_rendered_keys, e ausente em um payload que não carrega valores. A ausência nunca indica que nenhum valor seja sensível."
   },
   "3229b5b710978a4a": {
     "at": "2026-11-04T09:43:30.291Z",
@@ -74358,6 +74391,17 @@
     "status": "machine",
     "text": "Tudo o que foi descrito acima vincula uma política **dentro** de um build. Existe um segundo caminho, e ele não precisa de nada do socket: executar a sua própria ferramenta no pipeline, sobre os arquivos que o build escreveu."
   },
+  "6c9e7b9dd43c66b6": {
+    "at": "2026-11-22T17:34:49.610Z",
+    "job": "session-0001-20261122173449",
+    "revision": {
+      "from": "ea1ab5c932d392ca",
+      "reviewed": false
+    },
+    "srcHash": "6c9e7b9dd43c66b6",
+    "status": "machine",
+    "text": "**Qual é a alavanca.** Sem um mapeamento, os valores que uma renderização a partir de uma origem recebe são indexados pelos próprios caminhos das folhas declaradas, então a declaração se une exatamente à sua chave renderizada e a marcação trafega com ela — no destino Terraform, esse é o arquivo de substituição gerado descrito em [Entradas de módulo declaradas sensíveis](../providers/terraform.md#declared-sensitive-module-inputs). Com um mapeamento, a marcação que de fato chega cobre a saída do mapeamento como um todo, e apenas onde o que o mapeamento produz depende do valor declarado — o seu template lê um deles, e avaliá-lo novamente com cada um desses valores substituído por cada um de dois textos substitutos diferentes falha ou altera a sua saída; um mapeamento que lê um valor declarado apenas para testá-lo, como o seu comprimento, quando ambos os textos dão a mesma resposta que o valor, não é marcado — embora um teste de presença seja marcado quando o valor é definido como um texto vazio, false, 0, null, ou uma lista ou um mapa vazios, já que ambos os textos substitutos são lidos como verdadeiros: ela rege o texto que um plugin compõe quando recusa ou avisa, e não altera nenhum byte renderizado."
+  },
   "6ca1545a0e79fc95": {
     "at": "2026-11-03T09:08:45.888Z",
     "job": "session-0081-20261103090845",
@@ -107501,6 +107545,17 @@
     "status": "machine",
     "text": "`core/observability/tempo`"
   },
+  "9ca8e1fea08696cd": {
+    "at": "2026-11-22T17:34:49.610Z",
+    "job": "session-0001-20261122173449",
+    "revision": {
+      "from": "8e185835e71782fa",
+      "reviewed": false
+    },
+    "srcHash": "9ca8e1fea08696cd",
+    "status": "machine",
+    "text": "**Leituras de folha exata.** O `valuesMapping` de uma Recipe só é marcado como sensível onde o que ele escreve depende de um valor declarado sensível: o seu template lê um deles, ou um objeto ou mapa inteiro que contenha um, e avaliá-lo novamente com cada um desses valores substituído, duas vezes com textos diferentes, falha ou altera a sua saída. Uma Recipe que lê um anexo e a pipe de injeção por folha exata — `.features.password.provides.name`, `.features.password.type` — fica fora dessa avaliação. Percorrer `.features` marca o mapeamento apenas onde o que ele escreve depende de um valor declarado, seja carregando o valor, imprimindo o seu comprimento ou ramificando com base nele; o mesmo vale para ler `.features.password` por inteiro ou `default dict .features` e escrever o resultado. A folha que o `provides.name` de uma Feature publica é um localizador, não um segredo, então lê-la deixa o mapeamento sem marca e os demais literais da Recipe — SKUs, `enableTelemetry: false` — são vinculados normalmente. Uma Recipe que repassa a pipe inteira como está, como fazem as Recipes do Container Apps, fica marcada sempre que uma entrega sobre ela é declarada sensível; consulte [Rotas do Key Vault](#key-vault-routes)."
+  },
   "9cacdeb0cdedf7cb": {
     "at": "2026-11-02T18:47:09.888Z",
     "job": "session-0001-20261102184709",
@@ -131736,6 +131791,17 @@
     "status": "machine",
     "text": "Se propriedades não declaradas são permitidas (`false` em um objeto em forma inferida, onde o compilador o adiciona; em um `type: object` explícito, cabe a você escrevê-lo, e o padrão do próprio JSON Schema, `true`, se aplica onde você não o faz)"
   },
+  "bf0beace05cdcee1": {
+    "at": "2026-11-22T17:34:49.610Z",
+    "job": "session-0001-20261122173449",
+    "revision": {
+      "from": "d28c1e9dc0b897a7",
+      "reviewed": false
+    },
+    "srcHash": "bf0beace05cdcee1",
+    "status": "machine",
+    "text": "`node.sensitive_rendered_keys`: cada chave nomeia uma entrada de `node.values` quando esses valores são os do próprio Component, indexados pelas folhas que ele declara — o `valuesMapping` de uma Recipe escreve chaves que nenhuma declaração nomeia, então nenhuma delas é marcada aqui — ou uma entrada do mapa `attachments` do contêiner de uma carga de trabalho que lê um slot declarado sensível. `node.sensitive_values` marca `node.values` como um todo: é `true` quando um `valuesMapping` — o da Recipe, ou o da FeatureRecipe de uma vinculação — produziu esses valores e o que ele produziu depende de um valor que um autor declarou sensível: o seu template lê um deles, e avaliá-lo mais duas vezes, cada vez com cada um desses valores substituído por um texto substituto diferente, falha ou altera a sua saída. Um mapeamento que lê uma conexão ou uma vinculação sem que a sua saída dependa desse valor não é marcado. `workload_projection.sensitive_workload` marca da mesma forma cada valor da carga de trabalho quando o template da carga de trabalho lê um deles, e cada entrada de `artifacts_projection.entries` carrega `sensitive_content` para o seu próprio conteúdo, incluindo a mensagem de um analisador sobre esse conteúdo. Cada entrada de `omits` carrega `sensitive` quando o template que produz o seu kind, o seu nome ou o seu namespace lê um deles, e então cada campo dessa entrada é um valor marcado. Cada entrada de `node.features` carrega a marcação da sua própria vinculação: `sensitive_payload_leaves` (as folhas `values.<path>` e `infra.<path>` que sua Feature declara sensíveis), `sensitive_inject` (as chaves de entrega inject que leem uma chave provides que sua Feature declara sensível) e `sensitive` (se a vinculação lida ou não com material declarado sensível)."
+  },
   "bf12021816cfd4d2": {
     "at": "2026-11-02T18:47:09.888Z",
     "job": "session-0001-20261102184709",
@@ -136490,6 +136556,17 @@
     "status": "machine",
     "text": "**Carregados com exatamente os nomes que você escreveu.** `Parameters`, `Mappings`, `Conditions`, `Metadata` e `Rules`. Cada uma dessas seções é um mapa com chaves que você escolheu, então as entradas de cada componente chegam ao stack montado com esses nomes, sem reescrita — e é isso que permite que uma `Condition:` de um recurso, um `Fn::FindInMap` ou um `Ref` a um parâmetro se resolvam contra a declaração que chegou junto com eles. Cada uma é carregada separadamente, porque cada uma é escrita separadamente: uma regra faz asserções sobre um parâmetro do mesmo documento, uma condição pode não referenciar parâmetro algum, e o CloudFormation não permite uma referência a parâmetro dentro de um mapeamento."
   },
+  "c5e607375862e76a": {
+    "at": "2026-11-22T17:34:49.610Z",
+    "job": "session-0001-20261122173449",
+    "revision": {
+      "from": "c3776df5849b8c2c",
+      "reviewed": false
+    },
+    "srcHash": "c5e607375862e76a",
+    "status": "machine",
+    "text": "Nenhuma outra entrada de socket, e nenhuma entrada de outro export de provedor, carrega uma marcação. Uma marcação de chave nomeia apenas o que ela liga exatamente a uma declaração, então uma chave ausente nunca significa que um valor pode ser citado com segurança: significa que nenhuma declaração pôde ser ligada a essa chave. `sensitive_values` é decidido em duas etapas: as referências do template precisam alcançar um valor declarado — uma referência que alcança um deles, o template que repassa a totalidade dos seus dados, ou um template que não pode ser analisado — e o template, avaliado mais duas vezes com cada valor declarado substituído por um texto substituto diferente, precisa falhar ou alterar a sua saída; sua ausência significa que a saída do template não depende de nenhum valor declarado, ou que nenhum template produziu o payload. `sensitive_workload`, `sensitive_content` e o `sensitive` de uma entrada de omissão são lidos a partir das referências do template que os produziu, pelos mesmos três casos, e nunca a partir de um valor; sua ausência significa que esse template não leu nenhum valor declarado, até onde suas referências mostram, ou que nenhum template produziu o payload. Nenhuma marcação é uma afirmação de que o payload não carrega nada sensível."
+  },
   "c5e8100c83d78af5": {
     "at": "2026-10-22T10:50:19.225Z",
     "job": "session-0031-20261022105019",
@@ -137500,6 +137577,17 @@
     "srcHash": "c76cbf8ba8001008",
     "status": "machine",
     "text": "Uma dessas chaves nos `metadata.annotations` de um Component é lida pelo linter de publicação padrão, e não pelo build: **`observability.aggrega.ai/metrics-credential`** indica como as métricas do produto se autenticam — `none`, são servidas sem credencial; `target-key`, exigem a chave que o Component exige de todo chamador; `separate-token`, exigem um token próprio. O build a carrega como qualquer outra anotação. O linter a lê para decidir se a credencial de uma conexão de scrape é comparada com a chave de chamador do destino, e exige que ela concorde com a chave provides `metrics_credential_required` que o Component declara — consulte “The discipline rules (As regras de disciplina)” em [`cli/aggrega-lint.md`](../cli/aggrega-lint.md)."
+  },
+  "c76fe86de21a9852": {
+    "at": "2026-11-22T17:34:49.610Z",
+    "job": "session-0001-20261122173449",
+    "revision": {
+      "from": "cb912aecacea20f0",
+      "reviewed": false
+    },
+    "srcHash": "c76fe86de21a9852",
+    "status": "machine",
+    "text": "Um valor associado a um parâmetro é escrito no template, onde qualquer pessoa que possa ler o template da stack pode lê-lo. A renderização para em um literal associado a um parâmetro que o template declara `NoEcho` e, onde o que o `valuesMapping` da Recipe ou da FeatureRecipe produz depende de um valor que um autor declarou sensível, em todo literal que esse mapeamento associa, já que nenhuma parte da sua saída pode ser rastreada até o valor de onde veio. Um mapeamento depende de tal valor quando o seu template lê um deles e avaliá-lo novamente com cada um desses valores substituído, duas vezes com textos diferentes, falha ou altera a sua saída; um mapeamento que lê uma conexão ou uma vinculação sem que a sua saída dependa desse valor não é marcado. Uma referência dinâmica e uma função intrínseca são escritas como foram dadas — incluindo o texto dentro de uma função intrínseca —, então um valor sensível que o mapeamento insere em uma string `Fn::Sub` chega ao template como esse texto, e só uma referência dinâmica mantém o próprio segredo fora dele."
   },
   "c770307938100af9": {
     "at": "2026-11-06T04:25:03.798Z",

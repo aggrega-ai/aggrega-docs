@@ -5948,6 +5948,17 @@
     "status": "machine",
     "text": "**Terapkan gerbang pada apa pun yang dicatat katalog Anda dalam metadatanya sendiri.** Organisasi yang menyimpan status tinjauan, residensi data, atau kepemilikan sebagai anotasi pada entitas Feature-nya dapat mewajibkannya pada setiap lampiran. Aturan yang berbasis anotasi yang belum pernah dikenal Aggrega bekerja sama baiknya dengan aturan yang berbasis kunci yang disertakannya, karena anotasi tiba sebagaimana ditulis — yang juga berarti bahwa sebuah Feature dan sebuah Component kini dinilai dengan pijakan yang sama, masing-masing berdasarkan metadata katalog yang dideklarasikan entitasnya sendiri."
   },
+  "078645fdf8480e83": {
+    "at": "2026-11-22T17:34:51.914Z",
+    "job": "session-0002-20261122173451",
+    "revision": {
+      "from": "2aa6bde92217d6dd",
+      "reviewed": false
+    },
+    "srcHash": "078645fdf8480e83",
+    "status": "machine",
+    "text": "**Aturan pemetaan sensitif.** Ketika apa yang dihasilkan sebuah `valuesMapping` bergantung pada nilai yang dideklarasikan sensitif oleh seorang penulis, setiap literal yang dihasilkan pemetaan ditolak — build tidak dapat mengetahui kunci keluaran pemetaan mana yang membawa rahasia — dan penghentian menyebut parameter yang akan diikat oleh literal tersebut, tidak pernah sebuah nilai. Sebuah pemetaan bergantung pada nilai semacam itu jika templatnya membaca salah satunya dan mengevaluasinya lagi dengan setiap nilai semacam itu diganti, dua kali dengan teks yang berbeda, gagal atau mengubah keluarannya; pemetaan yang membaca koneksi atau lampiran tanpa keluarannya bergantung pada nilai tersebut tidak ditandai. Ekspresi dan objek referensi Key Vault diteruskan sebagaimana ditulis, sehingga arahkan setiap parameter ke salah satunya."
+  },
   "0787a24a9d6849e1": {
     "at": "2026-10-23T08:34:05.283963+00:00",
     "job": "msgbatch_01GsGKCRYFgTUDQoLeTpbyfe",
@@ -24938,6 +24949,17 @@
     "status": "machine",
     "text": "**3. Domain Dev: Aggregate**\nDeveloper memberi tahu sistem secara tepat bagaimana kode Python-nya membaca kunci OpenAI — sebagai variabel lingkungan bernama `OPENAI_API_KEY`."
   },
+  "20cd889cda504d66": {
+    "at": "2026-11-22T17:34:51.914Z",
+    "job": "session-0002-20261122173451",
+    "revision": {
+      "from": "7652d1825b71bb86",
+      "reviewed": false
+    },
+    "srcHash": "20cd889cda504d66",
+    "status": "machine",
+    "text": "Jika apa yang dihasilkan `valuesMapping` bergantung pada nilai yang dideklarasikan sensitif oleh penulis — templatnya membaca salah satunya, dan mengevaluasinya lagi dengan setiap nilai semacam itu diganti, dua kali dengan teks yang berbeda, gagal atau mengubah outputnya — tidak satu pun outputnya dapat dilacak kembali ke nilai asalnya, sehingga setiap literal yang diikatnya menghentikan build. Mapping yang membaca koneksi atau attachment tanpa outputnya bergantung pada nilai tersebut tidak ditandai. Referensi dinamis dan intrinsik yang diikatnya ditulis apa adanya — termasuk teks di dalam intrinsik. Karena itu, rahasia yang disisipkan mapping ke dalam teks `Fn::Sub`, misalnya, mencapai templat sebagai teks tersebut: hanya referensi dinamis yang menjaga rahasia itu sendiri tetap di luar templat. Jika build semacam itu berlanjut, build juga mencetak satu peringatan per leaf yang dideklarasikan, baik untuk mapping milik Recipe maupun untuk mapping milik FeatureRecipe dari Feature yang dilampirkan pada komponen, dengan menyebut leaf tersebut dan entitas pemilik mapping — lihat [A declared-sensitive value reaches the target through a values mapping (Nilai yang dideklarasikan sensitif mencapai target melalui values mapping)](../errors/warnings.md#a-declared-sensitive-value-reaches-the-target-through-a-values-mapping)."
+  },
   "20cf1eee04bc376d": {
     "at": "2026-10-23T08:34:05.283963+00:00",
     "job": "msgbatch_01GsGKCRYFgTUDQoLeTpbyfe",
@@ -37968,6 +37990,17 @@
     "srcHash": "3227481c8a38b403",
     "status": "machine",
     "text": "Setiap `aggregate.yaml` diawali dengan komentar satu baris yang menyebutkan langkahnya, begitu pula `release.yaml` atau `manifest.yaml` di langkah yang mengubahnya. Membandingkan sebuah file dengan file dari langkah sebelumnya menunjukkan dengan tepat apa yang ditambahkan langkah tersebut:"
+  },
+  "3227bfd03c185254": {
+    "at": "2026-11-22T17:34:51.914Z",
+    "job": "session-0002-20261122173451",
+    "revision": {
+      "from": "9d071c95bde060c8",
+      "reviewed": false
+    },
+    "srcHash": "3227bfd03c185254",
+    "status": "machine",
+    "text": "True jika values yang dibawa payload ini dihasilkan oleh templat yang outputnya bergantung pada nilai yang dinyatakan sensitif oleh penulis, atau nilai yang dilacak ke nilai tersebut: valuesMapping milik sebuah Recipe atau FeatureRecipe, yaitu satu templat yang kunci dan nilai outputnya merupakan buatannya sendiri, sehingga tidak ada kunci output tersebut yang dapat dilacak kembali ke datum asalnya dan seluruh map ditandai sebagai gantinya. Host menentukannya dalam dua langkah. Host membaca referensi templat itu sendiri terhadap deklarasi — referensi yang mencapai nilai yang dideklarasikan, templat yang meneruskan seluruh datanya, atau templat yang tidak dapat di-parse, semuanya terhitung — dan templat yang referensinya tidak mencapai satu pun tidak ditandai. Templat yang referensinya mencapai salah satunya dievaluasi dua kali lagi, setiap kali dengan setiap nilai yang dideklarasikan diganti oleh teks pengganti yang berbeda, dan ditandai jika salah satu evaluasi gagal atau menghasilkan output yang berbeda dari yang direndernya. Nama kunci tidak pernah dibaca. Templat yang menguji konten nilai yang dideklarasikan, atau propertinya seperti panjangnya, ketika kedua teks pengganti memberikan jawaban yang sama dengan nilai tersebut pada uji itu, tidak ditandai, dan outputnya dapat membawa hasil uji itu, tidak pernah teks nilainya. Guest yang menyusun teks yang dibaca manusia, berupa penolakan atau peringatan, menjaga setiap nilai dari values node tetap di luar teks tersebut jika nilai ini true, dan menjaga nilai di bawah kunci apa pun yang dinamai sensitive_rendered_keys tetap di luar teks tersebut, terlepas dari nilai ini: keduanya saling melengkapi, satu menamai kunci yang identitasnya dipulihkan secara tepat dan yang ini mencakup map tempat hal itu tidak mungkin. Tidak ada jika tidak ada templat semacam itu yang outputnya bergantung pada nilai semacam itu, termasuk values yang merupakan leaf yang dideklarasikan itu sendiri, yang ditandai per kunci dalam sensitive_rendered_keys, dan tidak ada pada payload yang tidak membawa values. Ketiadaan tidak pernah menyatakan bahwa tidak ada nilai yang sensitif."
   },
   "3229b5b710978a4a": {
     "at": "2026-10-23T08:34:04.552030+00:00",
@@ -81933,6 +81966,17 @@
     "status": "machine",
     "text": "Semua yang dijelaskan di atas memasang kebijakan **di dalam** build. Ada rute kedua,\ndan rute ini tidak memerlukan apa pun dari socket: jalankan alat Anda sendiri di pipeline, atas\nberkas yang ditulis oleh build."
   },
+  "6c9e7b9dd43c66b6": {
+    "at": "2026-11-22T17:34:51.914Z",
+    "job": "session-0002-20261122173451",
+    "revision": {
+      "from": "ea1ab5c932d392ca",
+      "reviewed": false
+    },
+    "srcHash": "6c9e7b9dd43c66b6",
+    "status": "machine",
+    "text": "**Apa kendali tersebut.** Tanpa pemetaan, nilai yang diterima oleh render dari source diberi kunci berdasarkan jalur leaf yang dinyatakan itu sendiri, sehingga deklarasi tersebut bergabung tepat dengan kunci yang direndernya dan penandaan ikut terbawa bersamanya — pada target Terraform, itu adalah berkas override yang dihasilkan sebagaimana dijelaskan di [Masukan modul yang dinyatakan sensitif](../providers/terraform.md#declared-sensitive-module-inputs). Dengan pemetaan, penandaan yang memang sampai mencakup keluaran pemetaan secara keseluruhan, dan hanya jika apa yang dihasilkan pemetaan bergantung pada nilai yang dinyatakan — templatnya membaca salah satunya, dan mengevaluasinya lagi dengan setiap nilai semacam itu diganti oleh masing-masing dari dua teks pengganti yang berbeda gagal atau mengubah keluarannya; pemetaan yang membaca nilai yang dinyatakan hanya untuk mengujinya, seperti panjangnya, ketika kedua teks memberikan jawaban yang sama dengan nilai tersebut, tidak ditandai — meskipun uji keberadaan ditandai jika nilai tersebut diatur ke teks kosong, false, 0, null, atau daftar atau map kosong, karena kedua teks pengganti terbaca sebagai benar: penandaan itu mengatur teks yang disusun plugin ketika menolak atau memberi peringatan, dan tidak mengubah satu byte pun yang dirender."
+  },
   "6ca1545a0e79fc95": {
     "at": "2026-10-23T06:14:11.003127+00:00",
     "job": "msgbatch_01GfwKPWr7pSSTBwm1CiQ1ze",
@@ -118318,6 +118362,17 @@
     "status": "machine",
     "text": "`core/observability/tempo`"
   },
+  "9ca8e1fea08696cd": {
+    "at": "2026-11-22T17:34:51.914Z",
+    "job": "session-0002-20261122173451",
+    "revision": {
+      "from": "8e185835e71782fa",
+      "reviewed": false
+    },
+    "srcHash": "9ca8e1fea08696cd",
+    "status": "machine",
+    "text": "**Pembacaan daun yang tepat.** `valuesMapping` milik Recipe ditandai sensitif hanya jika apa yang ditulisnya bergantung pada nilai yang dideklarasikan sensitif: templatnya membaca nilai semacam itu, atau seluruh objek atau map yang memuatnya, dan mengevaluasinya lagi dengan setiap nilai semacam itu diganti, dua kali dengan teks yang berbeda, gagal atau mengubah keluarannya. Sebuah Recipe yang membaca lampiran dan pipa inject melalui daun yang tepat — `.features.password.provides.name`, `.features.password.type` — tetap berada di luar evaluasi tersebut. Menelusuri `.features` menandai pemetaan hanya jika apa yang ditulisnya bergantung pada nilai yang dideklarasikan, baik ia membawa nilai tersebut, mencetak panjangnya, maupun bercabang berdasarkan nilai itu; demikian pula membaca `.features.password` secara utuh atau `default dict .features` dan menuliskan hasilnya. Daun yang dipublikasikan oleh `provides.name` milik sebuah Feature adalah pencari lokasi, bukan rahasia, sehingga membacanya membiarkan pemetaan tidak ditandai, dan literal Recipe lainnya — SKU, `enableTelemetry: false` — diikat secara normal. Sebuah Recipe yang meneruskan seluruh pipa apa adanya, seperti Container Apps Recipes, ditandai setiap kali sebuah pengiriman padanya dideklarasikan sensitif; lihat [Rute Key Vault](#key-vault-routes)."
+  },
   "9cacdeb0cdedf7cb": {
     "at": "2026-11-01T14:54:04.024Z",
     "job": "session-0002-20261101145404",
@@ -144862,6 +144917,17 @@
     "status": "machine",
     "text": "Apakah properti yang tidak dideklarasikan diizinkan (`false` pada objek bentuk tersirat, tempat kompiler menambahkannya; pada `type: object` eksplisit, Anda yang menuliskannya, dan default JSON Schema sendiri, `true`, berlaku jika Anda tidak menuliskannya)"
   },
+  "bf0beace05cdcee1": {
+    "at": "2026-11-22T17:34:51.914Z",
+    "job": "session-0002-20261122173451",
+    "revision": {
+      "from": "d28c1e9dc0b897a7",
+      "reviewed": false
+    },
+    "srcHash": "bf0beace05cdcee1",
+    "status": "machine",
+    "text": "`node.sensitive_rendered_keys`: setiap kunci menamai entri `node.values` ketika nilai-nilai tersebut adalah milik Component itu sendiri, dengan kunci berupa leaf yang dideklarasikannya — `valuesMapping` milik Recipe menulis kunci yang tidak dinamai oleh deklarasi mana pun, sehingga tidak ada satu pun yang ditandai di sini — atau entri map `attachments` milik container workload yang membaca slot yang dideklarasikan sensitif. `node.sensitive_values` menandai `node.values` secara keseluruhan: nilainya `true` ketika `valuesMapping` — milik Recipe, atau milik FeatureRecipe dari sebuah attachment — menghasilkan nilai-nilai tersebut dan apa yang dihasilkannya bergantung pada nilai yang dideklarasikan sensitif oleh penulis: templatnya membaca salah satunya, dan mengevaluasinya dua kali lagi, setiap kali dengan setiap nilai semacam itu diganti oleh teks pengganti yang berbeda, gagal atau mengubah keluarannya. Mapping yang membaca koneksi atau attachment tanpa keluarannya bergantung pada nilai tersebut tidak ditandai. `workload_projection.sensitive_workload` menandai setiap nilai workload dengan cara yang sama ketika templat workload membaca salah satunya, dan setiap entri `artifacts_projection.entries` membawa `sensitive_content` untuk kontennya sendiri, termasuk pesan parser tentang konten tersebut. Setiap entri `omits` membawa `sensitive` ketika templat yang menghasilkan kind, name, atau namespace-nya membaca salah satunya, dan dalam hal itu setiap field entri tersebut adalah nilai yang ditandai. Setiap entri `node.features` membawa penandaan attachment-nya sendiri: `sensitive_payload_leaves` (leaf `values.<path>` dan `infra.<path>` yang dideklarasikan sensitif oleh Feature-nya), `sensitive_inject` (kunci pengiriman inject yang membaca kunci provides yang dideklarasikan sensitif oleh Feature-nya) dan `sensitive` (apakah attachment tersebut menangani materi yang dideklarasikan sensitif sama sekali)."
+  },
   "bf12021816cfd4d2": {
     "at": "2026-11-01T15:15:25.467Z",
     "job": "session-0003-20261101151525",
@@ -150132,6 +150198,17 @@
     "status": "machine",
     "text": "Asimetri yang tersisa (bidang wajib Recipe vs Component, persyaratan `components`-atau-`aggregates` pada Aggregate, persyaratan `mappings` pada Manifest) mencerminkan peran masing-masing entitas dan tidak dijadwalkan untuk diubah. Penulis yang menginginkan kontrak bidang wajib yang seragam di semua jenis entitas tidak akan menemukannya; asimetri ini disengaja sesuai desain yang digerakkan oleh peran."
   },
+  "c5e607375862e76a": {
+    "at": "2026-11-22T17:34:51.914Z",
+    "job": "session-0002-20261122173451",
+    "revision": {
+      "from": "c3776df5849b8c2c",
+      "reviewed": false
+    },
+    "srcHash": "c5e607375862e76a",
+    "status": "machine",
+    "text": "Tidak ada input socket lain, dan tidak ada input export provider lain, yang membawa penandaan. Penandaan kunci hanya menamai apa yang digabungkannya secara tepat ke sebuah deklarasi, sehingga ketiadaan kunci tidak pernah berarti suatu nilai aman untuk dikutip: artinya tidak ada deklarasi yang dapat digabungkan ke kunci tersebut. `sensitive_values` ditentukan dalam dua langkah: referensi templat harus mencapai nilai yang dideklarasikan — referensi yang mencapai nilai semacam itu, templat yang meneruskan seluruh datanya, atau templat yang tidak dapat di-parse — dan templat tersebut, yang dievaluasi dua kali lagi dengan setiap nilai yang dideklarasikan diganti oleh teks pengganti yang berbeda, harus gagal atau mengubah keluarannya; ketiadaannya berarti keluaran templat tidak bergantung pada nilai yang dideklarasikan, atau bahwa tidak ada templat yang menghasilkan payload tersebut. `sensitive_workload`, `sensitive_content`, dan `sensitive` milik entri omit dibaca dari referensi templat yang menghasilkannya, menurut tiga kasus yang sama, dan tidak pernah dari nilai; ketiadaannya berarti templat tersebut tidak membaca nilai yang dideklarasikan sejauh yang ditunjukkan oleh referensinya, atau bahwa tidak ada templat yang menghasilkan payload tersebut. Ketiadaan penandaan bukanlah pernyataan bahwa payload tidak membawa apa pun yang sensitif."
+  },
   "c5e8100c83d78af5": {
     "at": "2026-10-22T10:50:19.225Z",
     "job": "session-0031-20261022105019",
@@ -151295,6 +151372,17 @@
     "srcHash": "c76cbf8ba8001008",
     "status": "machine",
     "text": "Satu kunci seperti itu pada `metadata.annotations` milik Component dibaca oleh linter publikasi standar, bukan oleh build: **`observability.aggrega.ai/metrics-credential`** menyatakan cara metrik produk diautentikasi — `none`, metrik disajikan tanpa kredensial; `target-key`, metrik menggunakan kunci yang diwajibkan Component dari setiap pemanggil; `separate-token`, metrik menggunakan token tersendiri. Build membawanya seperti anotasi lainnya. Linter membacanya untuk menentukan apakah kredensial koneksi scrape dibandingkan dengan kunci pemanggil target, dan mengharuskannya selaras dengan kunci provides `metrics_credential_required` yang dideklarasikan Component — lihat \"The discipline rules\" dalam [`cli/aggrega-lint.md`](../cli/aggrega-lint.md)."
+  },
+  "c76fe86de21a9852": {
+    "at": "2026-11-22T17:34:51.914Z",
+    "job": "session-0002-20261122173451",
+    "revision": {
+      "from": "cb912aecacea20f0",
+      "reviewed": false
+    },
+    "srcHash": "c76fe86de21a9852",
+    "status": "machine",
+    "text": "Nilai yang di-bind ke sebuah parameter ditulis ke dalam templat, tempat siapa pun yang dapat membaca templat stack dapat membacanya. Render berhenti pada literal yang di-bind ke parameter yang dideklarasikan templat sebagai `NoEcho`, dan, jika apa yang dihasilkan `valuesMapping` dari Recipe atau FeatureRecipe bergantung pada nilai yang dideklarasikan sensitif oleh seorang penulis, pada setiap literal yang di-bind oleh mapping tersebut, karena tidak satu pun keluarannya dapat ditelusuri kembali ke nilai asalnya. Sebuah mapping bergantung pada nilai semacam itu jika templatnya membaca salah satunya dan mengevaluasinya lagi dengan setiap nilai semacam itu diganti, dua kali dengan teks yang berbeda, gagal atau mengubah keluarannya; mapping yang membaca koneksi atau attachment tanpa keluarannya bergantung pada nilai tersebut tidak ditandai. Dynamic reference dan fungsi intrinsik ditulis apa adanya — termasuk teks di dalam intrinsik — sehingga nilai sensitif yang disisipkan mapping ke dalam string `Fn::Sub` sampai ke templat sebagai teks tersebut, dan hanya dynamic reference yang menjaga rahasia itu sendiri tetap di luar templat."
   },
   "c770307938100af9": {
     "at": "2026-11-06T04:25:03.798Z",

@@ -5946,6 +5946,17 @@
     "status": "machine",
     "text": "**Warunkowanie na dowolnych danych, które katalog zapisuje we własnych metadanych.** Organizacja, która przechowuje status przeglądu, rezydencję danych lub własność jako adnotacje na swoich encjach Feature, może wymagać ich od każdego dołączenia. Reguła oparta na adnotacji, o której Aggrega nigdy nie słyszała, działa dokładnie tak samo dobrze jak reguła oparta na kluczu, który dostarcza, ponieważ adnotacje docierają w takiej postaci, w jakiej je napisano — co oznacza również, że encja Feature i encja Component są teraz oceniane na tych samych zasadach, każda według metadanych katalogowych deklarowanych przez jej własną encję."
   },
+  "078645fdf8480e83": {
+    "at": "2026-11-22T17:34:51.914Z",
+    "job": "session-0002-20261122173451",
+    "revision": {
+      "from": "2aa6bde92217d6dd",
+      "reviewed": false
+    },
+    "srcHash": "078645fdf8480e83",
+    "status": "machine",
+    "text": "**Reguła mapowania wrażliwego.** Gdy to, co wytwarza `valuesMapping`, zależy od wartości zadeklarowanej przez autora jako wrażliwej, każdy literał wytworzony przez mapowanie zostaje odrzucony — kompilacja nie potrafi stwierdzić, który z kluczy wyjściowych mapowania niesie sekret — a zatrzymanie wskazuje parametry, które literały by powiązały, nigdy wartość. Mapowanie zależy od takiej wartości, gdy jego szablon odczytuje taką wartość, a ponowne obliczenie go z każdą taką wartością zastąpioną, dwukrotnie różnymi tekstami, kończy się błędem lub zmienia jego wynik; mapowanie, które odczytuje połączenie lub załącznik, ale którego wynik nie zależy od tej wartości, nie jest oznaczane. Wyrażenia i obiekty odwołań do Key Vault przechodzą w takiej postaci, w jakiej zapisano, więc każdy parametr należy skierować do jednego z nich."
+  },
   "0787a24a9d6849e1": {
     "at": "2026-10-23T00:17:59.759325+00:00",
     "job": "msgbatch_01QUECv2TWWQk8Qb4joPrDfW",
@@ -24898,6 +24909,17 @@
     "status": "machine",
     "text": "**3. Domena programisty: encja Aggregate**\nProgramista dokładnie określa, w jaki sposób jego kod w Pythonie odczytuje klucz OpenAI — jako zmienną środowiskową o nazwie `OPENAI_API_KEY`."
   },
+  "20cd889cda504d66": {
+    "at": "2026-11-22T17:34:51.914Z",
+    "job": "session-0002-20261122173451",
+    "revision": {
+      "from": "7652d1825b71bb86",
+      "reviewed": false
+    },
+    "srcHash": "20cd889cda504d66",
+    "status": "machine",
+    "text": "Gdy to, co wytwarza `valuesMapping`, zależy od wartości, którą autor zadeklarował jako wrażliwą — jego szablon odczytuje taką wartość, a ponowne obliczenie go z każdą taką wartością zastąpioną, dwukrotnie różnymi tekstami, kończy się błędem lub zmienia jego wynik — żadnego z jego wyników nie da się powiązać z wartością, z której pochodzi, więc każdy wiązany przez nie literał zatrzymuje kompilację. Mapowanie, które odczytuje połączenie lub załącznik, ale którego wynik nie zależy od tej wartości, nie jest oznaczane. Wiązane przez nie odwołanie dynamiczne i funkcja wewnętrzna są zapisywane bez zmian — łącznie z tekstem wewnątrz funkcji wewnętrznej. Sekret, który mapowanie wstawia na przykład do tekstu `Fn::Sub`, trafia więc do szablonu jako ten tekst: tylko odwołanie dynamiczne utrzymuje sam sekret poza szablonem. Gdy taka kompilacja przebiega dalej, wypisuje też jedno ostrzeżenie na każdy zadeklarowany liść, zarówno dla mapowania encji Recipe, jak i dla mapowania encji FeatureRecipe encji Feature dołączonej do komponentu, z podaniem liścia i encji, do której należy mapowanie — zob. [A declared-sensitive value reaches the target through a values mapping (Wartość zadeklarowana jako wrażliwa trafia do celu przez mapowanie wartości)](../errors/warnings.md#a-declared-sensitive-value-reaches-the-target-through-a-values-mapping)."
+  },
   "20cf1eee04bc376d": {
     "at": "2026-10-23T00:18:01.108465+00:00",
     "job": "msgbatch_01Pu2keEJxag9gdiPvh2kvBi",
@@ -37896,6 +37918,17 @@
     "srcHash": "3227481c8a38b403",
     "status": "machine",
     "text": "Każdy plik `aggregate.yaml` zaczyna się od jednowierszowego komentarza nazywającego jego krok; tak samo `release.yaml` lub `manifest.yaml` tam, gdzie dany krok je zmienia. Porównanie pliku z jego odpowiednikiem z poprzedniego kroku pokazuje dokładnie, co dany krok dodaje:"
+  },
+  "3227bfd03c185254": {
+    "at": "2026-11-22T17:34:51.914Z",
+    "job": "session-0002-20261122173451",
+    "revision": {
+      "from": "9d071c95bde060c8",
+      "reviewed": false
+    },
+    "srcHash": "3227bfd03c185254",
+    "status": "machine",
+    "text": "Prawda, gdy wartości niesione przez ten ładunek zostały wytworzone przez szablon, którego wynik zależy od wartości zadeklarowanej przez autora jako wrażliwej lub od wartości do niej prześledzonej: valuesMapping encji Recipe lub FeatureRecipe, pojedynczy szablon, którego klucze i wartości wyjściowe są jego własnym wymysłem, więc żadnego klucza tego wyjścia nie da się prześledzić wstecz do danej, z której pochodzi, i zamiast tego oznaczana jest cała mapa. Host ustala to w dwóch krokach. Odczytuje własne odwołania szablonu względem deklaracji — liczy się odwołanie sięgające zadeklarowanej wartości, przekazanie przez szablon całości swoich danych oraz szablon, którego nie da się sparsować — a szablon, którego odwołania nie sięgają żadnej, nie jest oznaczany. Szablon, którego odwołania sięgają którejś z nich, jest obliczany jeszcze dwukrotnie, za każdym razem z każdą zadeklarowaną wartością zastąpioną innym tekstem zastępczym, i jest oznaczany, gdy którekolwiek z tych obliczeń kończy się błędem lub daje wynik różny od tego, co wyrenderował. Nazwa klucza nigdy nie jest odczytywana. Szablon, który testuje zawartość zadeklarowanej wartości lub jej właściwość, taką jak długość, gdy oba teksty zastępcze dają w teście tę samą odpowiedź co wartość, nie jest oznaczany, a jego wynik może nieść rezultat tego testu, nigdy tekst wartości. Gość tworzący tekst czytany przez człowieka, odmowę lub ostrzeżenie, wyklucza z tego tekstu każdą wartość z wartości węzła, gdy to pole jest prawdą, a wartość pod każdym kluczem wymienionym w sensitive_rendered_keys wyklucza niezależnie od tego pola: oba się uzupełniają — jedno nazywa klucze, których tożsamość odtworzono dokładnie, a to obejmuje mapę tam, gdzie nie da się odtworzyć żadnej. Nieobecne, gdy wynik żadnego takiego szablonu nie zależy od takiej wartości, co obejmuje wartości będące samymi zadeklarowanymi liśćmi, oznaczane zamiast tego per klucz w sensitive_rendered_keys, oraz nieobecne w ładunku bez wartości. Nieobecność nigdy nie oznacza, że żadna wartość nie jest wrażliwa."
   },
   "3229b5b710978a4a": {
     "at": "2026-10-23T00:02:43.446982+00:00",
@@ -81787,6 +81820,17 @@
     "status": "machine",
     "text": "Wszystko, co opisano powyżej, dołącza politykę **wewnątrz** budowania. Istnieje druga droga,\nktóra niczego nie wymaga od gniazda: uruchomienie własnego narzędzia w potoku na\nplikach zapisanych przez budowanie."
   },
+  "6c9e7b9dd43c66b6": {
+    "at": "2026-11-22T17:34:51.914Z",
+    "job": "session-0002-20261122173451",
+    "revision": {
+      "from": "ea1ab5c932d392ca",
+      "reviewed": false
+    },
+    "srcHash": "6c9e7b9dd43c66b6",
+    "status": "machine",
+    "text": "**Na czym polega wpływ autora.** Bez mapowania wartości otrzymywane przez renderowanie ze źródła są kluczowane samymi ścieżkami zadeklarowanych liści, więc deklaracja dokładnie łączy się ze swoim renderowanym kluczem, a oznaczenie wędruje razem z nią — w celu Terraform jest to wygenerowany plik nadpisań opisany w sekcji [Wejścia modułu zadeklarowane jako wrażliwe](../providers/terraform.md#declared-sensitive-module-inputs). Przy mapowaniu oznaczenie, które faktycznie dociera, obejmuje wynik mapowania jako całość i tylko wtedy, gdy to, co wytwarza mapowanie, zależy od zadeklarowanej wartości — jego szablon odczytuje taką wartość, a ponowne obliczenie go z każdą taką wartością zastąpioną kolejno każdym z dwóch różnych tekstów zastępczych kończy się błędem lub zmienia jego wynik; mapowanie, które odczytuje zadeklarowaną wartość tylko po to, by ją sprawdzić, na przykład jej długość, gdy oba teksty dają w teście tę samą odpowiedź co wartość, nie jest oznaczane — przy czym test obecności jest oznaczany, gdy wartość jest ustawiona na pusty tekst, false, 0, null albo pustą listę lub mapę, ponieważ oba teksty zastępcze są odczytywane jako prawda: wpływa na tekst, który plugin tworzy, gdy odmawia lub ostrzega, i nie zmienia żadnego renderowanego bajtu."
+  },
   "6ca1545a0e79fc95": {
     "at": "2026-10-22T21:48:24.698354+00:00",
     "job": "msgbatch_01QwJupw38VKZLFFnvvqQAaX",
@@ -118100,6 +118144,17 @@
     "status": "machine",
     "text": "`core/observability/tempo`"
   },
+  "9ca8e1fea08696cd": {
+    "at": "2026-11-22T17:34:51.914Z",
+    "job": "session-0002-20261122173451",
+    "revision": {
+      "from": "8e185835e71782fa",
+      "reviewed": false
+    },
+    "srcHash": "9ca8e1fea08696cd",
+    "status": "machine",
+    "text": "**Odczyty dokładnego liścia.** `valuesMapping` Recipe jest oznaczane jako wrażliwe tylko wtedy, gdy to, co zapisuje, zależy od wartości zadeklarowanej jako wrażliwej: jego szablon odczytuje taką wartość albo cały obiekt lub mapę, które taką zawierają, a ponowne obliczenie go z każdą taką wartością zastąpioną, dwukrotnie różnymi tekstami, kończy się błędem lub zmienia jego wynik. Recipe, który odczytuje załącznik i potok inject po dokładnym liściu — `.features.password.provides.name`, `.features.password.type` — pozostaje poza tą ewaluacją. Przeglądanie `.features` oznacza mapowanie tylko wtedy, gdy to, co ono zapisuje, zależy od zadeklarowanej wartości, niezależnie od tego, czy niesie wartość, wypisuje jej długość, czy rozgałęzia się na jej podstawie; to samo dotyczy odczytu całego `.features.password` lub `default dict .features` i zapisania wyniku. Liść publikowany przez `provides.name` danego Feature jest lokalizatorem, a nie sekretem, więc jego odczyt pozostawia mapowanie nieoznaczone, a pozostałe literały Recipe — SKU, `enableTelemetry: false` — są wiązane normalnie. Recipe, który przekazuje cały potok bez zmian, jak robią to Container Apps Recipes, jest oznaczany zawsze wtedy, gdy dostarczenie na nim zostanie zadeklarowane jako wrażliwe; zob. [Trasy Key Vault](#key-vault-routes)."
+  },
   "9cacdeb0cdedf7cb": {
     "at": "2026-11-01T14:54:04.024Z",
     "job": "session-0002-20261101145404",
@@ -144590,6 +144645,17 @@
     "status": "machine",
     "text": "Czy dozwolone są niezadeklarowane właściwości (`false` w obiekcie w formie wywnioskowanej, gdzie dodaje je kompilator; przy jawnym `type: object` zapisuje się je samodzielnie, a tam, gdzie tego nie zrobiono, obowiązuje domyślna wartość samego JSON Schema, `true`)"
   },
+  "bf0beace05cdcee1": {
+    "at": "2026-11-22T17:34:51.914Z",
+    "job": "session-0002-20261122173451",
+    "revision": {
+      "from": "d28c1e9dc0b897a7",
+      "reviewed": false
+    },
+    "srcHash": "bf0beace05cdcee1",
+    "status": "machine",
+    "text": "`node.sensitive_rendered_keys`: każdy klucz wskazuje wpis `node.values`, gdy są to własne wartości encji Component, kluczowane deklarowanymi przez nią liśćmi — `valuesMapping` encji Recipe zapisuje klucze, których nie nazywa żadna deklaracja, więc żaden z nich nie jest tu oznaczony — albo wpis mapy `attachments` kontenera workloadu, który odczytuje slot zadeklarowany jako wrażliwy. `node.sensitive_values` oznacza `node.values` w całości: ma wartość `true`, gdy te wartości wytworzył `valuesMapping` — encji Recipe lub encji FeatureRecipe danego załącznika — a to, co wytworzył, zależy od wartości zadeklarowanej przez autora jako wrażliwej: jego szablon odczytuje taką wartość, a dwukrotne ponowne obliczenie go, za każdym razem z każdą taką wartością zastąpioną innym tekstem zastępczym, kończy się błędem lub zmienia jego wynik. Mapowanie, które odczytuje połączenie lub załącznik, ale którego wynik nie zależy od tej wartości, nie jest oznaczane. `workload_projection.sensitive_workload` oznacza w ten sam sposób każdą wartość workloadu, gdy jego szablon odczytuje taką wartość, a każdy wpis `artifacts_projection.entries` niesie `sensitive_content` dla własnej treści, łącznie z komunikatem parsera dotyczącym tej treści. Każdy wpis `omits` niesie `sensitive`, gdy szablon wytwarzający jego rodzaj, nazwę lub przestrzeń nazw odczytuje taką wartość, i wtedy każde pole tego wpisu jest wartością oznaczoną. Każdy wpis `node.features` niesie oznaczenie własnego załącznika: `sensitive_payload_leaves` (liście `values.<path>` i `infra.<path>`, które jego encja Feature deklaruje jako wrażliwe), `sensitive_inject` (klucze dostarczania inject odczytujące klucz provides, który jego encja Feature deklaruje jako wrażliwy) oraz `sensitive` (czy załącznik w ogóle obsługuje materiał zadeklarowany jako wrażliwy)."
+  },
   "bf12021816cfd4d2": {
     "at": "2026-11-01T15:15:25.467Z",
     "job": "session-0003-20261101151525",
@@ -149848,6 +149914,17 @@
     "status": "machine",
     "text": "Pozostałe asymetrie (pola wymagane encji Recipe a Component, wymóg `components` lub `aggregates` w encji Aggregate, wymóg `mappings` w encji Manifest) odzwierciedlają rolę każdej encji i nie są przewidziane do zmiany. Autorzy oczekujący jednolitego kontraktu pól wymaganych dla wszystkich rodzajów encji go nie znajdą; asymetrie są zamierzone zgodnie z projektem opartym na rolach."
   },
+  "c5e607375862e76a": {
+    "at": "2026-11-22T17:34:51.914Z",
+    "job": "session-0002-20261122173451",
+    "revision": {
+      "from": "c3776df5849b8c2c",
+      "reviewed": false
+    },
+    "srcHash": "c5e607375862e76a",
+    "status": "machine",
+    "text": "Żadne inne dane wejściowe gniazda ani dane wejściowe żadnego innego eksportu providera nie niosą oznaczenia. Oznaczenie klucza wskazuje tylko to, co dokładnie łączy z deklaracją, więc brak klucza nigdy nie oznacza, że wartość można bezpiecznie cytować: oznacza, że z tym kluczem nie dało się połączyć żadnej deklaracji. O `sensitive_values` decyduje się w dwóch krokach: odwołania szablonu muszą sięgać zadeklarowanej wartości — odwołanie sięgające takiej wartości, szablon przekazujący całość swoich danych lub szablon, którego nie da się sparsować — a szablon, obliczony jeszcze dwukrotnie z każdą zadeklarowaną wartością zastąpioną innym tekstem zastępczym, musi zakończyć się błędem lub zmienić swój wynik; brak tego oznaczenia oznacza, że wynik szablonu nie zależy od zadeklarowanej wartości, albo że żaden szablon nie wytworzył ładunku. `sensitive_workload`, `sensitive_content` i `sensitive` wpisu omit są odczytywane z odwołań szablonu, który je wytworzył, według tych samych trzech przypadków, a nigdy z wartości; ich brak oznacza, że szablon nie odczytał żadnej zadeklarowanej wartości, na ile wskazują jego odwołania, albo że żaden szablon nie wytworzył ładunku. Brak oznaczenia nie jest stwierdzeniem, że ładunek nie zawiera niczego wrażliwego."
+  },
   "c5e8100c83d78af5": {
     "at": "2026-10-22T08:46:18.120972+00:00",
     "job": "msgbatch_016vZZG2Sn4YoWHVbxdzANMj",
@@ -151011,6 +151088,17 @@
     "srcHash": "c76cbf8ba8001008",
     "status": "machine",
     "text": "Jeden taki klucz w `metadata.annotations` encji Component odczytuje standardowy linter publikacji, a nie kompilacja: **`observability.aggrega.ai/metrics-credential`** określa, jak uwierzytelniają się metryki produktu — `none`: są udostępniane bez poświadczenia; `target-key`: przyjmują klucz, którego encja Component wymaga od każdego wywołującego; `separate-token`: przyjmują własny token. Kompilacja przenosi go jak każdą inną adnotację. Linter odczytuje go, aby zdecydować, czy poświadczenie połączenia scrapującego jest porównywane z kluczem wywołującego celu, i wymaga jego zgodności z kluczem provides `metrics_credential_required` deklarowanym przez encję Component — zob. „The discipline rules” w [`cli/aggrega-lint.md`](../cli/aggrega-lint.md)."
+  },
+  "c76fe86de21a9852": {
+    "at": "2026-11-22T17:34:51.914Z",
+    "job": "session-0002-20261122173451",
+    "revision": {
+      "from": "cb912aecacea20f0",
+      "reviewed": false
+    },
+    "srcHash": "c76fe86de21a9852",
+    "status": "machine",
+    "text": "Wartość powiązana z parametrem jest zapisywana w szablonie, gdzie może ją odczytać każdy, kto może odczytać szablon stosu. Renderowanie zostaje przerwane na literale powiązanym z parametrem, który szablon deklaruje jako `NoEcho`, a jeśli to, co wytwarza `valuesMapping` encji Recipe lub FeatureRecipe, zależy od wartości zadeklarowanej przez autora jako wrażliwej — na każdym literale wiązanym przez to mapowanie, ponieważ żadnego jego wyniku nie da się powiązać z wartością, z której pochodzi. Mapowanie zależy od takiej wartości, gdy jego szablon odczytuje taką wartość, a ponowne obliczenie go z każdą taką wartością zastąpioną, dwukrotnie różnymi tekstami, kończy się błędem lub zmienia jego wynik; mapowanie, które odczytuje połączenie lub załącznik, ale którego wynik nie zależy od tej wartości, nie jest oznaczane. Odwołanie dynamiczne i funkcja wewnętrzna są zapisywane tak, jak podano — łącznie z tekstem wewnątrz funkcji wewnętrznej — więc wartość wrażliwa wstawiona przez mapowanie do ciągu `Fn::Sub` trafia do szablonu jako ten tekst, a tylko odwołanie dynamiczne trzyma sam sekret poza nim."
   },
   "c770307938100af9": {
     "at": "2026-11-06T04:25:03.798Z",

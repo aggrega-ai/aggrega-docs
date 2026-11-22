@@ -4887,6 +4887,17 @@
     "status": "machine",
     "text": "指名自己目錄資料夾的工作區——`workspace.catalog_dirs` 所列的目錄、位於工作區根目錄的 `catalog` 資料夾，或 `AGGREGA_CATALOG_DIRS` 所指名的目錄——會先讀取那些資料夾，再讀取其後的已發布快照：資料夾所持有的實體會取代相同身分的已發布實體被讀取，其他每個已發布實體仍保持可見。無法讀取快照時，針對資料夾的匯入只針對它們匯入，並由警告說明原因。標準程式庫目錄本身的檔案，是 `aggrega-hub` 存放庫中的 `aggrega-catalog` 資料夾，<https://github.com/aggrega-ai/aggrega-hub>，供想要以資料夾形式取得它們的工作區使用。`--upgrade` 會擷取登錄庫發布的最新快照，並從此之後針對它進行匯入；在 `--offline` 下，若未指名任何資料夾的匯入必須擷取快照，就會停下來並指出該執行什麼。"
   },
+  "078645fdf8480e83": {
+    "at": "2026-11-22T17:34:54.336Z",
+    "job": "session-0003-20261122173454",
+    "revision": {
+      "from": "2aa6bde92217d6dd",
+      "reviewed": false
+    },
+    "srcHash": "078645fdf8480e83",
+    "status": "machine",
+    "text": "**敏感對應規則。** 當 `valuesMapping` 所產生的內容取決於作者宣告為敏感的值時，對應所產生的每個字面值都會被拒絕——建置無法分辨對應的哪個輸出鍵帶有機密——而且中止訊息會指名那些字面值本來會繫結的參數，絕不指名值。當對應的範本讀取了這類值，而且把每個這類值替換後再求值兩次（兩次使用不同的文字）會失敗或改變其輸出時，該對應即取決於這類值；讀取連線或附加項目、但輸出並不取決於該值的對應不會被標記。運算式和 Key Vault 參照物件會照所寫的方式通過，所以請把每個參數導向其中之一。"
+  },
   "0787a24a9d6849e1": {
     "at": "2026-11-19T12:04:42.579Z",
     "job": "session-0104-20261119120442",
@@ -20726,6 +20737,17 @@
     "status": "machine",
     "text": "ExplainErrorEntry[]"
   },
+  "20cd889cda504d66": {
+    "at": "2026-11-22T17:34:54.336Z",
+    "job": "session-0003-20261122173454",
+    "revision": {
+      "from": "7652d1825b71bb86",
+      "reviewed": false
+    },
+    "srcHash": "20cd889cda504d66",
+    "status": "machine",
+    "text": "當 `valuesMapping` 所產生的內容取決於作者宣告為敏感的值時——也就是其範本讀取了這類值，而且把每個這類值替換後再求值兩次（兩次使用不同的文字）會失敗或改變其輸出——它的任何輸出都無法追溯回其來源的值，因此它繫結的每個字面值都會使建置中止。讀取連線或附加項目、但輸出並不取決於該值的對應不會被標記。它所繫結的動態參照與內建函式照所給寫出——包括內建函式內部的文字。例如，對應拼接進 `Fn::Sub` 文字中的機密，因此會以該文字抵達範本：只有動態參照能讓機密本身不出現在範本中。這類建置若繼續進行，它也會為每個已宣告的葉節點印出一則提示，Recipe 的對應與附加到元件的 Feature 的 FeatureRecipe 的對應皆然，並指名該葉節點與該對應所屬的實體——請參閱 [A declared-sensitive value reaches the target through a values mapping（宣告為敏感的值透過值對應抵達目標）](../errors/warnings.md#a-declared-sensitive-value-reaches-the-target-through-a-values-mapping)。"
+  },
   "20cf1eee04bc376d": {
     "at": "2026-11-19T12:14:13.058Z",
     "job": "session-0105-20261119121413",
@@ -31490,6 +31512,17 @@
     "srcHash": "3227481c8a38b403",
     "status": "machine",
     "text": "每個 `aggregate.yaml` 都以一行註解開頭，指出它所屬的步驟，`release.yaml` 或 `manifest.yaml` 在該步驟有更動時也是如此。把檔案與前一步驟的比較，就能確切看出該步驟增加了什麼："
+  },
+  "3227bfd03c185254": {
+    "at": "2026-11-22T17:34:54.336Z",
+    "job": "session-0003-20261122173454",
+    "revision": {
+      "from": "9d071c95bde060c8",
+      "reviewed": false
+    },
+    "srcHash": "3227bfd03c185254",
+    "status": "machine",
+    "text": "此酬載所攜帶的值，是由其輸出取決於作者宣告為敏感的值、或追溯到這種值的範本所產生時為 True：Recipe 或 FeatureRecipe 的 valuesMapping，即其輸出鍵與值皆為自己發明的單一範本，因此該輸出的任何鍵都無法追溯回它所來自的資料，於是整個對應表都被標記。主機分兩步決定它。它根據宣告讀取範本自己的參照——觸及已宣告值的參照、範本交出其全部資料，或無法解析的範本，都算——參照未觸及任何已宣告值的範本不會被標記。參照觸及已宣告值的範本會再求值兩次，每次都把每個已宣告值替換成不同的替換文字，只要任一次求值失敗，或產生的輸出與它原本渲染的不同，就會被標記。鍵的名稱從不被讀取。檢驗已宣告值的內容、或其某項屬性（例如長度）的範本，若兩段替換文字給出的檢驗結果都與該值相同，則不會被標記，而其輸出可以帶有該檢驗的結果，但絕不會帶有該值的文字。客體在撰寫人會讀到的文字——拒絕或警告——時，在此值為 true 的情況下，會將節點 values 的每個值排除在該文字之外，並將 sensitive_rendered_keys 所指名的任何鍵之下的值也排除在外，不論此值是否為 true：兩者相輔相成，一個指名身分被精確還原的鍵，另一個涵蓋無法還原任何鍵的對應表。沒有這樣的範本的輸出取決於這樣的值時不存在，其中包括本身就是已宣告葉節點的值，那些改在 sensitive_rendered_keys 中逐鍵標記，以及在不攜帶 values 的酬載上不存在。不存在絕不表示沒有任何值是敏感的。"
   },
   "3229b5b710978a4a": {
     "at": "2026-11-19T11:38:44.163Z",
@@ -68011,6 +68044,17 @@
     "status": "machine",
     "text": "以上所有內容都是把原則附加在建置**內部**。還有第二條路，它不需要插槽提供任何東西：在管線中執行你自己的工具，處理建置所寫出的檔案。"
   },
+  "6c9e7b9dd43c66b6": {
+    "at": "2026-11-22T17:34:54.336Z",
+    "job": "session-0003-20261122173454",
+    "revision": {
+      "from": "ea1ab5c932d392ca",
+      "reviewed": false
+    },
+    "srcHash": "6c9e7b9dd43c66b6",
+    "status": "machine",
+    "text": "**控制手段是什麼。** 沒有對應時，來源渲染所收到的值是以宣告的葉節點路徑本身為鍵，所以宣告會與其渲染鍵完全連結，標記也隨之傳遞——在 Terraform 目標上，那就是[已宣告為敏感的模組輸入](../providers/terraform.md#declared-sensitive-module-inputs)所述的產生覆寫檔。有對應時，確實抵達的標記涵蓋對應輸出的整體，而且只在對應所產生的內容取決於已宣告的值時才涵蓋——也就是其範本讀取了這類值，而且把每個這類值依序替換成兩段不同的替代文字後再求值，會失敗或改變其輸出；只為了檢驗而讀取已宣告值（例如其長度）、且兩段文字得出的檢驗結果都與該值相同的對應，不會被標記——不過，當該值設為空文字、false、0、null，或空清單或空對應表時，存在檢驗會被標記，因為兩段替代文字都會被視為真：它管轄外掛程式在拒絕或警告時所組成的文字，不會改變任何渲染後的位元組。"
+  },
   "6ca1545a0e79fc95": {
     "at": "2026-11-19T03:10:05.727Z",
     "job": "session-0063-20261119031005",
@@ -98215,6 +98259,17 @@
     "status": "machine",
     "text": "`core/observability/tempo`"
   },
+  "9ca8e1fea08696cd": {
+    "at": "2026-11-22T17:34:54.336Z",
+    "job": "session-0003-20261122173454",
+    "revision": {
+      "from": "8e185835e71782fa",
+      "reviewed": false
+    },
+    "srcHash": "9ca8e1fea08696cd",
+    "status": "machine",
+    "text": "**精確葉層讀取。** Recipe 的 `valuesMapping` 只有在其寫出的內容取決於被宣告為敏感的值時，才會被標記為敏感：也就是其範本讀取了這種值，或持有這種值的整個物件或對應表，而且把每個這類值替換後再求值兩次（兩次使用不同的文字）會失敗或改變其輸出。以精確的葉層讀取附加項目和注入管道——`.features.password.provides.name`、`.features.password.type`——的 Recipe 不會進入這種求值。遍歷 `.features` 只有在其寫出的內容取決於已宣告的值時才會標記該對應，不論它是帶有該值、印出其長度，還是依其分支；讀取整個 `.features.password` 或讀取 `default dict .features` 並把結果寫出，也是如此。Feature 的 `provides.name` 所發布的葉層是定位符，不是機密，所以讀取它不會標記對應，而 Recipe 的其他字面值——SKU、`enableTelemetry: false`——會正常繫結。像 Container Apps Recipes 那樣把整個管道傳遞出去的 Recipe，只要其上宣告的某個傳遞被宣告為敏感，就會被標記；請參閱 [Key Vault 路由](#key-vault-routes)。"
+  },
   "9cacdeb0cdedf7cb": {
     "at": "2026-11-18T07:06:16.115Z",
     "job": "session-0001-20261118070616",
@@ -120440,6 +120495,17 @@
     "status": "machine",
     "text": "是否允許未宣告的屬性（在推斷式物件上為 `false`，由編譯器加入；在明確的 `type: object` 上由你自己撰寫，未撰寫時適用 JSON Schema 自己的預設 `true`）"
   },
+  "bf0beace05cdcee1": {
+    "at": "2026-11-22T17:34:54.336Z",
+    "job": "session-0003-20261122173454",
+    "revision": {
+      "from": "d28c1e9dc0b897a7",
+      "reviewed": false
+    },
+    "srcHash": "bf0beace05cdcee1",
+    "status": "machine",
+    "text": "`node.sensitive_rendered_keys`：每個鍵指名 `node.values` 的一個項目——當這些值是 Component 自己的、並以它所宣告的葉節點為鍵時——一個 Recipe 的 `valuesMapping` 所寫的鍵沒有任何宣告指名，因此這裡不標記其中任何一個——或是工作負載容器 `attachments` 對應表中讀取已宣告為敏感之槽位的項目。`node.sensitive_values` 把 `node.values` 整體標記：當 `valuesMapping`——Recipe 的，或某個附加項目的 FeatureRecipe 的——產生了這些值，而且其產生的內容取決於作者宣告為敏感的值時，它為 `true`：也就是其範本讀取了這類值，而且再求值兩次、每次都把每個這類值替換成不同的替代文字時，會失敗或改變其輸出。讀取連線或附加項目、但輸出並不取決於該值的對應不會被標記。當工作負載的範本讀取了一個這類值時，`workload_projection.sensitive_workload` 以同樣方式標記工作負載的每個值，而 `artifacts_projection.entries` 的每個項目為自己的內容帶有 `sensitive_content`，其中包含剖析器對該內容的訊息。當產生 `omits` 任一項目的種類、名稱或命名空間的範本讀取了這類值時，該項目帶有 `sensitive`，此時該項目的每個欄位都是被標記的值。`node.features` 的每個項目帶有其附加項目自己的標記：`sensitive_payload_leaves`（其 Feature 宣告為敏感的 `values.<path>` 與 `infra.<path>` 葉節點）、`sensitive_inject`（讀取其 Feature 宣告為敏感的 provides 鍵的 inject 傳遞鍵），以及 `sensitive`（附加項目是否處理已宣告為敏感的資料）。"
+  },
   "bf12021816cfd4d2": {
     "at": "2026-11-18T07:06:16.115Z",
     "job": "session-0001-20261118070616",
@@ -124759,6 +124825,17 @@
     "status": "machine",
     "text": "**完全以你所寫的名稱帶入。** `Parameters`、`Mappings`、`Conditions`、`Metadata` 與 `Rules`。這些每一個都是以你所選名稱為鍵的對應表，因此每個元件的項目都以那些名稱、不經改寫地抵達組裝後的堆疊——這正是讓資源的 `Condition:`、`Fn::FindInMap` 或對參數的 `Ref`，能對照隨之而來的宣告解析的原因。每一個都各自帶入，因為每一個都是各自撰寫的：規則是針對同一份文件的參數做斷言，條件可以完全不參照任何參數，而 CloudFormation 不允許在對應中參照參數。"
   },
+  "c5e607375862e76a": {
+    "at": "2026-11-22T17:34:54.336Z",
+    "job": "session-0003-20261122173454",
+    "revision": {
+      "from": "c3776df5849b8c2c",
+      "reviewed": false
+    },
+    "srcHash": "c5e607375862e76a",
+    "status": "machine",
+    "text": "沒有其他插槽輸入，也沒有其他提供者匯出的輸入，帶有標記。鍵標記只指名它與某個宣告精確結合的內容，因此不存在的鍵絕不表示該值可以安全引述：它表示沒有任何宣告能與該鍵結合。`sensitive_values` 分兩步決定：範本的參照必須到達某個已宣告的值——一個到達已宣告值的參照、範本把其全部資料傳遞下去，或範本無法剖析——而且範本在每個已宣告值都替換成不同的替代文字後再求值兩次時，必須失敗或改變其輸出；它不存在表示該範本的輸出不取決於已宣告的值，或沒有任何範本產生該酬載。`sensitive_workload`、`sensitive_content` 與 omit 項目的 `sensitive` 是從產生它們的範本的參照中讀取，依據相同的三種情況，而絕不從值讀取；它們不存在表示，就其參照所示，該範本未讀取任何已宣告的值，或沒有任何範本產生該酬載。任何標記都不表示該酬載不帶任何敏感內容。"
+  },
   "c5e8100c83d78af5": {
     "at": "2026-11-18T16:37:22.573Z",
     "job": "session-0027-20261118163722",
@@ -125714,6 +125791,17 @@
     "srcHash": "c76cbf8ba8001008",
     "status": "machine",
     "text": "Component 的 `metadata.annotations` 上有一個這類鍵，是由標準發布 linter 而非建置讀取：**`observability.aggrega.ai/metrics-credential`** 說明產品的指標如何驗證——`none`，指標不需認證即可提供；`target-key`，指標使用 Component 要求每個呼叫端提供的鍵；`separate-token`，指標使用自己專屬的權杖。建置像承載其他註記一樣承載它。linter 讀取它，以決定抓取連線的認證是否與目標的呼叫端鍵比較，並要求它與 Component 宣告的 `metrics_credential_required` provides 鍵一致——見 [`cli/aggrega-lint.md`](../cli/aggrega-lint.md) 中的「紀律規則」。"
+  },
+  "c76fe86de21a9852": {
+    "at": "2026-11-22T17:34:54.336Z",
+    "job": "session-0003-20261122173454",
+    "revision": {
+      "from": "cb912aecacea20f0",
+      "reviewed": false
+    },
+    "srcHash": "c76fe86de21a9852",
+    "status": "machine",
+    "text": "繫結到參數的值會寫入範本，任何能讀取堆疊範本的人都能讀到它。渲染會在以下情況中止：字面值繫結到範本宣告為 `NoEcho` 的參數；以及當 Recipe 或 FeatureRecipe 的 `valuesMapping` 所產生的內容取決於作者宣告為敏感的值時，該對應所繫結的每個字面值，因為它的任何輸出都無法追溯到它所來自的值。當對應的範本讀取了這類值，而且把每個這類值替換後再求值兩次（兩次使用不同的文字）會失敗或改變其輸出時，該對應即取決於這類值；讀取連線或附加項目、但輸出並不取決於該值的對應不會被標記。動態參照與內建函式會照原樣寫入——包括內建函式內的文字——因此對應拼接進 `Fn::Sub` 字串的敏感值，會以該文字抵達範本，只有動態參照能讓機密本身不進入範本。"
   },
   "c770307938100af9": {
     "at": "2026-11-19T07:12:05.895Z",

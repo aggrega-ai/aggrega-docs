@@ -5417,6 +5417,17 @@
     "status": "machine",
     "text": "**Conditionner sur tout ce que votre catalogue enregistre dans ses propres métadonnées.** Un parc qui conserve le statut de revue, la résidence des données ou la propriété sous forme d’annotations sur ses entités Feature peut les exiger de chaque rattachement. Une règle fondée sur une annotation dont Aggrega n’a jamais entendu parler fonctionne exactement aussi bien qu’une règle fondée sur une clé qu’il fournit, car les annotations arrivent telles qu’elles ont été écrites — ce qui signifie aussi qu’une Feature et un Component sont désormais jugés sur le même pied, chacun d’après les métadonnées de catalogue que déclare sa propre entité."
   },
+  "078645fdf8480e83": {
+    "at": "2026-11-22T17:34:49.610Z",
+    "job": "session-0001-20261122173449",
+    "revision": {
+      "from": "2aa6bde92217d6dd",
+      "reviewed": false
+    },
+    "srcHash": "078645fdf8480e83",
+    "status": "machine",
+    "text": "**La règle du mappage sensible.** Lorsque ce que produit un `valuesMapping` dépend d’une valeur qu’un auteur a déclarée sensible, tout littéral que le mappage produit est refusé — la compilation ne peut pas savoir laquelle des clés de sortie du mappage porte le secret — et l’interruption nomme les paramètres que les littéraux auraient liés, jamais une valeur. Un mappage dépend d’une telle valeur lorsque son modèle en lit une et que l’évaluer à nouveau en remplaçant chacune de ces valeurs, deux fois avec des textes différents, échoue ou modifie sa sortie ; un mappage qui lit une connexion ou un rattachement sans que sa sortie dépende de cette valeur n’est pas marqué. Les expressions et les objets de référence Key Vault passent tels qu’écrits ; il faut donc orienter chaque paramètre vers l’un d’eux."
+  },
   "0787a24a9d6849e1": {
     "at": "2026-11-04T11:53:53.173Z",
     "job": "session-0240-20261104115353",
@@ -22632,6 +22643,17 @@
     "status": "machine",
     "text": "**3. Domaine Dev : l’Aggregate** Le développeur indique au système exactement comment son code Python lit la clé OpenAI — sous la forme d’une variable d’environnement nommée `OPENAI_API_KEY`."
   },
+  "20cd889cda504d66": {
+    "at": "2026-11-22T17:34:49.610Z",
+    "job": "session-0001-20261122173449",
+    "revision": {
+      "from": "7652d1825b71bb86",
+      "reviewed": false
+    },
+    "srcHash": "20cd889cda504d66",
+    "status": "machine",
+    "text": "Là où ce que produit le `valuesMapping` dépend d’une valeur qu’un auteur a déclarée sensible — son template en lit une, et l’évaluer à nouveau en remplaçant chacune de ces valeurs, deux fois avec des textes différents, échoue ou modifie sa sortie —, rien de sa sortie ne permet de remonter à la valeur dont elle provient, de sorte que chaque littéral qu’il lie arrête le build. Un mapping qui lit une connexion ou un rattachement sans que sa sortie dépende de cette valeur n’est pas marqué. Une référence dynamique et une fonction intrinsèque qu’il lie sont écrites telles qu’elles sont données — y compris le texte à l’intérieur d’une fonction intrinsèque. Un secret que le mapping insère dans le texte d’un `Fn::Sub`, par exemple, atteint donc le template sous la forme de ce texte : seule une référence dynamique garde le secret lui-même hors du template. Là où un tel build se poursuit, il affiche aussi un avertissement par feuille déclarée, pour le mapping d’une Recipe comme pour celui de la FeatureRecipe d’une Feature rattachée à un composant, en nommant la feuille et l’entité à laquelle appartient le mapping — voir [A declared-sensitive value reaches the target through a values mapping (Une valeur déclarée sensible atteint la cible par un mappage values)](../errors/warnings.md#a-declared-sensitive-value-reaches-the-target-through-a-values-mapping)."
+  },
   "20cf1eee04bc376d": {
     "at": "2026-11-04T12:39:30.717Z",
     "job": "session-0244-20261104123930",
@@ -34520,6 +34542,17 @@
     "srcHash": "3227481c8a38b403",
     "status": "machine",
     "text": "Chaque `aggregate.yaml` s’ouvre sur un commentaire d’une ligne qui nomme son étape, tout comme un `release.yaml` ou un `manifest.yaml` là où cette étape le modifie. Comparer un fichier avec celui de l’étape précédente montre exactement ce que l’étape ajoute :"
+  },
+  "3227bfd03c185254": {
+    "at": "2026-11-22T17:34:49.610Z",
+    "job": "session-0001-20261122173449",
+    "revision": {
+      "from": "9d071c95bde060c8",
+      "reviewed": false
+    },
+    "srcHash": "3227bfd03c185254",
+    "status": "machine",
+    "text": "Vrai lorsque les valeurs que porte ce payload ont été produites par un template dont la sortie dépend d’une valeur qu’un auteur a déclarée sensible, ou d’une valeur qui remonte à une telle valeur : le valuesMapping d’une Recipe ou d’une FeatureRecipe, un template unique dont les clés et les valeurs de sortie sont sa propre invention, si bien qu’aucune clé de cette sortie ne peut être ramenée à la donnée dont elle provient et que la map entière est marquée à la place. L’hôte le détermine en deux étapes. Il lit les propres références du template confrontées aux déclarations — une référence qui atteint une valeur déclarée, le template qui transmet la totalité de ses données, ou un template qui ne s’analyse pas comptent tous — et un template dont les références n’en atteignent aucune n’est pas marqué. Un template dont les références en atteignent une est évalué deux fois de plus, chaque fois en remplaçant chaque valeur déclarée par un texte de remplacement différent, et il est marqué lorsque l’une ou l’autre évaluation échoue ou produit une sortie qui diffère de ce qu’il a rendu. Le nom d’une clé n’est jamais lu. Un template qui teste le contenu d’une valeur déclarée, ou une de ses propriétés comme sa longueur, lorsque les deux textes de remplacement donnent au test la même réponse que la valeur, n’est pas marqué, et sa sortie peut porter le résultat de ce test, jamais le texte de la valeur. Un invité qui compose un texte destiné à une personne, un refus ou un avertissement, tient chaque valeur des valeurs du nœud hors de ce texte lorsque ceci est vrai, et tient hors de ce texte la valeur sous toute clé que nomme sensitive_rendered_keys, que ce soit le cas ou non : les deux se composent, l’un nommant les clés dont l’identité est récupérée exactement et celui-ci couvrant la map là où aucune ne peut l’être. Absent lorsque la sortie d’aucun template de ce type ne dépend d’une telle valeur, ce qui inclut les valeurs qui sont elles-mêmes les feuilles déclarées, marquées à la place clé par clé dans sensitive_rendered_keys, et absent sur un payload qui ne porte aucune valeur. L’absence n’indique jamais qu’aucune valeur n’est sensible."
   },
   "3229b5b710978a4a": {
     "at": "2026-11-04T09:43:30.291Z",
@@ -74382,6 +74415,17 @@
     "status": "machine",
     "text": "Tout ce qui précède rattache une politique **à l’intérieur** d’un build. Il existe une seconde voie, et elle n’a besoin de rien du socket : exécuter votre propre outil dans le pipeline, sur les fichiers que le build a écrits."
   },
+  "6c9e7b9dd43c66b6": {
+    "at": "2026-11-22T17:34:49.610Z",
+    "job": "session-0001-20261122173449",
+    "revision": {
+      "from": "ea1ab5c932d392ca",
+      "reviewed": false
+    },
+    "srcHash": "6c9e7b9dd43c66b6",
+    "status": "machine",
+    "text": "**En quoi consiste le levier.** Sans mappage, les valeurs que reçoit un rendu à partir d’une source sont indexées par les chemins des feuilles déclarées eux-mêmes, de sorte que la déclaration rejoint exactement sa clé rendue et que le marquage circule avec elle — sur la cible Terraform, c’est le fichier de surcharge généré décrit à [Entrées de module déclarées sensibles](../providers/terraform.md#declared-sensitive-module-inputs). Avec un mappage, le marquage qui arrive bien couvre la sortie du mappage dans son ensemble, et seulement là où ce que produit le mappage dépend de la valeur déclarée — son modèle en lit une, et l’évaluer à nouveau en remplaçant chacune de ces valeurs par chacun de deux textes de substitution différents échoue ou modifie sa sortie ; un mappage qui ne lit une valeur déclarée que pour la tester, par exemple sa longueur, lorsque les deux textes donnent la même réponse que la valeur, n’est pas marqué — bien qu’un test de présence soit marqué lorsque la valeur vaut un texte vide, false, 0, null, ou une liste ou une map vide, puisque les deux textes de substitution s’évaluent comme vrais : il régit le texte qu’un plugin compose lorsqu’il refuse ou avertit, et ne modifie aucun octet rendu."
+  },
   "6ca1545a0e79fc95": {
     "at": "2026-11-03T09:08:45.888Z",
     "job": "session-0081-20261103090845",
@@ -107537,6 +107581,17 @@
     "status": "machine",
     "text": "`core/observability/tempo`"
   },
+  "9ca8e1fea08696cd": {
+    "at": "2026-11-22T17:34:49.610Z",
+    "job": "session-0001-20261122173449",
+    "revision": {
+      "from": "8e185835e71782fa",
+      "reviewed": false
+    },
+    "srcHash": "9ca8e1fea08696cd",
+    "status": "machine",
+    "text": "**Lectures de feuille exacte.** Le `valuesMapping` d’une Recipe n’est marqué comme sensible que là où ce qu’il écrit dépend d’une valeur déclarée sensible : son modèle en lit une, ou un objet ou une map entière qui en contient une, et l’évaluer à nouveau en remplaçant chacune de ces valeurs, deux fois avec des textes différents, échoue ou modifie sa sortie. Une Recipe qui lit un rattachement et le tube d’injection par feuille exacte — `.features.password.provides.name`, `.features.password.type` — reste hors de cette évaluation. Parcourir `.features` ne marque le mappage que là où ce qu’il écrit dépend d’une valeur déclarée, qu’il transporte la valeur, affiche sa longueur ou effectue un branchement selon elle ; il en va de même pour la lecture de `.features.password` en entier ou de `default dict .features` suivie de l’écriture du résultat. La feuille que publie le `provides.name` d’une Feature est un localisateur, non un secret : la lire laisse donc le mappage non marqué, et les autres littéraux de la Recipe — SKU, `enableTelemetry: false` — se lient normalement. Une Recipe qui transmet le tube entier tel quel, comme le font les Recipes Container Apps, est marquée dès qu’une livraison sur elle est déclarée sensible ; voir [Routes Key Vault](#key-vault-routes)."
+  },
   "9cacdeb0cdedf7cb": {
     "at": "2026-11-02T18:47:09.888Z",
     "job": "session-0001-20261102184709",
@@ -131796,6 +131851,17 @@
     "status": "machine",
     "text": "Indique si les propriétés non déclarées sont autorisées (`false` sur un objet en forme inférée, où le compilateur l’ajoute ; sur un `type: object` explicite, c’est à vous de l’écrire, et la valeur par défaut propre à JSON Schema, `true`, s’applique là où vous ne le faites pas)"
   },
+  "bf0beace05cdcee1": {
+    "at": "2026-11-22T17:34:49.610Z",
+    "job": "session-0001-20261122173449",
+    "revision": {
+      "from": "d28c1e9dc0b897a7",
+      "reviewed": false
+    },
+    "srcHash": "bf0beace05cdcee1",
+    "status": "machine",
+    "text": "`node.sensitive_rendered_keys` : chaque clé nomme une entrée de `node.values` lorsque ces valeurs sont celles du Component lui-même, indexées par les feuilles qu’il déclare — le `valuesMapping` d’une Recipe écrit des clés qu’aucune déclaration ne nomme, si bien qu’aucune d’elles n’est marquée ici — ou une entrée de la table `attachments` du conteneur d’une charge de travail qui lit un emplacement déclaré sensible. `node.sensitive_values` marque `node.values` dans son ensemble : il vaut `true` lorsqu’un `valuesMapping` — celui de la Recipe, ou celui de la FeatureRecipe d’un rattachement — a produit ces valeurs et que ce qu’il a produit dépend d’une valeur qu’un auteur a déclarée sensible : son modèle en lit une, et l’évaluer deux fois de plus, chaque fois en remplaçant chacune de ces valeurs par un texte de substitution différent, échoue ou modifie sa sortie. Un mappage qui lit une connexion ou un rattachement sans que sa sortie dépende de cette valeur n’est pas marqué. `workload_projection.sensitive_workload` marque de la même façon chaque valeur de la charge de travail lorsque le modèle de la charge de travail en lit une, et chaque entrée de `artifacts_projection.entries` porte `sensitive_content` pour son propre contenu, y compris le message d’un parseur sur ce contenu. Chaque entrée de `omits` porte `sensitive` lorsque le modèle qui produit son kind, son nom ou son namespace en lit une, et alors chaque champ de cette entrée est une valeur marquée. Chaque entrée de `node.features` porte le marquage de son propre rattachement : `sensitive_payload_leaves` (les feuilles `values.<path>` et `infra.<path>` que sa Feature déclare sensibles), `sensitive_inject` (les clés de livraison inject qui lisent une clé provides que sa Feature déclare sensible) et `sensitive` (si le rattachement manipule ou non du contenu déclaré sensible)."
+  },
   "bf12021816cfd4d2": {
     "at": "2026-11-02T18:47:09.888Z",
     "job": "session-0001-20261102184709",
@@ -136568,6 +136634,17 @@
     "status": "machine",
     "text": "**Portés sous exactement les noms que vous avez écrits.** `Parameters`, `Mappings`, `Conditions`, `Metadata` et `Rules`. Chacune de ces sections est une table dont vous avez choisi les clés, de sorte que les entrées de chaque composant atteignent la stack assemblée sous ces noms, sans réécriture — c’est ce qui permet à un `Condition:` d’une ressource, à un `Fn::FindInMap` ou à un `Ref` vers un paramètre de se résoudre par rapport à la déclaration arrivée avec lui. Chacune est portée séparément, parce que chacune est écrite séparément : une règle formule une assertion sur un paramètre du même document, une condition peut ne référencer aucun paramètre, et CloudFormation n’autorise pas de référence à un paramètre à l’intérieur d’un mapping."
   },
+  "c5e607375862e76a": {
+    "at": "2026-11-22T17:34:49.610Z",
+    "job": "session-0001-20261122173449",
+    "revision": {
+      "from": "c3776df5849b8c2c",
+      "reviewed": false
+    },
+    "srcHash": "c5e607375862e76a",
+    "status": "machine",
+    "text": "Aucune autre entrée de socket, ni aucune entrée d’un autre export de fournisseur, ne porte de marquage. Un marquage de clé ne nomme que ce qu’il relie exactement à une déclaration, si bien qu’une clé absente ne signifie jamais qu’une valeur peut être citée sans risque : elle signifie qu’aucune déclaration n’a pu être reliée à cette clé. `sensitive_values` est déterminé en deux étapes : les références du modèle doivent atteindre une valeur déclarée — une référence qui en atteint une, le modèle qui transmet l’ensemble de ses données, ou un modèle qui ne s’analyse pas — et le modèle, évalué deux fois de plus en remplaçant chaque valeur déclarée par un texte de substitution différent, doit échouer ou modifier sa sortie ; son absence signifie que la sortie du modèle ne dépend d’aucune valeur déclarée, ou qu’aucun modèle n’a produit la charge utile. `sensitive_workload`, `sensitive_content` et le `sensitive` d’une entrée d’omission sont lus à partir des références du modèle qui les a produits, selon les trois mêmes cas, et jamais à partir d’une valeur ; leur absence signifie que ce modèle n’a lu aucune valeur déclarée, pour autant que ses références le montrent, ou qu’aucun modèle n’a produit la charge utile. Aucun marquage n’est une affirmation que la charge utile ne porte rien de sensible."
+  },
   "c5e8100c83d78af5": {
     "at": "2026-10-22T10:50:19.225Z",
     "job": "session-0031-20261022105019",
@@ -137578,6 +137655,17 @@
     "srcHash": "c76cbf8ba8001008",
     "status": "machine",
     "text": "L’une de ces clés dans les `metadata.annotations` d’un Component est lue par le linter de publication standard plutôt que par le build : **`observability.aggrega.ai/metrics-credential`** indique comment les métriques du produit s’authentifient — `none`, elles sont servies sans identifiant ; `target-key`, elles exigent la clé que le Component exige de chaque appelant ; `separate-token`, elles exigent un jeton qui leur est propre. Le build la transporte comme n’importe quelle autre annotation. Le linter la lit pour décider si l’identifiant d’une connexion de scrape est comparé à la clé d’appelant de la cible, et exige qu’elle concorde avec la clé provides `metrics_credential_required` que le Component déclare — voir « The discipline rules (Les règles de discipline) » dans [`cli/aggrega-lint.md`](../cli/aggrega-lint.md)."
+  },
+  "c76fe86de21a9852": {
+    "at": "2026-11-22T17:34:49.610Z",
+    "job": "session-0001-20261122173449",
+    "revision": {
+      "from": "cb912aecacea20f0",
+      "reviewed": false
+    },
+    "srcHash": "c76fe86de21a9852",
+    "status": "machine",
+    "text": "Une valeur liée à un paramètre est écrite dans le template, où quiconque peut lire le template de la stack peut la lire. Le rendu s’arrête sur un littéral lié à un paramètre que le template déclare `NoEcho` et, lorsque ce que produit le `valuesMapping` de la Recipe ou de la FeatureRecipe dépend d’une valeur qu’un auteur a déclarée sensible, sur chaque littéral que ce mapping lie, puisqu’aucune partie de sa sortie ne peut être ramenée à la valeur dont elle provient. Un mapping dépend d’une telle valeur lorsque son template en lit une et que l’évaluer à nouveau en remplaçant chacune de ces valeurs, deux fois avec des textes différents, échoue ou modifie sa sortie ; un mapping qui lit une connexion ou un rattachement sans que sa sortie dépende de cette valeur n’est pas marqué. Une référence dynamique et une fonction intrinsèque sont écrites telles qu’elles sont données — le texte à l’intérieur d’une fonction intrinsèque compris —, de sorte qu’une valeur sensible que le mapping insère dans une chaîne `Fn::Sub` atteint le template sous la forme de ce texte, et seule une référence dynamique tient le secret lui-même hors du template."
   },
   "c770307938100af9": {
     "at": "2026-11-06T04:25:03.798Z",

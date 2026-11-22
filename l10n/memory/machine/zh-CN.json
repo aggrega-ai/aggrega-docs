@@ -5952,6 +5952,17 @@
     "status": "machine",
     "text": "**依据你的目录在自身元数据中记录的任何内容设置关卡。** 将评审状态、数据驻留地或归属作为注解记录在其 Feature 实体上的环境，可以要求每个附加项都具备这些注解。以 Aggrega 从未听说过的注解为键的规则，与以其自带键为键的规则效果完全相同，因为注解按原样到达；这也意味着 Feature 和 Component 如今以同等标准接受评判，各自依据其自身实体声明的目录元数据。"
   },
+  "078645fdf8480e83": {
+    "at": "2026-11-22T17:34:54.336Z",
+    "job": "session-0003-20261122173454",
+    "revision": {
+      "from": "2aa6bde92217d6dd",
+      "reviewed": false
+    },
+    "srcHash": "078645fdf8480e83",
+    "status": "machine",
+    "text": "**敏感映射规则。** 当 `valuesMapping` 所生成的内容依赖于作者声明为敏感的值时，该映射产生的每个字面量都会被拒绝——构建无法判断映射的哪个输出键携带了密钥——并且中止信息会指出这些字面量本应绑定的参数，绝不指出值。当映射的模板读取了此类值，并且在将每个此类值替换后再求值两次（每次使用不同的文本）时求值失败或输出发生变化，该映射即依赖于此类值；读取了某个连接或附件但其输出并不依赖于该值的映射不会被标记。表达式和 Key Vault 引用对象按原样通过，因此应把每个参数导向其中之一。"
+  },
   "0787a24a9d6849e1": {
     "at": "2026-10-22T08:23:20.000561+00:00",
     "job": "msgbatch_01HzD7wD8iu4mXKJLFLJkdaf",
@@ -25002,6 +25013,17 @@
     "status": "machine",
     "text": "**3. 开发域：Aggregate**\n开发者准确地告诉系统其 Python 代码如何读取 OpenAI 密钥——作为名为 `OPENAI_API_KEY` 的环境变量。"
   },
+  "20cd889cda504d66": {
+    "at": "2026-11-22T17:34:54.336Z",
+    "job": "session-0003-20261122173454",
+    "revision": {
+      "from": "7652d1825b71bb86",
+      "reviewed": false
+    },
+    "srcHash": "20cd889cda504d66",
+    "status": "machine",
+    "text": "若 `valuesMapping` 所生成的内容依赖于作者声明为敏感的值——即其模板读取了此类值，并且将每个此类值替换后再求值两次（每次使用不同的文本）时，求值失败或输出发生变化——其输出都无法追溯到来源值，因此它绑定的每个字面量都会使构建停止。读取了某个连接或附件但其输出并不依赖于该值的映射不会被标记。它绑定的动态引用和内部函数按给定内容写入——包括内部函数中的文本。因此，例如映射拼接进 `Fn::Sub` 文本中的机密，会以该文本的形式到达模板：只有动态引用能让机密本身不进入模板。此类构建继续进行时，还会为每个已声明的叶子打印一条提示，无论是 Recipe 的映射，还是附加到 component 的 Feature 的 FeatureRecipe 的映射，均会指明该叶子及其映射所属的实体——参见 [A declared-sensitive value reaches the target through a values mapping（声明为敏感的值通过值映射到达目标）](../errors/warnings.md#a-declared-sensitive-value-reaches-the-target-through-a-values-mapping)。"
+  },
   "20cf1eee04bc376d": {
     "at": "2026-10-22T08:23:20.000561+00:00",
     "job": "msgbatch_01HzD7wD8iu4mXKJLFLJkdaf",
@@ -38051,6 +38073,17 @@
     "srcHash": "3227481c8a38b403",
     "status": "machine",
     "text": "每个 `aggregate.yaml` 都以一行注明其所属步骤的注释开头；在某一步修改了 `release.yaml` 或 `manifest.yaml` 时，这些文件也是如此。将一个文件与上一步的对应文件比较，即可准确看出该步骤新增了什么："
+  },
+  "3227bfd03c185254": {
+    "at": "2026-11-22T17:34:54.336Z",
+    "job": "session-0003-20261122173454",
+    "revision": {
+      "from": "9d071c95bde060c8",
+      "reviewed": false
+    },
+    "srcHash": "3227bfd03c185254",
+    "status": "machine",
+    "text": "当该载荷承载的 values 由其输出依赖于作者声明为敏感的值（或可追溯到此类值的值）的模板产生时为 true：即 Recipe 或 FeatureRecipe 的 valuesMapping，这是单个模板，其输出键和值均由它自己创造，因此该输出的任何键都无法追溯到其来源数据，于是改为标记整个 map。host 分两步判定。它依据声明读取模板自身的引用——引用到达某个已声明的值、模板传递其全部数据，或模板无法解析，均计入——引用未到达任何已声明值的模板不会被标记。引用到达了已声明值的模板会再求值两次，每次都将每个已声明的值替换为不同的替换文本；只要任一次求值失败，或产生的输出与其原先渲染的结果不同，该模板即被标记。键的名称从不被读取。检验已声明值的内容或其某项属性（例如长度）的模板，若两段替换文本给出的检验结果都与该值本身相同，则不会被标记，其输出可以携带该检验的结果，但绝不会携带该值的文本。当 guest 编写供人阅读的文本（拒绝信息或警告）时，若此字段为 true，则将节点 values 的每个值都排除在该文本之外；无论此字段是否为 true，都排除 sensitive_rendered_keys 所指称的任何键下的值：两者相互组合，一个指称其标识可精确恢复的键，另一个覆盖无法恢复任何键的 map。当没有此类模板的输出依赖于此类值时缺失，这包括本身就是已声明叶子的值（改为在 sensitive_rendered_keys 中逐键标记），在不承载 values 的载荷上也缺失。缺失绝不表示没有值是敏感的。"
   },
   "3229b5b710978a4a": {
     "at": "2026-10-22T08:03:58.541373+00:00",
@@ -82128,6 +82161,17 @@
     "status": "machine",
     "text": "上文所述都是在构建**内部**附加策略。还有第二种途径，\n它完全不需要插座：在流水线中针对构建写出的文件\n运行你自己的工具。"
   },
+  "6c9e7b9dd43c66b6": {
+    "at": "2026-11-22T17:34:54.336Z",
+    "job": "session-0003-20261122173454",
+    "revision": {
+      "from": "ea1ab5c932d392ca",
+      "reviewed": false
+    },
+    "srcHash": "6c9e7b9dd43c66b6",
+    "status": "machine",
+    "text": "**调节手段是什么。** 没有映射时，源渲染收到的 values 直接以声明的叶子路径为键，因此声明与其渲染键精确对应，标记随之传递——在 Terraform 目标上，这就是 [Declared-sensitive module inputs（声明为敏感的模块输入）](../providers/terraform.md#declared-sensitive-module-inputs)中描述的生成覆盖文件。有映射时，确实到达的标记覆盖映射的整体输出，且仅在映射所生成的内容依赖于所声明的值时才如此——即其模板读取了此类值，并且将每个此类值依次替换为两段不同的替代文本后再次求值时，求值失败或输出发生变化；仅为检验而读取所声明的值（例如检验其长度）、且两段文本给出的检验结果都与该值本身相同的映射不会被标记——不过，当该值被设为空文本、false、0、null 或空列表、空映射时，存在性检验会被标记，因为两段替代文本都会被视为真：它决定插件在拒绝或警告时所撰写的文本，而不改变任何渲染字节。"
+  },
   "6ca1545a0e79fc95": {
     "at": "2026-10-22T03:12:40.354254+00:00",
     "job": "msgbatch_014XaJkkEi3rvZLnLM2UmemD",
@@ -118613,6 +118657,17 @@
     "status": "machine",
     "text": "`core/observability/tempo`"
   },
+  "9ca8e1fea08696cd": {
+    "at": "2026-11-22T17:34:54.336Z",
+    "job": "session-0003-20261122173454",
+    "revision": {
+      "from": "8e185835e71782fa",
+      "reviewed": false
+    },
+    "srcHash": "9ca8e1fea08696cd",
+    "status": "machine",
+    "text": "**精确叶子读取。** 只有当 Recipe 的 `valuesMapping` 所写入的内容依赖于声明为敏感的值时，它才会被标记为敏感：即其模板读取了此类值，或包含这类值的整个对象或映射，并且将每个此类值替换后再求值两次（每次使用不同的文本）时，求值失败或输出发生变化。按精确的叶子读取附件和注入管道——`.features.password.provides.name`、`.features.password.type`——的 Recipe 不会触发这种求值。遍历 `.features` 只有在其写入的内容依赖于已声明的值时才会标记该映射，无论它是携带该值、打印其长度还是据其分支；整体读取 `.features.password` 或读取 `default dict .features` 并将结果写出，也是如此。Feature 的 `provides.name` 发布的叶子是定位符，不是密钥，因此读取它不会标记映射，Recipe 的其他字面量——SKU、`enableTelemetry: false`——会正常绑定。像 Container Apps Recipes 那样整体透传该管道的 Recipe，只要其上的某次交付被声明为敏感，就会被标记；参见[Key Vault 路由](#key-vault-routes)。"
+  },
   "9cacdeb0cdedf7cb": {
     "at": "2026-11-01T14:54:04.024Z",
     "job": "session-0002-20261101145404",
@@ -145259,6 +145314,17 @@
     "status": "machine",
     "text": "是否允许未声明的属性（在推断形式对象上为 `false`，由编译器添加；在显式的 `type: object` 上由你自行编写，未编写时适用 JSON Schema 自身的默认值 `true`）"
   },
+  "bf0beace05cdcee1": {
+    "at": "2026-11-22T17:34:54.336Z",
+    "job": "session-0003-20261122173454",
+    "revision": {
+      "from": "d28c1e9dc0b897a7",
+      "reviewed": false
+    },
+    "srcHash": "bf0beace05cdcee1",
+    "status": "machine",
+    "text": "`node.sensitive_rendered_keys`：每个键指向 `node.values` 的一个条目（当这些值是该 Component 自身的值，并以其声明的叶子为键时——Recipe 的 `valuesMapping` 写入的键不对应任何声明，因此这里不会标记其中任何一个），或指向工作负载容器 `attachments` 映射中读取了声明为敏感的槽位的条目。`node.sensitive_values` 将 `node.values` 作为整体标记：当由某个 `valuesMapping`（Recipe 的，或某个附件的 FeatureRecipe 的）生成这些值，且其生成的内容依赖于作者声明为敏感的值时，它为 `true`：即其模板读取了此类值，并且再求值两次、每次都将每个此类值替换为不同的替代文本时，求值失败或输出发生变化。读取了某个连接或附件但其输出并不依赖于该值的映射不会被标记。当工作负载的模板读取了此类值时，`workload_projection.sensitive_workload` 以同样方式标记该工作负载的每个值；`artifacts_projection.entries` 的每个条目针对其自身内容携带 `sensitive_content`，其中包括解析器关于该内容的消息。当生成 `omits` 某个条目的 kind、name 或 namespace 中任一项的模板读取了此类值时，该条目携带 `sensitive`，此时该条目的每个字段都是被标记的值。`node.features` 的每个条目携带其自身附件的标记：`sensitive_payload_leaves`（其 Feature 声明为敏感的 `values.<path>` 与 `infra.<path>` 叶子）、`sensitive_inject`（读取了其 Feature 声明为敏感的 provides 键的 inject 交付键）以及 `sensitive`（该附件是否处理任何声明为敏感的内容）。"
+  },
   "bf12021816cfd4d2": {
     "at": "2026-11-01T15:15:25.467Z",
     "job": "session-0003-20261101151525",
@@ -150561,6 +150627,17 @@
     "status": "machine",
     "text": "其余的不对称性（Recipe 与 Component 的必填字段差异、Aggregate 对 `components` 或 `aggregates` 的要求、Manifest 对 `mappings` 的要求）反映了各实体的角色，没有计划更改。希望所有实体类型都遵循统一必填字段契约的作者将找不到这样的契约；这些不对称性是基于角色驱动设计而有意为之的。"
   },
+  "c5e607375862e76a": {
+    "at": "2026-11-22T17:34:54.336Z",
+    "job": "session-0003-20261122173454",
+    "revision": {
+      "from": "c3776df5849b8c2c",
+      "reviewed": false
+    },
+    "srcHash": "c5e607375862e76a",
+    "status": "machine",
+    "text": "其他任何 socket 输入，以及其他任何 provider 导出的输入，都不携带标记。键标记只指向它能与某个声明精确关联的内容，因此键未被标记绝不意味着该值可以安全引用：它意味着没有任何声明能与该键关联。`sensitive_values` 分两步判定：模板的引用必须触及某个已声明的值——引用触及了已声明的值、模板传递了其全部数据，或模板无法解析——并且在将每个已声明的值替换为不同的替代文本后再求值两次时，模板必须求值失败或输出发生变化；没有该标记意味着模板的输出不依赖于已声明的值，或者没有模板生成该负载。`sensitive_workload`、`sensitive_content` 以及 omit 条目的 `sensitive` 读取自生成它们的模板的引用，依据相同的三种情形，而从不读取自值本身；没有这些标记意味着就其引用所示，该模板未读取任何已声明的值，或者没有模板生成该负载。任何标记都不表示该负载不含任何敏感内容。"
+  },
   "c5e8100c83d78af5": {
     "at": "2026-10-22T01:50:22.319444+00:00",
     "job": "msgbatch_01VwQyd4vfmNKqBKVTg2vP5W",
@@ -151736,6 +151813,17 @@
     "srcHash": "c76cbf8ba8001008",
     "status": "machine",
     "text": "Component 的 `metadata.annotations` 上有一个这样的键由标准发布 linter 而非构建读取：**`observability.aggrega.ai/metrics-credential`** 说明产品的指标如何进行认证——`none`，指标不需要凭据即可提供；`target-key`，指标使用 Component 要求每个调用方提供的密钥；`separate-token`，指标使用自己的令牌。构建像对待其他注解一样携带它。linter 读取它来决定是否将抓取连接的凭据与目标的调用方密钥进行比较，并要求它与 Component 声明的 `metrics_credential_required` provides 键保持一致——参见 [`cli/aggrega-lint.md`](../cli/aggrega-lint.md) 中的 “The discipline rules”。"
+  },
+  "c76fe86de21a9852": {
+    "at": "2026-11-22T17:34:54.336Z",
+    "job": "session-0003-20261122173454",
+    "revision": {
+      "from": "cb912aecacea20f0",
+      "reviewed": false
+    },
+    "srcHash": "c76fe86de21a9852",
+    "status": "machine",
+    "text": "绑定到参数的值会写入模板，任何能读取 stack 模板的人都能读到它。对于绑定到模板声明为 `NoEcho` 的参数的字面量，渲染会停止；如果 Recipe 或 FeatureRecipe 的 `valuesMapping` 所生成的内容依赖于作者声明为敏感的值，则该映射绑定的每个字面量都会使渲染停止，因为其任何输出都无法追溯到其来源值。当映射的模板读取了此类值，并且在将每个此类值替换后再求值两次（每次使用不同的文本）时求值失败或输出发生变化，该映射即依赖于此类值；读取了某个连接或附件但其输出并不依赖于该值的映射不会被标记。动态引用和内部函数按原样写入（包括内部函数中的文本），因此映射拼接到 `Fn::Sub` 字符串中的敏感值会以该文本形式进入模板，只有动态引用能让机密本身不进入模板。"
   },
   "c770307938100af9": {
     "at": "2026-11-06T04:25:03.798Z",
