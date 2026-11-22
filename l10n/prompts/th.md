@@ -526,5 +526,29 @@ Each of these is the ordinary word, written in lowercase in the source; the same
 - A vault, a secret store such as HashiCorp Vault, stays vault in Latin letters, in every phrase.
 - A vector store, a store of vectors, is “ที่จัดเก็บเวกเตอร์”, never ที่เก็บ, which is a repository.
 - Cloud-native is “คลาวด์เนทีฟ”.
+- language server, the editor's language server: language server, in Latin letters, and a bare "server" is เซิร์ฟเวอร์, never เซิร์ฟเวอร์ภาษา for language server
+- hover, the editor's hover: การวางเมาส์ for hover
+- completion, the editor's code completion: การเติมโค้ดอัตโนมัติ for completion
+- tooltip: ทูลทิป for tooltip
+- preview build: บิลด์พรีวิว, and preview alone is พรีวิว, never บิลด์ตัวอย่าง for preview build
+- flow, said of the buttons of a panel: ลำดับของปุ่ม for the flow of buttons
+- shape, said of a schema, an entity or a drawing: รูปทรง, never รูปร่าง for shape
+- record, said of registry records, withdrawal records and import records: บันทึก, never ระเบียน for record
+- concern, said of a role's concern and of the roles' concerns: ความรับผิดชอบ, the word of Separation of Concerns, never ข้อกังวล for concern
+- variant, said of a variant of one entity: แบบ, never ตัวแปร for variant
+- caret, the fold arrow of a step or of Build: เครื่องหมายคาเร็ต, and chevron is เชฟรอน for chevron
+- credential store, said of the shared store of credentials: ที่จัดเก็บข้อมูลรับรอง, never ที่เก็บ (a repository) for store
+- preference, said of a user preference: ค่ากำหนด, and a setting stays การตั้งค่า for setting
+- picker or chooser, said of a menu that offers a choice: เมนูเลือก, since ตัวเลือก is an option, for picker
+- redraw and re-render, said of a graph or a panel drawn again: วาดใหม่ for redraw
+- ending, said of the closing message of an operation: ข้อความตอนจบ for ending
+- output channel: ช่องเอาต์พุต for output channel
+- status bar: แถบสถานะ for status bar
+- notification: การแจ้งเตือน for notification
+- welcome page: หน้าต้อนรับ for welcome page
+- topology: โทโพโลยี for topology
+- subsystem: ระบบย่อย for subsystem
+- wave, a sync wave: เวฟ for wave
+- applicability, said of a Feature's declared applicability: ขอบข่ายการใช้งาน for applicability
 
 A native speaker who finds a default here wrong corrects this file; every translation made after the correction follows it.
