@@ -674,3 +674,55 @@ Each of these is the ordinary word, written in lowercase in the source; the same
 - Exact, said of a decimal form or a spelling, is “ตรงทุกประการ”. แน่นอน stays in “กำหนดแน่นอน”.
 
 A native speaker who finds a default here wrong corrects this file; every translation made after the correction follows it.
+- The title of a schema page whose source names no kind in parentheses (“Aggrega Release schema”, “Aggrega Workload schema”) keeps the same order, the kept term standing as the name: “สคีมา Release Aggrega”, “สคีมา Workload Aggrega”. The English name is never left in Latin letters and never repeated in parentheses: the Aggregate page is “สคีมาเจตนาของนักพัฒนา Aggrega (Aggregate)”, the workspace configuration page “สคีมาการกำหนดค่าพื้นที่ทำงาน Aggrega” and the trust-record page “สคีมาบันทึกความเชื่อถือของปลั๊กอิน Aggrega”, with no kind added where the source has none.
+- The title of a socket schema page, “Aggrega Wasm X Socket schema”, is “สคีมาซ็อกเก็ต Wasm”, the role's Thai name, then Aggrega: “สคีมาซ็อกเก็ต Wasm ตัวนำเข้า Aggrega”, “สคีมาซ็อกเก็ต Wasm ตัวแยกวิเคราะห์ Aggrega”, “สคีมาซ็อกเก็ต Wasm linter Aggrega”, “สคีมาซ็อกเก็ต Wasm นโยบาย Aggrega”, “สคีมาซ็อกเก็ต Wasm การเรนเดอร์ของผู้ให้บริการ Aggrega”, “สคีมาซ็อกเก็ต Wasm ขั้นตอนไปป์ไลน์ FeatureRecipe Aggrega”. A mutator is “ตัวเปลี่ยนแปลง”. Never the English Socket nor an English role name such as Parser or Policy.
+- The title of a provider page, “X Provider”, is the provider's name and Provider in Latin letters, as a proper name: “Helm Provider”, “ARM Provider”, “CloudFormation Provider”. Never “Provider ของ CloudFormation”. The lowercase provider of running text and of a sentence-case heading is “ผู้ให้บริการ”: “ผู้ให้บริการ helm”.
+- A glossary word capitalized only because it opens a sentence-case heading or the phrase after a dash is the ordinary word: “ชุดพัฒนาปลั๊กอิน” for Plugin kits, “การแทนที่เฉพาะผู้ให้บริการ” for Provider-specific overrides, “เอกสารอ้างอิงการเขียนปลั๊กอิน” for Plugin authoring reference. A heading whose page plainly means the product's capabilities writes the ordinary word too: AI Features is “ฟีเจอร์ AI”.
+- The title of an example built around one product's stack is “สแตก” and the name: “สแตก Kong”, “สแตก Keycloak”, “สแตก Thanos”. Never “Kong สแตก” nor the Latin stack. A gateway named after its product is “เกตเวย์” and the name, “เกตเวย์ Contour”, and an API gateway is “เกตเวย์ API”. A product whose own name holds Gateway, such as Envoy Gateway, stays as written.
+- The title of an import page is “นำเข้า”, what is imported, then the product: “นำเข้าโปรเจกต์ CrewAI”, “นำเข้าเอเจนต์ Google ADK”. Where both words are Latin, ของ separates them, on the authoring page and the example alike: “นำเข้า chatflow ของ Flowise”, “นำเข้า flow ของ Langflow”, “นำเข้า workflow ของ n8n”.
+- In example titles, one Aggregate is “Aggregate เดียว”, a count of targets is “สองเป้าหมาย”, “สี่เป้าหมาย”, and optional authentication is “การยืนยันตัวตนแบบไม่บังคับ”. Never “Aggregate หนึ่งรายการ” nor “Aggregate หนึ่ง” in these titles.
+- Every heading on a page under language-reference/errors/ (fatal halts, warnings, sentinels and the error-translation page), its page title and its section headings such as When loading your files included, is the English name first and the Thai in parentheses: “When building the topology (เมื่อสร้างโทโพโลยี)”, “Error translation discipline (วินัยในการแปลข้อผิดพลาด)”. The Thai gloss repeats every key the English writes in inline code, in Latin letters without the backticks: “`valuesMapping` requires `source` (valuesMapping ต้องมี source)”.
+- A heading that opens with How over a clause is “วิธีที่ …”: “วิธีที่การนำเข้าทำงาน”, “วิธีที่ข้อมูลรับรองไปถึงคอนเทนเนอร์”. How to followed by a verb is “วิธี…”: “วิธีอ่านเมทริกซ์นี้”. How a name is derived is “วิธีที่ชื่อ…ได้มา”. Never “… อย่างไร” nor “วิธีการทำงานของ …” in such a heading.
+- A heading that opens with Why is “เหตุใด … จึง …”: “เหตุใดธรรมเนียมจึงมีอยู่”. Never ทำไม nor “เหตุที่”
+- A heading that opens with Where is “… มาจากที่ใด” for Where X comes from, “… อยู่ที่ใด” for Where X is or lives, and “ตำแหน่งที่ …” for any other clause: “ตำแหน่งที่คอมไพเลอร์ไม่ตีความ”. Never “ที่ที่ …”, and never the spoken ที่ไหน or ไหน in any heading
+- What X looks like is “หน้าตาของ X”: “หน้าตาของสแตกที่ประกอบแล้ว”. Never “X มีลักษณะอย่างไร” nor “X มีหน้าตาอย่างไร”
+- When to use X is “เมื่อใดควรใช้ X”, and When followed by a clause is “เมื่อ …”.
+- The closing sections take one wording each: Where next and Where to go next are “ขั้นต่อไป”, See also is “ดูเพิ่มเติม”, Related is “ที่เกี่ยวข้อง” and Cross-references is “ข้อมูลอ้างอิงข้ามหน้า”.
+- The control case of an example, The control:, is “กรณีควบคุม:”. Never “การควบคุม:”
+- Credential values a … holds, the recurring importer heading, is “ค่าข้อมูลรับรองที่ … เก็บไว้”. Never “ถือไว้” nor a bare มี
+- The pillar headings Values, Infra, Provides, Uses, Locals and Parameters keep the pillar's name in Latin letters, as the source writes it.
+- Taxonomy is “อนุกรมวิธาน”. Never “การจัดอนุกรมวิธาน”
+- A tier of the onion model, an entity tier or a resolution tier is ชั้น, as in “โมเดลหัวหอม 5 ชั้น”: “ชั้นที่ 3”, “ชั้นการหาค่า”. Never ระดับ nor the Latin tier for these. A support tier is “ระดับการสนับสนุน”.
+- Execution, said of running a step, a pipeline or a model, is “การรัน”: “ไปป์ไลน์การรันทีละขั้นตอน”, “ขอบเขตการรัน”. Never “การทำงาน” nor “การประมวลผล” for it
+- Abstraction is “การทำนามธรรม”: “การทำนามธรรมของพอร์ต”.
+- Intelligence, said of domain intelligence or a gateway's intelligence, is “ปัญญา”: “ปัญญาเฉพาะทาง”. Never “ความรู้เฉพาะทาง”
+- Reality is “ความจริง”, as in “ความจริงเชิงกายภาพ”: “ความจริงแบบคลาวด์เนทีฟ”. Never “ความเป็นจริง”
+- In a Release's terms is “ในบริบทของ Release”. Never “ในแง่ของ Release” nor “ตามมุมมองของ Release”
+- End-to-end is “ตั้งแต่ต้นจนจบ”. Never “ครบวงจร”
+- Temporal sequencing is “การจัดลำดับเชิงเวลา”. Never “ลำดับตามเวลา”
+- Managed, said of a database, a model or a target a cloud provider runs, is “มีการจัดการ”: “ฐานข้อมูลแบบมีการจัดการ”, “เป้าหมายที่มีการจัดการ”. Never “แบบจัดการให้” nor “ที่ผู้ให้บริการจัดการ”
+- Masking, said of personal data or a log, is “การปิดบัง”, and unmasked is “โดยไม่ได้ปิดบัง”. Never “การปกปิด”
+- A health probe is “โพรบตรวจสุขภาพ”. Never “โพรบสุขภาพ” nor the Latin words
+- A Prometheus scrape target is “เป้าหมาย scrape”, with scrape in Latin letters. Never “เป้าหมายที่ดึงเมตริก”
+- Compact form is “รูปแบบกะทัดรัด”, and a compact-form schema is “สคีมาในรูปแบบกะทัดรัด”. Never the Latin words compact form nor “แบบรูปแบบกะทัดรัด”
+- A literal, said of a value written as it is, is “ค่าตามตัวอักษร”. Never “ลิเทอรัล”
+- A chain, an extends chain or a chain of errors, is “ห่วงโซ่”: “ห่วงโซ่ extends ที่เป็นวัฏจักร”. Never สาย
+- To leave out and leaving out are “ละ … ออก”: “การละทรัพยากรออกจากเทมเพลตแบบอิงซอร์ส”. Never “เว้น … ออก” nor “ไม่รวม … ออก”
+- To serve, said of a plugin serving a capability, is “ให้บริการ”. Never รองรับ, which is to support
+- A template context is “บริบทเทมเพลต”: “สัญญาบริบทเทมเพลต”. Never “บริบทของเทมเพลต”
+- A format string is “สตริงรูปแบบ”. Never “รูปแบบสตริง”, which is a string format
+- The schema bridge is “บริดจ์สคีมา”, a bridge being บริดจ์ in every sense: “การส่งผ่านข้ามเสาหลักผ่านบริดจ์สคีมา”, “ไปป์ไลน์การสังเคราะห์บริดจ์”. Never the Latin schema-bridge nor สะพาน
+- A workspace root and a project root are “รูท”: “รูทของพื้นที่ทำงาน”. Never ราก for these
+- To recognise, said of an importer recognising a source or a root being recognised, is “รู้จัก”. Never จดจำ, which is to remember
+- An archive is “ไฟล์เก็บถาวร”. Never “อาร์ไคฟ์”
+- A skeleton, the file a plugin or an entity starts from, is “โครงร่าง”. Never “โครงต้นแบบ”
+- Shell completion is “การเติมคำสั่งอัตโนมัติของ shell”. การเติมโค้ดอัตโนมัติ stays the editor's code completion
+- A software licence is “สัญญาอนุญาต”. Never ใบอนุญาต
+- A frontend is “ฟรอนต์เอนด์”. Never “ส่วนหน้า”
+- A snapshot is “สแนปช็อต”. Never “ภาพสแนปช็อต”
+- Legacy, said of a chart or a format, is “แบบเดิม”: “chart แบบเดิม”. Never “รุ่นเดิม”, since รุ่น is only a release of the product
+- To shape labels is “จัดรูปป้ายกำกับ”: “การจัดรูปป้ายกำกับ”. Never “ปรับรูป”
+- Built on another, said of a Release or a Manifest that extends another, is “ต่อยอดจาก”: “Release หนึ่งที่ต่อยอดจากอีก Release หนึ่ง”. Never บิลด์ for it
+- To carry, said of a platform or a draft that holds a flow, is “บรรจุ”: “แพลตฟอร์มที่บรรจุโฟลว์”. Never “พก”
+- Reuse is “การนำกลับมาใช้ใหม่” and reusable “ที่นำกลับมาใช้ใหม่ได้”. Never “ใช้ซ้ำ”
+- A data model is “โมเดลข้อมูล”. Never “แบบจำลองข้อมูล”
