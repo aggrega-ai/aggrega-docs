@@ -611,5 +611,25 @@ Each of these is the ordinary word, written in lowercase in the source; the same
 - bridge, said of the compose bridge and of a network bridge: บริดจ์ for bridge, never สะพานเชื่อม nor สะพาน
 - checkout, a working copy of a repository: เช็กเอาต์ for checkout, as in "สำเนาที่เช็กเอาต์", never the Latin word checkout
 - tree, an output tree or a rendered tree of files: ทรี for tree, never ไดเรกทอรีเอาต์พุต for output tree
+- To realize, said of a FeatureRecipe that turns an attachment or a Feature into concrete resources, is ทำให้เป็นรูปธรรม, and realization is “การทำให้เป็นรูปธรรม”. Never ทำให้เป็นจริง nor เรียลไลซ์, and never อิมพลีเมนต์, which is to implement. `realization` in inline code stays as written.
+- A guard, said of a guard condition or a guard clause, is guard in Latin letters, as predicate, assertion and closure are. Never “ตัวป้องกัน”; a gate is ด่านตรวจ and a guardrail is “ราวกั้น”.
+- An importer, said of an importer plugin, is ตัวนำเข้า (“ตัวนำเข้า MCP”, “ปลั๊กอินตัวนำเข้า”), as a parser is “ตัวแยกวิเคราะห์”. An import, the act, is “การนำเข้า”.
+- A draft, as a noun (what an import writes), is ฉบับร่าง, and to draft is ร่าง: “ฉบับร่างของ Release”, “Component ที่ร่างขึ้น”. Never “แบบร่าง”.
+- A datastore, said of a store that holds data, is “ที่จัดเก็บข้อมูล”, as a vector store is “ที่จัดเก็บเวกเตอร์” and a credential store is “ที่จัดเก็บข้อมูลรับรอง”. A database is ฐานข้อมูล and a repository is ที่เก็บ, so neither is a datastore.
+- A leaf, said of the end value of a dotted path in a payload or a schema, is ลีฟ† (“ลีฟที่ละเอียดอ่อน”, “เส้นทางลีฟ”). Never “ใบ”.
+- A payload, said of the document a socket carries, is เพย์โหลด† (“ชนิดเพย์โหลด”, “เอกสารเพย์โหลด”), never the Latin word payload.
+- Sensitive, said of a value, a leaf or a slot a declaration marks, is ละเอียดอ่อน (“ค่าที่ประกาศว่าละเอียดอ่อน”, “ความละเอียดอ่อน”). Never “อ่อนไหว”.
+- A pointer, said of a memory address a guest passes, is “ตัวชี้”. Never “พอยน์เตอร์”.
+- In-band, said of a failure or a reply carried in the same channel, is ในสายหลัก, and out-of-band is “นอกสายหลัก”. Never “ในแบนด์” nor “นอกแถบ”.
+- Static analysis is “การวิเคราะห์แบบสถิต”, and statically linked is “ลิงก์แบบสถิต”. Never “การวิเคราะห์สถิต”.
+- Verbatim is ตามตัวอักษร (“ส่งให้เกสต์ตามตัวอักษร”); as written is “ตามที่เขียน”. The two never share a rendering.
+- Inline, said of a value written in the body of a document, is “แบบอินไลน์”. Never ในบรรทัด, which is in a line.
+- A contributor takes the classifier ราย (“ผู้มีส่วนร่วมสองราย”), never “รายการ”. A contribution, the noun, is “ส่วนที่เพิ่มเข้ามา”, and to contribute is “มีส่วนร่วม”.
+- A crossing, said of one render call a node makes across the socket (a source render, a workload synthesis, an artifacts placement), is “การเรียกข้ามซ็อกเก็ต”: “เรนเดอร์ได้ในการเรียกข้ามซ็อกเก็ตหลายครั้ง”.
+- To encode and to decode, said of CBOR or a payload, are เข้ารหัส and ถอดรหัส, and an entry point is “จุดเข้า”: “จุดเข้าเข้ารหัสและถอดรหัส”. Never the Latin words encode and decode in running text.
+- To marshal, said of turning a value into a payload to send, stays marshal in Latin letters.
+- A space, said of the name space inside which a guest's derived names must be distinct, and a key space, stay space in Latin letters: “space ของคีย์”. Never “ปริภูมิ”. A namespace is “เนมสเปซ”.
+- To dispatch, said of the compiler or the host routing a step or a role to a plugin, is กระจายงาน (“กระจายงานให้ปลั๊กอิน”). Never “ส่งงาน”.
+- Fixed, said of an order or a set, is “คงที่”: “ลำดับคงที่”. แน่นอน stays in “กำหนดแน่นอน”, which is deterministic, and is never fixed.
 
 A native speaker who finds a default here wrong corrects this file; every translation made after the correction follows it.
