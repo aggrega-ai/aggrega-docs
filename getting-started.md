@@ -18,7 +18,7 @@ There are two tracks:
 - an AI agent on a local model
 - a web app with PostgreSQL
 
-Each step of each track is one short section: what it adds, and the commands that build it. Two starters for the cloud follow, one for Terraform and one for AWS CloudFormation.
+Each step of each track is one short section: what it adds, and the commands that build it. Starters for the cloud follow, for Terraform and AWS CloudFormation on AWS and for Terraform on Google Cloud.
 
 Every command on this page is one the example's own page gives, or, for installing, the install page, so each
 section links to that page for the full account of what the step writes.
@@ -114,7 +114,7 @@ Aggrega stops at the files. It never reaches a running cluster or a cloud accoun
   and the `llama3.2:1b` model about 1.3 GB, measured as the registries serve them. The model is kept in a Docker
   volume, so later starts reuse it. The model server is given 4 GiB of memory. No API key is needed.
 - **For the starters for the cloud**, nothing more to build them. Planning or deploying what they write needs your
-  own AWS account and credentials.
+  own AWS or Google Cloud account and credentials.
 
 ## Install Aggrega
 
@@ -564,8 +564,8 @@ An AI assistant [set up with Aggrega's tools](ai-assistants/set-up.md) can do th
 
 ## Starters for the cloud
 
-Each starter is a managed database written once as an Aggregate and built to files for one tool: two on Amazon RDS, and
-one on Google Cloud, a Cloud SQL database with the Cloud Run server that reads it. For Azure, the
+Each starter is written once as an Aggregate and built to files for one tool: a managed database on Amazon RDS, or, on
+Google Cloud, a Cloud SQL database with the Cloud Run server that reads it. For Azure, the
 [PostgreSQL and Container Apps example](language-reference/examples/arm-postgres-container-apps/README.md) builds the
 same shape of database and server for Azure Resource Manager. The build needs no cloud account; planning or deploying
 what it writes needs your own account and credentials. As above, run each from the folder you started in.
@@ -664,6 +664,6 @@ An AI assistant [set up with Aggrega's tools](ai-assistants/set-up.md) can do th
 [Learn Aggrega](learn.md) is the path through the documentation, from the ideas behind Aggrega to authoring your own
 Aggregate. The runnable examples go further, each one a workspace that builds as it stands, and
 [the teaching order](language-reference/examples/by-product-and-capability.md#in-teaching-order) lists every one of
-them: the five on this page first, under Start here, then the rest tier by tier, simplest first. The Examples section
+them: the ones on this page first, under Start here, then the rest tier by tier, simplest first. The Examples section
 of the sidebar follows the same order. To start from a project you already have in another format,
 [Import](authoring/import/README.md) drafts the Aggrega files from it, for you to review and build.

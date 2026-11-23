@@ -13,7 +13,7 @@ This page is a signpost. It states what each standard-library provider produces 
 - **`cloudformation`** — produces CloudFormation stack templates, one per boundary. It emits configuration and never runs CloudFormation. See [cloudformation.md](cloudformation.md).
 - **`arm`** — produces Azure Resource Manager templates at resource-group, subscription or management-group scope, one per boundary. It emits configuration and never runs ARM. See [arm.md](arm.md).
 
-Which catalog Components build on which target is listed on the catalog site, which shows each Component with the Recipes that realize it on every target.
+The [catalog site](https://aggrega.ai/catalog) lists the catalog's Components and the Recipes that realize them, and filters Recipes by the target they build for.
 
 ## What a boundary's `syncWave` does on each provider
 

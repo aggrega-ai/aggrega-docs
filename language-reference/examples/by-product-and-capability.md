@@ -14,7 +14,7 @@ described in [The header on each example](README.md#the-header-on-each-example).
 
 ### Start here
 
-Tier `start-here`: the two examples Getting started grows one step at a time, then the three starters for the cloud.
+Tier `start-here`: the two examples Getting started grows one step at a time, then the starters for the cloud on AWS and Google Cloud.
 
 - [quickstart-ai](quickstart-ai/README.md) (`start`) — A small LangGraph agent, grown in four steps: it starts on a local model with a memory, gains a cloud model with the local one as its fallback, gets guardrails in front of both, and finally builds for Kubernetes.
 - [quickstart-web](quickstart-web/README.md) (`start`) — A small web application that keeps notes in PostgreSQL, grown in four steps: it starts with its database on your machine, gains a Redis cache, moves to AWS with the database on Amazon RDS, and finally gets its backups.
