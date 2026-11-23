@@ -515,7 +515,7 @@ Each of these is the ordinary word, written in lowercase in the source; the same
 - To interpolate, interpolation, said of values placed into a template or a string, is “แทนค่า”, “การแทนค่า”: “สตริงการแทนค่าของ Terraform”. Never แทรก, which is to inject.
 - Core, said of the compiler's core, is แกน (“แกนของคอมไพเลอร์”); core compiler is “คอมไพเลอร์หลัก”. Never คอร์ nor แกนหลัก as renderings.
 - Imperative, set against declarative, is “เชิงคำสั่ง”: “เครื่องมือเชิงคำสั่ง”, “คำสั่งเชิงคำสั่ง” for an imperative command. Never “แบบบังคับ”.
-- A source, said in plain text (a Bicep source, a fetched source, source control), is ซอร์ส in Thai letters, never แหล่ง, ต้นทาง nor Latin source; source of truth is “แหล่งความจริง”.
+- A source in the sense of an input artifact or text (a Recipe's source, a fetched or Bicep source, an importer's source and source node, a source chart, source text and a source line, source control) is ซอร์ส in Thai letters, never แหล่ง, ต้นทาง nor Latin source. Where source means where something comes from (a data, credential, inject, event or certificate source, a single source of a vocabulary), แหล่ง stays; an upstream and the source end of an edge, a path or a connection stay ต้นทาง; source of truth is “แหล่งความจริง”
 - Control Inversion is “การกลับทิศการควบคุม” and Dependency Inversion is “การกลับทิศการพึ่งพา”, translated everywhere, in running text and in an emphasised phrase alike.
 - AOT Purity is “ความบริสุทธิ์แบบ AOT”, translated in a heading too, with the English in parentheses at a page's first occurrence.
 - Conway's Law is “กฎของคอนเวย์”, with “(Conway's Law)” in parentheses at a page's first occurrence.
@@ -601,8 +601,8 @@ Each of these is the ordinary word, written in lowercase in the source; the same
 - peer, a peer container or a peer's address: เพียร์ for peer
 - sibling, said of failures at the same level: ระดับเดียวกัน for sibling
 - acquisition, said of fetching an artifact from a registry: การได้มาซึ่ง for acquisition
-- root, a root of the template render context (`.context`, `.values`, `.workload`) and the output root of a build: รูท for root, never ราก
-- allowlist, a variable or field allowlist of a template surface: รายการอนุญาต for allowlist, never รายการที่อนุญาต
+- root, said of a directory tree or a render context (a workspace, project, output, bundle or cache root, a template-context root such as `.context`, `.values`, `.workload`, the root of an extends chain, a document root): รูท for root, never ราก; a trust root keeps ราก
+- allowlist, in every sense (a variable or field allowlist of a template surface, the self-inject allowlist): รายการอนุญาต for allowlist, never รายการที่อนุญาต
 - id, a step id or an instance id: id, in Latin letters, as the source writes it, never รหัส for id
 - host, said of the component a FeatureRecipe attachment is attached to: ส่วนประกอบที่รับการแนบ for host component, never โฮสต์, which is the Wasm host
 - arrangement, said of a way pieces are laid out or combined: การจัดวาง for arrangement
@@ -666,7 +666,7 @@ Each of these is the ordinary word, written in lowercase in the source; the same
 - A missing key, said of the missing-key policy and a key a map does not hold, is “คีย์ที่หายไป”. Never “คีย์ที่ขาด”.
 - A projection, said of the compiler's join projection and a render-context projection, is “การฉาย”. Never “การฉายภาพ”.
 - Emptiness, said of the empty value a template reads, is “ความว่างเปล่า”, in a heading and a link alike. Never “ความว่าง” alone.
-- A base Recipe is “Recipe พื้นฐาน” and base rendering is “การเรนเดอร์พื้นฐาน”. Never ฐาน (ฐานเปล่า stays the pinned Naked Base).
+- The base layer is written with พื้นฐาน: a base Recipe is “Recipe พื้นฐาน”, base rendering is “การเรนเดอร์พื้นฐาน” and the base component an attachment modifies is “ส่วนประกอบพื้นฐาน”; never ฐาน for this layer. The base an entity extends keeps ฐาน (“Component ฐาน”, “Release ฐาน”), as do a base file, a base URL and the pinned ฐานเปล่า for Naked Base
 - Self-contained, said of a context or a template, is “บรรจุในตัว”: “ข้อคงที่การบรรจุในตัว”. Never “ครบในตัว”.
 - Custom, said of a custom mechanism, a custom helper or custom entries, is “แบบกำหนดเอง”: “กลไกแบบกำหนดเอง”. Never “ที่กำหนดเอง” for these.
 - Load-bearing, said of a distinction, a split or an order, is สำคัญ; never “รับน้ำหนัก” nor “สำคัญเชิงโครงสร้าง”, which is structural.
@@ -706,13 +706,13 @@ A native speaker who finds a default here wrong corrects this file; every transl
 - A Prometheus scrape target is “เป้าหมาย scrape”, with scrape in Latin letters. Never “เป้าหมายที่ดึงเมตริก”
 - Compact form is “รูปแบบกะทัดรัด”, and a compact-form schema is “สคีมาในรูปแบบกะทัดรัด”. Never the Latin words compact form nor “แบบรูปแบบกะทัดรัด”
 - A literal, said of a value written as it is, is “ค่าตามตัวอักษร”. Never “ลิเทอรัล”
-- A chain, an extends chain or a chain of errors, is “ห่วงโซ่”: “ห่วงโซ่ extends ที่เป็นวัฏจักร”. Never สาย
+- A chain, the noun (an extends chain, a chain of errors), is “ห่วงโซ่”: “ห่วงโซ่ extends ที่เป็นวัฏจักร”. Never สาย for the noun; the verb to chain (a pipeline chains plugins, a certificate chains to a trust root) is “ต่อสาย”
 - To leave out and leaving out are “ละ … ออก”: “การละทรัพยากรออกจากเทมเพลตแบบอิงซอร์ส”. Never “เว้น … ออก” nor “ไม่รวม … ออก”
 - To serve, said of a plugin serving a capability, is “ให้บริการ”. Never รองรับ, which is to support
 - A template context is “บริบทเทมเพลต”: “สัญญาบริบทเทมเพลต”. Never “บริบทของเทมเพลต”
 - A format string is “สตริงรูปแบบ”. Never “รูปแบบสตริง”, which is a string format
 - The schema bridge is “บริดจ์สคีมา”, a bridge being บริดจ์ in every sense: “การส่งผ่านข้ามเสาหลักผ่านบริดจ์สคีมา”, “ไปป์ไลน์การสังเคราะห์บริดจ์”. Never the Latin schema-bridge nor สะพาน
-- A workspace root and a project root are “รูท”: “รูทของพื้นที่ทำงาน”. Never ราก for these
+- A workspace root and a project root are “รูท”: “รูทของพื้นที่ทำงาน”, as every directory-tree root is (see root above)
 - To recognise, said of an importer recognising a source or a root being recognised, is “รู้จัก”. Never จดจำ, which is to remember
 - An archive is “ไฟล์เก็บถาวร”. Never “อาร์ไคฟ์”
 - A skeleton, the file a plugin or an entity starts from, is “โครงร่าง”. Never “โครงต้นแบบ”
