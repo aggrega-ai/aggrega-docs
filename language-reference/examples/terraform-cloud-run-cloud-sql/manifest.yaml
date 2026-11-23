@@ -1,0 +1,20 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Cognitio s.r.l.
+
+apiVersion: aggrega.ai/v1beta1
+kind: Manifest
+metadata:
+  name: manifest
+  version: "1.0.0"
+  description: >
+    Ops mapping for Google Cloud with Terraform. The PostgreSQL component type
+    binds the Recipe that provisions a Cloud SQL instance, and the server type
+    binds the Recipe that deploys a Cloud Run service.
+spec:
+  mappings:
+    components:
+      type:
+        # Provider-qualified: each component type has a Recipe on more than one
+        # target, and the mapping is what chooses this one.
+        core/datastore/postgres:1.0.0: terraform/postgres-cloud-sql:1.0.0
+        core/compute/server:1.1.0: terraform/server-cloud-run:1.2.0

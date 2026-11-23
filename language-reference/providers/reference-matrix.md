@@ -13,6 +13,8 @@ This page is a signpost. It states what each standard-library provider produces 
 - **`cloudformation`** — produces CloudFormation stack templates, one per boundary. It emits configuration and never runs CloudFormation. See [cloudformation.md](cloudformation.md).
 - **`arm`** — produces Azure Resource Manager templates at resource-group, subscription or management-group scope, one per boundary. It emits configuration and never runs ARM. See [arm.md](arm.md).
 
+Which catalog Components build on which target is listed on the catalog site, which shows each Component with the Recipes that realize it on every target.
+
 ## What a boundary's `syncWave` does on each provider
 
 A Release boundary's `syncWave:` value is read by every standard-library provider, and what it orders — and in what terms — differs by provider; on `helm-chart` it orders only the resources that carry its annotation:

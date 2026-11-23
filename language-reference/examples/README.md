@@ -143,7 +143,7 @@ taught in this order:
 
 <!-- example-header: tier -->
 - `start-here` — Start here: the two examples Getting started grows one step at
-  a time, then the two starters for the cloud.
+  a time, then the three starters for the cloud.
 - `catalog-only` — Catalog only: assembled from catalog entities, with nothing
   authored but the Aggregate, the Manifest and the Release.
 - `authoring` — Authoring: writes a Component, a Feature or a Recipe of its own,

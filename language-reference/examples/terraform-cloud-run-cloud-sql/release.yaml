@@ -1,0 +1,41 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Cognitio s.r.l.
+
+apiVersion: aggrega.ai/v1beta1
+kind: Release
+metadata:
+  name: terraform-cloud-run-cloud-sql
+  environment: production
+  version: "1.0.0"
+spec:
+  aggregate: aggregate
+  manifest: manifest
+  boundaries:
+    # Every project-specific value below is a placeholder: the project, network,
+    # service account and image stand for resources the operator already runs.
+    # Replace them with your own before applying.
+    infra:
+      directory: infra
+      components:
+        db:
+          infra:
+            engine_version: "16"
+            storage:
+              size: 20Gi
+            ha:
+              enabled: false
+              read_replicas: 0
+            overrides:
+              project_id: example-project
+              region: europe-west1
+              private_network: projects/example-project/global/networks/example-network
+        api:
+          infra:
+            image: europe-west1-docker.pkg.dev/example-project/example-repo/orders-api:1.0.0
+            port: 8080
+            replicas: 1
+            overrides:
+              project_id: example-project
+              region: europe-west1
+              private_network: projects/example-project/global/networks/example-network
+              service_account: orders-api@example-project.iam.gserviceaccount.com
