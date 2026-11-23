@@ -9102,6 +9102,17 @@
     "status": "machine",
     "text": "Meminta daemon berhenti menerima pekerjaan dan menyelesaikan pekerjaan yang sudah diterimanya. Notifikasi ini tidak membawa field, dan notifikasi itu sendiri biasanya dikirim tanpa objek params sama sekali. Notifikasi kedua membatalkan pekerjaan yang masih berjalan alih-alih menunggunya."
   },
+  "0ba99d787efd7cc6": {
+    "at": "2026-11-23T06:06:34.829Z",
+    "job": "session-0004-20261123060634",
+    "revision": {
+      "from": "69bd2211a05e1513",
+      "reviewed": false
+    },
+    "srcHash": "0ba99d787efd7cc6",
+    "status": "machine",
+    "text": "Terraform di Google Cloud"
+  },
   "0bac28d9b0ebf1e0": {
     "at": "2026-10-23T06:14:09.798554+00:00",
     "job": "msgbatch_0114PSvCA8TYhfY7XN2T8bxB",
@@ -97224,6 +97235,17 @@
     "status": "machine",
     "text": "Bacalah kedua baris itu secara terpisah, karena keduanya menyatakan hal yang berbeda."
   },
+  "8069e7dc1898a583": {
+    "at": "2026-11-23T06:06:34.829Z",
+    "job": "session-0004-20261123060634",
+    "revision": {
+      "from": "b4f1de92b5d3519b",
+      "reviewed": false
+    },
+    "srcHash": "8069e7dc1898a583",
+    "status": "machine",
+    "text": "[terraform-cloud-run-cloud-sql](terraform-cloud-run-cloud-sql/README.md) (`start`) — Basis data PostgreSQL dan server yang membacanya, ditulis sekali sebagai niat pengembang dan dibangun menjadi konfigurasi Terraform untuk Google Cloud: basis data berupa instans Cloud SQL, server berupa layanan Cloud Run."
+  },
   "806add86fb2af3e9": {
     "at": "2026-11-15T00:01:44.436Z",
     "job": "session-0026-20261115000144",
@@ -150540,6 +150562,17 @@
     "status": "machine",
     "text": "Karakter yang tidak dapat dimuat oleh nilai label dituliskan, bukan diganti, sehingga tanda hubung yang Anda tulis tetap menjadi tanda hubung dan karakter lainnya menjadi escape pendek: Feature bernama `my zone` menyumbangkan `my-zx000020zone`. Karena itu, dua lampiran yang dapat Anda bedakan menghasilkan dua nilai — apa pun nama yang Anda berikan, dan seberapa pun dalam letak boundary-nya — karena `--` adalah rangkaian yang tidak dapat dimuat oleh bagian tertulis mana pun, sehingga menggeser batas antarbagian mengubah nilainya alih-alih bertabrakan dengannya."
   },
+  "c6123d35cb104e5c": {
+    "at": "2026-11-23T06:06:34.829Z",
+    "job": "session-0004-20261123060634",
+    "revision": {
+      "from": "2525fbad77588d8b",
+      "reviewed": false
+    },
+    "srcHash": "c6123d35cb104e5c",
+    "status": "machine",
+    "text": "`release.yaml` — nilai operator untuk batas `infra`: versi engine basis data, ukuran disk, dan ketersediaan tinggi, image, port, dan jumlah instans server, serta, di bawah `overrides`, project, region, dan jaringan VPC Google Cloud tempat kedua Recipes menempatkan sumber daya, dan service account yang digunakan server untuk berjalan. Setiap nilai khusus project adalah placeholder (`example-project`, `example-network`); ganti masing-masing dengan milik Anda sendiri."
+  },
   "c612c6ecb9560701": {
     "at": "2026-10-29T21:33:51.093Z",
     "job": "session-0023-20261029213351",
@@ -153565,6 +153598,17 @@
     "srcHash": "c9c02f14b90c1cea",
     "status": "machine",
     "text": "**Propagasi identitas pemanggil, pada dua hop:** Identitas pemanggil asli harus bertahan melewati dua hop yang berbeda, dan masing-masing dilindungi di tempat yang berbeda. Pada **hop gateway**, developer memasang `core/context-propagation`, yang memilih berdasarkan `dataplane.aggrega.ai/caller-identity`, pada gateway tempat permintaan masuk. Pada **waktu kompilasi**, pemasangan itu direalisasikan dalam konfigurasi gateway itu sendiri — pada Envoy Gateway, client traffic policy yang memverifikasi sertifikat setiap klien terhadap otoritas yang disebut Release dan meneruskan detail sertifikat; pada AI gateway LiteLLM, hook permintaan yang menghapus header identitas apa pun yang diberikan pemanggil dan menambahkan pengguna dan tim dari kunci virtual yang diverifikasi gateway, serta organisasinya jika kunci itu menyebut satu, pada permintaan ke alias model yang dicantumkan pemasangan di `destinations`. Pada **runtime**, layanan di balik gateway menerima siapa yang memanggil, bukan hanya bahwa gateway yang memanggil. Pada **hop beban kerja**, permintaan yang dibuat satu agen langsung ke agen lain tidak pernah melewati gateway itu, sehingga diperiksa di ingress milik agen penerima, tempat service mesh menolak setiap permintaan yang tidak membawa token bertanda tangan yang membuktikan niat pengguna asli (mis., `AuthorizationPolicy` JWT Istio). Pustaka standar menyertakan Feature hop gateway dan tidak ada Feature hop beban kerja, sehingga memasang `core/context-propagation` melindungi lalu lintas yang melewati gateway dan menyerahkan panggilan antaragen kepada konfigurasi mesh yang disediakan perusahaan sendiri. Agen yang dijalankan pihak lain, yang dijangkau `core/ai-tool/agent-invocation` melalui A2A sebagai `core/ai-agent/a2a-remote`, berada sepenuhnya di luar Release: pihak tersebut memeriksa setiap panggilan terhadap skema keamanan yang dideklarasikan Agent Card agen itu, dan tool menyajikan kredensial yang disimpan pada koneksinya, dibaca dari Secret melalui referensi, di bawah header permintaan yang dipublikasikan agen. Jika card mewajibkan client credentials OAuth 2.0 atau OpenID Connect, koneksi menyimpan client secret sebagai gantinya, atau sebagai tambahan, dengan client id yang ditulis operator padanya, dan agen memublikasikan alamat token atau discovery serta scope yang dideklarasikan card-nya; container milik tool memperoleh token dengan semua itu, memperbaruinya, dan menyajikannya pada setiap panggilan; katalog hanya mengirimkan input tersebut, dan tidak ada build yang dapat memeriksa apa yang dilakukan container dengannya. Jika card mewajibkan mutual TLS, koneksi menyimpan sertifikat klien, dan, jika otoritas yang belum dipercaya image menandatangani sertifikat server agen, otoritas itu juga; masing-masing di-mount ke container tool sebagai file dari Secret yang disebut koneksi, dan container sendiri yang menyajikan sertifikat dalam handshake TLS. Jadi tool menjangkau agen yang card-nya mendeklarasikan kunci API dalam header atau cookie, skema autentikasi HTTP yang nilainya tetap, seperti Bearer atau Basic, dengan Secret menyimpan seluruh nilai header, OAuth 2.0 atau OpenID Connect dengan grant client-credentials, atau mutual TLS. Tool tidak menjangkau agen yang card-nya mewajibkan kunci dalam query string, skema HTTP yang menjawab challenge dari agen, seperti Digest, atau alur OAuth 2.0 selain client credentials. Tool juga tidak menyajikan kredensial kepada agen yang dijalankan pihak lain melalui HTTP biasa: jika alamat agen itu adalah `http`, kredensial atau client secret pada koneksi menghentikan build, dengan menyebut koneksinya, karena kredensial itu, atau token yang diperoleh dengan secret tersebut, akan dikirim kepadanya tanpa enkripsi. Agen yang berjalan di dalam Release tetap dapat dijangkau melalui `http` dengan keduanya, dan kredensial itu kemudian melintasi jaringan cluster tanpa enkripsi."
+  },
+  "c9c0ff8a0f2853d9": {
+    "at": "2026-11-23T06:06:34.829Z",
+    "job": "session-0004-20261123060634",
+    "revision": {
+      "from": "400c5a424252eb28",
+      "reviewed": false
+    },
+    "srcHash": "c9c0ff8a0f2853d9",
+    "status": "machine",
+    "text": "Proses build menulis konfigurasi Terraform di bawah `dist/infra/terraform/`: konfigurasi root yang mendeklarasikan basis data dan server sebagai modul, instans Cloud SQL di `modules/db/` hanya dengan alamat privat, dan layanan Cloud Run di `modules/api/` dengan alamat basis data diteruskan kepadanya sebagai variabel lingkungan `DB_HOST`. Project, jaringan, dan service account di `release.yaml` adalah placeholder untuk sumber daya yang sudah Anda jalankan. Jalankan `terraform init` lalu `terraform plan` di `dist/infra/terraform/` dengan kredensial Google Cloud Anda diatur di lingkungan Anda. [Terraform Cloud Run dan Cloud SQL](language-reference/examples/terraform-cloud-run-cloud-sql/README.md) menjelaskan setiap file dan apa yang diserahkan Release kepada Anda."
   },
   "c9c189cdd5a2a507": {
     "at": "2026-10-23T08:18:59.335953+00:00",
@@ -173891,6 +173935,17 @@
     "status": "machine",
     "text": "Jawabannya adalah `position` dengan lebar nol, yang `line` dan `character`-nya sama-sama dihitung dari nol; `entryIndent` dan `indentStep`, kolom tempat menulis; dan `missingContainerKeys`, kunci kontainer yang belum dimuat dokumen ini, dimulai dari yang terluar, yang Anda tulis sebelum entri. `entryShape` melaporkan apakah kontainer memuat `mapping` atau `sequence`, dan melaporkan `unknown` jika kontainer belum ada atau tidak memuat apa pun, karena dokumen belum menentukannya — bentuknya kemudian Anda yang memilih. `indentStepMeasured` menyatakan apakah langkah indentasi diukur dari susunan bersarang dokumen ini sendiri atau merupakan nilai cadangan untuk dokumen yang tidak memperlihatkannya. Jika `precededByLineBreak` diatur, awali teks Anda dengan pemisah baris: posisi berada di akhir baris yang diikuti entri, yang valid baik file diakhiri baris baru maupun tidak, dan tidak mengubah satu byte pun yang sudah ditulis. Bacalah `missingContainerKeys` bahkan ketika Anda mengira kontainer sudah ada — posisi yang diterapkan tanpa kunci yang harus mendahuluinya menghasilkan dokumen yang tidak lagi dapat diurai."
   },
+  "e3636443662b3b35": {
+    "at": "2026-11-23T06:06:34.829Z",
+    "job": "session-0004-20261123060634",
+    "revision": {
+      "from": "152fe9c2333fbcaa",
+      "reviewed": false
+    },
+    "srcHash": "e3636443662b3b35",
+    "status": "machine",
+    "text": "Modul basis data, `modules/db/`, adalah modul PostgreSQL dari modul Cloud SQL milik proyek terraform-google-modules (`sql-db`), disalin apa adanya seperti yang diterbitkan dan dipanggil dengan nilai yang diberikan Release: versi engine sebagai `database_version`, ukuran disk, project, region, dan jaringan VPC. Instans mendapat alamat privat saja, dan pencadangan otomatis serta point-in-time recovery-nya aktif. Modul menghasilkan kata sandi pengguna `orders_admin` saat apply, sehingga tidak ada kata sandi yang ditulis ke file mana pun yang dihasilkan build."
+  },
   "e363b46307e797a7": {
     "at": "2026-10-22T09:04:04.145Z",
     "job": "session-0027-20261022090404",
@@ -175865,6 +175920,17 @@
     "srcHash": "e6014766105dfa67",
     "status": "machine",
     "text": "**Cara memperbaiki:** simpan rahasia di Secrets Manager atau sebagai secure string Parameter Store dan bind dynamic reference ke sana — `{{resolve:secretsmanager:<secret>}}` atau `{{resolve:ssm-secure:<name>}}` — alih-alih menyisipkannya ke dalam teks intrinsik, atau biarkan parameter tidak di-bind agar menerima nilai yang diteruskan saat stack di-deploy. Lihat [cloudformation → Nilai untuk parameter templat bersumber](../providers/cloudformation.md#values-for-a-sourced-templates-parameters)."
+  },
+  "e606fa5b4ffdbf00": {
+    "at": "2026-11-23T06:06:34.829Z",
+    "job": "session-0004-20261123060634",
+    "revision": {
+      "from": "bbe654fc3ca4fb6c",
+      "reviewed": false
+    },
+    "srcHash": "e606fa5b4ffdbf00",
+    "status": "machine",
+    "text": "Modul server, `modules/api/`, adalah satu layanan Cloud Run. Kontainernya menjalankan image Release pada port Release, sebagai service account yang disebut Release. Layanan mengirim lalu lintas ke jaringan melalui Direct VPC egress, dan ingress-nya internal. Variabel lingkungan yang diminta Aggregate menjadi variabel kontainer; `DB_HOST` berisi referensi Terraform ke alamat privat instans, yang dievaluasi oleh konfigurasi root:"
   },
   "e608060d09b9e011": {
     "at": "2026-11-05T18:37:21.162Z",
