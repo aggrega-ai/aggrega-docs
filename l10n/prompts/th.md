@@ -653,5 +653,24 @@ Each of these is the ordinary word, written in lowercase in the source; the same
 - The title of a schema page, “Aggrega X (Kind) schema”, is “สคีมา” followed by the Thai name and then Aggrega: “สคีมาแค็ตตาล็อก Aggrega (Component)”, “สคีมาไฟล์ล็อกการพึ่งพา Aggrega (Manifest)”, “สคีมาแกน Aggrega (Plugin)”, “สคีมาฐานโครงสร้างพื้นฐาน Aggrega (FeatureRecipe)”. The English name is not left in Latin letters.
 - A dictionary, said of a flat dictionary the compiler reads, is “แมป”. Never “ดิกชันนารี”.
 - A minimum-version floor is “ขั้นต่ำของเวอร์ชัน”, never ขีดล่าง, which is an underscore. To assert a version, said of a consumer naming a minimum, is “ระบุ”, never ยืนยัน, which is to verify.
+- A consumer in the Aggrega sense (a component or a Recipe that reads what a producer publishes) is ผู้บริโภค and a producer is ผู้ผลิต; a consuming component is “ส่วนประกอบผู้บริโภค” and the consumer's side is “ฝั่งผู้บริโภค”. Never ผู้ใช้, which is a user, nor “ส่วนประกอบที่บริโภค”.
+- A site, said of where a template is evaluated (a template site, an evaluation site), is ตำแหน่ง: “ตำแหน่งเทมเพลต”, “ความพร้อมใช้งานรายตำแหน่ง”. Never ไซต์
+- self-inject, the component-level inject, stays in Latin letters: “การหาค่า self-inject”, “เทมเพลต `value:` ของ self-inject”. The inject pipe is “ท่อ inject” and inject mapping is “การแมป inject”, each with inject in Latin letters as in “ไฮเดรชันของ inject”. Never “การแทรกตัวเอง”, “ท่อการแทรก” nor “การแมปการแทรก”.
+- A bucket, said of the three annotation buckets, is กลุ่ม (“สามกลุ่ม”). Never the loanword บักเก็ต
+- Quotation marks, said of the characters “ ” or " ", are “เครื่องหมายอัญประกาศ”, and double-quoted is “ที่ใช้เครื่องหมายอัญประกาศคู่”. Never “เครื่องหมายคำพูด” nor the bare อัญประกาศ
+- Downstream, said of later template surfaces or later stages, is ปลายน้ำ (“พื้นผิวเทมเพลตค่าปลายน้ำ”). Never ด้านล่าง nor “ขั้นถัดไป”.
+- A phase, said of the phases of a check or a compilation, is ช่วง (“ทั้งสองช่วงของ assertion”). Never เฟส
+- Interception, said of the inject pipe or a mapping that rewrites it, is “การสกัดกั้น” (“ท่อที่กำลังถูกสกัดกั้น”). Never “ดัก”.
+- To fold, said of a name folded onto letters and digits or two ids folded onto one name, is พับ (“พับชื่อ”, “พับลงเป็นชื่อเดียวกัน”). Never “ลดเหลือ” nor “แปลง”.
+- A worked example, a worked pair, is “ตัวอย่างที่แสดงวิธีทำ”. Never “ตัวอย่างใช้งานจริง” nor “ที่ทำให้ดู”.
+- A missing key, said of the missing-key policy and a key a map does not hold, is “คีย์ที่หายไป”. Never “คีย์ที่ขาด”.
+- A projection, said of the compiler's join projection and a render-context projection, is “การฉาย”. Never “การฉายภาพ”.
+- Emptiness, said of the empty value a template reads, is “ความว่างเปล่า”, in a heading and a link alike. Never “ความว่าง” alone.
+- A base Recipe is “Recipe พื้นฐาน” and base rendering is “การเรนเดอร์พื้นฐาน”. Never ฐาน (ฐานเปล่า stays the pinned Naked Base).
+- Self-contained, said of a context or a template, is “บรรจุในตัว”: “ข้อคงที่การบรรจุในตัว”. Never “ครบในตัว”.
+- Custom, said of a custom mechanism, a custom helper or custom entries, is “แบบกำหนดเอง”: “กลไกแบบกำหนดเอง”. Never “ที่กำหนดเอง” for these.
+- Load-bearing, said of a distinction, a split or an order, is สำคัญ; never “รับน้ำหนัก” nor “สำคัญเชิงโครงสร้าง”, which is structural.
+- Escape, said of escaping braces or a character, is หลีก and “การหลีก”: “แบบหลีกอักขระ”. Never the Latin word escape.
+- Exact, said of a decimal form or a spelling, is “ตรงทุกประการ”. แน่นอน stays in “กำหนดแน่นอน”.
 
 A native speaker who finds a default here wrong corrects this file; every translation made after the correction follows it.
