@@ -20,7 +20,7 @@ Tier `start-here`: the two examples Getting started grows one step at a time, th
 - [quickstart-web](quickstart-web/README.md) (`start`) — A small web application that keeps notes in PostgreSQL, grown in four steps: it starts with its database on your machine, gains a Redis cache, moves to AWS with the database on Amazon RDS, and finally gets its backups.
 - [terraform-rds](terraform-rds/README.md) (`authoring`) — A single MariaDB database authored once as developer intent and rendered to a Terraform HCL file that provisions a managed AWS RDS instance.
 - [cloudformation-rds-stack](cloudformation-rds-stack/README.md) (`advanced`) — A managed database and the application that reads it, authored once as developer intent and assembled into AWS CloudFormation stack templates.
-- [terraform-cloud-run-cloud-sql](terraform-cloud-run-cloud-sql/README.md) (`authoring`) — A PostgreSQL database and the server that reads it, authored once as developer intent and built to a Terraform configuration for Google Cloud: the database is a Cloud SQL instance, the server is a Cloud Run service.
+- [terraform-cloud-run-cloud-sql](terraform-cloud-run-cloud-sql/README.md) (`start`) — A PostgreSQL database and the server that reads it, authored once as developer intent and built to a Terraform configuration for Google Cloud: the database is a Cloud SQL instance, the server is a Cloud Run service.
 
 ### Catalog only
 
@@ -242,7 +242,7 @@ Tier `importers`: a project written in another format, drafted into Aggrega file
 
 - [arm-postgres-container-apps](arm-postgres-container-apps/README.md) (`advanced`) — A managed PostgreSQL database and the server that reads it, authored once as developer intent and assembled into **one Azure Resource Manager template**.
 - [quickstart-ai](quickstart-ai/README.md) (`start`) — A small LangGraph agent, grown in four steps: it starts on a local model with a memory, gains a cloud model with the local one as its fallback, gets guardrails in front of both, and finally builds for Kubernetes.
-- [terraform-cloud-run-cloud-sql](terraform-cloud-run-cloud-sql/README.md) (`authoring`) — A PostgreSQL database and the server that reads it, authored once as developer intent and built to a Terraform configuration for Google Cloud: the database is a Cloud SQL instance, the server is a Cloud Run service.
+- [terraform-cloud-run-cloud-sql](terraform-cloud-run-cloud-sql/README.md) (`start`) — A PostgreSQL database and the server that reads it, authored once as developer intent and built to a Terraform configuration for Google Cloud: the database is a Cloud SQL instance, the server is a Cloud Run service.
 
 ### `core/datastore/cognee`
 
@@ -310,7 +310,7 @@ Tier `importers`: a project written in another format, drafted into Aggrega file
 - [postgres-init-config](postgres-init-config/README.md) (`start`) — `core/datastore/postgres` exposes two optional developer values that shape the database's first start: `init_scripts` (SQL or shell run once on initialization) and `custom_config` (a `postgresql.conf` fragment).
 - [postgres-three-realizations](postgres-three-realizations/README.md) (`authoring`) — A PostgreSQL database and the application that reads it, deployed **three different ways from one unchanged Aggregate**: PostgreSQL running in the cluster, PostgreSQL as a managed cloud instance, and a PostgreSQL server that already existed before this Release was deployed.
 - [quickstart-web](quickstart-web/README.md) (`start`) — A small web application that keeps notes in PostgreSQL, grown in four steps: it starts with its database on your machine, gains a Redis cache, moves to AWS with the database on Amazon RDS, and finally gets its backups.
-- [terraform-cloud-run-cloud-sql](terraform-cloud-run-cloud-sql/README.md) (`authoring`) — A PostgreSQL database and the server that reads it, authored once as developer intent and built to a Terraform configuration for Google Cloud: the database is a Cloud SQL instance, the server is a Cloud Run service.
+- [terraform-cloud-run-cloud-sql](terraform-cloud-run-cloud-sql/README.md) (`start`) — A PostgreSQL database and the server that reads it, authored once as developer intent and built to a Terraform configuration for Google Cloud: the database is a Cloud SQL instance, the server is a Cloud Run service.
 
 ### `core/datastore/redis`
 
@@ -593,7 +593,7 @@ components wired through `uses` sockets, with values piped across each edge.
 - [prometheus-scrape](prometheus-scrape/README.md) (`start`) — This example compiles a small, real stack — a **Prometheus** metrics server scraping **two Grafana dashboards servers** — from one Developer-authored `Aggregate` to two targets.
 - [quickstart-ai](quickstart-ai/README.md) (`start`) — A small LangGraph agent, grown in four steps: it starts on a local model with a memory, gains a cloud model with the local one as its fallback, gets guardrails in front of both, and finally builds for Kubernetes.
 - [quickstart-web](quickstart-web/README.md) (`start`) — A small web application that keeps notes in PostgreSQL, grown in four steps: it starts with its database on your machine, gains a Redis cache, moves to AWS with the database on Amazon RDS, and finally gets its backups.
-- [terraform-cloud-run-cloud-sql](terraform-cloud-run-cloud-sql/README.md) (`authoring`) — A PostgreSQL database and the server that reads it, authored once as developer intent and built to a Terraform configuration for Google Cloud: the database is a Cloud SQL instance, the server is a Cloud Run service.
+- [terraform-cloud-run-cloud-sql](terraform-cloud-run-cloud-sql/README.md) (`start`) — A PostgreSQL database and the server that reads it, authored once as developer intent and built to a Terraform configuration for Google Cloud: the database is a Cloud SQL instance, the server is a Cloud Run service.
 
 ### `credentials`
 
@@ -751,7 +751,7 @@ Terraform, CloudFormation or ARM output for managed cloud services.
 - [postgres-three-realizations](postgres-three-realizations/README.md) (`authoring`) — A PostgreSQL database and the application that reads it, deployed **three different ways from one unchanged Aggregate**: PostgreSQL running in the cluster, PostgreSQL as a managed cloud instance, and a PostgreSQL server that already existed before this Release was deployed.
 - [quickstart-web](quickstart-web/README.md) (`start`) — A small web application that keeps notes in PostgreSQL, grown in four steps: it starts with its database on your machine, gains a Redis cache, moves to AWS with the database on Amazon RDS, and finally gets its backups.
 - [task-run-on-demand](task-run-on-demand/README.md) (`start`) — A task carrying `core/manual-trigger`, deployed without starting on Kubernetes, Docker Compose, Terraform and CloudFormation, beside a task carrying nothing, with the command that starts a run on each target.
-- [terraform-cloud-run-cloud-sql](terraform-cloud-run-cloud-sql/README.md) (`authoring`) — A PostgreSQL database and the server that reads it, authored once as developer intent and built to a Terraform configuration for Google Cloud: the database is a Cloud SQL instance, the server is a Cloud Run service.
+- [terraform-cloud-run-cloud-sql](terraform-cloud-run-cloud-sql/README.md) (`start`) — A PostgreSQL database and the server that reads it, authored once as developer intent and built to a Terraform configuration for Google Cloud: the database is a Cloud SQL instance, the server is a Cloud Run service.
 - [terraform-declared-sensitivity](terraform-declared-sensitivity/README.md) (`advanced`) — A declaration that a value carries secret material is authored once, on a Component's schema.
 - [terraform-rds-module](terraform-rds-module/README.md) (`authoring`) — The same MariaDB intent as the `terraform-rds` example, rendered through the **sourced** shape of the Terraform provider: instead of an inline HCL body, the Recipe points at a local Terraform module and the compiler vendors it verbatim, then supplies its input variables from the developer and operator pillars.
 - [terraform-rds](terraform-rds/README.md) (`authoring`) — A single MariaDB database authored once as developer intent and rendered to a Terraform HCL file that provisions a managed AWS RDS instance.

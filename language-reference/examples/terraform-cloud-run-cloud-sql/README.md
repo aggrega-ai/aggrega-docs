@@ -1,6 +1,6 @@
 ---
 example:
-  level: authoring
+  level: start
   tier: start-here
   position: 5
   products: [core/datastore/postgres, core/compute/server]
@@ -30,10 +30,10 @@ with your own credentials.
   here.
 - `release.yaml` — operator values for the `infra` boundary: the database's
   engine version, disk size and high availability, the server's image, port and
-  instance count, and, under `overrides`, the Google Cloud project, region, VPC
-  network and service account both Recipes place the resources in. Every
-  project-specific value is a placeholder (`example-project`,
-  `example-network`); replace each with your own.
+  instance count, and, under `overrides`, the Google Cloud project, region and
+  VPC network both Recipes place the resources in, and the service account the
+  server runs as. Every project-specific value is a placeholder
+  (`example-project`, `example-network`); replace each with your own.
 - `manifest.yaml` — binds the PostgreSQL component type to the Recipe
   `terraform/postgres-cloud-sql` and the server component type to the Recipe
   `terraform/server-cloud-run`.
@@ -67,10 +67,10 @@ boundary's root configuration, `aggrega.modules.tf`, lands in
 `dist/infra/terraform/` and declares one `module` block for each component,
 `db` and `api`, each pointing at a folder under `modules/`.
 
-The database's module, `modules/db/`, is the Cloud SQL project's PostgreSQL
-module, vendored as published and called with the values the Release gives: the
-engine version as `database_version`, the disk size, the project, region and
-VPC network. The instance gets a private address only, and its automated
+The database's module, `modules/db/`, is the PostgreSQL module of the
+terraform-google-modules project's Cloud SQL module (`sql-db`), vendored as
+published and called with the values the Release gives: the engine version as
+`database_version`, the disk size, the project, region and VPC network. The instance gets a private address only, and its automated
 backups and point-in-time recovery are on. The module draws the password of the
 `orders_admin` user at apply time, so no password is written into any file the
 build produces.
@@ -78,7 +78,7 @@ build produces.
 The server's module, `modules/api/`, is one Cloud Run service. Its container
 runs the Release's image on the Release's port, as the service account the
 Release names. The service sends traffic to the network through Direct VPC
-egress, and its ingress is internal. The four environment variables the
+egress, and its ingress is internal. The environment variables the
 Aggregate asks for become container variables; `DB_HOST` holds a Terraform
 reference to the instance's private address, which the root configuration
 evaluates:

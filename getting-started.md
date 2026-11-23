@@ -628,7 +628,7 @@ An AI assistant [set up with Aggrega's tools](ai-assistants/set-up.md) can do th
 
 > Use the Aggrega tools only, and create no folder yourself. If the Workspace folder holds no `cloudformation-rds-stack` folder yet, call the `draft` tool once with `example` set to `cloudformation-rds-stack` and no `dir`: it writes the example into a new `cloudformation-rds-stack` folder. Then call the `build` tool with `workspace_root` set to `cloudformation-rds-stack`, `release` set to `release-one-stack.yaml`, `auto_pull` set to true and `write` set to true. Tell me which files the build wrote; they are under `cloudformation-rds-stack/dist/`.
 
-### Google Cloud
+### Terraform on Google Cloud
 
 You can build this starter with the commands below, or [have your AI assistant write and build it for you](#with-an-ai-assistant-10).
 
@@ -644,7 +644,7 @@ aggrega build --release release.yaml --auto-pull
 ```
 
 The build writes a Terraform configuration under `dist/infra/terraform/`: a root configuration declaring the database
-and the server as two modules, the Cloud SQL instance in `modules/db/` with a private address only, and the Cloud Run
+and the server as modules, the Cloud SQL instance in `modules/db/` with a private address only, and the Cloud Run
 service in `modules/api/` with the database's address handed to it as the `DB_HOST` environment variable. The project,
 network and service account in `release.yaml` are placeholders for resources you already run. Run `terraform init` and
 then `terraform plan` in `dist/infra/terraform/` with your Google Cloud credentials set in your environment.
