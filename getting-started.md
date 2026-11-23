@@ -564,9 +564,11 @@ An AI assistant [set up with Aggrega's tools](ai-assistants/set-up.md) can do th
 
 ## Starters for the cloud
 
-Each starter is a managed database on Amazon RDS, written once as an Aggregate and built to files for one tool. The
-build needs no AWS account; planning or deploying what it writes needs your own AWS account and credentials. As above,
-run each from the folder you started in.
+Each starter is a managed database written once as an Aggregate and built to files for one tool: two on Amazon RDS, and
+one on Google Cloud, a Cloud SQL database with the Cloud Run server that reads it. For Azure, the
+[PostgreSQL and Container Apps example](language-reference/examples/arm-postgres-container-apps/README.md) builds the
+same shape of database and server for Azure Resource Manager. The build needs no cloud account; planning or deploying
+what it writes needs your own account and credentials. As above, run each from the folder you started in.
 
 ### Terraform
 
@@ -626,11 +628,42 @@ An AI assistant [set up with Aggrega's tools](ai-assistants/set-up.md) can do th
 
 > Use the Aggrega tools only, and create no folder yourself. If the Workspace folder holds no `cloudformation-rds-stack` folder yet, call the `draft` tool once with `example` set to `cloudformation-rds-stack` and no `dir`: it writes the example into a new `cloudformation-rds-stack` folder. Then call the `build` tool with `workspace_root` set to `cloudformation-rds-stack`, `release` set to `release-one-stack.yaml`, `auto_pull` set to true and `write` set to true. Tell me which files the build wrote; they are under `cloudformation-rds-stack/dist/`.
 
+### Google Cloud
+
+You can build this starter with the commands below, or [have your AI assistant write and build it for you](#with-an-ai-assistant-10).
+
+```sh
+aggrega draft --example terraform-cloud-run-cloud-sql
+```
+
+It then prints the commands to run next:
+
+```sh
+cd terraform-cloud-run-cloud-sql
+aggrega build --release release.yaml --auto-pull
+```
+
+The build writes a Terraform configuration under `dist/infra/terraform/`: a root configuration declaring the database
+and the server as two modules, the Cloud SQL instance in `modules/db/` with a private address only, and the Cloud Run
+service in `modules/api/` with the database's address handed to it as the `DB_HOST` environment variable. The project,
+network and service account in `release.yaml` are placeholders for resources you already run. Run `terraform init` and
+then `terraform plan` in `dist/infra/terraform/` with your Google Cloud credentials set in your environment.
+[Terraform Cloud Run and Cloud SQL](language-reference/examples/terraform-cloud-run-cloud-sql/README.md) explains each
+file and what the Release leaves to you.
+
+#### With an AI assistant
+
+An AI assistant [set up with Aggrega's tools](ai-assistants/set-up.md) can do the same: paste this prompt into it.
+
+<!-- copyable -->
+
+> Use the Aggrega tools only, and create no folder yourself. If the Workspace folder holds no `terraform-cloud-run-cloud-sql` folder yet, call the `draft` tool once with `example` set to `terraform-cloud-run-cloud-sql` and no `dir`: it writes the example into a new `terraform-cloud-run-cloud-sql` folder. Then call the `build` tool with `workspace_root` set to `terraform-cloud-run-cloud-sql`, `release` set to `release.yaml`, `auto_pull` set to true and `write` set to true. Tell me which files the build wrote; they are under `terraform-cloud-run-cloud-sql/dist/`.
+
 ## Where to go next
 
 [Learn Aggrega](learn.md) is the path through the documentation, from the ideas behind Aggrega to authoring your own
 Aggregate. The runnable examples go further, each one a workspace that builds as it stands, and
 [the teaching order](language-reference/examples/by-product-and-capability.md#in-teaching-order) lists every one of
-them: the four on this page first, under Start here, then the rest tier by tier, simplest first. The Examples section
+them: the five on this page first, under Start here, then the rest tier by tier, simplest first. The Examples section
 of the sidebar follows the same order. To start from a project you already have in another format,
 [Import](authoring/import/README.md) drafts the Aggrega files from it, for you to review and build.
