@@ -631,5 +631,27 @@ Each of these is the ordinary word, written in lowercase in the source; the same
 - A space, said of the name space inside which a guest's derived names must be distinct, and a key space, stay space in Latin letters: “space ของคีย์”. Never “ปริภูมิ”. A namespace is “เนมสเปซ”.
 - To dispatch, said of the compiler or the host routing a step or a role to a plugin, is กระจายงาน (“กระจายงานให้ปลั๊กอิน”). Never “ส่งงาน”.
 - Fixed, said of an order or a set, is “คงที่”: “ลำดับคงที่”. แน่นอน stays in “กำหนดแน่นอน”, which is deterministic, and is never fixed.
+- A core importer, an importer the compiler itself ships, is “ตัวนำเข้าแกน”, built from the pinned importer and core: the compiler's core importers are “ตัวนำเข้าแกนของคอมไพเลอร์”. Never “ตัวนำเข้าหลัก” nor “ตัวนำเข้าคอร์”.
+- A mental model is “โมเดลทางความคิด”, from โมเดล and the pinned ทางความคิด for cognitive. Never “แบบจำลอง” nor “โมเดลเชิงปัญญา”.
+- Two-Part Plugin Principle, a capitalized named principle, is translated as AOT Purity and Conway's Law are, with the glossary term Plugin in Latin letters: “หลักการ Plugin สองส่วน”, in a heading too, with “(Two-Part Plugin Principle)” in parentheses at a page's first occurrence.
+- A boundary of a Release (a boundary attachment, a boundary annotation, a boundary path, a cross-boundary reference, a stack's or a template's boundary, and the word boundary in prose about a Release's `boundaries`) is “แนวเขต”. A boundary in the general sense (an ahead-of-time, trust, security, ABI or domain boundary) is “เส้นแบ่ง”: “เส้นแบ่งของการคอมไพล์ล่วงหน้า (ahead-of-time)”. The two never share a word, ขอบเขต stays scope, and the field name `boundaries` is a code span that stays as written. The spelled-out ahead-of-time is “ล่วงหน้า”.
+- A link whose text is a page or heading name (an entity's authoring reference page, an architecture page, a heading) takes that page's Thai title or heading exactly as the guide and notes prescribe: the Thai alone, or on an error or warnings page the English first with the Thai in parentheses. A translator who cannot see that Thai title copies the title the task supplies and never invents a Thai name. A link text that is a file name or a path (`well-known-annotations.md`, `../templates/rendered-resource-names.md`) is not a title and stays as the source writes it.
+- A claim, the noun, said of what a provider or a plugin declares about what it supports or serves, is “ข้อกล่าวอ้าง”: “ข้อกล่าวอ้างการรองรับ”. To claim, said of an input kind or a render path, is “อ้างสิทธิ์”. Never “คำกล่าวอ้าง” as a second noun.
+- A well-known annotation, said of the platform-native `aggrega.ai/` keys a provider reads, is “คำอธิบายประกอบที่รู้จัก”. Never “ที่รู้จักกันดี”.
+- Prose guidance, said of the authoring pages a schema page points to, is “คำแนะนำเชิงบรรยาย”. Never “เชิงอธิบาย”.
+- Free-form, said of the free-form pillars and of a free-form description, is “รูปแบบอิสระ”: “เสาหลักรูปแบบอิสระ”, “คำอธิบายรูปแบบอิสระ”. Fixed-shape stays “รูปทรงคงที่”.
+- An invariant, in any sense (an architectural invariant, an implementation invariant, the Aggregate-as-Authoring-Surface invariant), is “ข้อคงที่”. Never “ความไม่แปรเปลี่ยน”.
+- To derive, derived, said of a value, a name or a set obtained from another, is “ได้มา”: “ตัวระบุที่ได้มา”, “โหนด IR ที่ได้มา”. Never สืบทอด, which is inherit, nor หาค่า, which is resolve.
+- A posture, said of a single authoring mode or of opaque metadata, is “ท่าที”. Never จุดยืน, which the guide keeps for stance in unopinionated.
+- A knob, said of the sizing knobs the Release supplies, is “ตัวปรับ”: “ตัวปรับขนาด”. Never “ปุ่ม”.
+- To supply and supplied, said of what a Release, a lockfile or a file provides, is “จัดหา”: “ที่ Release จัดหา”. Never “จัดให้” nor a bare “ให้”.
+- An alias, said of a connection alias, a chart alias or a dependency alias, is “นามแฝง”; a flag's short alias or shorthand is “ชื่อย่อ”. Never the Latin alias.
+- A subkey is “คีย์ย่อย”, never the Latin word subkey.
+- The sync wave and a sync-wave annotation are “เวฟ” and “คำอธิบายประกอบเวฟ”, never “เวฟการซิงค์” nor “เวฟ sync”.
+- A plugin type is “ประเภทปลั๊กอิน”, a plugin of one type is “ปลั๊กอิน” followed by the type's Thai name, “ปลั๊กอินผู้ให้บริการ”, “ปลั๊กอินตัวนำเข้า”, “ปลั๊กอินตัวแยกวิเคราะห์”, “ปลั๊กอินขั้นตอนไปป์ไลน์”, and linter, governance and cli are written in Latin letters after “ปลั๊กอิน”. Never “ปลั๊กอินแบบ pipeline-step” nor the Latin parser. The socket's type is “ชนิดซ็อกเก็ต”.
+- Explicit, said of an explicit `null`, a binding or a capability, is “ชัดแจ้ง”; a clear error or diagnostic, meaning one that names what to fix, is “ชัดเจน”. The two never share a word.
+- The title of a schema page, “Aggrega X (Kind) schema”, is “สคีมา” followed by the Thai name and then Aggrega: “สคีมาแค็ตตาล็อก Aggrega (Component)”, “สคีมาไฟล์ล็อกการพึ่งพา Aggrega (Manifest)”, “สคีมาแกน Aggrega (Plugin)”, “สคีมาฐานโครงสร้างพื้นฐาน Aggrega (FeatureRecipe)”. The English name is not left in Latin letters.
+- A dictionary, said of a flat dictionary the compiler reads, is “แมป”. Never “ดิกชันนารี”.
+- A minimum-version floor is “ขั้นต่ำของเวอร์ชัน”, never ขีดล่าง, which is an underscore. To assert a version, said of a consumer naming a minimum, is “ระบุ”, never ยืนยัน, which is to verify.
 
 A native speaker who finds a default here wrong corrects this file; every translation made after the correction follows it.
