@@ -7454,6 +7454,17 @@
     "status": "machine",
     "text": "要求常駐程式停止接受工作，並完成已接下的工作。此通知不攜帶任何欄位，而通知本身通常完全不帶 params 物件送出。第二次送出則會放棄仍在進行中的工作，而不是等待它完成。"
   },
+  "0ba99d787efd7cc6": {
+    "at": "2026-11-23T06:04:00.397Z",
+    "job": "session-0002-20261123060400",
+    "revision": {
+      "from": "69bd2211a05e1513",
+      "reviewed": false
+    },
+    "srcHash": "0ba99d787efd7cc6",
+    "status": "machine",
+    "text": "Google Cloud 上的 Terraform"
+  },
   "0bac28d9b0ebf1e0": {
     "at": "2026-11-18T18:26:43.841Z",
     "job": "session-0048-20261118182643",
@@ -80678,6 +80689,17 @@
     "status": "machine",
     "text": "請分開閱讀這兩行，因為它們說的是不同的事。"
   },
+  "8069e7dc1898a583": {
+    "at": "2026-11-23T06:04:00.397Z",
+    "job": "session-0002-20261123060400",
+    "revision": {
+      "from": "b4f1de92b5d3519b",
+      "reviewed": false
+    },
+    "srcHash": "8069e7dc1898a583",
+    "status": "machine",
+    "text": "[terraform-cloud-run-cloud-sql](terraform-cloud-run-cloud-sql/README.md) (`start`) — 一個 PostgreSQL 資料庫與讀取它的伺服器，以開發者意圖寫成一次，並建置為適用於 Google Cloud 的 Terraform 設定：資料庫是一個 Cloud SQL 執行個體，伺服器是一個 Cloud Run 服務。"
+  },
   "806add86fb2af3e9": {
     "at": "2026-11-19T08:12:17.812Z",
     "job": "session-0082-20261119081217",
@@ -125100,6 +125122,17 @@
     "status": "machine",
     "text": "[編譯管線（高階）](10-compilation-pipeline.md)"
   },
+  "c6123d35cb104e5c": {
+    "at": "2026-11-23T06:04:00.397Z",
+    "job": "session-0002-20261123060400",
+    "revision": {
+      "from": "2525fbad77588d8b",
+      "reviewed": false
+    },
+    "srcHash": "c6123d35cb104e5c",
+    "status": "machine",
+    "text": "`release.yaml` — `infra` 邊界的操作員值：資料庫的引擎版本、磁碟大小與高可用性，伺服器的映像檔、連接埠與執行個體數量，以及在 `overrides` 下，兩個 Recipe 放置資源所用的 Google Cloud 專案、區域與 VPC 網路，以及伺服器執行時所用的服務帳戶。每一個專案特定的值都是預留位置（`example-project`、`example-network`）；請把每一個換成你自己的值。"
+  },
   "c612c6ecb9560701": {
     "at": "2026-11-18T16:53:15.809Z",
     "job": "session-0030-20261118165315",
@@ -127597,6 +127630,17 @@
     "srcHash": "c9c02f14b90c1cea",
     "status": "machine",
     "text": "**呼叫者身分傳遞，分兩個躍點：** 原始呼叫者的身分必須撐過兩個不同的躍點，而每一個都在不同的位置受到保護。在**閘道躍點**，開發者將 `core/context-propagation` 附加到請求進入時所經的閘道，它以 `dataplane.aggrega.ai/caller-identity` 選取。在**編譯時期**，附加項在該閘道自己的設定中實現——在 Envoy Gateway 上，是一項用戶端流量原則，針對 Release 所指名的授權單位驗證每個用戶端的憑證，並轉送憑證的詳細資料；在 LiteLLM AI 閘道上，是一個請求掛鉤，會移除呼叫者提供的任何身分標頭，並加入閘道所驗證的虛擬金鑰所屬的使用者與團隊，以及金鑰若有指名時的組織，作用於附加項在 `destinations` 中所列的模型別名的請求。在**執行階段**，閘道後方的服務收到的是誰在呼叫，而不只是閘道在呼叫。在**工作負載躍點**，一個代理程式直接對另一個代理程式發出的請求不會經過該閘道，因此是在接收端代理程式自己的入口進行檢查，由服務網格拒絕任何缺少已簽署權杖（證明原始使用者意圖）的請求（例如 Istio 的 JWT `AuthorizationPolicy`）。標準程式庫提供閘道躍點的 Feature，但沒有工作負載躍點的 Feature，因此附加 `core/context-propagation` 保護的是經過閘道的流量，而代理程式對代理程式的呼叫則留給企業自行提供的網格設定。由另一方執行的代理程式，由 `core/ai-tool/agent-invocation` 透過 A2A 以 `core/ai-agent/a2a-remote` 連到，完全位於 Release 之外：該方依代理程式的 Agent Card 所宣告的安全機制檢查每次呼叫，而工具會在代理程式發布的請求標頭下，出示連線上所持有、以參照方式從 Secret 讀取的認證。當卡片要求 OAuth 2.0 用戶端認證或 OpenID Connect 時，連線改為（或另外）持有用戶端機密，連同操作員寫在其上的用戶端 ID，而代理程式會發布其卡片所宣告的權杖或探索位址與範圍；工具自己的容器用它們取得權杖、更新權杖，並在每次呼叫時出示；目錄只傳遞這些輸入，而任何建置都無法檢查容器如何處理它們。當卡片要求雙向 TLS 時，連線持有用戶端憑證，而若簽署代理程式伺服器憑證的授權單位不是映像檔已信任的，則也持有該授權單位；每一項都會以檔案形式，從連線所指名的 Secret 掛載到工具的容器中，而容器在 TLS 交握本身中出示憑證。因此，工具可以連到卡片宣告標頭或 cookie 中的 API 金鑰、值固定的 HTTP 驗證機制（例如 Bearer 或 Basic，由 Secret 持有完整的標頭值）、採用用戶端認證授與的 OAuth 2.0 或 OpenID Connect，或雙向 TLS 的代理程式。它無法連到卡片要求查詢字串中的金鑰、回應代理程式質詢的 HTTP 機制（例如 Digest），或用戶端認證以外的 OAuth 2.0 流程的代理程式。它也不會對由另一方透過純 HTTP 執行的代理程式出示認證：當該代理程式的位址為 `http` 時，連線上的認證或用戶端機密會中止建置並指名該連線，因為認證，或以機密取得的權杖，會以未加密方式傳送給它。在 Release 內執行的代理程式則仍可透過 `http` 連到，無論使用哪一種，此時認證會以未加密方式穿越叢集網路。"
+  },
+  "c9c0ff8a0f2853d9": {
+    "at": "2026-11-23T06:04:00.397Z",
+    "job": "session-0002-20261123060400",
+    "revision": {
+      "from": "400c5a424252eb28",
+      "reviewed": false
+    },
+    "srcHash": "c9c0ff8a0f2853d9",
+    "status": "machine",
+    "text": "建置會在 `dist/infra/terraform/` 下寫出一份 Terraform 設定：一個根設定，把資料庫與伺服器宣告為模組，`modules/db/` 中是只有私有位址的 Cloud SQL 執行個體，`modules/api/` 中是 Cloud Run 服務，資料庫的位址以環境變數 `DB_HOST` 交給它。`release.yaml` 中的專案、網路與服務帳戶是預留位置，代表你已在執行的資源。請在 `dist/infra/terraform/` 中執行 `terraform init`，再執行 `terraform plan`，並在環境中設定好你的 Google Cloud 認證。[Terraform Cloud Run 與 Cloud SQL](language-reference/examples/terraform-cloud-run-cloud-sql/README.md)說明每個檔案，以及 Release 留給你的部分。"
   },
   "c9c189cdd5a2a507": {
     "at": "2026-11-19T04:25:53.489Z",
@@ -144910,6 +144954,17 @@
     "status": "machine",
     "text": "回答是寬度為零的 `position`，其 `line` 與 `character` 都從零算起；`entryIndent` 與 `indentStep`，即要寫入的欄；以及 `missingContainerKeys`，即此文件尚未帶有的容器鍵，由最外層起，你要在項目之前寫入它們。`entryShape` 回報容器持有的是 `mapping` 還是 `sequence`，並在容器尚不存在或不含任何東西時回報 `unknown`，因為文件尚未說明——此時形狀由你選擇。`indentStepMeasured` 說明該步階是從這份文件自己的巢狀量得，還是對沒有展現任何巢狀的文件的備用值。`precededByLineBreak` 設定時，請以換行開頭寫你的文字：該位置位於項目所接續那一行的結尾，無論檔案是否以換行結尾它都在範圍內，也不動到任何已寫入的位元組。即使你預期容器就在那裡，也請讀取 `missingContainerKeys`——套用位置時若沒有必須先於它的鍵，產生的文件將不再能被剖析。"
   },
+  "e3636443662b3b35": {
+    "at": "2026-11-23T06:04:00.397Z",
+    "job": "session-0002-20261123060400",
+    "revision": {
+      "from": "152fe9c2333fbcaa",
+      "reviewed": false
+    },
+    "srcHash": "e3636443662b3b35",
+    "status": "machine",
+    "text": "資料庫的模組 `modules/db/` 是 terraform-google-modules 專案中 Cloud SQL 模組（`sql-db`）的 PostgreSQL 模組，依發布時的原樣 vendored，並以 Release 給出的值呼叫：引擎版本作為 `database_version`，以及磁碟大小、專案、區域與 VPC 網路。執行個體只有私有位址，其自動備份與時間點復原均已開啟。該模組在套用時為 `orders_admin` 使用者產生密碼，因此建置產生的任何檔案中都不會寫入密碼。"
+  },
   "e363b46307e797a7": {
     "at": "2026-11-18T12:33:55.728Z",
     "job": "session-0008-20261118123355",
@@ -146476,6 +146531,17 @@
     "srcHash": "e6014766105dfa67",
     "status": "machine",
     "text": "**修正方式：** 把機密存放在 Secrets Manager 或 Parameter Store 的安全字串中，並繫結對它的動態參照——`{{resolve:secretsmanager:<secret>}}` 或 `{{resolve:ssm-secure:<name>}}`——而不是把它拼接進內建函式的文字，或不繫結該參數，改於堆疊部署時傳入值。請參閱 [cloudformation → 來源式範本之參數的值](../providers/cloudformation.md#values-for-a-sourced-templates-parameters)。"
+  },
+  "e606fa5b4ffdbf00": {
+    "at": "2026-11-23T06:04:00.397Z",
+    "job": "session-0002-20261123060400",
+    "revision": {
+      "from": "bbe654fc3ca4fb6c",
+      "reviewed": false
+    },
+    "srcHash": "e606fa5b4ffdbf00",
+    "status": "machine",
+    "text": "伺服器的模組 `modules/api/` 是一個 Cloud Run 服務。它的容器以 Release 指定的服務帳戶，在 Release 指定的連接埠上執行 Release 的映像檔。該服務透過 Direct VPC egress 向網路傳送流量，其入口為內部。Aggregate 所要求的環境變數成為容器變數；`DB_HOST` 持有指向執行個體私有位址的 Terraform 參照，由根設定求值："
   },
   "e60e06c54037e4a3": {
     "at": "2026-11-19T08:04:12.886Z",

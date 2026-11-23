@@ -9116,6 +9116,17 @@
     "status": "machine",
     "text": "请求守护进程停止接受新工作，并完成已接手的工作。该通知不携带任何字段，通知本身通常完全不带 params 对象发送。第二次发送会放弃仍在进行的工作，而不是等待其完成。"
   },
+  "0ba99d787efd7cc6": {
+    "at": "2026-11-23T06:04:00.397Z",
+    "job": "session-0002-20261123060400",
+    "revision": {
+      "from": "69bd2211a05e1513",
+      "reviewed": false
+    },
+    "srcHash": "0ba99d787efd7cc6",
+    "status": "machine",
+    "text": "Google Cloud 上的 Terraform"
+  },
   "0bac28d9b0ebf1e0": {
     "at": "2026-10-22T02:48:40.419851+00:00",
     "job": "msgbatch_01GfagNcas3ixJ7ofku3W8dE",
@@ -97449,6 +97460,17 @@
     "status": "machine",
     "text": "请分别阅读这两行，因为它们说的是不同的事情。"
   },
+  "8069e7dc1898a583": {
+    "at": "2026-11-23T06:04:00.397Z",
+    "job": "session-0002-20261123060400",
+    "revision": {
+      "from": "b4f1de92b5d3519b",
+      "reviewed": false
+    },
+    "srcHash": "8069e7dc1898a583",
+    "status": "machine",
+    "text": "[terraform-cloud-run-cloud-sql](terraform-cloud-run-cloud-sql/README.md) (`start`) — 一个 PostgreSQL 数据库和读取它的服务器，作为开发者意图编写一次，并构建为面向 Google Cloud 的 Terraform 配置：数据库是一个 Cloud SQL 实例，服务器是一个 Cloud Run 服务。"
+  },
   "806add86fb2af3e9": {
     "at": "2026-11-15T00:01:44.436Z",
     "job": "session-0026-20261115000144",
@@ -150969,6 +150991,17 @@
     "status": "machine",
     "text": "标签值无法承载的字符会被转写而非替换，因此你写的连字符仍是连字符，其他字符则变为简短的转义：名为 `my zone` 的 Feature 贡献 `my-zx000020zone`。因此，两个你能区分的挂载会得到两个不同的值——无论你如何命名，无论边界嵌套多深——因为 `--` 是任何书写部分都不可能包含的序列，所以移动各部分之间的分界会改变值，而不会与之冲突。"
   },
+  "c6123d35cb104e5c": {
+    "at": "2026-11-23T06:04:00.397Z",
+    "job": "session-0002-20261123060400",
+    "revision": {
+      "from": "2525fbad77588d8b",
+      "reviewed": false
+    },
+    "srcHash": "c6123d35cb104e5c",
+    "status": "machine",
+    "text": "`release.yaml` — `infra` 边界的操作员值：数据库的引擎版本、磁盘大小和高可用性，服务器的镜像、端口和实例数量，以及在 `overrides` 下，两个 Recipe 放置资源所用的 Google Cloud 项目、区域和 VPC 网络，以及服务器运行所用的服务账号。每一个特定于项目的值都是占位符（`example-project`、`example-network`）；请将每一个替换为你自己的值。"
+  },
   "c612c6ecb9560701": {
     "at": "2026-10-29T21:33:51.093Z",
     "job": "session-0023-20261029213351",
@@ -154006,6 +154039,17 @@
     "srcHash": "c9c02f14b90c1cea",
     "status": "machine",
     "text": "**调用方身份传播，跨两个跳点：**原始调用方的身份必须在两个不同的跳点上得以保留，每个跳点在不同的位置受到保护。在**网关跳点**，开发者将 `core/context-propagation` 附加到请求进入时经过的网关上，该网关在 `dataplane.aggrega.ai/caller-identity` 上进行选择。在**编译时**，该附加在该网关自身的配置中实现——在 Envoy Gateway 上，是一条客户端流量策略，它根据 Release 指定的证书颁发机构验证每个客户端的证书，并转发证书的详细信息；在 LiteLLM AI 网关上，是一个请求钩子，对发往附加在 `destinations` 中列出的模型别名的请求，它会移除调用方提供的任何身份标头，并添加网关所验证的虚拟密钥的用户和团队，以及该密钥指定组织时的组织。在**运行时**，网关后面的服务接收到的是谁发起了调用，而不仅仅是网关发起了调用。在**工作负载跳点**，一个智能体直接发往另一个智能体的请求从不经过该网关，因此它在接收方智能体自身的入口处接受检查，由服务网格拒绝任何缺少能证明原始用户意图的签名令牌的请求（例如 Istio JWT `AuthorizationPolicy`）。标准库提供网关跳点 Feature，不提供工作负载跳点 Feature，因此附加 `core/context-propagation` 保护的是经过网关的流量，而智能体之间的调用则交由企业自行提供的网格配置处理。由另一方运行的智能体——`core/ai-tool/agent-invocation` 通过 A2A 以 `core/ai-agent/a2a-remote` 的形式访问它——完全位于 Release 之外：该方根据该智能体的 Agent Card 声明的安全方案检查每次调用，而工具则在该智能体公布的请求标头下，出示其连接上持有的凭据，该凭据通过引用从 Secret 中读取。当卡片要求 OAuth 2.0 客户端凭据或 OpenID Connect 时，连接改为持有（或同时持有）一个客户端密钥，以及操作员写在连接上的客户端 ID，智能体则公布令牌或发现地址以及其卡片声明的作用域；工具自身的容器使用这些信息获取令牌、刷新令牌并在每次调用时出示；目录只交付这些输入，任何构建都无法检查容器如何使用它们。当卡片要求双向 TLS 时，连接持有一个客户端证书，并且当智能体的服务器证书由镜像尚未信任的证书颁发机构签发时，还持有该颁发机构的证书；每一项都以文件形式从连接指定的 Secret 挂载到工具的容器中，由容器自己在 TLS 握手中出示证书。因此，工具能够访问的智能体，其卡片声明的是：标头或 cookie 中的 API 密钥；值固定的 HTTP 认证方案，例如 Bearer 或 Basic，由 Secret 持有完整的标头值；采用客户端凭据授权的 OAuth 2.0 或 OpenID Connect；或双向 TLS。它无法访问卡片要求以下方案的智能体：查询字符串中的密钥、需要应答智能体质询的 HTTP 方案（例如 Digest），或客户端凭据以外的 OAuth 2.0 流程。它也不会向通过明文 HTTP 运行的另一方智能体出示凭据：当该智能体的地址为 `http` 时，连接上的凭据或客户端密钥会使构建停止，并指出该连接，因为凭据或用该密钥获取的令牌将以未加密的方式传输给它。在 Release 内部运行的智能体在使用两者中的任一种时仍可通过 `http` 访问，此时凭据以未加密的方式穿过集群网络。"
+  },
+  "c9c0ff8a0f2853d9": {
+    "at": "2026-11-23T06:04:00.397Z",
+    "job": "session-0002-20261123060400",
+    "revision": {
+      "from": "400c5a424252eb28",
+      "reviewed": false
+    },
+    "srcHash": "c9c0ff8a0f2853d9",
+    "status": "machine",
+    "text": "构建会在 `dist/infra/terraform/` 下写出一份 Terraform 配置：一个根配置，将数据库和服务器声明为模块；`modules/db/` 中是仅有私有地址的 Cloud SQL 实例，`modules/api/` 中是 Cloud Run 服务，数据库的地址作为环境变量 `DB_HOST` 传给它。`release.yaml` 中的项目、网络和服务账号是占位符，代表你已在运行的资源。请在 `dist/infra/terraform/` 中运行 `terraform init`，然后运行 `terraform plan`，并在环境中设置好你的 Google Cloud 凭据。[Terraform Cloud Run 与 Cloud SQL](language-reference/examples/terraform-cloud-run-cloud-sql/README.md)解释了每个文件，以及 Release 留给你的部分。"
   },
   "c9c189cdd5a2a507": {
     "at": "2026-10-22T03:31:15.615761+00:00",
@@ -174400,6 +174444,17 @@
     "status": "machine",
     "text": "答案包括一个零宽度的 `position`，其 `line` 和 `character` 均从零开始计数；`entryIndent` 和 `indentStep`，即写入所用的列数；以及 `missingContainerKeys`，即该文档尚未包含的容器键，按从外到内排列，你需要在条目之前写入它们。`entryShape` 报告容器包含的是 `mapping` 还是 `sequence`，在容器尚不存在或为空时报告 `unknown`，因为文档尚未表明——此时形状由你选择。`indentStepMeasured` 说明缩进步长是根据该文档自身的嵌套测得的，还是针对没有任何嵌套的文档所用的回退值。设置了 `precededByLineBreak` 时，你的文本应以换行开头：该位置位于条目所跟随行的末尾，无论文件是否以换行结尾，该位置都在有效范围内，且不会改动任何已写入的字节。即使你认为容器已经存在，也要读取 `missingContainerKeys`——在缺少必须位于其前面的键的情况下应用某个位置，会生成一个无法再解析的文档。"
   },
+  "e3636443662b3b35": {
+    "at": "2026-11-23T06:04:00.397Z",
+    "job": "session-0002-20261123060400",
+    "revision": {
+      "from": "152fe9c2333fbcaa",
+      "reviewed": false
+    },
+    "srcHash": "e3636443662b3b35",
+    "status": "machine",
+    "text": "数据库的模块 `modules/db/` 是 terraform-google-modules 项目中 Cloud SQL 模块（`sql-db`）的 PostgreSQL 模块，按发布时的原样复制进来，并以 Release 给出的值调用：引擎版本作为 `database_version`，以及磁盘大小、项目、区域和 VPC 网络。实例只有私有地址，其自动备份和时间点恢复均已开启。该模块在应用时为 `orders_admin` 用户生成密码，因此构建产生的任何文件中都不会写入密码。"
+  },
   "e363b46307e797a7": {
     "at": "2026-10-22T01:39:34.791258+00:00",
     "job": "msgbatch_01NzZHjUiYAJW3BfQRFzEVzQ",
@@ -176374,6 +176429,17 @@
     "srcHash": "e6014766105dfa67",
     "status": "machine",
     "text": "**修复方法：**将机密存储在 Secrets Manager 中或作为 Parameter Store 安全字符串存储，并绑定指向它的动态引用——`{{resolve:secretsmanager:<secret>}}` 或 `{{resolve:ssm-secure:<name>}}`——而不是将其拼接到内部函数的文本中；或不绑定该参数，改由 stack 部署时传入值。参见 [cloudformation → 来源模板参数的值](../providers/cloudformation.md#values-for-a-sourced-templates-parameters)。"
+  },
+  "e606fa5b4ffdbf00": {
+    "at": "2026-11-23T06:04:00.397Z",
+    "job": "session-0002-20261123060400",
+    "revision": {
+      "from": "bbe654fc3ca4fb6c",
+      "reviewed": false
+    },
+    "srcHash": "e606fa5b4ffdbf00",
+    "status": "machine",
+    "text": "服务器的模块 `modules/api/` 是一个 Cloud Run 服务。它的容器以 Release 指定的服务账号，在 Release 指定的端口上运行 Release 的镜像。该服务通过 Direct VPC egress 向网络发送流量，其入口为内部。Aggregate 所要求的环境变量成为容器变量；`DB_HOST` 持有指向实例私有地址的 Terraform 引用，由根配置求值："
   },
   "e608060d09b9e011": {
     "at": "2026-11-05T20:22:43.828Z",
