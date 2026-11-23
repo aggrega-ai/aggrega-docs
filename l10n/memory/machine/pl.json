@@ -9086,6 +9086,17 @@
     "status": "machine",
     "text": "Prosi demona, aby przestał przyjmować pracę i dokończył to, co już przyjął. Powiadomienie nie zawiera pól i zwykle jest wysyłane w ogóle bez obiektu params. Drugie takie powiadomienie porzuca pracę wciąż w toku, zamiast na nią czekać."
   },
+  "0ba99d787efd7cc6": {
+    "at": "2026-11-23T06:05:10.378Z",
+    "job": "session-0003-20261123060510",
+    "revision": {
+      "from": "69bd2211a05e1513",
+      "reviewed": false
+    },
+    "srcHash": "0ba99d787efd7cc6",
+    "status": "machine",
+    "text": "Terraform w Google Cloud"
+  },
   "0bac28d9b0ebf1e0": {
     "at": "2026-10-22T12:16:26.328227+00:00",
     "job": "msgbatch_01AmdFteRWMHi1UpnWokTXuL",
@@ -97036,6 +97047,17 @@
     "status": "machine",
     "text": "Obie linie należy czytać osobno, ponieważ mówią różne rzeczy."
   },
+  "8069e7dc1898a583": {
+    "at": "2026-11-23T06:05:10.378Z",
+    "job": "session-0003-20261123060510",
+    "revision": {
+      "from": "b4f1de92b5d3519b",
+      "reviewed": false
+    },
+    "srcHash": "8069e7dc1898a583",
+    "status": "machine",
+    "text": "[terraform-cloud-run-cloud-sql](terraform-cloud-run-cloud-sql/README.md) (`start`) — Baza danych PostgreSQL i serwer, który z niej czyta, zapisane raz jako intencja programisty i zbudowane do konfiguracji Terraform dla Google Cloud: baza danych to instancja Cloud SQL, a serwer to usługa Cloud Run."
+  },
   "806add86fb2af3e9": {
     "at": "2026-11-15T00:01:44.436Z",
     "job": "session-0026-20261115000144",
@@ -150256,6 +150278,17 @@
     "status": "machine",
     "text": "Znak, którego wartość etykiety nie może zawierać, jest rozpisywany, a nie zastępowany, więc zapisany łącznik pozostaje łącznikiem, a wszystko inne staje się krótką sekwencją ucieczki: encja Feature o nazwie `my zone` wnosi `my-zx000020zone`. Dwa rozróżnialne dołączenia dają więc dwie wartości — niezależnie od nadanych nazw i od głębokości zagnieżdżenia granicy — ponieważ `--` jest ciągiem, którego żadna zapisana część nie może zawierać, więc przesunięcie podziału między częściami zmienia wartość, zamiast z nią kolidować."
   },
+  "c6123d35cb104e5c": {
+    "at": "2026-11-23T06:05:10.378Z",
+    "job": "session-0003-20261123060510",
+    "revision": {
+      "from": "2525fbad77588d8b",
+      "reviewed": false
+    },
+    "srcHash": "c6123d35cb104e5c",
+    "status": "machine",
+    "text": "`release.yaml` — wartości operatora dla granicy `infra`: wersja silnika bazy danych, rozmiar dysku i wysoka dostępność, obraz serwera, port i liczba instancji oraz, w `overrides`, projekt Google Cloud, region i sieć VPC, w których oba Recipes umieszczają zasoby, a także konto usługi, jako które działa serwer. Każda wartość zależna od projektu jest symbolem zastępczym (`example-project`, `example-network`); każdą należy zastąpić własną."
+  },
   "c612c6ecb9560701": {
     "at": "2026-10-29T21:33:51.093Z",
     "job": "session-0023-20261029213351",
@@ -153281,6 +153314,17 @@
     "srcHash": "c9c02f14b90c1cea",
     "status": "machine",
     "text": "**Propagacja tożsamości wywołującego, na dwóch przeskokach:** Tożsamość pierwotnego wywołującego musi przetrwać dwa różne przeskoki, a każdy z nich jest chroniony w innym miejscu. Na **przeskoku bramy** programista dołącza `core/context-propagation`, która wybiera według `dataplane.aggrega.ai/caller-identity`, do bramy, przez którą wchodzi żądanie. W **czasie kompilacji** dołączenie jest realizowane we własnej konfiguracji tej bramy — na Envoy Gateway jako client traffic policy, która weryfikuje certyfikat każdego klienta względem urzędu wskazanego przez encję Release i przekazuje szczegóły certyfikatu; na bramie AI LiteLLM jako hook żądań, który usuwa każdy nagłówek tożsamości podany przez wywołującego i dodaje użytkownika oraz zespół klucza wirtualnego zweryfikowanego przez bramę, a także jego organizację, jeśli klucz ją wskazuje, w żądaniach do aliasów modeli wymienionych przez dołączenie w `destinations`. W **czasie wykonania** usługa za bramą otrzymuje informację, kto wywołał, a nie tylko, że wywołała brama. Na **przeskoku między obciążeniami** żądanie, które jeden agent kieruje bezpośrednio do drugiego, nigdy nie przechodzi przez tę bramę, więc jest sprawdzane na własnym ingressie agenta odbierającego, gdzie service mesh odrzuca każde żądanie pozbawione podpisanego tokenu dowodzącego intencji pierwotnego użytkownika (np. `AuthorizationPolicy` JWT w Istio). Biblioteka standardowa zawiera Feature dla przeskoku bramy i żadnej Feature dla przeskoku między obciążeniami, więc dołączenie `core/context-propagation` chroni ruch przechodzący przez bramę, a wywołania między agentami pozostawia konfiguracji mesh, którą przedsiębiorstwo dostarcza samo. Agent uruchamiany przez inną stronę, do którego `core/ai-tool/agent-invocation` dociera przez A2A jako `core/ai-agent/a2a-remote`, znajduje się całkowicie poza encją Release: ta strona sprawdza każde wywołanie według schematu bezpieczeństwa deklarowanego przez Agent Card agenta, a narzędzie przedstawia poświadczenie przechowywane w swoim połączeniu, odczytywane przez referencję z obiektu Secret, w nagłówku żądania publikowanym przez agenta. Gdy karta wymaga client credentials OAuth 2.0 lub OpenID Connect, połączenie przechowuje zamiast tego, lub dodatkowo, client secret wraz z client id, który zapisuje na nim operator, a agent publikuje adres tokenu lub discovery oraz zakresy deklarowane przez jego kartę; własny kontener narzędzia uzyskuje za ich pomocą token, odświeża go i przedstawia przy każdym wywołaniu; katalog dostarcza tylko te dane wejściowe i żaden build nie może sprawdzić, co kontener z nimi robi. Gdy karta wymaga wzajemnego TLS, połączenie przechowuje certyfikat klienta oraz, jeśli certyfikat serwera agenta podpisuje urząd, któremu obraz jeszcze nie ufa, także ten urząd; każdy z nich jest montowany w kontenerze narzędzia jako pliki z obiektu Secret wskazanego przez połączenie, a kontener sam przedstawia certyfikat w uzgadnianiu TLS. Narzędzie dociera więc do agenta, którego karta deklaruje klucz API w nagłówku lub pliku cookie, schemat uwierzytelniania HTTP o stałej wartości, taki jak Bearer lub Basic, przy czym Secret zawiera całą wartość nagłówka, OAuth 2.0 lub OpenID Connect z grantem client-credentials albo wzajemny TLS. Nie dociera do agenta, którego karta wymaga klucza w query string, schematu HTTP odpowiadającego na wyzwanie agenta, takiego jak Digest, lub przepływu OAuth 2.0 innego niż client credentials. Nie przedstawia też poświadczenia agentowi uruchamianemu przez inną stronę przez zwykły HTTP: gdy adres tego agenta to `http`, poświadczenie lub client secret w połączeniu zatrzymuje build ze wskazaniem połączenia, ponieważ poświadczenie albo token uzyskany za pomocą sekretu trafiłby do niego niezaszyfrowany. Agent działający wewnątrz encji Release pozostaje osiągalny przez `http` z każdym z nich, a poświadczenie przechodzi wtedy przez sieć klastra niezaszyfrowane."
+  },
+  "c9c0ff8a0f2853d9": {
+    "at": "2026-11-23T06:05:10.378Z",
+    "job": "session-0003-20261123060510",
+    "revision": {
+      "from": "400c5a424252eb28",
+      "reviewed": false
+    },
+    "srcHash": "c9c0ff8a0f2853d9",
+    "status": "machine",
+    "text": "Kompilacja zapisuje konfigurację Terraform w `dist/infra/terraform/`: konfigurację główną, która deklaruje bazę danych i serwer jako moduły, instancję Cloud SQL w `modules/db/` wyłącznie z adresem prywatnym oraz usługę Cloud Run w `modules/api/`, której adres bazy danych jest przekazywany jako zmienna środowiskowa `DB_HOST`. Projekt, sieć i konto usługi w `release.yaml` są symbolami zastępczymi zasobów, które już działają. Należy uruchomić `terraform init`, a potem `terraform plan` w `dist/infra/terraform/`, mając w środowisku ustawione poświadczenia Google Cloud. [Terraform Cloud Run i Cloud SQL](language-reference/examples/terraform-cloud-run-cloud-sql/README.md) wyjaśnia każdy plik i to, co encja Release zostawia użytkownikowi."
   },
   "c9c189cdd5a2a507": {
     "at": "2026-10-22T23:05:21.167953+00:00",
@@ -173585,6 +173629,17 @@
     "status": "machine",
     "text": "Odpowiedź zawiera `position` o zerowej szerokości, której `line` i `character` liczone są od zera; `entryIndent` i `indentStep`, czyli kolumny, od których należy pisać; oraz `missingContainerKeys`, klucze kontenera, których ten dokument jeszcze nie zawiera, od najbardziej zewnętrznego, zapisywane przed wpisem. `entryShape` informuje, czy kontener zawiera `mapping`, czy `sequence`, i zwraca `unknown`, gdy kontenera jeszcze nie ma lub jest pusty, ponieważ dokument tego nie określa — wtedy kształt wybiera wywołujący. `indentStepMeasured` mówi, czy krok został zmierzony na podstawie zagnieżdżeń samego dokumentu, czy jest wartością zastępczą dla dokumentu, który żadnych nie zawiera. Gdy ustawione jest `precededByLineBreak`, tekst należy zacząć od znaku nowego wiersza: pozycja leży na końcu wiersza, po którym następuje wpis, co mieści się w zakresie niezależnie od tego, czy plik kończy się znakiem nowego wiersza, i nie narusza żadnego już zapisanego bajtu. `missingContainerKeys` należy odczytać nawet wtedy, gdy kontener powinien istnieć — pozycja zastosowana bez kluczy, które muszą ją poprzedzać, daje dokument, którego nie da się już sparsować."
   },
+  "e3636443662b3b35": {
+    "at": "2026-11-23T06:05:10.378Z",
+    "job": "session-0003-20261123060510",
+    "revision": {
+      "from": "152fe9c2333fbcaa",
+      "reviewed": false
+    },
+    "srcHash": "e3636443662b3b35",
+    "status": "machine",
+    "text": "Moduł bazy danych, `modules/db/`, to moduł PostgreSQL modułu Cloud SQL projektu terraform-google-modules (`sql-db`), dołączony w postaci opublikowanej i wywoływany z wartościami podanymi przez Release: wersją silnika jako `database_version`, rozmiarem dysku, projektem, regionem i siecią VPC. Instancja otrzymuje wyłącznie adres prywatny, a jej automatyczne kopie zapasowe i odzyskiwanie do punktu w czasie są włączone. Moduł losuje hasło użytkownika `orders_admin` w trakcie stosowania, więc żadne hasło nie jest zapisane w żadnym pliku tworzonym przez kompilację."
+  },
   "e363b46307e797a7": {
     "at": "2026-10-22T08:35:14.585510+00:00",
     "job": "msgbatch_016LnPG7AyJiWWiftb4hFiWD",
@@ -175559,6 +175614,17 @@
     "srcHash": "e6014766105dfa67",
     "status": "machine",
     "text": "**Jak naprawić:** należy przechować sekret w Secrets Manager lub jako bezpieczny ciąg Parameter Store i powiązać z nim odwołanie dynamiczne — `{{resolve:secretsmanager:<secret>}}` lub `{{resolve:ssm-secure:<name>}}` — zamiast wstawiać go do tekstu funkcji wewnętrznej, albo pozostawić parametr niepowiązany, aby wartość została przekazana podczas wdrażania stosu. Zob. [cloudformation → Wartości parametrów pobranego szablonu](../providers/cloudformation.md#values-for-a-sourced-templates-parameters)."
+  },
+  "e606fa5b4ffdbf00": {
+    "at": "2026-11-23T06:05:10.378Z",
+    "job": "session-0003-20261123060510",
+    "revision": {
+      "from": "bbe654fc3ca4fb6c",
+      "reviewed": false
+    },
+    "srcHash": "e606fa5b4ffdbf00",
+    "status": "machine",
+    "text": "Moduł serwera, `modules/api/`, to jedna usługa Cloud Run. Jej kontener uruchamia obraz podany w Release na porcie podanym w Release, jako konto usługi wskazane w Release. Usługa wysyła ruch do sieci przez Direct VPC egress, a jej ruch przychodzący jest wewnętrzny. Zmienne środowiskowe, o które prosi Aggregate, stają się zmiennymi kontenera; `DB_HOST` zawiera odwołanie Terraform do adresu prywatnego instancji, które ewaluuje konfiguracja główna:"
   },
   "e608060d09b9e011": {
     "at": "2026-11-05T16:44:55.584Z",
