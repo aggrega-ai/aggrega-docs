@@ -606,5 +606,10 @@ Each of these is the ordinary word, written in lowercase in the source; the same
 - id, a step id or an instance id: id, in Latin letters, as the source writes it, never รหัส for id
 - host, said of the component a FeatureRecipe attachment is attached to: ส่วนประกอบที่รับการแนบ for host component, never โฮสต์, which is the Wasm host
 - arrangement, said of a way pieces are laid out or combined: การจัดวาง for arrangement
+- reproducible, said of images and builds: ที่สร้างซ้ำได้ for reproducible, never ที่ทำซ้ำได้
+- backup, as a noun: การสำรอง for backup, never การสำรองข้อมูล
+- bridge, said of the compose bridge and of a network bridge: บริดจ์ for bridge, never สะพานเชื่อม nor สะพาน
+- checkout, a working copy of a repository: เช็กเอาต์ for checkout, as in "สำเนาที่เช็กเอาต์", never the Latin word checkout
+- tree, an output tree or a rendered tree of files: ทรี for tree, never ไดเรกทอรีเอาต์พุต for output tree
 
 A native speaker who finds a default here wrong corrects this file; every translation made after the correction follows it.
