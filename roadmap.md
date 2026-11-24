@@ -1,8 +1,8 @@
 # Aggrega roadmap
 
 Where Aggrega has come from and where it is going, in large steps. Milestones 0 to 3 describe what the
-compiler and its catalog do today; Milestone 4 and the directions after it describe the work ahead. This page gives
-no dates. What works today, surface by surface, is on
+compiler and its catalog do today; Milestone 4 is under way, and the directions after it describe the work ahead. This
+page gives no dates. What works today, surface by surface, is on
 [Status of the Language](language-reference/10-status.md).
 
 ## Milestone 0 — A prototype
@@ -76,9 +76,13 @@ What 0.9.0 adds:
 
 ## Milestone 4 — Users adoption, more clouds and a larger catalog
 
+<!-- ongoing -->
+
 - [ ] **Users adoption.** What users tell us decides the order of the work: whatever makes it easier to adopt
   comes first.
-- [ ] **Azure and Google Cloud providers.**
+- [x] **An Azure provider.** The `arm` provider renders Recipes into Azure Resource Manager templates.
+- [ ] **Google Cloud through Terraform.** Google Cloud's services are reached through Terraform Recipes, such as
+  those for Cloud Run, Cloud SQL, Memorystore and Cloud Storage.
 - [ ] **A larger catalog.** More components, and Recipes for every target, Terraform and CloudFormation
   realizations of the base components included.
 - [ ] **A formally verified core.** The compiler's core properties proved as theorems in Lean: identical input
