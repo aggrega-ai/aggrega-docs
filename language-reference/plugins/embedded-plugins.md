@@ -6,19 +6,19 @@ Aggrega ships a set of Wasm plugins compiled directly into the CLI binary. These
 
 | Type | Name | Capabilities | Version |
 | --- | --- | --- | --- |
-| governance | `governance/cel` | — | `0.10.2 (commit b951503c8)` |
-| governance | `governance/label-injector` | — | `0.10.2 (commit b951503c8)` |
-| governance | `governance/rego` | — | `0.10.2 (commit b951503c8)` |
-| governance | `governance/selector-tagger` | — | `0.10.2 (commit b951503c8)` |
-| linter | `linter/publishing` | — | `0.10.2 (commit b951503c8)` |
-| parser | `parser/hcl` | parse:hcl | `0.10.2 (commit b951503c8)` |
-| parser | `parser/json` | parse:json | `0.10.2 (commit b951503c8)` |
-| parser | `parser/jsonc` | parse:jsonc | `0.10.2 (commit b951503c8)` |
-| parser | `parser/toml` | parse:toml | `0.10.2 (commit b951503c8)` |
-| parser | `parser/yaml` | parse:yaml | `0.10.2 (commit b951503c8)` |
-| provider | `provider/arm` | arm | `0.10.2 (commit b951503c8)` |
-| provider | `provider/cloudformation` | cloudformation | `0.10.2 (commit b951503c8)` |
-| provider | `provider/compose` | compose | `0.10.2 (commit b951503c8)` |
-| provider | `provider/helm` | helm | `0.10.2 (commit b951503c8)` |
-| provider | `provider/helm-chart` | helm-chart | `0.10.2 (commit b951503c8)` |
-| provider | `provider/terraform` | terraform | `0.10.2 (commit b951503c8)` |
+| governance | `governance/cel` | — | `0.10.3 (commit d90c023f6)` |
+| governance | `governance/label-injector` | — | `0.10.3 (commit d90c023f6)` |
+| governance | `governance/rego` | — | `0.10.3 (commit d90c023f6)` |
+| governance | `governance/selector-tagger` | — | `0.10.3 (commit d90c023f6)` |
+| linter | `linter/publishing` | — | `0.10.3 (commit d90c023f6)` |
+| parser | `parser/hcl` | parse:hcl | `0.10.3 (commit d90c023f6)` |
+| parser | `parser/json` | parse:json | `0.10.3 (commit d90c023f6)` |
+| parser | `parser/jsonc` | parse:jsonc | `0.10.3 (commit d90c023f6)` |
+| parser | `parser/toml` | parse:toml | `0.10.3 (commit d90c023f6)` |
+| parser | `parser/yaml` | parse:yaml | `0.10.3 (commit d90c023f6)` |
+| provider | `provider/arm` | arm | `0.10.3 (commit d90c023f6)` |
+| provider | `provider/cloudformation` | cloudformation | `0.10.3 (commit d90c023f6)` |
+| provider | `provider/compose` | compose | `0.10.3 (commit d90c023f6)` |
+| provider | `provider/helm` | helm | `0.10.3 (commit d90c023f6)` |
+| provider | `provider/helm-chart` | helm-chart | `0.10.3 (commit d90c023f6)` |
+| provider | `provider/terraform` | terraform | `0.10.3 (commit d90c023f6)` |
