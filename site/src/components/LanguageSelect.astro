@@ -36,6 +36,12 @@ import { localizedUrl } from "../../node_modules/@astrojs/starlight/utils/locali
 // and a browser that cannot name a language shows nothing extra. The entries
 // are links rather than the options of a native drop-down, because those take
 // neither the focus nor a description on every platform.
+//
+// The open menu is as wide as its longest language name with its check and
+// padding, at least 10rem and at most the viewport's width less 2rem. The name
+// in the page's language takes only the room its entry leaves after that and
+// adds nothing to the menu's width: it truncates to that room and is not shown
+// where the room is under 3rem.
 const route = Astro.locals.starlightRoute;
 const currentCode = route.locale ?? "root";
 const locales = Object.entries(config.locales ?? {});
@@ -111,7 +117,10 @@ const options = locales.map(([code, locale]) => ({
         hint.setAttribute("aria-hidden", "true");
         hint.dataset.languageName = "";
         hint.textContent = name;
-        link.append(hint);
+        const room = document.createElement("span");
+        room.dataset.languageNameRoom = "";
+        room.append(hint);
+        link.append(room);
         link.setAttribute("aria-describedby", hint.id);
       });
 
@@ -292,9 +301,13 @@ const options = locales.map(([code, locale]) => ({
     z-index: 10;
     top: calc(100% + 0.25rem);
     inset-inline-end: 0;
-    min-width: 13rem;
+    min-width: 10rem;
+    max-width: calc(100vw - 2rem);
     max-height: 70vh;
     overflow-y: auto;
+    /* Reserved, so a browser that leaves a scrollbar out of the menu's width
+       still fits every name. */
+    scrollbar-gutter: stable;
     margin: 0;
     padding: 0.25rem;
     list-style: none;
@@ -359,9 +372,21 @@ const options = locales.map(([code, locale]) => ({
     background-color: var(--sl-color-gray-6);
     color: var(--sl-color-white);
   }
+  /* The room after the name: an inline-size container, so it adds nothing to
+     the menu's width and grows into what its entry leaves. Its negative margin
+     cancels the entry's gap, which the hint restores inside it. */
+  a :global([data-language-name-room]) {
+    container-type: inline-size;
+    display: flex;
+    flex: 1 1 0;
+    justify-content: flex-end;
+    min-width: 0;
+    margin-inline-start: -0.5rem;
+    overflow: hidden;
+  }
   a :global([data-language-name]) {
     visibility: hidden;
-    margin-inline-start: auto;
+    margin-inline-start: 0.5rem;
     flex: 0 1 auto;
     min-width: 0;
     overflow: hidden;
@@ -378,5 +403,10 @@ const options = locales.map(([code, locale]) => ({
   a:not([role]):focus-visible :global([data-language-name]),
   a[role="menuitem"]:focus :global([data-language-name]) {
     visibility: visible;
+  }
+  @container (max-width: 3rem) {
+    a :global([data-language-name]) {
+      display: none;
+    }
   }
 </style>
