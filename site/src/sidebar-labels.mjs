@@ -181,11 +181,26 @@ function decodeEntities(text) {
   });
 }
 
+// A built page with the Thai line-break markup taken out, so a label reads as
+// its text. On a Thai page the line-break step (src/thai-line-breaks.mjs), which
+// runs before this check, holds each Thai word in a <span class="thai-word">,
+// puts <wbr> between two words and wraps each changed text in a plain <span>.
+// Dropping those tags leaves the text as the page shows it; a page with no Thai
+// holds none of them.
+export function withoutThaiWordMarkup(html) {
+  return html
+    .replace(/<wbr>/g, "")
+    .replace(/<span class="thai-word">([^<]*)<\/span>/g, "$1")
+    .replace(/<span>([^<]*)<\/span>/g, "$1");
+}
+
 // The labels a built page's sidebar shows, in document order: the group labels,
 // the link labels and the badges, each apart. The sidebar is the region inside
 // <sl-sidebar-state-persist>; a group's label is the `large` span inside its
-// `group-label` span, a link's label the first span inside its <a>.
-function shownLabels(html) {
+// `group-label` span, a link's label the first span inside its <a>. Each label
+// is read through the Thai line-break markup.
+export function shownLabels(page) {
+  const html = withoutThaiWordMarkup(page);
   const start = html.indexOf("<sl-sidebar-state-persist");
   const end = html.indexOf("</sl-sidebar-state-persist>", start);
   if (start < 0 || end < 0) return undefined;
@@ -229,8 +244,10 @@ const CHROME_LABELS = [
   { key: "documentationVersion", what: "version selector name", shown: (html) => html.match(/<docs-version-select\b[\s\S]*?<span class="sr-only[^"]*"[^>]*>([^<]*)<\/span>/) },
 ];
 
-// The misses among the page's own controls, as problem lines for `lang`.
-function missingChromeLabels(html, lang, locale, navLabels) {
+// The misses among the page's own controls, as problem lines for `lang`, each
+// label read through the Thai line-break markup.
+export function missingChromeLabels(page, lang, locale, navLabels) {
+  const html = withoutThaiWordMarkup(page);
   const problems = [];
   for (const { key, what, shown } of CHROME_LABELS) {
     const label = navLabels[locale]?.[key];
