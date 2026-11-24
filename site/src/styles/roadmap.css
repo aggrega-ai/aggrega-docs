@@ -1,11 +1,13 @@
 /* The marks beside the roadmap page's items (src/plugins/roadmap-marks.mjs),
    each in place of the item's bullet: a green box holding a tick for finished
-   work, an empty box for work ahead. Only the roadmap's marked items carry
+   work, a green box filled from its start to its middle for work under way, and
+   an empty box for work not started. Only the roadmap's marked items carry
    these classes, so no other list changes. The mark sits where the bullet sat,
    at the start of the item's first line, on the right of a page written right
-   to left. The tick is drawn the same way round in either direction, as a
-   ticked box is. With forced colours the box keeps its outline and the tick is
-   drawn in the text colour, so finished work still reads apart from work ahead. */
+   to left, where the half-filled box fills from the right as progress does. The
+   tick is drawn the same way round in either direction, as a ticked box is.
+   With forced colours each box keeps its outline and the tick and the fill are
+   drawn in the text colour, so the three still read apart. */
 
 .sl-markdown-content li.roadmap-item {
   position: relative;
@@ -22,6 +24,8 @@
   height: 1.125em;
   border: 2px solid var(--color-text-muted);
   border-radius: 0.25em;
+  /* The half-filled box's fill follows the box's rounded inner corners. */
+  overflow: hidden;
 }
 
 .roadmap-mark-done {
@@ -38,8 +42,22 @@
     center / 100% 100% no-repeat;
 }
 
+.roadmap-mark-ongoing {
+  border-color: var(--color-success);
+}
+
+.roadmap-mark-ongoing::after {
+  content: "";
+  position: absolute;
+  inset-block: 0;
+  inset-inline-start: 0;
+  width: 50%;
+  background-color: var(--color-success);
+}
+
 @media (forced-colors: active) {
-  .roadmap-mark-done::after {
+  .roadmap-mark-done::after,
+  .roadmap-mark-ongoing::after {
     forced-color-adjust: none;
     background-color: CanvasText;
   }
