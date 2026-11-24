@@ -51,10 +51,12 @@ one of the same identity — its kind, name and version, a Recipe's capability
 too, and a library's name alone — and every other published entity stays in
 view: the importers, the Components drafts are matched against and the Recipes
 --target maps from are the folders' and the published catalog's together. The
-Components drafts are matched against leave out any at a file the import's own
-entry in the record beside the drafts lists: those are its earlier drafts, not
-catalog entities, so a re-run or a --sync is judged against the catalog rather
-than against what it drafted before. A
+Components and Recipes authored in a file the import's own entry in the record
+beside the drafts lists are its earlier drafts, not catalog entities: they leave
+the view the importer is handed and the view the import composes its Manifest
+over and reads owed values against, so a re-run or a --sync is judged against
+the catalog rather than against what it drafted before. The check that a Recipe
+binds to --target reads the whole catalog, those drafts included. A
 parser or an importer the folders hold for a syntax or a format is chosen for
 it before any the published catalog holds, so a published one of another name
 or a later version is no candidate for that syntax or format, unless a
