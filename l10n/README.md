@@ -50,12 +50,11 @@ both read the API key from the repository secret `ANTHROPIC_API_KEY`.
 A coding session translates with its own agents and no API key. The package
 plans the batches, prints each agent's prompt, and validates every translation
 before it reaches the memory. The session works in two linked worktrees of this
-repository: one for the working branch, where the batches are exported and
-imported, and one with `l10n-memory` checked out, where the machine layer is
-committed.
+repository: one at `main`, where the batches are exported and imported, and one
+with `l10n-memory` checked out, where the machine layer is committed.
 
 ```sh
-git worktree add --detach ../docs-session dev
+git worktree add --detach ../docs-session main
 git fetch origin l10n-memory && git worktree add ../docs-memory l10n-memory
 git -C ../docs-memory pull --ff-only
 cd ../docs-session
