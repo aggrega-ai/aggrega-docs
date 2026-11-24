@@ -25,6 +25,7 @@ import rewriteRelativeMdLinks from "./src/plugins/rewrite-relative-md-links.mjs"
 import dropTitleHeading from "./src/plugins/drop-title-heading.mjs";
 import copyableBlockquote from "./src/plugins/copyable-blockquote.mjs";
 import docsHome from "./src/plugins/docs-home.mjs";
+import roadmapMarks from "./src/plugins/roadmap-marks.mjs";
 import demoVideo from "./src/plugins/demo-video.mjs";
 import { codeThemes } from "./src/code-themes.mjs";
 import { analyticsModule } from "./src/analytics.mjs";
@@ -322,12 +323,15 @@ export default defineConfig({
       // Starlight renders the title itself; a blockquote marked copyable is
       // shown as a block with a copy button; a marked paragraph captions the
       // demo video, shown above it with the subtitles of the page's language;
-      // and the home is given the classes its stylesheet (src/styles/home.css)
-      // styles. The title heading is dropped before the home's body is wrapped.
+      // the home is given the classes its stylesheet (src/styles/home.css)
+      // styles; and each task-list item of the roadmap shows a mark saying
+      // whether its work is done (src/styles/roadmap.css). The title heading is
+      // dropped before the home's body is wrapped.
       dropTitleHeading,
       copyableBlockquote,
       [demoVideo, { contentRoot: corpusRoot, base }],
       [docsHome, { contentRoot: corpusRoot }],
+      [roadmapMarks, { contentRoot: corpusRoot }],
     ],
   },
   // The routes of the translated pages that still hold English text, for the
@@ -441,6 +445,7 @@ export default defineConfig({
       // (src/styles/copyable.css) and what the documentation's diagrams add to
       // the brand's (src/styles/diagram.css);
       // one style for every nested sidebar group label (src/styles/sidebar.css);
+      // the marks beside the roadmap's items (src/styles/roadmap.css);
       // the accessibility panel's stylesheet, the two reading fonts it offers
       // (downloaded only for a reader who picks one), and the site's rules for
       // the panel (src/styles/a11y.css).
@@ -454,6 +459,7 @@ export default defineConfig({
         "./src/styles/copyable.css",
         "./src/styles/diagram.css",
         "./src/styles/sidebar.css",
+        "./src/styles/roadmap.css",
         "@cognitio/a11y/toolbar.css",
         "@fontsource/atkinson-hyperlegible/400.css",
         "@fontsource/atkinson-hyperlegible/700.css",

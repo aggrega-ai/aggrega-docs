@@ -1,0 +1,46 @@
+/* The marks beside the roadmap page's items (src/plugins/roadmap-marks.mjs),
+   each in place of the item's bullet: a green box holding a tick for finished
+   work, an empty box for work ahead. Only the roadmap's marked items carry
+   these classes, so no other list changes. The mark sits where the bullet sat,
+   at the start of the item's first line, on the right of a page written right
+   to left. The tick is drawn the same way round in either direction, as a
+   ticked box is. With forced colours the box keeps its outline and the tick is
+   drawn in the text colour, so finished work still reads apart from work ahead. */
+
+.sl-markdown-content li.roadmap-item {
+  position: relative;
+  list-style: none;
+}
+
+.roadmap-mark {
+  position: absolute;
+  inset-inline-start: -1.625em;
+  /* Centred on the first line of the item's text. */
+  top: calc((var(--sl-line-height) - 1.125) * 0.5em);
+  box-sizing: border-box;
+  width: 1.125em;
+  height: 1.125em;
+  border: 2px solid var(--color-text-muted);
+  border-radius: 0.25em;
+}
+
+.roadmap-mark-done {
+  border-color: var(--color-success);
+  background-color: var(--color-success);
+}
+
+.roadmap-mark-done::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-color: var(--color-neutral-0);
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M 3.5 8.25 L 6.5 11.25 L 12.5 4.75' fill='none' stroke='black' stroke-width='2.25' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E")
+    center / 100% 100% no-repeat;
+}
+
+@media (forced-colors: active) {
+  .roadmap-mark-done::after {
+    forced-color-adjust: none;
+    background-color: CanvasText;
+  }
+}

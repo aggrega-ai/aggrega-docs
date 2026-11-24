@@ -40,7 +40,9 @@ import list from "./languages.json" with { type: "json" };
 // text where the memory has none (machineTranslationNoticeModule()). The labels
 // of the menu at the top of every page are written and translated the same way,
 // in the file SITE_NAV_LABELS (siteNavModule()), and so are the labels of the
-// sidebar beside every page, in the file SIDEBAR_LABELS (sidebarLabels()).
+// sidebar beside every page, in the file SIDEBAR_LABELS (sidebarLabels()), and
+// the words screen readers say for the marks beside the roadmap page's items,
+// in the file ROADMAP_LABELS (roadmapLabels()).
 
 /** The language every page is written in, served at the unprefixed root. */
 export const sourceLanguage = { lang: list.source.lang, label: list.source.label };
@@ -91,6 +93,13 @@ export const SITE_NAV_LABELS = "site/src/strings/site-nav.md";
  * on the link to the catalog. It is translated with the pages and is not a page.
  */
 export const SIDEBAR_LABELS = "site/src/strings/sidebar.md";
+
+/**
+ * The source of the words screen readers say for the marks beside the roadmap
+ * page's items, relative to the corpus root: done and not done. It is translated
+ * with the pages and is not a page.
+ */
+export const ROADMAP_LABELS = "site/src/strings/roadmap.md";
 
 /** The link destination the notice's source writes, which the site replaces with the English page's address. */
 const NOTICE_LINK_DESTINATION = "english-original";
@@ -429,6 +438,15 @@ export function siteNavLabels(root = corpusRoot) {
  */
 export function sidebarLabels(root = corpusRoot) {
   return keyedLabels(SIDEBAR_LABELS, "the sidebar's labels", root);
+}
+
+/**
+ * The words said for the marks beside the roadmap page's items, in the shape of
+ * siteNavLabels: for each key of ROADMAP_LABELS, the word's text and the
+ * language it is in.
+ */
+export function roadmapLabels(root = corpusRoot) {
+  return keyedLabels(ROADMAP_LABELS, "the words said for the roadmap's marks", root);
 }
 
 const SITE_NAV_MODULE = "virtual:aggrega-docs/site-nav";
