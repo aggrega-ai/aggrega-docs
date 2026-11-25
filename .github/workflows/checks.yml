@@ -1,0 +1,67 @@
+name: Checks
+
+# The checks every push to main or to a release branch, and every pull request
+# into main, runs on a GitHub-hosted runner. A newer push to the same branch or
+# pull request cancels the run it supersedes. Each reads this checkout alone:
+# no aggrega binary, no catalog and no network.
+#
+#   examples  the readers and pages the documentation's examples rely on:
+#             scripts/check-build-commands-parity.sh and
+#             scripts/check-fenced-block-parity.sh hold the two awk readers
+#             to their fixtures; scripts/gen-examples-index.sh --check holds
+#             every example's header and sections to their shape and the
+#             examples page to what the headers give; and
+#             scripts/check-getting-started-commands.mjs holds the Getting
+#             started page, every page that drafts an example and the
+#             quickstart scripts to the pages they come from.
+#
+# The import examples' checks need the aggrega binary and the core importers
+# built from aggrega-cli, and aggrega-hub's catalog: aggrega-cli's own nightly
+# workflow (its full-checks.yml, job import-examples) builds them and runs
+# scripts/check-import-examples.sh --isolated over this repository's main.
+on:
+  push:
+    branches: [main, 'release/**']
+  pull_request:
+    branches: [main]
+
+permissions: {}
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  examples:
+    name: Check the examples' headers, readers and command blocks
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    steps:
+      - name: Check out the documentation
+        uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
+        with:
+          persist-credentials: false
+
+      - name: Set up Node
+        uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
+        with:
+          node-version: 24
+          # No package manager cache: a run on main or on a release branch
+          # restores nothing from the Actions cache, which other runs can write.
+          package-manager-cache: false
+
+      - name: Hold the build-command reader to its cases
+        run: scripts/check-build-commands-parity.sh
+
+      - name: Hold the two fenced-block readers to one reading
+        run: scripts/check-fenced-block-parity.sh
+
+      - name: Check every example's header and the examples page
+        # Reads each header with yq, the Go implementation at v4, which the
+        # GitHub-hosted Ubuntu image carries.
+        run: scripts/gen-examples-index.sh --check
+
+      - name: Hold the Getting started page and the quickstart scripts to the examples
+        run: node scripts/check-getting-started-commands.mjs
