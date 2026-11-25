@@ -70,7 +70,7 @@ This promise covers the API a plugin's source names. What crosses between the co
 
 ## What a release's changelog says
 
-Each release's notes, on the [releases page](https://github.com/aggrega-ai/aggrega-cli/releases), carry its changelog, grouped under headings such as **Added**, **Changed**, **Removed** and **Fixed**. For the surfaces on this page:
+The [Changelog](../changelog.md) page lists the changes of each release, grouped under headings such as **Added**, **Changed**, **Removed** and **Fixed**; each release's notes on the [releases page](https://github.com/aggrega-ai/aggrega-cli/releases) carry the same changelog. For the surfaces on this page:
 
 - **A command, flag or assistant tool removed or renamed** is listed under **Removed** or **Changed**, in the minor release that makes the change.
 - **A new schema API version** is announced as a breaking change in the release that brings it.

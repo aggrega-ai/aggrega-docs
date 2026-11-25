@@ -41,5 +41,8 @@ the badge on a link that leads to another site:
 - `schemaReference`: Schema Reference
 - `pluginSchemas`: Plugin ABI & payload schemas
 - `otherSchemas`: Other & workspace schemas
+- `changelogAndRoadmap`: Changelog and roadmap
+- `changelog`: Changelog
+- `roadmap`: Roadmap
 - `catalog`: Catalog
 - `external`: External

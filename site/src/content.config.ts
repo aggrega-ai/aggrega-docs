@@ -101,6 +101,7 @@ const pages = [
   "install.md",
   "learn.md",
   "roadmap.md",
+  "changelog.md",
   "ai-assistants/**/*.md",
   "architecture/**/*.md",
   "authoring/**/*.md",

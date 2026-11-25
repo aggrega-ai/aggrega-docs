@@ -290,9 +290,17 @@ const sidebar = labelSidebar([
       },
     ],
   },
-  // Where Aggrega is going: the roadmap page, at the top level. A version
-  // whose tag holds no roadmap page lists none.
-  ...present("roadmap"),
+  // What each release changed and where Aggrega is going: the changelog page
+  // and the roadmap page, in one group at the top level. A version whose tag
+  // holds neither page lists no group, and one holding only the roadmap lists
+  // the group with it alone.
+  ...present({
+    key: "changelogAndRoadmap",
+    items: [
+      { key: "changelog", slug: "changelog" },
+      { key: "roadmap", slug: "roadmap" },
+    ],
+  }),
   {
     key: "catalog",
     link: "https://aggrega.ai/catalog",
