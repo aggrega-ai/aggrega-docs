@@ -161,9 +161,13 @@ name and version, and nothing references it. The Manifest and the edited
 Release are drafts like the others: recorded, held inside the output directory,
 and shown by --dry-run. A target no Recipe in the catalog binds to stops the
 import before the importer runs, naming the target and the capabilities the
-catalog's Recipes bind to, and nothing is written. Without --target no Manifest
-is drafted and the drafts are the importer's alone — except under --sync, which
-reuses the target the earlier import was given.
+catalog's Recipes bind to, and nothing is written. Without --target the import
+drafts for the target the earlier import was given, under --sync; otherwise for
+the target the importer declares its drafts default to, where a Recipe in the
+catalog binds to it, and an information diagnostic says so; otherwise no
+Manifest is drafted and the drafts are the importer's alone, and where the
+importer declares a default no Recipe binds to, an information diagnostic says
+why.
 
 Beside its drafts, every import that drafts anything writes its entry in
 .aggrega-import.json, the record of what imports wrote there. The record holds
@@ -417,6 +421,6 @@ source the write would refuse is refused here too.
 | `--format` | — | Name the source format explicitly, overriding detection by the importers' signatures (for example langflow, flowise, n8n, mcp, compose, dify, crewai, langgraph, google-adk, agent-framework, cloudformation-schema, terraform-schema or arm-schema) |
 | `--output-dir` | — | Directory the drafted files are written under. A relative path resolves against the directory you run the command in, and a drive named bare on Windows, such as D:, is the current directory on that drive. Without it the drafts are written beneath the root of the workspace the run resolved. |
 | `--sync` | `false` | Bring what an earlier import drafted up to date with the source, changing only what the import wrote, as its entry in the record beside the drafts lists it, and naming each part that drifted. With --dry-run, exit 0 when in step, 2 when drifted, 1 on an error or a refusal. |
-| `--target` | — | Draft a Manifest for this provider capability — the word a Recipe's spec.capability binds to, for example compose or helm — mapping each component type and feature type the drafts need to the Recipe or feature recipe of that capability the workspace's catalog offers for it, the one there is or, among several, the one named after the type, and point the drafted Release at it. A capability no Recipe in the catalog binds to is refused before the importer runs. Without it no Manifest is drafted, except that --sync reuses the target the earlier import was given. |
+| `--target` | — | Draft a Manifest for this provider capability — the word a Recipe's spec.capability binds to, for example compose or helm — mapping each component type and feature type the drafts need to the Recipe or feature recipe of that capability the workspace's catalog offers for it, the one there is or, among several, the one named after the type, and point the drafted Release at it. A capability no Recipe in the catalog binds to is refused before the importer runs. Without it the import drafts for the target the importer declares its drafts default to, where a Recipe in the catalog binds to it; an importer declaring none, or one no Recipe binds to, drafts no Manifest; --sync reuses the target the earlier import was given. |
 | `--upgrade` | `false` | Re-read the published catalog from current registry state: fetch the newest catalog snapshot the workspace's default registry publishes, verify it, and import against it, holding it as the snapshot this workspace reads from then on in place of the one it holds or the one the import's entry in the record beside the drafts names. The snapshot is read behind the workspace's catalog folders, where it has some. It is refused under --offline, and where no default registry is named or the registry cannot be reached |
 <!-- END GENERATED: cli-import -->
