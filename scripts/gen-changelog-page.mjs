@@ -25,11 +25,10 @@
 // regenerate. Given the same inputs the output is byte-identical: the page
 // follows the files' order and sorts nothing.
 //
-// A release heading is written as an HTML heading holding inline code, with its
-// version as its identifier: the translation adapter makes a segment of every
-// Markdown heading, even one holding only inline code, and leaves an HTML block
-// as it is, so a version and its date read the same in every language, add
-// nothing to translate, and keep the same anchor in each.
+// A release heading is a Markdown level-3 heading holding its version and date as
+// inline code, so the page's "On this page" list names each release and a
+// translation leaves the heading's text as it is. Its anchor is the heading's
+// default one.
 //
 // Node built-ins only.
 
@@ -91,7 +90,7 @@ function parse(file, text, headingPattern) {
 
 // One release as page text: its level-3 heading, then each group.
 function render(version, date, groups) {
-  const lines = [`<h3 id="${version}"><code>${version} - ${date}</code></h3>`, ""];
+  const lines = [`### \`${version} - ${date}\``, ""];
   for (const { name, entries } of groups) {
     lines.push(`#### ${name}`, "", ...entries, "");
   }
