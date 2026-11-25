@@ -114,6 +114,12 @@ trap 'rm -rf "$WORK"' EXIT
 
 # The environment each check runs in: empty, so as given, or the one --isolated
 # describes.
+#
+# DELIBERATE NEAR-DUPLICATE: aggrega-corpus's scripts/frozen-corpus.sh keeps its
+# own copy of the --isolated environment, the closed port and its listen check,
+# because it runs from a lone checkout of its own repository and cannot call
+# this script. A change to how a run is isolated from the caller's
+# configuration or kept off the network is made in both.
 declare -a run_env=()
 if [ "$ISOLATED" -eq 1 ]; then
   if (exec 3<>"/dev/tcp/127.0.0.1/$CLOSED_PORT") 2>/dev/null; then
