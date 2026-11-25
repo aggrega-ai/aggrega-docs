@@ -358,7 +358,13 @@ resource type's provider schema, in any .json file, by typeName and properties,
 and the output of describe-type by TypeName and Schema; the terraform-schema
 importer recognizes the export of terraform providers schema -json, in any .json
 file, by format_version and provider_schemas; the arm-schema importer recognizes
-a Bicep types.json by its first entry's $type. A directory is
+a Bicep types.json by its first entry's $type. The arm importer reads an
+Azure Resource Manager template, in any .json file, as JSON with comments,
+recognized by an $schema beginning https://schema.management.azure.com/schemas/
+with resources, and its parameters file by that $schema with an object at
+parameters; it drafts an Aggregate, a Release and the catalog entities a
+resource no Component covers is drafted as, and, where an import names no
+--target, a Manifest for arm. A directory is
 recognized the same way over the files it holds: each signature is tried against the files
 its file names match, and a signature that names no file applies to none of
 them. If no signature matches, import stops, asks for --format and names the
@@ -418,7 +424,7 @@ source the write would refuse is refused here too.
 | --- | --- | --- |
 | `--answers` | — | The answers file the values the drafts leave empty that no source can hold are read from and written to: under each drafted file's path, the key path inside it and its answer. A relative path resolves against the directory you run the command in. Without it, the answers file the import's entry in the record beside the drafts names, or else import-answers.yaml beside the source file, or inside the source directory. A secret's answer is the name of where the secret comes from, never the secret itself. |
 | `--dry-run` | `false` | Do everything except write: hand back the drafted files as content, naming the file each is for, and create or modify nothing. Every other behaviour is the write's, the importer run included. Without it the drafts are written to disk. |
-| `--format` | — | Name the source format explicitly, overriding detection by the importers' signatures (for example langflow, flowise, n8n, mcp, compose, dify, crewai, langgraph, google-adk, agent-framework, cloudformation-schema, terraform-schema or arm-schema) |
+| `--format` | — | Name the source format explicitly, overriding detection by the importers' signatures (for example langflow, flowise, n8n, mcp, compose, dify, crewai, langgraph, google-adk, agent-framework, cloudformation-schema, terraform-schema, arm-schema or arm) |
 | `--output-dir` | — | Directory the drafted files are written under. A relative path resolves against the directory you run the command in, and a drive named bare on Windows, such as D:, is the current directory on that drive. Without it the drafts are written beneath the root of the workspace the run resolved. |
 | `--sync` | `false` | Bring what an earlier import drafted up to date with the source, changing only what the import wrote, as its entry in the record beside the drafts lists it, and naming each part that drifted. With --dry-run, exit 0 when in step, 2 when drifted, 1 on an error or a refusal. |
 | `--target` | — | Draft a Manifest for this provider capability — the word a Recipe's spec.capability binds to, for example compose or helm — mapping each component type and feature type the drafts need to the Recipe or feature recipe of that capability the workspace's catalog offers for it, the one there is or, among several, the one named after the type, and point the drafted Release at it. A capability no Recipe in the catalog binds to is refused before the importer runs. Without it the import drafts for the target the importer declares its drafts default to, where a Recipe in the catalog binds to it; an importer declaring none, or one no Recipe binds to, drafts no Manifest; --sync reuses the target the earlier import was given. |
