@@ -368,6 +368,13 @@
     "status": "machine",
     "text": "**So beheben Sie es:** Schreiben Sie den Wert in der Form, die unter [Workload → Ressourcenmengen](../entities/workload.md#resource-quantities) beschrieben ist. Wo das Feld ein Template ist, ist der zu korrigierende Wert der, den das Template gelesen hat: ein bloßes Suffix wie `m` oder `Mi` ist das, was ein Template hinterlässt, wenn der Wert, den es interpoliert, leer ist, und ein Parameter des Release erreicht das Feld genau so, wie er geschrieben wurde."
   },
+  "007916927800c1fd": {
+    "at": "2026-11-25T07:34:33.711Z",
+    "job": "8ddee3f8b1ef",
+    "srcHash": "007916927800c1fd",
+    "status": "machine",
+    "text": "Die `:version`-Untergrenze einer Bibliotheksreferenz wählt die höchste vorhandene Version, die alle Verbraucher innerhalb ihrer Hauptversion zulassen; ein neuer Pull kann eine neuere Bibliotheksversion festhalten."
+  },
   "007a2f18dea1a21e": {
     "at": "2026-11-15T22:34:08.760Z",
     "job": "session-0021-20261115223408",
@@ -2367,6 +2374,13 @@
     "status": "machine",
     "text": "Plattformbetrieb — Infrastruktur-Rezepte"
   },
+  "033cb2ee760d1b6f": {
+    "at": "2026-11-25T07:34:33.711Z",
+    "job": "8ddee3f8b1ef",
+    "srcHash": "033cb2ee760d1b6f",
+    "status": "machine",
+    "text": "`0.9.0 - 2026-11-15`"
+  },
   "033d8d00b57acf82": {
     "at": "2026-10-30T04:51:13.962Z",
     "job": "session-0057-20261030045113",
@@ -3602,6 +3616,13 @@
     "srcHash": "050e6f0e564683a3",
     "status": "machine",
     "text": "Eine Entität im Kontext eines Release prüfen"
+  },
+  "05102cb399987c57": {
+    "at": "2026-11-25T07:34:33.711Z",
+    "job": "8ddee3f8b1ef",
+    "srcHash": "05102cb399987c57",
+    "status": "machine",
+    "text": "Geben Sie auf `arm` Geheimnisse als Key-Vault-Referenzen an; `core/generated-secret` und `core/random-password` brechen mit Namensnennung ab, da ARM keinen Geheimnisgenerator hat."
   },
   "05130cff56de015d": {
     "at": "2026-11-15T00:02:03.956Z",
@@ -5593,6 +5614,13 @@
     "srcHash": "07c5efba834232d4",
     "status": "machine",
     "text": "Dieser Guest importiert keine Host-Funktionen, was der Standard nach dem Prinzip der geringsten Rechte ist: Er braucht weder das Dateisystem noch das Netzwerk, weil alles, was er rendert, in der Payload ankommt."
+  },
+  "07c6b51f872058f9": {
+    "at": "2026-11-25T07:34:33.711Z",
+    "job": "8ddee3f8b1ef",
+    "srcHash": "07c6b51f872058f9",
+    "status": "machine",
+    "text": "Frühere Releases finden Sie im [vollständigen Changelog](https://github.com/aggrega-ai/aggrega-cli/blob/main/CHANGELOG.md)."
   },
   "07c6e7631afff90b": {
     "at": "2026-10-22T09:46:26.370Z",
@@ -8669,6 +8697,13 @@
     "status": "machine",
     "text": "**Laufzeit (physische Durchsetzung):** Sobald der Orchestrator die generierten Artefakte bereitgestellt hat, ersetzt das Gateway jeden Treffer im Anfragetext, den es maskiert, vor dem Weiterleiten durch einen Platzhalter, sodass der Modellanbieter den Platzhalter erhält; mit `action: refuse` leitet die Anbindung nichts von einer Anfrage weiter, die einen Treffer enthält, und beantwortet sie stattdessen mit einem Fehler. Ein Erkenner, der nicht erreichbar ist oder einen Fehler meldet, lässt die Anfrage fehlschlagen, sodass ihr Text nicht weitergegeben wird. Was die Maskierung nicht erreicht, entscheiden zwei Werte, deren Standardwerte der Schutz sind. Auf dem AI-Gateway maskiert das Gateway, sofern die Anbindung auch Antworten maskiert, den Text der Antwort und die Teile, die ein Modell oder sein Anbieter daneben hinzufügt — eine Ablehnung, Zitate und Annotationen, die Abfrage und die Ergebnisse einer Websuche, Felder unter eigenen Namen des Anbieters — oder sendet unter `refuse` nichts von einer Antwort, die einen Treffer enthält; eine gestreamte Antwort, die es per Muster maskiert, erreicht den Aufrufer vollständig, am Ende. Standardmäßig lehnt das AI-Gateway, was seine Maskierung in einer Anfrage nicht erreicht — eine Route wie die Bilderzeugung, ein Feld wie `safety_identifier`, ein Bild oder eine Datei in der Konversation, ein Tool, das der Anbieter selbst ausführt —, mit HTTP 400 ab, bevor es irgendetwas davon weiterleitet; ein Betreiber, der akzeptiert, dass solcher Text den Anbieter unmaskiert erreicht, setzt `allow_unmasked_text` an der Anbindung im Release, wobei die Realisierung genau auflistet, was dann durchgeht, und Inhalte, die kein Text sind, weiterhin `allow_non_text_content` unterliegen. Standardmäßig wird zurückgehalten, was eine maskierte Antwort enthält und ihre Maskierung nicht lesen kann — gesprochenes Audio und sein Transkript, ein Bild, die Wahrscheinlichkeiten der vom Modell gewählten Token —, und ein fehlgeschlagener Aufruf erreicht den Aufrufer mit einer festen Meldung anstelle der vom Anbieter zurückgegebenen; `allow_unmasked_reply_parts` lässt diese den Aufrufer unmaskiert erreichen. Den eigenen Text einer Antwort lässt dieser Wert nie durch, doch die Teile, die er durchlässt, können die Worte der Antwort enthalten: das Transkript einer gesprochenen Antwort, die Token hinter den Token-Wahrscheinlichkeiten, die Fehlermeldung eines Anbieters, die die Antwort zitiert. Auf `core/gateway/kong-enterprise` wird jeder Treffer durch einen nummerierten Platzhalter ersetzt, sodass eine Anbindung, die Muster unter `redact` auflistet, `placeholder_shows_name: false` setzt; `refuse` erreicht nur Anfragen, ab Kong 3.12, das eine Anfrage mit einem Treffer mit HTTP 400 beantwortet; und Antworten werden ab 3.12 maskiert, wobei eine Anfrage, die eine gestreamte Antwort verlangt, dann vor dem Weiterleiten abgelehnt und `allow_streamed_replies` abgelehnt wird. Kongs Sanitizer liest den Text der Benutzer-Turns, den Prompt einer Completion und den Nachrichtentext einer Antwort, und Kongs Referenz nennt keine Einstellung, die eine Anfrage wegen dessen ablehnt, was der Sanitizer nicht liest, oder den Rest einer Antwort zurückhält, sodass auf diesem Gateway jeder Schutz zur Build-Zeit namentlich abgelehnt wird, solange er seinen Standardwert behält, und eine Anbindung sich bauen lässt, sobald das Release sie lockert — `allow_unmasked_text` und `allow_non_text_content`, wo Anfragen maskiert werden, `allow_unmasked_reply_parts` und `mask_reasoning: false`, wo Antworten maskiert werden —, wobei `data-masking-kong-enterprise` auflistet, was jeder dann durchlässt. Dort passiert eine Antwort, deren Text nicht als die einzelne Zeichenkette ankommt, die die OpenAI-API zurückgibt, ungelesen, und ihr eigener Text erreicht den Aufrufer unmaskiert; der Schutz davor ist die Prüfung des Builds an jedem an dieses Gateway angeschlossenen Modell, die bei einem Modell abbricht, dessen `model.aggrega.ai/api` nicht `openai` ist. Auf `core/gateway/traefik-hub` wird jeder Treffer durch eine Folge von `*` ersetzt, die so lang ist wie der Treffer, sodass eine Anbindung, die Muster unter `redact` auflistet, `placeholder_shows_name: false` setzt; `refuse` antwortet mit HTTP 403 anstelle der Anfrage oder der Antwort; und eine maskierte Antwort wird vollständig zurückgehalten und am Ende gesendet, auch eine gestreamte, sodass eine Anbindung, die Entitätstypen in Antworten maskiert, `allow_streamed_replies` setzt. Traefiks Referenz sagt nicht, welche Felder einer Chat-Anfrage oder -Antwort Content Guard liest, und nennt keine Einstellung, die eine Anfrage ablehnt oder einen Teil einer Antwort zurückhält, wegen dessen, was es nicht liest, sodass auf diesem Gateway jeder Schutz zur Build-Zeit namentlich abgelehnt wird, solange er seinen Standardwert behält, und eine Anbindung sich bauen lässt, sobald das Release sie lockert — `allow_unmasked_text` und `allow_non_text_content`, wo Anfragen maskiert werden, `allow_unmasked_reply_parts` und `mask_reasoning: false`, wo Antworten maskiert werden —, wobei `data-masking-traefik-hub` auflistet, was jeder dann durchlässt. Eine Anbindung, die sowohl Muster als auch Entitätstypen auflistet, und eine zweite Maskierungsanbindung an einem Gateway werden abgelehnt, da Traefiks Referenz nicht sagt, ob ein zweiter Content Guard auf einer Route den vom ersten maskierten Text liest oder die Anfrage, wie der Aufrufer sie gesendet hat. Auf `core/gateway/higress` ersetzt die Higress-Erweiterung `ai-data-masking` jeden Treffer der Muster, die die Anbindung auflistet, im Inhalt und im Reasoning jeder Nachricht einer Chat-Anfrage durch den Namen des Musters in eckigen Klammern; sie maskiert nur Anfragen, daher werden `scope` `response` und `both` abgelehnt, und sie erkennt keine Entitätstypen. Die Erweiterung liest sonst nichts von einer Anfrage, daher schreibt die Chart-Recipe des Gateways, solange die Schutzmaßnahmen ihre Standardwerte behalten, außerdem die Request-Validation-Erweiterung von Higress, um mit HTTP 403, bevor irgendetwas weitergeleitet wird, eine Anfrage abzulehnen, die enthält, was die Maskierung nicht liest — einen nicht als JSON gesendeten Body oder einen, der keine Chat-Completion ist, eine Nachricht, deren Inhalt eine Liste oder null ist, einen Tool-Call oder Tool-Turn, den Namen einer Nachricht, jeden Parameter außer den Nicht-Text-Parametern einer Chat-Completion und den eigenen Tools, dem Antwortformat und den Stoppsequenzen des Entwicklers —, sowie, was auch immer die Anbindung lockert, eine Anfrage, deren Body die Higress-Erweiterungen überspringen — einen komprimierten Body, einen Content-Type, der `octet-stream` oder `grpc` enthält, ein Upgrade — und einen Body mit dem Unicode-Ersatzzeichen U+FFFD, als das diese Validierung ein Byte liest, das kein gültiges UTF-8 ist, da die Maskierungserweiterung einen Body, der kein gültiges UTF-8 ist, unmaskiert weiterleitet. Eine Anfrage, deren Body den 32-KiB-Puffer des Gateways überschreitet, wird mit HTTP 413 abgelehnt. Die Validierung liest nur einen Body, den ihr JSON-Decoder akzeptiert, sodass ein Client, der absichtlich gültiges JSON sendet, das der Decoder ablehnt — etwa eine Zahl jenseits dessen, was ein Double fasst —, jede Ablehnung seines Bodys passiert: Die Maskierungserweiterung maskiert dann nur den reinen Inhalt und das Reasoning jeder Nachricht, sodass ein aufgelisteter Wert an jeder anderen Stelle des Bodys — die Argumente eines Tool-Calls, ein Name, jedes andere Feld — unmaskiert weitergeleitet wird, ebenso wie Inhalt, der mit JSON-Escape-Sequenzen geschrieben ist, und ist ein solcher Body zudem kein gültiges UTF-8, wird alles unmaskiert weitergeleitet. Ein Client, der einen Body absichtlich mehr als 127 Ebenen tief verschachtelt, innerhalb eines Feldes, das die Validierung zulässt, etwa `tools`, sendet gültiges JSON, das die Validierung dekodiert und zulässt, doch der JSON-Leser der Maskierungserweiterung hält bei dieser Tiefe an, sodass auch mit JSON-Escape-Sequenzen geschriebener Inhalt in diesem Body unmaskiert weitergeleitet wird. Maskierung allein genügt nicht: Text, den kein Muster trifft und kein Erkenner erkennt, passiert unverändert; auf dem AI-Gateway werden Tool-Call-Argumente und Tool-Ergebnisse Wert für Wert maskiert, die Namen ihrer Schlüssel jedoch nicht; die eigenen Tool-Definitionen, Antwortformate und Stoppsequenzen des Entwicklers passieren wie gesendet; das Gateway und die Erkennungsdienste sehen den Originaltext; was das Gateway über einen Aufruf aufzeichnet — in seinem eigenen Log oder in dem, was es an eine Logging-Integration übergibt —, kann diesen Text weiterhin enthalten; und Verkehr, der das Gateway nicht durchquert, wird nicht berührt."
   },
+  "0c406504de2d3bdd": {
+    "at": "2026-11-25T07:34:33.711Z",
+    "job": "8ddee3f8b1ef",
+    "srcHash": "0c406504de2d3bdd",
+    "status": "machine",
+    "text": "Das `terraform/redis-azure-managed`-Recipe lehnt in Version 1.0.2 Instanznamen für Azure Managed Redis mit mehr als 44 Zeichen ab, die Grenze, die in jeder Region gilt."
+  },
   "0c41c357c87d94e9": {
     "at": "2026-11-03T08:18:34.158Z",
     "job": "session-0076-20261103081834",
@@ -9185,6 +9220,13 @@
     "status": "machine",
     "text": "**Präsenzvorgaben.** Eine Component kann verlangen, dass eine Anbindung eines bestimmten Typs vorhanden ist. `example/compute/service` aus dem Katalog trägt die Annotation `features.aggrega.ai/requiredType.monitoring:\n  core/prometheus-exporter`, sodass ein Build, in dem eine Instanz davon auf keiner Ebene ein `core/prometheus-exporter` trägt, unter Nennung der Anforderung `monitoring` abbricht. Wiederholen Sie den Schlüssel mit einem anderen Suffix, um einen zweiten Typ zu verlangen; siehe [entities/component.md](../entities/component.md) „Presence mandates (Präsenzvorgaben)“ dazu, wie sich eine Vorgabe von einem Anbindungs-Slot unterscheidet."
   },
+  "0d23fefce3a68a8a": {
+    "at": "2026-11-25T07:34:33.711Z",
+    "job": "8ddee3f8b1ef",
+    "srcHash": "0d23fefce3a68a8a",
+    "status": "machine",
+    "text": "`0.10.0 - 2026-11-19`"
+  },
   "0d2bc08e8ac29e32": {
     "at": "2026-11-05T16:59:03.620Z",
     "job": "session-0005-20261105165903",
@@ -9261,6 +9303,13 @@
     "srcHash": "0d510d6b3a4d8d56",
     "status": "machine",
     "text": "**Keine unabhängig bereitstellbare Entität.** Ein Bibliothekseintrag ist Workload-Inhalt, und Workload-Inhalt ist nie für sich allein adressierbar — er existiert als die Eingabe, die ein Recipe oder ein FeatureRecipe verwendet. Das Veröffentlichen einer WorkloadLibrary macht ihre Einträge importierbar; es macht sie nicht bereitstellbar."
+  },
+  "0d529b6b31ce93eb": {
+    "at": "2026-11-25T07:34:33.711Z",
+    "job": "8ddee3f8b1ef",
+    "srcHash": "0d529b6b31ce93eb",
+    "status": "machine",
+    "text": "`helm/k8s-existing-secret` lehnt einen leeren Secret-Namen ab, statt einen zu rendern, und der Compose-Health-Check von NGINX prüft 127.0.0.1."
   },
   "0d5496df150f7928": {
     "at": "2026-11-18T22:52:12.660Z",
@@ -9968,6 +10017,13 @@
     "status": "machine",
     "text": "Die URI des Feature. Erforderlich für eine Anbindung, die nur das Release vornimmt. Muss mit dem type des Aggregate übereinstimmen, wenn beide ihn deklarieren."
   },
+  "0e54f9aaac7d0d3b": {
+    "at": "2026-11-25T07:34:33.711Z",
+    "job": "8ddee3f8b1ef",
+    "srcHash": "0e54f9aaac7d0d3b",
+    "status": "machine",
+    "text": "Der Datenschutzlink in der Fußzeile der Dokumentation und die Bezeichnung der Versionsauswahl erscheinen in jeder veröffentlichten Sprache."
+  },
   "0e55ec401caaaec4": {
     "at": "2026-11-03T04:27:15.085Z",
     "job": "session-0050-20261103042715",
@@ -10030,6 +10086,13 @@
     "srcHash": "0e6697a8565c0967",
     "status": "machine",
     "text": "**Das Deklarieren eines Slots schließt die Anbindungsoberfläche nicht.** Ein Autor kann ein Feature unter einem Namen anbinden, den kein Slot deklariert, und diese Anbindung ist eine *freie Anbindung*: vollkommen zulässig, nur eben nicht an einen deklarierten Slot gebunden. Diese Offenheit ermöglicht es, dass eine Katalogentität zwei unterschiedliche Deployment-Formen bedient, ohne den Katalog zu forken:"
+  },
+  "0e6937b5c210be44": {
+    "at": "2026-11-25T07:34:33.711Z",
+    "job": "8ddee3f8b1ef",
+    "srcHash": "0e6937b5c210be44",
+    "status": "machine",
+    "text": "Eine Component- oder Feature-Instanz wird in der höchsten Version kompiliert, die alle ihre Einschränkungen zulassen; Einschränkungen ohne gemeinsame Version brechen mit `conflicting-version-constraints` ab."
   },
   "0e74c0b30cbbef17": {
     "at": "2026-11-03T20:08:31.409Z",
@@ -10266,6 +10329,13 @@
     "srcHash": "0ec296bb9d3224a9",
     "status": "machine",
     "text": "Die lokale Quelle der Entität, wie verfasst, vorhanden, wenn sie als Template geschrieben ist. Eine solche Quelle nennt ihr Verzeichnis erst, sobald ein Release das Template ausfüllt, daher trägt die Veröffentlichung jede Datei im Verzeichnis der Entität statt nur der Dateien, die die Entität nennt. Fehlt, wo sie nur diese Dateien trägt."
+  },
+  "0ec47e3c2a09e812": {
+    "at": "2026-11-25T07:34:33.711Z",
+    "job": "8ddee3f8b1ef",
+    "srcHash": "0ec47e3c2a09e812",
+    "status": "machine",
+    "text": "Ein relativer `aggrega.server.binaryPath` wird nun für jede Editorfunktion relativ zum ersten Workspace-Ordner aufgelöst."
   },
   "0ec76fbd8fde4e58": {
     "at": "2026-11-03T01:59:04.506Z",
@@ -12198,6 +12268,13 @@
     "status": "machine",
     "text": "schreibt es dieselben zwölf Dateien, Byte für Byte, wie `release.yaml` mit der auf einer der beiden Engines angebundenen Richtlinie. Nichts ist von diesem Vergleich ausgenommen: Ob eine Annotation injiziert wurde, wird in keiner gerenderten Datei festgehalten. `check.sh` vergleicht die Bäume bei jedem Lauf."
   },
+  "1171016edfce09a8": {
+    "at": "2026-11-25T07:34:33.711Z",
+    "job": "8ddee3f8b1ef",
+    "srcHash": "1171016edfce09a8",
+    "status": "machine",
+    "text": "Die Grenz-Annotationen `aggrega.ai/azure-subscription` und `aggrega.ai/azure-resource-group` platzieren einen `arm`-Produzenten in einem anderen Abonnement oder einer anderen Ressourcengruppe."
+  },
   "117243ad298ee4b1": {
     "at": "2026-11-03T23:30:42.700Z",
     "job": "session-0173-20261103233042",
@@ -12680,6 +12757,13 @@
     "status": "machine",
     "text": "Das Workload-Schema ist breit – es deckt HTTP-Server mit einem Container, Sidecar-Muster mit mehreren Containern, Init-Container-Ketten, Batch-Jobs und zustandsbehaftete Dienste mit persistenten Volumes ab. Drei Muster wiederholen sich so häufig, dass es Verschwendung wäre, das Grundgerüst für jedes Recipe neu zu schreiben. Die folgenden Blöcke sind Vorlagen zum Kopieren und Einfügen, die Recipe-Autoren an bestimmte Komponenten anpassen können."
   },
+  "121aab580246e8bb": {
+    "at": "2026-11-25T07:34:33.711Z",
+    "job": "8ddee3f8b1ef",
+    "srcHash": "121aab580246e8bb",
+    "status": "machine",
+    "text": "Das Rego-Governance-Plug-in und das Rust-Plug-in-Kit verwenden Versionen ihrer Abhängigkeiten, die eine bekannte Sicherheitslücke beheben."
+  },
   "1222118c137dc1c9": {
     "at": "2026-11-04T07:59:42.076Z",
     "job": "session-0217-20261104075942",
@@ -12757,6 +12841,13 @@
     "srcHash": "1241699a9360dcdb",
     "status": "machine",
     "text": "schreibt Dateien je Knoten nach `.trace/`; führen Sie den Build mit Trace ohne `--dry-run` aus"
+  },
+  "1246fc93bca00b90": {
+    "at": "2026-11-25T07:34:33.711Z",
+    "job": "8ddee3f8b1ef",
+    "srcHash": "1246fc93bca00b90",
+    "status": "machine",
+    "text": "Behoben"
   },
   "12498d1371171e05": {
     "at": "2026-11-03T01:23:33.287Z",
@@ -13463,6 +13554,13 @@
     "status": "machine",
     "text": "`ServerCapabilities`"
   },
+  "136f14f8fd839fd0": {
+    "at": "2026-11-25T07:34:33.711Z",
+    "job": "8ddee3f8b1ef",
+    "srcHash": "136f14f8fd839fd0",
+    "status": "machine",
+    "text": "Eine OCI-Modulquelle eines Recipes mit Tag, Digest oder Query in `url:` oder ohne `version:` wird bereits beim Einlesen abgelehnt."
+  },
   "1373c3eb0c220390": {
     "at": "2026-11-03T05:17:12.447Z",
     "job": "session-0056-20261103051712",
@@ -13599,6 +13697,13 @@
     "srcHash": "139f51282cd01d5e",
     "status": "machine",
     "text": "Ausgabe: `dist/app/compose/docker-compose.yaml` — zwei Dienste in einem Netzwerk. `db` führt `mariadb:11.4` mit Datenbank, Benutzer, Zeichensatz und injizierten Passwörtern aus; `web` führt `adminer:4` aus, veröffentlicht Port `8080`, hängt von `db` ab und trägt `ADMINER_DEFAULT_SERVER: db` (den Compose-Servicenamen, den das Datenbank-Recipe ausgegeben hat)."
+  },
+  "13a0eff9858efc53": {
+    "at": "2026-11-25T07:34:33.711Z",
+    "job": "8ddee3f8b1ef",
+    "srcHash": "13a0eff9858efc53",
+    "status": "machine",
+    "text": "Die obere Leiste der Dokumentation passt auf Tablets, und die Sprachliste jeder Website bleibt innerhalb des Bildschirms, mit jedem Namen auf einer Zeile."
   },
   "13a44de36a826b94": {
     "at": "2026-11-03T06:41:13.291Z",
@@ -15143,6 +15248,13 @@
     "status": "machine",
     "text": "**Ein Init-Service tritt dem Netzwerk seiner Boundary direkt bei**, statt den Netzwerk-Namespace des Haupt-Service zu teilen, wie es ein Sidecar tut. Das muss er: Der Haupt-Service wartet auf den Init-Service, und das Teilen eines Namespace ist selbst eine Abhängigkeit vom Haupt-Service, die das Warten zu einem Zyklus schließen würde, dessen Start compose verweigert. Ein Init-Container erreicht andere Services im Boundary-Netzwerk daher über den Service-Namen, teilt aber nicht den `localhost` des Haupt-Service."
   },
+  "15f696b9d388f4e2": {
+    "at": "2026-11-25T07:34:33.711Z",
+    "job": "8ddee3f8b1ef",
+    "srcHash": "15f696b9d388f4e2",
+    "status": "machine",
+    "text": "Die Startseite, die Dokumentation, der Katalog, die Editor-Erweiterung und die Untertitel der Demovideos sind auf traditionellem Chinesisch in taiwanischer Ausprägung verfügbar."
+  },
   "15f6b7b02d64cd1d": {
     "at": "2026-10-30T21:44:40.955Z",
     "job": "session-0024-20261030214440",
@@ -16127,6 +16239,13 @@
     "srcHash": "177120d3ed17045b",
     "status": "machine",
     "text": "Ein Credential, das das Ziel generiert"
+  },
+  "177d9e45719bfbdf": {
+    "at": "2026-11-25T07:34:33.711Z",
+    "job": "8ddee3f8b1ef",
+    "srcHash": "177d9e45719bfbdf",
+    "status": "machine",
+    "text": "Ein Import referenziert die Katalog-Component, der eine Quelle stark entspricht, und übersetzt, was eine Quelle angibt, statt Kommentare zu hinterlassen."
   },
   "1781f6aacd64e825": {
     "at": "2026-11-03T22:09:07.585Z",
@@ -18966,6 +19085,13 @@
     "status": "machine",
     "text": "Unter welchen Identitäten die zwischengespeicherten Artefakte beschafft wurden."
   },
+  "1ba6387c6bad4ebe": {
+    "at": "2026-11-25T07:34:33.711Z",
+    "job": "8ddee3f8b1ef",
+    "srcHash": "1ba6387c6bad4ebe",
+    "status": "machine",
+    "text": "`arm` verknüpft eine `uses`-Kante über Grenzen hinweg, indem es die Vorlagenausgaben des Produzenten liest; stellen Sie jeden Produzenten zuerst bereit, unter dem Namen, den die Metadaten seiner Vorlage festhalten."
+  },
   "1ba7fbc10c1e96fb": {
     "at": "2026-11-04T10:10:45.227Z",
     "job": "session-0229-20261104101045",
@@ -19852,6 +19978,13 @@
     "status": "machine",
     "text": "Kaskadiert nicht auf Instanzen; wird an der Katalogentität selbst getragen"
   },
+  "1d083d5c2e192dc7": {
+    "at": "2026-11-25T07:34:33.711Z",
+    "job": "8ddee3f8b1ef",
+    "srcHash": "1d083d5c2e192dc7",
+    "status": "machine",
+    "text": "Eine mit `aggrega.ai/azure-deployment-scope: managementGroup` annotierte `arm`-Grenze wird mit `az deployment mg create` bereitgestellt, mit verschachteltem Abonnement- und Ressourcengruppen-Inhalt."
+  },
   "1d08f9103ab04b83": {
     "at": "2026-11-03T17:08:26.299Z",
     "job": "session-0132-20261103170826",
@@ -20448,6 +20581,13 @@
     "status": "machine",
     "text": "Ausgegebene Meldung, die die Grenze und die von der Kette erreichte Länge nennt:"
   },
+  "1ded319c1c4bf257": {
+    "at": "2026-11-25T07:34:33.711Z",
+    "job": "8ddee3f8b1ef",
+    "srcHash": "1ded319c1c4bf257",
+    "status": "machine",
+    "text": "Der Editor funktioniert mit Compilern ab 0.9.0 bis ausschließlich 0.10.0."
+  },
   "1deffbdcf76b77c9": {
     "at": "2026-11-03T14:05:29.072Z",
     "job": "session-0115-20261103140529",
@@ -20510,6 +20650,13 @@
     "srcHash": "1e08b07df9b3b119",
     "status": "machine",
     "text": "Wie schwerwiegend es ist."
+  },
+  "1e08ccd38976cb82": {
+    "at": "2026-11-25T07:34:33.711Z",
+    "job": "8ddee3f8b1ef",
+    "srcHash": "1e08ccd38976cb82",
+    "status": "machine",
+    "text": "Die Meldung der Desktop-Erweiterung zum leeren Workspace-Ordner weist darauf hin, die Erweiterung nach dem Festlegen aus- und wieder einzuschalten oder die App neu zu starten."
   },
   "1e0befbc8b38645e": {
     "at": "2026-11-05T16:02:28.456Z",
@@ -22067,6 +22214,13 @@
     "srcHash": "2021d98c322028f2",
     "status": "machine",
     "text": "Die aufzuschlüsselnde Bedingung, benannt entweder durch den Code, den ein Befund trug, oder durch ihren Kurzcode."
+  },
+  "20238d6afbca6075": {
+    "at": "2026-11-25T07:34:33.711Z",
+    "job": "8ddee3f8b1ef",
+    "srcHash": "20238d6afbca6075",
+    "status": "machine",
+    "text": "Dify sendet nichts an seinen Hersteller, sofern ein Release nicht `telemetry_enabled` oder `marketplace_enabled` setzt; `console_url` gibt die Adresse der Konsole an."
   },
   "20240b130e5ace95": {
     "at": "2026-11-03T15:04:41.802Z",
@@ -24284,6 +24438,13 @@
     "srcHash": "23451830b6aa7bdd",
     "status": "machine",
     "text": "Das Backend erreicht OpenAI am Endpunkt, den das Modell veröffentlicht: `models.yaml` enthält ein `Backend` von Envoy Gateway für `api.openai.com` auf Port 443, eine TLS-Richtlinie, die sein Zertifikat gegen die Vertrauensanker des Systems prüft, ein `AIServiceBackend` für die OpenAI-API unter `/v1` und die Sicherheitsrichtlinie, die den Schlüssel vorlegt, `edge-assistant`, deren `spec` lautet:"
+  },
+  "23452a7257c2f4e8": {
+    "at": "2026-11-25T07:34:33.711Z",
+    "job": "8ddee3f8b1ef",
+    "srcHash": "23452a7257c2f4e8",
+    "status": "machine",
+    "text": "Ein durch einen Fehler beim Erstellen der Quelldateien abgebrochener Build zeigt seinen Fortschrittsbalken nicht mehr bei 100 % an; der Balken endet vorher, und der fehlgeschlagene Schritt wird markiert."
   },
   "23499cb70587a9e7": {
     "at": "2026-11-03T04:27:12.724Z",
@@ -29165,6 +29326,13 @@
     "status": "machine",
     "text": "Eine Anbindung bindet einen deklarierten Slot, entspricht aber nicht der Form, die dieser Slot deklariert. Der häufige Fall ist die Zustellung: Die Allowlist `inject` eines Slots nennt die Mechanismen, über die eine Füllung ihr Material zustellen darf, und eine leere Allowlist ist Blackbox — das Recipe stellt das Material intern zu, und eine Füllung darf überhaupt keine Zustellung vorgeben. Ein leerer Block `inject: {}` gibt keine Zustellung vor, entspricht also der Form jedes Slots, eine leere Allowlist eingeschlossen, und erhält dasselbe Urteil, wo auch immer die Anbindung geschrieben ist: auf einer Komponente, die das Aggregate deklariert, auf einer Komponente, die ein importiertes Modul beisteuert, oder auf einer breiteren Ebene. Eine Anbindung unter einem Namen, den kein Slot deklariert, ist eine freie Anbindung und unterliegt keiner Slot-Einschränkung."
   },
+  "2a6141e43be0c212": {
+    "at": "2026-11-25T07:34:33.711Z",
+    "job": "8ddee3f8b1ef",
+    "srcHash": "2a6141e43be0c212",
+    "status": "machine",
+    "text": "Geändert"
+  },
   "2a61b2c337f58438": {
     "at": "2026-11-04T08:39:26.304Z",
     "job": "session-0221-20261104083926",
@@ -30081,6 +30249,13 @@
     "status": "machine",
     "text": "OmitEntry[]"
   },
+  "2ba83aa9688ec4c7": {
+    "at": "2026-11-25T07:34:33.711Z",
+    "job": "8ddee3f8b1ef",
+    "srcHash": "2ba83aa9688ec4c7",
+    "status": "machine",
+    "text": "`aggrega build` und `aggrega pull` zeigen jeden Schritt im Terminal einmal an und zählen „1 file“ im Singular."
+  },
   "2bb6a89f214162c9": {
     "at": "2026-11-15T00:00:16.232Z",
     "job": "session-0015-20261115000016",
@@ -30827,6 +31002,13 @@
     "srcHash": "2ce0d2a5c40b7403",
     "status": "machine",
     "text": "Auch ein aufgeführter Typ, den die Datei nicht enthält, hält den Import an und nennt die nächstliegenden Namen, die sie enthält. Ein Halt entwirft nichts, sodass keine Datei geschrieben wird."
+  },
+  "2ce69ced080a037b": {
+    "at": "2026-11-25T07:34:33.711Z",
+    "job": "8ddee3f8b1ef",
+    "srcHash": "2ce69ced080a037b",
+    "status": "machine",
+    "text": "Eine Bibliotheksreferenz, deren `:version`-Untergrenze keine vorhandene Version erfüllt, hält mit E0103 an und nennt die vorhandenen Versionen, statt eine andere Version zu bauen."
   },
   "2ce848f8539c5723": {
     "at": "2026-11-18T22:43:17.701Z",
@@ -33337,6 +33519,13 @@
     "srcHash": "30571e2aa55ea30a",
     "status": "machine",
     "text": "Für die konzeptionelle Behandlung der räumlichen Trennung und des Dispatch pro `(path, provider)` siehe [architecture/16-recipe-input-composition.md](../architecture/16-recipe-input-composition.md). Für die Authoring-Oberfläche des Release auf Entitätsebene siehe [entities/release.md](entities/release.md). Die Provider-seitigen Konsequenzen stehen in [providers/architecture.md](providers/architecture.md) und auf den Seiten der einzelnen Provider."
+  },
+  "3057b1b91ebdb0a6": {
+    "at": "2026-11-25T07:34:33.711Z",
+    "job": "8ddee3f8b1ef",
+    "srcHash": "3057b1b91ebdb0a6",
+    "status": "machine",
+    "text": "`aggrega import` entwirft ein Release und ein vollständiges Manifest, sodass ein importiertes Projekt ohne Bearbeitung der Entwürfe baut und deployt."
   },
   "305801fef06f3494": {
     "at": "2026-11-03T20:25:38.864Z",
@@ -37191,6 +37380,13 @@
     "srcHash": "365f45556fd54ced",
     "status": "machine",
     "text": "[mariadb-helm-synth](mariadb-helm-synth/README.md) (`start`) — Eine einzelne MariaDB-Datenbank, auf Kubernetes durch die Workload-Synthese des helm-Providers gerendert — kein externes Chart."
+  },
+  "36634c5e09bce374": {
+    "at": "2026-11-25T07:34:33.711Z",
+    "job": "8ddee3f8b1ef",
+    "srcHash": "36634c5e09bce374",
+    "status": "machine",
+    "text": "Jede Quickstart-, Import- und Beispielseite bietet einen Prompt für einen KI-Assistenten und zeigt das in Visual Studio Code geöffnete Projekt."
   },
   "3663bdea49e73e0f": {
     "at": "2026-10-30T06:02:14.268Z",
@@ -42518,6 +42714,13 @@
     "status": "machine",
     "text": "[KI-Features](09-ai-features.md)"
   },
+  "3e241bd09f6588a6": {
+    "at": "2026-11-25T07:34:33.711Z",
+    "job": "8ddee3f8b1ef",
+    "srcHash": "3e241bd09f6588a6",
+    "status": "machine",
+    "text": "Ein relativer `workspace_root` in einem Tool-Aufruf des Assistenten wird vom Workspace-Ordner des Servers aus gelesen; `scaffold` gibt den geschriebenen Ordner zurück."
+  },
   "3e2594ca5d5d58cb": {
     "at": "2026-11-03T17:48:57.741Z",
     "job": "session-0136-20261103174857",
@@ -42980,6 +43183,17 @@
     "srcHash": "3edae00a25a611f8",
     "status": "machine",
     "text": "`--ir-graph` schreibt den Graphen, den dieser Build aufgelöst hat, als JSON auf die Standardausgabe. Es ist additiv: Die Artefakte werden weiterhin nach `dist/` geschrieben, die Zusammenfassung wird weiterhin ausgegeben, und die gerenderten Bytes bleiben unverändert. Der Graph wird vor allem anderen ausgegeben, was der Build dort ausgibt — ein JSON-Dokument und ein abschließender Zeilenumbruch —, sodass ein Konsument, der den Datenstrom dekodiert, ihn liest und aufhört."
+  },
+  "3edafd27c4ad60be": {
+    "at": "2026-11-25T07:34:33.711Z",
+    "job": "8ddee3f8b1ef",
+    "revision": {
+      "from": "ec34d8099df432f9",
+      "reviewed": false
+    },
+    "srcHash": "3edafd27c4ad60be",
+    "status": "machine",
+    "text": "`roadmap`: Roadmap"
   },
   "3ee011bb9bbe4a34": {
     "at": "2026-11-12T14:14:11.287Z",
@@ -44749,6 +44963,17 @@
     "status": "machine",
     "text": "Der Quellzeiger für move und copy, andernfalls weggelassen."
   },
+  "41a3da9203b6299d": {
+    "at": "2026-11-25T07:34:33.711Z",
+    "job": "8ddee3f8b1ef",
+    "revision": {
+      "from": "9839299b93afe22a",
+      "reviewed": false
+    },
+    "srcHash": "41a3da9203b6299d",
+    "status": "machine",
+    "text": "Was ein Importer über seine Formate deklariert, über deren Ankündigung hinaus: die Signaturen, an denen eine Quelle dieser Formate erkannt wird, und das Ziel, für das seine Entwürfe standardmäßig erstellt werden. Wenn ein Import kein Format nennt, liest der Host die Signaturen, die jeder Importer verzeichnet, unter denen der Import auswählt — die Importer im Katalog des Workspace und die Kern-Importer des Compilers, deren Plugin-Entitäten das Binary mitbringt —, gleicht jede mit der Quelle ab, ohne zu wissen, was irgendein Format ist, und liest die Quelle als das Format des einen Importers, dessen Signatur passt. Eine Quelle, auf die keine Signatur passt, wird mit der Aufforderung abgelehnt, das Format anzugeben, und eine Quelle, auf die Signaturen mehr als eines Formats passen, wird unter Nennung dieser Formate abgelehnt. Die Plugin-Entität verzeichnet dieselbe Liste, und der Host lehnt einen Importer ab, dessen describe()-Bericht vom Verzeichneten abweicht."
+  },
   "41a5dde1ed8b98b3": {
     "at": "2026-11-03T05:17:12.447Z",
     "job": "session-0056-20261103051712",
@@ -45222,6 +45447,13 @@
     "srcHash": "42596b22d42d021c",
     "status": "machine",
     "text": "**`ports`** ist eine Map benannter Ports (`web: 8080`, `admin: 9901`); Portnamen entsprechen containerbezogenen Portnamen und werden über `services.<service>.ports.<portname>` referenziert. Ein Port, der ein anderes Transportprotokoll als den Standard des Ziels verwendet, wird stattdessen in der erweiterten Form geschrieben — siehe [Transportprotokolle der Ports](#port-transport-protocols) unten."
+  },
+  "425e0bcf1431c1a2": {
+    "at": "2026-11-25T07:34:33.711Z",
+    "job": "8ddee3f8b1ef",
+    "srcHash": "425e0bcf1431c1a2",
+    "status": "machine",
+    "text": "Das Handbuch zu Visual Studio Code ist ein eigener Dokumentationsabschnitt, mit Screenshots und Angaben, wo die Erweiterung installiert wird."
   },
   "426230ab180c7b41": {
     "at": "2026-11-03T16:27:44.181Z",
@@ -48387,6 +48619,17 @@
     "status": "machine",
     "text": "**Sie haben einen Namen in der Hand.** `aggrega/entityDefinition` nimmt die Identität direkt. Es muss nichts geöffnet sein, keine Position ist beteiligt, und die Entität muss nirgends erwähnt sein, wo der Client sie finden kann. Greifen Sie dazu, wenn der Benutzer einen Namen eingegeben, einen aus einer Liste ausgewählt oder etwas verfolgt hat, dessen Identität Ihr eigener Client bereits kennt — ein Hover verlangt, dass Sie zuerst eine Stelle finden, an der der Name steht, und diese Arbeit müssen Sie nicht leisten."
   },
+  "46b116452433cce2": {
+    "at": "2026-11-25T07:34:33.711Z",
+    "job": "8ddee3f8b1ef",
+    "revision": {
+      "from": "c21c194c98fcbb6b",
+      "reviewed": false
+    },
+    "srcHash": "46b116452433cce2",
+    "status": "machine",
+    "text": "Katalog-Releases"
+  },
   "46b8d33718cc362d": {
     "at": "2026-11-03T15:26:15.166Z",
     "job": "session-0123-20261103152615",
@@ -48773,6 +49016,13 @@
     "srcHash": "4719803d165df0f7",
     "status": "machine",
     "text": "4 — Wertvalidierung von Annotationsbindungen"
+  },
+  "471a708867a259db": {
+    "at": "2026-11-25T07:34:33.711Z",
+    "job": "8ddee3f8b1ef",
+    "srcHash": "471a708867a259db",
+    "status": "machine",
+    "text": "Eine `helm-oci-chart`-Quelle, die `chart:` angibt, wird nach `aggrega pull` jetzt gebaut, statt mit „no lockfile entry“ (kein Lockfile-Eintrag) abzubrechen."
   },
   "471be4729f2f8056": {
     "at": "2026-11-04T08:19:27.953Z",
@@ -51161,6 +51411,13 @@
     "status": "machine",
     "text": "Tag 365 — ausgereifte Kataloge, in denen gemeinsame Formen in vielen Entitäten wiederkehren. Die Schwelle ist informell: Wenn eine Form (z. B. `PodResources`) in 5+ Components vorkommt und das Abstimmen von Aktualisierungen Reibung verursacht, rechtfertigt sich ein SchemaLibrary-Eintrag von selbst."
   },
+  "4a85322fca11cc04": {
+    "at": "2026-11-25T07:34:33.711Z",
+    "job": "8ddee3f8b1ef",
+    "srcHash": "4a85322fca11cc04",
+    "status": "machine",
+    "text": "`aggrega import` entwirft eine Component und ein Recipe aus einem von Ihnen exportierten CloudFormation-, Azure-Resource-Manager- oder Terraform-Ressourcenschema in Ihren Workspace-Katalog."
+  },
   "4a85ecf9650f8741": {
     "at": "2026-11-03T20:25:36.476Z",
     "job": "session-0153-20261103202536",
@@ -53360,6 +53617,13 @@
     "status": "machine",
     "text": "**`.values` (Map).** Vom Entwickler verfasste kognitive Nutzlast aus dem Aggregate. Werte pro Komponente fließen in diesem Feld bis zum gerenderten Recipe durch. Validiert durch das `schema:` des Katalogs (die JSON-Schema-2020-12-Deklaration der Component oder des Feature) bei der Auflösung. Wenn die geschriebene Null / Leere / Falschheit eines Feldes semantisch vom Fehlen des Feldes verschieden ist, verwenden Sie `optional` (siehe [`sprig-functions.md`](sprig-functions.md#optional--presence-aware-fallback)) statt `default`."
   },
+  "4e19ff9150ec5af3": {
+    "at": "2026-11-25T07:34:33.711Z",
+    "job": "8ddee3f8b1ef",
+    "srcHash": "4e19ff9150ec5af3",
+    "status": "machine",
+    "text": "`0.9.1 - 2026-11-15`"
+  },
   "4e1c7dc5715ab809": {
     "at": "2026-10-30T09:04:49.650Z",
     "job": "session-0077-20261030090449",
@@ -54261,6 +54525,13 @@
     "srcHash": "4f4d740bd4828ec1",
     "status": "machine",
     "text": "SkillsListedAgent[]"
+  },
+  "4f51e5cda333aa56": {
+    "at": "2026-11-25T07:34:33.711Z",
+    "job": "8ddee3f8b1ef",
+    "srcHash": "4f51e5cda333aa56",
+    "status": "machine",
+    "text": "Bisher ist kein Katalog-Release aufgeführt."
   },
   "4f520ff3c6f0b6df": {
     "at": "2026-11-03T17:48:57.741Z",
@@ -57934,6 +58205,13 @@
     "status": "machine",
     "text": "Benennt den Anbindungs-Slot, den diese Anbindung belegt, oder \"free\", wenn sie keinen deklarierten Slot belegt. Ein Slot wird an einer von zwei Stellen deklariert, und wo die Anbindung geschrieben wurde, entscheidet, an welcher: Eine Anbindung des eigenen Anbindungsblocks des Knotens belegt einen Slot, den die Host-Component in ihrem featuresSchema deklariert, und eine auf einer Verbindung geschriebene Anbindung belegt einen Slot, den der Socket der Verbindung im featuresSchema dieses Sockets an der Host-Component deklariert. Die Zuordnung erfolgt in beiden Fällen über den Namen — eine Anbindung belegt einen Slot, wenn das Feature unter dem Namen des Slots angebunden wird, am Block der Komponente oder an der Verbindung —, daher ist der Wert ein exakter Schlüssel aus der deklarierten Slot-Menge, nie etwas, das aus dem Schlüssel der Anbindung gelesen wird. Die Slot-Menge eines Sockets ist geschlossen, da eine Anbindung, die auf einer Verbindung unter einem Namen geschrieben ist, den ihr Socket nicht deklariert, den Build abbricht, daher meldet eine Anbindung, die eine Verbindung trägt, nie free. Der Slot-Name wird statt eines bloßen booleschen Werts getragen, weil die Frage, welcher Slot belegt wurde, die nützlichere Hälfte der Antwort ist. Leer, wenn die deklarierte Slot-Menge der Host-Component nicht aufgelöst werden konnte, was sich von \"free\" unterscheidet: free ist der positive Befund, dass kein deklarierter Slot diesen Namen trägt."
   },
+  "546faa2ceb62034d": {
+    "at": "2026-11-25T07:34:33.711Z",
+    "job": "8ddee3f8b1ef",
+    "srcHash": "546faa2ceb62034d",
+    "status": "machine",
+    "text": "Keine Startseite scrollt auf einem Smartphone seitwärts; ein langes Wort in einer Überschrift wird stattdessen umbrochen."
+  },
   "5474b31ffc68eca6": {
     "at": "2026-11-03T09:08:45.888Z",
     "job": "session-0081-20261103090845",
@@ -60184,6 +60462,13 @@
     "status": "machine",
     "text": "**Warum eine Warnung und kein fataler Abbruch.** Bindungen werden einmal für den ganzen Workspace geschrieben, während ein Build ein einzelnes Release betrifft. Das Plugin, das die Fähigkeit bedient, kann eines sein, das nur ein anderes Release im Workspace liest, und dieser Build kann es nicht sehen, sodass ein Abbruch hier einen zulässigen Workspace aufgrund einer Vermutung zurückweisen würde. Ein Eintrag, der auch ein Plugin nennt, ist ein anderer Fall: Ein Pull löst jeden solchen Eintrag auf, ob ein Recipe ihn verwendet oder nicht, sodass der Build das Plugin vorliegen hat und weiß, was es bedient, und eine Fähigkeit, die dieses Plugin nicht bedient, führt zum Abbruch — siehe [fatal-halts.md](./fatal-halts.md) „A `plugins.providers` binding names a plugin that does not serve the capability (Eine Bindung benennt ein Plugin, das die Fähigkeit nicht bedient)“. Ein Eintrag für eine Fähigkeit, die irgendein vom Build gelesenes Plugin tatsächlich bedient, löst keinerlei Meldung aus, ob ein Recipe in diesem Release sie verwendet oder nicht."
   },
+  "57d90e96405a53a1": {
+    "at": "2026-11-25T07:34:33.711Z",
+    "job": "8ddee3f8b1ef",
+    "srcHash": "57d90e96405a53a1",
+    "status": "machine",
+    "text": "`core/ai-tool/http-request` 1.0.1, `core/ai-tool/retrieval` 1.0.1 und `core/compute/server` 1.1.0 korrigieren Beschreibungen, die bestehende Docker-Compose-Realisierungen bestritten."
+  },
   "57db8d86871587ef": {
     "at": "2026-11-03T16:27:42.239Z",
     "job": "session-0128-20261103162742",
@@ -60761,6 +61046,13 @@
     "srcHash": "589f5a4c8985f70e",
     "status": "machine",
     "text": "Genau diese Stille verhindert die Zurückweisung. Ein Governance-Plugin, das konfiguriert, aber nie befragt wird, erzeugt genau die Ausgabe eines Builds, der nie einer Governance unterzogen wurde, und nichts im Ergebnis sagt, welches von beiden Sie in der Hand halten."
+  },
+  "58a628a780a382e1": {
+    "at": "2026-11-25T07:34:33.711Z",
+    "job": "8ddee3f8b1ef",
+    "srcHash": "58a628a780a382e1",
+    "status": "machine",
+    "text": "Der Windows-Installer legt `THIRD-PARTY-NOTICES.txt` neben `aggrega.exe` ab und entfernt die Datei bei der Deinstallation."
   },
   "58a72a29bf2b02af": {
     "at": "2026-10-30T06:56:58.054Z",
@@ -61954,6 +62246,13 @@
     "status": "machine",
     "text": "Siehe die [Authoring-Referenz zur MappingLibrary](../../entities/mappinglibrary.md) für Anleitungen in Prosaform zum Verfassen von MappingLibrary-Entitäten; diese Seite dokumentiert das strukturelle Schema, das diese Referenz beschreibt."
   },
+  "5a6e01992bf8f9b2": {
+    "at": "2026-11-25T07:34:33.711Z",
+    "job": "8ddee3f8b1ef",
+    "srcHash": "5a6e01992bf8f9b2",
+    "status": "machine",
+    "text": "Die Plugin-Kits für Rust und TypeScript werden aus crates.io und npm installiert: `cargo add aggrega-pdk-rust`, `npm install @aggrega-ai/aggrega-pdk-typescript`."
+  },
   "5a6eed9c6e32247e": {
     "at": "2026-11-03T06:41:11.801Z",
     "job": "session-0065-20261103064111",
@@ -62499,6 +62798,13 @@
     "srcHash": "5b1e4eab93246602",
     "status": "machine",
     "text": "![Die Statusleiste, die in Rot meldet, dass der Aggrega-Language-Server nicht läuft, und das Menü, das ihr Indikator öffnet und das Start anbietet.](../../images/editor/manual/language-server-stopped.png)"
+  },
+  "5b1ebd904eead9d5": {
+    "at": "2026-11-25T07:34:33.711Z",
+    "job": "8ddee3f8b1ef",
+    "srcHash": "5b1ebd904eead9d5",
+    "status": "machine",
+    "text": "SchemaLibraries folgen wie jede Bibliotheksart der Reihenfolge der Katalogverzeichnisse: Das erste Verzeichnis, das einen Namen enthält, gewinnt, und spätere Kopien werden als verdeckt gemeldet."
   },
   "5b20e4addc5c996c": {
     "at": "2026-11-03T20:41:34.574Z",
@@ -63339,6 +63645,13 @@
     "srcHash": "5c788d3ac1de8aa6",
     "status": "machine",
     "text": "Was das Freigeben entfernt hätte, aber an Ort und Stelle gelassen hat, weil ein anderer Prozess es geöffnet hatte; es ging stattdessen zum nächstälteren Eintrag über. Nur Windows weigert sich, eine geöffnete Datei zu entfernen, daher ist dies überall sonst leer. Diese Einträge zählen weiterhin zu den verbleibenden Bytes, und ein späteres Freigeben kann sie entfernen."
+  },
+  "5c7be216166991a3": {
+    "at": "2026-11-25T07:34:33.711Z",
+    "job": "8ddee3f8b1ef",
+    "srcHash": "5c7be216166991a3",
+    "status": "machine",
+    "text": "`0.9.2 - 2026-11-15`"
   },
   "5c7cffffc37e79fb": {
     "at": "2026-11-03T07:45:15.507Z",
@@ -67494,6 +67807,13 @@
     "status": "machine",
     "text": "Zuerst die Quelle: **File…** oder **Folder…**, dann der Öffnen-Dialog Ihres Editors für eine solche — die Wahl kommt zuerst, weil unter Windows und Linux ein Dialog nicht beides anbieten kann. Dann der Ordner innerhalb des Workspace, in den entworfen wird, relativ zu dessen Stammverzeichnis, wobei ein leeres Feld unterhalb des Workspace-Stammverzeichnisses entwirft, wie `aggrega import` ohne `--output-dir`. Dann die Optionen, eine Liste, in der Sie **Preview**, **Sync**, beide oder keine ankreuzen können: **Preview** ist `--dry-run` — nichts wird geschrieben, und jede Datei, die der Import schreiben würde, wird im Ausgabekanal gefolgt von ihrem Inhalt angezeigt — und **Sync** ist `--sync`, das bringt, was ein früherer Import entworfen hat, auf den Stand der Quelle und ändert nur, was der Import geschrieben hat, wobei jeder aktualisierte Teil im Kanal mit den Worten aufgeführt wird, die `aggrega import --sync` dafür ausgibt; keines anzukreuzen schreibt die Entwürfe vollständig. Zuletzt die Provider-Capability, für die ein Manifest entworfen werden soll, etwa `compose` oder `helm`, wobei ein leeres Feld keines entwirft, wie ohne `--target`. Eine Antwort, die Sie leer lassen, und eine Option, die Sie nicht ankreuzen, wird gar nicht gesendet, sodass der Compiler seinen eigenen Standard anwendet, und das Verwerfen einer Frage oder eines Dialogs beendet den Import, ohne etwas zu senden. Ein Ordner, der aus dem Workspace hinausführt, und eine Capability, an die sich kein Recipe im Katalog des Workspace bindet, werden vom Compiler in eigenen Worten abgelehnt, bevor etwas geschrieben wird."
   },
+  "626f12c001b59564": {
+    "at": "2026-11-25T07:34:33.711Z",
+    "job": "8ddee3f8b1ef",
+    "srcHash": "626f12c001b59564",
+    "status": "machine",
+    "text": "Der Language Server und das Import-Tool des Assistenten geben geschuldete Werte als `owed` zurück und nehmen Antworten als `answered` entgegen."
+  },
   "62754842562569d0": {
     "at": "2026-10-23T03:05:44.362Z",
     "job": "session-0062-20261023030544",
@@ -68665,6 +68985,13 @@
     "status": "machine",
     "text": "[`../entities/featurerecipe.md`](../entities/featurerecipe.md) — die Authoring-Oberfläche `pipeline:` des FeatureRecipe, die per Entitäts-URI auf ein Plugin verweist."
   },
+  "641d8b547ad62624": {
+    "at": "2026-11-25T07:34:33.711Z",
+    "job": "8ddee3f8b1ef",
+    "srcHash": "641d8b547ad62624",
+    "status": "machine",
+    "text": "Ein `arm`-Recipe kann eine kompilierte ARM-Vorlage aus Git beziehen, etwa eine `main.json` aus Azure Verified Modules, gebunden über sein Values-Mapping."
+  },
   "641fcd8542fe32c1": {
     "at": "2026-10-30T19:53:23.628Z",
     "job": "session-0013-20261030195323",
@@ -68920,6 +69247,13 @@
     "srcHash": "64961e13f8d8d016",
     "status": "machine",
     "text": "Wohin die Datei gehört, als Pfad relativ zum outputDir der Antwort."
+  },
+  "649ad1305f7c5aaa": {
+    "at": "2026-11-25T07:34:33.711Z",
+    "job": "8ddee3f8b1ef",
+    "srcHash": "649ad1305f7c5aaa",
+    "status": "machine",
+    "text": "`aggrega.server.binaryPath` des Editors akzeptiert `~/…` und `${userHome}`, und ein fehlgeschlagener Start nennt den versuchten Pfad."
   },
   "649bce21240b5769": {
     "at": "2026-11-04T09:19:57.883Z",
@@ -70383,6 +70717,13 @@
     "status": "machine",
     "text": "Woher jedes Blatt stammt: `values_provenance` und `infra_provenance`"
   },
+  "66c3f1cc97e181c9": {
+    "at": "2026-11-25T07:34:33.711Z",
+    "job": "8ddee3f8b1ef",
+    "srcHash": "66c3f1cc97e181c9",
+    "status": "machine",
+    "text": "Die Compiler-Versionsauswahl des Editors zeigt das neueste Release außerhalb ihres unterstützten Bereichs als nicht kompatibel an, sodass Sie wissen, dass Sie die Erweiterung aktualisieren müssen."
+  },
   "66c48f173d4ce6e0": {
     "at": "2026-11-04T10:10:45.227Z",
     "job": "session-0229-20261104101045",
@@ -70414,6 +70755,13 @@
     "srcHash": "66cab8cbfd5164de",
     "status": "machine",
     "text": "**imported schema `<value>` must be a YAML map of schema content; it is not.** (das importierte Schema muss eine YAML-Map mit Schemainhalt sein; das ist es nicht.) Die Datei wurde gefunden, gelesen und geparst, und das Ergebnis ist ein Skalar oder eine Sequenz, sodass es keinen Schemainhalt zum Einsetzen gibt."
+  },
+  "66cee412344ba77f": {
+    "at": "2026-11-25T07:34:33.711Z",
+    "job": "8ddee3f8b1ef",
+    "srcHash": "66cee412344ba77f",
+    "status": "machine",
+    "text": "Die Sprachauswahl auf der Startseite, in der Dokumentation und im Katalog nennt jede Sprache ohne Flagge und sitzt auf Smartphones in der oberen Leiste."
   },
   "66d13d0547944f83": {
     "at": "2026-11-03T01:59:06.045Z",
@@ -70939,12 +71287,26 @@
     "status": "machine",
     "text": "[architecture/](architecture/README.md) — das „Warum“ von Aggrega. Vision, Positionierung, mentales Modell, Compiler-Pipeline auf konzeptioneller Ebene, Unternehmens-Governance, Katalog, Erweiterbarkeit, Designentscheidungen. Lesen Sie beim ersten Mal die nummerierten Kapitel 01 bis 16 der Reihe nach."
   },
+  "6795c4500ea9d482": {
+    "at": "2026-11-25T07:34:33.711Z",
+    "job": "8ddee3f8b1ef",
+    "srcHash": "6795c4500ea9d482",
+    "status": "machine",
+    "text": "Die Dokumentation hat eine öffentliche Roadmap-Seite, verlinkt aus der Fußzeile der Startseite."
+  },
   "679f39e9b399eb09": {
     "at": "2026-11-03T23:48:32.946Z",
     "job": "session-0175-20261103234832",
     "srcHash": "679f39e9b399eb09",
     "status": "machine",
     "text": "Multi-Container-Workloads"
+  },
+  "67a50f53b618c5d1": {
+    "at": "2026-11-25T07:34:33.711Z",
+    "job": "8ddee3f8b1ef",
+    "srcHash": "67a50f53b618c5d1",
+    "status": "machine",
+    "text": "E0168 zu einer nicht deklarierten Eigenschaft nennt eine neuere vorhandene Version, die sie deklariert, und die Einschränkungen, die die Instanz unterhalb dieser Version halten."
   },
   "67ac8daeb1221e3f": {
     "at": "2026-11-03T21:35:42.901Z",
@@ -72136,6 +72498,13 @@
     "status": "machine",
     "text": "Bei einem Socket eines Feature nennt die Abhilfe stattdessen das `usesSchema` des Feature. Nichts hat den Socket verdrahtet, daher liegt der Fehler bei der Katalog-Entität: Er wird als `CATALOG_ERROR` eingestuft und nennt die Datei der Entität."
   },
+  "6970983363c3c23f": {
+    "at": "2026-11-25T07:34:33.711Z",
+    "job": "8ddee3f8b1ef",
+    "srcHash": "6970983363c3c23f",
+    "status": "machine",
+    "text": "Ein Import überschreibt keine Component, kein Feature, kein Recipe und kein FeatureRecipe auf der Festplatte mehr; übergeben Sie `--sync`, um eines davon zu aktualisieren."
+  },
   "6974f59a9acf66e4": {
     "at": "2026-11-18T22:52:12.660Z",
     "job": "session-0002-20261118225212",
@@ -73298,6 +73667,13 @@
     "status": "machine",
     "text": "Strikte semantische Versionierung des Feature (z. B. 1.0.0). Muster: `^(0\\|[1-9]\\d*)\\.(0\\|[1-9]\\d*)\\.(0\\|[1-9]\\d*)(?:-((?:0\\|[1-9]\\d*\\|\\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\\.(?:0\\|[1-9]\\d*\\|\\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\\+([0-9a-zA-Z-]+(?:\\.[0-9a-zA-Z-]+)*))?$`."
   },
+  "6b02e0d363a4af1c": {
+    "at": "2026-11-25T07:34:33.711Z",
+    "job": "8ddee3f8b1ef",
+    "srcHash": "6b02e0d363a4af1c",
+    "status": "machine",
+    "text": "Hinzugefügt"
+  },
   "6b03b7979ba6ed8f": {
     "at": "2026-11-14T10:23:08.153Z",
     "job": "session-0007-20261114102308",
@@ -73785,6 +74161,13 @@
     "srcHash": "6bb33c7474f23da2",
     "status": "machine",
     "text": "Kubernetes-Ausgabe — der Kubewarden-Render-Adapter"
+  },
+  "6bb3b6a431520667": {
+    "at": "2026-11-25T07:34:33.711Z",
+    "job": "8ddee3f8b1ef",
+    "srcHash": "6bb3b6a431520667",
+    "status": "machine",
+    "text": "Die CLI und ihre Plug-ins wechseln zu Versionen ihrer Abhängigkeiten, die bekannte Sicherheitslücken beheben."
   },
   "6bb7863d2d2edc11": {
     "at": "2026-11-15T09:28:20.698Z",
@@ -75325,6 +75708,13 @@
     "srcHash": "6df2da54e85a7797",
     "status": "machine",
     "text": "**Was die Hinweise bei einer Ablehnung begrenzt, ist, wie weit der Lauf gekommen ist, nicht, was die Antwort tragen kann.** Eine Ablehnung durch eine Prüfung, die läuft, bevor das Release aufgelöst ist – ein gepinnter Eintrag im Cache stimmt nicht mehr mit dem für ihn festgehaltenen Digest überein und kein Katalogverzeichnis enthält die gepinnten Bytes, oder das, wovon das Release abhängt, konnte nicht aufgelöst werden –, meldet keine Hinweise über die Zeile hinaus, die jedes aufgelistete Katalogverzeichnis benennt, wo nichts existiert, die feststeht, bevor irgendetwas aufgelöst wird, weil bis dahin nichts anderes ausgelöst worden war. Die Befunde darüber, wie sich ein Release mit dem Release zusammensetzt, das es erweitert, werden in dem Moment ausgelöst, in dem es aufgelöst wird, vor jeder folgenden Prüfung, sodass jede spätere Ablehnung sie trägt: Das Manifest bildet einen Typ auf ein Rezept ab, das ihn nicht implementiert, eine Entität, die das Release erreicht, erfüllt ihr Schema nicht, das Lockfile stimmt nicht mehr mit dem überein, wozu das Release aufgelöst wird. Die eigenen Befunde des Renderings werden ausgelöst, während das Rendering läuft, sodass eine Ablehnung durch eine dieser früheren Prüfungen keinen davon trägt und eine Ablehnung durch das Rendering alles trägt, was davor ausgelöst wurde. Lesen Sie `advisories` bei einer Ablehnung also genau so, wie Sie es bei einem Erfolg lesen: was dieser Lauf gefunden hat, in der Reihenfolge, in der ein Terminal es ausgibt."
+  },
+  "6df5216f93e1f6ff": {
+    "at": "2026-11-25T07:34:33.711Z",
+    "job": "8ddee3f8b1ef",
+    "srcHash": "6df5216f93e1f6ff",
+    "status": "machine",
+    "text": "`0.10.3 - 2026-11-24`"
   },
   "6df529ba8f3f9031": {
     "at": "2026-11-04T06:48:43.008Z",
@@ -77059,6 +77449,13 @@
     "status": "machine",
     "text": "ein Block `Export:`, der nichts benennt;"
   },
+  "7040bfa3490031a2": {
+    "at": "2026-11-25T07:34:33.711Z",
+    "job": "8ddee3f8b1ef",
+    "srcHash": "7040bfa3490031a2",
+    "status": "machine",
+    "text": "Dify, aus einem Image ausgeführte MCP-Server sowie die HTTP-Request- und Retrieval-Tools werden auf Docker Compose deployt."
+  },
   "704121e135db0dda": {
     "at": "2026-11-14T23:39:59.313Z",
     "job": "session-0011-20261114233959",
@@ -78510,6 +78907,13 @@
     "status": "machine",
     "text": "Der einsteckbare WebAssembly-Rendering-Socket (Wasm) von Aggrega bedeutet, dass die Community für jedes Zielwerkzeug ein Renderer-Plugin verfassen kann. Das Kernprojekt liefert Rendering-Plugins für Helm, Helm-chart, Compose, Terraform und CloudFormation — sie decken Kubernetes-GitOps, die Verteilung weiterverteilbarer Charts, die lokale Entwicklung und deklarative Cloud-Ressourcen ab —, während der offene Socket es Teams erlaubt, andere Oberflächen für statische Artefakte anzusteuern, ohne den Kern anzufassen. Teams, die Aggrega evaluieren, kommen oft aus Ökosystemen, die um Werkzeuge herum aufgebaut sind, die in benachbarten, aber unterschiedlichen Teilen des Stacks angesiedelt sind. Die folgenden Werkzeuge sind danach gruppiert, wie sie sich zu Aggrega verhalten: die Artefaktformate, in die es rendert, der AOT-Compiler-Bereich, den es teilt, die Control Planes, die seine Ausgabe konsumieren, und der benachbarte Bereich des Konfigurationsmanagements, den es nicht anvisiert."
   },
+  "72a1fb2496bd3c54": {
+    "at": "2026-11-25T07:34:33.711Z",
+    "job": "8ddee3f8b1ef",
+    "srcHash": "72a1fb2496bd3c54",
+    "status": "machine",
+    "text": "`arm` verknüpft mit Produzenten, die im Abonnement- und Verwaltungsgruppen-Bereich bereitgestellt sind; annotieren Sie `aggrega.ai/azure-management-group`, um einen zu platzieren."
+  },
   "72ab3758a1333834": {
     "at": "2026-10-22T06:31:57.052Z",
     "job": "session-0020-20261022063157",
@@ -79114,6 +79518,13 @@
     "status": "machine",
     "text": "**Warum:** Labels sind unveränderliche Merkmale auf Katalogebene, die der Plattformarchitekt verfasst — die semantische Identität, die Policy-Engines und Selektoren lesen. Das Release leitet Komponenten über explizites, Map-basiertes ID-Targeting (`components: { \"my-agent\": {} }`) an Boundaries weiter, was die Möglichkeit erhält, `infra` und Feature-Überschreibungen je Komponente zu verschachteln, ohne die Urheberschaft von Labels in das Aggregate des Entwicklers zu mischen."
   },
+  "7364b5d2c2ece5a6": {
+    "at": "2026-11-25T07:34:33.711Z",
+    "job": "8ddee3f8b1ef",
+    "srcHash": "7364b5d2c2ece5a6",
+    "status": "machine",
+    "text": "Führen Sie `aggrega pull` einmal aus, wo Bibliotheksreferenzen eine `:version`-Untergrenze tragen, damit die Lock-Zeilen die ausgewählte Version statt der Untergrenze aufzeichnen."
+  },
   "73657015854f2cb6": {
     "at": "2026-11-17T12:15:41.754Z",
     "job": "session-0007-20261117121541",
@@ -79591,6 +80002,13 @@
     "srcHash": "7411a6afc8107a2d",
     "status": "machine",
     "text": "**Eine gepullte Entität liest die Dateien, die sie mitführt, genau so, wie sie sie neben sich in einem Katalogverzeichnis liest.** Die Entität wird von ihrem Platz in diesem ausgelegten Baum gelesen, sodass ein relatives `source:` oder `$import:`, das sie deklariert — ausgeschrieben oder von einem Template erzeugt —, innerhalb dessen aufgelöst wird, was veröffentlicht wurde, und ein Pfad, der das eigene Verzeichnis der Entität verlässt, dort genauso abgelehnt wird wie in einem Katalogverzeichnis. Nichts außerhalb des Baums wird an seiner Stelle gelesen: weder das Verzeichnis, aus dem ein Build läuft, noch eine im Cache-Slot platzierte Datei. Eine Component oder ein Feature, deren Schema aus einer Datei importiert wird, führt diese Datei mit, sodass eine gepullte Kopie den veröffentlichten Vertrag lädt und die dagegen verfassten Werte genau so validiert, wie es eine aus einem Katalogverzeichnis gelesene Kopie tut."
+  },
+  "7412c373a41d5555": {
+    "at": "2026-11-25T07:34:33.711Z",
+    "job": "8ddee3f8b1ef",
+    "srcHash": "7412c373a41d5555",
+    "status": "machine",
+    "text": "Die Willkommensseite des Editors markiert den Compiler-Schritt als erledigt, sobald der konfigurierte Compiler läuft, auch bevor ein Aggrega-Ordner geöffnet ist."
   },
   "74134e421685ebec": {
     "at": "2026-11-04T08:19:27.953Z",
@@ -80956,6 +81374,13 @@
     "srcHash": "75da0c6f9c402071",
     "status": "machine",
     "text": "release per-edge configuration has no edge to apply to (Release `<release-name>`, at `.spec.boundaries.<boundary>.components.<consumer>.uses.<socket>.<alias>`, `\"<consumer>\"`, on socket `\"<socket>\"`, under alias `\"<alias>\"`). Give the entry a target to wire the edge, or remove it: an entry with no target configures an edge that must already exist. (die kantenbezogene Konfiguration des Release hat keine Kante, auf die sie angewendet werden kann: das angegebene Release, der Eintrag, der Konsument, der Socket und der Alias. Geben Sie dem Eintrag ein Ziel, um die Kante zu verdrahten, oder entfernen Sie ihn: Ein Eintrag ohne Ziel konfiguriert eine Kante, die bereits existieren muss.)"
+  },
+  "75de7c86561fc597": {
+    "at": "2026-11-25T07:34:33.711Z",
+    "job": "8ddee3f8b1ef",
+    "srcHash": "75de7c86561fc597",
+    "status": "machine",
+    "text": "Das Commands-Panel des Editors zeigt den verbundenen Workspace und das Release, nachdem es ausgeblendet war, und meldet es, wenn der aktuelle Workspace erneut gewählt wird."
   },
   "75deb916033c9f6c": {
     "at": "2026-11-03T23:11:55.145Z",
@@ -84008,6 +84433,13 @@
     "status": "machine",
     "text": "**Lesezugriffe auf exakte Blätter.** Das `valuesMapping` eines Recipe markiert sich nur dadurch als vertraulich, dass es einen als vertraulich deklarierten Wert liest oder ein ganzes Objekt oder eine Map, die einen solchen enthält. Ein Recipe liest daher einen Anhang und die Inject-Pipe über das exakte Blatt — `.features.password.provides.name`, `.features.password.type` — und läuft nie über `.features`, liest `.features.password` nie als Ganzes und liest nie `default dict .features`; jedes davon markiert das Mapping. Das Blatt, das das `provides.name` eines Feature veröffentlicht, ist ein Locator, kein Geheimnis; sein Lesen lässt das Mapping daher unmarkiert, und die übrigen Literale des Recipe — SKUs, `enableTelemetry: false` — werden normal gebunden."
   },
+  "7a27f3bf6605ef3e": {
+    "at": "2026-11-25T07:34:33.711Z",
+    "job": "8ddee3f8b1ef",
+    "srcHash": "7a27f3bf6605ef3e",
+    "status": "machine",
+    "text": "`aggrega draft` schreibt eine neue Entität oder ein ausführbares Beispiel; `aggrega scaffold` funktioniert weiterhin und wird in 0.10.0 entfernt, verwenden Sie daher `aggrega draft`."
+  },
   "7a2ac6d7fc78b1de": {
     "at": "2026-11-03T01:42:04.421Z",
     "job": "session-0034-20261103014204",
@@ -86914,6 +87346,13 @@
     "srcHash": "7ec0366cde8c6673",
     "status": "machine",
     "text": "Eine Version, die verfügbar war und nicht gewählt wurde."
+  },
+  "7ec165ade20110fd": {
+    "at": "2026-11-25T07:34:33.711Z",
+    "job": "8ddee3f8b1ef",
+    "srcHash": "7ec165ade20110fd",
+    "status": "machine",
+    "text": "Jedes von Aggrega veröffentlichte Plug-in enthält die Drittanbieterhinweise seines Gastes als Manifest-Schicht und eine SPDX-SBOM als OCI-Referrer."
   },
   "7ec3d7cf25598812": {
     "at": "2026-11-04T08:39:26.304Z",
@@ -91556,6 +91995,13 @@
     "status": "machine",
     "text": "Das Dokumentations-Bundle gehört nicht dazu. Seine Bytes hängen nur von der Registry ab, in der es veröffentlicht ist, und von der Version, unter der es veröffentlicht ist; daher wird es einmal pro Maschine aufbewahrt, neben dem Speicher kompilierter Module unter demselben benutzerbezogenen Cache-Stammverzeichnis, unter `docs-bundles/<encoded-reference>/<encoded-version>/` unterhalb dieses Stammverzeichnisses: das Bundle, das Manifest, gegen das es verifiziert wird, und die Signaturen, die beim Holen verifiziert wurden. `artifact_cache_dir` reicht nicht bis dorthin. Bevor eine Seite daraus gelesen wird, werden diese Signaturen erneut verifiziert, und zwar unter der eigenen Signaturprüfung des lesenden Workspace für die Registry des Bundles, sodass eine Kopie, die die lockereren Einstellungen eines Workspace eingelassen haben, nicht an einen Workspace ausgeliefert wird, dessen Prüfung sie ablehnt — siehe [aggrega-explain](../language-reference/cli/aggrega-explain.md) und [aggrega-cache](../language-reference/cli/aggrega-cache.md)."
   },
+  "8561ffe198b3511e": {
+    "at": "2026-11-25T07:34:33.711Z",
+    "job": "8ddee3f8b1ef",
+    "srcHash": "8561ffe198b3511e",
+    "status": "machine",
+    "text": "Plugin-Autoren können aggrega-pdk allein klonen und seine Beispiele bauen, testen und ausführen; Tests, die aggrega-abi oder aggrega-schemas benötigen, werden mit Begründung übersprungen."
+  },
   "8564b50a79eeb4bf": {
     "at": "2026-11-04T03:52:15.070Z",
     "job": "session-0200-20261104035215",
@@ -93544,6 +93990,13 @@
     "srcHash": "885b92938ea4a3e8",
     "status": "machine",
     "text": "Was das Schlüsselwort nicht tut"
+  },
+  "88639a58a2ee02be": {
+    "at": "2026-11-25T07:34:33.711Z",
+    "job": "8ddee3f8b1ef",
+    "srcHash": "88639a58a2ee02be",
+    "status": "machine",
+    "text": "Maschinenverwaltet, nicht von Hand verfassen: abgeleitet aus der Selbstauskunft des `.wasm` des Plugin, wenn die Entität daraus erzeugt wird. Das Ziel, für das ein Import der Formate dieses Importers Entwürfe erstellt, wenn der Import keines nennt und kein Datensatz eines früheren Imports eines nennt, angewendet dort, wo ein Recipe des Katalogs des Imports daran gebunden wird. Wenn vorhanden, muss es dem entsprechen, was die Selbstauskunft deklariert, und das Laden und die Veröffentlichung lehnen ein Plugin ab, dessen Auskunft abweicht, und nennen dabei dieses Feld. Fehlt es, wird nichts angegeben und nichts verglichen. Mindestens 1 Zeichen lang."
   },
   "8868c84d4e14555f": {
     "at": "2026-10-30T09:03:14.647Z",
@@ -96731,6 +97184,13 @@
     "status": "machine",
     "text": "**Terraform**: ein Feature-Slot an der Component und eine Modulvariable, markiert mit `sensitive: true`; der Wert kommt über das Geheimnis, das das Release an den Slot anbindet."
   },
+  "8cfac9b7b368911f": {
+    "at": "2026-11-25T07:34:33.711Z",
+    "job": "8ddee3f8b1ef",
+    "srcHash": "8cfac9b7b368911f",
+    "status": "machine",
+    "text": "Ein Recipe kann mit `kind: bicep-module-oci` ein veröffentlichtes Bicep-Modul aus einer OCI-Registry beziehen; der `arm`-Provider rendert dessen kompilierte Vorlage."
+  },
   "8cfacbc79f890bbc": {
     "at": "2026-11-04T10:10:45.227Z",
     "job": "session-0229-20261104101045",
@@ -97100,6 +97560,13 @@
     "srcHash": "8d6c8d60891dd215",
     "status": "machine",
     "text": "Der Name der Entität, wie ihr Dokument ihn deklariert."
+  },
+  "8d6c9cf2f798e39f": {
+    "at": "2026-11-25T07:34:33.711Z",
+    "job": "8ddee3f8b1ef",
+    "srcHash": "8d6c9cf2f798e39f",
+    "status": "machine",
+    "text": "Autoren von Go-Plug-ins benötigen Go 1.25 oder neuer, um gegen das Plug-in-Kit zu bauen."
   },
   "8d6d3277668511e1": {
     "at": "2026-11-18T15:10:15.563Z",
@@ -101061,6 +101528,13 @@
     "status": "machine",
     "text": "`--target` entwirft ein Manifest aus den Recipes des Katalogs. Der Arbeitsbereich nennt keinen Katalogordner, daher liest der Import den Katalog der Standardbibliothek aus der Registry, aus der er seinen Importer holt: einen signierten Snapshot des veröffentlichten Katalogs, den der erste Import holt, verifiziert und im Inhalts-Cache des Arbeitsbereichs ablegt und den die Aufzeichnung, die der Import neben seine Entwürfe schreibt, über seinen Digest benennt. Ein Arbeitsbereich, der eigene Katalogordner nennt — in `AGGREGA_CATALOG_DIRS` oder unter `workspace.catalog_dirs` —, importiert stattdessen gegen diese."
   },
+  "93383b06eb7d6623": {
+    "at": "2026-11-25T07:34:33.711Z",
+    "job": "8ddee3f8b1ef",
+    "srcHash": "93383b06eb7d6623",
+    "status": "machine",
+    "text": "`0.10.2 - 2026-11-22`"
+  },
   "933bfd31cb784ab6": {
     "at": "2026-11-03T03:00:33.649Z",
     "job": "session-0042-20261103030033",
@@ -103012,6 +103486,13 @@
     "status": "machine",
     "text": "string (enum)"
   },
+  "9616bbde3b661e4e": {
+    "at": "2026-11-25T07:34:33.711Z",
+    "job": "8ddee3f8b1ef",
+    "srcHash": "9616bbde3b661e4e",
+    "status": "machine",
+    "text": "`aggrega import` fragt einmal nach dem, was keine Quelle enthält, im Terminal oder über eine Antwortdatei, `--answers`, standardmäßig `import-answers.yaml`."
+  },
   "961cfe1e29210b16": {
     "at": "2026-11-03T20:25:38.864Z",
     "job": "session-0154-20261103202538",
@@ -103398,6 +103879,13 @@
     "status": "machine",
     "text": "**`pull` liest aus einer Registry und schreibt innerhalb des Workspace, auf den es gerichtet ist.** Es schreibt die Lockdatei dieses Release, füllt den Artefakt-Cache mit dem, was es aufgelöst hat, und zeichnet neben der Lockdatei die Identität jedes Verdikt-liefernden Plug-ins auf, das Ihr Workspace anhängt. Mit `pin_sources` gesendet — oder in einem Workspace, in dem `pin_sources_at_pull` eingeschaltet ist, und bei einem Aufruf, der es nicht als false sendet — führt es außerdem den Pin-Schritt des Entitätsautors über die Recipes und FeatureRecipes aus, die das Release aus Ihren Katalogverzeichnissen baut, und schreibt jeweils daneben die `entity.lock`; ohne ihn wird ein Pull über eine solche Entität, deren Lock für eine von ihr gelesene Eingabe keinen Pin verzeichnet, unter Nennung des Schritts abgelehnt. Die Entitätsdateien selbst werden nie geschrieben. Nichts davon verlässt den Rechner, und erneutes Auflösen ist der Weg, das Aufgezeichnete zu ändern, sodass dies die mildeste der hier genannten schreibenden Operationen ist. Es ist eines der für die Authoring-Schleife gestalteten Tools, die innerhalb des Workspace schreiben: `pin` schreibt die `entity.lock` neben das Recipe oder FeatureRecipe, das Sie nennen, wie [Die eigenen Eingaben einer Entität festlegen](#pinning-an-entitys-own-inputs) beschreibt; `gen-catalog` schreibt generierte Plugin-Entitäten in das Verzeichnis, das Sie nennen; `edit-document` wendet eine begrenzte strukturierte Bearbeitung auf ein Dokument an, das Sie bereits haben, und schreibt es zurück, wobei jedes Byte erhalten bleibt, das die Bearbeitung nicht berührt, wie [Eine begrenzte Bearbeitung auf ein Dokument anwenden](#applying-one-bounded-edit-to-a-document) beschreibt; und `import` wandelt eine von einem anderen Tool erzeugte Beschreibung in Entwurfs-Authoring-Dateien um und schreibt sie in den Workspace, wie [Eine fremde Beschreibung in Entwurfsentitäten umwandeln](#turning-a-foreign-description-into-draft-entities) beschreibt; und `scaffold` schreibt, mit `example` gesendet, eines der ausführbaren Beispiele der Dokumentation in ein neues oder leeres Verzeichnis, `dir`, wie es [`aggrega scaffold --example`](aggrega-scaffold.md#starting-from-a-runnable-example) tut, was über HTTP der Scope für Schreibzugriffe auf den Workspace zulässt. Dieses Ausgabeverzeichnis, der Guest, den `gen-catalog` liest, und jedes Overlay, das Sie ihm geben, sind jeweils relativ zum Workspace-Stammverzeichnis oder über Standardeingabe und -ausgabe absolut — derselbe Vertrag, den jedes andere Pfadargument auf dieser Oberfläche verwendet. Über Standardeingabe und -ausgabe ist dieselbe Fähigkeit auch als `cli-pull` erreichbar, das den Befehl ausführt; über HTTP gibt es dieses Tool nicht."
   },
+  "96b4e038094c125b": {
+    "at": "2026-11-25T07:34:33.711Z",
+    "job": "8ddee3f8b1ef",
+    "srcHash": "96b4e038094c125b",
+    "status": "machine",
+    "text": "`install.sh` und `install.ps1` zeigen den Download-Fortschritt der Binärdatei an, wenn sie in einem Terminal ausgeführt werden; bei erfasster oder umgeleiteter Ausgabe wird dasselbe ausgegeben wie zuvor."
+  },
   "96bde10631985e2e": {
     "at": "2026-10-23T02:15:21.677Z",
     "job": "session-0060-20261023021521",
@@ -103562,6 +104050,13 @@
     "srcHash": "96fd96a30bf4dfe2",
     "status": "machine",
     "text": "`ImportDecision`"
+  },
+  "96fe0cd1a4b4a1ed": {
+    "at": "2026-11-25T07:34:33.711Z",
+    "job": "8ddee3f8b1ef",
+    "srcHash": "96fe0cd1a4b4a1ed",
+    "status": "machine",
+    "text": "Jede CLI-Version enthält ihre Software-Stückliste und eine Build-Provenienz, die Sie mit gh attestation verify prüfen können."
   },
   "97017ae641356285": {
     "at": "2026-11-03T11:13:56.542Z",
@@ -105387,6 +105882,13 @@
     "status": "machine",
     "text": "[../language-reference/examples/model-api-key-sharing/](../language-reference/examples/model-api-key-sharing/) — ein Credential-Slot, den der Socket eines Agenten deklariert und der auf jeder Verbindung auf drei Arten aus einer einzigen Katalog-Entität gefüllt wird: ein Schlüssel pro Verbindung, ein Secret, auf das jede Verbindung verweist, und ein gemeinsamer Standardwert, den eine Verbindung überschreibt, jeweils mit der gerenderten Ausgabe jeder Form."
   },
+  "9998bd4fe422cdc7": {
+    "at": "2026-11-25T07:34:33.711Z",
+    "job": "8ddee3f8b1ef",
+    "srcHash": "9998bd4fe422cdc7",
+    "status": "machine",
+    "text": "Der `arm`-Provider rendert Recipes in eine Azure-Resource-Manager-Vorlage pro Grenze im Ressourcengruppen-Bereich, bereitstellbar mit `az deployment group create`."
+  },
   "999ac763b8a3100f": {
     "at": "2026-11-12T08:45:17.034Z",
     "job": "session-0006-20261112084517",
@@ -105778,6 +106280,13 @@
     "srcHash": "9a26c8600be0ef63",
     "status": "machine",
     "text": "Optionale Dokumentation, die die Rolle dieser Komponenteninstanz in der Anwendung beschreibt. Wird bis in den IR-Graphen mitgeführt."
+  },
+  "9a29436a701a2043": {
+    "at": "2026-11-25T07:34:33.711Z",
+    "job": "8ddee3f8b1ef",
+    "srcHash": "9a29436a701a2043",
+    "status": "machine",
+    "text": "Tooltips auf der Katalog- und der Startseite zeigen auf Vietnamesisch, Chinesisch, Hindi und in anderen nicht lateinischen Sprachen kein verirrtes „�“ mehr."
   },
   "9a3259fd860e42d3": {
     "at": "2026-11-04T10:33:35.877Z",
@@ -107981,6 +108490,13 @@
     "status": "machine",
     "text": "**So beheben Sie das Problem:** Ändern Sie die `apiVersion`-Zeile des Dokuments in `apiVersion: aggrega.ai/v1beta1`. Die Felder jeder Art sind zwischen den beiden Versionen unverändert, daher ist diese Zeile die gesamte Änderung."
   },
+  "9d641929cfca7935": {
+    "at": "2026-11-25T07:34:33.711Z",
+    "job": "8ddee3f8b1ef",
+    "srcHash": "9d641929cfca7935",
+    "status": "machine",
+    "text": "Die Editor-Erweiterung steuert die 0.10-Compiler: Select Compiler Version bietet sie an, und der zugehörige Download installiert die neueste 0.10-Version."
+  },
   "9d653d00a42bba2d": {
     "at": "2026-11-04T07:09:44.037Z",
     "job": "session-0213-20261104070944",
@@ -108343,6 +108859,13 @@
     "status": "machine",
     "text": "Das Lesen einer Entität von der Koordinate, an der sie veröffentlicht ist, beginnt bei den Bytes, die die Registry dort ausliefert — `aggrega inspect oci://…` liest sie, damit Sie sie ansehen können, und ein Abhängigkeits-Pull liest die eines Archivs auf dieselbe Weise, um die Version zu finden, die er pinnt. Zwei Strukturen dieser Bytes enthalten keine Entität, die gelesen werden könnte."
   },
+  "9df9b17fe1004a6d": {
+    "at": "2026-11-25T07:34:33.711Z",
+    "job": "8ddee3f8b1ef",
+    "srcHash": "9df9b17fe1004a6d",
+    "status": "machine",
+    "text": "Ein Entwicklungs-Build, der nach einem Release Candidate erstellt wurde, liest die Dokumentation dieses Kandidaten."
+  },
   "9dfc5fb2fa6e259e": {
     "at": "2026-11-03T05:48:25.701Z",
     "job": "session-0059-20261103054825",
@@ -108584,6 +109107,13 @@
     "srcHash": "9e7a8bc0941fb105",
     "status": "machine",
     "text": "Bei der Auflösung so gelesen, wie geschrieben — ein Eintrag `catalog_dirs:` relativ zur Konfigurationsdatei, die ihn deklariert, ein Pfad `$import:` relativ zum eigenen Verzeichnis der Entität; kein Glob wird erweitert, daher nennt ein `*` eine Datei oder ein Verzeichnis dieses Namens"
+  },
+  "9e7bc493d9cad2a6": {
+    "at": "2026-11-25T07:34:33.711Z",
+    "job": "8ddee3f8b1ef",
+    "srcHash": "9e7bc493d9cad2a6",
+    "status": "machine",
+    "text": "`changelog`: Changelog"
   },
   "9e7fa728798e5019": {
     "at": "2026-11-04T00:08:16.163Z",
@@ -111349,6 +111879,13 @@
     "status": "machine",
     "text": "Was eine annotation-transform-Richtlinie liest"
   },
+  "a250827c9d0a5d5a": {
+    "at": "2026-11-25T07:34:33.711Z",
+    "job": "8ddee3f8b1ef",
+    "srcHash": "a250827c9d0a5d5a",
+    "status": "machine",
+    "text": "`0.10.1 - 2026-11-21`"
+  },
   "a254a7413f08b244": {
     "at": "2026-11-04T07:09:47.104Z",
     "job": "session-0214-20261104070947",
@@ -111754,6 +112291,13 @@
     "srcHash": "a2cf7e1ab0ffd24d",
     "status": "machine",
     "text": "Ein Katalog muss nicht aus dem Nichts aufgebaut werden. Der größte Teil der Arbeit, Recipes und Erweiterungen für eine neue Umgebung bereitzustellen, besteht aus Scaffolding und Wiederverwendung, statt jedes Binary von Hand zu schreiben."
+  },
+  "a2d0364513e44bbe": {
+    "at": "2026-11-25T07:34:33.711Z",
+    "job": "8ddee3f8b1ef",
+    "srcHash": "a2d0364513e44bbe",
+    "status": "machine",
+    "text": "Der Editor fragt nach den Werten, die ein Import noch schuldet, schreibt sie in die Antwortdatei und importiert erneut."
   },
   "a2d7d6dc234e3c58": {
     "at": "2026-10-30T09:03:14.647Z",
@@ -114748,6 +115292,13 @@
     "status": "machine",
     "text": "Im Umfeld vorhandene Kubernetes-Ressourcen, die das Recipe nicht deklariert hat."
   },
+  "a6f5c2529c42d93c": {
+    "at": "2026-11-25T07:34:33.711Z",
+    "job": "8ddee3f8b1ef",
+    "srcHash": "a6f5c2529c42d93c",
+    "status": "machine",
+    "text": "Eine JSON-with-comments-Quelle, die mit einer UTF-8-Byte-Order-Mark beginnt, wird jetzt geparst."
+  },
   "a6fd1da396767eba": {
     "at": "2026-11-15T22:33:46.009Z",
     "job": "session-0020-20261115223346",
@@ -115785,6 +116336,13 @@
     "srcHash": "a8a16d934b5e2b32",
     "status": "machine",
     "text": "Eine Stelle in einem Dokument: eine Zeile und ein Zeichenoffset darin, beide ab null gezählt. Der Offset wird in den Einheiten der Kodierung gemessen, auf die sich die Sitzung beim Öffnen geeinigt hat; das ist UTF-16, sofern der Client nicht eine andere angefordert hat."
+  },
+  "a8a3d833728ec9f1": {
+    "at": "2026-11-25T07:34:33.711Z",
+    "job": "8ddee3f8b1ef",
+    "srcHash": "a8a3d833728ec9f1",
+    "status": "machine",
+    "text": "`changelogAndRoadmap`: Changelog und Roadmap"
   },
   "a8a7ac95238c0b16": {
     "at": "2026-11-04T01:50:23.893Z",
@@ -116995,6 +117553,13 @@
     "srcHash": "aa4dcc1f47685edf",
     "status": "machine",
     "text": "**Erfüllen** Sie den Parameter mit dem umgebungsspezifischen Wert an der Release-Oberfläche. Release-Dateien pro Umgebung liefern unterschiedliche Werte für denselben Parameterschlüssel, ohne das Aggregate zu ändern."
+  },
+  "aa4e52a08720df84": {
+    "at": "2026-11-25T07:34:33.711Z",
+    "job": "8ddee3f8b1ef",
+    "srcHash": "aa4e52a08720df84",
+    "status": "machine",
+    "text": "Release-Binärdateien und ihre eingebetteten Go-Plugins werden mit Go 1.26.11 gebaut, was Schwachstellen der Standardbibliothek behebt, die die CLI erreichen konnte."
   },
   "aa51939cb5d3a11c": {
     "at": "2026-11-18T22:52:12.660Z",
@@ -118404,6 +118969,13 @@
     "status": "machine",
     "text": "A render requests an external input the lockfile does not pin (Ein Rendering fordert eine externe Eingabe an, die das Lockfile nicht pinnt)"
   },
+  "ac6103c7a4d10f1a": {
+    "at": "2026-11-25T07:34:33.711Z",
+    "job": "8ddee3f8b1ef",
+    "srcHash": "ac6103c7a4d10f1a",
+    "status": "machine",
+    "text": "Importe verschiedener Formate in ein Verzeichnis behalten jeweils eigene Aufzeichnungen, sodass jeder weiterhin `--sync` ausführen kann."
+  },
   "ac64bfd370820a77": {
     "at": "2026-11-04T03:09:22.872Z",
     "job": "session-0196-20261104030922",
@@ -119020,6 +119592,13 @@
     "srcHash": "ad4487bd31193136",
     "status": "machine",
     "text": "**Platzieren Sie das von der Überprüfung hinzugefügte Modell** neben dem Graphen: `gpt-4o-mini`."
+  },
+  "ad471119eda69f02": {
+    "at": "2026-11-25T07:34:33.711Z",
+    "job": "8ddee3f8b1ef",
+    "srcHash": "ad471119eda69f02",
+    "status": "machine",
+    "text": "Der Windows-Installer jeder Version lässt sich auch von einer festen Adresse herunterladen, `https://download.aggrega.ai/aggrega-cli/v<version>/`."
   },
   "ad47c0dc62a8e5d2": {
     "at": "2026-11-03T17:08:32.496Z",
@@ -120022,6 +120601,13 @@
     "status": "machine",
     "text": "Wenn die [Aggrega-Erweiterung für Visual Studio Code](https://github.com/aggrega-ai/aggrega-vscode-extension) installiert ist, öffnen Sie in VS Code den Ordner `import-langflow/source`, in den der Import seine Entwürfe geschrieben hat. Der Ordner enthält ein einziges Release, das entworfene `release.yaml`, daher wählt der Editor es für Sie aus und prüft die Entwürfe beim Bearbeiten gegen dieses Release, wobei er seine Befunde in der Datei und im Problembereich markiert. **Aggrega: Show topology graph** in der Befehlspalette zeichnet die Komponenten des Release und die Verbindungen zwischen ihnen. **Aggrega: Build**, **Aggrega: Preview build** und **Aggrega: Pull** wirken auf dasselbe Release, und jeder dieser Befehle ist auch eine Schaltfläche im Bereich **Commands** der Ansicht **Aggrega** in der Aktivitätsleiste; Build schreibt seine Dateien in das Verzeichnis `dist/` des Ordners. [Aggrega in Visual Studio Code verwenden](../editor/README.md) behandelt den Rest."
   },
+  "aeaa9d89a775c619": {
+    "at": "2026-11-25T07:34:33.711Z",
+    "job": "8ddee3f8b1ef",
+    "srcHash": "aeaa9d89a775c619",
+    "status": "machine",
+    "text": "Der Editor hat eine Schaltfläche „Draft“, die eine Entität, ein Beispiel, einen Quickstart oder einen Import beginnt, ohne dass ein Aggrega-Ordner nötig ist."
+  },
   "aeaadf3755343324": {
     "at": "2026-10-22T23:28:05.653Z",
     "job": "session-0054-20261022232805",
@@ -120123,6 +120709,13 @@
     "srcHash": "aec32255de17ec8d",
     "status": "machine",
     "text": "Aggrega-Schema für den Wasm-Linter-Socket"
+  },
+  "aec37d80b2734014": {
+    "at": "2026-11-25T07:34:33.711Z",
+    "job": "8ddee3f8b1ef",
+    "srcHash": "aec37d80b2734014",
+    "status": "machine",
+    "text": "Eine `helm-oci-chart`-Quelle, die ein Artefakt nennt, das kein Chart ist, bricht mit E0140 ab, und ein Serverfehler der Registry nennt seine Ursache, statt das Netzwerk als nicht erreichbar zu melden."
   },
   "aec69352b5b97ce2": {
     "at": "2026-10-17T20:35:57.134Z",
@@ -121709,6 +122302,13 @@
     "status": "machine",
     "text": "**Leer, wenn nichts die Komponente verwendet.** Ein `range` darüber rendert dann nichts."
   },
+  "b0dc79584a2e895b": {
+    "at": "2026-11-25T07:34:33.711Z",
+    "job": "8ddee3f8b1ef",
+    "srcHash": "b0dc79584a2e895b",
+    "status": "machine",
+    "text": "`aggrega version --licenses` gibt die Drittanbieterhinweise für alles aus, was in die Binärdatei kompiliert ist; der Editor zeigt sie mit Show Compiler Third-Party Licenses an."
+  },
   "b0e2633975c99b9c": {
     "at": "2026-11-03T23:48:35.245Z",
     "job": "session-0176-20261103234835",
@@ -121901,6 +122501,13 @@
     "srcHash": "b131ad8827654244",
     "status": "machine",
     "text": "**Nicht gesetzt, die Voreinstellung.** Das Chart rendert ein cert-manager-`Certificate` für den Service-Namen des Controllers und den selbstsignierten `Issuer`, der es signiert, daher muss cert-manager bereits im Cluster laufen."
+  },
+  "b13746ec88aa140d": {
+    "at": "2026-11-25T07:34:33.711Z",
+    "job": "8ddee3f8b1ef",
+    "srcHash": "b13746ec88aa140d",
+    "status": "machine",
+    "text": "Die Beschriftungen für Veröffentlichung und Signatur sowie die Cache-Namen des Editors erscheinen nun in Ihrer Sprache."
   },
   "b137cc63f26da23a": {
     "at": "2026-10-22T22:35:51.476Z",
@@ -124710,6 +125317,13 @@
     "status": "machine",
     "text": "`importer/compose` liest die Services und die Modelle, die eine Compose-Datei deklariert. Er entwirft jeden Service als Instanz der Katalog-Component, der sein Image entspricht, oder des generischen Servers der Standardbibliothek, `core/compute/server`, der sein Image ausführt; jedes Modell als Instanz der Docker-Model-Runner-Laufzeit der Standardbibliothek, `core/ai-model/docker-model-runner`, wo Ihr Katalog sie enthält, und als eigene Modell-Component, wo er sie nicht enthält; und daneben ein Release, das trägt, was jeder Service für seinen Betrieb angibt."
   },
+  "b4d823675e6ebd9a": {
+    "at": "2026-11-25T07:34:33.711Z",
+    "job": "8ddee3f8b1ef",
+    "srcHash": "b4d823675e6ebd9a",
+    "status": "machine",
+    "text": "Das Barrierefreiheitsfenster der Dokumentation erscheint in der Sprache der Seite, in jeder Sprache der Dokumentation."
+  },
   "b4d8c9319c0aaf88": {
     "at": "2026-10-22T09:26:43.915Z",
     "job": "session-0028-20261022092643",
@@ -126579,6 +127193,13 @@
     "srcHash": "b78baedd8e04470b",
     "status": "machine",
     "text": "Diese Prüfung ist das Einzige, was die erneute Verifizierung des Digests zur Build-Zeit nicht für Sie leisten kann. Ein Pull, der eine verschobene Ref übernähme, würde die abgerufenen Bytes und den aufgezeichneten Digest im selben Schritt neu schreiben, sodass sich die beiden Werte, die ein Build vergleicht, gemeinsam verschoben hätten und übereinstimmen würden – und Sie würden anderen Quellinhalt bauen als den, gegen den das Lockfile geprüft wurde, ohne dass etwas dies meldet."
+  },
+  "b78bb1a0a22ef796": {
+    "at": "2026-11-25T07:34:33.711Z",
+    "job": "8ddee3f8b1ef",
+    "srcHash": "b78bb1a0a22ef796",
+    "status": "machine",
+    "text": "Ein Recipe kann mit `kind: terraform-module-oci` ein OpenTofu-Modulpaket aus einer OCI-Registry beziehen; das eingebundene Modul lässt sich mit Terraform und OpenTofu anwenden."
   },
   "b78dec0751e1dc3e": {
     "at": "2026-11-04T07:36:18.536Z",
@@ -128630,6 +129251,13 @@
     "status": "machine",
     "text": "**Aggrega: Pull** — führt das `aggrega`-Binary gegen das ausgewählte Release aus und streamt seine Ausgabe in den Aggrega-Ausgabekanal. Es löst die Katalog- und Quellabhängigkeiten, die das Release deklariert, in den Cache auf und schreibt das Lockfile pro Release, wobei es in diesem Lockfile die externen Eingaben festhält, die das Rendern des Release verbraucht, sodass ein späterer Build sie aus dem lokalen Speicher bedient. Es erreicht eine Registry, zeigt daher den Fortschritt mit einer Cancel-Schaltfläche und endet mit einer Meldung, die sagt, was es getan hat. Ein Build, eine Preview oder ein von Ihnen geöffneter Graph, den der Compiler ablehnt, weil das Release kein Lockfile hat, endet mit einer einzigen Benachrichtigung, `Aggrega: <release> has no lockfile.`, gefolgt vom eigenen Satz des Compilers, mit einer Schaltfläche **Pull**: Ein Druck darauf führt diesen Befehl aus, mit dem Binary, mit dem die Erweiterung konfiguriert ist, für das Release, das der Compiler genannt hat — oder für das ausgewählte Release, wo der Compiler keines genannt hat —, und der Ausgabekanal enthält den Satz des Compilers in der Zeile, mit der der Vorgang endet. Ein Neuzeichnen, das Sie nicht angefordert haben, etwa ein geöffneter Graph, der nach dem Speichern neu gezeichnet wird, löst denselben Hinweis höchstens so oft aus, wie die beiden Einstellungen `aggrega.notifications` es erlauben. Was auch immer das Lockfile des ausgewählten Release schreibt — dieser Befehl, ein Build mit Auto pull oder `aggrega pull`, in einem Terminal eingegeben —, die geöffneten Dateien werden erneut dagegen geprüft, und eine Warnung, dass das Lockfile abgewichen ist, verschwindet von selbst aus dem Panel Problems, sobald das Schreiben sie behoben hat: Ein auf diesem Release geöffneter Graph wird neu gezeichnet, was das Lockfile erneut prüft, und wo kein Graph dieses Release zeigt — keiner geöffnet ist oder der geöffnete noch ein zuvor ausgewähltes Release zeigt —, fordert die Erweiterung seinen Graphen einmal an, ohne etwas zu zeichnen. Nur das Lockfile des ausgewählten Release wird so verfolgt, und nur innerhalb der Ordner, die das Fenster geöffnet hat; eine Warnung zum Lockfile eines anderen Release bleibt, bis Sie den Graphen dieses Release anzeigen."
   },
+  "ba8bb4e80b70ded9": {
+    "at": "2026-11-25T07:34:33.711Z",
+    "job": "8ddee3f8b1ef",
+    "srcHash": "ba8bb4e80b70ded9",
+    "status": "machine",
+    "text": "Auf Docker Compose veröffentlicht ein Import den Port jeder Plattform und jedes Agenten auf 127.0.0.1 über `published_port`, und jede Anleitung zeigt, wie er getestet wird."
+  },
   "ba8db30b73536f6e": {
     "at": "2026-10-22T13:22:28.626Z",
     "job": "session-0038-20261022132228",
@@ -128932,6 +129560,13 @@
     "srcHash": "bae1509157424edd",
     "status": "machine",
     "text": "**`mcp.transport` wählt den Transport.** `http` startet einen Listener; `stdio`, der Standard, kommuniziert über Standardeingabe und -ausgabe, was ein Unterprozess-Client erwartet. Jeder andere Wert wird beim Laden dieser Datei abgelehnt. `aggrega mcp --transport <stdio|http>` tut dasselbe für einen einzelnen Aufruf und gewinnt gegenüber dem Schlüssel, so wie jedes Flag gegenüber jeder Datei gewinnt."
+  },
+  "bae272bb81d4ad24": {
+    "at": "2026-11-25T07:34:33.711Z",
+    "job": "8ddee3f8b1ef",
+    "srcHash": "bae272bb81d4ad24",
+    "status": "machine",
+    "text": "Ein Katalogverzeichnis kann mehrere Versionen einer Bibliothek enthalten; jedes Release liest die Version, die seine Referenzen auswählen, und `release.lock` zeichnet sie mit ihrem Digest auf."
   },
   "bae2a1f021764500": {
     "at": "2026-11-03T14:46:26.927Z",
@@ -130512,6 +131147,13 @@
     "status": "machine",
     "text": "**`validate` mit einer `entity` und einem `release`** führt die Prüfungen für eine einzelne Entität in den Begriffen dieses Release aus: Die Referenzen der Entität – die Component, die ein Recipe implementiert, eine SchemaLibrary, auf die eine Säule verweist – werden über die Katalogverzeichnisse dieses Release aufgelöst, und die Antwort nennt das Release neben der Entität. Es wird keine Hülle validiert; ein ohne `entity` gesendetes `release` ist weiterhin der Release-Bereich. `catalog_dirs` wird hier wie überall den Verzeichnissen des Release vorangestellt. Ein Verzeichnis, das die Workspace-Konfiguration aufführt, wo nichts existiert – für dieses Release oder für den Workspace, wenn kein `release` gesendet wird –, wird als leer gelesen, wie jeder Befehl es liest ([Woher lokale Entitäten gelesen werden](configuration.md#where-local-entities-are-read-from)), sodass `valid` dasjenige ist, das sich ergibt, wenn dieses Verzeichnis nicht aufgeführt ist; die Zeile, die `aggrega pull` und `aggrega build` ausgeben, um es zu nennen, steht an erster Stelle der `notices` der Antwort, so wie [`aggrega validate`](aggrega-validate.md#checking-an-entity-in-a-releases-terms) sie auf der Standardfehlerausgabe ausgibt."
   },
+  "bd1fe2c6878ba00b": {
+    "at": "2026-11-25T07:34:33.711Z",
+    "job": "8ddee3f8b1ef",
+    "srcHash": "bd1fe2c6878ba00b",
+    "status": "machine",
+    "text": "Auf Smartphones und Tablets führt die Menüschaltfläche des Katalogs zur Dokumentation, zu den Beispielen und zu GitHub."
+  },
   "bd2171ad57a565f3": {
     "at": "2026-11-04T12:17:49.143Z",
     "job": "session-0242-20261104121749",
@@ -131596,6 +132238,13 @@
     "status": "machine",
     "text": "Beide Formen werden auf jedem Container und jedem Init-Container akzeptiert. `<alias>` ist der Name, unter dem die Verbindung im Block `uses` der Komponente geschrieben ist, im Aggregate oder im Release – der Schlüssel, unter dem ein Recipe die Verbindung unter `.context.uses` liest –, und `<slot>` ist ein Slot, den der Socket deklariert, über den diese Verbindung verdrahtet ist."
   },
+  "becb1efbf41916d6": {
+    "at": "2026-11-25T07:34:33.711Z",
+    "job": "8ddee3f8b1ef",
+    "srcHash": "becb1efbf41916d6",
+    "status": "machine",
+    "text": "Abbruchmeldungen, die ein Manifest, seine Mappings oder seine Annotation-Bindungen nennen, schreiben Manifest jetzt groß."
+  },
   "becb6d775423ab07": {
     "at": "2026-11-03T14:05:29.072Z",
     "job": "session-0115-20261103140529",
@@ -131609,6 +132258,13 @@
     "srcHash": "becdfc50380c1813",
     "status": "machine",
     "text": "Feature-Anbindung / Säulenisolation der Component"
+  },
+  "becea838d912751d": {
+    "at": "2026-11-25T07:34:33.711Z",
+    "job": "8ddee3f8b1ef",
+    "srcHash": "becea838d912751d",
+    "status": "machine",
+    "text": "Arm- und CloudFormation-Builds lehnen die Literale eines Values-Mappings nur dann ab, wenn sich seine Ausgabe mit einem als sensibel deklarierten Wert ändert, nicht schon, wenn es einen solchen liest."
   },
   "bed21c75bcc6e35c": {
     "at": "2026-10-23T01:24:44.067Z",
@@ -132449,6 +133105,13 @@
     "srcHash": "bff31fa0a763ca50",
     "status": "machine",
     "text": "Was `assertions:` nicht ersetzt"
+  },
+  "bff423227334c0cf": {
+    "at": "2026-11-25T07:34:33.711Z",
+    "job": "8ddee3f8b1ef",
+    "srcHash": "bff423227334c0cf",
+    "status": "machine",
+    "text": "Eine Katalogveröffentlichung lehnt eine Component-Version ab, die kein Recipe realisiert, während die Version darunter Recipes hat."
   },
   "bff4a37aa1b2c265": {
     "at": "2026-11-15T00:46:51.047Z",
@@ -133422,6 +134085,17 @@
     "status": "machine",
     "text": "**[credential-shape-per-target](credential-shape-per-target/)** — ein Aggregate, für zwei Ziele bereitgestellt, deren einziger Unterschied darin besteht, welches FeatureRecipe das Manifest für `core/referenced-secret` bindet: Das eine rendert ein Kubernetes-Secret, das das Material trägt, das andere ein `ExternalSecret`, das einen Eintrag in einem Secret-Store benennt. Die beiden Ausgabebäume unterscheiden sich in genau dieser einen Ressource pro Zugangsdaten-Slot, und das `secretKeyRef` des konsumierenden StatefulSet ist zwischen ihnen byte-identisch — der Locator wird von der erzeugenden Seite veröffentlicht, statt zwischen beiden vereinbart zu werden, daher ändert sich die Seite des Entwicklers nie."
   },
+  "c11a370b070c8f69": {
+    "at": "2026-11-25T07:34:33.711Z",
+    "job": "8ddee3f8b1ef",
+    "revision": {
+      "from": "332d91de857547eb",
+      "reviewed": false
+    },
+    "srcHash": "c11a370b070c8f69",
+    "status": "machine",
+    "text": "Aggrega-Versionen"
+  },
   "c11bcd00d04b963e": {
     "at": "2026-10-22T09:04:04.145Z",
     "job": "session-0027-20261022090404",
@@ -133996,6 +134670,13 @@
     "srcHash": "c1e780451ef3e78e",
     "status": "machine",
     "text": "`hostNetwork` wählt einen **Netzwerk-Namespace**, und das ist alles."
+  },
+  "c1eaa1ba25910e32": {
+    "at": "2026-11-25T07:34:33.711Z",
+    "job": "8ddee3f8b1ef",
+    "srcHash": "c1eaa1ba25910e32",
+    "status": "machine",
+    "text": "Diese Seite listet die Änderungen jedes Aggrega-Releases (des Compilers, seiner Dokumentation, seiner Editor-Erweiterung und seiner Plugin-Bibliotheken) sowie jedes Katalog-Releases auf."
   },
   "c1ebbcd5840a6e01": {
     "at": "2026-11-18T22:52:12.660Z",
@@ -135056,6 +135737,13 @@
     "status": "machine",
     "text": "Der Name ist das, was eine Datei als Archiv statt als Richtlinientext kennzeichnet, wodurch die Wahl eine ausdrückliche Aussage des Betreibers selbst bleibt: Ein beschädigtes Archiv wird dann als beschädigtes Archiv gemeldet, unter Nennung der Datei und des fehlgeschlagenen Schritts, statt als Richtliniendatei gelesen zu werden, die sich nicht parsen lässt. Das Kodieren des Archivs ist ein Schritt, den der Betreiber hinzufügt, nachdem seine Toolchain es gebaut hat."
   },
+  "c39737c00c73161b": {
+    "at": "2026-11-25T07:34:33.711Z",
+    "job": "8ddee3f8b1ef",
+    "srcHash": "c39737c00c73161b",
+    "status": "machine",
+    "text": "Ein Import mit Katalogordnern sieht wie ein Build auch den dahinterliegenden veröffentlichten Katalog; ein `--sync`, der seinen festgelegten Katalog nicht lesen kann, bricht ab."
+  },
   "c39dd6dbe7857d12": {
     "at": "2026-11-04T00:28:09.122Z",
     "job": "session-0179-20261104002809",
@@ -135285,6 +135973,13 @@
     "status": "machine",
     "text": "[Modifikatorsystem: `appliesTo` und Selektoren](vocabulary/modifier-system.md) — Selektoren zur Anbindung von Features, die native Go-Engine für den Label-Abgleich, die Grammatik der Selektoren in Zeichenkettenform und die OR-verknüpfende Variante `appliesToAnyOf`."
   },
+  "c3e4ce7b568d6fd7": {
+    "at": "2026-11-25T07:34:33.711Z",
+    "job": "8ddee3f8b1ef",
+    "srcHash": "c3e4ce7b568d6fd7",
+    "status": "machine",
+    "text": "Die Katalogsuche behält eine Suchanfrage in jeder Schrift bei: Ein nicht lateinisches Wort oder ein Wort mit Akzenten findet, was es enthält, statt jeder Entität."
+  },
   "c3e5fd3b6b35b40f": {
     "at": "2026-11-05T16:30:43.236Z",
     "job": "session-0003-20261105163043",
@@ -135414,6 +136109,13 @@
     "srcHash": "c4115014e98941ad",
     "status": "machine",
     "text": "`assistant` erscheint in keinem `usesSchema`, weder an dieser Component noch an einer anderen. Es ist trotzdem zulässig: Schweigt der Katalog zu einem Socket, bedeutet das, dass die Verbindung nicht vorhergesehen wurde, nicht dass sie verboten ist, und der Entwickler ist Eigentümer der Topologie seiner eigenen Anwendung."
+  },
+  "c412610f23c1f21a": {
+    "at": "2026-11-25T07:34:33.711Z",
+    "job": "8ddee3f8b1ef",
+    "srcHash": "c412610f23c1f21a",
+    "status": "machine",
+    "text": "Der Suchdialog der Dokumentation zeigt seine Meldungen („N results for …“, „Load more results“) in jeder veröffentlichten Sprache an."
   },
   "c412c082fbd3e979": {
     "at": "2026-11-03T13:21:01.958Z",
@@ -140843,6 +141545,13 @@
     "status": "machine",
     "text": "`finance-agent[feature:db_password]` → `internal-vault` (Topologie im Besitz der Anbindung, markiert mit `origin_feature_instance: db_password`)"
   },
+  "cbf8171047a665f6": {
+    "at": "2026-11-25T07:34:33.711Z",
+    "job": "8ddee3f8b1ef",
+    "srcHash": "cbf8171047a665f6",
+    "status": "machine",
+    "text": "Die Visual-Studio-Code-Erweiterung zeigt ihren eigenen Text in den Sprachen der Dokumentation an und wird als `aggrega-ai.aggrega` veröffentlicht."
+  },
   "cbf9b305d862ca1a": {
     "at": "2026-10-30T06:38:36.798Z",
     "job": "session-0071-20261030063836",
@@ -142358,6 +143067,17 @@
     "status": "machine",
     "text": "Explizite logische Netzwerkpfade und Abhängigkeiten zwischen Knoten."
   },
+  "cdfcaae29034bba2": {
+    "at": "2026-11-25T07:34:33.711Z",
+    "job": "8ddee3f8b1ef",
+    "revision": {
+      "from": "fdb4a24406e343f2",
+      "reviewed": false
+    },
+    "srcHash": "cdfcaae29034bba2",
+    "status": "machine",
+    "text": "Die Seite [Changelog](../changelog.md) listet die Änderungen jeder Veröffentlichung auf, gruppiert unter Überschriften wie **Added**, **Changed**, **Removed** und **Fixed**; die Notizen jeder Veröffentlichung auf der [Seite der Veröffentlichungen](https://github.com/aggrega-ai/aggrega-cli/releases) enthalten dasselbe Changelog. Für die Schnittstellen auf dieser Seite:"
+  },
   "ce0155437db7f78e": {
     "at": "2026-11-13T18:50:20.840Z",
     "job": "session-0001-20261113185020",
@@ -143776,6 +144496,13 @@
     "srcHash": "cfd1734eba884236",
     "status": "machine",
     "text": "**Ein reproduzierbares Image.** Das Recipe fixiert das Controller-Image auf einen auflösbaren Release-Tag (`docker.io/bitnami/sealed-secrets-controller:0.38.4`), sodass die gerenderte Arbeitslast eine fixierte Version referenziert."
+  },
+  "cfd386d9cfc10d3c": {
+    "at": "2026-11-25T07:34:33.711Z",
+    "job": "8ddee3f8b1ef",
+    "srcHash": "cfd386d9cfc10d3c",
+    "status": "machine",
+    "text": "Mitwirkende können aggrega-cli allein klonen und gegen die veröffentlichten Kit-, ABI- und Schema-Module bauen und testen; Tests, die Begleit-Repositorys benötigen, werden mit Begründung übersprungen."
   },
   "cfd4ae615b8005ed": {
     "at": "2026-10-22T14:38:40.134Z",
@@ -147620,6 +148347,13 @@
     "status": "machine",
     "text": "Werte, die ein Autor als sensibel deklariert hat, werden darin zurückgehalten, in der strukturierten Form, die bei [`aggrega inspect`](aggrega-inspect.md#machine-readable-output) beschrieben ist. `--unredacted` neben `--ir-graph` gibt sie stattdessen aus, unter den Bedingungen, die `aggrega inspect --unredacted` nennt: Es erreicht den Graphen und nichts anderes — die Trace-Dateien haben ihr eigenes `--trace-unredacted`, und die gerenderten Artefakte werden nie zurückgehalten —, und alles, was die Ausgabe erreicht, enthält diese Werte dann im Klartext. Ohne `--ir-graph` übergeben, wird es abgelehnt, weil es nichts gäbe, was es offenlegen könnte."
   },
+  "d53dc79809221abb": {
+    "at": "2026-11-25T07:34:33.711Z",
+    "job": "8ddee3f8b1ef",
+    "srcHash": "d53dc79809221abb",
+    "status": "machine",
+    "text": "Escape schließt die Menüs der Startseite und des Katalogs wie das der Dokumentation und gibt den Fokus an die Menüschaltfläche zurück."
+  },
   "d541f0d6b9c9fbac": {
     "at": "2026-11-15T00:31:19.686Z",
     "job": "session-0022-20261115003119",
@@ -148044,6 +148778,13 @@
     "srcHash": "d5f5073a40c4f04d",
     "status": "machine",
     "text": "Kompilierzeit und Laufzeit"
+  },
+  "d5f752e724508aa6": {
+    "at": "2026-11-25T07:34:33.711Z",
+    "job": "8ddee3f8b1ef",
+    "srcHash": "d5f752e724508aa6",
+    "status": "machine",
+    "text": "Die Katalogseite listet Recipes nach dem Ziel auf, für das sie bauen."
   },
   "d5fc66ec27737639": {
     "at": "2026-11-03T11:51:13.440Z",
@@ -149096,6 +149837,13 @@
     "status": "machine",
     "text": "Ob überhaupt eine Registry konfiguriert ist."
   },
+  "d787edabeb1e1958": {
+    "at": "2026-11-25T07:34:33.711Z",
+    "job": "8ddee3f8b1ef",
+    "srcHash": "d787edabeb1e1958",
+    "status": "machine",
+    "text": "Die Seitenleiste der Dokumentation zeigt ihre Abschnitts- und Gruppennamen in jeder veröffentlichten Sprache an."
+  },
   "d7895b1c8e12439e": {
     "at": "2026-10-17T18:49:59.090Z",
     "job": "c8133a6b0c32",
@@ -149151,6 +149899,13 @@
     "srcHash": "d79ad7734613dd56",
     "status": "machine",
     "text": "Wenn ein anderes Programm auf Ihrem Rechner bereits auf 127.0.0.1:3000 lauscht, bricht der erste Befehl mit `failed to bind host port 127.0.0.1:3000/tcp: address already in use` ab: Setzen Sie `published_port` auf einen freien Port und führen Sie den Build erneut aus. Der Lauf unten hat das mit 3002 getan und diesen Port anstelle von 3000 verwendet."
+  },
+  "d79f9333d48fec87": {
+    "at": "2026-11-25T07:34:33.711Z",
+    "job": "8ddee3f8b1ef",
+    "srcHash": "d79f9333d48fec87",
+    "status": "machine",
+    "text": "`aggrega push --plugin` akzeptiert `--plugin-notices` und `--plugin-sbom` (MCP `plugin_notices`/`plugin_sbom`, Language Server `pluginNotices`/`pluginSbom`): Hinweise im Manifest, eine SPDX-SBOM daneben."
   },
   "d7a1184f3c70fe06": {
     "at": "2026-11-04T07:09:44.037Z",
@@ -150730,6 +151485,13 @@
     "status": "machine",
     "text": "Ist die Umgebung gesetzt, betrifft die nächste Ablehnung die Datenbank, die das entworfene Release nicht platziert:"
   },
+  "da0539eb88ab5c31": {
+    "at": "2026-11-25T07:34:33.711Z",
+    "job": "8ddee3f8b1ef",
+    "srcHash": "da0539eb88ab5c31",
+    "status": "machine",
+    "text": "`aggrega import` lädt die Abhängigkeiten des entworfenen Release, sodass `validate` und `build` sofort funktionieren; `--offline` überspringt den Pull."
+  },
   "da0772e7ac517701": {
     "at": "2026-11-03T07:45:16.882Z",
     "job": "session-0072-20261103074516",
@@ -151876,6 +152638,13 @@
     "srcHash": "db9bfb9d114c0c57",
     "status": "machine",
     "text": "**Ein Server, der zusätzlich einen Header prüft.** Binden Sie `credential` an derselben Verbindung an. Der Agent erhält `MCP_CREDENTIAL_SEARCH` und den Header, unter dem er sie vorlegt, `MCP_CREDENTIAL_HEADER_SEARCH`: `Authorization`, es sei denn, das Release nennt den eigenen Header des Servers in `infra.credential_header` des Tools. Nennen Sie auf Docker Compose den Schlüssel einer der beiden im Aggregate, wie oben."
+  },
+  "dba04470159a952f": {
+    "at": "2026-11-25T07:34:33.711Z",
+    "job": "8ddee3f8b1ef",
+    "srcHash": "dba04470159a952f",
+    "status": "machine",
+    "text": "Die Einrichtungsseite des Assistenten hat einen Abschnitt zu Claude Desktop: auf Ihrem Computer installieren, über das Erweiterungspaket verbinden."
   },
   "dba17106bc8a97dc": {
     "at": "2026-11-04T10:56:34.629Z",
@@ -154070,12 +154839,26 @@
     "status": "machine",
     "text": "Der Skill sagt dem Assistenten, wie Aggrega installiert wird, wie er es mit dem Server `aggrega mcp` verbindet, wie ein Workspace begonnen wird und wie die Authoring-Schleife — scaffold, validate, build — abläuft, die [Aggrega-Dateien verfassen](../authoring/getting-started.md) beschreibt. Er enthält keine Kopie eines Schemas oder eines Entitätsvertrags: Für jede strukturelle Antwort verweist er den Assistenten an die Binärdatei — an die MCP-Werkzeuge, wo der Server verbunden ist, sonst an die Befehlszeile `aggrega` — und für die Bedeutung der Dinge an die veröffentlichte Dokumentation."
   },
+  "de6804fae93a070f": {
+    "at": "2026-11-25T07:34:33.711Z",
+    "job": "8ddee3f8b1ef",
+    "srcHash": "de6804fae93a070f",
+    "status": "machine",
+    "text": "Auf Seiten der Startseite, der Dokumentation und des Katalogs mit Rechts-nach-links-Schrift sitzt die Barrierefreiheitsschaltfläche unten links, ohne die Seitenleiste der Dokumentation zu verdecken."
+  },
   "de68086221eb1cb3": {
     "at": "2026-11-04T05:31:21.594Z",
     "job": "session-0203-20261104053121",
     "srcHash": "de68086221eb1cb3",
     "status": "machine",
     "text": "`entity-lock.ignore`"
+  },
+  "de6a0138fcf9cb24": {
+    "at": "2026-11-25T07:34:33.711Z",
+    "job": "8ddee3f8b1ef",
+    "srcHash": "de6a0138fcf9cb24",
+    "status": "machine",
+    "text": "Die Task-Beispiele lösen wieder `core/compute/task` 1.0.1 auf, sodass ein frischer Pull Recipes dafür findet."
   },
   "de7099fe7b4ee9b5": {
     "at": "2026-11-14T23:39:44.630Z",
@@ -155138,6 +155921,13 @@
     "status": "machine",
     "text": "Wenn die Zieldatei bereits existiert, verweigert `init`, statt sie zu überschreiben; `--force` schreibt trotzdem, führt den Registry-Eintrag in die vorhandene Datei zusammen und behält andere Einstellungen bei."
   },
+  "dfbc61971930bf25": {
+    "at": "2026-11-25T07:34:33.711Z",
+    "job": "8ddee3f8b1ef",
+    "srcHash": "dfbc61971930bf25",
+    "status": "machine",
+    "text": "Die Startseite, die Dokumentation, der Katalog, die Editor-Erweiterung und die Untertitel der Demovideos sind auf Thai verfügbar."
+  },
   "dfbc7d96221d30ad": {
     "at": "2026-11-03T19:06:07.164Z",
     "job": "session-0145-20261103190607",
@@ -156112,6 +156902,13 @@
     "srcHash": "e0dd10afd48b6659",
     "status": "machine",
     "text": "Zum Verfassen der SchemaLibrary-Entität (wo im Katalog die per `$ref:` referenzierbaren Schemas liegen): [../entities/schemalibrary.md](../entities/schemalibrary.md)."
+  },
+  "e0dec0177de85410": {
+    "at": "2026-11-25T07:34:33.711Z",
+    "job": "8ddee3f8b1ef",
+    "srcHash": "e0dec0177de85410",
+    "status": "machine",
+    "text": "Die Startseite, die Dokumentation, der Katalog und die Untertitel der Demovideos sind auf Hindi verfügbar; die Editor-Erweiterung zeigt Hindi an, wenn VS Code auf Hindi läuft."
   },
   "e0e06b70832270b1": {
     "at": "2026-11-03T13:44:11.193Z",
@@ -157274,6 +158071,17 @@
     "status": "machine",
     "text": "Ein zweimal in einem Mapping geschriebener Schlüssel bricht den Build ab"
   },
+  "e279be0f52126676": {
+    "at": "2026-11-25T07:34:33.711Z",
+    "job": "8ddee3f8b1ef",
+    "revision": {
+      "from": "037ba9ca1a0f5b59",
+      "reviewed": false
+    },
+    "srcHash": "e279be0f52126676",
+    "status": "machine",
+    "text": "Die drei Bezeichner tragen ihre Stabilität jeweils getrennt, und diese Trennung ist der Grund, warum eine Bedingung alle drei hat. Die unten aufgeführten Zugriffsfunktionen sind über Patch-Versionen hinweg stabil; Umbenennungen oder Entfernungen werden auf der Seite [Changelog](../../changelog.md) im Eintrag der Version angekündigt, die sie vornimmt, und das Hinzufügen einer neuen Zugriffsfunktion innerhalb eines Pakets ist additiv und bricht keine bestehenden Abgleiche. Ein Code steht fest, sobald seine Bedingung veröffentlicht ist, daher ist er der Bezeichner, den Sie überall dort festhalten, wo eine Bedingung dauerhaft benannt werden muss: Das Umbenennen einer Zugriffsfunktion verschiebt nicht den Code, unter dem ihre Bedingung registriert wurde, und ein Code, den Sie festgehalten haben, überdauert ein Refactoring der Go-Oberfläche. Ein Kurzcode ist der dauerhafteste der drei: Eine Nummer wird einmal vergeben und steht dann fest, und die Nummer einer ausgemusterten Bedingung bleibt ausgemustert, statt an eine andere Bedingung vergeben zu werden, sodass ein in einem alten Bericht festgehaltener Kurzcode noch immer die Bedingung nennt, die er beim Festhalten nannte. Das wird durchgesetzt und ist nicht bloß beabsichtigt — eine Bedingung, die unter einer ausgemusterten Nummer deklariert ist, wird zurückgewiesen, bevor der Compiler irgendeine Eingabe liest, bei jedem Lauf —, und jede ausgemusterte Nummer wird neben den aktiven in [der Tabelle aller Bedingungen](#every-condition-by-short-code) veröffentlicht. Die Code-Spalte unten trägt den Code, und er ist der Wert, den ein Client der strukturierten Diagnose liest, ohne diese Pakete einzubinden. Er wird veröffentlicht statt abgeleitet, weil er die Zeile, in der er steht, nicht wiedergeben muss — ein reexportierter Name meldet den Code der Bedingung, an die er weiterleitet, und der Code einer Regel benennt die Regel statt der Zugriffsfunktion. Die Meldungsspalte ist der wörtliche Text, den der Sentinel ausgibt; die benutzerseitige Diagnose stellt diesem Text einen Kopf in eckigen Klammern und die Quellposition voran. Dieser Kopf trägt den Kurzcode der Bedingung, daneben die Kategorie des Auftretens, wo das Auftreten eine hat, wie in `[DEVELOPER_ERROR E0007]` — sodass ein Leser beide unabhängig voneinander auflösen kann: Die Kategorien (`DEVELOPER_ERROR` / `OPS_ERROR` / `CATALOG_ERROR` / `TRANSLATION_ERROR` / `FETCH_ERROR` / `POLICY_ERROR` / `TRUST_ERROR`) werden in [error-translation.md](./error-translation.md) erklärt, und die Kurzcodes werden in [der Tabelle aller Bedingungen](#every-condition-by-short-code) auf dieser Seite aufgelöst. Wo ein Plugin die Bedingung ausgelöst hat, wird das Code-Token durch das Plugin qualifiziert, das sie ausgelöst hat — `[TRANSLATION_ERROR provider/example:1.0.0/E0007]` —, und der Kurzcode ist das letzte Segment; [error-translation.md](./error-translation.md) erklärt, warum der Qualifizierer da ist und warum das letzte Segment das aufzulösende ist."
+  },
   "e27b2575ed4fe3d4": {
     "at": "2026-11-03T06:09:06.251Z",
     "job": "session-0062-20261103060906",
@@ -158120,6 +158928,13 @@
     "status": "machine",
     "text": "`spec.source: ./module` und `module/main.tf.json` neben dem Recipe; `spec.valuesMapping` füllt die Variablen des Moduls"
   },
+  "e3a72f0899737ae3": {
+    "at": "2026-11-25T07:34:33.711Z",
+    "job": "8ddee3f8b1ef",
+    "srcHash": "e3a72f0899737ae3",
+    "status": "machine",
+    "text": "Der Assistent hat ein `draft`-Tool für neue Entitäten und Beispiele; sein Name `scaffold` ist ein veralteter Alias, der in 0.10.0 entfernt wird."
+  },
   "e3a905030a475b42": {
     "at": "2026-11-19T01:24:58.638Z",
     "job": "session-0001-20261119012458",
@@ -158425,6 +159240,13 @@
     "srcHash": "e4393f56b3cc59f8",
     "status": "machine",
     "text": "keines, wo es überhaupt nichts enthält:"
+  },
+  "e43c796bf75e019c": {
+    "at": "2026-11-25T07:34:33.711Z",
+    "job": "8ddee3f8b1ef",
+    "srcHash": "e43c796bf75e019c",
+    "status": "machine",
+    "text": "`arm`-Recipes und das `arm/key-vault-secret`-FeatureRecipe stellen PostgreSQL, Redis, Azure OpenAI, API Management sowie Container-Apps-Server und -Worker auf Azure bereit."
   },
   "e43debfd763a098f": {
     "at": "2026-11-14T10:24:15.801Z",
@@ -162098,6 +162920,17 @@
     "status": "machine",
     "text": "**Eine Fähigkeit hinzufügen, die der Entwickler nicht geschrieben hat.** Zum Einfügen von Annotationen angebunden, fügt eine Policy den Komponenten des Builds Annotationen hinzu; eine Annotation unter einem Schlüssel, für den das Manifest ein Binding registriert, expandiert zu einer Feature-Anbindung, sodass eine Unternehmensregel die Hülle liefern kann, die eine Komponente braucht, statt ihr Fehlen lediglich abzulehnen."
   },
+  "e9e3fec4b41fdace": {
+    "at": "2026-11-25T07:34:33.711Z",
+    "job": "8ddee3f8b1ef",
+    "revision": {
+      "from": "f54d84cbf201e858",
+      "reviewed": false
+    },
+    "srcHash": "e9e3fec4b41fdace",
+    "status": "machine",
+    "text": "Das Ziel, für das ein Import der Formate dieses Importers Entwürfe erstellt, wenn der Import keines nennt und der Datensatz keines früheren Imports eines nennt: die Provider-Fähigkeit, auf die sich sein entworfenes Manifest abbildet, so geschrieben wie spec.capability eines Recipe. Der Host wendet es nur an, wo sich ein Recipe aus dem Katalog des Imports daran bindet, und entwirft andernfalls kein Manifest und nennt den Grund; ein Import, der ein Ziel nennt, entwirft für dieses. Fehlt es, wird keines deklariert. Mindestens 1 Zeichen lang."
+  },
   "e9e6f29e99d40145": {
     "at": "2026-10-30T06:56:58.054Z",
     "job": "session-0072-20261030065658",
@@ -162773,6 +163606,13 @@
     "srcHash": "eace83fc37298c10",
     "status": "machine",
     "text": "Ablauf des Identitätstokens mitten im Stapel"
+  },
+  "ead07c84baac57a9": {
+    "at": "2026-11-25T07:34:33.711Z",
+    "job": "8ddee3f8b1ef",
+    "srcHash": "ead07c84baac57a9",
+    "status": "machine",
+    "text": "Änderungsprotokoll"
   },
   "ead25241dd36b3d1": {
     "at": "2026-11-04T09:43:36.104Z",
@@ -166554,6 +167394,13 @@
     "status": "machine",
     "text": "Durch annotationsgesteuerte Erweiterung erzeugt."
   },
+  "eff3e7e989c83064": {
+    "at": "2026-11-25T07:34:33.711Z",
+    "job": "8ddee3f8b1ef",
+    "srcHash": "eff3e7e989c83064",
+    "status": "machine",
+    "text": "`aggrega draft --example terraform-cloud-run-cloud-sql` schreibt ein Google-Cloud-Starterprojekt: einen Cloud-Run-Server, der eine Cloud-SQL-Datenbank liest, erstellt mit Terraform."
+  },
   "eff4e9de7d1fb872": {
     "at": "2026-11-04T12:39:28.645Z",
     "job": "session-0243-20261104123928",
@@ -168402,6 +169249,13 @@
     "srcHash": "f2933e60b728a5b7",
     "status": "machine",
     "text": "Welcher neben Ihren eigenen Importern läuft"
+  },
+  "f2947cb2bbe63d00": {
+    "at": "2026-11-25T07:34:33.711Z",
+    "job": "8ddee3f8b1ef",
+    "srcHash": "f2947cb2bbe63d00",
+    "status": "machine",
+    "text": "`aggrega pull --detail` listet jede Component- und Feature-Referenz auf, die unterhalb der neuesten vorhandenen Version gehalten wird, sowie die Einschränkungen, die sie dort halten."
   },
   "f2978d609d55bffc": {
     "at": "2026-11-03T02:20:42.738Z",
@@ -173614,6 +174468,13 @@
     "status": "machine",
     "text": "ein **Recipe** macht aus einer Art von Komponente Dateien für ein Werkzeug — einen Compose-Dienst, ein Helm-Chart, ein Terraform-Modul;"
   },
+  "f9a7fcf45bb2a74a": {
+    "at": "2026-11-25T07:34:33.711Z",
+    "job": "8ddee3f8b1ef",
+    "srcHash": "f9a7fcf45bb2a74a",
+    "status": "machine",
+    "text": "Die Roadmap der Dokumentation kennzeichnet jeden Punkt mit einem grünen Haken, einem halb gefüllten Kästchen oder einem leeren Kästchen als erledigt, in Arbeit oder nicht erledigt."
+  },
   "f9a9ff2516cd104d": {
     "at": "2026-11-04T05:50:41.976Z",
     "job": "session-0206-20261104055041",
@@ -174470,6 +175331,13 @@
     "srcHash": "fad45c56da0dd502",
     "status": "machine",
     "text": "Einträge sind opake Go-Template-Zeichenketten; das Rendern erfolgt zum Zeitpunkt der Verwendung."
+  },
+  "fad53deb573cca7a": {
+    "at": "2026-11-25T07:34:33.711Z",
+    "job": "8ddee3f8b1ef",
+    "srcHash": "fad53deb573cca7a",
+    "status": "machine",
+    "text": "`aggrega import --sync` importiert einen Ordner, den Sie ohne `--format` gebaut haben, erneut: Der Ordner `dist/` des Builds wird nicht gelesen."
   },
   "fad6a7677b29a1a9": {
     "at": "2026-10-22T13:22:28.626Z",
@@ -175485,6 +176353,13 @@
     "status": "machine",
     "text": "**Bei `aggrega/irGraph` hängt dies davon ab, dass die Rendering-Phase überhaupt ausgeführt wird.** Die Graph-Anfrage überspringt das Rendering, sofern es nicht `--build-on-inspect` oder der Schlüssel `serve.build_on_inspect`, den es überschreibt, einschaltet; ist der Schalter aus, fordert nichts eine externe Referenz an, und es gibt nichts abzulehnen. Ihn einzuschalten bringt sowohl die eigenen Hinweise des Renderings als auch diese in eine Editor-Sitzung."
   },
+  "fc22a93b307c9133": {
+    "at": "2026-11-25T07:34:33.711Z",
+    "job": "8ddee3f8b1ef",
+    "srcHash": "fc22a93b307c9133",
+    "status": "machine",
+    "text": "Ein aus den Starterprojekten von Langflow importierter Langflow-Flow öffnet sich im Editor von Langflow mit allen seinen Verbindungen."
+  },
   "fc22cb34e74e09b5": {
     "at": "2026-11-03T05:17:12.447Z",
     "job": "session-0056-20261103051712",
@@ -175982,6 +176857,13 @@
     "srcHash": "fccdfdd865480cc1",
     "status": "machine",
     "text": "**Bestimmung der Capability zur Render-Zeit.** Der Manifest-Eintrag bindet einen Komponententyp an eine Recipe-URI. Eine Recipe-URI hat höchstens zwei Segmente — eine optionale führende Capability, dann den Rezeptnamen — plus ein optionales `:version`; der Resolver teilt nur am ersten `/`, sodass ein Verweis mit einem dritten Segment kein Rezept benennt und die Auflösung anhält. Zur Render-Zeit lädt der Resolver die Recipe per direktem URI-Lookup gegen Lockfile und Katalog, und das Feld `spec.capability` jeder Recipe bestimmt die Dispatch-Gruppierung pro (Pfad, Capability). Die strukturelle Form des Manifest bleibt flach, unabhängig davon, wie viele Anbieter der weitere Katalog unterstützt."
+  },
+  "fcced81bfbc0620b": {
+    "at": "2026-11-25T07:34:33.711Z",
+    "job": "8ddee3f8b1ef",
+    "srcHash": "fcced81bfbc0620b",
+    "status": "machine",
+    "text": "Annotieren Sie eine Grenze mit `aggrega.ai/azure-deployment-scope: subscription`, um ihre `arm`-Vorlage mit `az deployment sub create` bereitzustellen, mit verschachteltem Ressourcengruppen-Inhalt."
   },
   "fccf4def6fd117a3": {
     "at": "2026-10-30T06:11:53.265Z",
@@ -176792,6 +177674,13 @@
     "status": "machine",
     "text": "Logische Ressourcen-IDs sind nicht die einzigen Namen, die der Provider genau so übernimmt, wie Sie sie geschrieben haben. `Parameters`, `Mappings`, `Conditions` und `Rules` benennen ihre Einträge ebenfalls mit einer logischen ID, und jeder der vier Abschnitte erreicht den zusammengesetzten Stack unter dem Namen, den sein Autor gewählt hat. Die Anforderung ist also dieselbe, auf vier weiteren Flächen: Der Name muss einer sein, den ein CloudFormation-Template für sich allein aufnehmen kann — Buchstaben und Ziffern und sonst nichts —, und alles andere bricht den Build ab."
   },
+  "fe2f7470ae95d5df": {
+    "at": "2026-11-25T07:34:33.711Z",
+    "job": "8ddee3f8b1ef",
+    "srcHash": "fe2f7470ae95d5df",
+    "status": "machine",
+    "text": "Ein Serverfehler einer Registry bricht mit E0380 ab, und eine abgebrochene Übertragung mit E0381, für jede per OCI abgerufene Quelle."
+  },
   "fe3273d7e4282841": {
     "at": "2026-11-17T14:09:42.187Z",
     "job": "session-0014-20261117140942",
@@ -177494,6 +178383,13 @@
     "status": "machine",
     "text": "`SuccessResponse`"
   },
+  "ff357d1e215ec154": {
+    "at": "2026-11-25T07:34:33.711Z",
+    "job": "8ddee3f8b1ef",
+    "srcHash": "ff357d1e215ec154",
+    "status": "machine",
+    "text": "Die Startseite, die Dokumentation, der Katalog, die Editor-Erweiterung und die Untertitel der Demovideos sind auf Arabisch verfügbar, von rechts nach links gesetzt."
+  },
   "ff36c078a2610b77": {
     "at": "2026-11-04T06:11:41.842Z",
     "job": "session-0208-20261104061141",
@@ -177724,6 +178620,13 @@
     "srcHash": "ff8e05732cb68070",
     "status": "machine",
     "text": "**Mehr Regeln oder eine Richtliniensprache.** Eine in Go geschriebene Regel ist in den Guest kompiliert. Um Regeln stattdessen aus Dateien zu laden, lesen Sie `programs` in `Evaluate` — die `sources` der Anbindung, jede mit ihrem Basisnamen und ihrem Text — und übergeben Sie sie an eine Engine. [Die ABI gehört Aggrega](policy-socket.md#the-abi-is-aggregas-own) beschreibt einen Guest, der eine fremde Richtlinien-Engine kapselt."
+  },
+  "ff8e196beb52a7b9": {
+    "at": "2026-11-25T07:34:33.711Z",
+    "job": "8ddee3f8b1ef",
+    "srcHash": "ff8e196beb52a7b9",
+    "status": "machine",
+    "text": "`0.9.3 - 2026-11-17`"
   },
   "ff909cf0791d3fe6": {
     "at": "2026-11-04T05:50:39.710Z",
