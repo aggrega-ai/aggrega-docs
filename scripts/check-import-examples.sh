@@ -18,7 +18,8 @@
 # Each import example is checked by its own check.sh, run with no arguments
 # from the example's directory, in the environment this script was given:
 # AGGREGA_BIN, AGGREGA_CATALOG_DIRS, AGGREGA_IMPORTER_CATALOG and the binary's
-# own settings, such as AGGREGA_OFFLINE, reach it unchanged. What the check
+# own settings, such as AGGREGA_OFFLINE, reach it unchanged; with --isolated,
+# in the environment that option describes instead. What the check
 # compares, validates and builds is its own to say; see its header, and
 # check-import-example.sh, which every import example's check.sh runs. The
 # examples are run one at a time, in the order of their directory names.
@@ -34,13 +35,24 @@
 # name. A last line counts the examples run and those that failed.
 #
 # Usage:
-#   check-import-examples.sh [--examples DIR] [--lines N]
+#   check-import-examples.sh [--examples DIR] [--lines N] [--isolated]
 #   check-import-examples.sh --list [--examples DIR]
 #
 #   --examples DIR  the examples folder (default: language-reference/examples
 #                   beside this script's repository root)
 #   --lines N       how many lines of a failed check's output to print
 #                   (default: 12)
+#   --isolated      run each check in an environment holding nothing of the
+#                   one this script was given but PATH, AGGREGA_BIN,
+#                   AGGREGA_IMPORTER_CATALOG and AGGREGA_CATALOG_DIRS (each
+#                   where it is set): a home, a configuration, cache, data and
+#                   state directory and a temporary directory of the run's
+#                   own, an empty Docker configuration, LC_ALL=C, and HTTP and
+#                   HTTPS proxies at 127.0.0.1:9 with no host exempt, so a
+#                   check that reaches for the network fails instead of
+#                   reaching it. It refuses to start, exit 2, when something
+#                   listens on that port, since the proxy would then lead
+#                   somewhere. The directories are removed when the run ends.
 #   --list          run nothing: print the directory name of each import
 #                   example, one per line, in the order a run checks them, and
 #                   nothing else on standard output. It is how another script
@@ -49,9 +61,9 @@
 #
 # Exit status: 0 when every import example's check passed, or, with --list,
 # when at least one was listed; 1 when any check failed; 2 on a usage error, a
-# missing examples folder, no yq on PATH, or no example in the importers tier,
+# missing examples folder, no yq on PATH, no example in the importers tier,
 # since a run that checked nothing proves nothing and an empty list names
-# nothing.
+# nothing, or, with --isolated, a listener on the proxy's port.
 set -uo pipefail
 export LC_ALL=C
 
@@ -59,7 +71,10 @@ ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 EX="$ROOT/language-reference/examples"
 LINES=12
 LIST=0
+ISOLATED=0
 TIER=importers
+# The proxy --isolated names: a port of the loopback address nothing listens on.
+CLOSED_PORT=9
 
 usage() { sed -n '2,/^set -uo/p' "${BASH_SOURCE[0]}" | sed -e '/^set -uo/d' -e 's/^# \{0,1\}//'; }
 die() { printf 'import examples: %s\n' "$*" >&2; exit 2; }
@@ -72,6 +87,7 @@ while [ "$#" -gt 0 ]; do
       [[ "$2" =~ ^[1-9][0-9]*$ ]] || die "--lines takes a positive whole number, not \"$2\""
       LINES="$2"; shift 2 ;;
     --list) LIST=1; shift ;;
+    --isolated) ISOLATED=1; shift ;;
     -h|--help) usage; exit 0 ;;
     *) die "unknown argument: $1" ;;
   esac
@@ -96,6 +112,26 @@ fi
 WORK="$(mktemp -d)"
 trap 'rm -rf "$WORK"' EXIT
 
+# The environment each check runs in: empty, so as given, or the one --isolated
+# describes.
+declare -a run_env=()
+if [ "$ISOLATED" -eq 1 ]; then
+  if (exec 3<>"/dev/tcp/127.0.0.1/$CLOSED_PORT") 2>/dev/null; then
+    die "something listens on 127.0.0.1:$CLOSED_PORT, the closed port --isolated points the proxies at, so the checks would not be kept off the network"
+  fi
+  mkdir -p "$WORK/home" "$WORK/docker" "$WORK/tmp"
+  proxy="http://127.0.0.1:$CLOSED_PORT"
+  run_env=(env -i PATH="$PATH" LC_ALL=C TMPDIR="$WORK/tmp"
+    HOME="$WORK/home" XDG_CONFIG_HOME="$WORK/home/.config" XDG_CACHE_HOME="$WORK/home/.cache"
+    XDG_DATA_HOME="$WORK/home/.local/share" XDG_STATE_HOME="$WORK/home/.local/state"
+    DOCKER_CONFIG="$WORK/docker"
+    HTTP_PROXY="$proxy" HTTPS_PROXY="$proxy" http_proxy="$proxy" https_proxy="$proxy"
+    NO_PROXY= no_proxy=)
+  for var in AGGREGA_BIN AGGREGA_IMPORTER_CATALOG AGGREGA_CATALOG_DIRS; do
+    [ -n "${!var+set}" ] && run_env+=("$var=${!var}")
+  done
+fi
+
 failed=0
 for d in "${examples[@]}"; do
   name=$(basename "$d")
@@ -106,7 +142,7 @@ for d in "${examples[@]}"; do
   fi
   start=$SECONDS
   status=0
-  ( cd "$d" && ./check.sh ) > "$WORK/out" 2> "$WORK/err" < /dev/null || status=$?
+  ( cd "$d" && ${run_env[@]+"${run_env[@]}"} ./check.sh ) > "$WORK/out" 2> "$WORK/err" < /dev/null || status=$?
   took=$((SECONDS - start))
   if [ "$status" -eq 0 ]; then
     printf 'import examples: %s: passed (%ds)\n' "$name" "$took"
