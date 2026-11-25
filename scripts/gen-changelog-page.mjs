@@ -21,6 +21,10 @@
 // that shape, or text that is neither an entry nor a heading. Exit 2 is an
 // invocation error: the wrong arguments or an unreadable first file.
 //
+// The HTML-comment refusal and the heading parsing deliberately repeat the
+// released shape that the changelog files are held to in their own
+// repositories, so a page is never rendered from a file that skipped that check.
+//
 // The page is generated, never hand-edited: change the changelog files and
 // regenerate. Given the same inputs the output is byte-identical: the page
 // follows the files' order and sorts nothing.
