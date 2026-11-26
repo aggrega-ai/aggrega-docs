@@ -18,7 +18,7 @@ publishes them with every compiler release:
 | `importer/cloudformation-schema` | `import:cloudformation-schema` | a CloudFormation resource type — a provider schema file, or the output of `aws cloudformation describe-type` — as JSON, drafting a Component and a Recipe for the `cloudformation` provider |
 | `importer/terraform-schema` | `import:terraform-schema` | a Terraform or OpenTofu provider schema, the output of `terraform providers schema -json`, as JSON, drafting a Component and a Recipe for the `terraform` provider |
 | `importer/arm-schema` | `import:arm-schema` | an Azure resource provider's Bicep type file, `types.json`, as JSON, drafting a Component and a Recipe for the `arm` provider |
-| `importer/arm` | `import:arm` | an Azure Resource Manager template, language version 1.0 or 2.0, and the parameters file beside it, as JSON with comments, drafting an Aggregate, a Release, a Manifest for the `arm` target and the catalog entities a resource no Component covers is drafted as |
+| `importer/arm` | `import:arm` | an Azure Resource Manager template, language version 1.0 or 2.0, and the parameters file beside it, as JSON with comments, drafting an Aggregate, a Release, a Manifest for the `arm` target and the Component and Recipe drafted for a resource no catalog Component covers |
 
 Each is built from the compiler's own sources and stamped with the compiler's version, so the
 importers released with the compiler at `X.Y.Z` report version `X.Y.Z`, and their Plugin entities
@@ -2985,9 +2985,15 @@ where to read one.
 
 ### The settings it reads
 
-It reads `root`, `target_namespace`, `mapping_overrides`, `empty_credentials` and `render_mode`, as [Settings](#settings) describes them, and no other setting.
-Under `render_mode: llm` the decision record is written alone as `import-decisions.json`, and no draft
-is.
+It reads `root`, `target_namespace`, `reuse_mode`, `reuse_threshold`, `emit_hints`, `render_mode`,
+`mapping_overrides` and `empty_credentials`, as [Settings](#settings) describes them, and no other
+setting. For this importer `reuse_mode: hints-only` references no Component: each resource a row maps
+is drafted as a Component of its own instead, with the strong match recorded as a hint. A
+`reuse_threshold` above the score a row's match takes draws the same result, and `emit_hints: false`
+leaves the comments naming the Component a draft resembles out of the drafts. Under `render_mode: llm`
+the decision record is written alone as `import-decisions.json`, and no draft is. `layout` and
+`attach_egress_allowlist` apply to a platform an importer drafts and the ARM importer drafts none, so
+neither is read.
 
 ## The resource-schema importers
 
