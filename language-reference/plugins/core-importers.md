@@ -18,6 +18,7 @@ publishes them with every compiler release:
 | `importer/cloudformation-schema` | `import:cloudformation-schema` | a CloudFormation resource type — a provider schema file, or the output of `aws cloudformation describe-type` — as JSON, drafting a Component and a Recipe for the `cloudformation` provider |
 | `importer/terraform-schema` | `import:terraform-schema` | a Terraform or OpenTofu provider schema, the output of `terraform providers schema -json`, as JSON, drafting a Component and a Recipe for the `terraform` provider |
 | `importer/arm-schema` | `import:arm-schema` | an Azure resource provider's Bicep type file, `types.json`, as JSON, drafting a Component and a Recipe for the `arm` provider |
+| `importer/arm` | `import:arm` | an Azure Resource Manager template, language version 1.0 or 2.0, and the parameters file beside it, as JSON with comments, drafting an Aggregate, a Release, a Manifest for the `arm` target and the catalog entities a resource no Component covers is drafted as |
 
 Each is built from the compiler's own sources and stamped with the compiler's version, so the
 importers released with the compiler at `X.Y.Z` report version `X.Y.Z`, and their Plugin entities
@@ -54,7 +55,10 @@ provider reaches it as a hosted tool — and shares the rest as the MCP importer
 [The Agent Framework importer](#the-agent-framework-importer) describes. The three
 resource-schema importers read a vendor's description of a resource type rather than a project, and
 draft a Component and a Recipe for it through the same package, as
-[The resource-schema importers](#the-resource-schema-importers) describes. How the
+[The resource-schema importers](#the-resource-schema-importers) describes. The ARM importer reads the
+templates of a project rather than a vendor's schema, and drafts an Aggregate, a Release and a Manifest
+through the format-neutral core the importers of an infrastructure format share, as
+[The ARM importer](#the-arm-importer) describes. How the
 importer socket works, and
 what it is handed, is described under
 [The importer socket](plugin-contract.md#the-importer-socket--draft-authoring-output).
@@ -105,7 +109,7 @@ rules every importer is selected by, which
 sets out:
 
 - Within one name, the highest version runs, or the version a `plugins.importer` entry names.
-- Where your catalog holds an importer of another name for `langflow`, `flowise`, `n8n`, `mcp`, `compose`, `dify`, `crewai`, `langgraph`, `google-adk`, `agent-framework`, `cloudformation-schema`, `terraform-schema` or `arm-schema`, two importers
+- Where your catalog holds an importer of another name for `langflow`, `flowise`, `n8n`, `mcp`, `compose`, `dify`, `crewai`, `langgraph`, `google-adk`, `agent-framework`, `cloudformation-schema`, `terraform-schema`, `arm-schema` or `arm`, two importers
   advertise the format, and an import that attaches neither is refused naming both, under
   [A parse or import format is advertised by more than one plugin](../errors/fatal-halts.md#a-parse-or-import-format-is-advertised-by-more-than-one-plugin).
   A `plugins.importer` entry naming the one you want settles it.
@@ -179,6 +183,10 @@ declares:
   at `format_version` and an object at `provider_schemas`.
 - **Azure Bicep types** — a source named `types.json` that parses as JSON and carries a text at `0.$type`,
   the first entry of a Bicep type file.
+- **Azure Resource Manager templates** — a source of any `.json` name that parses as JSON with comments,
+  carries a text at `$schema` beginning `https://schema.management.azure.com/schemas/` and holds
+  `resources`, a template; or, with an object at `parameters` in place of `resources`, its parameters
+  file.
 
 A source matching two of them is refused naming both formats, and is imported by naming the one with
 `--format`. The Langflow, Flowise, n8n, LangGraph and resource-schema importers read their source
@@ -203,7 +211,9 @@ the Google ADK importer declares `root_agent.yaml`, so an application's director
 root configuration alone — the configurations its sub-agents name reaching the importer only under
 its attachment's `with.sources` — and neither its code nor its environment file is ever read; and the
 resource-schema importers declare `*.json`, and `types.json` for Azure, so a directory is read through
-every file of that pattern it holds, at any depth, and no other. A
+every file of that pattern it holds, at any depth, and no other; the ARM importer declares `*.json`
+too, reading each file through the parser that serves `parse:jsonc`, and a file of the directory that is
+neither a template nor a parameters file is named among the sources it did not read. A
 signature naming no file — the Langflow,
 Flowise and n8n importers', the MCP importer's for a registry server description, the LangGraph
 importer's for a configuration naming its schema, the Dify importer's and the Agent Framework importer's — applies to every file imported on its own: an import naming no format reads such a file
@@ -244,6 +254,7 @@ unless you set another. `<name>` is the first of these that is not empty:
   | `importer/langgraph` | the id of the graph the configuration declares, since a configuration carries no name of its own |
   | `importer/google-adk` | the root agent's `name` |
   | `importer/agent-framework` | the agent's `name`; its `displayName` is not read |
+  | `importer/arm` | none: a template carries no name of its own |
 
 - the name of the directory the import was handed, whole — `my.project` keeps its full stop, written
   `my-project` — as Compose names a project after the directory holding it; `aggrega import .` names
@@ -2701,6 +2712,283 @@ and never written.
 The Agent Framework importer reads `target_namespace`, `empty_credentials` and `render_mode`, as
 [Settings](#settings) describes them, and no other setting.
 
+## The ARM importer
+
+The `importer/arm` importer reads the Azure Resource Manager templates a project holds, and the
+parameters file beside one, and drafts what a Release of the standard library's `arm` Recipes needs: an
+Aggregate with one instance for each resource it carries, a Release carrying what the template states for its
+operation, a Manifest for the `arm` target, and, for a resource no Component of the catalog stands
+for, a Component and a Recipe drafted from the template. Its reading of a template into resources, their references and their
+parameters, its classification of each resource and its drafts are the code the importers of the other
+infrastructure formats share, so one source drafts one byte sequence whatever order its resources are
+written in. [Import an Azure Resource Manager template](../../authoring/import/arm.md) walks one
+template from the import to a deployed build.
+
+### What it reads
+
+A template is a JSON file whose `$schema` begins `https://schema.management.azure.com/schemas/` and
+that holds `resources`; a parameters file has that `$schema`, an object at `parameters` and no
+`resources`. Both are read through the parser that serves `parse:jsonc`, so a template written with
+comments, or opening with a byte-order mark, is read. A template of language version 1.0, whose
+`resources` are a list, and of 2.0, whose `resources` are keyed by symbolic name, are read alike; a
+template of any other `languageVersion`, one whose `$schema` is the tenant template schema, and one
+whose `resources` are not the shape its version has are refused under `source-refused`, naming why. A
+file of a directory that is neither a template nor a parameters file is named among the sources not
+read. A JSON string cannot hold a raw line break, so a template with one in a `scriptContent` value
+does not parse, and the import stops under `parse-failed` naming the place. The import reads no cloud
+account and fetches nothing: a value the template computes while it deploys is carried as the
+expression that computes it.
+
+The signatures that recognise a template and a parameters file name no file, so a file imported on
+its own is recognised by its contents, and a directory is read through every `*.json` file it holds.
+Where a directory holds several parameters files, none is read and the import warns
+`parameter-files-not-read`.
+
+A template deploys another through a `Microsoft.Resources/deployments` resource, whose template is
+held inline or linked by `templateLink.relativePath`. The importer reads the resources of a template
+it deploys as resources of the Aggregate, each named behind the resource that deploys it, with the
+values that resource gives the template's parameters. A link is followed inside the imported
+directory only: a link that leaves it is not read, and the import warns `linked-source-not-read`
+naming the resource and the path, then drafts the resource as one of its own, each output of the
+template it reads carried as the expression that evaluates it when the template deploys. What a
+template deploys into another resource group or subscription is read the same way and warned
+`deployment-scope-merged`, since the draft writes one boundary.
+
+Every string Azure Resource Manager reads as an expression is read as one: a parameter, a variable,
+`concat` and `format`, a reference to another resource, a credential a `list…` function returns, or
+text the template evaluates when it deploys, which is kept as the expression it is. A reference is
+matched to the resource it names by the type and the name the call spells out, so one written through
+`resourceId`, a variable, `concat` or `format` names the resource alike. A language version 2.0
+template has no bare `sym.properties.x` or `sym.id`: a resource's attributes and its identifier are
+read by `reference('sym')` and `resourceInfo('sym')`, which is how the importer finds one resource
+reading another. A string that reads as an expression and does not parse is not carried, and the
+import warns `value-not-carried`; it never halts.
+
+The importer reads the `root` setting. Where an import is handed several templates, it starts from
+the one no other links, and reads that template and each template it links. Two templates linked by
+none, or a directory in which every template is linked by another, have no one root, and the import
+stops under `source-refused`, naming both files and the `root` setting. `root` names the path, inside
+the imported directory, of the template to start from; the templates it links are read, and a
+template the root does not reach is left out.
+
+### Azure Verified Modules
+
+A resource a template deploys through an Azure Verified Modules resource module is read as one
+resource of the module's type, whose body is the parameters the template sets for the module. The
+importer recognises a module by the Bicep metadata its compiled template carries and by the resource
+through which the module sends its telemetry; it matches the module's path against an index of the
+modules, which its Plugin entity's description names by commit, and reports each module it recognises
+under `avm-module-recognised`, with its identity and version. The telemetry resource is never a
+resource of the draft, and the `enableTelemetry` parameter is never carried. A module's lock, role
+assignments, diagnostic settings and private endpoints are not carried and are reported under
+`resource-not-carried`. Any other module — a pattern or utility module, a child module of a resource
+module — is read as the resources it deploys.
+
+A module a row of the table maps is an instance of the Component the row names. A module no row maps
+is kept whole: the import drafts a Component and a Recipe sourcing the module as
+`oci://mcr.microsoft.com/bicep/<path>`, with its telemetry turned off by the Recipe, each parameter
+the template sets for it read from the instance's `infra.overrides` under the module's own name and
+each output another resource reads published under the output's name as a `provides` key. A
+module parameter a secret feeds is not an input of the Recipe: it is left out, and the import warns
+`value-not-carried` on each instance setting it, for you to bind it in the Recipe. A template that
+states no module version drafts a Recipe whose version is not pinned, and the import warns
+`module-version-unpinned`.
+
+### Classes
+
+The importer gives each resource one class, the first that applies:
+
+- **Folded.** A child or extension resource the row of its parent folds into the parent's instance —
+  the database of a server, the origin of an API — is written into that instance and reported
+  `resource-folded`. Where the row carries none of it, as with the endpoints and routes the Front Door
+  Recipe creates itself, it is not carried and the import warns `resource-not-carried`.
+- **Substrate.** A resource of a type the importer leaves to the operator is neither drafted nor
+  referenced; the import warns `substrate-left-to-operator`, and a value another resource reads from
+  it is a pointer, described under [Pointers](#pointers-to-resources-the-release-does-not-draft). The
+  types are the virtual networks, subnets, gateways, firewalls, security groups, private endpoints,
+  DNS zones and public addresses a component runs in; managed identities, role definitions and role
+  assignments; resource groups; Log Analytics workspaces; Foundry projects and machine learning
+  workspaces; Automation accounts; Azure Files shares; the Container Apps environments an app runs in
+  and the App Service plans a site runs on; the clusters, virtual machines, scale sets, disks and
+  images that are hosts; Azure Virtual Desktop; and the API Management service an API is added to.
+  The decision on each says what takes the resource in the catalog, such as a Recipe taking a network
+  by its resource ID under `infra.overrides`.
+- **Not carried.** A resource no Recipe takes: a lock, and the diagnostic settings of a resource, since
+  no Feature of the catalog applies either.
+- **Existing.** A resource the template reads with `existing`, or references without declaring. Nothing
+  is drafted for it, and a value read from it is a pointer.
+- **Mapped.** A resource the table maps to a Component of the catalog: an instance referencing that
+  Component, and in the Manifest the Recipe of its row.
+- **Drafted.** Any other resource: an instance of a Component and a Recipe drafted from the template,
+  reported `resource-drafted-from-source`.
+- **Held back.** A resource whose drafted Component would take a name the catalog holds and this
+  import did not draft. It is neither drafted nor referenced, and the import warns `component-exists`,
+  naming the entry of `mapping_overrides` that maps the resource's type to the Component that exists.
+
+Two resources of one type no row maps share one Component and one Recipe, drafted once from every
+property either writes.
+
+### The table
+
+A row of the table maps one Azure resource type to a Component of the catalog and to the Recipe of the
+`arm` capability that realizes it. Most rows are generated from the hub's `arm` Recipes — the resource
+or module each writes, the Component it implements with that Component's labels, and what the Recipe's
+own text says literally of where a property goes — and the rest are written by hand where a Recipe's
+text does not say. The importer's Plugin entity names, in its description, the hub revision its table
+was read from, so a Recipe added to the hub later is mapped by a later release of the importer, and
+a type no row maps is drafted from the template. A resource of such a type is not an error.
+
+A row places each property the template writes: into `values`, into `infra`, into `infra.overrides`,
+or into a credential slot of the Recipe, with the converter the Recipe's vocabulary needs — Azure's
+`Enabled` and `Disabled` read as booleans, for one. A property the row does not place is not dropped
+silently; see [What the Release names](#what-the-release-names). A row can hold a condition on the
+template's properties, as the Front Door row holds one on the profile's SKU, and a Container Apps app
+with and without ingress takes different rows; where the property a condition reads is set by a
+parameter with no value, the import warns `discriminator-unresolved`.
+
+The importer maps a type through a `mapping_overrides` entry keyed by `arm` and the type exactly as
+the template spells it, which takes the place of the table's row.
+
+Some resources are drafted from the template though the catalog holds a Recipe near them:
+
+- an Azure OpenAI account, since which Recipe applies depends on the kind of model each model it hosts
+  is, and the account hosts both kinds;
+- a Logic Apps Standard site, an App Service site whose `kind` contains `workflowapp`;
+- a classic CDN profile, since the `azure-front-door` row applies where the profile's SKU is a Front
+  Door SKU.
+
+### How resources connect
+
+Each reference between resources is a connection between instances, or a pointer. Where a resource
+reads an attribute another resource's Recipe publishes — a module's `fqdn` output, say — the Aggregate
+draws a connection to that instance and delivers the value under the name the reader used, through the
+`inject` of the connection, so the value follows the producer wherever the build places it, and the
+template's own expression is not copied. A `dependsOn`, and a reference no `inject` carries, is a
+connection with no entry; a reference the draft cannot wire is named in a comment above the connection
+and warned `reference-not-wired`. A producer is drafted before its consumers, ties broken by the
+resource's identifier. A resource deployed under a `condition` is drafted unconditionally and the import
+warns `condition-not-carried`, except where the condition is one boolean parameter, which becomes the
+instance's `active`. A resource with `copy` whose count the template states literally is drafted as
+one instance for each copy; one whose count is computed when the template deploys is drafted once,
+under `repetition-not-expanded`.
+
+### Pointers to resources the Release does not draft
+
+A value read from a resource that is substrate or existing is a pointer. In the entry of a drafted
+instance it is written as a `resourceId` expression naming the resource by its type and its name, as
+the template does, which the drafted Recipe passes on, so a drafted resource keeps the expression
+whole. In the entry of a mapped instance it is left empty: the hub's `arm` Recipes take the literal
+`/subscriptions/…` identifier of a resource, which only you know when the draft is written, and an
+expression is not one. The comment above the empty key names the resource, its type and the
+expression the template writes, from which you write the identifier in the Release. The key is not
+written to the [answers file](../import-answers.md), which refuses a `/subscriptions/…` identifier as
+the answer to a secret's key, since a secret's answer is where the secret comes from, never a value.
+
+### What the Release names
+
+The Release holds one entry for each instance, in the Aggregate's order. A mapped instance's `infra`
+and `infra.overrides` hold what its row places there; a drafted instance's hold the values its Recipe
+reads. The comment above a mapped instance names:
+
+- each property the template writes that the row does not place, and for an instance of a module each
+  module parameter the row does not translate;
+- each property a folded child writes that the fold does not place;
+- each variable of the instance's environment that no connection delivers, with its value as the
+  template writes it, or the variable alone where the value is a secret, each also warned
+  `value-not-carried`.
+
+A resource whose type a `mapping_overrides` entry maps to a Component no row names gets an entry whose
+comment names the properties the template writes, since no row says where any of them goes.
+
+### Parameters
+
+A template parameter an instance reads into a `values` key is a parameter of the Aggregate, declared
+under `spec.parameters` with the type, description, allowed values, bounds and literal default the
+template gives it, the parameters file's value taking the default's place; the value reads
+`{{ .parameters.<key> }}`. A default that is an expression is not carried, and the parameter's comment
+names it. A parameter that feeds an `infra` or `infra.overrides` key is written into the Release's
+entry as its value, the parameters file's or else the template's literal default, or the key is left
+for the answers file with a comment naming the parameter.
+
+### Secrets
+
+A secret is attached by reference and never written. A secure parameter a parameters file gives as a
+reference to a Key Vault secret becomes an attachment of the standard library's
+`core/referenced-secret` Feature on the credential slot the row names, its `origin` that secret's
+locator; one the file gives no reference for takes the form the import's target reads; a credential read
+from another resource becomes the same attachment with its origin left for you, and the import warns
+`credential-flow`. A literal the template or the parameters file holds for a secret — a parameter's
+default, a value in the file — is judged by the `empty_credentials` setting and named in a warning that
+never shows it. A secure parameter, and text that names one, is not written as a value anywhere: a
+value that holds one is warned `value-not-carried` with the key it would have been written at. A
+resource drafted from the template keeps each of its secrets as a deploy-time parameter of the drafted
+Recipe's template, the comment on its entry naming each, and the parameters file's Key Vault reference,
+where it gives one, is the one to pass when the template deploys.
+
+### Drafted from the source
+
+A resource no row maps is drafted as the `importer/arm-schema` importer drafts one from the vendor's
+schema: a Component under the namespace `target_namespace` names, declaring `name`, `location` and an
+`overrides` object for every property the template writes under the vendor's own names, and a Recipe
+that writes one resource of that type and API version. The drafted Recipe reads each property from the
+instance, so a value another resource delivers arrives over the connection. The drafts' swap hint
+names `aggrega import --format arm-schema`, which drafts the same Component from the schema instead.
+A draft is a plain file for you to read and edit.
+
+### What the draft leaves to you
+
+- A mapped compute instance's container image is neither drafted nor listed as owed where the template
+  does not state it in a form the row reads: App Service's `siteConfig.linuxFxVersion` is one, a
+  Container Apps image the template reads from a parameter with no value another. The build then stops
+  naming `infra.image`, and you write it in the Release.
+- A flexible server's SKU and storage size are named among the properties the draft does not place,
+  because the Recipe takes `sku_name` as the tier's prefix and the SKU — `B_Standard_B1ms` — and
+  `infra.storage.size` in gibibytes written `32Gi`.
+- The substrate the template created is not drafted, as [Classes](#classes) lists it. A Release names
+  the network, the identity and the plan by their resource IDs.
+
+### Drafts of the Manifest
+
+The importer declares `arm` as its default target, so an import that names no target drafts a
+Manifest for `arm`, as [What a target adds](#what-a-target-adds) describes. The Manifest maps each
+component type to the Recipe of its row, and each drafted instance to the Recipe drafted for it, which
+exists on the `arm` target alone; an import naming another target leaves a drafted instance unmapped,
+and the warning names it.
+
+### What the import reports
+
+The importer raises the codes of the table below, besides `parse-failed`, `no-nodes`,
+`credential-carried` and `credential-emptied` as [What an import reports](#what-an-import-reports)
+lists them. The command prints each as `<severity>: <message>` and no code; the editor session's
+`aggrega/import` method and the assistant's `import` tool return each with its `code`, which is
+where to read one.
+
+| Code | Severity | Reported when |
+| --- | --- | --- |
+| `source-refused` | `halt` | The import holds no template, or a template of a language version or a shape it does not read, or several templates linked by none and no `root` setting naming one, or a `root` setting that is not text or names no template it holds. |
+| `parameter-files-not-read` | `warn` | The import holds several parameters files, so none is read. |
+| `linked-source-not-read` | `warn` | A linked template lies outside the imported directory or is not held, or a module no row maps is one whose source the importer cannot locate. |
+| `substrate-left-to-operator` | `warn` | A resource the template creates is substrate, which the draft leaves to you. |
+| `resource-not-carried` | `warn` | A folded resource or a module input no Recipe takes, or a resource that repeats over no key. |
+| `resource-folded` | `info` | A child resource is written into its parent's instance. |
+| `resource-drafted-from-source` | `info` | A resource no row maps is drafted as a Component and a Recipe from the template. |
+| `reference-not-wired` | `warn` | A reference no connection carries; the comment above the instance's connection names it. |
+| `value-not-carried` | `warn` | A value or expression the draft does not write, with the key it would be written at. |
+| `credential-flow` | `warn` | A credential an instance reads from another resource. |
+| `discriminator-unresolved` | `warn` | The property that chooses a resource's Component is set by a parameter with no value. |
+| `repetition-not-expanded` | `warn` | A resource repeated as many times as the template computes when it deploys is drafted once. |
+| `condition-not-carried` | `warn` | A resource deployed under a condition is drafted unconditionally. |
+| `deployment-scope-merged` | `warn` | A template deployed into another resource group or subscription is drafted into the one boundary the draft writes. |
+| `avm-module-recognised` | `info` | An Azure Verified Modules module is recognised, with its identity and version. |
+| `module-version-unpinned` | `warn` | A module kept whole states no exact version. |
+| `component-exists` | `warn` | A resource is held back because the Component name its draft would take is held already. |
+
+### The settings it reads
+
+It reads `root`, `target_namespace`, `mapping_overrides`, `empty_credentials` and `render_mode`, as [Settings](#settings) describes them, and no other setting.
+Under `render_mode: llm` the decision record is written alone as `import-decisions.json`, and no draft
+is.
+
 ## The resource-schema importers
 
 The `importer/cloudformation-schema`, `importer/terraform-schema` and `importer/arm-schema` importers
@@ -2935,6 +3223,27 @@ attaching a secret by name maps `core/referenced-secret` to `helm/k8s-existing-s
 import completes it: each mapping the importer wrote that the catalog offers for that type and
 capability is kept, any other is dropped with a warning, and the types it leaves are mapped as above.
 
+An import that names no target takes one from the importer. An importer may declare the target its
+drafts default to, as `default_target` in its self-description, recorded on its Plugin entity as
+`spec.importer.defaultTarget`. An import that names no target, with none in the record a `--sync`
+reads, drafts for that default where a Recipe of the catalog binds to it, and an information
+diagnostic says so, and says that an import naming a target drafts for that one. Where no Recipe
+binds to the default, the import drafts no Manifest, and a diagnostic says why. The target an import
+is drafted for is the first of these: the one it names, the one its record names, the importer's
+declared default, none. A default is taken under the same test a named target is accepted by, so a
+target no Recipe binds to is refused with `import-target-unbound` where it is named, and reported,
+not refused, where it is the default. The ARM importer declares `arm`. Loading an importer refuses,
+under `wasm-contract-mismatch` and naming `importer.defaultTarget`, a Plugin entity that records a
+default other than the one the importer reports of itself; an entity recording none makes no claim
+and is not compared.
+
+The Manifest is composed over the catalog and the Components and Recipes the importer drafted in the
+same import, read after the catalog's: an instance of a drafted Component maps to the Recipe drafted
+to realize it, and the values its schema declares are asked for as a catalog Component's are. A
+drafted Recipe that implements a Component neither the drafts nor the catalog hold is not used, and a
+warning names it. A re-import leaves out of that view every Component and Recipe in a file its own
+entry in `.aggrega-import.json` lists, so it never meets its earlier drafts as entries of the catalog.
+
 The drafted Release's `spec.manifest`, written empty with no target, is set to the Manifest's name, the
 comment above it is dropped, and nothing else in the Release changes.
 [aggrega import](../cli/aggrega-import.md) describes it in full.
@@ -2966,6 +3275,7 @@ plugins:
 | `layout` | `platform` | `platform` drafts the platform that runs the flow, carrying the flow, with each part of it a Component of its own wired to the platform, as [The platform carrying the flow](#the-platform-carrying-the-flow) describes. `nodes` drafts every node as a Component of its own, as [Node by node](#node-by-node) describes. For the Dify importer, `platform` drafts the Dify installation carrying the application, as [What an application becomes](#what-an-application-becomes) describes. Any other value drafts as `platform`, and the import warns with `unknown-layout`. |
 | `empty_credentials` | `none` | Which credential values the flow the platform carries has written empty, as [Credential values the flow holds](#credential-values-the-flow-holds) lists them, which the Release the MCP importer drafts has written empty, as [Credential values a server holds](#credential-values-a-server-holds) lists them, which the Release the Compose importer drafts has written empty, as [Credential values a service holds](#credential-values-a-service-holds) lists them, which the application the Dify importer carries has written empty, as [Credential values an application holds](#credential-values-an-application-holds) lists them, which the Release the CrewAI importer drafts has written empty, as [Credential values a declaration holds](#credential-values-a-declaration-holds) lists them, which the Release the LangGraph importer drafts has written empty, as [The environment a configuration states](#the-environment-a-configuration-states) lists them, which the Release the Google ADK importer drafts has written empty, as [Credential values a configuration holds](#credential-values-a-configuration-holds) lists them, and which the Release the Agent Framework importer drafts has written empty, as [Credential values a declarative agent holds](#credential-values-a-declarative-agent-holds) lists them. `none` writes none empty: each is carried as written and named in a `credential-carried` warning. `marked` writes empty what a format marks as a credential and every member of an MCP server's configuration. `all` writes empty the inputs a format marks as no credential that can carry one as well — request headers, query parameters, a request written as a command line, an input named for a key. What the draft writes so that a node reaches its connection is written whatever this says. Any other value halts the import, which drafts nothing, with `unknown-empty-credentials`. A draft made node by node reads no value, and so does not read this setting. |
 | `resource_types` | none | The resource types a resource-schema importer drafts: a list whose entries are a type's name, or an object with the `type` and a `component` that names the Component the type is drafted as, as [Which types are drafted](#which-types-are-drafted) describes. With no list, the one type the sources hold is drafted. Any other value halts the import, which drafts nothing, with `resource-types-unreadable`. Read by the resource-schema importers alone. |
+| `root` | none | The path, inside the imported directory, of the template an import starts from where it is handed several, as [What it reads](#what-it-reads) describes. Without it the import starts from the one template no other links, and two templates linked by none stop it under `source-refused`, naming both files and `root`. A link outside the imported directory is not read and is warned `linked-source-not-read`. Read by the ARM importer; a value that is not text halts the import under `source-refused`. |
 | `attach_egress_allowlist` | `false` | `true` attaches the standard library's `core/egress-allowlist` Feature to each platform instance the draft writes, as `egress-allowlist`, setting none of its `infra`, as [What the draft leaves for the Release](#what-the-draft-leaves-for-the-release) describes. `false` attaches nothing. A draft that writes no platform, under `layout: nodes`, and the Dify importer's draft, whose entry for the Dify installation takes no Feature, attach nothing whatever this says, and with it `true` the import warns with `feature-not-attached`. Any value that is not a boolean reads as `false`. |
 
 A setting an importer does not know is ignored.
@@ -3036,6 +3346,6 @@ drafted a Release and owes nothing, an `info` naming the `aggrega pull` to run n
 Each compiler release builds the importers from the tagged sources and generates their Plugin
 entities from the importers themselves, so an entity's capability, recognition signatures, host
 functions and description are what its importer reports. The release signs and publishes them,
-`importer/langflow`, `importer/flowise`, `importer/n8n`, `importer/mcp`, `importer/compose`, `importer/dify`, `importer/crewai`, `importer/langgraph`, `importer/google-adk`, `importer/agent-framework`, `importer/cloudformation-schema`, `importer/terraform-schema` and `importer/arm-schema` at the release's version, beside the other
+`importer/langflow`, `importer/flowise`, `importer/n8n`, `importer/mcp`, `importer/compose`, `importer/dify`, `importer/crewai`, `importer/langgraph`, `importer/google-adk`, `importer/agent-framework`, `importer/cloudformation-schema`, `importer/terraform-schema`, `importer/arm-schema` and `importer/arm` at the release's version, beside the other
 core plugins, and records their entities with the other core plugins' entities for the standard
 catalog.

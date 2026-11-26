@@ -64,8 +64,8 @@ What 0.9.0 adds:
   datastores, messaging, observability, security and storage, organized by type, category and capability
   labels and served from `hub.aggrega.ai`.
 - [x] **`aggrega import`.** Importer plugins draft Aggrega files from Langflow, Flowise, n8n, Dify, CrewAI,
-  LangGraph, Google ADK, Microsoft Agent Framework, MCP and Docker Compose projects, scoring each mapping
-  against the catalog; `--sync` keeps the drafts in step with their source.
+  LangGraph, Google ADK, Microsoft Agent Framework, MCP and Docker Compose projects and from Azure
+  Resource Manager templates, scoring each mapping against the catalog; `--sync` keeps the drafts in step with their source.
 - [x] **A gentle start.** A Release or an Aggregate with a single scope needs no boundaries or subsystems, and
   `aggrega draft`, `aggrega edit-document`, `aggrega validate`, `aggrega lint` and `aggrega explain`
   support the authoring loop.
