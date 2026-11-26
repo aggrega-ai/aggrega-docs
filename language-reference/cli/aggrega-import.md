@@ -364,7 +364,7 @@ recognized by an $schema beginning https://schema.management.azure.com/schemas/
 with resources, and its parameters file by that $schema with an object at
 parameters; it drafts an Aggregate, a Release and the catalog entities a
 resource no Component covers is drafted as, and, where an import names no
---target, a Manifest for arm. A directory is
+--target, a Manifest for arm, where a Recipe in the catalog binds to it. A directory is
 recognized the same way over the files it holds: each signature is tried against the files
 its file names match, and a signature that names no file applies to none of
 them. If no signature matches, import stops, asks for --format and names the
