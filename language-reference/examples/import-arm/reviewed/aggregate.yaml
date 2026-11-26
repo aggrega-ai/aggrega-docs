@@ -1,0 +1,29 @@
+# Sources read: main.json, main.parameters.json.
+# Substrate the source creates, left to the operator: vnet-notes (Microsoft.Network/virtualNetworks).
+apiVersion: aggrega.ai/v1beta1
+kind: Aggregate
+metadata:
+  name: imported/notes
+  version: 0.1.0
+  description: Draft Aggregate imported from a source in the arm format.
+spec:
+  components:
+    notes-site:
+      type: imported/compute/microsoft-web-staticsites
+      values:
+        name: "notes-site"
+    pgmodule:
+      type: core/datastore/postgres
+      values:
+        user: "notes"
+        database: "notes"
+    notes-api:
+      type: core/compute/server
+      uses:
+        pgmodule:
+          pgmodule:
+            target: pgmodule
+            inject:
+              env:
+                - in: "DATABASE_HOST"
+                  from: host

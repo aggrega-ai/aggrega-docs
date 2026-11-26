@@ -90,11 +90,14 @@ project written in another format as `aggrega import` meets it, in two folders:
 the [answers file](../import-answers.md) the import reads the values no source
 can hold from; and `draft/`, the files the import wrote, unchanged, a workspace
 that builds as written, with what it printed on standard output (`stdout.txt`)
-and standard error (`import.txt`). Its walkthrough under
+and standard error (`import.txt`). Where the drafted Release needs a value that no
+source states and the import cannot ask for, as the one for a cloud template does, the
+example keeps a third folder, `reviewed/`, the draft with those values written. Its walkthrough under
 [Import](../../authoring/import/README.md) teaches each stage. Its `check.sh` runs
 the shared `scripts/check-import-example.sh` of this repository, which imports again,
 compares what it writes and prints with `draft/` and the walkthrough's quoted blocks
-with the example's files, then validates and builds the drafted Release.
+with the example's files, then validates and builds the drafted Release — or, where the example's
+draft stops at validation, checks that it stops there — and `reviewed/` where there is one.
 
 ## The teaching order
 

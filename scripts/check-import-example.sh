@@ -59,6 +59,13 @@
 #      helper with --auto-pull and --no-color. Each validation must pass and
 #      each build must complete; an import that wrote no Release file fails the
 #      check, since nothing it drafted can be built;
+#      An example whose drafted Release needs an edit no import can make — a
+#      value the source states and the draft places nowhere — names the message
+#      that stops it with --draft-stops-at: step 5 then requires the drafted
+#      Release's validation and its build each to fail with that text in what
+#      they print, and the reviewed/ directory of step 6 to build. A drafted
+#      Release that validates, or builds, or stops with other text, fails the
+#      check;
 #   6. where the example has a reviewed/ directory, validates and builds each
 #      Release file the helper lists in it, in a copy, the same way; reviewed/
 #      must hold at least one. Without reviewed/ the step is skipped, and the
@@ -159,9 +166,14 @@
 # route, and --update writes it so.
 #
 # Usage:
-#   check-import-example.sh --example DIR --page PAGE [--update] -- IMPORT ARGS...
+#   check-import-example.sh --example DIR --page PAGE [--update]
+#                           [--draft-stops-at TEXT] -- IMPORT ARGS...
 #
 #   --page    the walkthrough page quoting the example (step 4)
+#   --draft-stops-at TEXT
+#              the drafted Release is expected to fail its validation and its
+#              build, each printing TEXT (step 5); the example must hold a
+#              reviewed/ directory, which must build
 #   --update   write draft/, draft/stdout.txt and draft/import.txt from this
 #              run instead of comparing them, then compare the page, validate
 #              and build as usual. A file that changed is replaced from a real
@@ -188,12 +200,14 @@ die() { printf 'check-import: %s\n' "$*" >&2; exit 2; }
 EXAMPLE=""
 PAGE=""
 UPDATE=0
+DRAFT_STOPS_AT=""
 declare -a IMPORT_ARGS=()
 while [ "$#" -gt 0 ]; do
   case "$1" in
     --example) [ "$#" -ge 2 ] || die "--example needs a directory"; EXAMPLE="$2"; shift 2 ;;
     --page) [ "$#" -ge 2 ] || die "--page needs a file"; PAGE="$2"; shift 2 ;;
     --update) UPDATE=1; shift ;;
+    --draft-stops-at) [ "$#" -ge 2 ] && [ -n "$2" ] || die "--draft-stops-at needs the text the drafted Release stops with"; DRAFT_STOPS_AT="$2"; shift 2 ;;
     --) shift; IMPORT_ARGS=("$@"); break ;;
     -h|--help) sed -n '2,/^set -uo/p' "${BASH_SOURCE[0]}" | sed -e '/^set -uo/d' -e 's/^# \{0,1\}//'; exit 0 ;;
     *) die "unknown argument: $1" ;;
@@ -204,6 +218,7 @@ EXAMPLE="$(cd "$EXAMPLE" 2>/dev/null && pwd)" || die "no example directory at th
 [ -n "$PAGE" ] || die "--page is required"
 [ -f "$PAGE" ] || die "no walkthrough page at $PAGE"
 [ "${#IMPORT_ARGS[@]}" -gt 0 ] || die "give the import's arguments after --"
+[ -z "$DRAFT_STOPS_AT" ] || [ -d "$EXAMPLE/reviewed" ] || die "--draft-stops-at needs a reviewed/ directory that builds"
 [ -d "$EXAMPLE/source" ] || die "$EXAMPLE has no source/ directory"
 [ -d "$EXAMPLE/draft" ] || [ "$UPDATE" -eq 1 ] || die "$EXAMPLE has no draft/ directory (--update writes one)"
 
@@ -459,15 +474,21 @@ fi
 # <origin> opens the name printed for it. Both run whatever the other reports,
 # so a failing check states both verdicts.
 validate_and_build() {
-  local origin=$1 ws=$2 name=$3 out
+  local origin=$1 ws=$2 name=$3 stops=${4:-} out
   if out="$(cd "$ws" && AGGREGA_CATALOG_DIRS="$STANDARD" "$AGG" validate --release "$name" --no-color 2>&1)"; then
     printf 'check-import: %s%s validated\n' "$origin" "$name"
+    [ -z "$stops" ] || { printf 'check-import: %s%s was expected to stop with: %s\n' "$origin" "$name" "$stops"; rc=1; }
+  elif [ -n "$stops" ] && grep -qF -- "$stops" <<<"$out"; then
+    printf 'check-import: %s%s did not validate, as expected: it stops with the expected text\n' "$origin" "$name"
   else
     printf 'check-import: %s%s did not validate:\n%s\n' "$origin" "$name" "$out"
     rc=1
   fi
   if out="$(AGGREGA_BIN="$AGG" AGGREGA_CATALOG_DIRS="$STANDARD" "$HELPER" --example "$ws" "$name" -- --auto-pull --no-color 2>&1)"; then
     printf 'check-import: %s%s built\n' "$origin" "$name"
+    [ -z "$stops" ] || { printf 'check-import: %s%s was expected to stop with: %s\n' "$origin" "$name" "$stops"; rc=1; }
+  elif [ -n "$stops" ] && grep -qF -- "$stops" <<<"$out"; then
+    printf 'check-import: %s%s did not build, as expected: it stops with the expected text\n' "$origin" "$name"
   else
     printf 'check-import: %s%s did not build:\n%s\n' "$origin" "$name" "$out"
     rc=1
@@ -481,7 +502,7 @@ while IFS= read -r name; do
   drafted=$((drafted + 1))
   rm -rf "$WORK/drafted"
   cp -R "$WS" "$WORK/drafted"
-  validate_and_build "the drafted " "$WORK/drafted" "$name"
+  validate_and_build "the drafted " "$WORK/drafted" "$name" "$DRAFT_STOPS_AT"
 done < "$WORK/drafted-releases"
 if [ "$drafted" -eq 0 ]; then
   printf 'check-import: the import wrote no Release file, so nothing it drafted can be validated or built\n'

@@ -1,0 +1,45 @@
+apiVersion: aggrega.ai/v1beta1
+kind: Release
+metadata:
+  name: imported/notes
+  # environment is a drafted default, since no source names the environment this Release deploys to; change it to name the one it deploys to.
+  environment: development
+  version: 0.1.0
+  description: Draft Release imported from a source in the arm format.
+spec:
+  aggregate: imported/notes
+  manifest: imported/notes
+  components:
+    notes-site:
+      infra:
+        # From the template parameter location, its literal default.
+        location: "westeurope"
+        overrides:
+          appLocation: "/"
+          outputLocation: "dist"
+          name: "Free"
+          tier: "Free"
+    # Module parameters the source sets and the draft does not translate: availabilityZone, name, skuName, storageSizeGB, tier.
+    pgmodule:
+      infra:
+        engine_version: "16"
+        overrides:
+          private_dns_zone_id: "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/notes-network/providers/Microsoft.Network/privateDnsZones/notes.private.postgres.database.azure.com"
+          # From the template parameter location, its literal default.
+          location: "westeurope"
+          # Left for the Release, since the source cannot supply it: infra.overrides.delegated_subnet_id, the pointer to the resource "resourceId('Microsoft.Network/virtualNetworks/subnets', 'vnet-notes', 'snet-db')", which the draft leaves to the operator and the source names as "[resourceId('Microsoft.Network/virtualNetworks/subnets', 'vnet-notes', 'snet-db')]"; the catalog Recipe takes the resource's literal identifier: write it
+          delegated_subnet_id: ""
+      features:
+        password:
+          type: core/referenced-secret
+          infra:
+            # Attached by reference, never as a value: the template parameter administratorPassword, at the locator the source states.
+            origin: "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/notes-security/providers/Microsoft.KeyVault/vaults/notes-vault/secrets/notes-db-password"
+    # Properties the source writes and the draft does not place: location, properties.configuration.ingress.external, properties.template.containers.0.name.
+    # Environment variables the source sets and no connection delivers: DATABASE_NAME = notes; DATABASE_USER = notes.
+    notes-api:
+      infra:
+        image: "ghcr.io/example/notes-api:2.3.0"
+        port: 8080
+        overrides:
+          container_app_environment_id: "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/notes-platform/providers/Microsoft.App/managedEnvironments/cae-notes"

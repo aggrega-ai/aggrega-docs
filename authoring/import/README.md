@@ -318,6 +318,7 @@ works it from the vendor's export to a build.
 | Format | What it reads | Walkthrough |
 |---|---|---|
 | Compose | a Compose file and its override file, or a directory holding them | [Import a Compose project](compose.md) |
+| Azure Resource Manager | a template written as JSON, with its parameters file, or a directory holding them | [Import an Azure Resource Manager template](arm.md) |
 | MCP client configurations | `.mcp.json`, `claude_desktop_config.json`, `.vscode/mcp.json`, `.cursor/mcp.json`, or an MCP registry `server.json` | [Import an MCP client configuration](mcp.md) |
 | Langflow | a flow exported from Langflow, as JSON | [Import a Langflow flow](langflow.md) |
 | Flowise | a chatflow or an agentflow exported from Flowise, as JSON | [Import a Flowise chatflow](flowise.md) |

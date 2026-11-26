@@ -1,0 +1,52 @@
+apiVersion: aggrega.ai/v1beta1
+kind: Recipe
+metadata:
+  name: microsoft-web-staticsites
+  version: 0.1.0
+  description: "Draft Recipe realizing imported/compute/microsoft-web-staticsites on arm with one resource of the type Microsoft.Web/staticSites@2023-01-01, imported from a source in the arm format."
+spec:
+  # This Recipe realizes imported/compute/microsoft-web-staticsites with one resource of the type Microsoft.Web/staticSites@2023-01-01, drafted from the resource as a source writes it. It reads the keys below, each with its type and its rule, and none with a vendor's description, which a source does not state; any other key under infra.overrides halts the build naming it.
+  # values.name: string, required; identity: the resource's own name or identifier
+  # The source writing the resource gives no description of name.
+  # infra.location: string, required; placement: where the resource is deployed
+  # The source writing the resource gives no description of location.
+  # infra.overrides.appLocation: string; override: writable, set under infra.overrides in the vendor's spelling
+  # The source writing the resource gives no description of properties.buildProperties.appLocation.
+  # infra.overrides.outputLocation: string; override: writable, set under infra.overrides in the vendor's spelling
+  # The source writing the resource gives no description of properties.buildProperties.outputLocation.
+  # infra.overrides.name: string; override: writable, set under infra.overrides in the vendor's spelling
+  # The source writing the resource gives no description of sku.name.
+  # infra.overrides.tier: string; override: writable, set under infra.overrides in the vendor's spelling
+  # The source writing the resource gives no description of sku.tier.
+  # template.yaml declares the resource under the symbolic name locals.symbol holds, and the arm provider merges it into the template of the instance's boundary.
+  capability: arm
+  implements: imported/compute/microsoft-web-staticsites:0.1.0
+  locals:
+    # The resource's symbolic name: the instance's name in capitalized words, letters and digits alone, so two instances in one template declare two resources.
+    symbol: "{{ capitalizedWords .context.instance_id }}"
+  provides:
+    # The String Pipe: each value is one whole ARM expression, or the resource's name as template.yaml writes it, piped as written into a consumer's context; ARM evaluates it when the template is deployed.
+    id: "[resourceId('Microsoft.Web/staticSites'{{ range splitList \"/\" (toString (index .values \"name\")) }}, '{{ replace \"'\" \"''\" . }}'{{ end }})]"
+    name: "{{ toString (index .values \"name\") }}"
+  assertions:
+    # Halts naming any key under infra.overrides this Recipe does not read.
+    overrides_this_recipe_reads: |
+      {{- $o := optional .infra "overrides" dict -}}
+      {{- range $k, $v := $o -}}
+      {{- if not (has $k (list "appLocation" "outputLocation" "name" "tier")) -}}
+      {{- fail (printf "infra.overrides.%s is not a setting this Recipe reads: it reads %s from infra.overrides; remove infra.overrides.%s from the Release" $k "appLocation, outputLocation, name and tier" $k) -}}
+      {{- end -}}
+      {{- end -}}
+  artifacts:
+    template.yaml: |
+      {{- $resource := dict "type" "Microsoft.Web/staticSites" "apiVersion" "2023-01-01" -}}
+      {{- $properties := dict -}}
+      {{ $_ := set $resource "name" (index .values "name") -}}
+      {{ $_ := set $resource "location" (index .infra "location") -}}
+      {{ if (hasKey (optional .infra "overrides" dict) "name") }}{{ $set2 := (index .infra "overrides" "name") }}{{ if hasKey $resource "sku" }}{{ $_ := set $resource "sku" (deepCopy (index $resource "sku")) }}{{ else }}{{ $_ := set $resource "sku" dict }}{{ end }}{{ $at2_1 := index $resource "sku" }}{{ if not (kindIs "map" $at2_1) }}{{ fail "sku is not an object, and this Recipe writes sku.name inside it" }}{{ end }}{{ $_ := set $at2_1 "name" $set2 }}{{ end -}}
+      {{ if (hasKey (optional .infra "overrides" dict) "tier") }}{{ $set3 := (index .infra "overrides" "tier") }}{{ if hasKey $resource "sku" }}{{ $_ := set $resource "sku" (deepCopy (index $resource "sku")) }}{{ else }}{{ $_ := set $resource "sku" dict }}{{ end }}{{ $at3_1 := index $resource "sku" }}{{ if not (kindIs "map" $at3_1) }}{{ fail "sku is not an object, and this Recipe writes sku.tier inside it" }}{{ end }}{{ $_ := set $at3_1 "tier" $set3 }}{{ end -}}
+      {{ if (hasKey (optional .infra "overrides" dict) "appLocation") }}{{ $set4 := (index .infra "overrides" "appLocation") }}{{ if hasKey $properties "buildProperties" }}{{ $_ := set $properties "buildProperties" (deepCopy (index $properties "buildProperties")) }}{{ else }}{{ $_ := set $properties "buildProperties" dict }}{{ end }}{{ $at4_1 := index $properties "buildProperties" }}{{ if not (kindIs "map" $at4_1) }}{{ fail "properties.buildProperties is not an object, and this Recipe writes properties.buildProperties.appLocation inside it" }}{{ end }}{{ $_ := set $at4_1 "appLocation" $set4 }}{{ end -}}
+      {{ if (hasKey (optional .infra "overrides" dict) "outputLocation") }}{{ $set5 := (index .infra "overrides" "outputLocation") }}{{ if hasKey $properties "buildProperties" }}{{ $_ := set $properties "buildProperties" (deepCopy (index $properties "buildProperties")) }}{{ else }}{{ $_ := set $properties "buildProperties" dict }}{{ end }}{{ $at5_1 := index $properties "buildProperties" }}{{ if not (kindIs "map" $at5_1) }}{{ fail "properties.buildProperties is not an object, and this Recipe writes properties.buildProperties.outputLocation inside it" }}{{ end }}{{ $_ := set $at5_1 "outputLocation" $set5 }}{{ end -}}
+      {{ if $properties }}{{ $_ := set $resource "properties" $properties }}{{ end -}}
+      resources:
+        {{ .locals.symbol }}: {{ toJson $resource }}
