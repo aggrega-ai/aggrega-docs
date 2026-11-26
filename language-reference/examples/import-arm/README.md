@@ -20,7 +20,7 @@ writes one Azure Resource Manager template.
 
 [Import an Azure Resource Manager template](../../../authoring/import/arm.md)
 walks it step by step: the command, the files it writes and why each line is
-there, the two values the draft leaves for you, the build, and the template it
+there, the three values the draft leaves for you, the build, and the template it
 writes. This folder holds each stage of that walkthrough:
 
 | folder or file | what it holds |

@@ -71,12 +71,29 @@ subnet the server is delegated to:
         "subnets": [
           {
             "name": "snet-db",
+            "properties": {
+              "addressPrefix": "10.20.1.0/24",
+              "delegations": [
+                {
+                  "name": "postgres",
+                  "properties": {
+                    "serviceName": "Microsoft.DBforPostgreSQL/flexibleServers"
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+[… omitted: the rest of the template]
 ```
 
 and the server, deployed through the Azure Verified Modules module
-`avm/res/db-for-postgre-sql/flexible-server` at 0.16.2: a `Microsoft.Resources/deployments`
-resource whose `template` member holds the module's own compiled template, more than 2,800
-lines of it, and whose `parameters` are what the template sets for the module:
+`avm/res/db-for-postgre-sql/flexible-server` at 0.16.2: a
+`Microsoft.Resources/deployments` resource whose `template` member holds the
+module's own compiled template, more than 2,800 lines of it, and whose
+`parameters` are what the template sets for the module:
 
 <!-- quotes: source/notes/main.json -->
 ```json
@@ -135,6 +152,7 @@ lines of it, and whose `parameters` are what the template sets for the module:
           }
         },
         "template": {
+[… omitted: the module's compiled template, and the rest of the resource]
 ```
 
 The module's compiled template is the one the Microsoft Container Registry
@@ -488,6 +506,28 @@ spec:
   schema:
     values:
       type: object
+      properties:
+        # identity: the resource's own name or identifier
+        # The source writing the resource gives no description of name.
+        name:
+          type: string
+          required: true
+      additionalProperties: false
+    infra:
+      type: object
+      properties:
+        # placement: where the resource is deployed
+        # The source writing the resource gives no description of location.
+        location:
+          type: string
+          required: true
+        # override: every writable property no other rule places, each under the vendor's own name
+        overrides:
+          type: object
+          description: "Writable settings of Microsoft.Web/staticSites@2023-01-01, each under the vendor's own name, which the Recipe passes to the resource as written; its header lists the names it reads."
+          additionalProperties: true
+      additionalProperties: false
+[… omitted: the values the Component publishes, id and name]
 ```
 
 `release.lock` records the catalog entities the Release resolved to, by digest,
@@ -507,7 +547,7 @@ it never chooses:
 ```text
   [CATALOG_ERROR E0033]
     Recipe/FeatureRecipe assertions
-    caused by: Recipe "postgres-flexible-server" instance "pgmodule" assertion "placement_supplied": [… the assertion's template position, then its message, ending: infra.overrides.delegated_subnet_id carries none: set infra.overrides.delegated_subnet_id and infra.overrides.private_dns_zone_id in the Release]
+[… omitted: the line beginning "caused by: Recipe "postgres-flexible-server" instance "pgmodule" assertion "placement_supplied"", which ends with the Recipe's message: … infra.overrides.delegated_subnet_id carries none: set infra.overrides.delegated_subnet_id and infra.overrides.private_dns_zone_id in the Release]
   notice: LINT: Feature "core/referenced-secret" at core/referenced-secret:1.0.0 declares property "origin" in both values: and infra: pillars (path: origin)
 release dependency validation failed: 1 diagnostic(s)
 ```
@@ -613,11 +653,11 @@ Release carries:
         "aggrega.ai/provenance": {
           "aggrega.ai/aggregate-name": "imported/notes",
           "aggrega.ai/boundary-path": "default",
-          "aggrega.ai/compiler-version": "0.10.3-67-gd379f234b",
+[… omitted: a compiler-version entry, which moves with the build]
           "aggrega.ai/component-id": "notes-site",
           "aggrega.ai/environment": "development",
           "aggrega.ai/provider": "arm",
-          "aggrega.ai/provider-version": "0.10.3-67-gd379f234b",
+[… omitted: a provider-version entry, which moves with the build]
           "aggrega.ai/recipe-uri": "microsoft-web-staticsites:0.1.0"
         }
       },
@@ -832,8 +872,8 @@ With `root` set, the import reads `site.json` and the templates it links, and
 leaves `network.json` out.
 
 A link that leaves the imported directory — `../shared/dns.json` — is not read:
-the import never opens a file outside the directory it was given. It warns, with
-the code `linked-source-not-read`, naming the resource and the path, and drafts
+the import never opens a file outside the directory it was given. It warns, naming
+the resource and the path, and drafts
 the resource as a resource of its own, carrying each output of that template the
 template reads as the expression that evaluates it when the template deploys:
 
@@ -851,7 +891,7 @@ it, from its type: `imported/compute/microsoft-web-staticsites` for the static w
 app. Where a Component of that name already exists in a catalog folder of the
 workspace or in the hub, and this import did not draft it, the import does not
 write over it and does not guess. It holds the resource back, neither drafting nor
-referencing it, with a `component-exists` warning. Importing the example a second time
+referencing it, and warns. Importing the example a second time
 into another folder of the same workspace, with `--output-dir second`, after the
 first import wrote the Component into the workspace's `catalog` folder, says:
 
@@ -925,7 +965,7 @@ a `scriptContent` value — is not recognised, since reading it fails:
 
 ```text
 [E0350]
-  no importer recognises the source (source "main.json"). Pass --format to name it explicitly (for example --format agent-framework, --format arm-schema, --format arm, …)
+  no importer recognises the source (source "main.json"). Pass --format to name it explicitly (for example --format agent-framework, --format arm-schema, --format arm, --format cloudformation-schema, --format compose, --format crewai, --format dify, --format flowise, --format google-adk, --format langflow, --format langgraph, --format mcp, --format n8n or --format terraform-schema)
 ```
 
 and with `--format arm`, the import halts naming the place:
