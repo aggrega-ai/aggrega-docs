@@ -8,22 +8,16 @@ metadata:
   description: Draft Aggregate imported from a source in the arm format.
 spec:
   components:
+    ehmodule:
+      type: core/messaging/azure-event-hubs
     notes-site:
       type: imported/compute/microsoft-web-staticsites
       values:
         name: "notes-site"
-    pgmodule:
-      type: core/datastore/postgres
-      values:
-        user: "notes"
-        database: "notes"
     notes-api:
       type: core/compute/server
       uses:
-        pgmodule:
-          pgmodule:
-            target: pgmodule
-            inject:
-              env:
-                - in: "DATABASE_HOST"
-                  from: host
+        # Not wired: notes-api sets the variable EVENTHUB_NAMESPACE at properties.siteConfig.appSettings.0.value from ehmodule's outputs.name.value; ehmodule publishes no provides key for it.
+        ehmodule:
+          ehmodule:
+            target: ehmodule

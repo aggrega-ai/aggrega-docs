@@ -14,4 +14,4 @@ set -euo pipefail
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 exec "$HERE/../../../scripts/check-import-example.sh" --example "$HERE" \
   --page "$HERE/../../../authoring/import/arm.md" \
-  --draft-stops-at "infra.overrides.delegated_subnet_id carries none" "$@" -- notes
+  --draft-stops-at 'infra.overrides.virtual_network_subnet_id is ""' "$@" -- notes

@@ -10,41 +10,33 @@ spec:
   aggregate: imported/notes
   manifest: imported/notes
   components:
+    # Module parameters the source sets and the draft does not translate: location, name, publicNetworkAccess, skuCapacity, skuName.
+    ehmodule:
+      infra:
+        overrides:
+          # Where the template sets skuName and skuCapacity, which the draft places nowhere: the namespace's tier and its throughput units.
+          sku_name: "Standard"
+          sku_capacity: 2
+          # Where the template sets location, which the draft places nowhere on a module: the namespace's region.
+          location: "northeurope"
     notes-site:
       infra:
-        # From the template parameter location, its literal default.
-        location: "westeurope"
+        # From the template parameter location, the value the parameters file supplies.
+        location: "northeurope"
         overrides:
           appLocation: "/"
           outputLocation: "dist"
           name: "Free"
           tier: "Free"
-    # Module parameters the source sets and the draft does not translate: availabilityZone, name, skuName, storageSizeGB, tier.
-    pgmodule:
-      infra:
-        engine_version: "16"
-        # Where the template sets storageSizeGB, which the draft places nowhere: the size of the server's storage.
-        storage:
-          size: 32Gi
-        overrides:
-          private_dns_zone_id: "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/notes-network/providers/Microsoft.Network/privateDnsZones/notes.private.postgres.database.azure.com"
-          # From the template parameter location, its literal default.
-          location: "westeurope"
-          # The subnet the template's virtual network holds, as the literal ID the Recipe takes, in the resource group the network is deployed to.
-          delegated_subnet_id: "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/notes-network/providers/Microsoft.Network/virtualNetworks/vnet-notes/subnets/snet-db"
-          # Where the template sets skuName and tier, which the draft places nowhere: Burstable, Standard_B1ms.
-          sku_name: "B_Standard_B1ms"
-      features:
-        password:
-          type: core/referenced-secret
-          infra:
-            # Attached by reference, never as a value: the template parameter administratorPassword, at the locator the source states.
-            origin: "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/notes-security/providers/Microsoft.KeyVault/vaults/notes-vault/secrets/notes-db-password"
-    # Properties the source writes and the draft does not place: location, properties.configuration.ingress.external, properties.template.containers.0.name.
-    # Environment variables the source sets and no connection delivers: DATABASE_NAME = notes; DATABASE_USER = notes.
+    # Properties the source writes and the draft does not place: kind, properties.siteConfig.linuxFxVersion.
+    # Environment variables the source sets and no connection delivers: EVENTHUB_NAME = notes.
     notes-api:
       infra:
+        # The template writes the container image in properties.siteConfig.linuxFxVersion, which the draft places nowhere: the image the site runs.
         image: "ghcr.io/example/notes-api:2.3.0"
-        port: 8080
         overrides:
-          container_app_environment_id: "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/notes-platform/providers/Microsoft.App/managedEnvironments/cae-notes"
+          service_plan_id: "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/notes-platform/providers/Microsoft.Web/serverfarms/plan-notes"
+          # From the template parameter location, the value the parameters file supplies.
+          location: "northeurope"
+          # The subnet the template's virtual network holds, as the literal ID the Recipe takes, in the resource group the network is deployed to.
+          virtual_network_subnet_id: "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/notes-network/providers/Microsoft.Network/virtualNetworks/vnet-notes/subnets/snet-app"

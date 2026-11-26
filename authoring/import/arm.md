@@ -1,17 +1,16 @@
 # Import an Azure Resource Manager template
 
-This walkthrough imports a small Azure Resource Manager template — a PostgreSQL
-flexible server deployed through the Azure Verified Modules module, a container
-app that reads the server's address, a static web app and the virtual network the
-server sits in — and builds the result as one Azure Resource Manager template.
-The import drafts the Aggregate, the Release and the Manifest: the server and the
-app become references to the standard library's Components, the static web app,
-which no Component stands for, is drafted from the template, the server's
-password stays a reference to a Key Vault secret, and the values the template
-states are carried to the Release. A few values the template does not state in a
-form a Release can take are left for you, and the page shows which and where. Every file
-and every block of output below comes from a real run; the template and each
-stage of the walkthrough are in the
+This walkthrough imports a small Azure Resource Manager template — an Event Hubs
+namespace deployed through the Azure Verified Modules module, an App Service site
+running a container, a static web app and the virtual network the site is meant
+to join — and builds the result as one Azure Resource Manager template. The
+import drafts the Aggregate, the Release and the Manifest: the namespace and the
+site become references to the standard library's Components, the static web app,
+which no Component stands for, is drafted from the template, and the values the
+template states in a form a Release can take are carried over. A few values it
+does not are left for you, and the page shows which and where. Every file and
+every block of output below comes from a real run; the template and each stage of
+the walkthrough are in the
 [import-arm](../../language-reference/examples/import-arm/README.md) example,
 where a check script runs the import again, compares what it writes, what it
 prints and the blocks this page quotes with the files kept there, confirms the
@@ -39,8 +38,8 @@ cd import-arm
 ## The template
 
 `main.json` is the compiled form of a template: the JSON a Bicep build writes,
-which Azure Resource Manager deploys. It declares a virtual network with the
-subnet the server is delegated to:
+which Azure Resource Manager deploys. Its parameter is the region, and it begins
+with a virtual network holding the subnet the site joins:
 
 <!-- quotes: source/notes/main.json -->
 ```json
@@ -48,9 +47,6 @@ subnet the server is delegated to:
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
   "parameters": {
-    "administratorPassword": {
-      "type": "securestring"
-    },
     "location": {
       "type": "string",
       "defaultValue": "westeurope"
@@ -70,14 +66,14 @@ subnet the server is delegated to:
         },
         "subnets": [
           {
-            "name": "snet-db",
+            "name": "snet-app",
             "properties": {
               "addressPrefix": "10.20.1.0/24",
               "delegations": [
                 {
-                  "name": "postgres",
+                  "name": "web",
                   "properties": {
-                    "serviceName": "Microsoft.DBforPostgreSQL/flexibleServers"
+                    "serviceName": "Microsoft.Web/serverFarms"
                   }
                 }
               ]
@@ -89,18 +85,18 @@ subnet the server is delegated to:
 [… omitted: the rest of the template]
 ```
 
-and the server, deployed through the Azure Verified Modules module
-`avm/res/db-for-postgre-sql/flexible-server` at 0.16.2: a
-`Microsoft.Resources/deployments` resource whose `template` member holds the
-module's own compiled template, more than 2,800 lines of it, and whose
-`parameters` are what the template sets for the module:
+The namespace is deployed through the Azure Verified Modules module
+`avm/res/event-hub/namespace` at 0.15.3: a `Microsoft.Resources/deployments`
+resource whose `template` member holds the module's own compiled template, more
+than 3,700 lines of it, and whose `parameters` are what the template sets for the
+module:
 
 <!-- quotes: source/notes/main.json -->
 ```json
     {
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2022-09-01",
-      "name": "pgModule",
+      "name": "ehModule",
       "properties": {
         "mode": "Incremental",
         "expressionEvaluationOptions": {
@@ -108,50 +104,26 @@ module's own compiled template, more than 2,800 lines of it, and whose
         },
         "parameters": {
           "name": {
-            "value": "pg-notes"
+            "value": "evh-notes"
           },
           "location": {
             "value": "[parameters('location')]"
           },
           "skuName": {
-            "value": "Standard_B1ms"
+            "value": "Standard"
           },
-          "tier": {
-            "value": "Burstable"
+          "skuCapacity": {
+            "value": 2
           },
-          "availabilityZone": {
-            "value": -1
-          },
-          "version": {
-            "value": "16"
-          },
-          "administratorLogin": {
-            "value": "notes"
-          },
-          "administratorLoginPassword": {
-            "value": "[parameters('administratorPassword')]"
-          },
-          "databases": {
-            "value": [
-              {
-                "name": "notes"
-              }
-            ]
+          "publicNetworkAccess": {
+            "value": "Enabled"
           },
           "enableTelemetry": {
             "value": true
-          },
-          "delegatedSubnetResourceId": {
-            "value": "[resourceId('Microsoft.Network/virtualNetworks/subnets', 'vnet-notes', 'snet-db')]"
-          },
-          "privateDnsZoneArmResourceId": {
-            "value": "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/notes-network/providers/Microsoft.Network/privateDnsZones/notes.private.postgres.database.azure.com"
-          },
-          "storageSizeGB": {
-            "value": 32
           }
         },
         "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
 [… omitted: the module's compiled template, and the rest of the resource]
 ```
 
@@ -162,46 +134,35 @@ carries the notice. The import reads it to recognise the module: its telemetry
 prefix and version name the Azure Verified Modules module and the resource type
 it deploys.
 
-The container app and the static web app are plain resources. The app reads the
-server's address from the module's `fqdn` output and sets two more variables:
+The site is a plain resource. It runs on an App Service plan that already
+exists, joins the template's subnet, runs the container named in
+`linuxFxVersion`, reads the module's `name` output and sets one more variable:
 
 <!-- quotes: source/notes/main.json -->
 ```json
     {
-      "type": "Microsoft.App/containerApps",
-      "apiVersion": "2024-03-01",
+      "type": "Microsoft.Web/sites",
+      "apiVersion": "2023-12-01",
       "name": "notes-api",
       "location": "[parameters('location')]",
+      "kind": "app,linux,container",
       "dependsOn": [
-        "[resourceId('Microsoft.Resources/deployments', 'pgModule')]"
+        "[resourceId('Microsoft.Resources/deployments', 'ehModule')]",
+        "[resourceId('Microsoft.Network/virtualNetworks', 'vnet-notes')]"
       ],
       "properties": {
-        "environmentId": "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/notes-platform/providers/Microsoft.App/managedEnvironments/cae-notes",
-        "configuration": {
-          "ingress": {
-            "external": false,
-            "targetPort": 8080
-          }
-        },
-        "template": {
-          "containers": [
+        "serverFarmId": "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/notes-platform/providers/Microsoft.Web/serverfarms/plan-notes",
+        "virtualNetworkSubnetId": "[resourceId('Microsoft.Network/virtualNetworks/subnets', 'vnet-notes', 'snet-app')]",
+        "siteConfig": {
+          "linuxFxVersion": "DOCKER|ghcr.io/example/notes-api:2.3.0",
+          "appSettings": [
             {
-              "name": "notes-api",
-              "image": "ghcr.io/example/notes-api:2.3.0",
-              "env": [
-                {
-                  "name": "DATABASE_HOST",
-                  "value": "[reference('pgModule').outputs.fqdn.value]"
-                },
-                {
-                  "name": "DATABASE_NAME",
-                  "value": "notes"
-                },
-                {
-                  "name": "DATABASE_USER",
-                  "value": "notes"
-                }
-              ]
+              "name": "EVENTHUB_NAMESPACE",
+              "value": "[reference('ehModule').outputs.name.value]"
+            },
+            {
+              "name": "EVENTHUB_NAME",
+              "value": "notes"
             }
           ]
         }
@@ -209,10 +170,8 @@ server's address from the module's `fqdn` output and sets two more variables:
     },
 ```
 
-Beside it, `main.parameters.json` is the parameters file of the template. It
-gives the password parameter no value: it names the Key Vault secret the
-password is read from, which is what Azure Resource Manager resolves while the
-template deploys:
+The static web app is a plain resource too. Beside the template, a parameters
+file supplies the one parameter:
 
 <!-- quotes: source/notes/main.parameters.json -->
 ```json
@@ -220,14 +179,7 @@ template deploys:
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
   "contentVersion": "1.0.0.0",
   "parameters": {
-    "administratorPassword": {
-      "reference": {
-        "keyVault": {
-          "id": "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/notes-security/providers/Microsoft.KeyVault/vaults/notes-vault"
-        },
-        "secretName": "notes-db-password"
-      }
-    }
+    "location": { "value": "northeurope" }
   }
 }
 ```
@@ -294,49 +246,52 @@ On standard error, with `<workspace>` standing for the folder you ran it in:
 [… omitted: a warning that the importer runs unverified, printed where its module is read from beside its Plugin entity in a catalog folder rather than fetched]
 read as the arm format, with drafted paths relative to <workspace>
 info: the drafts are for the target "arm", the importer's declared default; an import naming a target drafts for that one
-info: pgmodule deploys the Azure Verified Modules resource module avm/res/db-for-postgre-sql/flexible-server, of telemetry prefix 46d3xbcp.res.568937f, version 0.16.2, named "DBforPostgreSQL Flexible Servers" in its metadata: it is one node of the resource type Microsoft.DBforPostgreSQL/flexibleServers, the parameters it sets read as the module's, and the module's telemetry is not carried, as whether a Recipe sends telemetry is the Recipe's to set
+info: ehmodule deploys the Azure Verified Modules resource module avm/res/event-hub/namespace, of telemetry prefix 46d3xbcp.res.962075c, version 0.15.3, named "Event Hub Namespaces" in its metadata: it is one node of the resource type Microsoft.EventHub/namespaces, the parameters it sets read as the module's, and the module's telemetry is not carried, as whether a Recipe sends telemetry is the Recipe's to set
+warn: notes-api sets the variable EVENTHUB_NAMESPACE at properties.siteConfig.appSettings.0.value from ehmodule's outputs.name.value, and the drafted Aggregate does not wire it: ehmodule publishes no provides key for it; the instance notes-api is connected to ehmodule for the dependency alone, a comment above the connection saying why; write the value where the instance is configured
 info: the resource notes-site of the type Microsoft.Web/staticSites@2023-01-01 is drafted from the source as the Component imported/compute/microsoft-web-staticsites and the Recipe microsoft-web-staticsites on arm, carrying the properties the source writes; the decision's swap hint names the import drafting it from the vendor's schema
 warn: the source creates substrate the draft leaves to the operator and drafts nothing for: vnet-notes (Microsoft.Network/virtualNetworks), of which the format says the network a component runs in is the operator's: a component of the catalog takes it by its resource ID under infra.overrides, reading the parameter location at location; provide each where the Release deploys, and fill the pointers the Release leaves for them
-warn: notes-api sets the variable DATABASE_NAME in the environment of the instance notes-api, and the draft delivers an instance's environment from its connections alone, so the variable is not carried: the instance's Release entry names it, for the author to set where the instance is configured
-warn: notes-api sets the variable DATABASE_USER in the environment of the instance notes-api, and the draft delivers an instance's environment from its connections alone, so the variable is not carried: the instance's Release entry names it, for the author to set where the instance is configured
+warn: notes-api sets the variable EVENTHUB_NAME in the environment of the instance notes-api, and the draft delivers an instance's environment from its connections alone, so the variable is not carried: the instance's Release entry names it, for the author to set where the instance is configured
+mapped ehmodule (Microsoft.EventHub/namespaces) to core/messaging/azure-event-hubs as a reference, HIGH at 0.8656
 mapped notes-site (Microsoft.Web/staticSites) to imported/compute/microsoft-web-staticsites as a draft, NONE at 0.05
 made no choice for vnet-notes (Microsoft.Network/virtualNetworks)
-mapped pgmodule (Microsoft.DBforPostgreSQL/flexibleServers) to core/datastore/postgres as a reference, HIGH at 0.9
-mapped notes-api (Microsoft.App/containerApps) to core/compute/server as a reference, HIGH at 0.9
-made no choice for resourceId('Microsoft.Network/virtualNetworks/subnets', 'vnet-notes', 'snet-db') ()
-[… omitted: what the pull could not render yet, a stop of the PostgreSQL Recipe's assertion that the Release names the subnet, which the sections below explain]
+mapped notes-api (Microsoft.Web/sites) to core/compute/server as a reference, HIGH at 0.9
+made no choice for resourceId('Microsoft.Network/virtualNetworks/subnets', 'vnet-notes', 'snet-app') ()
+[… omitted: what the pull could not render yet, a stop of the App Service Recipe's assertion that the Release names the subnet, which the sections below explain]
   external inputs: dependency pins were written and are complete; 0 external input(s) pinned, and any this Release also needs are still unpinned
   external inputs: a build of this Release halts naming the unpinned URL; fixing what stopped the render and resolving again pins it
-Pull complete: <workspace>/release.lock (entities=10, source_artifacts=2, external_inputs=0)
+Pull complete: <workspace>/release.lock (entities=8, source_artifacts=0, external_inputs=0)
 External inputs were not fully discovered: dependency pins are complete, external-input pins may not be (see the diagnostics above)
 ```
 
 - **The `info` lines** state what the importer decided without a question. The
   first says the drafts are for `arm`. The second recognises the module: the
-  resource `pgmodule` is the Azure Verified Modules module of the PostgreSQL
-  flexible server, and the parameters the template sets for it read as the
-  module's own, so the draft treats it as one server and not as a nested
-  template to read. The third says the static web app is drafted from the
-  template.
-- **The `warn` lines** name what the draft does not carry. The first names the
-  virtual network the template creates, which the draft leaves to you, as
-  [What the draft leaves to you](#what-the-draft-leaves-to-you) explains. The
-  other two name the variables the container app sets that no connection of the
+  resource `ehmodule` is the Azure Verified Modules module of the Event Hubs
+  namespace, and the parameters the template sets for it read as the module's
+  own, so the draft treats it as one namespace and not as a nested template to
+  read. The third says the static web app is drafted from the template.
+- **The `warn` lines** name what the draft does not carry. The first is the
+  variable the site reads from the module's `name` output: the draft wires a
+  connection only for what a Component publishes, and the namespace publishes no
+  key for its name, so the connection exists for the dependency alone. The
+  second names the virtual network the template creates, which the draft leaves
+  to you, as [What the draft leaves to you](#what-the-draft-leaves-to-you)
+  explains. The third names the variable the site sets that no connection of the
   draft delivers.
-- **The `mapped` lines** say what each resource became. `notes-api` is an
-  instance of the standard library's generic server, `core/compute/server`, and
-  `pgmodule` an instance of `core/datastore/postgres`, each matched in the
-  high tier at 0.9 and referenced. `notes-site` matches no Component, so it is
-  a draft, with no match. The `made no choice` lines name what the draft
-  decides nothing for: the virtual network, and the subnet pointer the Release
-  leaves empty.
+- **The `mapped` lines** say what each resource became. `ehmodule` is an instance
+  of the standard library's `core/messaging/azure-event-hubs`, and `notes-api` an
+  instance of the generic server, `core/compute/server`, each matched in the high
+  tier and referenced. `notes-site` matches no Component, so it is a draft, with
+  no match. The `made no choice` lines name what the draft decides nothing for:
+  the virtual network, and the subnet pointer the Release leaves empty.
 - **The pull** is the import fetching what the drafted Release depends on, as
   [`aggrega pull`](../../language-reference/cli/aggrega-pull.md) does, into
-  `release.lock`, the AVM module's source included. The import then tries to
-  render the Release to find the inputs the build would fetch, and the
-  PostgreSQL Recipe stops it: the draft names no subnet yet. The import still
-  ends, with the lockfile written, and says that the external inputs were not
-  fully discovered; the stop is the one validation reports next.
+  `release.lock`. The Recipes the Manifest names for the namespace and the site
+  write their resources themselves and source nothing, so `source_artifacts` is
+  `0` and the pull reaches outside the catalog for nothing. The import then tries
+  to render the Release to find the inputs the build would fetch, and the App
+  Service Recipe stops it: the draft names no subnet yet. The import still ends,
+  with the lockfile written, and says that the external inputs were not fully
+  discovered; the stop is the one validation reports next.
 
 ## What it writes
 
@@ -346,7 +301,7 @@ file, `main` — under the namespace the importer's `target_namespace` setting
 sets, `imported` unless you set another
 ([Settings](../../language-reference/plugins/core-importers.md#settings)).
 
-`aggregate.yaml` — one entry per resource, and the connection the app draws:
+`aggregate.yaml` — one entry per resource, and the connection the site draws:
 
 <!-- quotes: draft/aggregate.yaml -->
 ```yaml
@@ -360,37 +315,28 @@ metadata:
   description: Draft Aggregate imported from a source in the arm format.
 spec:
   components:
+    ehmodule:
+      type: core/messaging/azure-event-hubs
     notes-site:
       type: imported/compute/microsoft-web-staticsites
       values:
         name: "notes-site"
-    pgmodule:
-      type: core/datastore/postgres
-      values:
-        user: "notes"
-        database: "notes"
     notes-api:
       type: core/compute/server
       uses:
-        pgmodule:
-          pgmodule:
-            target: pgmodule
-            inject:
-              env:
-                - in: "DATABASE_HOST"
-                  from: host
+        # Not wired: notes-api sets the variable EVENTHUB_NAMESPACE at properties.siteConfig.appSettings.0.value from ehmodule's outputs.name.value; ehmodule publishes no provides key for it.
+        ehmodule:
+          ehmodule:
+            target: ehmodule
 ```
 
-The server's `values` are the user and the database the module creates, which
-the template's `administratorLogin` and `databases` give. The app's
-`DATABASE_HOST` is the module's `fqdn` output, which becomes the connection's
-`inject` block: the connection delivers the server's published `host` under that
-name, so it follows the server wherever the build places it, and the template's
-`reference('pgModule').outputs.fqdn.value` expression is not copied. The static
-web app is a component of a type the import drafted, `imported/compute/microsoft-web-staticsites`.
+The static web app is a component of a type the import drafted,
+`imported/compute/microsoft-web-staticsites`. The site's connection to the
+namespace carries no `inject` block, since the draft delivers a variable from a
+connection only when the Component publishes the value, and the comment above it
+says which variable it does not wire and why.
 
-`release.yaml` — the environment, each resource's settings, and where the
-password comes from:
+`release.yaml` — the environment, each resource's settings:
 
 <!-- quotes: draft/release.yaml -->
 ```yaml
@@ -406,61 +352,49 @@ spec:
   aggregate: imported/notes
   manifest: imported/notes
   components:
+    # Module parameters the source sets and the draft does not translate: location, name, publicNetworkAccess, skuCapacity, skuName.
+    ehmodule: {}
     notes-site:
       infra:
-        # From the template parameter location, its literal default.
-        location: "westeurope"
+        # From the template parameter location, the value the parameters file supplies.
+        location: "northeurope"
         overrides:
           appLocation: "/"
           outputLocation: "dist"
           name: "Free"
           tier: "Free"
-    # Module parameters the source sets and the draft does not translate: availabilityZone, name, skuName, storageSizeGB, tier.
-    pgmodule:
-      infra:
-        engine_version: "16"
-        overrides:
-          private_dns_zone_id: "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/notes-network/providers/Microsoft.Network/privateDnsZones/notes.private.postgres.database.azure.com"
-          # From the template parameter location, its literal default.
-          location: "westeurope"
-          # Left for the Release, since the source cannot supply it: infra.overrides.delegated_subnet_id, the pointer to the resource "resourceId('Microsoft.Network/virtualNetworks/subnets', 'vnet-notes', 'snet-db')", which the draft leaves to the operator and the source names as "[resourceId('Microsoft.Network/virtualNetworks/subnets', 'vnet-notes', 'snet-db')]"; the catalog Recipe takes the resource's literal identifier: write it
-          delegated_subnet_id: ""
-      features:
-        password:
-          type: core/referenced-secret
-          infra:
-            # Attached by reference, never as a value: the template parameter administratorPassword, at the locator the source states.
-            origin: "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/notes-security/providers/Microsoft.KeyVault/vaults/notes-vault/secrets/notes-db-password"
-    # Properties the source writes and the draft does not place: location, properties.configuration.ingress.external, properties.template.containers.0.name.
-    # Environment variables the source sets and no connection delivers: DATABASE_NAME = notes; DATABASE_USER = notes.
+    # Properties the source writes and the draft does not place: kind, properties.siteConfig.linuxFxVersion.
+    # Environment variables the source sets and no connection delivers: EVENTHUB_NAME = notes.
     notes-api:
       infra:
-        image: "ghcr.io/example/notes-api:2.3.0"
-        port: 8080
         overrides:
-          container_app_environment_id: "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/notes-platform/providers/Microsoft.App/managedEnvironments/cae-notes"
+          service_plan_id: "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/notes-platform/providers/Microsoft.Web/serverfarms/plan-notes"
+          # From the template parameter location, the value the parameters file supplies.
+          location: "northeurope"
+          # Left for the Release, since the source cannot supply it: infra.overrides.virtual_network_subnet_id, the pointer to the resource "resourceId('Microsoft.Network/virtualNetworks/subnets', 'vnet-notes', 'snet-app')", which the draft leaves to the operator and the source names as "[resourceId('Microsoft.Network/virtualNetworks/subnets', 'vnet-notes', 'snet-app')]"; the catalog Recipe takes the resource's literal identifier: write it
+          virtual_network_subnet_id: ""
 ```
 
 The environment, `development`, is a default the import writes because no
-template names one. The template's `location` parameter reaches the server's and the static web
-app's entries as its literal default, `westeurope`. The server's `engine_version` is the module's
-`version`, the password is attached by reference as the origin the parameters
-file states, and the container app's image and port are carried as written. The
-comment above `notes-api` lists the properties the draft does not place, and the
-one above it, the variables it sets that no connection delivers.
+template names one. The template's `location` parameter reaches the static web
+app's and the site's entries as the value the parameters file supplies,
+`northeurope`. The site's `service_plan_id` is carried as the literal identifier
+the template writes. The namespace's entry is empty, and the comment above it
+lists the module parameters the draft does not translate.
 
-One key is empty, and its comment says why: `delegated_subnet_id` is a
+One key is empty, and its comment says why: `virtual_network_subnet_id` is a
 pointer to a resource, which the standard library's Recipes for Azure Resource
 Manager take as the literal `/subscriptions/…` identifier of the resource. The
-template writes the server's subnet as a `resourceId` expression naming a
-resource of the template itself, and an expression is not an identifier the
-Recipe can take, so the draft leaves the key empty and names the expression in a
-comment. The template writes the container app's environment, and the server's
-private DNS zone, as literal identifiers, so the draft carries them. A drafted
-resource, by contrast, keeps every expression of the template whole.
+template writes the site's subnet as a `resourceId` expression naming a resource
+of the template itself, and an expression is not an identifier the Recipe can
+take, so the draft leaves the key empty and names the expression in a comment. A
+drafted resource, by contrast, keeps every expression of the template whole.
 
-`manifest.yaml` — the Recipe each component is realized with on `arm`, and the
-Recipe for the password:
+The container image is not in the entry. The template writes it inside
+`linuxFxVersion`, a property the draft places nowhere, and the comment above the
+entry lists `kind` and `linuxFxVersion` among the properties it does not place.
+
+`manifest.yaml` — the Recipe each component is realized with on `arm`:
 
 <!-- quotes: draft/manifest.yaml -->
 ```yaml
@@ -474,12 +408,9 @@ spec:
     components:
       type: {}
       name:
+        ehmodule: arm/azure-event-hubs
         notes-site: arm/microsoft-web-staticsites
-        pgmodule: arm/postgres-flexible-server
-        notes-api: arm/server-container-apps
-    features:
-      type:
-        core/referenced-secret: arm/key-vault-secret
+        notes-api: arm/server-app-service
 ```
 
 The static web app has no Component of the standard library, so the import
@@ -530,9 +461,9 @@ spec:
 [… omitted: the values the Component publishes, id and name]
 ```
 
-`release.lock` records the catalog entities the Release resolved to, by digest,
-and the sources it pulled; `.aggrega-import.json` is the record of what the
-import wrote, which a later `aggrega import --sync` reads.
+`release.lock` records the catalog entities the Release resolved to, by digest;
+`.aggrega-import.json` is the record of what the import wrote, which a later
+`aggrega import --sync` reads.
 
 ## Validate
 
@@ -540,55 +471,59 @@ import wrote, which a later `aggrega import --sync` reads.
 aggrega validate --release release.yaml
 ```
 
-The validation stops. The draft names no subnet for the server, and the
-PostgreSQL Recipe places a flexible server in a subnet of your own network that
-it never chooses:
+The validation stops. The draft names no subnet for the site, and the App Service
+Recipe joins a site to a subnet of your own network only by its identifier:
 
 ```text
   [CATALOG_ERROR E0033]
     Recipe/FeatureRecipe assertions
-[… omitted: the line beginning "caused by: Recipe "postgres-flexible-server" instance "pgmodule" assertion "placement_supplied"", which ends with the Recipe's message: … infra.overrides.delegated_subnet_id carries none: set infra.overrides.delegated_subnet_id and infra.overrides.private_dns_zone_id in the Release]
-  notice: LINT: Feature "core/referenced-secret" at core/referenced-secret:1.0.0 declares property "origin" in both values: and infra: pillars (path: origin)
+[… omitted: the line beginning "caused by: Recipe "server-app-service" instance "notes-api" assertion "placement_supplied"", which ends with the Recipe's message: … infra.overrides.virtual_network_subnet_id is "", and this Recipe takes the subnet the app joins by virtual network integration as the subnet's resource ID: set it to /subscriptions/<subscription>/resourceGroups/<group>/providers/Microsoft.Network/virtualNetworks/<network>/subnets/<subnet>, a subnet delegated to Microsoft.Web/serverFarms, or remove it]
 release dependency validation failed: 1 diagnostic(s)
 ```
 
 A refusal names what to change and where, in the document you change. Here it is
-the `pgmodule` entry of `release.yaml`, and after the subnet the validation names
-a second value:
+the `notes-api` entry of `release.yaml`, and after the subnet the build names a
+second value: the container image. The template writes it in `linuxFxVersion`,
+which the draft does not place, and the generic server's Recipe for App Service
+holds no image of its own, so the build stops with a message saying the Release
+sets no `infra.image`. The image is yours to supply in the Release.
 
-- **The subnet.** `infra.overrides.delegated_subnet_id` takes the subnet's
-  resource ID. The draft's comment names the `resourceId` expression the template
-  wrote; write the identifier it resolves to in your own subscription and
-  resource group, since the draft creates no network.
-- **The storage size.** `infra.storage.size` takes a size from `32Gi`. The
-  template sets `storageSizeGB` for the module, which the draft does not place
-  — it lists `storageSizeGB` in the comment above the entry — and the
-  Component's default sizes a container's volume, which the Recipe refuses for a
-  flexible server.
-
-The same comment lists `skuName` and `tier`, which the module takes from the
-template and the draft does not place either: without a value, the Recipe sizes
-the server as two General Purpose vCores, not the Burstable `Standard_B1ms` the
-template names. `infra.overrides.sku_name` takes it, written with the tier's
-letter first: `B_Standard_B1ms`. The example's `reviewed` folder holds the
-`release.yaml` with the three written:
+The namespace's comment lists `skuName`, `skuCapacity` and `location`, which the
+module takes from the template and the draft does not place either. Without
+them the Recipe's own defaults stand; `infra.overrides.sku_name`,
+`infra.overrides.sku_capacity` and `infra.overrides.location` carry the
+template's. The example's `reviewed` folder holds the `release.yaml` with all of
+them written:
 
 <!-- quotes: reviewed/release.yaml -->
 ```yaml
-    pgmodule:
+    # Module parameters the source sets and the draft does not translate: location, name, publicNetworkAccess, skuCapacity, skuName.
+    ehmodule:
       infra:
-        engine_version: "16"
-        # Where the template sets storageSizeGB, which the draft places nowhere: the size of the server's storage.
-        storage:
-          size: 32Gi
         overrides:
-          private_dns_zone_id: "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/notes-network/providers/Microsoft.Network/privateDnsZones/notes.private.postgres.database.azure.com"
-          # From the template parameter location, its literal default.
-          location: "westeurope"
+          # Where the template sets skuName and skuCapacity, which the draft places nowhere: the namespace's tier and its throughput units.
+          sku_name: "Standard"
+          sku_capacity: 2
+          # Where the template sets location, which the draft places nowhere on a module: the namespace's region.
+          location: "northeurope"
+```
+
+and the site's entry, with the image and the subnet:
+
+<!-- quotes: reviewed/release.yaml -->
+```yaml
+    # Properties the source writes and the draft does not place: kind, properties.siteConfig.linuxFxVersion.
+    # Environment variables the source sets and no connection delivers: EVENTHUB_NAME = notes.
+    notes-api:
+      infra:
+        # The template writes the container image in properties.siteConfig.linuxFxVersion, which the draft places nowhere: the image the site runs.
+        image: "ghcr.io/example/notes-api:2.3.0"
+        overrides:
+          service_plan_id: "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/notes-platform/providers/Microsoft.Web/serverfarms/plan-notes"
+          # From the template parameter location, the value the parameters file supplies.
+          location: "northeurope"
           # The subnet the template's virtual network holds, as the literal ID the Recipe takes, in the resource group the network is deployed to.
-          delegated_subnet_id: "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/notes-network/providers/Microsoft.Network/virtualNetworks/vnet-notes/subnets/snet-db"
-          # Where the template sets skuName and tier, which the draft places nowhere: Burstable, Standard_B1ms.
-          sku_name: "B_Standard_B1ms"
+          virtual_network_subnet_id: "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/notes-network/providers/Microsoft.Network/virtualNetworks/vnet-notes/subnets/snet-app"
 ```
 
 The check script of the example builds this Release, and confirms that the draft
@@ -609,7 +544,6 @@ needs `--auto-pull`, which resolves it again; without it the build stops and
 names `aggrega pull`. The validation prints:
 
 ```text
-  notice: LINT: Feature "core/referenced-secret" at core/referenced-secret:1.0.0 declares property "origin" in both values: and infra: pillars (path: origin)
 release dependency validation passed: release.yaml (schema-pillar + dependency pillars)
 ```
 
@@ -617,156 +551,134 @@ and the build, with `<workspace>` standing for the folder you ran it in:
 
 ```text
 [… omitted: the pull's line reporting the lockfile it wrote]
-  notice: LINT: Feature "core/referenced-secret" at core/referenced-secret:1.0.0 declares property "origin" in both values: and infra: pillars (path: origin)
 [… omitted: a total build time, which differs per run]
 Build completed: 1 file written to <workspace>/dist
 ```
 
-The `notice` line is advisory: the credential Feature accepts its `origin` from
-the Aggregate's `values` or the Release's `infra`, and the notice reports that
-one leaf is declared in both. It changes no verdict.
-
-The build fetches the PostgreSQL module from its git repository at the tag the
-Recipe pins, so it needs the network the first time, and vendors it into the
-template.
-
 ## Read arm-template.json
 
 The build writes one file, `dist/arm/arm-template.json`: the assembled template,
-in language version 2.0, with one entry under `resources` for each component,
-named by the component's instance id folded into words:
+in language version 2.0, with one entry under `resources` for each resource a
+component writes, named by the component's instance id folded into words:
 
 ```text
-NotesApi    the container app, a nested template of the Azure Verified Modules container app module
-NotesSite   the static web app, one resource of the type the draft Recipe writes
-Pgmodule    the PostgreSQL flexible server, a nested template of the module
+Ehmodule                the Event Hubs namespace, in a nested template
+NotesApi                the App Service site
+NotesApiFtpPublishing   the site's FTP publishing policy, which the Recipe turns off
+NotesApiScmPublishing   the site's SCM publishing policy, which the Recipe turns off
+NotesSite               the static web app, the resource the draft Recipe writes
 ```
 
-The static web app is the resource the template wrote, with the properties the
-Release carries:
+The namespace's entry holds the namespace the Recipe writes, with the settings
+the Release carries — the tier, the throughput units and the region — and the
+Recipe's own for the rest:
 
 ```json
-    "NotesSite": {
-      "apiVersion": "2023-01-01",
-      "location": "westeurope",
+    "Ehmodule": {
+      "apiVersion": "2025-04-01",
       "metadata": {
         "aggrega.ai/provenance": {
           "aggrega.ai/aggregate-name": "imported/notes",
           "aggrega.ai/boundary-path": "default",
 [… omitted: a compiler-version entry, which moves with the build]
-          "aggrega.ai/component-id": "notes-site",
+          "aggrega.ai/component-id": "ehmodule",
           "aggrega.ai/environment": "development",
           "aggrega.ai/provider": "arm",
 [… omitted: a provider-version entry, which moves with the build]
-          "aggrega.ai/recipe-uri": "microsoft-web-staticsites:0.1.0"
+          "aggrega.ai/recipe-uri": "azure-event-hubs:1.0.0"
         }
       },
-      "name": "notes-site",
+      "name": "[format('Ehmodule-{0}', uniqueString(deployment().name))]",
       "properties": {
-        "buildProperties": {
-          "appLocation": "/",
-          "outputLocation": "dist"
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "outputs": {
+            "serviceBusEndpoint": {
+              "type": "string",
+              "value": "[reference(resourceId('Microsoft.EventHub/namespaces', 'ehmodule'), '2026-01-01').serviceBusEndpoint]"
+            }
+          },
+          "resources": [
+            {
+              "apiVersion": "2026-01-01",
+              "location": "northeurope",
+              "name": "ehmodule",
+              "properties": {
+                "disableLocalAuth": true,
+                "isAutoInflateEnabled": false,
+                "minimumTlsVersion": "1.2",
+                "publicNetworkAccess": "Enabled"
+              },
+              "sku": {
+                "capacity": 2,
+                "name": "Standard",
+                "tier": "Standard"
+              },
+              "type": "Microsoft.EventHub/namespaces"
+            }
+          ]
         }
       },
-      "sku": {
-        "name": "Free",
-        "tier": "Free"
-      },
-      "type": "Microsoft.Web/staticSites"
+      "type": "Microsoft.Resources/deployments"
     },
 ```
 
-The server's entry is a nested template of the module the Recipe pins, with
-what the Release states bound to its parameters. The password is a Key Vault
-reference, so the template holds no password, telemetry is off, whatever the
-source's `enableTelemetry` said, and the size, the tier and the subnet are the
-values written in the Release:
+The site's entry carries the plan, the subnet, the image as the container the
+site runs, and the port the generic server declares:
 
 ```json
-        "parameters": {
-          "administratorLogin": {
-            "value": "notes"
-          },
-          "administratorLoginPassword": {
-            "reference": {
-              "keyVault": {
-                "id": "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/notes-security/providers/Microsoft.KeyVault/vaults/notes-vault"
-              },
-              "secretName": "notes-db-password"
+    "NotesApi": {
+      "apiVersion": "2025-03-01",
+      "kind": "app,linux,container",
+      "location": "northeurope",
+      "metadata": {
+        "aggrega.ai/provenance": {
+          "aggrega.ai/aggregate-name": "imported/notes",
+          "aggrega.ai/boundary-path": "default",
+[… omitted: a compiler-version entry, which moves with the build]
+          "aggrega.ai/component-id": "notes-api",
+          "aggrega.ai/environment": "development",
+          "aggrega.ai/provider": "arm",
+[… omitted: a provider-version entry, which moves with the build]
+          "aggrega.ai/recipe-uri": "server-app-service:1.0.0"
+        }
+      },
+      "name": "notes-api",
+      "properties": {
+        "clientAffinityEnabled": false,
+        "httpsOnly": true,
+        "publicNetworkAccess": "Disabled",
+        "serverFarmId": "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/notes-platform/providers/Microsoft.Web/serverfarms/plan-notes",
+        "siteConfig": {
+          "alwaysOn": true,
+          "appSettings": [
+            {
+              "name": "WEBSITES_PORT",
+              "value": "8080"
             }
-          },
-          "authConfig": {
-            "value": {
-              "activeDirectoryAuth": "Disabled",
-              "passwordAuth": "Enabled"
-            }
-          },
-          "availabilityZone": {
-            "value": -1
-          },
-          "databases": {
-            "value": [
-              {
-                "name": "notes"
-              }
-            ]
-          },
-          "delegatedSubnetResourceId": {
-            "value": "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/notes-network/providers/Microsoft.Network/virtualNetworks/vnet-notes/subnets/snet-db"
-          },
-          "enableTelemetry": {
-            "value": false
-          },
-          "highAvailability": {
-            "value": "Disabled"
-          },
-          "location": {
-            "value": "westeurope"
-          },
-          "name": {
-            "value": "pgmodule"
-          },
-          "privateDnsZoneArmResourceId": {
-            "value": "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/notes-network/providers/Microsoft.Network/privateDnsZones/notes.private.postgres.database.azure.com"
-          },
-          "publicNetworkAccess": {
-            "value": "Disabled"
-          },
-          "skuName": {
-            "value": "Standard_B1ms"
-          },
-          "storageSizeGB": {
-            "value": 32
-          },
-          "tier": {
-            "value": "Burstable"
-          },
-          "version": {
-            "value": "16"
-          }
+          ],
+          "ftpsState": "Disabled",
+          "linuxFxVersion": "DOCKER|ghcr.io/example/notes-api:2.3.0",
+          "minTlsVersion": "1.2",
+          "vnetRouteAllEnabled": true
         },
+        "virtualNetworkSubnetId": "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/notes-network/providers/Microsoft.Network/virtualNetworks/vnet-notes/subnets/snet-app"
+      },
+      "type": "Microsoft.Web/sites"
+    },
 ```
 
-The container app's entry delivers the connection as the template's own
-expression, evaluated by Azure Resource Manager while the template deploys, which
-is also what orders the two: the app waits for the server.
-
-```json
-                "env": [
-                  {
-                    "name": "DATABASE_HOST",
-                    "value": "[reference('Pgmodule').outputs.fqdn.value]"
-                  }
-                ],
-```
-
-Two differences from the template you started with show in the file. The app
-receives `DATABASE_HOST` and no more: `DATABASE_NAME` and `DATABASE_USER` are
-variables the draft did not deliver, which the `warn` lines and the comment above
-`notes-api` name. And the server is named `pgmodule`, the component's name, where
-the template named it `pg-notes`: the module's `name` is the Recipe's to set, and
-the comment above the entry lists it among the parameters the draft does not
-translate.
+The site receives `WEBSITES_PORT` and nothing the template set: `EVENTHUB_NAMESPACE`
+and `EVENTHUB_NAME` are variables the draft did not deliver, which the `warn`
+lines and the comments name. The namespace's name is `ehmodule`, the component's
+name, where the template named it `evh-notes`: the module's `name` is the
+Recipe's to set, and the comment above the entry lists it among the parameters
+the draft does not translate.
 
 ## Deploy it
 
@@ -783,8 +695,8 @@ The [ARM provider](../../language-reference/providers/arm.md#deploying-at-resour
 page sets out these commands, the stack that never deletes what it stops
 managing, and what each flag decides. Before the template deploys, the
 resources the Release names but the template does not deploy must exist: the
-subnet the server is delegated to and its private DNS zone, the Key Vault holding
-`notes-db-password`, and the Container Apps environment.
+App Service plan and the subnet the site joins, which is delegated to
+`Microsoft.Web/serverFarms`.
 
 ## With an AI assistant
 
@@ -795,7 +707,7 @@ can do the same: paste this prompt into it.
 
 > Use the Aggrega tools only, and create no folder yourself. If the Workspace folder holds no `import-arm` folder yet, call the `draft` tool once with `example` set to `import-arm` and no `dir`: it writes the example into a new `import-arm` folder. Then call the `import` tool with `workspace_root` set to `import-arm/source` and `source` set to `notes`: it writes its drafts into `import-arm/source` and pulls what they need. Then call the `build` tool with `workspace_root` set to `import-arm/reviewed`, `release` set to `release.yaml`, `auto_pull` set to true and `write` set to true. Tell me which files the build wrote; they are under `import-arm/reviewed/dist/`.
 
-The `reviewed` folder holds the draft with the three values written, as
+The `reviewed` folder holds the draft with the values written, as
 [Validate](#validate) lists them; to review your own draft, ask the assistant to
 validate `import-arm/source` first and tell you what it stops at.
 
@@ -824,11 +736,11 @@ aggrega import notes --sync
 ```
 
 It reads the target the record keeps, `arm`, and changes only what the import
-wrote. After the container app's image tag changes from `2.3.0` to `2.4.0` in
-`main.json`, the import says:
+wrote. After the static web app's `outputLocation` changes from `dist` to `build`
+in `main.json`, the import says:
 
 ```text
-changed spec.components.notes-api.infra.image in release.yaml
+changed spec.components.notes-site.infra.overrides.outputLocation in release.yaml
 ```
 
 and writes `release.yaml` with that one line changed; the values you wrote
@@ -873,9 +785,9 @@ leaves `network.json` out.
 
 A link that leaves the imported directory — `../shared/dns.json` — is not read:
 the import never opens a file outside the directory it was given. It warns, naming
-the resource and the path, and drafts
-the resource as a resource of its own, carrying each output of that template the
-template reads as the expression that evaluates it when the template deploys:
+the resource and the path, and drafts the resource as a resource of its own,
+carrying each output of that template the template reads as the expression that
+evaluates it when the template deploys:
 
 ```text
 warn: dns is a Microsoft.Resources/deployments resource of main.json whose template is linked by a relative path leaving the imported directory, which the import does not read: no resource of that template is drafted, and each of its outputs the template reads is carried as text evaluated when the template deploys; to draft its resources, place the linked template inside the imported directory and link it by templateLink.relativePath
@@ -908,13 +820,13 @@ reference, and its entry in the Release holds no keys but a comment naming the
 properties the template writes:
 
 ```yaml
-    # Properties the source writes and the draft does not place: location, properties, sku.
     notes-site: {}
 ```
 
 The Component declares a required `name` and `location` and the draft writes
-neither, so the import ends reporting each as missing, with the drafts written. Write them, and the properties the comment
-lists, in the Release, as the Component declares them.
+neither, so the import ends reporting each as missing, with the drafts written.
+Write them, and the properties the comment lists, in the Release, as the
+Component declares them.
 
 ## What the draft leaves to you
 
@@ -922,30 +834,26 @@ The import drafts what the template states and what your catalog determines, and
 says where it stopped. For a template it leaves these:
 
 - **The substrate the template creates to serve others.** The virtual network
-  `vnet-notes` and its subnet exist in the template for the server. The draft
+  `vnet-notes` and its subnet exist in the template for the site. The draft
   creates no network: a Component of the catalog takes the network it runs in by
   its resource ID, under `infra.overrides`, and the network is yours. The `warn`
   line names each such resource, and the pointers that referred to it are the
-  empty keys of the Release. Where the Release deploys, the network, the subnet
-  and the private DNS zone exist already, or you deploy them with the template you
-  imported.
+  empty keys of the Release. Where the Release deploys, the network and the subnet
+  exist already, or you deploy them with the template you imported.
 - **Values the draft does not place.** Each Release entry's comment lists the
-  module parameters and the resource properties the draft does not place, among them
-  here the server's storage, SKU and name, and the container app's ingress and
-  container name, so the template's setting is stated, not dropped silently.
-  Where a Component has a place for one, you write it, as the
-  [Validate](#validate) section does for the storage size and the SKU.
-- **Environment variables no connection delivers.** The container app's
-  `DATABASE_NAME` and `DATABASE_USER` are named in the comment above its entry and
-  in a `warn` line each. Where the app is configured in the Release, you set them.
-- **A container image the template does not state.** The draft carries the image a
-  container app's template names in a literal. A template that reads it from a
-  parameter with no default, or composes it, gives the draft none to carry, and the
-  build then stops naming `infra.image`: the image is yours to supply in the
-  Release.
-- **What deploys the secret.** The password is a reference to a Key Vault secret,
-  attached as the origin the parameters file states. The vault, the secret and
-  its value are yours; the template, the draft and the build write no password.
+  module parameters and the resource properties the draft does not place, among
+  them here the namespace's tier, throughput units, region and name, and the
+  site's `kind` and `linuxFxVersion`, so the template's setting is stated, not
+  dropped silently. Where a Component has a place for one, you write it, as the
+  [Validate](#validate) section does.
+- **Environment variables no connection delivers.** The site's `EVENTHUB_NAMESPACE`
+  and `EVENTHUB_NAME` are named in the comments of the Aggregate and of the Release
+  and in a `warn` line each. Where the site is configured in the Release, you set
+  them.
+- **The container image.** The draft carries an image only where the template
+  states it in a property the draft places. This template writes it in
+  `linuxFxVersion`, so the draft carries none, and the build stops naming
+  `infra.image`: the image is yours to supply in the Release.
 
 A module the standard library maps nothing for is kept whole. Where a template
 deploys an Azure Verified Modules module of a resource type no row of the importer
