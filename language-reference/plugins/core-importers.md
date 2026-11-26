@@ -2950,7 +2950,8 @@ A draft is a plain file for you to read and edit.
 ### Drafts of the Manifest
 
 The importer declares `arm` as its default target, so an import that names no target drafts a
-Manifest for `arm`, as [What a target adds](#what-a-target-adds) describes. The Manifest maps each
+Manifest for `arm` where a Recipe of the catalog binds to it, as [What a target adds](#what-a-target-adds)
+describes. The Manifest maps each
 component type to the Recipe of its row, and each drafted instance to the Recipe drafted for it, which
 exists on the `arm` target alone; an import naming another target leaves a drafted instance unmapped,
 and the warning names it.
