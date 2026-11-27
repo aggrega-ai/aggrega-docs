@@ -230,8 +230,8 @@ resource-schema importers declare `*.json`, and `types.json` for Azure, so a dir
 every file of that pattern it holds, at any depth, and no other; the ARM importer declares `*.json`
 too, reading each file through the parser that serves `parse:jsonc`, and a file of the directory that is
 neither a template nor a parameters file is named among the sources it did not read; the CloudFormation
-importer declares the names above of a project's templates and its parameters file, so a directory is
-read through those files alone, at any depth, and no other file of it is opened, reading each template
+importer declares the names above of a project's templates and its parameters file, so it is handed
+those files of a directory alone, at any depth, and no other, reading each template
 through the template reader it carries and a parameters file through the parser that serves
 `parse:json`, and names a file among them that is neither a template nor a parameters file among the
 sources it did not read. A
@@ -3058,9 +3058,12 @@ kinds hold a list of text or an object at `Parameters` too; the importer reads i
 of those names beside a template, in a directory the template is recognised by. A template with neither
 a version line nor a `Transform` is imported by naming `--format cloudformation`.
 
-A directory is read through the files those names select, at any depth, and through no other: the
+The importer is handed the files of a directory those names select, at any depth, and no other: the
 answers file of an import, a configuration of another tool and a template or parameters file named
-otherwise are never opened. A template of another name is imported by naming the file, or read in a
+otherwise never reach it. An import naming no format reads, to recognise the directory, the files every
+importer's patterns select, each `*.json` file among them for the Azure Resource Manager and
+resource-schema importers; one naming `--format cloudformation` runs no recognition, and of the
+directory's files reads, as its source, only those the names select. A template of another name is imported by naming the file, or read in a
 directory once it is renamed to one of those names, its `TemplateURL` or `Location` with it. A file
 those names select that is neither a template nor a parameters file is named among the sources not read.
 Where a directory holds several parameters files, none is read and the import warns

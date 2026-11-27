@@ -683,8 +683,11 @@ gives a template, and a name ending `.template`, `.template.yaml`,
 `.template.yml`, `.template.json`, `.cfn.yaml`, `.cfn.yml` or `.cfn.json`, at any
 depth; and through a parameters file named `parameters.json` or `params.json`, or
 with a name ending `.parameters.json`, `-parameters.json`, `.params.json` or
-`-params.json`. It opens no other file of the directory, so the parent here sits
-at `app/template.yaml` and the child at `shared/database.template.yaml`. A
+`-params.json`. No other file of the directory is handed to the importer, so the
+parent here sits at `app/template.yaml` and the child at
+`shared/database.template.yaml`. An import that names no format still reads the
+files other importers recognise a directory by, each `*.json` file among them;
+naming `--format cloudformation` skips that recognition. A
 template of another name is imported by naming the file, which reads that
 template alone, or read with its directory once it is renamed to one of those
 names, with each `TemplateURL` naming it.
@@ -749,7 +752,7 @@ A SAM project keeps its template at `template.yaml`, one of the names the import
 reads a directory's templates under, and a parameters file beside it is read when
 it is named `parameters.json` or another of the names
 [Nested stacks](#nested-stacks) lists; the project's code, `samconfig.toml` and
-every other file are never opened. After `sam build`, the project also holds
+every other file are never handed to the importer. After `sam build`, the project also holds
 `.aws-sam/build/template.yaml`, the template SAM rewrote for the code it built.
 Importing the project folder reads both, and since neither names the other the
 import stops and names both:
