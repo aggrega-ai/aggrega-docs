@@ -277,6 +277,7 @@ unless you set another. `<name>` is the first of these that is not empty:
   | `importer/google-adk` | the root agent's `name` |
   | `importer/agent-framework` | the agent's `name`; its `displayName` is not read |
   | `importer/arm` | none: a template carries no name of its own |
+| `importer/cloudformation` | none: a template carries no name of its own |
 
 - the name of the directory the import was handed, whole — `my.project` keeps its full stop, written
   `my-project` — as Compose names a project after the directory holding it; `aggrega import .` names
@@ -3575,7 +3576,7 @@ binds to the default, the import drafts no Manifest, and a diagnostic says why. 
 is drafted for is the first of these: the one it names, the one its record names, the importer's
 declared default, none. A default is taken under the same test a named target is accepted by, so a
 target no Recipe binds to is refused with `import-target-unbound` where it is named, and reported,
-not refused, where it is the default. The ARM importer declares `arm`. Loading an importer refuses,
+not refused, where it is the default. The ARM importer declares `arm`, and the CloudFormation importer `cloudformation`. Loading an importer refuses,
 under `wasm-contract-mismatch` and naming `importer.defaultTarget`, a Plugin entity that records a
 default other than the one the importer reports of itself; an entity recording none makes no claim
 and is not compared.
