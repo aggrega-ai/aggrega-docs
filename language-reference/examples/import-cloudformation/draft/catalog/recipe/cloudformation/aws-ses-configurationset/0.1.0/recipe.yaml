@@ -1,0 +1,37 @@
+apiVersion: aggrega.ai/v1beta1
+kind: Recipe
+metadata:
+  name: aws-ses-configurationset
+  version: 0.1.0
+  description: "Draft Recipe realizing imported/component/aws-ses-configurationset on cloudformation with one resource of the type AWS::SES::ConfigurationSet, imported from a source in the cloudformation format."
+spec:
+  # This Recipe realizes imported/component/aws-ses-configurationset with one resource of the type AWS::SES::ConfigurationSet, drafted from the resource as a source writes it. It reads the keys below, each with its type and its rule, and none with a vendor's description, which a source does not state; any other key under infra.overrides halts the build naming it.
+  # values.name: string, required; identity: the resource's own name or identifier
+  # The source writing the resource gives no description of Properties.Name.
+  # template.yaml declares the resource under the logical id in locals, and the cloudformation provider projects its provides block into the stack's Outputs.
+  capability: cloudformation
+  implements: imported/component/aws-ses-configurationset:0.1.0
+  locals:
+    # The resource's logical id: the instance's name in capitalized words, letters and digits alone, so two instances in one stack declare two resources.
+    logical_id: "{{ capitalizedWords .context.instance_id }}"
+  provides:
+    # The String Pipe: each value is piped as written into a consumer's context; the provides block of template.yaml carries the same values into the stack's Outputs.
+    id: "!Ref {{ .locals.logical_id }}"
+  assertions:
+    # Halts naming any key under infra.overrides this Recipe does not read.
+    overrides_this_recipe_reads: |
+      {{- $o := optional .infra "overrides" dict -}}
+      {{- range $k, $v := $o -}}
+      {{- if not (has $k (list)) -}}
+      {{- fail (printf "infra.overrides.%s is not a setting this Recipe reads: it reads %s from infra.overrides; remove infra.overrides.%s from the Release" $k "nothing" $k) -}}
+      {{- end -}}
+      {{- end -}}
+  artifacts:
+    template.yaml: |
+      Resources:
+        {{ .locals.logical_id }}:
+          Type: AWS::SES::ConfigurationSet
+          Properties:
+            Name: {{ toJson (index .values "name") }}
+      provides:
+        id: !Ref {{ .locals.logical_id }}

@@ -1,0 +1,22 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Transform: AWS::Serverless-2016-10-31
+Description: The database and the mail configuration of an order service.
+Resources:
+  OrdersDb:
+    Type: AWS::RDS::DBInstance
+    DeletionPolicy: Snapshot
+    Properties:
+      Engine: postgres
+      EngineVersion: "16.3"
+      DBInstanceClass: db.t4g.micro
+      AllocatedStorage: "20"
+      DBName: orders
+      MasterUsername: orders_app
+      ManageMasterUserPassword: true
+      DBSubnetGroupName: !ImportValue shared-db-subnets
+      VPCSecurityGroups:
+        - !ImportValue shared-db-security-group
+  Mailer:
+    Type: AWS::SES::ConfigurationSet
+    Properties:
+      Name: orders-mail

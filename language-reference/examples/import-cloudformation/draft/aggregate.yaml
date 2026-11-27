@@ -1,0 +1,21 @@
+# Sources read: template.yaml.
+# The template declares the transform AWS::Serverless-2016-10-31.
+apiVersion: aggrega.ai/v1beta1
+kind: Aggregate
+metadata:
+  name: imported/orders
+  version: 0.1.0
+  description: Draft Aggregate imported from a source in the cloudformation format.
+spec:
+  components:
+    # The resource Mailer.
+    mailer:
+      type: imported/component/aws-ses-configurationset
+      values:
+        name: "orders-mail"
+    # The resource OrdersDb.
+    orders-db:
+      type: core/datastore/postgres
+      values:
+        database: "orders"
+        user: "orders_app"

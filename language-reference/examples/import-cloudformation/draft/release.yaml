@@ -1,0 +1,24 @@
+apiVersion: aggrega.ai/v1beta1
+kind: Release
+metadata:
+  name: imported/orders
+  # environment is a drafted default, since no source names the environment this Release deploys to; change it to name the one it deploys to.
+  environment: development
+  version: 0.1.0
+  description: Draft Release imported from a source in the cloudformation format.
+spec:
+  aggregate: imported/orders
+  manifest: imported/orders
+  components:
+    mailer: {}
+    # Properties the source writes and the draft does not place: Properties.ManageMasterUserPassword.
+    orders-db:
+      infra:
+        engine_version: "16.3"
+        storage:
+          size: "20Gi"
+        overrides:
+          DeletionPolicy: "Snapshot"
+          DBInstanceClass: "db.t4g.micro"
+          DBSubnetGroupName: "!ImportValue shared-db-subnets"
+          VPCSecurityGroups: ["!ImportValue shared-db-security-group"]
