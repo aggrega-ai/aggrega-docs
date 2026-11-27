@@ -230,7 +230,6 @@ sets, `imported` unless you set another
 <!-- quotes: draft/aggregate.yaml -->
 ```yaml
 # Sources read: template.yaml.
-# Not read: import-answers.yaml.
 # The template declares the transform AWS::Serverless-2016-10-31.
 apiVersion: aggrega.ai/v1beta1
 kind: Aggregate
@@ -675,13 +674,27 @@ them as one Aggregate.
 
 The directory you import is therefore the common ancestor of the parent and of
 every child its `TemplateURL`s name. A template the parent reaches by
-`../shared/database.yaml` lies beside the parent's folder, so the import is given
-the folder holding both. Every template beneath the directory is handed to the
-importer, and the root is the one no other template names. Two templates no other names have no one root, and the
-import stops and names both, and the setting that picks one:
+`../shared/database.template.yaml` lies beside the parent's folder, so the import
+is given the folder holding both.
+
+The import reads a directory through the files named as a project's templates
+are named: `template.yaml`, `template.yml` and `template.json`, the names AWS SAM
+gives a template, and a name ending `.template`, `.template.yaml`,
+`.template.yml`, `.template.json`, `.cfn.yaml`, `.cfn.yml` or `.cfn.json`, at any
+depth; and through a parameters file named `parameters.json` or `params.json`, or
+with a name ending `.parameters.json`, `-parameters.json`, `.params.json` or
+`-params.json`. It opens no other file of the directory, so the parent here sits
+at `app/template.yaml` and the child at `shared/database.template.yaml`. A
+template of another name is imported by naming the file, which reads that
+template alone, or read with its directory once it is renamed to one of those
+names, with each `TemplateURL` naming it.
+
+Every template so named beneath the directory is handed to the importer, and the
+root is the one no other template names. Two templates no other names have no one
+root, and the import stops and names both, and the setting that picks one:
 
 ```text
-halt: the sources app/main.yaml, reports/main.yaml are each linked by no other source, and the root setting names none of them: set root to the path of the one to start from
+halt: the sources app/template.yaml, reports/template.yaml are each linked by no other source, and the root setting names none of them: set root to the path of the one to start from
 ```
 
 The `root` setting names the one to start from, in the importer's entry of the
@@ -696,17 +709,17 @@ plugins:
     - uri: importer/cloudformation:<version>
       with:
         settings:
-          root: app/main.yaml
+          root: app/template.yaml
 ```
 
-With `root` set to the parent, the import reads `app/main.yaml` and the children
-its `TemplateURL`s name, and leaves the other candidate out. It names each part it
-read and each it did not, in the header of the Aggregate:
+With `root` set to the parent, the import reads `app/template.yaml` and the
+children its `TemplateURL`s name, and leaves the other candidate out. It names
+each part it read and each it did not, in the header of the Aggregate:
 
 ```text
-# Sources read: app/main.yaml, shared/database.yaml.
-# Not read: reports/main.yaml.
-# The nested stack Database of app/main.yaml is read as the resources of its template shared/database.yaml, each drafted with Database before its logical ID.
+# Sources read: app/template.yaml, shared/database.template.yaml.
+# Not read: reports/template.yaml.
+# The nested stack Database of app/template.yaml is read as the resources of its template shared/database.template.yaml, each drafted with Database before its logical ID.
 ```
 
 A child's resources are drafted with the parent's resource name before their
@@ -714,23 +727,32 @@ logical IDs, so the child's `OrdersDb` becomes the instance `database-orders-db`
 
 A child outside the imported directory, or at a URL such as an S3 address, is not
 read: the import never opens a file outside the directory it was given and never
-fetches one. It warns, naming the resource and the reason, and drafts the stack
-resource as written, carrying each output of that template the template reads as
-the text CloudFormation evaluates when the stack deploys:
+fetches one. It warns, naming the resource, the reason and the names a template
+is read under, and drafts the stack resource as written, carrying each output of
+that template the template reads as the text CloudFormation evaluates when the
+stack deploys:
 
 ```text
-warn: Network (AWS::CloudFormation::Stack) of app/main.yaml deploys a template linked by a path leaving the imported directory, which the import does not read: no resource of that template is drafted, Network is drafted as written, and each output of it the template reads is carried as text CloudFormation evaluates when the stack deploys; to draft its resources, place the template inside the imported directory and write its TemplateURL as a relative path to it
-warn: Audit (AWS::CloudFormation::Stack) of app/main.yaml deploys a template linked by a URL, which the import does not read: no resource of that template is drafted, Audit is drafted as written, and each output of it the template reads is carried as text CloudFormation evaluates when the stack deploys; to draft its resources, place the template inside the imported directory and write its TemplateURL as a relative path to it
+warn: Audit (AWS::CloudFormation::Stack) of app/template.yaml deploys a template linked by a URL, which the import does not read: no resource of that template is drafted, Audit is drafted as written, and each output of it the template reads is carried as text CloudFormation evaluates when the stack deploys; to draft its resources, import the directory holding both templates, each named template.yaml, template.yml, template.json, or a name ending .template, .template.yaml, .template.yml, .cfn.yaml, .cfn.yml, .template.json or .cfn.json, and write its TemplateURL as a relative path to it
+warn: Network (AWS::CloudFormation::Stack) of app/template.yaml deploys a template linked by a path leaving the imported directory, which the import does not read: no resource of that template is drafted, Network is drafted as written, and each output of it the template reads is carried as text CloudFormation evaluates when the stack deploys; to draft its resources, import the directory holding both templates, each named template.yaml, template.yml, template.json, or a name ending .template, .template.yaml, .template.yml, .cfn.yaml, .cfn.yml, .template.json or .cfn.json, and write its TemplateURL as a relative path to it
 ```
 
-Place the child inside the imported directory and the next import reads it.
+A child inside the directory under another name, `shared/database.yaml` say, is
+not handed to the importer either, and the warning says so: the template is
+linked by a path naming no template the import holds. Place the child inside the
+imported directory under one of those names, with the `TemplateURL` naming it,
+and the next import reads it.
 
 ## A SAM project
 
-A SAM project keeps its template at `template.yaml`. After `sam build`, the
-project also holds `.aws-sam/build/template.yaml`, the template SAM rewrote for
-the code it built. Importing the project folder reads both, and since neither
-names the other the import stops and names both:
+A SAM project keeps its template at `template.yaml`, one of the names the import
+reads a directory's templates under, and a parameters file beside it is read when
+it is named `parameters.json` or another of the names
+[Nested stacks](#nested-stacks) lists; the project's code, `samconfig.toml` and
+every other file are never opened. After `sam build`, the project also holds
+`.aws-sam/build/template.yaml`, the template SAM rewrote for the code it built.
+Importing the project folder reads both, and since neither names the other the
+import stops and names both:
 
 ```text
 halt: the sources .aws-sam/build/template.yaml, template.yaml are each linked by no other source, and the root setting names none of them: set root to the path of the one to start from

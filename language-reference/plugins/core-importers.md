@@ -190,14 +190,19 @@ declares:
   carries a text at `$schema` beginning `https://schema.management.azure.com/schemas/` and holds
   `resources`, a template; or, with an object at `parameters` in place of `resources`, its parameters
   file.
-- **CloudFormation templates** — a source that parses as YAML or JSON, is named `*.yaml`, `*.yml` or
-  `*.template`, or `*.json` or `*.template`, and carries a text at `AWSTemplateFormatVersion`, or an
-  object at `Resources` and something at `Transform`, which a `.template` file does not match in JSON; or, in a `.json` file, a parameters file: a
-  list whose first entry is an object with a text at `ParameterKey`. A parameters file of `Key=Value` text or of
-  an object at `Parameters` is not recognised on its own, since JSON files of other kinds, such as the data
-  files of a JavaScript package, hold a list of text or an object at `Parameters` too: beside a template, a
-  directory is recognised by the template and the importer reads the parameters file. A template with neither a version line nor a
-  `Transform` is imported by naming `--format cloudformation`.
+- **CloudFormation templates** — a source that parses as YAML or JSON and carries a text at
+  `AWSTemplateFormatVersion`, or an object at `Resources` and something at `Transform`: under any name
+  when it is imported on its own, and, in a directory, named `template.yaml`, `template.yml` or
+  `template.json`, as AWS SAM names a project's template, or with a name ending `.template`,
+  `.template.yaml`, `.template.yml`, `.template.json`, `.cfn.yaml`, `.cfn.yml` or `.cfn.json`; or a
+  parameters file named `parameters.json` or `params.json`, or with a name ending `.parameters.json`,
+  `-parameters.json`, `.params.json` or `-params.json`, that parses as JSON into a list whose first entry
+  is an object with a text at `ParameterKey`. A parameters file of `Key=Value` text or of an object at
+  `Parameters` is not recognised on its own, since JSON files of other kinds, such as the data files of a
+  JavaScript package, hold a list of text or an object at `Parameters` too: under one of those names
+  beside a template, a directory is recognised by the template and the importer reads the parameters
+  file. A template with neither a version line nor a `Transform` is imported by naming
+  `--format cloudformation`.
 
 A source matching two of them is refused naming both formats, and is imported by naming the one with
 `--format`. The Langflow, Flowise, n8n, LangGraph and resource-schema importers read their source
@@ -225,12 +230,15 @@ resource-schema importers declare `*.json`, and `types.json` for Azure, so a dir
 every file of that pattern it holds, at any depth, and no other; the ARM importer declares `*.json`
 too, reading each file through the parser that serves `parse:jsonc`, and a file of the directory that is
 neither a template nor a parameters file is named among the sources it did not read; the CloudFormation
-importer declares `*.yaml`, `*.yml`, `*.template` and `*.json`, reading each template through the template
-reader it carries and a parameters file through the parser that serves `parse:json`, and names the other
-files of the directory among the sources it did not read. A
+importer declares the names above of a project's templates and its parameters file, so a directory is
+read through those files alone, at any depth, and no other file of it is opened, reading each template
+through the template reader it carries and a parameters file through the parser that serves
+`parse:json`, and names a file among them that is neither a template nor a parameters file among the
+sources it did not read. A
 signature naming no file — the Langflow,
 Flowise and n8n importers', the MCP importer's for a registry server description, the LangGraph
-importer's for a configuration naming its schema, the Dify importer's and the Agent Framework importer's — applies to every file imported on its own: an import naming no format reads such a file
+importer's for a configuration naming its schema, the Dify importer's, the Agent Framework importer's and
+the CloudFormation importer's for a template — applies to every file imported on its own: an import naming no format reads such a file
 as JSON, and as YAML, to try them, whatever importer it is meant for, through those same parsers —
 the compiler carries both, so nothing is fetched for either. A file holding a comment or a trailing comma does
 not parse as JSON, so no signature reading JSON recognises it; the CrewAI importer's signatures for
@@ -3026,7 +3034,8 @@ one template from the import to a deployed stack.
 
 A template is a YAML or JSON file that states `AWSTemplateFormatVersion` as text, or holds `Resources`
 beside a `Transform`, or that a template the import reads links by a local path, so a nested stack's
-template needs no version line. The importer reads a template as CloudFormation does, through the
+template needs no version line. A directory is read through the files named as a project's templates
+and its parameters file are named, below. The importer reads a template as CloudFormation does, through the
 template reader the `cloudformation` provider reads a sourced template with: YAML with its short forms,
 or JSON, into the long form, so no value of a template comes from the parser of your catalog and an
 import needs none. A parameters file is read through the parser that serves `parse:json`, the one your
@@ -3038,16 +3047,24 @@ no cloud account and fetches nothing: a value the stack learns when it deploys i
 CloudFormation evaluates then.
 
 The signatures recognise a template by `AWSTemplateFormatVersion` written as text, or by `Resources`
-and `Transform`, in a YAML file named `*.yaml`, `*.yml` or `*.template` or a JSON file named `*.json`
-or `*.template`, and a parameters file by a list of `ParameterKey` objects in a JSON file; the JSON signature for `Resources` and
-`Transform` covers `*.json` alone, not `*.template`. A parameters file of `Key=Value` text or of an
-object at `Parameters` is not recognised on its own, as JSON files of other kinds hold a list of text or an
-object at `Parameters` too; the importer reads it when it is handed beside a template, in a directory the
-template is recognised by. A
-template with neither a version line nor a `Transform` is imported by naming `--format cloudformation`.
-A directory is read through the files those patterns name, at any depth, and a file of it that is
-neither a template nor a parameters file is named among the sources not read. Where a directory holds
-several parameters files, none is read and the import warns `parameter-files-not-read`.
+and `Transform`, read as YAML or JSON: a file imported on its own whatever its name, and a file of a
+directory named `template.yaml`, `template.yml` or `template.json`, the names AWS SAM gives a project's
+template, or with a name ending `.template`, `.template.yaml`, `.template.yml`, `.template.json`,
+`.cfn.yaml`, `.cfn.yml` or `.cfn.json`. They recognise a parameters file by a list of `ParameterKey`
+objects in a JSON file named `parameters.json` or `params.json`, or with a name ending
+`.parameters.json`, `-parameters.json`, `.params.json` or `-params.json`. A parameters file of
+`Key=Value` text or of an object at `Parameters` is not recognised on its own, as JSON files of other
+kinds hold a list of text or an object at `Parameters` too; the importer reads it when it sits under one
+of those names beside a template, in a directory the template is recognised by. A template with neither
+a version line nor a `Transform` is imported by naming `--format cloudformation`.
+
+A directory is read through the files those names select, at any depth, and through no other: the
+answers file of an import, a configuration of another tool and a template or parameters file named
+otherwise are never opened. A template of another name is imported by naming the file, or read in a
+directory once it is renamed to one of those names, its `TemplateURL` or `Location` with it. A file
+those names select that is neither a template nor a parameters file is named among the sources not read.
+Where a directory holds several parameters files, none is read and the import warns
+`parameter-files-not-read`.
 
 A template the template reader refuses stops the import under `parse-failed`, naming the file and the
 reader's own reason. The reader refuses a document that is not YAML or JSON, a duplicate key, an anchor
@@ -3086,8 +3103,10 @@ a stack `Database` is the instance `database-orders-db`; its parameters read the
 resource gives them, and an output of the template is read where the deploying resource's outputs are.
 The deploying resource itself is drafted as no instance. A link is followed inside the imported directory
 only: a template linked by a URL, by a path that leaves the directory, or by a value the template
-computes, and an application located by its ID, is not read, the import warns `linked-source-not-read`
-naming the resource and the reason, and the resource is drafted as one of its own, each output of the
+computes, by a path naming no template the import is handed — a file named otherwise than a directory's
+templates are read under among them —, and an application located by its ID, is not read, the import
+warns `linked-source-not-read` naming the resource, the reason and the names a template is read under,
+and the resource is drafted as one of its own, each output of the
 template it reads carried as the text CloudFormation evaluates when the stack deploys. A nested template
 that deploys others is read the same way; one that links a template already being deployed above it,
 directly or through others, is not read again, and the import warns `linked-source-not-read`, drafting
