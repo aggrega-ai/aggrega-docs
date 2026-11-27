@@ -19,6 +19,7 @@ publishes them with every compiler release:
 | `importer/terraform-schema` | `import:terraform-schema` | a Terraform or OpenTofu provider schema, the output of `terraform providers schema -json`, as JSON, drafting a Component and a Recipe for the `terraform` provider |
 | `importer/arm-schema` | `import:arm-schema` | an Azure resource provider's Bicep type file, `types.json`, as JSON, drafting a Component and a Recipe for the `arm` provider |
 | `importer/arm` | `import:arm` | an Azure Resource Manager template, language version 1.0 or 2.0, and the parameters file beside it, as JSON with comments, drafting an Aggregate, a Release, a Manifest for the `arm` target and the Component and Recipe drafted for a resource no catalog Component covers |
+| `importer/cloudformation` | `import:cloudformation` | an AWS CloudFormation template, AWS SAM templates among them, as YAML or JSON, and the parameters file beside it, drafting an Aggregate, a Release, a Manifest for the `cloudformation` target and the Component and Recipe drafted for a resource no catalog Component covers |
 
 Each is built from the compiler's own sources and stamped with the compiler's version, so the
 importers released with the compiler at `X.Y.Z` report version `X.Y.Z`, and their Plugin entities
@@ -58,7 +59,9 @@ draft a Component and a Recipe for it through the same package, as
 [The resource-schema importers](#the-resource-schema-importers) describes. The ARM importer reads the
 templates of a project rather than a vendor's schema, and drafts an Aggregate, a Release and a Manifest
 through the format-neutral core the importers of an infrastructure format share, as
-[The ARM importer](#the-arm-importer) describes. How the
+[The ARM importer](#the-arm-importer) describes. The CloudFormation importer reads the templates of a
+project the same way, through the same core, as [The CloudFormation importer](#the-cloudformation-importer)
+describes. How the
 importer socket works, and
 what it is handed, is described under
 [The importer socket](plugin-contract.md#the-importer-socket--draft-authoring-output).
@@ -187,6 +190,12 @@ declares:
   carries a text at `$schema` beginning `https://schema.management.azure.com/schemas/` and holds
   `resources`, a template; or, with an object at `parameters` in place of `resources`, its parameters
   file.
+- **CloudFormation templates** — a source that parses as YAML or JSON, is named `*.yaml`, `*.yml` or
+  `*.template`, or `*.json` or `*.template`, and carries a text at `AWSTemplateFormatVersion`, or an
+  object at `Resources` and something at `Transform`; or, in a `.json` file, a parameters file: a list
+  whose first entry is an object with a text at `ParameterKey`, a list whose first entry is a text, or an
+  object with an object at `Parameters` and none at `Resources`. A template with neither a version line
+  nor a `Transform` is imported by naming `--format cloudformation`.
 
 A source matching two of them is refused naming both formats, and is imported by naming the one with
 `--format`. The Langflow, Flowise, n8n, LangGraph and resource-schema importers read their source
@@ -213,7 +222,10 @@ its attachment's `with.sources` — and neither its code nor its environment fil
 resource-schema importers declare `*.json`, and `types.json` for Azure, so a directory is read through
 every file of that pattern it holds, at any depth, and no other; the ARM importer declares `*.json`
 too, reading each file through the parser that serves `parse:jsonc`, and a file of the directory that is
-neither a template nor a parameters file is named among the sources it did not read. A
+neither a template nor a parameters file is named among the sources it did not read; the CloudFormation
+importer declares `*.yaml`, `*.yml`, `*.template` and `*.json`, reading each template through the template
+reader it carries and a parameters file through the parser that serves `parse:json`, and names the other
+files of the directory among the sources it did not read. A
 signature naming no file — the Langflow,
 Flowise and n8n importers', the MCP importer's for a registry server description, the LangGraph
 importer's for a configuration naming its schema, the Dify importer's and the Agent Framework importer's — applies to every file imported on its own: an import naming no format reads such a file
@@ -2996,6 +3008,289 @@ the decision record is written alone as `import-decisions.json`, and no draft is
 `attach_egress_allowlist` apply to a platform an importer drafts and the ARM importer drafts none, so
 neither is read.
 
+## The CloudFormation importer
+
+The `importer/cloudformation` importer reads the AWS CloudFormation templates a project holds, AWS
+Serverless Application Model (SAM) templates among them, and the parameters file beside one, and drafts
+what a Release of the standard library's `cloudformation` Recipes needs: an Aggregate with one instance
+for each resource it carries, a Release carrying what the template states for its stack, a Manifest for
+the `cloudformation` target, and, for a resource no Component of the catalog stands for, a Component and
+a Recipe drafted from the template. It builds on the format-neutral core the importers of an
+infrastructure format share, so one source drafts one byte sequence whatever order its resources are
+written in. [Import a CloudFormation or SAM template](../../authoring/import/cloudformation.md) walks
+one template from the import to a deployed stack.
+
+### What it reads
+
+A template is a YAML or JSON file that states `AWSTemplateFormatVersion` as text, or holds `Resources`
+beside a `Transform`, or that a template the import reads links by a local path, so a nested stack's
+template needs no version line. The importer reads a template as CloudFormation does, through the
+template reader the `cloudformation` provider reads a sourced template with: YAML with its short forms,
+or JSON, into the long form, so no value of a template comes from the parser of your catalog and an
+import needs none. A parameters file is read through the parser that serves `parse:json`, the one your
+catalog serves, where it serves one, and otherwise the parser the compiler carries, in any of the forms
+the AWS CLI reads from a file: a list of objects holding `ParameterKey` and `ParameterValue`, a list of
+`Key=Value` text, or an object holding a `Parameters` object of each value by its name. The import reads
+no cloud account and fetches nothing: a value the stack learns when it deploys is carried as the text
+CloudFormation evaluates then.
+
+The signatures recognise a template by `AWSTemplateFormatVersion` written as text, or by `Resources`
+and `Transform`, in a YAML file named `*.yaml`, `*.yml` or `*.template` or a JSON file named `*.json`
+or `*.template`, and a parameters file by one of the forms above in a JSON file. A template with
+neither a version line nor a `Transform` is imported by naming `--format cloudformation`. A directory
+is read through the files those patterns name, at any depth, and a file of it that is neither a
+template nor a parameters file is named among the sources not read. Where a directory holds several
+parameters files, none is read and the import warns `parameter-files-not-read`.
+
+A template the template reader refuses stops the import under `parse-failed`, naming the file and the
+reader's own reason. The reader refuses a document that is not YAML or JSON, a duplicate key, an anchor
+aliased inside its own content, which the message names, and an aliased short form that expands past
+what it will copy. It reads an unquoted date as the text the template wrote, an alias to a short form
+as that short form, and `!Condition`, `!Transform` and `!GetStackOutput` as `Condition`,
+`Fn::Transform` and `Fn::GetStackOutput`. A source of a directory the reader refuses, that holds
+`AWSTemplateFormatVersion` and is no template the import starts from or reads, stops the import the
+same way, telling you to set `root`.
+
+A template CloudFormation deploys otherwise than it is written is refused under `source-refused`,
+naming the transform or the call and where the template writes it: `AWS::Include`,
+`AWS::CodeDeployBlueGreen`, a macro of the account, whether declared under `Transform` or called with
+`Fn::Transform`, and a loop of the language extensions, a key opening `Fn::ForEach`, whose items are
+known only once CloudFormation evaluates it. The message points to the processed template CloudFormation
+writes for the deployed stack, `aws cloudformation get-template --template-stage Processed`, which the
+import reads. The transform of the AWS Serverless Application Model, `AWS::LanguageExtensions` where it writes no loop, the Secrets Manager transforms and
+`AWS::ServiceCatalog` are read as the template is written.
+
+A template the import holds none of, a `root` setting that is not text or names a source that holds no
+`Resources`, and several templates linked by none with no `root` naming one, stop the import under
+`source-refused` too. Where an import is handed several templates, it starts from the one no other
+links, and reads that template and each template it links; a template the root does not reach is named
+among the sources not read. The importer reads the `root` setting, the path, inside the imported
+directory, of the template to start from. A SAM project that has been built holds
+`.aws-sam/build/template.yaml` beside `template.yaml`, so importing its folder names both and asks for
+`root`.
+
+### Nested stacks and serverless applications
+
+A resource of the type `AWS::CloudFormation::Stack` whose `TemplateURL` is a relative path, and a
+`AWS::Serverless::Application` whose `Location` is one, deploys a template of the imported directory,
+and the importer reads it as that template's resources, so the draft deploys them as one stack. Each is a
+resource of the Aggregate whose logical ID is the deploying resource's before its own, so `OrdersDb` of
+a stack `Database` is the instance `database-orders-db`; its parameters read the values the deploying
+resource gives them, and an output of the template is read where the deploying resource's outputs are.
+The deploying resource itself is drafted as no instance. A link is followed inside the imported directory
+only: a template linked by a URL, by a path that leaves the directory, or by a value the template
+computes, and an application located by its ID, is not read, the import warns `linked-source-not-read`
+naming the resource and the reason, and the resource is drafted as one of its own, each output of the
+template it reads carried as the text CloudFormation evaluates when the stack deploys. A nested template
+that deploys others is read the same way; one that links a template already being deployed above it,
+directly or through others, is not read again, and the import warns `linked-source-not-read`, drafting
+that resource as written. The nested stacks of an import deploy at most 10000 resources it reads, and a
+stack past that bound is drafted as written under `resource-not-carried`.
+
+### SAM templates
+
+A template under the SAM transform is read as that transform reads it, each serverless resource keeping
+its type. The `Globals` the template declares are merged into each resource of the type they name, as
+the transform merges them, before any of its values is read, and only the properties the transform reads
+from `Globals` are. An event of a serverless function or state machine, and a connector, whether a
+`AWS::Serverless::Connector` or one written under a resource's `Connectors`, is read as a dependency: of
+the function on the resource whose messages or records invoke it, of the API an event routes through on
+the function, of a connector's source on its destinations. Each is left out of the draft and reported
+under `resource-not-carried`, naming what SAM writes for it when the stack deploys, since no instance of
+the draft writes that; an event naming no API says SAM creates one of its own. Every other property a
+serverless resource writes, or takes from `Globals`, is kept. A function whose code is a `.zip` package
+is drafted without it, the import warning `value-not-carried` and owing the container image the
+function's Recipe runs, as the walkthrough shows.
+
+### Intrinsic functions
+
+Each intrinsic function, dynamic reference and condition of a template is lowered to a value the core
+reads:
+
+- `Ref` to a parameter is that parameter, to a resource the identifier of that resource's instance, and
+  to a pseudo parameter such as `AWS::AccountId` text CloudFormation evaluates when the stack deploys;
+  `AWS::NoValue` leaves out the member or the item that holds it. A `Ref` to a parameter of a Systems
+  Manager parameter type that is given a literal value is the dynamic reference reading that parameter.
+- `Fn::GetAtt`, in its list or its string form, is a reference to the attribute; `Fn::Sub` and `Fn::Join`
+  with a literal delimiter and a literal list are composed text whose parts are literal text,
+  parameters and references, and `Fn::FindInMap` with literal keys is the value the mapping holds.
+- `Fn::If` on a condition comparing one parameter with a literal is the branch the parameter's value
+  selects, its default where the parameters file gives none, and the import warns `value-not-carried`
+  naming the branch it leaves out and the place the template writes it.
+- Any other function — `Fn::ImportValue`, `Fn::Select`, `Fn::Split`, `Fn::GetAZs`, `Fn::Base64`,
+  `Fn::Cidr` — and any of those above that reads something the importer cannot resolve is carried as
+  text CloudFormation evaluates when the stack deploys, written as the short form on one line.
+  `Fn::GetStackOutput` and a value that is wholly a short form a Recipe placing it would read as the
+  function are not carried: the import warns `value-not-carried` naming the key it would have been
+  written at.
+- Text that is wholly a dynamic reference is the secret it reads where it reads Secrets Manager or a
+  Systems Manager `SecureString`, and text CloudFormation evaluates where it reads a plain Systems
+  Manager parameter. A dynamic reference is never resolved.
+
+A condition on a resource that compares a parameter allowing exactly the values `true` and `false` with
+`true` becomes the instance's `active`, read from that parameter. Any other condition is not carried:
+the resource is drafted unconditionally and the import warns `condition-not-carried`, naming the
+condition and saying that switching the instance off by hand takes switching off with it every instance
+whose connection reaches it. A resource of a nested template takes the conditions of the resources
+deploying it beside its own.
+
+### Which Component a resource is
+
+The importer gives each resource one class, as [Classes](#classes) lists them for the ARM importer:
+folded into another's instance, substrate, not carried, mapped, drafted, or held back. A resource type
+the importer leaves to the operator, and so drafts nothing for under `substrate-left-to-operator`, is
+the network the components run in (`AWS::EC2::*` but for an instance and a launch template, which are
+hosts), identity and access (`AWS::IAM::*`), hosts and their groups, clusters and images
+(`AWS::EC2::Instance`, `AWS::AutoScaling::*`, `AWS::EKS::*`, `AWS::ImageBuilder::*`), the Amazon ECS
+cluster a service runs in, log groups, the subnet groups of a database and of a cache, a load balancer
+and its listeners, the scaling of a service, a function's invoke permissions and the hosted zone a
+record is written in. A target group, a listener rule and an alarm are not carried, since the hub holds
+no Feature realizing public ingress for Amazon ECS or an alarm an import can map; the target group a
+service reads is reported `value-not-carried`. A Systems Manager parameter, an RDS parameter group and a
+REST API are drafted from the template, though the catalog holds a Recipe near each, since no Recipe
+realizes what the template writes.
+
+A row of the table maps a resource type to the Component of the catalog that stands for it and to the
+Recipe of the `cloudformation` capability that realizes it. The rows are generated from the hub's
+`cloudformation` Recipes — the resource each Recipe writes, the Component it implements with its labels,
+and what the Recipe's text says of where a property goes, for the resource itself and for the resources
+read as part of it — and completed by hand where a Recipe's text says nothing. The rows of SAM's
+serverless types, and of a cache cluster running Redis, are derived from the rows of the types they
+deploy as. The importer's Plugin entity names, in its description, the hub revision its table was read
+from, so a Recipe added to the hub later is mapped by a later release of the importer, and a type no row
+maps is drafted from the template, as [Drafted from the source](#drafted-from-the-template) describes.
+
+A row can hold a condition on the resource's properties, which tells apart the Components one type is:
+an RDS instance is `core/datastore/postgres`, `mysql`, `mariadb` or `sql-server` by its `Engine`. The type and the values a condition compares are compared regardless of letter
+case, so `Engine: POSTGRES` of a resource typed `aws::rds::dbinstance` maps as `postgres` does. Where
+the property a condition reads is set by a parameter with no value and no default, the resource is
+decided with no row and the import warns `discriminator-unresolved`, naming the rows it could take and
+the two ways out: give the value a default in the template, or map the type through `mapping_overrides`
+keyed by `cloudformation` and the type as the template spells it. A resource whose drafted Component
+would take a name the catalog holds and this import did not draft is held back and warned
+`component-exists`, naming the `mapping_overrides` entry to write.
+
+### Folding and attachments
+
+A resource the importer reads as part of another is read so once its values are lowered, and is no
+instance of its own: a child an inline rule names — the task definition of an Amazon ECS service, an
+ElastiCache parameter group, a Redshift Serverless namespace — takes the place of each reference its
+parents write, and a child a parent's link names is read as part of the one resource the link names. A
+task definition keeps its main container first, for the image, the environment and the port the Recipe
+reads, and each other container is reported `resource-not-carried`. A child a row folds into its parent's
+instance is written into that instance and reported `resource-folded`; where the row carries none of it
+the import warns `resource-not-carried`. An event source mapping and a topic subscription are read as
+dependencies of their function and their endpoint.
+
+A Secrets Manager secret that an instance a row maps reads at a credential slot is no instance of its
+own, and is attached as the Feature that slot admits. A secret Secrets Manager generates is a
+`core/random-password` on the first instance reading it, carrying its length, its punctuation and its
+name, and a `core/referenced-secret` naming the first's secret on each other; one that holds a value the
+template writes is a `core/referenced-secret` on each reader, its `origin` the secret's name, and its
+value is never written.
+
+### How resources connect
+
+A reference between resources is a connection between instances, or a pointer. Where a resource reads an
+attribute another resource's Recipe publishes, the Aggregate draws a connection to that instance and
+delivers the value under the name the reader used through the connection's `inject`, so the value
+follows the producer wherever the build places it, and the template's own intrinsic is not copied. A
+`DependsOn`, and a reference no `inject` carries, is a connection with no entry; a reference the draft
+cannot wire is named in a comment above the connection and warned `reference-not-wired`. A producer is
+drafted before its consumers, ties broken by the resource's identifier.
+
+### Pointers, parameters and outputs
+
+A value read from a resource that is substrate is a pointer, and no `Ref` or `Fn::GetAtt` can name a
+resource the stack the build writes does not hold. The key of an instance reading it is left for the
+[answers file](../import-answers.md), the comment above the key naming the resource, and the
+Release's entry says each key left so. A value read from an export of another stack is carried as the
+`Fn::ImportValue` that reads it.
+
+A template parameter an instance reads into a `values` key is a parameter of the Aggregate, declared
+under `spec.parameters` with the type, description, allowed values, bounds and literal default the
+template gives it, the parameters file's value taking the default's place. A parameter that feeds an
+`infra` or `infra.overrides` key is written into the Release's entry as its value, the parameters
+file's or else the template's literal default, or the key is left for the answers file, the comment
+naming the parameter and why. A parameter whose value is `NoEcho` is never written as a value, and
+neither is its default. A required value of a Component that the template gives none of — a certificate's
+domain name — becomes a string parameter of the Aggregate, left empty in the
+Release; the container image of a function and the Region of a bucket, which the Recipes of the hub
+require and a template never states, are left for the answers file. Each output of the root template is
+named in the Aggregate's header, with the instance and the `provides` key that carries it, or as carried
+by none; an output's `Export` is not exported.
+
+The key of an instance is the words of its logical ID, so `OrdersDb` is `orders-db`. Where the stack the
+build writes names a resource otherwise than the template does — the Recipe `sqs` names the queue
+`Queue` of its instance `queue` as `QueueQueue` —, the comment above the instance says so, since
+updating a stack the template deployed replaces the resource.
+
+### Secrets
+
+A secret is attached by reference and never written. A secret of the template an instance reads becomes the attachment
+[above](#folding-and-attachments), and text that is wholly a dynamic reference reading Secrets Manager
+or a Systems Manager `SecureString` is read as the secret it names. A literal the template or the parameters file holds for a credential slot is judged by
+the `empty_credentials` setting and named in a warning that never shows it. A `NoEcho` parameter and the
+text that names one is never written as a value, and the import warns `value-not-carried` on a value
+that holds one. The `MasterUserPassword` of a mapped RDS instance is named among the properties the Release's comment
+says the draft does not place, and the password a resource drafted from the template reads stays a
+deploy-time parameter of the drafted Recipe's template, the comment naming it, for you to pass when the
+template deploys.
+
+### Drafted from the template
+
+A resource no row maps is drafted as the `importer/cloudformation-schema` importer drafts one from the
+vendor's schema: a Component under the namespace `target_namespace` names, with the properties the
+template writes under the vendor's own names, and a Recipe that writes one resource of that type, which
+publishes the resource's identifier alone, as its `id` key, the value a `Ref` reads on every type. Two
+resources of one type no row maps share one Component and one Recipe, drafted once from every property
+either writes. The drafts' swap hint names `aggrega import --format cloudformation-schema`, which drafts
+the Component from the schema instead. A draft is a plain file for you to read and edit.
+
+### The target
+
+The importer declares `cloudformation` as its default target, so an import that names no target drafts a
+Manifest for `cloudformation` where a Recipe of the catalog binds to it, as
+[What a target adds](#what-a-target-adds) describes. The Manifest maps each component type to the Recipe
+of its row, and each drafted instance to the Recipe drafted for it, which exists on the `cloudformation`
+target alone; an import naming another target leaves a drafted instance unmapped, and the warning names
+it. The built template is a new stack: CloudFormation identifies a resource across updates by its
+logical ID, so deploying it as an update of the stack the source deployed replaces each resource whose
+logical ID the build writes differently.
+
+### What the import reports
+
+The importer raises the codes of the table below, besides `credential-carried` and `credential-emptied`
+as [What an import reports](#what-an-import-reports) lists them. The command prints each as
+`<severity>: <message>` and no code; the editor session's `aggrega/import` method and the assistant's
+`import` tool return each with its `code`, which is where to read one.
+
+| Code | Severity | Reported when |
+| --- | --- | --- |
+| `parse-failed` | `halt` | The template reader refuses a template, or the parser a parameters file is read through refuses it, naming the file and the reason. |
+| `source-refused` | `halt` | The import holds no template, or a template under a transform or holding a call or a loop CloudFormation evaluates when the stack deploys, or several templates linked by none and no `root` setting naming one, or a `root` setting that is not text or names no template it holds. |
+| `parameter-files-not-read` | `warn` | The import holds several parameters files, so none is read. |
+| `linked-source-not-read` | `warn` | A nested stack or a serverless application links a template by a URL, by a path leaving the imported directory or by a value the template computes. |
+| `substrate-left-to-operator` | `warn` | A resource the template creates is substrate, which the draft leaves to you. |
+| `resource-not-carried` | `warn` | A resource, a container, an event, a connector or a folded child no Recipe takes, or a stack past the bound on what nested stacks deploy. |
+| `resource-folded` | `info` | A child resource is written into its parent's instance. |
+| `resource-drafted-from-source` | `info` | A resource no row maps is drafted as a Component and a Recipe from the template. |
+| `reference-not-wired` | `warn` | A reference no connection carries; the comment above the instance's connection names it. |
+| `value-not-carried` | `warn` | A value or an expression the draft does not write, with the key it would be written at. |
+| `discriminator-unresolved` | `warn` | The property that chooses a resource's Component is set by a parameter with no value. |
+| `condition-not-carried` | `warn` | A resource deployed under a condition the draft cannot read as a switch is drafted unconditionally. |
+| `component-exists` | `warn` | A resource is held back because the Component name its draft would take is held already. |
+
+### The settings it reads
+
+It reads `root`, `target_namespace`, `reuse_mode`, `reuse_threshold`, `emit_hints`, `render_mode`,
+`mapping_overrides` and `empty_credentials`, as [Settings](#settings) describes them, and no other
+setting; `mapping_overrides` is keyed by `cloudformation`, then by the resource type. For this importer
+`reuse_mode: hints-only` references no Component: each resource a row maps is drafted as a Component of
+its own instead, with the strong match recorded as a hint. Under `render_mode: llm` the decision record
+is written alone as `import-decisions.json`, and no draft is. `layout` and `attach_egress_allowlist`
+apply to a platform an importer drafts and this one drafts none, so neither is read.
+
 ## The resource-schema importers
 
 The `importer/cloudformation-schema`, `importer/terraform-schema` and `importer/arm-schema` importers
@@ -3282,7 +3577,7 @@ plugins:
 | `layout` | `platform` | `platform` drafts the platform that runs the flow, carrying the flow, with each part of it a Component of its own wired to the platform, as [The platform carrying the flow](#the-platform-carrying-the-flow) describes. `nodes` drafts every node as a Component of its own, as [Node by node](#node-by-node) describes. For the Dify importer, `platform` drafts the Dify installation carrying the application, as [What an application becomes](#what-an-application-becomes) describes. Any other value drafts as `platform`, and the import warns with `unknown-layout`. |
 | `empty_credentials` | `none` | Which credential values the flow the platform carries has written empty, as [Credential values the flow holds](#credential-values-the-flow-holds) lists them, which the Release the MCP importer drafts has written empty, as [Credential values a server holds](#credential-values-a-server-holds) lists them, which the Release the Compose importer drafts has written empty, as [Credential values a service holds](#credential-values-a-service-holds) lists them, which the application the Dify importer carries has written empty, as [Credential values an application holds](#credential-values-an-application-holds) lists them, which the Release the CrewAI importer drafts has written empty, as [Credential values a declaration holds](#credential-values-a-declaration-holds) lists them, which the Release the LangGraph importer drafts has written empty, as [The environment a configuration states](#the-environment-a-configuration-states) lists them, which the Release the Google ADK importer drafts has written empty, as [Credential values a configuration holds](#credential-values-a-configuration-holds) lists them, and which the Release the Agent Framework importer drafts has written empty, as [Credential values a declarative agent holds](#credential-values-a-declarative-agent-holds) lists them. `none` writes none empty: each is carried as written and named in a `credential-carried` warning. `marked` writes empty what a format marks as a credential and every member of an MCP server's configuration. `all` writes empty the inputs a format marks as no credential that can carry one as well — request headers, query parameters, a request written as a command line, an input named for a key. What the draft writes so that a node reaches its connection is written whatever this says. Any other value halts the import, which drafts nothing, with `unknown-empty-credentials`. A draft made node by node reads no value, and so does not read this setting. |
 | `resource_types` | none | The resource types a resource-schema importer drafts: a list whose entries are a type's name, or an object with the `type` and a `component` that names the Component the type is drafted as, as [Which types are drafted](#which-types-are-drafted) describes. With no list, the one type the sources hold is drafted. Any other value halts the import, which drafts nothing, with `resource-types-unreadable`. Read by the resource-schema importers alone. |
-| `root` | none | The path, inside the imported directory, of the template an import starts from where it is handed several, as [What it reads](#what-it-reads) describes. Without it the import starts from the one template no other links, and two templates linked by none stop it under `source-refused`, naming both files and `root`. A link outside the imported directory is not read and is warned `linked-source-not-read`. Read by the ARM importer; a value that is not text halts the import under `source-refused`. |
+| `root` | none | The path, inside the imported directory, of the template an import starts from where it is handed several, as [What it reads](#what-it-reads) describes. Without it the import starts from the one template no other links, and two templates linked by none stop it under `source-refused`, naming both files and `root`. A link outside the imported directory is not read and is warned `linked-source-not-read`. Read by the ARM importer and the CloudFormation importer; a value that is not text halts the import under `source-refused`. |
 | `attach_egress_allowlist` | `false` | `true` attaches the standard library's `core/egress-allowlist` Feature to each platform instance the draft writes, as `egress-allowlist`, setting none of its `infra`, as [What the draft leaves for the Release](#what-the-draft-leaves-for-the-release) describes. `false` attaches nothing. A draft that writes no platform, under `layout: nodes`, and the Dify importer's draft, whose entry for the Dify installation takes no Feature, attach nothing whatever this says, and with it `true` the import warns with `feature-not-attached`. Any value that is not a boolean reads as `false`. |
 
 A setting an importer does not know is ignored.

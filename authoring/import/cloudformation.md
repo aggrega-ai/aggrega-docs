@@ -601,7 +601,9 @@ aws cloudformation deploy --stack-name <name> --template-file dist/cloudformatio
 `deploy` creates a change set and executes it; with `--no-execute-changeset` it
 stops after creating the change set, for you to read before you run the command
 without the flag. A stack name that exists is updated, so a new name creates a
-new stack. `--template-body` takes a template of up to 51,200 bytes, and `deploy`
+new stack, which is what the built template is: [Read the stack template](#read-the-stack-template)
+explains why an update of the stack the source deployed would replace each resource whose logical ID
+the build writes differently. `--template-body` takes a template of up to 51,200 bytes, and `deploy`
 needs `--s3-bucket` for a larger one. The function runs as the role the template
 names, so the stack creates no IAM resource and needs no `--capabilities`; a
 template that does create one would. Before the stack deploys, the two exports the

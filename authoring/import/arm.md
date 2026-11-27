@@ -873,7 +873,7 @@ a `scriptContent` value — is not recognised, since reading it fails:
 
 ```text
 [E0350]
-  no importer recognises the source (source "main.json"). Pass --format to name it explicitly (for example --format agent-framework, --format arm-schema, --format arm, --format cloudformation-schema, --format compose, --format crewai, --format dify, --format flowise, --format google-adk, --format langflow, --format langgraph, --format mcp, --format n8n or --format terraform-schema)
+  no importer recognises the source (source "main.json"). Pass --format to name it explicitly (for example --format agent-framework, --format arm-schema, --format arm, --format cloudformation-schema, --format cloudformation, --format compose, --format crewai, --format dify, --format flowise, --format google-adk, --format langflow, --format langgraph, --format mcp, --format n8n or --format terraform-schema)
 ```
 
 and with `--format arm`, the import halts naming the place:
