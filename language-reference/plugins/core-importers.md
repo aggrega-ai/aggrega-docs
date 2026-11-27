@@ -192,10 +192,12 @@ declares:
   file.
 - **CloudFormation templates** — a source that parses as YAML or JSON, is named `*.yaml`, `*.yml` or
   `*.template`, or `*.json` or `*.template`, and carries a text at `AWSTemplateFormatVersion`, or an
-  object at `Resources` and something at `Transform`, which a `.template` file does not match in JSON; or, in a `.json` file, a parameters file: a list
-  whose first entry is an object with a text at `ParameterKey`, a list whose first entry is a text, or an
-  object with an object at `Parameters` and none at `Resources`. A template with neither a version line
-  nor a `Transform` is imported by naming `--format cloudformation`.
+  object at `Resources` and something at `Transform`, which a `.template` file does not match in JSON; or, in a `.json` file, a parameters file: a
+  list whose first entry is an object with a text at `ParameterKey`. A parameters file of `Key=Value` text or of
+  an object at `Parameters` is not recognised on its own, since JSON files of other kinds, such as the data
+  files of a JavaScript package, hold a list of text or an object at `Parameters` too: beside a template, a
+  directory is recognised by the template and the importer reads the parameters file. A template with neither a version line nor a
+  `Transform` is imported by naming `--format cloudformation`.
 
 A source matching two of them is refused naming both formats, and is imported by naming the one with
 `--format`. The Langflow, Flowise, n8n, LangGraph and resource-schema importers read their source
@@ -3037,12 +3039,15 @@ CloudFormation evaluates then.
 
 The signatures recognise a template by `AWSTemplateFormatVersion` written as text, or by `Resources`
 and `Transform`, in a YAML file named `*.yaml`, `*.yml` or `*.template` or a JSON file named `*.json`
-or `*.template`, and a parameters file by one of the forms above in a JSON file; the JSON signature for `Resources` and
-`Transform` covers `*.json` alone, not `*.template`. A template with
-neither a version line nor a `Transform` is imported by naming `--format cloudformation`. A directory
-is read through the files those patterns name, at any depth, and a file of it that is neither a
-template nor a parameters file is named among the sources not read. Where a directory holds several
-parameters files, none is read and the import warns `parameter-files-not-read`.
+or `*.template`, and a parameters file by a list of `ParameterKey` objects in a JSON file; the JSON signature for `Resources` and
+`Transform` covers `*.json` alone, not `*.template`. A parameters file of `Key=Value` text or of an
+object at `Parameters` is not recognised on its own, as JSON files of other kinds hold a list of text or an
+object at `Parameters` too; the importer reads it when it is handed beside a template, in a directory the
+template is recognised by. A
+template with neither a version line nor a `Transform` is imported by naming `--format cloudformation`.
+A directory is read through the files those patterns name, at any depth, and a file of it that is
+neither a template nor a parameters file is named among the sources not read. Where a directory holds
+several parameters files, none is read and the import warns `parameter-files-not-read`.
 
 A template the template reader refuses stops the import under `parse-failed`, naming the file and the
 reader's own reason. The reader refuses a document that is not YAML or JSON, a duplicate key, an anchor
@@ -3101,7 +3106,10 @@ the function, of a connector's source on its destinations. Each is left out of t
 under `resource-not-carried`, naming what SAM writes for it when the stack deploys, since no instance of
 the draft writes that; an event naming no API says SAM creates one of its own. A mapped function does not take
 `AutoPublishAlias`, `DeploymentPreference`, `Policies`, `InlineCode` and `CodeUri`: each is reported
-`value-not-carried`, naming what SAM writes for it and the fix. Every other property a serverless
+`value-not-carried`, naming what SAM writes for it and the fix. A mapped function writing neither `Role`
+nor `Policies` runs under an execution role SAM writes for it, while the function's Recipe takes an
+existing role, so it is reported `value-not-carried` at the function, naming `infra.overrides.Role`, which
+the Release sets to the ARN of the role the function runs under. Every other property a serverless
 resource writes, or takes from `Globals`, is kept. A function whose code is a `.zip` package
 is drafted without it, the import warning `value-not-carried` and owing the container image the
 function's Recipe runs, as the walkthrough shows.

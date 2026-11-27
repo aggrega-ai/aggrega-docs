@@ -77,7 +77,7 @@ Resources:
     DeletionPolicy: Snapshot
     Properties:
       Engine: postgres
-      EngineVersion: "16.3"
+      EngineVersion: "16.15"
       DBInstanceClass: db.t4g.micro
       AllocatedStorage: "20"
       DBName: orders
@@ -306,7 +306,7 @@ spec:
     # Properties the source writes and the draft does not place: Properties.ManageMasterUserPassword.
     orders-db:
       infra:
-        engine_version: "16.3"
+        engine_version: "16.15"
         storage:
           size: "20Gi"
         overrides:
@@ -554,7 +554,7 @@ The instance's entry carries the settings the Release holds, the exports as
           "Fn::ImportValue": "shared-db-subnets"
         },
         "Engine": "postgres",
-        "EngineVersion": "16.3",
+        "EngineVersion": "16.15",
         "ManageMasterUserPassword": true,
         "MasterUsername": "orders_app",
         "MultiAZ": false,
@@ -814,6 +814,11 @@ says where it stopped. For a template it leaves these:
   Build the code into an image, push it to Amazon ECR in the Region the stack
   deploys to, and write the image's address in `import-answers.yaml`, as
   [Answer what the import owes](#answer-what-the-import-owes) shows.
+- **A function's role.** A SAM function that writes neither `Role` nor
+  `Policies` runs under an execution role SAM writes for it, while the function's
+  Recipe takes an existing role, so the import warns `value-not-carried` at the
+  function, naming `infra.overrides.Role`, which you set in the Release to the
+  ARN of the role the function runs under.
 - **A bucket's Region.** A template never states the Region its stack deploys to,
   and the bucket's Recipe holds the stack to one, so `infra.region` is owed too,
   and is answered in the same file.
