@@ -3,18 +3,18 @@ example:
   level: advanced
   tier: importers
   position: 12
-  products: [core/datastore/postgres]
+  products: [core/compute/function, core/storage/s3-object-store, core/datastore/postgres]
   shows: [import, cloud-infrastructure, connections]
 ---
 
-# Import a CloudFormation template — a PostgreSQL instance and a mail configuration set
+# Import a CloudFormation template — a SAM function, a bucket, a PostgreSQL instance and a mail configuration set
 
 An AWS CloudFormation template that declares the AWS Serverless Application
-Model transform — an RDS PostgreSQL instance reading two exports of another stack,
-and an Amazon SES configuration set — drafted into Aggrega files by
-`aggrega import`: the instance mapped to the standard library's PostgreSQL
-Component, the configuration set, which no catalog Component stands for, drafted
-from the template. The build writes one CloudFormation stack template. Every
+Model transform — a Lambda function, an S3 bucket, an RDS PostgreSQL instance
+reading two exports of another stack, and an Amazon SES configuration set —
+drafted into Aggrega files by `aggrega import`: the function, the bucket and the
+instance mapped to the standard library's Components, the configuration set,
+which no catalog Component stands for, drafted from the template. The build writes one CloudFormation stack template. Every
 Recipe the build uses writes its resources itself, so the example runs with no
 network beyond the catalog.
 
@@ -25,8 +25,8 @@ writes. This folder holds each stage of that walkthrough:
 
 | folder or file | what it holds |
 |---|---|
-| `source/` | the `.aggrega-config.yaml` that makes the folder a workspace, and `orders/`, the template `template.yaml` |
-| `draft/` | the files `aggrega import orders` wrote, unchanged, `release.lock` left out, and what it printed: `stdout.txt` on standard output, `import.txt` on standard error. The drafted Release validates and builds as it is |
+| `source/` | the `.aggrega-config.yaml` that makes the folder a workspace, and `orders/`: the template `template.yaml`, the function's code in `src/`, and `import-answers.yaml`, which answers the two values the import owes, the function's image and the bucket's Region |
+| `draft/` | the files `aggrega import orders` wrote, unchanged, `release.lock` left out, and what it printed: `stdout.txt` on standard output, `import.txt` on standard error. The drafted Release validates and builds as it is, with the answers written into it |
 
 In a checkout of the documentation repository, `check.sh` runs the import
 again, compares what it writes and prints with `draft/`, compares the blocks
@@ -58,7 +58,9 @@ cd import-cloudformation
 The import drafts the Aggrega files beside the template, in `source/`. It
 weighs the template against the standard-library catalog and drafts for the
 `cloudformation` target, the importer's default, so the Release names the
-Manifest it needs. It then pulls what the drafted Release depends on:
+Manifest it needs. It reads the two answers in `orders/import-answers.yaml`,
+the function's image and the bucket's Region, and then pulls what the drafted
+Release depends on:
 
 ```sh
 cd source

@@ -1,7 +1,26 @@
 AWSTemplateFormatVersion: "2010-09-09"
 Transform: AWS::Serverless-2016-10-31
-Description: The database and the mail configuration of an order service.
+Description: An order service with its function, its export bucket, its database and its mail configuration.
 Resources:
+  OrdersApi:
+    Type: AWS::Serverless::Function
+    Properties:
+      Runtime: python3.12
+      Handler: app.handler
+      CodeUri: ./src
+      Role: arn:aws:iam::123456789012:role/orders-api
+      MemorySize: 512
+      Timeout: 30
+      Environment:
+        Variables:
+          EXPORT_BUCKET: !Ref OrdersExports
+          ORDERS_DB_HOST: !GetAtt OrdersDb.Endpoint.Address
+  OrdersExports:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: orders-exports
+      VersioningConfiguration:
+        Status: Enabled
   OrdersDb:
     Type: AWS::RDS::DBInstance
     DeletionPolicy: Snapshot

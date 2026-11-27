@@ -1,0 +1,16 @@
+# Values the import could not draft from the source, keyed by the drafted file and the key path inside
+# it. Write each one beside its key; an import of the same source, and a sync, read them from here and
+# ask nothing. A secret is never written here: its key asks where the secret comes from — a variable
+# name, ${NAME}, or the name of a Kubernetes Secret.
+release.yaml:
+  # Where the bucket is placed, published as `region`, the region a consumer's S3 client signs for.
+  # There is no default: a managed realization halts without one, because where the data lives is the
+  # operator's choice. On Amazon S3 it is the bucket's Region code, such as eu-west-1, and a
+  # CloudFormation stack is held to that Region. On Cloud Storage it is the bucket's location — a region
+  # such as europe-west1, a dual-region such as EUR4 or a multi-region such as EU — and Cloud Storage
+  # accepts any region in a signature. SeaweedFS reads none, so its realizations halt when it is set and
+  # publish us-east-1, which S3 clients read from a server reporting no region.
+  spec.components.orders-exports.infra.region: "eu-west-1"
+  # Container image serving the function. On AWS Lambda it is an image in Amazon ECR, in the function's
+  # Region, that implements Lambda's runtime API.
+  spec.components.orders-api.infra.image: "123456789012.dkr.ecr.eu-west-1.amazonaws.com/orders-api:1.0.0"

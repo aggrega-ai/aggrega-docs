@@ -22,3 +22,16 @@ spec:
           DBInstanceClass: "db.t4g.micro"
           DBSubnetGroupName: "!ImportValue shared-db-subnets"
           VPCSecurityGroups: ["!ImportValue shared-db-security-group"]
+    # Properties the source writes and the draft does not place: Properties.VersioningConfiguration.
+    orders-exports:
+      infra:
+        # Left for the Release, since the source cannot supply it: infra.region, the AWS Region the stack is deployed to, which the Recipe holds the stack to and a template never states
+        region: "eu-west-1"
+    # Properties the source writes and the draft does not place: Properties.CodeUri, Properties.Handler, Properties.MemorySize.
+    orders-api:
+      infra:
+        overrides:
+          Role: "arn:aws:iam::123456789012:role/orders-api"
+          Timeout: 30
+        # Left for the Release, since the source cannot supply it: infra.image, the container image in Amazon ECR the function runs, which the Recipe requires and the source names none of
+        image: "123456789012.dkr.ecr.eu-west-1.amazonaws.com/orders-api:1.0.0"

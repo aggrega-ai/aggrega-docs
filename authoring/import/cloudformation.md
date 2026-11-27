@@ -1,15 +1,17 @@
 # Import a CloudFormation or SAM template
 
-This walkthrough imports a small AWS CloudFormation template — an RDS PostgreSQL
-instance that reads two exports of another stack, and an Amazon SES configuration
-set — and builds the result as one CloudFormation stack template. The template
-declares the AWS Serverless Application Model transform, so it is also a SAM
-template, and the import reads it the same way. The import drafts the Aggregate,
-the Release and the Manifest: the instance becomes a reference to the standard
-library's PostgreSQL Component, the configuration set, which no Component stands
+This walkthrough imports a small AWS CloudFormation template — a Lambda function
+written as an AWS SAM function, an S3 bucket, an RDS PostgreSQL instance that
+reads two exports of another stack, and an Amazon SES configuration set — and
+builds the result as one CloudFormation stack template. The template declares the
+AWS Serverless Application Model transform, so it is also a SAM template, and the
+import reads it the same way. The import drafts the Aggregate, the Release and the
+Manifest: the function, the bucket and the instance become references to the
+standard library's Components, the configuration set, which no Component stands
 for, is drafted from the template, and the values the template states in a form a
-Release can take are carried over. A few it does not are left for you, and the
-page shows which and where. Every file and every block of output below comes from
+Release can take are carried over. Two values it cannot, the function's image and
+the bucket's Region, it asks you for once; a few more it leaves, and the page shows
+which and where. Every file and every block of output below comes from
 a real run; the template and each stage of the walkthrough are in the
 [import-cloudformation](../../language-reference/examples/import-cloudformation/README.md)
 example, where a check script runs the import again, compares what it writes,
@@ -38,16 +40,38 @@ cd import-cloudformation
 ## The template
 
 `template.yaml` is a CloudFormation template written in YAML, with the short
-intrinsic forms. It declares the SAM transform, a PostgreSQL instance on RDS that
-takes its subnet group and its security group from exports of another stack, and
-a configuration set for Amazon SES:
+intrinsic forms. It declares the SAM transform and four resources: a function,
+written as an `AWS::Serverless::Function` whose code is a `.zip` package in `src`,
+with the role it runs as; a bucket; a PostgreSQL instance on RDS that takes its
+subnet group and its security group from exports of another stack; and a
+configuration set for Amazon SES. The function reads the bucket's name and the
+instance's address through its environment:
 
 <!-- quotes: source/orders/template.yaml -->
 ```yaml
 AWSTemplateFormatVersion: "2010-09-09"
 Transform: AWS::Serverless-2016-10-31
-Description: The database and the mail configuration of an order service.
+Description: An order service with its function, its export bucket, its database and its mail configuration.
 Resources:
+  OrdersApi:
+    Type: AWS::Serverless::Function
+    Properties:
+      Runtime: python3.12
+      Handler: app.handler
+      CodeUri: ./src
+      Role: arn:aws:iam::123456789012:role/orders-api
+      MemorySize: 512
+      Timeout: 30
+      Environment:
+        Variables:
+          EXPORT_BUCKET: !Ref OrdersExports
+          ORDERS_DB_HOST: !GetAtt OrdersDb.Endpoint.Address
+  OrdersExports:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: orders-exports
+      VersioningConfiguration:
+        Status: Enabled
   OrdersDb:
     Type: AWS::RDS::DBInstance
     DeletionPolicy: Snapshot
@@ -131,12 +155,18 @@ On standard error, with `<workspace>` standing for the folder you ran it in:
 [… omitted: a warning that the importer runs unverified, printed where its module is read from beside its Plugin entity in a catalog folder rather than fetched]
 read as the cloudformation format, with drafted paths relative to <workspace>
 info: the drafts are for the target "cloudformation", the importer's declared default; an import naming a target drafts for that one
-[… omitted: the info line saying the configuration set is drafted from the source]
+[… omitted: the warning that the function's code is a .zip package, which the next sections come to, and the info line saying the configuration set is drafted from the source]
 mapped Mailer (AWS::SES::ConfigurationSet) to imported/component/aws-ses-configurationset as a draft, NONE at 0.1
 mapped OrdersDb (AWS::RDS::DBInstance) to core/datastore/postgres as a reference, HIGH at 0.9
-Pull complete: <workspace>/release.lock (entities=6, source_artifacts=0, external_inputs=0)
+mapped OrdersExports (AWS::S3::Bucket) to core/storage/s3-object-store as a reference, HIGH at 0.87
+mapped OrdersApi (AWS::Serverless::Function) to core/compute/function as a reference, HIGH at 0.9
+Pull complete: <workspace>/release.lock (entities=10, source_artifacts=0, external_inputs=0)
 ```
 
+- **The `warn` line**, which the output above leaves out, says the function's
+  code is a `.zip` package and is not carried: the standard library runs a
+  function from a container image, so the image is left to you, as
+  [Answer what the import owes](#answer-what-the-import-owes) shows.
 - **The `info` lines** state what the importer decided without a question. The
   first says the drafts are for `cloudformation`. The second says the
   configuration set is drafted from the template, as a Component and a Recipe of
@@ -145,12 +175,47 @@ Pull complete: <workspace>/release.lock (entities=6, source_artifacts=0, externa
   [Deploy a service the catalog does not have](resource-schemas.md) describes.
 - **The `mapped` lines** say what each resource became. `OrdersDb` is an instance
   of the standard library's `core/datastore/postgres`, matched in the high tier
-  and referenced. `Mailer` matches no Component, so it is a draft, with no match.
+  and referenced, and the bucket and the function are instances of
+  `core/storage/s3-object-store` and `core/compute/function` in the same way.
+  `Mailer` matches no Component, so it is a draft, with no match.
 - **The pull** is the import fetching what the drafted Release depends on, as
   [`aggrega pull`](../../language-reference/cli/aggrega-pull.md) does, into
   `release.lock`. The Recipes the Manifest names write their resources themselves
   and source nothing, so `source_artifacts` is `0` and the pull reaches outside
   the catalog for nothing.
+
+## Answer what the import owes
+
+Two values no template can hold are owed: the Region the bucket is placed in,
+which the template never states and the bucket's Recipe will not default, and the
+image the function runs. Where nothing can answer a question, the import writes
+the values it owes into `import-answers.yaml`, beside the template, each with its
+key and an empty answer, lists them, and exits with status 1. Importing the
+template without that file says, after the lines above:
+
+```text
+warn: release.yaml: spec.components.orders-exports.infra.region is still empty: Where the bucket is placed, published as `region`, the region a consumer's S3 client signs for. There is no default: a managed realization halts without one, because where the data lives is the operator's choice. [… the rest of the Recipe's description]
+warn: release.yaml: spec.components.orders-api.infra.image is still empty: Container image serving the function. On AWS Lambda it is an image in Amazon ECR, in the function's Region, that implements Lambda's runtime API.
+2 values the drafts leave empty are still owed, listed in the answers file <workspace>/orders/import-answers.yaml: write each one beside its key there, then run the import again
+```
+
+The example keeps the file with both answered, an image address that is a
+placeholder for the image you build and push:
+
+<!-- quotes: source/orders/import-answers.yaml -->
+```yaml
+release.yaml:
+[… omitted: the Recipe's description of the Region]
+  spec.components.orders-exports.infra.region: "eu-west-1"
+[… omitted: the Recipe's description of the image]
+  spec.components.orders-api.infra.image: "123456789012.dkr.ecr.eu-west-1.amazonaws.com/orders-api:1.0.0"
+```
+
+The import reads the file, writes both answers into the Release, and goes on to
+pull; the run quoted above is that run. A later import and `--sync` read the same
+file, so the answers are given once.
+[The import answers file](../../language-reference/import-answers.md) describes
+it in full.
 
 ## What it writes
 
@@ -165,6 +230,7 @@ sets, `imported` unless you set another
 <!-- quotes: draft/aggregate.yaml -->
 ```yaml
 # Sources read: template.yaml.
+# Not read: import-answers.yaml.
 # The template declares the transform AWS::Serverless-2016-10-31.
 apiVersion: aggrega.ai/v1beta1
 kind: Aggregate
@@ -185,6 +251,31 @@ spec:
       values:
         database: "orders"
         user: "orders_app"
+    # The resource OrdersExports.
+    orders-exports:
+      type: core/storage/s3-object-store
+      values:
+        bucket: "orders-exports"
+    # The resource OrdersApi.
+    orders-api:
+      type: core/compute/function
+      values:
+        runtime: "python3.12"
+      uses:
+        orders-db:
+          orders-db:
+            target: orders-db
+            inject:
+              env:
+                - in: "ORDERS_DB_HOST"
+                  from: host
+        orders-exports:
+          orders-exports:
+            target: orders-exports
+            inject:
+              env:
+                - in: "EXPORT_BUCKET"
+                  from: bucket
 ```
 
 A logical ID becomes the instance's name in lower case with hyphens, `OrdersDb`
@@ -223,7 +314,28 @@ spec:
           DBInstanceClass: "db.t4g.micro"
           DBSubnetGroupName: "!ImportValue shared-db-subnets"
           VPCSecurityGroups: ["!ImportValue shared-db-security-group"]
+    # Properties the source writes and the draft does not place: Properties.VersioningConfiguration.
+    orders-exports:
+      infra:
+        # Left for the Release, since the source cannot supply it: infra.region, the AWS Region the stack is deployed to, which the Recipe holds the stack to and a template never states
+        region: "eu-west-1"
+    # Properties the source writes and the draft does not place: Properties.CodeUri, Properties.Handler, Properties.MemorySize.
+    orders-api:
+      infra:
+        overrides:
+          Role: "arn:aws:iam::123456789012:role/orders-api"
+          Timeout: 30
+        # Left for the Release, since the source cannot supply it: infra.image, the container image in Amazon ECR the function runs, which the Recipe requires and the source names none of
+        image: "123456789012.dkr.ecr.eu-west-1.amazonaws.com/orders-api:1.0.0"
 ```
+
+The function's variables come from connections: `ORDERS_DB_HOST` reads the
+instance's `host` and `EXPORT_BUCKET` the bucket's `bucket`, each through an
+`inject` block on the connection, and the function's `values.runtime` carries the
+template's `Runtime`. In the Release, the function's entry holds the role and the
+timeout the template writes, under `infra.overrides`, and the two answers sit
+under the comments that say they were left for the Release: `infra.image` and
+the bucket's `infra.region`.
 
 The environment, `development`, is a default the import writes because no
 template names one. The instance's engine version and storage come across as the
@@ -253,6 +365,8 @@ spec:
       name:
         mailer: cloudformation/aws-ses-configurationset
         orders-db: cloudformation/postgres-rds
+        orders-exports: cloudformation/s3-object-store-amazon-s3
+        orders-api: cloudformation/function-lambda
 ```
 
 The configuration set has no Component of the standard library, so the import
@@ -331,29 +445,107 @@ assembled stack, as JSON with long-form intrinsics, with one entry under
 instance id in capitalized words:
 
 ```text
-Mailer     the SES configuration set, the resource the draft Recipe writes
-OrdersDb   the RDS instance
+Mailer          the SES configuration set, the resource the draft Recipe writes
+OrdersApi       the Lambda function
+OrdersDb        the RDS instance
+OrdersExports   the S3 bucket
+```
+
+The function's entry runs the image the answers file names, with the variables its
+connections deliver, the role and the timeout the template writes, and the Recipe's
+own settings for the rest:
+
+```json
+"OrdersApi": {
+  "Metadata": {
+    "aggrega.ai/provenance": {
+      "aggrega.ai/aggregate-name": "imported/orders",
+      "aggrega.ai/boundary-path": "default",
+[… omitted: a compiler-version entry, which moves with the build]
+      "aggrega.ai/component-id": "orders-api",
+      "aggrega.ai/environment": "development",
+      "aggrega.ai/provider": "cloudformation",
+[… omitted: a provider-version entry, which moves with the build]
+      "aggrega.ai/recipe-uri": "function-lambda:1.0.0"
+    }
+  },
+  "Properties": {
+    "Code": {
+      "ImageUri": "123456789012.dkr.ecr.eu-west-1.amazonaws.com/orders-api:1.0.0"
+    },
+    "Environment": {
+      "Variables": {
+        "EXPORT_BUCKET": {
+          "Ref": "OrdersExports"
+        },
+        "FUNCTION_RUNTIME": "python3.12",
+        "ORDERS_DB_HOST": {
+          "Fn::GetAtt": [
+            "OrdersDb",
+            "Endpoint.Address"
+          ]
+        }
+      }
+    },
+    "MemorySize": 128,
+    "PackageType": "Image",
+    "ReservedConcurrentExecutions": 5,
+    "Role": "arn:aws:iam::123456789012:role/orders-api",
+    "Timeout": 30
+  },
+  "Type": "AWS::Lambda::Function"
+}
+```
+
+The template wrote the function as `AWS::Serverless::Function` with 512 MB of
+memory, and the entry holds `AWS::Lambda::Function` with 128: the Recipe writes the
+function, so the template's `MemorySize`, `Handler` and `CodeUri`, a package's own
+settings, are not in it, and the Release's comment lists them among the properties
+the draft does not place. The `Runtime` reaches the function as the
+`FUNCTION_RUNTIME` variable, the name the Component's `runtime` value has by
+default. The bucket's versioning is
+in the same position: the comment above its entry lists
+`Properties.VersioningConfiguration`, and the entry below holds the Recipe's
+public-access and ownership settings and the name, not the template's versioning:
+
+```json
+"OrdersExports": {
+  "Metadata": {
+    "aggrega.ai/provenance": {
+      "aggrega.ai/aggregate-name": "imported/orders",
+      "aggrega.ai/boundary-path": "default",
+[… omitted: a compiler-version entry, which moves with the build]
+      "aggrega.ai/component-id": "orders-exports",
+      "aggrega.ai/environment": "development",
+      "aggrega.ai/provider": "cloudformation",
+[… omitted: a provider-version entry, which moves with the build]
+      "aggrega.ai/recipe-uri": "s3-object-store-amazon-s3:1.0.0"
+    }
+  },
+  "Properties": {
+    "BucketName": "orders-exports",
+    "OwnershipControls": {
+      "Rules": [
+        {
+          "ObjectOwnership": "BucketOwnerEnforced"
+        }
+      ]
+    },
+    "PublicAccessBlockConfiguration": {
+      "BlockPublicAcls": true,
+      "BlockPublicPolicy": true,
+      "IgnorePublicAcls": true,
+      "RestrictPublicBuckets": true
+    }
+  },
+  "Type": "AWS::S3::Bucket"
+}
 ```
 
 The instance's entry carries the settings the Release holds, the exports as
-`Fn::ImportValue`, and the Recipe's own for the rest:
+`Fn::ImportValue`, and the Recipe's own for the rest. Its `Properties` read:
 
 ```json
-    "OrdersDb": {
-      "DeletionPolicy": "Snapshot",
-      "Metadata": {
-        "aggrega.ai/provenance": {
-          "aggrega.ai/aggregate-name": "imported/orders",
-          "aggrega.ai/boundary-path": "default",
-[… omitted: a compiler-version entry, which moves with the build]
-          "aggrega.ai/component-id": "orders-db",
-          "aggrega.ai/environment": "development",
-          "aggrega.ai/provider": "cloudformation",
-[… omitted: a provider-version entry, which moves with the build]
-          "aggrega.ai/recipe-uri": "postgres-rds:1.0.0"
-        }
-      },
-      "Properties": {
         "AllocatedStorage": 20,
         "BackupRetentionPeriod": 7,
         "DBInstanceClass": "db.t4g.micro",
@@ -373,30 +565,32 @@ The instance's entry carries the settings the Release holds, the exports as
             "Fn::ImportValue": "shared-db-security-group"
           }
         ]
-      },
-      "Type": "AWS::RDS::DBInstance"
-    }
 ```
 
-The backup retention, the storage type, the port and the single-zone setting are
-the Recipe's defaults, which the template did not write. The stack also carries
-an `Outputs` section holding what the instance publishes to the components that
-read it, its address among them.
+Where a value is not in the Release, the Recipe's default stands: the backup
+retention, the storage type, the port and the single-zone setting here. The stack
+also carries an `Outputs` section holding what each resource publishes to the
+components that read it, the instance's address among them.
 
 The built template is a new stack, not the source stack with a changed template.
 CloudFormation identifies a resource across updates by its logical ID, so
 deploying the built template as an update of the stack the source deployed would
-replace each resource whose logical ID the build writes differently. Here
-`OrdersDb` and `Mailer` keep the IDs the source wrote, which is a property of this
-template's names, not a promise: where an instance's name folded into words differs
-from the ID the source used, the draft says so in a comment above the instance.
-Deploy the built template as a stack of its own, or preview an update as a change
-set first.
+replace each resource whose logical ID the build writes differently, and a
+resource whose type changed, as the function's did, is replaced too. The four
+logical IDs here keep the names the source wrote, which is a property of this
+template's names, not a promise: where an instance's name folded into words
+differs from the ID the source used, the draft says so in a comment above the
+instance. Deploy the built template as a stack of its own, or preview an update as
+a change set first.
 
 ## Deploy it
 
 The build writes no parameters file and runs nothing against AWS: the commands are
-yours. Check the template, preview what the stack would create, then deploy it:
+yours. They are the AWS CLI's, and their options are those its
+[`validate-template`](https://docs.aws.amazon.com/cli/latest/reference/cloudformation/validate-template.html)
+and [`deploy`](https://docs.aws.amazon.com/cli/latest/reference/cloudformation/deploy.html)
+references describe. Check the template, preview what the stack would create, then
+deploy it:
 
 ```bash
 aws cloudformation validate-template --template-body file://dist/cloudformation/cloudformation-stack.json
@@ -404,11 +598,18 @@ aws cloudformation deploy --stack-name <name> --template-file dist/cloudformatio
 aws cloudformation deploy --stack-name <name> --template-file dist/cloudformation/cloudformation-stack.json
 ```
 
-The [CloudFormation provider](../../language-reference/providers/cloudformation.md)
-page sets out what the assembled stack holds and how its names are built. Before
-the template deploys, the two exports the instance reads, `shared-db-subnets` and
-`shared-db-security-group`, must exist in the account and Region the stack goes
-to.
+`deploy` creates a change set and executes it; with `--no-execute-changeset` it
+stops after creating the change set, for you to read before you run the command
+without the flag. A stack name that exists is updated, so a new name creates a
+new stack. `--template-body` takes a template of up to 51,200 bytes, and `deploy`
+needs `--s3-bucket` for a larger one. The function runs as the role the template
+names, so the stack creates no IAM resource and needs no `--capabilities`; a
+template that does create one would. Before the stack deploys, the two exports the
+instance reads, `shared-db-subnets` and `shared-db-security-group`, must exist in
+the Region the stack goes to, the role must exist, and the image must be in
+Amazon ECR in that Region. The
+[CloudFormation provider](../../language-reference/providers/cloudformation.md)
+page sets out what the assembled stack holds and how its names are built.
 
 ## With an AI assistant
 
@@ -455,7 +656,8 @@ changed spec.components.orders-db.infra.storage.size in release.yaml
 ```
 
 and writes `release.yaml` with that one line changed, `size: "50Gi"`; the values
-you wrote beside it stay as they are. A part the source left alone stays as it is
+you wrote beside it stay as they are, and the answers in `import-answers.yaml`,
+which `--sync` reads as an import does, stay in the Release. A part the source left alone stays as it is
 on disk, edited or not; where the source changed a part you edited, it stops,
 names the part, and writes nothing, for you to reconcile by hand.
 [aggrega import](../../language-reference/cli/aggrega-import.md) describes the
@@ -598,3 +800,18 @@ says where it stopped. For a template it leaves these:
   come from exports of a stack the template does not hold. The draft carries them
   as the intrinsic that reads them, and the stack that exports them has to exist
   where this one deploys.
+- **A function's image.** A Component of the catalog that runs a function runs a
+  container image. Where the template deploys the function's code as a `.zip`
+  package, as `CodeUri: ./src` does here, the draft does not carry the code. The
+  import warns, and owes `infra.image`:
+
+  ```text
+  warn: the template template.yaml writes CodeUri on the function OrdersApi at /Resources/OrdersApi/Properties/CodeUri, the function's code as a .zip package, so it is not carried: the Recipe deploying a function runs a container image, infra.image, which is left for the operator, so build the code into an image in Amazon ECR
+  ```
+
+  Build the code into an image, push it to Amazon ECR in the Region the stack
+  deploys to, and write the image's address in `import-answers.yaml`, as
+  [Answer what the import owes](#answer-what-the-import-owes) shows.
+- **A bucket's Region.** A template never states the Region its stack deploys to,
+  and the bucket's Recipe holds the stack to one, so `infra.region` is owed too,
+  and is answered in the same file.
